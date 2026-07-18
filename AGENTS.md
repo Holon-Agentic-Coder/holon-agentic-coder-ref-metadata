@@ -1,5 +1,11 @@
 # Agent Landing Page & Entrypoint
 
+> [!NOTE] **Bootstrapping Harness Intent** This repository is a temporary control plane and metadata store. It will only
+> be used until the bootstrap process for
+> [holon-agentic-coder-ref](https://github.com/Holon-Agentic-Coder/holon-agentic-coder-ref) is fully completed. Until
+> that repository is fully bootstrapped, it does not possess enough autonomous power to develop or maintain itself. This
+> repository serves as the external harness to bridge that gap.
+
 Welcome, Agent. This document is your starting point for operating within this workspace. Read this document in its
 entirety before performing any operations or modifying any code.
 
