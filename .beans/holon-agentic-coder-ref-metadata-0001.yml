@@ -1,11 +1,15 @@
 id: holon-agentic-coder-ref-metadata-0001
 title: Define template and schema for .beans task files
 type: task
-status: todo
-assignee: unassigned
+status: done
+assignee: antigravity
 description: >
   Create a template or schema describing the standard structure for task files 
   in the .beans/ directory. This ensures consistency as agents and humans log 
   and track tasks.
 created_at: 2026-07-18
 updated_at: 2026-07-18
+resolution: >
+  Created .beans/template.yml file containing standard fields (id, title, type, 
+  status, assignee, description, created_at, updated_at, notes, resolution) 
+  for task files.

@@ -20,3 +20,6 @@ jobs:
 
       - name: Run Prettier Check
         run: npx prettier --check "**/*.md"
+
+      - name: Validate Markdown Links
+        run: node .agents/scripts/validate-links.js
