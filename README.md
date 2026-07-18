@@ -1,5 +1,11 @@
 # Holon Agentic Coder Reference Metadata
 
+> [!NOTE] **Bootstrapping Harness Intent** This repository is a temporary control plane and metadata store. It will only
+> be used until the bootstrap process for
+> [holon-agentic-coder-ref](https://github.com/Holon-Agentic-Coder/holon-agentic-coder-ref) is fully completed. Until
+> that repository is fully bootstrapped, it does not possess enough autonomous power to develop or maintain itself. This
+> repository serves as the external harness to bridge that gap.
+
 **IMPORTANT**: before you do anything else, run the `beans prime` command and heed its output.
 
 This repository acts as the central control plane, metadata store, and coordination hub for agentic workflows operating
