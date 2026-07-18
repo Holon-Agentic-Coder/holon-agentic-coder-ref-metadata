@@ -19,6 +19,7 @@ entirety before performing any operations or modifying any code.
 - [.agents/workflows.md](.agents/workflows.md) - Task execution cycle, git guidelines, and PR procedures.
 - [.agents/coordination.md](.agents/coordination.md) - Delegation, subagent communication, and peer coordination
   protocols.
+- [todo/](todo/) - Temporary scratchpad directory for local agent files, documents, and notes (git ignored).
 
 ---
 
@@ -59,3 +60,14 @@ This repository tracks work items using a lightweight file-based system in the [
 - Once completed, change the status to `done` and add a summary of your resolution.
 
 For details on how to create and manage task files, refer to [.agents/workflows.md](.agents/workflows.md).
+
+---
+
+## 📂 The Todo Directory (Temporary Scratchpad)
+
+The `todo/` directory is a local, git-ignored workspace where agents and developers can store temporary scratch files,
+draft documents, screenshots/images, and task notes.
+
+- This folder serves as a transient workbench for staging thoughts and intermediate artifacts.
+- **Strict Invariant**: None of the files in `todo/` should ever be committed to the repository (enforced via
+  `.gitignore`).

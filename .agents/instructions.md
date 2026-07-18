@@ -36,6 +36,6 @@ system safety, and clean documentation. Follow these core guidelines in every se
 ### 3. Verification and Safety
 
 - Never assume your edits work. Always execute tests or verification scripts to prove correctness.
-- If no test suite exists, consider creating a basic verification script in the `scratch/` directory or writing unit
-  tests to cover your changes.
+- If no test suite exists, write unit tests directly within the codebase to verify your changes, rather than relying on
+  untracked external scratch files.
 - Check git status and diff output to ensure only the intended changes have been made.
