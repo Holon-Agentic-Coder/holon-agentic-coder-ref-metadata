@@ -49,7 +49,8 @@ worktrees. This allows running multiple tasks on different branches simultaneous
    ```
 3. **Set up worktrees for your branches**:
    - **For the `develop` branch** (checked out to `holon-agentic-coder-ref/develop`): This is the primary active
-     development branch where all codebase features, bug fixes, and development take place.
+     development branch where all codebase features, bug fixes, and development take place. All development and feature
+     work in `holon-agentic-coder-ref/` must be based off the `origin/develop` branch.
      ```bash
      git worktree add ../develop develop
      ```
@@ -74,6 +75,7 @@ To maintain clean repository history, follow this Git workflow:
    - Work on the active branch that is currently checked out in the workspace.
    - If the user explicitly requests you to create a new branch, use the convention:
      `git checkout -b <type>/<bean-id>-<short-description>` (e.g., `feat/0001-add-agent-rules`).
+   - **For `holon-agentic-coder-ref/`**: All development and feature work must be based off the `origin/develop` branch.
 2. **Formatting (Mandatory)**:
    - Always run `npx prettier --write "**/*.md"` to format markdown files before creating any commits.
 3. **Commits**:
