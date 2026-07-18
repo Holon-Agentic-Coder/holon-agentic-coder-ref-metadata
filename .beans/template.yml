@@ -1,0 +1,14 @@
+id: holon-agentic-coder-ref-metadata-XXXX
+title: "Short description of the task"
+type: task
+status: todo # Valid statuses: todo, in_progress, done
+assignee: unassigned # Who is working on this task
+description: >
+  Detailed description of the task and what needs to be accomplished.
+created_at: YYYY-MM-DD
+updated_at: YYYY-MM-DD
+notes:
+  - "Optional: Note 1"
+  - "Optional: Note 2"
+resolution: >
+  Description of how the task was resolved (filled in when status is done).
