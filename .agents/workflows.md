@@ -32,6 +32,39 @@ All work should be tracked under the `.beans/` directory. Each task has a matchi
 
 ---
 
+## 📥 Reference Repository Setup (Git Worktree)
+
+To work with the primary codebase repository
+([holon-agentic-coder-ref](https://github.com/Holon-Agentic-Coder/holon-agentic-coder-ref)) alongside this metadata
+repository, you must clone it as a Git bare repository and check out branches as Git worktrees. This allows running
+multiple tasks on different branches simultaneously under a clean directory structure.
+
+1. **Clone the repository as bare** into the `holon-agentic-coder-ref` directory:
+   ```bash
+   git clone --bare git@github.com:Holon-Agentic-Coder/holon-agentic-coder-ref.git holon-agentic-coder-ref
+   ```
+2. **Navigate into the directory**:
+   ```bash
+   cd holon-agentic-coder-ref
+   ```
+3. **Set up worktrees for your branches**:
+   - **For the `develop` branch** (checked out to `holon-agentic-coder-ref/develop`): This is the primary active
+     development branch where all codebase features, bug fixes, and development take place.
+     ```bash
+     git worktree add develop develop
+     ```
+   - **For the `main` branch** (checked out to `holon-agentic-coder-ref/main`): This branch is from the upstream
+     repository and only contains documentation and specifications.
+     ```bash
+     git worktree add main main
+     ```
+   - **For a specific branch `{branch_name}`** (checked out to `holon-agentic-coder-ref/{branch_name}`):
+     ```bash
+     git worktree add {branch_name} {branch_name}
+     ```
+
+---
+
 ## 🌿 Git & Commit Guidelines
 
 To maintain clean repository history, follow this Git workflow:
@@ -57,12 +90,18 @@ To maintain clean repository history, follow this Git workflow:
    - Avoid generic commit messages like "update files" or "fix".
 4. **Squashing (Mandatory)**:
    - Before pushing your feature branch to the remote repository, you **MUST squash all commits** on your branch
-     relative to the `main` branch into a **single commit**.
-   - Your feature branch should only ever contain exactly **one commit** differing from `main`.
+     relative to the target branch into a **single commit** (e.g., relative to `main` in this metadata repository, or
+     `develop` in the reference repository).
+   - Your feature branch should only ever contain exactly **one commit** differing from the target branch.
    - To perform the squash, execute:
 
      ```bash
+     # For the metadata repository:
      git reset $(git merge-base main HEAD)
+
+     # For the reference repository:
+     git reset $(git merge-base develop HEAD)
+
      git add -A
      git commit -m "your-semantic-commit-message"
      ```
@@ -70,5 +109,5 @@ To maintain clean repository history, follow this Git workflow:
 5. **Pull Requests & Pushing (No Autonomous Pushing)**:
    - **Never push to the remote repository (`origin`) unless explicitly instructed by the user.**
    - Once explicitly instructed to push, execute: `git push origin <branch-name> --force`.
-   - **Do NOT push directly to `main` under any circumstances.**
-   - The human repository maintainer will review the changes, raise the Pull Request, and merge it into `main`.
+   - **Do NOT push directly to `main` or `develop` under any circumstances.**
+   - The human repository maintainer will review the changes, raise the Pull Request, and merge it.
