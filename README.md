@@ -44,7 +44,8 @@ Follow these steps to set it up:
    ```
 3. **Set up worktrees for your branches**:
    - **For the `develop` branch** (checked out to `holon-agentic-coder-ref/develop`): This is the primary active
-     development branch where all codebase features, bug fixes, and development take place.
+     development branch where all codebase features, bug fixes, and development take place. All development and feature
+     work in `holon-agentic-coder-ref/` must be based off the `origin/develop` branch.
      ```bash
      git worktree add ../develop develop
      ```

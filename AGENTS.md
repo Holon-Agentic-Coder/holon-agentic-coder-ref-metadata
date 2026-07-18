@@ -36,7 +36,8 @@ When you are spawned or begin a new session, follow these steps sequentially:
 4. **Execute Tasks Systematically**: Follow the lifecycle specified in [.agents/workflows.md](.agents/workflows.md) to
    transition tasks from `todo` to `in-progress` and finally `done`.
 5. **No Autonomous Branches**: Never create a new branch unless explicitly instructed by the user. Work on the active
-   branch that is currently checked out.
+   branch that is currently checked out. For the reference repository `holon-agentic-coder-ref/`, all development and
+   feature work must be based off the `origin/develop` branch.
 6. **Format Before Commit**: Always execute `npx prettier --write "**/*.md"` before committing to format all markdown
    files according to repository guidelines.
 7. **Squash and Push (No Autonomous Pushing)**: Ensure all commits on your feature branch are squashed into a single
