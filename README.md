@@ -25,6 +25,39 @@ efficiently and safely. This repository provides:
 3. **Task Tracking:** A lightweight, text-based task database using the `.beans` schema (`.beans/`) to record goals,
    statuses, and history without heavy external dependencies.
 
+## 📥 Reference Repository Setup (Git Worktree)
+
+To work with the primary codebase repository
+([holon-agentic-coder-ref](https://github.com/Holon-Agentic-Coder/holon-agentic-coder-ref)) alongside this metadata
+repository, you must clone it as a Git bare repository and check out branches as Git worktrees. This allows running
+multiple tasks on different branches simultaneously under a clean directory structure.
+
+Follow these steps to set it up:
+
+1. **Clone the repository as bare** into the `holon-agentic-coder-ref` directory:
+   ```bash
+   git clone --bare git@github.com:Holon-Agentic-Coder/holon-agentic-coder-ref.git holon-agentic-coder-ref
+   ```
+2. **Navigate into the directory**:
+   ```bash
+   cd holon-agentic-coder-ref
+   ```
+3. **Set up worktrees for your branches**:
+   - **For the `develop` branch** (checked out to `holon-agentic-coder-ref/develop`): This is the primary active
+     development branch where all codebase features, bug fixes, and development take place.
+     ```bash
+     git worktree add develop develop
+     ```
+   - **For the `main` branch** (checked out to `holon-agentic-coder-ref/main`): This branch is from the upstream
+     repository and only contains documentation and specifications.
+     ```bash
+     git worktree add main main
+     ```
+   - **For a specific branch `{branch_name}`** (checked out to `holon-agentic-coder-ref/{branch_name}`):
+     ```bash
+     git worktree add {branch_name} {branch_name}
+     ```
+
 ## 📂 Directory Structure
 
 ```text

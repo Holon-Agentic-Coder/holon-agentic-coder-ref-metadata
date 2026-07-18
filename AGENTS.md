@@ -27,7 +27,8 @@ entirety before performing any operations or modifying any code.
 When you are spawned or begin a new session, follow these steps sequentially:
 
 1. **Verify Your Environment**: Check the current working directory, workspace structure, and locate the `.beans`
-   configuration.
+   configuration. If the reference repository is not set up, follow the checkout instructions in
+   [README.md](README.md#-reference-repository-setup-git-worktree) to clone the bare repository and configure worktrees.
 2. **Review the Tasks**: List the tasks in the [.beans/](.beans/) directory to determine your current assignment or log
    a new task if none exists.
 3. **Internalize Constraints**: Load [.agents/rules.md](.agents/rules.md) to understand linting rules, language choices,
