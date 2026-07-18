@@ -1,0 +1,11 @@
+id: holon-agentic-coder-ref-metadata-0003
+title: Develop validation script for agent links and rules
+type: task
+status: todo
+assignee: unassigned
+description: >
+  Write a script (e.g. Node.js or Python) that runs checks on AGENTS.md, README.md, 
+  and all files under the .agents/ folder to verify that referenced relative file links 
+  actually exist in the workspace and are not broken.
+created_at: 2026-07-18
+updated_at: 2026-07-18
