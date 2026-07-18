@@ -35,9 +35,9 @@ All work should be tracked under the `.beans/` directory. Each task has a matchi
 ## 📥 Reference Repository Setup (Git Worktree)
 
 To work with the primary codebase repository
-([holon-agentic-coder-ref](https://github.com/Holon-Agentic-Coder/holon-agentic-coder-ref)) alongside this metadata
-repository, you must clone it as a Git bare repository and check out branches as Git worktrees. This allows running
-multiple tasks on different branches simultaneously under a clean directory structure.
+([holon-agentic-coder-ref](https://github.com/Holon-Agentic-Coder/holon-agentic-coder-ref)) within this metadata
+repository (at `holon-agentic-coder-ref/`), you must clone it as a Git bare repository and check out branches as Git
+worktrees. This allows running multiple tasks on different branches simultaneously under a clean directory structure.
 
 1. **Clone the repository as bare** into the `holon-agentic-coder-ref` directory:
    ```bash
