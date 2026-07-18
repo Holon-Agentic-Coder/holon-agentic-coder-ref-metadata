@@ -19,6 +19,7 @@ entirety before performing any operations or modifying any code.
 - [.agents/workflows.md](.agents/workflows.md) - Task execution cycle, git guidelines, and PR procedures.
 - [.agents/coordination.md](.agents/coordination.md) - Delegation, subagent communication, and peer coordination
   protocols.
+- [.agents/skills/](.agents/skills/) - Project-specific agent skills and capability guidelines.
 - [todo/](todo/) - Temporary scratchpad directory for local agent files, documents, and notes (git ignored).
 
 ---

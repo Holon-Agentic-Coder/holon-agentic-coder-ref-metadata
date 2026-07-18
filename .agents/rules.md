@@ -34,3 +34,8 @@ code in this repository.
    - Do not attempt to run processes that modify root system directories or execute outside the defined workspace
      directories.
    - If you trigger a permission error, request the minimum required permissions using `ask_permission`.
+4. **Path Handling & References**:
+   - Never use absolute paths (e.g., starting with `/Users/`, `/home/`, or `file:///Users/`) in any documentation,
+     instructions, code comments, tool outputs, or task references.
+   - Always refer to files and folders using project-root relative paths (e.g., `.agents/rules.md`) to maintain
+     workspace portability across different environments.
