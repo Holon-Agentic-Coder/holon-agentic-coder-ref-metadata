@@ -45,6 +45,7 @@ To maintain clean repository history, follow this Git workflow:
    - Always run `npx prettier --write "**/*.md"` to format markdown files before creating any commits.
 3. **Commits**:
    - Write semantic commit messages. Example:
+
      ```text
      feat(agents): add core agent instructions and rules
 
@@ -52,17 +53,20 @@ To maintain clean repository history, follow this Git workflow:
      - Added .agents/rules.md
      - Configured landing page entrypoint in AGENTS.md
      ```
+
    - Avoid generic commit messages like "update files" or "fix".
 4. **Squashing (Mandatory)**:
    - Before pushing your feature branch to the remote repository, you **MUST squash all commits** on your branch
      relative to the `main` branch into a **single commit**.
    - Your feature branch should only ever contain exactly **one commit** differing from `main`.
    - To perform the squash, execute:
+
      ```bash
      git reset $(git merge-base main HEAD)
      git add -A
      git commit -m "your-semantic-commit-message"
      ```
+
 5. **Pull Requests & Pushing (No Autonomous Pushing)**:
    - **Never push to the remote repository (`origin`) unless explicitly instructed by the user.**
    - Once explicitly instructed to push, execute: `git push origin <branch-name> --force`.
