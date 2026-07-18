@@ -25,7 +25,10 @@ All work should be tracked under the `.beans/` directory. Each task has a matchi
 ### 3. Task Completion
 
 - Change the status field to `done`.
-- Commit the changes and push to the remote repository.
+- Format all markdown files by running `npx prettier --write "**/*.md"`.
+- Commit the changes on the current active branch (**Do NOT create a new branch unless explicitly told**).
+- Squash all branch commits relative to the `main` branch into a single commit.
+- **Do NOT push to the remote repository (`origin`) unless explicitly instructed by the user.**
 
 ---
 
@@ -33,19 +36,35 @@ All work should be tracked under the `.beans/` directory. Each task has a matchi
 
 To maintain clean repository history, follow this Git workflow:
 
-1. **Branching**:
-    - Create a branch for your task: `git checkout -b <type>/<bean-id>-<short-description>` (e.g.,
-      `feat/0001-add-agent-rules`).
-2. **Commits**:
-    - Write semantic commit messages. Example:
-      ```text
-      feat(agents): add core agent instructions and rules
- 
-      - Added .agents/instructions.md
-      - Added .agents/rules.md
-      - Configured landing page entrypoint in agents.md
-      ```
-    - Avoid generic commit messages like "update files" or "fix".
-3. **Pull Requests**:
-    - Push your branch to the remote: `git push origin <branch-name>`.
-    - Provide a description summarizing the changes and referencing the related bean ID.
+1. **Branching (Do NOT create branches autonomously)**:
+   - **Never create a new branch unless explicitly instructed by the user.**
+   - Work on the active branch that is currently checked out in the workspace.
+   - If the user explicitly requests you to create a new branch, use the convention:
+     `git checkout -b <type>/<bean-id>-<short-description>` (e.g., `feat/0001-add-agent-rules`).
+2. **Formatting (Mandatory)**:
+   - Always run `npx prettier --write "**/*.md"` to format markdown files before creating any commits.
+3. **Commits**:
+   - Write semantic commit messages. Example:
+     ```text
+     feat(agents): add core agent instructions and rules
+
+     - Added .agents/instructions.md
+     - Added .agents/rules.md
+     - Configured landing page entrypoint in AGENTS.md
+     ```
+   - Avoid generic commit messages like "update files" or "fix".
+4. **Squashing (Mandatory)**:
+   - Before pushing your feature branch to the remote repository, you **MUST squash all commits** on your branch
+     relative to the `main` branch into a **single commit**.
+   - Your feature branch should only ever contain exactly **one commit** differing from `main`.
+   - To perform the squash, execute:
+     ```bash
+     git reset $(git merge-base main HEAD)
+     git add -A
+     git commit -m "your-semantic-commit-message"
+     ```
+5. **Pull Requests & Pushing (No Autonomous Pushing)**:
+   - **Never push to the remote repository (`origin`) unless explicitly instructed by the user.**
+   - Once explicitly instructed to push, execute: `git push origin <branch-name> --force`.
+   - **Do NOT push directly to `main` under any circumstances.**
+   - The human repository maintainer will review the changes, raise the Pull Request, and merge it into `main`.

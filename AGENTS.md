@@ -28,7 +28,14 @@ When you are spawned or begin a new session, follow these steps sequentially:
    and test requirements.
 4. **Execute Tasks Systematically**: Follow the lifecycle specified in [.agents/workflows.md](.agents/workflows.md) to
    transition tasks from `todo` to `in-progress` and finally `done`.
-5. **Report and Document**: Summarize changes clean and concisely. Point both the user and successor agents to updated
+5. **No Autonomous Branches**: Never create a new branch unless explicitly instructed by the user. Work on the active
+   branch that is currently checked out.
+6. **Format Before Commit**: Always execute `npx prettier --write "**/*.md"` before committing to format all markdown
+   files according to repository guidelines.
+7. **Squash and Push (No Autonomous Pushing)**: Ensure all commits on your feature branch are squashed into a single
+   commit relative to the `main` branch. **Never push to the remote repository (`origin`) unless explicitly instructed
+   by the user.** Do NOT push directly to `main`.
+8. **Report and Document**: Summarize changes cleanly and concisely. Point both the user and successor agents to updated
    files or artifacts.
 
 ---
