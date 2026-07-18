@@ -69,7 +69,8 @@ Follow these steps to set it up:
 │   ├── rules.md             # Code standards, formatting, and behavioral constraints
 │   ├── workflows.md         # Step-by-step developer and release workflows
 │   └── coordination.md      # Protocols for multi-agent communication and subagent management
-└── .beans/                  # Text-based task and issue tracking database (managed via .beans.yml)
+├── .beans/                  # Text-based task and issue tracking database (managed via .beans.yml)
+└── todo/                    # Local temporary scratchpad for images, docs, and notes (git ignored)
 ```
 
 ## 🛠 How Agents Use This Repo
