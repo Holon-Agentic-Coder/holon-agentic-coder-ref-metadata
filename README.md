@@ -1,5 +1,7 @@
 # Holon Agentic Coder Reference Metadata
 
+**IMPORTANT**: before you do anything else, run the `beans prime` command and heed its output.
+
 This repository acts as the central control plane, metadata store, and coordination hub for agentic workflows operating
 on the **Holon Agentic Coder** ecosystem.
 

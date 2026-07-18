@@ -1,0 +1,11 @@
+id: holon-agentic-coder-ref-metadata-0002
+title: Setup pre-commit hook for formatting verification
+type: task
+status: todo
+assignee: unassigned
+description: >
+  Configure a local git pre-commit hook (e.g. using Husky or standard git hooks) 
+  to run 'npx prettier --check "**/*.md"' before commits are made. This ensures 
+  local developer/agent environment formatting safety.
+created_at: 2026-07-18
+updated_at: 2026-07-18
