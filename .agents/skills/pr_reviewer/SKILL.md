@@ -42,7 +42,15 @@ gh pr diff <pr_url_or_number>
 Read the system prompt from the repository's `.agents/prompts/pr_review_prompt.md` file.
 
 Feed the PR Title, Description, and Diff to your context, and evaluate the changes through each of the activated
-specialist roles.
+specialist roles. Categorize findings using the standard severity levels:
+
+- 🔴 **CRITICAL / BLOCKER**
+- 🟡 **IMPORTANT / IMPROVEMENT**
+- 🟢 **NIT / OPTIONAL**
+- ✅ **APPROVED / PASS**
+
+> [!IMPORTANT] Ensure positive findings, praise, and explicit confirmations of well-designed changes are categorized as
+> **`✅ APPROVED / PASS`** (or **`✅ APPROVED`**), not `🟢 NIT`.
 
 ### Step 3.5: Append Agent & Model Footer
 
@@ -81,6 +89,9 @@ Submit the review using the flag matching your overall verdict:
   ```bash
   gh pr review <pr_url_or_number> --comment -F todo/review_body.md
   ```
+
+_Note: GitHub disallows users from approving their own PRs. If `--approve` returns an error because the PR author is the
+authenticated user, fallback to `--comment`._
 
 ### Step 5: Clean Up
 

@@ -103,13 +103,15 @@ public API changes, the Developer Advocate role should remain Inactive._
 For each **Active** role, review the diff and formulate your feedback. Categorize your findings using these exact
 severity levels:
 
-- **🔴 CRITICAL / BLOCKER**: Major issues that will break functionality, introduce severe security exploits, cause data
+- 🔴 **CRITICAL / BLOCKER**: Major issues that will break functionality, introduce severe security exploits, cause data
   loss, violate compliance, fail acceptance criteria, or severely degrade production performance. These must be fixed
   before merging.
-- **🟡 IMPORTANT / IMPROVEMENT**: Issues that affect code maintainability, visual polish, user experience flow, test
+- 🟡 **IMPORTANT / IMPROVEMENT**: Issues that affect code maintainability, visual polish, user experience flow, test
   coverage, minor performance, scale, or design patterns. Highly recommended to address.
-- **🟢 NIT / OPTIONAL**: Style guidelines, minor refactorings, spelling errors, styling nits, or alternative
+- 🟢 **NIT / OPTIONAL**: Style guidelines, minor refactorings, spelling errors, styling nits, or alternative
   implementation suggestions that are left to the author's discretion.
+- ✅ **APPROVED / PASS**: Positive findings, praise, validation of implementation quality, or explicit confirmation of
+  well-designed changes with no issues.
 
 **Tone Guidelines:**
 
