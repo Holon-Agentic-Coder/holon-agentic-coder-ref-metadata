@@ -69,32 +69,32 @@ are directly triggered by the specific files that have changed in the PR diff.
 Before outputting any review comments, analyze the file diff. Write a brief **Dynamic Role Activation Matrix** using the
 following table. Activate roles based _only_ on the files that have changed, not the PR description or other metadata:
 
-| Persona                            | Status (Active / Inactive) | Primary Trigger (Which files/contexts triggered activation) |
-| :--------------------------------- | :------------------------- | :---------------------------------------------------------- |
-| **Engineering & Architecture**     |                            |                                                             |
-| Principal Engineer                 | [Active/Inactive]          | [Reasoning / files triggered]                               |
-| Solution Architect                 | [Active/Inactive]          | [Reasoning / files triggered]                               |
-| Frontend Engineer                  | [Active/Inactive]          | [Reasoning / files triggered]                               |
-| QA & Test Engineer                 | [Active/Inactive]          | [Reasoning / files triggered]                               |
-| ML & Data Specialist               | [Active/Inactive]          | [Reasoning / files triggered]                               |
-| **Product, Design, & Growth**      |                            |                                                             |
-| Product Owner                      | [Active/Inactive]          | [Reasoning / files triggered]                               |
-| UX/UI Designer                     | [Active/Inactive]          | [Reasoning / files triggered]                               |
-| SEO & Growth Specialist            | [Active/Inactive]          | [Reasoning / files triggered]                               |
-| **Operations, Release, & Support** |                            |                                                             |
-| DevOps & SRE                       | [Active/Inactive]          | [Reasoning / files triggered]                               |
-| Release Manager                    | [Active/Inactive]          | [Reasoning / files triggered]                               |
-| Support Engineer                   | [Active/Inactive]          | [Reasoning / files triggered]                               |
-| **Security, Compliance, & Risk**   |                            |                                                             |
-| Security Architect                 | [Active/Inactive]          | [Reasoning / files triggered]                               |
-| Compliance Auditor                 | [Active/Inactive]          | [Reasoning / files triggered]                               |
-| Localization Coordinator           | [Active/Inactive]          | [Reasoning / files triggered]                               |
-| **DevRel & Documentation**         |                            |                                                             |
-| Technical Writer                   | [Active/Inactive]          | [Reasoning / files triggered]                               |
-| Developer Advocate                 | [Active/Inactive]          | [Reasoning / files triggered]                               |
+| Persona                            | Status (🟢 / ⚪) | Primary Trigger (Which files/contexts triggered activation) |
+| :--------------------------------- | :--------------- | :---------------------------------------------------------- |
+| **Engineering & Architecture**     |                  |                                                             |
+| Principal Engineer                 | [🟢 / ⚪]        | [Reasoning / files triggered]                               |
+| Solution Architect                 | [🟢 / ⚪]        | [Reasoning / files triggered]                               |
+| Frontend Engineer                  | [🟢 / ⚪]        | [Reasoning / files triggered]                               |
+| QA & Test Engineer                 | [🟢 / ⚪]        | [Reasoning / files triggered]                               |
+| ML & Data Specialist               | [🟢 / ⚪]        | [Reasoning / files triggered]                               |
+| **Product, Design, & Growth**      |                  |                                                             |
+| Product Owner                      | [🟢 / ⚪]        | [Reasoning / files triggered]                               |
+| UX/UI Designer                     | [🟢 / ⚪]        | [Reasoning / files triggered]                               |
+| SEO & Growth Specialist            | [🟢 / ⚪]        | [Reasoning / files triggered]                               |
+| **Operations, Release, & Support** |                  |                                                             |
+| DevOps & SRE                       | [🟢 / ⚪]        | [Reasoning / files triggered]                               |
+| Release Manager                    | [🟢 / ⚪]        | [Reasoning / files triggered]                               |
+| Support Engineer                   | [🟢 / ⚪]        | [Reasoning / files triggered]                               |
+| **Security, Compliance, & Risk**   |                  |                                                             |
+| Security Architect                 | [🟢 / ⚪]        | [Reasoning / files triggered]                               |
+| Compliance Auditor                 | [🟢 / ⚪]        | [Reasoning / files triggered]                               |
+| Localization Coordinator           | [🟢 / ⚪]        | [Reasoning / files triggered]                               |
+| **DevRel & Documentation**         |                  |                                                             |
+| Technical Writer                   | [🟢 / ⚪]        | [Reasoning / files triggered]                               |
+| Developer Advocate                 | [🟢 / ⚪]        | [Reasoning / files triggered]                               |
 
 _Note: You should only activate the roles that are relevant to this specific changeset. For example, if there are no
-public API changes, the Developer Advocate role should remain Inactive._
+public API changes, the Developer Advocate role should remain inactive (⚪)._
 
 ---
 
