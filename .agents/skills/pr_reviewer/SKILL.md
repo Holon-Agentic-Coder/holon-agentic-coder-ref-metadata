@@ -44,6 +44,26 @@ Read the system prompt from the repository's `.agents/prompts/pr_review_prompt.m
 Feed the PR Title, Description, and Diff to your context, and evaluate the changes through each of the activated
 specialist roles.
 
+### Step 3.5: Append Agent & Model Footer
+
+Before writing the review to the temp file, append a footer that identifies **who** performed the review and **which LLM
+model** was used. This provides full traceability on every review comment posted to GitHub.
+
+The footer must be appended as the last section of the review body:
+
+```markdown
+---
+
+> 🤖 **Reviewed by**: `<agent-name>` · **Model**: `<llm-model>`
+```
+
+- **`<agent-name>`**: The name of the agent that executed this review (e.g. `antigravity-agent`, `pi-agent`,
+  `claude-agent`). Determine this from the `HOLON_ROLE` or `AGENT_NAME` environment variable if available, otherwise use
+  the agent's self-identified name from your system context.
+- **`<llm-model>`**: The LLM model identifier used during the review (e.g. `gemini-3.5-flash`, `claude-sonnet-4-5`).
+  Determine this from the `MODEL_NAME` environment variable if set, otherwise use the model name you know yourself to be
+  running as.
+
 ### Step 4: Post the Review Back to GitHub
 
 Write your review output to a temporary file (e.g., `todo/review_body.md`) to prevent shell character escaping issues.
