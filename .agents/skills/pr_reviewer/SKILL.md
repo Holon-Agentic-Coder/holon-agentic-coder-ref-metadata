@@ -89,23 +89,30 @@ The footer must be appended as the last section of the review body:
   Determine this from the `MODEL_NAME` environment variable if set, otherwise use the model name you know yourself to be
   running as.
 
-### Step 4: Post the Review Back to GitHub
+### Step 4: Post the Review Back to GitHub (Real Mode vs Dry-Run Mode)
 
-Write your review output to a temporary file (e.g., `todo/review_body.md`) to prevent shell character escaping issues.
-Submit the review using the flag matching your overall verdict:
+Check if **Dry-Run Mode** is enabled (e.g. via `--dry-run` parameter or loop instruction):
 
-- **APPROVED**:
-  ```bash
-  gh pr review <pr_url_or_number> --approve -F todo/review_body.md
-  ```
-- **CHANGES REQUESTED**:
-  ```bash
-  gh pr review <pr_url_or_number> --request-changes -F todo/review_body.md
-  ```
-- **COMMENT**:
-  ```bash
-  gh pr review <pr_url_or_number> --comment -F todo/review_body.md
-  ```
+- **If Dry-Run Mode is ON**:
+  - **DO NOT** execute `gh pr review`.
+  - Skip posting comments to GitHub to prevent PR discussion thread clutter during intermediate loop iterations.
+  - Output the structured review findings and verdict strictly to local context/logs for the resolver subagent.
+
+- **If Real Mode is ON (Default / Final Pass)**:
+  - Write your review output to a temporary file (`todo/review_body.md`) to prevent shell character escaping issues.
+  - Submit the review to GitHub using the flag matching your overall verdict:
+    - **APPROVED**:
+      ```bash
+      gh pr review <pr_url_or_number> --approve -F todo/review_body.md
+      ```
+    - **CHANGES REQUESTED**:
+      ```bash
+      gh pr review <pr_url_or_number> --request-changes -F todo/review_body.md
+      ```
+    - **COMMENT**:
+      ```bash
+      gh pr review <pr_url_or_number> --comment -F todo/review_body.md
+      ```
 
 _Note: GitHub disallows users from approving their own PRs. If `--approve` returns an error because the PR author is the
 authenticated user, fallback to `--comment`._
@@ -115,5 +122,5 @@ authenticated user, fallback to `--comment`._
 Remove any temporary files created in the `todo/` directory:
 
 ```bash
-rm todo/review_body.md
+rm -f todo/review_body.md
 ```
