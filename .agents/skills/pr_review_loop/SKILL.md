@@ -75,9 +75,12 @@ Wait for the subagent to complete and inspect its report.
 #### Phase B: Evaluate Exit Conditions
 
 1. **Approval / Clean Pass**:
-   - If the subagent verdict is **`APPROVED`**, or if **0 actionable issues** (CRITICAL / IMPORTANT) were found:
-   - **STOP THE LOOP**.
-   - Output a success message: `PR review loop completed successfully! PR is approved.`
+   - The loop terminates with approval **ONLY IF**:
+     1. The reviewer subagent verdict is **`APPROVED`** (or zero actionable CRITICAL/IMPORTANT issues were found).
+     2. **ALL GitHub Actions CI checks (`gh pr checks <pr>`) pass cleanly** with no failing jobs.
+   - If CI checks are failing or pending, the loop **MUST NOT** terminate as approved.
+   - Output success message when conditions are met:
+     `PR review loop completed successfully! PR is approved and all CI builds are passing.`
 
 2. **Max Iterations Cap**:
    - If `iteration >= max_iterations` and issues remain:
