@@ -26,6 +26,16 @@ code in this repository.
    - Always specify the exact `CommandLine` and current working directory (`Cwd`).
    - Never run command strings containing arbitrary, uninspected bash code or scripts from untrusted external URLs.
    - Do not invoke interactive prompts or commands that block indefinitely unless you set appropriate timeouts.
+   - **Python & Test Execution**: Always run Python scripts, tests, and CLI tools using `uv` from the repository root
+     directory. Never invoke `python3`, `pytest`, or `.venv` binaries directly.
+     - **Unit Test Execution**: Run unit tests using `uv run pytest -m "not integration_test"` from the repository root.
+     - **Integration Test Execution**: When running integration tests, first build required container images using
+       `./apps/sandbox-executor/build_all_images.sh --output-log`, then run `uv run pytest -m "integration_test"`.
+     - **Linting & Lockfile Check**: Validate linting, formatting, and lockfile integrity using: `uv lock --check`,
+       `uv run ruff check .`, and `uv run ruff format --check .`.
+   - **Single Project `.venv`**: Always execute `uv` commands from the repository/project root so that virtual
+     environments are maintained solely in the root `.venv`. Never create or initialize nested `.venv` directories in
+     subfolders (e.g., `apps/sandbox-executor/.venv`).
 2. **File Editing**:
    - Use `replace_file_content` for a single contiguous block of edits.
    - Use `multi_replace_file_content` for editing multiple non-contiguous blocks in the same file.

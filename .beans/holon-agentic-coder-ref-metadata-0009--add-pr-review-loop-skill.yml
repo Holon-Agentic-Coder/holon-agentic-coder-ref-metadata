@@ -1,0 +1,15 @@
+id: holon-agentic-coder-ref-metadata-0009
+title: "Add autonomous pr-review-loop skill using fresh subagents"
+type: feature
+status: done
+assignee: antigravity
+description: >
+  Create a new agent skill `pr-review-loop` that orchestrates an autonomous PR review and resolution loop.
+  The skill spawns fresh subagents for each review pass (`pr-reviewer`) and resolution pass (`pr-review-resolver`),
+  pushing resolved commits back to the remote feature branch until the PR is approved or the max iteration cap (default 10) is reached.
+created_at: 2026-07-26
+updated_at: 2026-07-26
+notes:
+  - "Design decisions aligned with user via /grill-me session."
+resolution: >
+  Created `.agents/skills/pr_review_loop/SKILL.md` detailing parameter parsing, fresh subagent orchestration for reviewer and resolver passes, exit conditions (PR approval or max iteration cap), and remote branch synchronization.
