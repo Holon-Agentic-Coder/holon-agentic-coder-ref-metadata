@@ -51,8 +51,9 @@ subagents or isolated subagent contexts):
      `.agents/prompts/pr_review_prompt.md`.
    - Each reviewer subagent operates in an isolated context without visibility into the other reviewers' outputs.
    - **Subagent Fault Tolerance & Timeout Strategy**: If a subagent fails or times out (e.g. due to rate limits or API
-     error), attempt 1 retry. If a subagent fails after retry, record its status as `FAILED` in the voting breakdown;
-     the overall PR review cannot receive an `APPROVED` verdict since strict 3/3 unanimous approval is required.
+     error), attempt 1 retry by spawning a fresh subagent instance in an isolated context. If a subagent fails after
+     retry, record its status as `FAILED` in the voting breakdown; the overall PR review cannot receive an `APPROVED`
+     verdict since strict 3/3 unanimous approval is required.
 
 2. **Per-Reviewer Multi-Role Evaluation**: Each subagent evaluates the PR through activated specialist roles and
    categorizes findings using standard severity levels:
@@ -84,7 +85,7 @@ Once all 3 reviewer subagents complete their evaluations, synthesize a single **
 1. **If ANY Reviewer Subagent identified Critical (🔴) or Important (🟡) issues, OR if any subagent failed/timed out
    (`FAILED` / `TIMEOUT` status)**:
    - **DO NOT** execute `gh pr checks`. Skip checking build status.
-   - Set the overall ensemble review verdict to **`CHANGES_REQUESTED`** (or `--comment` if author self-review).
+   - Set the overall ensemble review verdict to **`CHANGES_REQUESTED`**.
 
 2. **If ALL THREE (3/3) Reviewer Subagents found NO Critical (🔴) or Important (🟡) issues (Ready to Approve)**:
    - Fetch the status of automated CI build and test checks for the target PR:
@@ -92,12 +93,14 @@ Once all 3 reviewer subagents complete their evaluations, synthesize a single **
      gh pr checks <pr_url_or_number>
      ```
    - **If ALL CI checks pass cleanly**:
-     - Set the overall ensemble review verdict to **`APPROVED`**.
+     - If non-blocking Nits or suggestions (`🟢 NIT / OPTIONAL`) were identified and advisory feedback is requested
+       without formal approval, set the overall ensemble review verdict to **`COMMENT`**.
+     - Otherwise, set the overall ensemble review verdict to **`APPROVED`**.
    - **If any CI check has failed or broken**:
      1. Fetch the failure logs using `gh run view <run_id> --log-failed`.
      2. Flag the CI build failure as a **🔴 CRITICAL / BLOCKER** finding in the review body.
-     3. Set the review verdict to **`CHANGES_REQUESTED`** (or `--comment` if author self-review). The PR CANNOT receive
-        an `APPROVED` verdict until all CI checks pass cleanly.
+     3. Set the review verdict to **`CHANGES_REQUESTED`**. The PR CANNOT receive an `APPROVED` verdict until all CI
+        checks pass cleanly.
 
 ### Step 3.3: Append Agent, Model & Ensemble Voting Breakdown Footer
 
@@ -117,6 +120,8 @@ and LLM model:
 > 🤖 **Reviewed by**: `<agent-name>` (3-Agent Ensemble) · **Model**: `<llm-model>`
 ```
 
+- **`<subagent-id-N>`**: The unique subagent conversation ID or instance identifier for reviewer pass N (e.g.
+  `subagent-1`, `conv-abc-123`).
 - **`<agent-name>`**: The primary agent executing the ensemble review (e.g. `antigravity-agent`, `pi-agent`,
   `claude-agent`). Determine this from the `HOLON_ROLE` or `AGENT_NAME` environment variable if available, otherwise use
   the agent's self-identified name from your system context.
