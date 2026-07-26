@@ -61,8 +61,9 @@ Spawn a subagent using `invoke_subagent`:
   > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` in **Dry-Run Mode (`--dry-run`)**.
   >
   > 1. Fetch PR metadata and diff via `gh`.
-  > 2. Verify CI build status via `gh pr checks`.
-  > 3. Evaluate changes against `.agents/prompts/pr_review_prompt.md`.
+  > 2. Evaluate code changes against `.agents/prompts/pr_review_prompt.md`.
+  > 3. **Conditional CI Check**: Verify CI build status via `gh pr checks` **ONLY IF** zero Critical (🔴) or Important
+  >    (🟡) issues are found in the code review (defer checking build status if code changes are required).
   > 4. Do **NOT** post comments to GitHub (Dry-Run mode is ON).
   > 5. Return a concise report containing:
   >    - Overall Verdict (`APPROVED`, `CHANGES_REQUESTED`, or `COMMENT`).

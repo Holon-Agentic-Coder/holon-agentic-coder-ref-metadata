@@ -37,23 +37,6 @@ gh pr view <pr_url_or_number> --json title,body
 gh pr diff <pr_url_or_number>
 ```
 
-### Step 2.5: Verify GitHub Actions CI Checks
-
-Fetch the status of automated CI build and test checks for the target PR:
-
-```bash
-gh pr checks <pr_url_or_number>
-```
-
-> [!CRITICAL] **Mandatory CI Build Requirement**: A Pull Request **MUST NOT** be approved if any automated GitHub
-> Actions CI check is failing or broken (e.g. failing unit tests, build errors, or lint failures). If any CI check has
-> failed:
->
-> 1. Fetch the failure logs using `gh run view <run_id> --log-failed`.
-> 2. Flag the CI build failure as a **🔴 CRITICAL / BLOCKER** finding in the review body.
-> 3. Set the review verdict to **`CHANGES_REQUESTED`** (or `--comment` if author self-review). The PR CANNOT receive an
->    `APPROVED` verdict until all CI checks pass cleanly.
-
 ### Step 3: Run the Multi-Role Review
 
 Read the system prompt from the repository's `.agents/prompts/pr_review_prompt.md` file.
@@ -69,7 +52,30 @@ specialist roles. Categorize findings using the standard severity levels:
 > [!IMPORTANT] Ensure positive findings, praise, and explicit confirmations of well-designed changes are categorized as
 > **`✅ APPROVED / PASS`** (or **`✅ APPROVED`**), not `🟢 NIT`.
 
-### Step 3.5: Append Agent & Model Footer
+### Step 3.5: Verify GitHub Actions CI Checks (Conditional Deferred Check)
+
+> [!NOTE] **Optimization Rule**: CI build status checks (`gh pr checks`) are deferred and only executed if there are
+> **no** Critical (🔴) or Important (🟡) issues found during the code diff review. If code changes or improvements are
+> already required, checking build status is skipped to save time and prevent unnecessary waiting.
+
+1. **If Critical (🔴) or Important (🟡) issues exist in the PR review**:
+   - **DO NOT** execute `gh pr checks`. Skip checking build status.
+   - Set the overall review verdict to **`CHANGES_REQUESTED`**.
+
+2. **If NO Critical (🔴) or Important (🟡) issues exist in the PR review (Ready to Approve)**:
+   - Fetch the status of automated CI build and test checks for the target PR:
+     ```bash
+     gh pr checks <pr_url_or_number>
+     ```
+   - **If ALL CI checks pass cleanly**:
+     - Set the overall review verdict to **`APPROVED`**.
+   - **If any CI check has failed or broken**:
+     1. Fetch the failure logs using `gh run view <run_id> --log-failed`.
+     2. Flag the CI build failure as a **🔴 CRITICAL / BLOCKER** finding in the review body.
+     3. Set the review verdict to **`CHANGES_REQUESTED`** (or `--comment` if author self-review). The PR CANNOT receive
+        an `APPROVED` verdict until all CI checks pass cleanly.
+
+### Step 3.6: Append Agent & Model Footer
 
 Before writing the review to the temp file, append a footer that identifies **who** performed the review and **which LLM
 model** was used. This provides full traceability on every review comment posted to GitHub.
