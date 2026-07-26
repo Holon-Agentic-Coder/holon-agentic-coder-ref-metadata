@@ -22,6 +22,9 @@ resolution step is executed in a dedicated, fresh subagent**.
    remain), or when the **max iteration cap** (default: `10`) is reached.
 3. **Remote Sync**: After each resolution pass, changes are committed and pushed to the remote feature branch so GitHub
    PR diffs update dynamically for subsequent review passes.
+4. **Existing Comment Audit & Resolution**: In addition to new code review passes, inspect pre-existing review comments
+   posted on the GitHub PR. Evaluate each comment for diff grounding, technical accuracy, actionability, and scope. If
+   verified to be true, apply the resolution, commit, and push the fix.
 
 ---
 
@@ -51,6 +54,18 @@ Initialize iteration counter `iteration = 1`.
 
 #### 🔁 Loop Body (While `iteration <= max_iterations`):
 
+#### Phase A0: Audit & Resolve Pre-existing PR Comments (Iteration 1 Only)
+
+Before launching the new dry-run code review pass on Iteration 1:
+
+1. Check for pre-existing review comments on the target PR (`gh pr view <pr> --json reviews`).
+2. If actionable review comments exist from human reviewers or previous review passes:
+   - Spawn a `pr_resolver` subagent to execute `pr-review-resolver` on `<pr_url_or_number>`.
+   - The resolver will critically evaluate each comment for diff grounding, technical accuracy, actionability, and
+     scope.
+   - If any comment is verified to be true and valid, apply the fix, commit
+     (`fix: resolve verified pre-existing PR review comments`), and push (`git push origin <branch_name>`).
+
 #### Phase A: Run Reviewer Subagent (Dry-Run Mode)
 
 Spawn a subagent using `invoke_subagent`:
@@ -60,7 +75,7 @@ Spawn a subagent using `invoke_subagent`:
 - **Prompt Instructions**:
   > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` in **Dry-Run Mode (`--dry-run`)**.
   >
-  > 1. Fetch PR metadata and diff via `gh`.
+  > 1. Fetch PR metadata, diff, and existing PR review comments via `gh`.
   > 2. Evaluate code changes against `.agents/prompts/pr_review_prompt.md`.
   > 3. **Conditional CI Check**: Verify CI build status via `gh pr checks` **ONLY IF** zero Critical (🔴) or Important
   >    (🟡) issues are found in the code review (defer checking build status if code changes are required).
@@ -97,7 +112,7 @@ Wait for the subagent to complete and inspect its report.
 
 #### Phase C: Run Resolver Subagent
 
-If changes were requested or actionable issues exist:
+If changes were requested or actionable issues exist (from new review findings or existing PR comments):
 
 Spawn a subagent using `invoke_subagent`:
 

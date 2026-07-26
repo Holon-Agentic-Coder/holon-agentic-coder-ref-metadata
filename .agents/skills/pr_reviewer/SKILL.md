@@ -1,15 +1,17 @@
 ---
 name: pr-reviewer
 description:
-  Automates Pull Request reviews using a comprehensive multi-role prompt. It fetches the PR description and diff using
-  the `gh` CLI, executes the multi-role review, and posts the compiled feedback back to the PR. Activate this skill
-  whenever the user provides a Pull Request URL or number and asks for a review.
+  Automates Pull Request reviews using a multi-agent ensemble consensus model. It fetches the PR description and diff
+  using the `gh` CLI, executes 3 independent subagent reviews, synthesizes a consolidated consensus report, and posts
+  the compiled feedback to the PR. Activate this skill whenever the user provides a Pull Request URL or number and asks
+  for a review.
 ---
 
 # Pull Request Reviewer Skill
 
-This skill allows any coding agent to automatically review a Pull Request using the `gh` CLI and the project's
-multi-role review prompt.
+This skill allows any coding agent to automatically review a Pull Request using the `gh` CLI, a multi-role review
+prompt, and an **Ensemble Consensus Model (3 Independent Reviewer Subagents)** to eliminate non-deterministic flakiness
+and maximize detection of genuine code issues.
 
 ## 🛠️ Step-by-Step Execution Guide
 
@@ -37,61 +39,93 @@ gh pr view <pr_url_or_number> --json title,body
 gh pr diff <pr_url_or_number>
 ```
 
-### Step 3: Run the Multi-Role Review
+### Step 3: Run Multi-Agent Ensemble Review (3 Independent Passes)
 
-Read the system prompt from the repository's `.agents/prompts/pr_review_prompt.md` file.
+To eliminate single-pass LLM variance, flakiness, and missed edge cases, execute **3 independent review passes** (via
+subagents or isolated subagent contexts):
 
-Feed the PR Title, Description, and Diff to your context, and evaluate the changes through each of the activated
-specialist roles. Categorize findings using the standard severity levels:
+1. **Spawn 3 Independent Reviewer Subagents**:
+   - Spawn subagents (`Reviewer Subagent 1`, `Reviewer Subagent 2`, `Reviewer Subagent 3`) concurrently in parallel
+     using a subagent delegation tool (e.g. `invoke_subagent`).
+   - Each reviewer subagent receives the PR Title, Description, Code Diff, and system prompt from
+     `.agents/prompts/pr_review_prompt.md`.
+   - Each reviewer subagent operates in an isolated context without visibility into the other reviewers' outputs.
+   - **Subagent Fault Tolerance & Timeout Strategy**: If a subagent fails or times out (e.g. due to rate limits or API
+     error), attempt 1 retry by spawning a fresh subagent instance in an isolated context. If a subagent fails after
+     retry, record its status as `FAILED` in the voting breakdown; the overall PR review cannot receive an `APPROVED`
+     verdict since strict 3/3 unanimous approval is required.
 
-- 🔴 **CRITICAL / BLOCKER**
-- 🟡 **IMPORTANT / IMPROVEMENT**
-- 🟢 **NIT / OPTIONAL**
-- ✅ **APPROVED / PASS**
+2. **Per-Reviewer Multi-Role Evaluation**: Each subagent evaluates the PR through activated specialist roles and
+   categorizes findings using standard severity levels:
+   - 🔴 **CRITICAL / BLOCKER**
+   - 🟡 **IMPORTANT / IMPROVEMENT**
+   - 🟢 **NIT / OPTIONAL**
+   - ✅ **APPROVED / PASS**
 
 > [!IMPORTANT] Ensure positive findings, praise, and explicit confirmations of well-designed changes are categorized as
 > **`✅ APPROVED / PASS`** (or **`✅ APPROVED`**), not `🟢 NIT`.
 
-### Step 3.5: Verify GitHub Actions CI Checks (Conditional Deferred Check)
+### Step 3.1: Ensemble Consensus Synthesis & Deduplication
 
-> [!NOTE] **Optimization Rule**: CI build status checks (`gh pr checks`) are deferred and only executed if there are
-> **no** Critical (🔴) or Important (🟡) issues found during the code diff review. If code changes or improvements are
-> already required, checking build status is skipped to save time and prevent unnecessary waiting.
+Once all 3 reviewer subagents complete their evaluations, synthesize a single **Consolidated Review Report**:
 
-1. **If Critical (🔴) or Important (🟡) issues exist in the PR review**:
+1. **Deduplicate & Union Findings**:
+   - Merge duplicate findings flagged by multiple reviewers into single, clear review items, prepending multi-reviewer
+     attribution tags to the finding title (e.g. `[Flagged by Reviewer 1 & 3]`).
+   - Union all unique findings across all severity levels (🔴 **CRITICAL / BLOCKER**, 🟡 **IMPORTANT / IMPROVEMENT**, 🟢
+     **NIT / OPTIONAL**, and ✅ **APPROVED / PASS**) from all 3 passes.
+2. **Consolidated Dynamic Role Matrix**:
+   - Aggregate role activations across all 3 review passes to form a single master Dynamic Role Activation Matrix.
+
+### Step 3.2: Consensus Verdict & Deferred CI Verification
+
+> [!NOTE] **Ensemble Rule**: A PR can receive an overall **`APPROVED`** verdict **ONLY IF ALL THREE (3/3) independent
+> review passes** return zero Critical (🔴) or Important (🟡) issues AND all GitHub Actions CI checks pass cleanly.
+
+1. **If ANY Reviewer Subagent identified Critical (🔴) or Important (🟡) issues, OR if any subagent failed/timed out
+   (`FAILED` / `TIMEOUT` status)**:
    - **DO NOT** execute `gh pr checks`. Skip checking build status.
-   - Set the overall review verdict to **`CHANGES_REQUESTED`**.
+   - Set the overall ensemble review verdict to **`CHANGES_REQUESTED`**.
 
-2. **If NO Critical (🔴) or Important (🟡) issues exist in the PR review (Ready to Approve)**:
+2. **If ALL THREE (3/3) Reviewer Subagents found NO Critical (🔴) or Important (🟡) issues (Ready to Approve)**:
    - Fetch the status of automated CI build and test checks for the target PR:
      ```bash
      gh pr checks <pr_url_or_number>
      ```
    - **If ALL CI checks pass cleanly**:
-     - Set the overall review verdict to **`APPROVED`**.
+     - If non-blocking Nits or suggestions (`🟢 NIT / OPTIONAL`) were identified and advisory feedback is requested
+       without formal approval, set the overall ensemble review verdict to **`COMMENT`**.
+     - Otherwise, set the overall ensemble review verdict to **`APPROVED`**.
    - **If any CI check has failed or broken**:
      1. Fetch the failure logs using `gh run view <run_id> --log-failed`.
      2. Flag the CI build failure as a **🔴 CRITICAL / BLOCKER** finding in the review body.
-     3. Set the review verdict to **`CHANGES_REQUESTED`** (or `--comment` if author self-review). The PR CANNOT receive
-        an `APPROVED` verdict until all CI checks pass cleanly.
+     3. Set the review verdict to **`CHANGES_REQUESTED`**. The PR CANNOT receive an `APPROVED` verdict until all CI
+        checks pass cleanly.
 
-### Step 3.6: Append Agent & Model Footer
+### Step 3.3: Append Agent, Model & Ensemble Voting Breakdown Footer
 
-Before writing the review to the temp file, append a footer that identifies **who** performed the review and **which LLM
-model** was used. This provides full traceability on every review comment posted to GitHub.
-
-The footer must be appended as the last section of the review body:
+Before writing the review to the temp file, append a footer that details the ensemble voting breakdown, agent identity,
+and LLM model:
 
 ```markdown
 ---
 
-> 🤖 **Reviewed by**: `<agent-name>` · **Model**: `<llm-model>`
+### 🗳️ Ensemble Review Breakdown
+
+- **Reviewer 1** (`<subagent-id-1>`): `<APPROVED | CHANGES_REQUESTED | COMMENT | FAILED | TIMEOUT>`
+- **Reviewer 2** (`<subagent-id-2>`): `<APPROVED | CHANGES_REQUESTED | COMMENT | FAILED | TIMEOUT>`
+- **Reviewer 3** (`<subagent-id-3>`): `<APPROVED | CHANGES_REQUESTED | COMMENT | FAILED | TIMEOUT>`
+- **Ensemble Consensus Verdict**: `<APPROVED | CHANGES_REQUESTED | COMMENT>`
+
+> 🤖 **Reviewed by**: `<agent-name>` (3-Agent Ensemble) · **Model**: `<llm-model>`
 ```
 
-- **`<agent-name>`**: The name of the agent that executed this review (e.g. `antigravity-agent`, `pi-agent`,
+- **`<subagent-id-N>`**: The unique subagent conversation ID or instance identifier for reviewer pass N (e.g.
+  `subagent-1`, `conv-abc-123`).
+- **`<agent-name>`**: The primary agent executing the ensemble review (e.g. `antigravity-agent`, `pi-agent`,
   `claude-agent`). Determine this from the `HOLON_ROLE` or `AGENT_NAME` environment variable if available, otherwise use
   the agent's self-identified name from your system context.
-- **`<llm-model>`**: The LLM model identifier used during the review (e.g. `gemini-3.5-flash`, `claude-sonnet-4-5`).
+- **`<llm-model>`**: The LLM model identifier used for the review passes (e.g. `gemini-3.5-flash`, `claude-sonnet-4-5`).
   Determine this from the `MODEL_NAME` environment variable if set, otherwise use the model name you know yourself to be
   running as.
 
@@ -106,7 +140,7 @@ Check if **Dry-Run Mode** is enabled (e.g. via `--dry-run` parameter or loop ins
 
 - **If Real Mode is ON (Default / Final Pass)**:
   - Write your review output to a temporary file (`todo/review_body.md`) to prevent shell character escaping issues.
-  - Submit the review to GitHub using the flag matching your overall verdict:
+  - Submit the review to GitHub using the flag matching your overall ensemble verdict:
     - **APPROVED**:
       ```bash
       gh pr review <pr_url_or_number> --approve -F todo/review_body.md
@@ -120,8 +154,8 @@ Check if **Dry-Run Mode** is enabled (e.g. via `--dry-run` parameter or loop ins
       gh pr review <pr_url_or_number> --comment -F todo/review_body.md
       ```
 
-_Note: GitHub disallows users from approving their own PRs. If `--approve` returns an error because the PR author is the
-authenticated user, fallback to `--comment`._
+_Note: GitHub disallows users from approving or requesting changes on their own PRs. If `--approve` or
+`--request-changes` returns an error because the PR author is the authenticated user, fallback to `--comment`._
 
 ### Step 5: Clean Up
 
