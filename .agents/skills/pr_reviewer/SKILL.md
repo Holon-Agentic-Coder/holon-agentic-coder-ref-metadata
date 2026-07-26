@@ -69,21 +69,22 @@ subagents or isolated subagent contexts):
 Once all 3 reviewer subagents complete their evaluations, synthesize a single **Consolidated Review Report**:
 
 1. **Deduplicate & Union Findings**:
-   - Merge duplicate findings flagged by multiple reviewers into single, clear review items, highlighting multi-reviewer
-     agreement (e.g. `[Flagged by Reviewer 1 & 3]`).
+   - Merge duplicate findings flagged by multiple reviewers into single, clear review items, prepending multi-reviewer
+     attribution tags to the finding title (e.g. `[Flagged by Reviewer 1 & 3]`).
    - Union all unique findings across all severity levels (🔴 **CRITICAL / BLOCKER**, 🟡 **IMPORTANT / IMPROVEMENT**, 🟢
      **NIT / OPTIONAL**, and ✅ **APPROVED / PASS**) from all 3 passes.
 2. **Consolidated Dynamic Role Matrix**:
    - Aggregate role activations across all 3 review passes to form a single master Dynamic Role Activation Matrix.
 
-### Step 3.5: Consensus Verdict & Deferred CI Verification
+### Step 3.2: Consensus Verdict & Deferred CI Verification
 
 > [!NOTE] **Ensemble Rule**: A PR can receive an overall **`APPROVED`** verdict **ONLY IF ALL THREE (3/3) independent
 > review passes** return zero Critical (🔴) or Important (🟡) issues AND all GitHub Actions CI checks pass cleanly.
 
-1. **If ANY Reviewer Subagent identified Critical (🔴) or Important (🟡) issues**:
+1. **If ANY Reviewer Subagent identified Critical (🔴) or Important (🟡) issues, OR if any subagent failed/timed out
+   (`FAILED` / `TIMEOUT` status)**:
    - **DO NOT** execute `gh pr checks`. Skip checking build status.
-   - Set the overall ensemble review verdict to **`CHANGES_REQUESTED`**.
+   - Set the overall ensemble review verdict to **`CHANGES_REQUESTED`** (or `--comment` if author self-review).
 
 2. **If ALL THREE (3/3) Reviewer Subagents found NO Critical (🔴) or Important (🟡) issues (Ready to Approve)**:
    - Fetch the status of automated CI build and test checks for the target PR:
@@ -98,7 +99,7 @@ Once all 3 reviewer subagents complete their evaluations, synthesize a single **
      3. Set the review verdict to **`CHANGES_REQUESTED`** (or `--comment` if author self-review). The PR CANNOT receive
         an `APPROVED` verdict until all CI checks pass cleanly.
 
-### Step 3.6: Append Agent, Model & Ensemble Voting Breakdown Footer
+### Step 3.3: Append Agent, Model & Ensemble Voting Breakdown Footer
 
 Before writing the review to the temp file, append a footer that details the ensemble voting breakdown, agent identity,
 and LLM model:
@@ -108,9 +109,9 @@ and LLM model:
 
 ### 🗳️ Ensemble Review Breakdown
 
-- **Reviewer 1**: `<APPROVED | CHANGES_REQUESTED | COMMENT | FAILED | TIMEOUT>`
-- **Reviewer 2**: `<APPROVED | CHANGES_REQUESTED | COMMENT | FAILED | TIMEOUT>`
-- **Reviewer 3**: `<APPROVED | CHANGES_REQUESTED | COMMENT | FAILED | TIMEOUT>`
+- **Reviewer 1** (`<subagent-id-1>`): `<APPROVED | CHANGES_REQUESTED | COMMENT | FAILED | TIMEOUT>`
+- **Reviewer 2** (`<subagent-id-2>`): `<APPROVED | CHANGES_REQUESTED | COMMENT | FAILED | TIMEOUT>`
+- **Reviewer 3** (`<subagent-id-3>`): `<APPROVED | CHANGES_REQUESTED | COMMENT | FAILED | TIMEOUT>`
 - **Ensemble Consensus Verdict**: `<APPROVED | CHANGES_REQUESTED | COMMENT>`
 
 > 🤖 **Reviewed by**: `<agent-name>` (3-Agent Ensemble) · **Model**: `<llm-model>`
