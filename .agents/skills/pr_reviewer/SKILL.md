@@ -51,8 +51,8 @@ subagents or isolated subagent contexts):
      `.agents/prompts/pr_review_prompt.md`.
    - Each reviewer subagent operates in an isolated context without visibility into the other reviewers' outputs.
    - **Subagent Fault Tolerance & Timeout Strategy**: If a subagent fails or times out (e.g. due to rate limits or API
-     error), attempt 1 retry. If it fails again, proceed with consensus synthesis across the remaining active subagents
-     (requiring a minimum quorum of 2 active subagents).
+     error), attempt 1 retry. If a subagent fails after retry, record its status as `FAILED` in the voting breakdown;
+     the overall PR review cannot receive an `APPROVED` verdict since strict 3/3 unanimous approval is required.
 
 2. **Per-Reviewer Multi-Role Evaluation**: Each subagent evaluates the PR through activated specialist roles and
    categorizes findings using standard severity levels:
