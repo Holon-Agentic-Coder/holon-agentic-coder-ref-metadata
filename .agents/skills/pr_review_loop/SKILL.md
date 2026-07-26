@@ -51,19 +51,19 @@ Initialize iteration counter `iteration = 1`.
 
 #### 🔁 Loop Body (While `iteration <= max_iterations`):
 
-#### Phase A: Run Reviewer Subagent
+#### Phase A: Run Reviewer Subagent (Dry-Run Mode)
 
 Spawn a subagent using `invoke_subagent`:
 
+- **TypeName**: `pr_reviewer`
 - **Role**: `PR Reviewer (Iteration <iteration>)`
 - **Prompt Instructions**:
-  > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>`.
+  > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` in **Dry-Run Mode (`--dry-run`)**.
   >
   > 1. Fetch PR metadata and diff via `gh`.
-  > 2. Evaluate changes against `.agents/prompts/pr_review_prompt.md`.
-  > 3. Append footer with agent and model identifier.
-  > 4. Post the review back to GitHub via `gh pr review` with appropriate verdict (`--approve`, `--request-changes`, or
-  >    `--comment`).
+  > 2. Verify CI build status via `gh pr checks`.
+  > 3. Evaluate changes against `.agents/prompts/pr_review_prompt.md`.
+  > 4. Do **NOT** post comments to GitHub (Dry-Run mode is ON).
   > 5. Return a concise report containing:
   >    - Overall Verdict (`APPROVED`, `CHANGES_REQUESTED`, or `COMMENT`).
   >    - Total number of Critical, Important, and Nit findings.
@@ -72,17 +72,25 @@ Wait for the subagent to complete and inspect its report.
 
 ---
 
-#### Phase B: Evaluate Exit Conditions
+#### Phase B: Evaluate Exit Conditions & Post Final Review
 
 1. **Approval / Clean Pass**:
-   - If the subagent verdict is **`APPROVED`**, or if **0 actionable issues** (CRITICAL / IMPORTANT) were found:
+   - The loop terminates with approval **ONLY IF**:
+     1. The reviewer subagent verdict is **`APPROVED`** (or zero actionable CRITICAL/IMPORTANT issues were found).
+     2. **ALL GitHub Actions CI checks (`gh pr checks <pr>`) pass cleanly** with no failing jobs.
+   - **Post Final Review to GitHub (Real Mode)**: Spawn a final `pr_reviewer` subagent in **Real Mode** to post the
+     single final compiled review comment to GitHub PR via `gh pr review`.
    - **STOP THE LOOP**.
-   - Output a success message: `PR review loop completed successfully! PR is approved.`
+   - Output success message:
+     `PR review loop completed successfully! Final review posted to GitHub and all CI builds are passing.`
 
 2. **Max Iterations Cap**:
    - If `iteration >= max_iterations` and issues remain:
+   - **Post Final Review to GitHub (Real Mode)**: Spawn a final `pr_reviewer` subagent in **Real Mode** to post the
+     single final review comment detailing remaining issues to GitHub PR via `gh pr review`.
    - **STOP THE LOOP**.
-   - Output a warning: `Reached maximum iteration cap (<max_iterations>). Stopping loop.`
+   - Output a warning:
+     `Reached maximum iteration cap (<max_iterations>). Posted final review comment to GitHub. Stopping loop.`
 
 ---
 
@@ -92,6 +100,7 @@ If changes were requested or actionable issues exist:
 
 Spawn a subagent using `invoke_subagent`:
 
+- **TypeName**: `pr_resolver`
 - **Role**: `PR Review Resolver (Iteration <iteration>)`
 - **Prompt Instructions**:
   > Load and execute the `pr-review-resolver` skill for `<pr_url_or_number>`.

@@ -37,6 +37,23 @@ gh pr view <pr_url_or_number> --json title,body
 gh pr diff <pr_url_or_number>
 ```
 
+### Step 2.5: Verify GitHub Actions CI Checks
+
+Fetch the status of automated CI build and test checks for the target PR:
+
+```bash
+gh pr checks <pr_url_or_number>
+```
+
+> [!CRITICAL] **Mandatory CI Build Requirement**: A Pull Request **MUST NOT** be approved if any automated GitHub
+> Actions CI check is failing or broken (e.g. failing unit tests, build errors, or lint failures). If any CI check has
+> failed:
+>
+> 1. Fetch the failure logs using `gh run view <run_id> --log-failed`.
+> 2. Flag the CI build failure as a **🔴 CRITICAL / BLOCKER** finding in the review body.
+> 3. Set the review verdict to **`CHANGES_REQUESTED`** (or `--comment` if author self-review). The PR CANNOT receive an
+>    `APPROVED` verdict until all CI checks pass cleanly.
+
 ### Step 3: Run the Multi-Role Review
 
 Read the system prompt from the repository's `.agents/prompts/pr_review_prompt.md` file.
@@ -72,23 +89,30 @@ The footer must be appended as the last section of the review body:
   Determine this from the `MODEL_NAME` environment variable if set, otherwise use the model name you know yourself to be
   running as.
 
-### Step 4: Post the Review Back to GitHub
+### Step 4: Post the Review Back to GitHub (Real Mode vs Dry-Run Mode)
 
-Write your review output to a temporary file (e.g., `todo/review_body.md`) to prevent shell character escaping issues.
-Submit the review using the flag matching your overall verdict:
+Check if **Dry-Run Mode** is enabled (e.g. via `--dry-run` parameter or loop instruction):
 
-- **APPROVED**:
-  ```bash
-  gh pr review <pr_url_or_number> --approve -F todo/review_body.md
-  ```
-- **CHANGES REQUESTED**:
-  ```bash
-  gh pr review <pr_url_or_number> --request-changes -F todo/review_body.md
-  ```
-- **COMMENT**:
-  ```bash
-  gh pr review <pr_url_or_number> --comment -F todo/review_body.md
-  ```
+- **If Dry-Run Mode is ON**:
+  - **DO NOT** execute `gh pr review`.
+  - Skip posting comments to GitHub to prevent PR discussion thread clutter during intermediate loop iterations.
+  - Output the structured review findings and verdict strictly to local context/logs for the resolver subagent.
+
+- **If Real Mode is ON (Default / Final Pass)**:
+  - Write your review output to a temporary file (`todo/review_body.md`) to prevent shell character escaping issues.
+  - Submit the review to GitHub using the flag matching your overall verdict:
+    - **APPROVED**:
+      ```bash
+      gh pr review <pr_url_or_number> --approve -F todo/review_body.md
+      ```
+    - **CHANGES REQUESTED**:
+      ```bash
+      gh pr review <pr_url_or_number> --request-changes -F todo/review_body.md
+      ```
+    - **COMMENT**:
+      ```bash
+      gh pr review <pr_url_or_number> --comment -F todo/review_body.md
+      ```
 
 _Note: GitHub disallows users from approving their own PRs. If `--approve` returns an error because the PR author is the
 authenticated user, fallback to `--comment`._
@@ -98,5 +122,5 @@ authenticated user, fallback to `--comment`._
 Remove any temporary files created in the `todo/` directory:
 
 ```bash
-rm todo/review_body.md
+rm -f todo/review_body.md
 ```
