@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0010
 title: Abstract all agent-specific env vars to `HOLON_AGENT_*` prefix
-status: todo
+status: in_progress
 type: task
 priority: high
 created_at: 2026-07-26T21:28:00Z
