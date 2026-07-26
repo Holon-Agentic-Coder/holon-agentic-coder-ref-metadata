@@ -45,10 +45,14 @@ To eliminate single-pass LLM variance, flakiness, and missed edge cases, execute
 subagents or isolated subagent contexts):
 
 1. **Spawn 3 Independent Reviewer Subagents**:
-   - Spawn subagents (`Reviewer Subagent 1`, `Reviewer Subagent 2`, `Reviewer Subagent 3`) using `invoke_subagent`.
+   - Spawn subagents (`Reviewer Subagent 1`, `Reviewer Subagent 2`, `Reviewer Subagent 3`) concurrently in parallel
+     using a subagent delegation tool (e.g. `invoke_subagent`).
    - Each reviewer subagent receives the PR Title, Description, Code Diff, and system prompt from
      `.agents/prompts/pr_review_prompt.md`.
    - Each reviewer subagent operates in an isolated context without visibility into the other reviewers' outputs.
+   - **Subagent Fault Tolerance & Timeout Strategy**: If a subagent fails or times out (e.g. due to rate limits or API
+     error), attempt 1 retry. If it fails again, proceed with consensus synthesis across the remaining active subagents
+     (requiring a minimum quorum of 2 active subagents).
 
 2. **Per-Reviewer Multi-Role Evaluation**: Each subagent evaluates the PR through activated specialist roles and
    categorizes findings using standard severity levels:
@@ -67,7 +71,8 @@ Once all 3 reviewer subagents complete their evaluations, synthesize a single **
 1. **Deduplicate & Union Findings**:
    - Merge duplicate findings flagged by multiple reviewers into single, clear review items, highlighting multi-reviewer
      agreement (e.g. `[Flagged by Reviewer 1 & 3]`).
-   - Union all unique 🔴 **CRITICAL / BLOCKER** and 🟡 **IMPORTANT / IMPROVEMENT** issues from all 3 passes.
+   - Union all unique findings across all severity levels (🔴 **CRITICAL / BLOCKER**, 🟡 **IMPORTANT / IMPROVEMENT**, 🟢
+     **NIT / OPTIONAL**, and ✅ **APPROVED / PASS**) from all 3 passes.
 2. **Consolidated Dynamic Role Matrix**:
    - Aggregate role activations across all 3 review passes to form a single master Dynamic Role Activation Matrix.
 
@@ -103,16 +108,20 @@ and LLM model:
 
 ### 🗳️ Ensemble Review Breakdown
 
-- **Reviewer 1**: `<APPROVED | CHANGES_REQUESTED>`
-- **Reviewer 2**: `<APPROVED | CHANGES_REQUESTED>`
-- **Reviewer 3**: `<APPROVED | CHANGES_REQUESTED>`
-- **Ensemble Consensus Verdict**: `<APPROVED | CHANGES_REQUESTED>`
+- **Reviewer 1**: `<APPROVED | CHANGES_REQUESTED | COMMENT>`
+- **Reviewer 2**: `<APPROVED | CHANGES_REQUESTED | COMMENT>`
+- **Reviewer 3**: `<APPROVED | CHANGES_REQUESTED | COMMENT>`
+- **Ensemble Consensus Verdict**: `<APPROVED | CHANGES_REQUESTED | COMMENT>`
 
 > 🤖 **Reviewed by**: `<agent-name>` (3-Agent Ensemble) · **Model**: `<llm-model>`
 ```
 
-- **`<agent-name>`**: The primary agent executing the ensemble review.
-- **`<llm-model>`**: The LLM model identifier used for the review passes.
+- **`<agent-name>`**: The primary agent executing the ensemble review (e.g. `antigravity-agent`, `pi-agent`,
+  `claude-agent`). Determine this from the `HOLON_ROLE` or `AGENT_NAME` environment variable if available, otherwise use
+  the agent's self-identified name from your system context.
+- **`<llm-model>`**: The LLM model identifier used for the review passes (e.g. `gemini-3.5-flash`, `claude-sonnet-4-5`).
+  Determine this from the `MODEL_NAME` environment variable if set, otherwise use the model name you know yourself to be
+  running as.
 
 ### Step 4: Post the Review Back to GitHub (Real Mode vs Dry-Run Mode)
 
