@@ -108,9 +108,9 @@ and LLM model:
 
 ### 🗳️ Ensemble Review Breakdown
 
-- **Reviewer 1**: `<APPROVED | CHANGES_REQUESTED | COMMENT>`
-- **Reviewer 2**: `<APPROVED | CHANGES_REQUESTED | COMMENT>`
-- **Reviewer 3**: `<APPROVED | CHANGES_REQUESTED | COMMENT>`
+- **Reviewer 1**: `<APPROVED | CHANGES_REQUESTED | COMMENT | FAILED | TIMEOUT>`
+- **Reviewer 2**: `<APPROVED | CHANGES_REQUESTED | COMMENT | FAILED | TIMEOUT>`
+- **Reviewer 3**: `<APPROVED | CHANGES_REQUESTED | COMMENT | FAILED | TIMEOUT>`
 - **Ensemble Consensus Verdict**: `<APPROVED | CHANGES_REQUESTED | COMMENT>`
 
 > 🤖 **Reviewed by**: `<agent-name>` (3-Agent Ensemble) · **Model**: `<llm-model>`
