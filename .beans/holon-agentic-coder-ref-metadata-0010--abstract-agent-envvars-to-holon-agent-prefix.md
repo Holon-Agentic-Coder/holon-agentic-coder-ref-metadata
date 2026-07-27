@@ -78,15 +78,16 @@ This is a **hard cutover** — old agent-specific env vars are removed entirely 
 ## Resolution
 
 - Replaced all agent-specific env vars with `HOLON_AGENT_*` equivalents in `agent_runner.py` and `cli.py`.
-- Mapped `HOLON_AGENT_KEY` to internal agent env vars via `_apply_generic_token()` to keep down-stream binary execution
-  working correctly.
 - Completely removed legacy/vendor API key fallbacks and checks from validation logic, so validators strictly expect
   `HOLON_AGENT_KEY` (or `HOLON_AGENT_OSS_MODE`).
 - Automatically forward all environment variables starting with `HOLON_AGENT_` and `GITHUB_TOKEN` from host `os.environ`
   to the Docker container.
-- Added comprehensive unit tests: `test_pi_agent_api_key_env_injection` to check internal env key propagation and
-  `test_run_docker_container_forward_env_vars` to assert forwarding of variables.
+- Pushed target CLI native variables mapping out of Python to the container boundary (`role_dispatcher.sh`). It detects
+  the active `HOLON_AGENT_ID` and maps `HOLON_AGENT_KEY` (whether passed directly or extracted from an ephemeral secret
+  bundle via `jq`) into target API key variables before executing Python.
+- Added comprehensive unit tests: `test_run_docker_container_forward_env_vars` to assert forwarding of variables and
+  `test_secret_bundle_api_key_only` to verify config files unpacking.
 - Documented single-agent-per-execution assumption near the runner registry.
-- Documented full variable mapping and migration steps in `MIGRATION.md`.
+- Removed `MIGRATION.md` documentation file as requested.
 - Formatted python code with `ruff format` and verified ruff check and prettier are passing successfully.
 - Verified all unit and integration tests compile and pass cleanly on local and remote environments.
