@@ -80,9 +80,12 @@ This is a **hard cutover** — old agent-specific env vars are removed entirely 
 - Replaced all agent-specific env vars with `HOLON_AGENT_*` equivalents in `agent_runner.py` and `cli.py`.
 - Mapped `HOLON_AGENT_KEY` to internal agent env vars via `_apply_generic_token()` to keep down-stream binary execution
   working correctly.
-- Added stderr deprecation warning to `cli.py` to notify operators who use legacy variables.
+- Completely removed legacy/vendor API key fallbacks and checks from validation logic, so validators strictly expect
+  `HOLON_AGENT_KEY` (or `HOLON_AGENT_OSS_MODE`).
+- Automatically forward all environment variables starting with `HOLON_AGENT_` and `GITHUB_TOKEN` from host `os.environ`
+  to the Docker container.
 - Added comprehensive unit tests: `test_pi_agent_api_key_env_injection` to check internal env key propagation and
-  `test_legacy_key_deprecation_warning` to check the deprecation warning.
+  `test_run_docker_container_forward_env_vars` to assert forwarding of variables.
 - Documented single-agent-per-execution assumption near the runner registry.
 - Documented full variable mapping and migration steps in `MIGRATION.md`.
 - Formatted python code with `ruff format` and verified ruff check and prettier are passing successfully.
