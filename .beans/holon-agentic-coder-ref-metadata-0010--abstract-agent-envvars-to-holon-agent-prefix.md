@@ -1,11 +1,11 @@
 ---
 # holon-agentic-coder-ref-metadata-0010
 title: Abstract all agent-specific env vars to `HOLON_AGENT_*` prefix
-status: in_progress
+status: done
 type: task
 priority: high
 created_at: 2026-07-26T21:28:00Z
-updated_at: 2026-07-26T21:28:00Z
+updated_at: 2026-07-27T18:48:00Z
 branch_metadata: feat/holon-agent-envvar-abstraction
 branch_ref: feat/holon-agent-envvar-abstraction
 ---
@@ -55,14 +55,14 @@ This is a **hard cutover** — old agent-specific env vars are removed entirely 
 
 ## Acceptance Criteria
 
-- [ ] No agent-specific env var names (`AGY_*`, `PI_*`, `OPEN_CODEX_*`, `CLAUDE_*`, `CODEX_*`, `OPENCODE_*`,
+- [x] No agent-specific env var names (`AGY_*`, `PI_*`, `OPEN_CODEX_*`, `CLAUDE_*`, `CODEX_*`, `OPENCODE_*`,
       `ANTHROPIC_*`, `OPENAI_*`, `GEMINI_*`, `GOOGLE_API_KEY`, `KIMI_*`) remain in `agent_runner.py`.
-- [ ] All new `HOLON_AGENT_*` vars are correctly mapped to their agent-specific CLI flags inside each runner.
-- [ ] Auth consolidation: `HOLON_AGENT_KEY` is the single canonical auth env var; `_apply_generic_token` and all
+- [x] All new `HOLON_AGENT_*` vars are correctly mapped to their agent-specific CLI flags inside each runner.
+- [x] Auth consolidation: `HOLON_AGENT_KEY` is the single canonical auth env var; `_apply_generic_token` and all
       validators reference only `HOLON_AGENT_KEY`.
-- [ ] All existing unit tests pass with updated env var names.
-- [ ] Docs/README updated to reflect new env var interface.
-- [ ] All Python formatters and linters pass.
+- [x] All existing unit tests pass with updated env var names.
+- [x] Docs/README updated to reflect new env var interface.
+- [x] All Python formatters and linters pass.
 
 ---
 
@@ -72,3 +72,18 @@ This is a **hard cutover** — old agent-specific env vars are removed entirely 
 - **Reference repo** (`holon-agentic-coder-ref`): `feat/holon-agent-envvar-abstraction`
   - Worktree path: `holon-agentic-coder-ref/feat-holon-agent-envvar-abstraction`
   - Based off: `origin/develop`
+
+---
+
+## Resolution
+
+- Replaced all agent-specific env vars with `HOLON_AGENT_*` equivalents in `agent_runner.py` and `cli.py`.
+- Mapped `HOLON_AGENT_KEY` to internal agent env vars via `_apply_generic_token()` to keep down-stream binary execution
+  working correctly.
+- Added stderr deprecation warning to `cli.py` to notify operators who use legacy variables.
+- Added comprehensive unit tests: `test_pi_agent_api_key_env_injection` to check internal env key propagation and
+  `test_legacy_key_deprecation_warning` to check the deprecation warning.
+- Documented single-agent-per-execution assumption near the runner registry.
+- Documented full variable mapping and migration steps in `MIGRATION.md`.
+- Formatted python code with `ruff format` and verified ruff check and prettier are passing successfully.
+- Verified all unit and integration tests compile and pass cleanly on local and remote environments.
