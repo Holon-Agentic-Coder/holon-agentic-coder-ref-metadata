@@ -72,6 +72,8 @@ Spawn a subagent using `invoke_subagent`:
 
 - **TypeName**: `pr_reviewer`
 - **Role**: `PR Reviewer (Iteration <iteration>)`
+- **Model**: `flash` (Use `flash` for intermediate dry-run review passes to conserve tokens, and Pro/inherit only for
+  the final approval pass).
 - **Prompt Instructions**:
   > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` in **Dry-Run Mode (`--dry-run`)**.
   >
@@ -94,16 +96,16 @@ Wait for the subagent to complete and inspect its report.
    - The loop terminates with approval **ONLY IF**:
      1. The reviewer subagent verdict is **`APPROVED`** (or zero actionable CRITICAL/IMPORTANT issues were found).
      2. **ALL GitHub Actions CI checks (`gh pr checks <pr>`) pass cleanly** with no failing jobs.
-   - **Post Final Review to GitHub (Real Mode)**: Spawn a final `pr_reviewer` subagent in **Real Mode** to post the
-     single final compiled review comment to GitHub PR via `gh pr review`.
+   - **Post Final Review to GitHub (Real Mode)**: Spawn a final `pr_reviewer` subagent in **Real Mode** (using model
+     `pro`) to post the single final compiled review comment to GitHub PR via `gh pr review`.
    - **STOP THE LOOP**.
    - Output success message:
      `PR review loop completed successfully! Final review posted to GitHub and all CI builds are passing.`
 
 2. **Max Iterations Cap**:
    - If `iteration >= max_iterations` and issues remain:
-   - **Post Final Review to GitHub (Real Mode)**: Spawn a final `pr_reviewer` subagent in **Real Mode** to post the
-     single final review comment detailing remaining issues to GitHub PR via `gh pr review`.
+   - **Post Final Review to GitHub (Real Mode)**: Spawn a final `pr_reviewer` subagent in **Real Mode** (using model
+     `pro`) to post the single final review comment detailing remaining issues to GitHub PR via `gh pr review`.
    - **STOP THE LOOP**.
    - Output a warning:
      `Reached maximum iteration cap (<max_iterations>). Posted final review comment to GitHub. Stopping loop.`
@@ -118,6 +120,8 @@ Spawn a subagent using `invoke_subagent`:
 
 - **TypeName**: `pr_resolver`
 - **Role**: `PR Review Resolver (Iteration <iteration>)`
+- **Model**: `flash` (Use `flash` for intermediate resolution passes to conserve tokens, reverting to `pro` if
+  resolution fails or on the final pass).
 - **Prompt Instructions**:
   > Load and execute the `pr-review-resolver` skill for `<pr_url_or_number>`.
   >
