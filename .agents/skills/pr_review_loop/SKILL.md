@@ -85,9 +85,12 @@ Spawn a subagent using `invoke_subagent`:
   > 4. **Conditional CI Check**: Verify CI build status via `gh pr checks` **ONLY IF** zero Critical (🔴) or Important
   >    (🟡) issues are found in the code review (defer checking build status if code changes are required).
   > 5. Do **NOT** post comments to GitHub (Dry-Run mode is ON).
-  > 6. Return a concise report containing:
+  > 6. Save the detailed review findings and report to a markdown file: `todo/dry_run_review_iter_<iteration>.md`
+  >    (creating the directory if needed) so the user can review the dry-run feedback.
+  > 7. Return a concise report containing:
   >    - Overall Verdict (`APPROVED`, `CHANGES_REQUESTED`, or `COMMENT`).
   >    - Total number of Critical, Important, and Nit findings.
+  >    - Path to the generated dry run review markdown file (`todo/dry_run_review_iter_<iteration>.md`).
 
 Wait for the subagent to complete and inspect its report.
 
