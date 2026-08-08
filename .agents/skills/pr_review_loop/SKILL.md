@@ -25,6 +25,10 @@ resolution step is executed in a dedicated, fresh subagent**.
 4. **Existing Comment Audit & Resolution**: In addition to new code review passes, inspect pre-existing review comments
    posted on the GitHub PR. Evaluate each comment for diff grounding, technical accuracy, actionability, and scope. If
    verified to be true, apply the resolution, commit, and push the fix.
+5. **Temporary Files & Intermediate Artifacts Location**: All temporary files, diff dumps (e.g.,
+   `todo/pr<number>.diff`), draft review bodies (`todo/review_body.md`), and dry-run reports
+   (`todo/dry_run_review_iter_<iteration>.md`) **MUST be placed into the `todo/` directory**. Never write intermediate
+   files to `scratch/` or other root folders.
 
 ---
 
