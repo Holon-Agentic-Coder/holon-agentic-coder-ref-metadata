@@ -68,19 +68,26 @@ Does the comment include a concrete recommendation or proposed code change? Vagu
 Is this comment in scope for the PR? Comments flagging pre-existing issues unrelated to the current changeset are **out
 of scope** — do not apply them.
 
+#### 3e. User Rejections (Ledger Check)
+
+Has the user explicitly rejected this recommendation? Read `.subagent/coordination.json` (if it exists) to check the
+list of `rejected_suggestions`. If the review comment's request or topic matches one of the rejected suggestions, it is
+**invalid** — do not apply it.
+
 ### Step 4: Apply Changes from Valid Comments
 
-For every comment that passes all checks (grounded, accurate, actionable, and in scope), apply the suggested code change
-directly to the working tree:
+For every comment that passes all checks (grounded, accurate, actionable, in scope, and NOT rejected by the user in the
+ledger), apply the suggested code change directly to the working tree:
 
 - Use the proposed code diff or recommendation from the comment as the specification for the change.
 - Make the minimal edit required — do not refactor or touch code outside the scope of the comment.
 - If a comment's suggestion conflicts with another valid comment's suggestion on the same lines, apply them together and
   resolve the conflict sensibly.
-- Skip any comment that failed one or more checks — do not apply changes from unverified or inaccurate feedback.
+- Skip any comment that failed one or more checks — do not apply changes from unverified, inaccurate, or rejected
+  feedback.
 
 > [!IMPORTANT] Only apply changes from comments that pass **all** evaluation checks. Never apply changes from
-> ungrounded, inaccurate, or out-of-scope comments.
+> ungrounded, inaccurate, out-of-scope, or explicitly user-rejected comments.
 
 ### Step 5: Commit the Applied Changes
 
