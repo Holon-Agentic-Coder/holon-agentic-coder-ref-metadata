@@ -45,10 +45,13 @@ To eliminate single-pass LLM variance, flakiness, and missed edge cases, execute
 subagents or isolated subagent contexts):
 
 1. **Spawn 3 Independent Reviewer Subagents**:
+   - Prior to spawning, read `.subagent/coordination.json` (if it exists) to retrieve any user-rejected recommendations
+     or custom constraints.
    - Spawn subagents (`Reviewer Subagent 1`, `Reviewer Subagent 2`, `Reviewer Subagent 3`) concurrently in parallel
      using a subagent delegation tool (e.g. `invoke_subagent`).
    - Each reviewer subagent receives the PR Title, Description, Code Diff, and system prompt from
-     `.agents/prompts/pr_review_prompt.md`.
+     `.agents/prompts/pr_review_prompt.md`, along with any user-rejected recommendations or constraints retrieved from
+     the ledger.
    - Each reviewer subagent operates in an isolated context without visibility into the other reviewers' outputs.
    - **Subagent Fault Tolerance & Timeout Strategy**: If a subagent fails or times out (e.g. due to rate limits or API
      error), attempt 1 retry by spawning a fresh subagent instance in an isolated context. If a subagent fails after
@@ -139,19 +142,20 @@ Check if **Dry-Run Mode** is enabled (e.g. via `--dry-run` parameter or loop ins
   - Output the structured review findings and verdict strictly to local context/logs for the resolver subagent.
 
 - **If Real Mode is ON (Default / Final Pass)**:
-  - Write your review output to a temporary file (`todo/review_body.md`) to prevent shell character escaping issues.
+  - Write your review output to a temporary file (`.subagent/review_body.md`) to prevent shell character escaping
+    issues.
   - Submit the review to GitHub using the flag matching your overall ensemble verdict:
     - **APPROVED**:
       ```bash
-      gh pr review <pr_url_or_number> --approve -F todo/review_body.md
+      gh pr review <pr_url_or_number> --approve -F .subagent/review_body.md
       ```
     - **CHANGES REQUESTED**:
       ```bash
-      gh pr review <pr_url_or_number> --request-changes -F todo/review_body.md
+      gh pr review <pr_url_or_number> --request-changes -F .subagent/review_body.md
       ```
     - **COMMENT**:
       ```bash
-      gh pr review <pr_url_or_number> --comment -F todo/review_body.md
+      gh pr review <pr_url_or_number> --comment -F .subagent/review_body.md
       ```
 
 _Note: GitHub disallows users from approving or requesting changes on their own PRs. If `--approve` or
@@ -159,8 +163,8 @@ _Note: GitHub disallows users from approving or requesting changes on their own 
 
 ### Step 5: Clean Up
 
-Remove any temporary files created in the `todo/` directory:
+Remove any temporary files created in the `.subagent/` directory:
 
 ```bash
-rm -f todo/review_body.md
+rm -f .subagent/review_body.md
 ```
