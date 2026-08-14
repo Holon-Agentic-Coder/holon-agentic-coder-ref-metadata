@@ -27,9 +27,9 @@ resolution step is executed in a dedicated, fresh subagent**.
    verified to be true, apply the resolution, commit, and push the fix.
 5. **Temporary Files & Intermediate Artifacts Location**: All temporary files, diff dumps (e.g.,
    `.subagent/pr<number>.diff`), draft review bodies (`.subagent/review_body.md`), and dry-run reports
-   (`.subagent/dry_run_review_iter_<iteration>.md`) **MUST be placed into the `.subagent/` directory** (git ignored).
-   Never write intermediate files to `scratch/` or other root folders. Prior to execution, read
-   `.subagent/coordination.json` (if it exists) to fetch user-rejected recommendations and active constraints.
+   (`.subagent/dry_run_review_iter_<iteration>_{short_git_commit}.md`) **MUST be placed into the `.subagent/`
+   directory** (git ignored). Never write intermediate files to `scratch/` or other root folders. Prior to execution,
+   read `.subagent/coordination.json` (if it exists) to fetch user-rejected recommendations and active constraints.
 
 ---
 
@@ -90,12 +90,14 @@ Spawn a subagent using `invoke_subagent`:
   > 4. **Conditional CI Check**: Verify CI build status via `gh pr checks` **ONLY IF** zero Critical (🔴) or Important
   >    (🟡) issues are found in the code review (defer checking build status if code changes are required).
   > 5. Do **NOT** post comments to GitHub (Dry-Run mode is ON).
-  > 6. Save the detailed review findings and report to a markdown file: `.subagent/dry_run_review_iter_<iteration>.md`
-  >    (creating the directory if needed) so the user can review the dry-run feedback.
+  > 6. Save the detailed review findings and report to a markdown file:
+  >    `.subagent/dry_run_review_iter_<iteration>_{short_git_commit}.md` (creating the directory if needed) so the user
+  >    can review the dry-run feedback.
   > 7. Return a concise report containing:
   >    - Overall Verdict (`APPROVED`, `CHANGES_REQUESTED`, or `COMMENT`).
   >    - Total number of Critical, Important, and Nit findings.
-  >    - Path to the generated dry run review markdown file (`.subagent/dry_run_review_iter_<iteration>.md`).
+  >    - Path to the generated dry run review markdown file
+  >      (`.subagent/dry_run_review_iter_<iteration>_{short_git_commit}.md`).
 
 Wait for the subagent to complete and inspect its report.
 
