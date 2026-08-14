@@ -25,6 +25,11 @@ resolution step is executed in a dedicated, fresh subagent**.
 4. **Existing Comment Audit & Resolution**: In addition to new code review passes, inspect pre-existing review comments
    posted on the GitHub PR. Evaluate each comment for diff grounding, technical accuracy, actionability, and scope. If
    verified to be true, apply the resolution, commit, and push the fix.
+5. **Temporary Files & Intermediate Artifacts Location**: All temporary files, diff dumps (e.g.,
+   `.subagent/pr<number>.diff`), draft review bodies (`.subagent/review_body.md`), and dry-run reports
+   (`.subagent/dry_run_review_iter_<iteration>.md`) **MUST be placed into the `.subagent/` directory** (git ignored).
+   Never write intermediate files to `scratch/` or other root folders. Prior to execution, read
+   `.subagent/coordination.json` (if it exists) to fetch user-rejected recommendations and active constraints.
 
 ---
 
@@ -72,17 +77,25 @@ Spawn a subagent using `invoke_subagent`:
 
 - **TypeName**: `pr_reviewer`
 - **Role**: `PR Reviewer (Iteration <iteration>)`
+- **Model**: `flash` (Use `flash` for intermediate dry-run review passes to conserve tokens, and Pro/inherit only for
+  the final approval pass).
 - **Prompt Instructions**:
-  > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` in **Dry-Run Mode (`--dry-run`)**.
+  > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` in **Dry-Run Mode (`--dry-run`)** with
+  > **Single-Agent Mode** enabled.
   >
   > 1. Fetch PR metadata, diff, and existing PR review comments via `gh`.
   > 2. Evaluate code changes against `.agents/prompts/pr_review_prompt.md`.
-  > 3. **Conditional CI Check**: Verify CI build status via `gh pr checks` **ONLY IF** zero Critical (🔴) or Important
+  > 3. **Single-Agent Execution**: Do NOT spawn 3 independent subagents. Perform the PR review evaluation directly in
+  >    this single agent pass to minimize token consumption.
+  > 4. **Conditional CI Check**: Verify CI build status via `gh pr checks` **ONLY IF** zero Critical (🔴) or Important
   >    (🟡) issues are found in the code review (defer checking build status if code changes are required).
-  > 4. Do **NOT** post comments to GitHub (Dry-Run mode is ON).
-  > 5. Return a concise report containing:
+  > 5. Do **NOT** post comments to GitHub (Dry-Run mode is ON).
+  > 6. Save the detailed review findings and report to a markdown file: `.subagent/dry_run_review_iter_<iteration>.md`
+  >    (creating the directory if needed) so the user can review the dry-run feedback.
+  > 7. Return a concise report containing:
   >    - Overall Verdict (`APPROVED`, `CHANGES_REQUESTED`, or `COMMENT`).
   >    - Total number of Critical, Important, and Nit findings.
+  >    - Path to the generated dry run review markdown file (`.subagent/dry_run_review_iter_<iteration>.md`).
 
 Wait for the subagent to complete and inspect its report.
 
@@ -94,16 +107,21 @@ Wait for the subagent to complete and inspect its report.
    - The loop terminates with approval **ONLY IF**:
      1. The reviewer subagent verdict is **`APPROVED`** (or zero actionable CRITICAL/IMPORTANT issues were found).
      2. **ALL GitHub Actions CI checks (`gh pr checks <pr>`) pass cleanly** with no failing jobs.
-   - **Post Final Review to GitHub (Real Mode)**: Spawn a final `pr_reviewer` subagent in **Real Mode** to post the
-     single final compiled review comment to GitHub PR via `gh pr review`.
+   - **Post Final Review to GitHub (Real Mode)**: Spawn a final `pr_reviewer` subagent in **Real Mode** (using model
+     `pro`) with **Ensemble Consensus Mode** enabled.
+     - **Prompt Instructions**:
+       > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` in **Real Mode** using the **3-Agent Ensemble
+       > Consensus Model**. Spawn 3 independent subagents, merge their consensus findings, and post the final review to
+       > GitHub.
    - **STOP THE LOOP**.
    - Output success message:
      `PR review loop completed successfully! Final review posted to GitHub and all CI builds are passing.`
 
 2. **Max Iterations Cap**:
    - If `iteration >= max_iterations` and issues remain:
-   - **Post Final Review to GitHub (Real Mode)**: Spawn a final `pr_reviewer` subagent in **Real Mode** to post the
-     single final review comment detailing remaining issues to GitHub PR via `gh pr review`.
+   - **Post Final Review to GitHub (Real Mode)**: Spawn a final `pr_reviewer` subagent in **Real Mode** (using model
+     `pro`) with **Ensemble Consensus Mode** enabled to post the single final review comment detailing remaining issues
+     to GitHub PR via `gh pr review`.
    - **STOP THE LOOP**.
    - Output a warning:
      `Reached maximum iteration cap (<max_iterations>). Posted final review comment to GitHub. Stopping loop.`
@@ -118,6 +136,8 @@ Spawn a subagent using `invoke_subagent`:
 
 - **TypeName**: `pr_resolver`
 - **Role**: `PR Review Resolver (Iteration <iteration>)`
+- **Model**: `flash` (Use `flash` for intermediate resolution passes to conserve tokens, reverting to `pro` if
+  resolution fails or on the final pass).
 - **Prompt Instructions**:
   > Load and execute the `pr-review-resolver` skill for `<pr_url_or_number>`.
   >
