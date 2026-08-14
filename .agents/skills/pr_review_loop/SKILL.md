@@ -77,8 +77,7 @@ Spawn a subagent using `invoke_subagent`:
 
 - **TypeName**: `pr_reviewer`
 - **Role**: `PR Reviewer (Iteration <iteration>)`
-- **Model**: `flash` (Use `flash` for intermediate dry-run review passes to conserve tokens, and Pro/inherit only for
-  the final approval pass).
+- **Model**: `inherit` (Inherit the parent agent's model for all dry-run review passes).
 - **Prompt Instructions**:
   > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` in **Dry-Run Mode (`--dry-run`)** with
   > **Single-Agent Mode** enabled.
@@ -110,7 +109,7 @@ Wait for the subagent to complete and inspect its report.
      1. The reviewer subagent verdict is **`APPROVED`** (or zero actionable CRITICAL/IMPORTANT issues were found).
      2. **ALL GitHub Actions CI checks (`gh pr checks <pr>`) pass cleanly** with no failing jobs.
    - **Post Final Review to GitHub (Real Mode)**: Spawn a final `pr_reviewer` subagent in **Real Mode** (using model
-     `pro`) with **Ensemble Consensus Mode** enabled.
+     `inherit`) with **Ensemble Consensus Mode** enabled.
      - **Prompt Instructions**:
        > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` in **Real Mode** using the **3-Agent Ensemble
        > Consensus Model**. Spawn 3 independent subagents, merge their consensus findings, and post the final review to
@@ -122,8 +121,8 @@ Wait for the subagent to complete and inspect its report.
 2. **Max Iterations Cap**:
    - If `iteration >= max_iterations` and issues remain:
    - **Post Final Review to GitHub (Real Mode)**: Spawn a final `pr_reviewer` subagent in **Real Mode** (using model
-     `pro`) with **Ensemble Consensus Mode** enabled to post the single final review comment detailing remaining issues
-     to GitHub PR via `gh pr review`.
+     `inherit`) with **Ensemble Consensus Mode** enabled to post the single final review comment detailing remaining
+     issues to GitHub PR via `gh pr review`.
    - **STOP THE LOOP**.
    - Output a warning:
      `Reached maximum iteration cap (<max_iterations>). Posted final review comment to GitHub. Stopping loop.`
@@ -138,8 +137,7 @@ Spawn a subagent using `invoke_subagent`:
 
 - **TypeName**: `pr_resolver`
 - **Role**: `PR Review Resolver (Iteration <iteration>)`
-- **Model**: `flash` (Use `flash` for intermediate resolution passes to conserve tokens, reverting to `pro` if
-  resolution fails or on the final pass).
+- **Model**: `inherit` (Inherit the parent agent's model for all resolution passes).
 - **Prompt Instructions**:
   > Load and execute the `pr-review-resolver` skill for `<pr_url_or_number>`.
   >
