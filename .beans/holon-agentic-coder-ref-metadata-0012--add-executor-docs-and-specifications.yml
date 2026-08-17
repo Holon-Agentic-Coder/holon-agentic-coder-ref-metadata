@@ -1,0 +1,21 @@
+id: holon-agentic-coder-ref-metadata-0012
+title: "Add Executor architecture specification, credential requirements, and sandbox execution guide"
+type: task
+status: done
+assignee: unassigned
+description: >
+  Create execution architecture specification and credentials requirements under docs/executor/,
+  and expand the sandbox guide docs/sandbox/execute_plan.md to mirror the completeness of
+  docs/intent/intent_markdown_spec.md, docs/planner/planning_architecture_specification.md,
+  and docs/planner/agent_credentials_requirements.md.
+created_at: 2026-08-17
+updated_at: 2026-08-17
+notes:
+  - "Follows the complete Holon flow: Intent -> Planner -> Executor."
+  - "Target files in reference repo: docs/executor/execution_architecture_specification.md, docs/executor/agent_credentials_requirements.md, docs/sandbox/execute_plan.md."
+resolution: >
+  Created comprehensive executor documentation and specifications matching the Intent and Planner patterns:
+  - Added docs/executor/execution_architecture_specification.md covering sandbox isolation, safelist rules, plan ingestion, dynamic decomposition, redaction guardrails, execution report generation, and ledger tracking.
+  - Added docs/executor/agent_credentials_requirements.md detailing agent authentication, HOLON_AGENT_* variable forwarding, and session directory mounts.
+  - Expanded docs/sandbox/execute_plan.md into a full guide covering prerequisites, recommended `./holon execute` usage, low-level Docker invocations, argument breakdowns, decomposition behavior, and verification steps.
+  - Formatted all markdown documentation using prettier and verified all 67 test suites pass.
