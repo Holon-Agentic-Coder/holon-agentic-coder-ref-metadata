@@ -1,7 +1,7 @@
 # Executing Antigravity CLI (`agy`) within Sandbox Environments (Linux & macOS Hosts)
 
-This document analyzes the architecture, authentication behavior, technical blockers, and concrete solutions for
-executing the Antigravity AI coding agent CLI (`agy`) inside containerized Docker sandbox environments
+This document provides the definitive architecture, authentication behavior, empirical findings, and concrete solutions
+for executing the Antigravity AI coding agent CLI (`agy`) inside containerized Docker sandbox environments
 (`holon/agent-antigravity`) on both **Linux** and **macOS** hosts.
 
 ---
@@ -15,158 +15,203 @@ When running non-Google agents (`claude`, `codex`, etc.), authentication is stra
 (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`) are passed via environment variables, enabling automated headless execution
 without user prompts.
 
-However, attempting to execute `agy` inside the sandbox container out of the box fails due to authentication
-requirements and platform-specific keyring behaviors.
+However, executing `agy` inside headless Docker containers presents unique authentication requirements based on plan
+types (Individual vs. Enterprise) and OS-level credential storage boundaries.
 
 ---
 
-## 🔍 Verification of Authentication Claims
+## 🔍 Verification of Authentication & Plan Taxonomy
 
-### Claim Under Test:
+Antigravity (`agy`) distinguishes between **Individual / Subscription Plans** (Free, Google AI Pro, Google AI Ultra) and
+**Enterprise Cloud Plans** (Gemini Enterprise / Vertex AI Agent Platform):
 
-> _"agy does not support service account or api key."_
-
-### Empirical Findings:
-
-| Authentication Method                       |       Supported by `agy`?       | Technical Details & Behavior                                                                                                                                                                                                                                                                                 |
-| :------------------------------------------ | :-----------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **API Key (`GEMINI_API_KEY`)**              |     **YES (Conditionally)**     | **Supported when `modelProvider` is set to `"gemini"` in settings.**<br>When `~/.gemini/antigravity-cli/settings.json` contains `{"modelProvider": "gemini"}` and `GEMINI_API_KEY` is exported, `agy`'s internal `auth.go` uses `gemini_api_key` for silent authentication, bypassing OAuth browser prompts. |
-| **API Key (Default Provider)**              |             **NO**              | If `modelProvider` is omitted or left as default, `agy` ignores `GEMINI_API_KEY` / `GOOGLE_API_KEY` and defaults to interactive Google OAuth login.                                                                                                                                                          |
-| **Service Account JSON Keyfile**            | **NO (Direct) / YES (via ADC)** | `agy` does not accept raw `--service-account-key` flags. However, Google Application Default Credentials (ADC) / Workload Identity are supported via `GOOGLE_APPLICATION_CREDENTIALS`.                                                                                                                       |
-| **`AGY_USER_TOKEN` (Hypothetical Env Var)** |             **NO**              | **Completely unsupported.** `agy` never reads `AGY_USER_TOKEN`. Environment variables with this name have no effect.                                                                                                                                                                                         |
-| **OAuth Session / Keyring (macOS)**         |          **Host-Only**          | On macOS, OAuth tokens are stored in the Apple Keychain (`/Library/Keychains`), which cannot be accessed from inside a Linux Docker container.                                                                                                                                                               |
-| **OAuth Session / Keyring (Linux)**         |      **YES (with Mounts)**      | On Linux, session directories (`~/.gemini/antigravity-cli`) and DBus session sockets can be bind-mounted into the container.                                                                                                                                                                                 |
+| Plan Tier                                 | Primary Billing & Identity                                              | Authentication Protocol                                      | Credential Storage Mechanism                                                           | Sandbox Applicability                                       |
+| :---------------------------------------- | :---------------------------------------------------------------------- | :----------------------------------------------------------- | :------------------------------------------------------------------------------------- | :---------------------------------------------------------- |
+| **Individual Plans (e.g. Google AI Pro)** | $20/month subscription linked to personal Google account (`@gmail.com`) | **Personal OAuth 2.0 PKCE (`oauth-personal`)**               | **OS Keyring**: Apple Keychain (macOS) / FreeDesktop Secret Service over D-Bus (Linux) | **Requires Dedicated Sandbox Session or D-Bus Mount**       |
+| **Gemini Enterprise (Cloud)**             | Consumption-based pay-as-you-go linked to GCP project                   | **Application Default Credentials (`oauth-business` / ADC)** | Service Account Key JSON / `~/.config/gcloud/`                                         | **Supported natively via `GOOGLE_APPLICATION_CREDENTIALS`** |
 
 ---
 
-## 🏗️ Architecture & Technical Blockers
+## 🏗️ Technical Blockers on macOS Hosts
 
 ```mermaid
 graph TD
-    subgraph Host["Host Machine (macOS or Linux)"]
+    subgraph Host["macOS Host (Darwin Kernel)"]
         A[User invokes ./holon execute] --> B[sandbox_executor/cli.py]
-        B --> C{Host OS Platform}
-        C -->|macOS| D[OAuth Stored in Apple Keychain]
-        C -->|Linux| E[OAuth in libsecret / ~/.gemini]
+        B --> C[OAuth stored in macOS Keychain /Library/Keychains]
+        D[Host ~/.gemini/antigravity-cli] -.->|Contains logs/cache only - NO TOKENS| C
     end
 
     subgraph Container["Docker Linux Container (holon/agent-antigravity)"]
-        F[role_dispatcher.sh] --> G[agent_runner.py]
-        G --> H[agy CLI Process]
-        D -.Inaccessible from Linux Container.-> H
-        E -.Can be Mounted.-> H
-        H --> I{Authentication Check}
-        I -->|Default OAuth without Keychain| J[Blocks on interactive OAuth URL prompt -> Timeout]
-        I -->|modelProvider: gemini + GEMINI_API_KEY| K[Silent Authentication Success -> Executes Plan]
+        E[role_dispatcher.sh] --> F[agent_runner.py]
+        F --> G[agy CLI Process]
+        C -.Inaccessible across VM boundary.-> G
+        G --> H{Credential Discovery}
+        H -->|Check 1: Linux D-Bus| I[No D-Bus daemon -> Fails]
+        H -->|Check 2: File Token| J[Missing antigravity-oauth-token -> Fails]
+        H -->|Check 3: ADC| K[No GCP Service Account -> Fails]
+        H -->|Fallback| L[Interactive OAuth URL prompt -> Stalls Stdin / Timeout]
     end
+
+    D ===|Mounted directly as :ro or :rw| Container
 ```
 
 ### Key Failure Modes:
 
-1. **Non-Interactive Stdin Blocking**: When `agy` runs in headless print mode (`-p`), any unauthenticated state causes
-   it to print `Authentication required. Please visit the URL to log in:` and wait for authorization code input on
-   stdin. Inside an automated container, this causes the process to hang or time out.
+1. **Cross-OS Keyring Isolation (macOS Hosts)**: On macOS, `agy` compiles
+   [`zalando/go-keyring`](https://github.com/zalando/go-keyring) (`keyring_darwin.go`) and persists OAuth tokens
+   directly into the macOS **Apple Keychain** (`login.keychain-db`). Because Docker Desktop runs containers inside a
+   LinuxKit VM, the container cannot reach the host's Apple Keychain. Mounting the host's `~/.gemini/antigravity-cli`
+   only provides logs and cache—**it contains zero authentication tokens**.
 
-2. **Cross-OS Keyring Boundary (macOS Hosts)**: The executor CLI bind-mounts `~/.gemini/antigravity-cli` as read-only.
-   On macOS, OAuth tokens are kept in the OS Keychain rather than plain JSON files. Mounting the directory alone does
-   not provide credentials to the Linux container.
+2. **Non-Interactive Stdin Blocking**: When `agy` runs in headless print mode (`-p`), unauthenticated execution causes
+   it to prompt for browser login and wait for code input on `stdin`, stalling automated container runners.
 
-3. **Tool Permission Prompts**: In headless `-p` mode, `agy` requires `--dangerously-skip-permissions` to auto-approve
-   tool and terminal execution requests within the sandbox container.
+3. **Directory Hierarchy & Permissions (`.gemini/config`)**: `agy` expects two sibling directories:
+   `~/.gemini/antigravity-cli` (application data) and `~/.gemini/config/projects` (project state). Mounting only
+   `antigravity-cli` causes Docker to create `/home/holon/.gemini` as `root:root`, preventing the container user
+   (`holon`, `uid=1000`) from creating the required config directories.
 
 ---
 
-## 💡 Solutions for Linux and macOS Hosts
+## 💡 Evaluated Solutions for Google AI Pro
 
-### 🌟 Solution 1: Headless Gemini API Key Mode (Universal & Recommended)
+---
 
-_Works identically across macOS hosts, Linux hosts, and CI/CD pipelines._
+### 🌟 Solution 1: Dedicated Isolated Sandbox Session (Universal & Recommended)
 
-- **Concept**: Configure `agy` inside the container to use the Gemini provider with a standard API key.
-- **Mechanism**:
-  1. The host exports `HOLON_AGENT_KEY="<api_key>"`.
-  2. `role_dispatcher.sh` creates `/home/holon/.gemini/antigravity-cli/settings.json` with
-     `{"modelProvider": "gemini"}`.
-  3. `role_dispatcher.sh` exports `GEMINI_API_KEY="${HOLON_AGENT_KEY}"`.
-  4. `AntigravityAgentRunner` builds the command with `--dangerously-skip-permissions`.
+_Provides clean sandbox quarantine without touching the host's macOS Keychain._
+
+- **Architecture**: A dedicated directory on the host (`~/.holon/sessions/antigravity/`) is mapped to
+  `/home/holon/.gemini` inside the container.
+- **One-Time Onboarding**: The developer authenticates once inside an interactive container:
+  ```bash
+  docker run -it -v ~/.holon/sessions/antigravity:/home/holon/.gemini:rw holon/agent-antigravity agy
+  ```
+  This creates the Linux-native token file `/home/holon/.gemini/antigravity-cli/antigravity-oauth-token`.
+- **Autonomous Execution**: All subsequent headless agent runs bind-mount the directory:
+  ```bash
+  docker run --rm \
+    -v ~/.holon/sessions/antigravity:/home/holon/.gemini:rw \
+    holon/agent-antigravity \
+    agy --dangerously-skip-permissions -p "Your prompt here"
+  ```
 - **Pros**:
-  - Fully cross-platform (macOS, Linux, Kubernetes, CI/CD).
-  - Zero dependencies on host OS keychains or GUI browsers.
-  - Consistent with other agents (`claude`, `codex`).
+  - **Maximum Security**: Quarantines container credentials completely from the host system Keychain.
+  - **Parity**: Identical to how `claude` (`~/.config/claude`), `codex` (`~/.codex`), and `pi` (`~/.config/pi`) operate.
+  - **Cross-Platform**: Works identically on macOS, Linux, and remote Docker daemons.
 - **Cons**:
-  - Requires a Gemini API key.
+  - Requires a one-time interactive login command when setting up a new development machine.
 
 ---
 
-### 🐧 Solution 2: Linux Host — Keyring & Session Directory Mount
+### 🍏 Solution 2: Automated macOS Keychain Extraction Bridge
 
-_Applicable for Linux hosts using user OAuth logins._
+_For developers desiring zero-touch authentication inheriting from the host macOS session._
 
-- **Mechanism**:
-  1. Bind-mount the host user's `~/.gemini/antigravity-cli` and `~/.config/antigravity` into `/home/holon/`.
-  2. Bind-mount the DBus session socket:
-     ```bash
-     -v /run/user/${UID}/bus:/run/user/1000/bus \
-     -e DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus"
-     ```
-- **Pros**: Reuses the active developer login without provisioning API keys.
-- **Cons**: Linux host specific; will not work on macOS Docker Desktop.
+- **Architecture**: A host pre-execution hook queries the macOS Keychain via `/usr/bin/security`, extracts the
+  `gemini`/`antigravity` password item, strips the `go-keyring-base64:` envelope, and writes the plain JSON into a
+  temporary runtime directory (`/tmp/holon_antigravity_runtime/antigravity-cli/antigravity-oauth-token`).
+- **Python Bridge Script**:
+  ```python
+  import base64
+  import os
+  import shutil
+  import subprocess
+  import sys
+
+
+  def prepare_antigravity_session() -> str:
+      """Extracts macOS keychain token and prepares a container-ready .gemini directory."""
+      target_dir = "/tmp/holon_antigravity_runtime"
+      os.makedirs(f"{target_dir}/antigravity-cli", exist_ok=True)
+      os.makedirs(f"{target_dir}/config/projects", exist_ok=True)
+
+      host_dir = os.path.expanduser("~/.gemini/antigravity-cli")
+      if os.path.exists(host_dir):
+          for item in os.listdir(host_dir):
+              s = os.path.join(host_dir, item)
+              d = os.path.join(target_dir, "antigravity-cli", item)
+              if item in ("settings.json", "cache", "builtin"):
+                  if os.path.isdir(s):
+                      shutil.copytree(s, d, dirs_exist_ok=True)
+                  else:
+                      shutil.copy2(s, d)
+
+      if sys.platform == "darwin":
+          try:
+              raw = (
+                  subprocess.check_output(
+                      [
+                          "security",
+                          "find-generic-password",
+                          "-s",
+                          "gemini",
+                          "-a",
+                          "antigravity",
+                          "-w",
+                      ],
+                      stderr=subprocess.DEVNULL,
+                  )
+                  .decode()
+                  .strip()
+              )
+
+              if raw.startswith("go-keyring-base64:"):
+                  token_bytes = base64.b64decode(
+                      raw[len("go-keyring-base64:") :]
+                  )
+                  token_file = os.path.join(
+                      target_dir, "antigravity-cli", "antigravity-oauth-token"
+                  )
+                  with open(token_file, "wb") as f:
+                      f.write(token_bytes)
+          except Exception:
+              pass
+
+      return target_dir
+  ```
+
+````
+- **Pros**: Zero-touch; automatically syncs active host login.
+- **Cons**: Programmatically accesses host's system Keychain; dependent on undocumented internal label schemas (`gemini`/`antigravity`).
 
 ---
 
-### 🍏 Solution 3: macOS Host — Ephemeral Token Extraction Bridge
+### 🐧 Solution 3: Linux Host — D-Bus Session Socket Mount
 
-_Applicable for macOS hosts wanting to reuse OAuth user credentials._
+_Applicable for native Linux development hosts._
 
-- **Mechanism**:
-  1. A host-side pre-execution script reads the active OAuth token from the local environment using an Antigravity
-     helper or `gcloud auth print-access-token`.
-  2. The host writes an ephemeral secret bundle (`/run/secrets/holon_auth.json`).
-  3. The container's `agent_runner.py` unpacks the token into `/home/holon/.gemini/antigravity-cli/token.json` or
-     configures Application Default Credentials.
-- **Pros**: Preserves user identity without hardcoded API keys.
-- **Cons**: Requires host-level token extraction scripts.
+- **Architecture**: Bind-mount the active user D-Bus session socket into the container:
+  ```bash
+  docker run --rm \
+    -v /run/user/${UID}/bus:/run/user/1000/bus \
+    -e DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus" \
+    -v ~/.gemini:/home/holon/.gemini:rw \
+    holon/agent-antigravity agy --dangerously-skip-permissions -p "..."
+````
+
+- **Pros**: Reuses the active developer desktop login without provisioning files or API keys.
+- **Cons**: Linux-specific; does not work across macOS Docker Desktop VM.
 
 ---
 
-## 🛠️ Required Code Changes in `holon-agentic-coder-ref`
+## 🛡️ Architectural Trade-off Analysis & Final Recommendation
 
-### 1. `apps/sandbox-executor/entrypoint/role_dispatcher.sh`
-
-Update the `antigravity` branch to configure `GEMINI_API_KEY` and seed `settings.json`:
-
-```bash
-case "${AGENT_ID}" in
-    antigravity)
-        export GEMINI_API_KEY="${HOLON_AGENT_KEY}"
-        export GOOGLE_API_KEY="${HOLON_AGENT_KEY}"
-        mkdir -p /home/holon/.gemini/antigravity-cli
-        if [ ! -f /home/holon/.gemini/antigravity-cli/settings.json ]; then
-            echo '{"modelProvider": "gemini"}' > /home/holon/.gemini/antigravity-cli/settings.json
-        fi
-        ;;
-```
-
-### 2. `apps/sandbox-executor/src/sandbox_executor/agent_runner.py`
-
-Update `AntigravityAgentRunner` to include `--dangerously-skip-permissions`:
-
-```python
-class AntigravityAgentRunner(StandardAgentRunner):
-    """Runner for the Antigravity agent."""
-
-    def build_cmd(self, model_name: str, prompt_file: str, intent_file: str, full_prompt: str) -> list[str]:
-        self.prefix = ["--dangerously-skip-permissions"]
-        self.suffix = ["--effort", os.getenv("HOLON_AGENT_EFFORT", "medium"), "-p"]
-        return super().build_cmd(model_name, prompt_file, intent_file, full_prompt)
-```
+| Dimension                       | **Solution 1: Dedicated Isolated Session [RECOMMENDED]**                                                                           | **Solution 2: macOS Keychain Extraction Bridge**                                                                                |
+| :------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------ |
+| **Security & Sandbox Purity**   | 🔒 **Strict Isolation**: Container credentials live in an isolated directory. Zero access to the host's macOS `login.keychain-db`. | ⚠️ **Host Keychain Access**: Calls `/usr/bin/security` on the host to query system keychain items.                              |
+| **Blast Radius & Containment**  | 🛡️ **Contained**: If an autonomous agent or sandbox container behaves unexpectedly, it cannot access other host credentials.       | ⚠️ **Expanded Surface**: Tightly couples container bootstrap to host-level security enclaves.                                   |
+| **Stability & Upstream Safety** | ✅ **High**: Relies on official Linux file-based storage formats natively supported by `agy`.                                      | ⚠️ **Brittle**: Depends on internal encoding prefix (`go-keyring-base64:`) and service/account labels (`gemini`/`antigravity`). |
+| **Developer Ergonomics**        | ⚠️ **One-Time Bootstrap**: Requires running `docker run -it` once during initial setup on a new machine.                           | ⚡ **Zero-Touch**: Transparently extracts credentials from the active host session.                                             |
+| **Architectural Parity**        | ✅ **Uniform**: Follows the identical pattern used by other agents (`~/.config/claude`, `~/.codex`, `~/.config/pi`).               | ⚠️ **Platform-Specific**: macOS-only implementation requiring separate code paths for Linux/Windows.                            |
 
 ---
 
 ## 📋 Summary Matrix
 
-| Host Environment         | Recommended Approach                          | Key Environment / Mount Requirements                        |
-| :----------------------- | :-------------------------------------------- | :---------------------------------------------------------- |
-| **macOS Host**           | **Solution 1 (Gemini API Key)**               | `HOLON_AGENT_KEY=<api_key>` + `{"modelProvider": "gemini"}` |
-| **Linux Host (Local)**   | **Solution 1** or **Solution 2 (DBus mount)** | `HOLON_AGENT_KEY=<api_key>` OR DBus socket mount            |
-| **CI / Cloud Sandboxes** | **Solution 1 (Gemini API Key)**               | `HOLON_AGENT_KEY=<api_key>` in CI secrets                   |
+| Host Environment & Plan         | Recommended Approach                     | Runtime Mounts & Configuration                                            |
+| :------------------------------ | :--------------------------------------- | :------------------------------------------------------------------------ |
+| **macOS Host (Google AI Pro)**  | **Solution 1 (Dedicated Session)**       | `-v ~/.holon/sessions/antigravity:/home/holon/.gemini:rw`                 |
+| **Linux Host (Google AI Pro)**  | **Solution 1** or **Solution 3 (D-Bus)** | `-v /run/user/${UID}/bus:/run/user/1000/bus` + `DBUS_SESSION_BUS_ADDRESS` |
+| **CI / Enterprise Cloud (GCP)** | **Google Cloud ADC**                     | `-v /run/secrets/creds.json:...` + `GOOGLE_APPLICATION_CREDENTIALS`       |
