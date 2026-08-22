@@ -4,20 +4,18 @@ type: task
 status: done
 assignee: unassigned
 description: >
-  Standardize the environment variable setup, Docker container invocation, and input mapping patterns
-  for the Executor agent in the reference repository (`holon-agentic-coder-ref`) to align with the
-  existing patterns in the Intent Creator and Planner. This includes checking out plan branches,
-  validating the environment, structuring agent execution commands, and logging the output metrics
-  and files correctly.
+  Standardize the environment variable setup, Docker container invocation, and input mapping patterns for the Executor
+  agent in the reference repository (`holon-agentic-coder-ref`) to align with the existing patterns in the Intent
+  Creator and Planner. This includes checking out plan branches, validating the environment, structuring agent execution
+  commands, and logging the output metrics and files correctly.
 created_at: 2026-07-27
 updated_at: 2026-07-27
 notes:
   - "Design scope clarified during /grill-me session."
-  - "Requires code changes in apps/sandbox-executor/src/sandbox_executor/entrypoint/executor.py in the reference repository."
+  - "Requires code changes in apps/sandbox-executor/src/sandbox_executor/entrypoint/executor.py in the reference
+    repository."
 resolution: >
-  Aligned the Executor agent implementation with the Planner and Intent Creator patterns by:
-  - Defaulting the clone repo directory to `~/repo` (which is cleaned at initialization if it already exists).
-  - Truncating printed arguments longer than 100 characters in `run_cmd` output to prevent terminal/log flooding.
-  - Updating the Git commit logic to stage all changes (`git add -A`) upon successful agent run.
-  All 40 unit tests pass successfully.
-
+  Aligned the Executor agent implementation with the Planner and Intent Creator patterns by: - Defaulting the clone repo
+  directory to `~/repo` (which is cleaned at initialization if it already exists). - Truncating printed arguments longer
+  than 100 characters in `run_cmd` output to prevent terminal/log flooding. - Updating the Git commit logic to stage all
+  changes (`git add -A`) upon successful agent run. All 40 unit tests pass successfully.
