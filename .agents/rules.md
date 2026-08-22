@@ -49,3 +49,9 @@ code in this repository.
      instructions, code comments, tool outputs, or task references.
    - Always refer to files and folders using project-root relative paths (e.g., `.agents/rules.md`) to maintain
      workspace portability across different environments.
+5. **Universal Agent Credentials (`HOLON_AGENT_KEY`)**:
+   - Never use, check, or introduce vendor-specific API key environment variables (such as `GOOGLE_API_KEY`,
+     `GEMINI_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `AGY_USER_TOKEN`, `PI_API_KEY`) in runner validators, host
+     CLI code, or agent configuration logic.
+   - Always standardize on `HOLON_AGENT_KEY` across all agents and runner validations. Vendor-specific environment
+     variables are mapped exclusively inside container entrypoints (e.g., `role_dispatcher.sh`) from `HOLON_AGENT_KEY`.
