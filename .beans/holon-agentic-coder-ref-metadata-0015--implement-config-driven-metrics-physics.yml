@@ -1,0 +1,17 @@
+id: holon-agentic-coder-ref-metadata-0015
+title: "Implement config-driven metrics physics and execute complete Holon flow in sandbox with Antigravity"
+type: task
+status: in_progress
+assignee: antigravity-agent
+description: >
+  Rebuild all Holon Docker images from scratch (--no-cache) and execute the complete end-to-end Holon lifecycle flow
+  (Intent Creation -> Planning -> Execution) inside the isolated Docker sandbox environment using the Antigravity agent (agy).
+  The intent externalizes the system physics and metrics configuration (ev_config.json, entropy_config.json,
+  system_entropy_config.json) into holon-config/metrics/ and updates the Planner decision engine to compute EV using
+  dynamic config-driven parameters as specified in architecture.md and metrics.md.
+created_at: 2026-08-22
+updated_at: 2026-08-22
+notes:
+  - "Fresh build of all 9 Docker images initiated with --no-cache."
+  - "Target Intent: config-driven-metrics-physics"
+resolution: ""

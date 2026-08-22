@@ -60,10 +60,11 @@ worktrees. This allows running multiple tasks on different branches simultaneous
      git worktree add ../main main
      ```
    - **For a specific feature branch `{branch_name}`** (checked out to `holon-agentic-coder-ref/{branch_name}`): All
-     development, manual fixes, and feature changes must be created in their own dedicated worktree off
-     `origin/develop`:
+     development, manual fixes, and feature changes must be created in their own dedicated worktree off `origin/develop`
+     with `--no-track` (so the branch does not track `origin/develop` and instead tracks its own remote branch
+     `origin/{branch_name}` when pushed):
      ```bash
-     git worktree add -b {branch_name} ../{branch_name} origin/develop
+     git worktree add --no-track -b {branch_name} ../{branch_name} origin/develop
      ```
 
 ---
