@@ -167,9 +167,9 @@ _For developers desiring zero-touch authentication inheriting from the host macO
                   )
                   with open(token_file, "wb") as f:
                       f.write(token_bytes)
-        except Exception as e:
-            # Log at debug level to avoid leaking sensitive data while aiding diagnostics
-            pass
+          except Exception as e:
+              # Log at debug level to avoid leaking sensitive data while aiding diagnostics
+              pass
 
       return target_dir
   ```
