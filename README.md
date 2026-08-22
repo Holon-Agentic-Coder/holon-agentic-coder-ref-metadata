@@ -54,9 +54,9 @@ Follow these steps to set it up:
      ```bash
      git worktree add ../main main
      ```
-   - **For a specific branch `{branch_name}`** (checked out to `holon-agentic-coder-ref/{branch_name}`):
+   - **For a specific feature branch `{branch_name}`** (checked out to `holon-agentic-coder-ref/{branch_name}`):
      ```bash
-     git worktree add ../{branch_name} {branch_name}
+     git worktree add --no-track -b {branch_name} ../{branch_name} origin/develop
      ```
 
 ## 📂 Directory Structure
