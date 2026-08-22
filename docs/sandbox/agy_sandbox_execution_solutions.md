@@ -113,6 +113,7 @@ _For developers desiring zero-touch authentication inheriting from the host macO
   `gemini`/`antigravity` password item, strips the `go-keyring-base64:` envelope, and writes the plain JSON into a
   temporary runtime directory (`/tmp/holon_antigravity_runtime/antigravity-cli/antigravity-oauth-token`).
 - **Python Bridge Script**:
+
   ```python
   import base64
   import os
@@ -166,15 +167,16 @@ _For developers desiring zero-touch authentication inheriting from the host macO
                   )
                   with open(token_file, "wb") as f:
                       f.write(token_bytes)
-          except Exception:
-              pass
+        except Exception as e:
+            # Log at debug level to avoid leaking sensitive data while aiding diagnostics
+            pass
 
       return target_dir
   ```
 
-````
 - **Pros**: Zero-touch; automatically syncs active host login.
-- **Cons**: Programmatically accesses host's system Keychain; dependent on undocumented internal label schemas (`gemini`/`antigravity`).
+- **Cons**: Programmatically accesses host's system Keychain; dependent on undocumented internal label schemas
+  (`gemini`/`antigravity`).
 
 ---
 
@@ -183,13 +185,14 @@ _For developers desiring zero-touch authentication inheriting from the host macO
 _Applicable for native Linux development hosts._
 
 - **Architecture**: Bind-mount the active user D-Bus session socket into the container:
+
   ```bash
   docker run --rm \
     -v /run/user/${UID}/bus:/run/user/1000/bus \
     -e DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus" \
     -v ~/.gemini:/home/holon/.gemini:rw \
     holon/agent-antigravity agy --dangerously-skip-permissions -p "..."
-````
+  ```
 
 - **Pros**: Reuses the active developer desktop login without provisioning files or API keys.
 - **Cons**: Linux-specific; does not work across macOS Docker Desktop VM.
