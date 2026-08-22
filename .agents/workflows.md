@@ -48,9 +48,9 @@ worktrees. This allows running multiple tasks on different branches simultaneous
    cd holon-agentic-coder-ref/.git
    ```
 3. **Set up worktrees for your branches**:
-   - **For the `develop` branch** (checked out to `holon-agentic-coder-ref/develop`): This is the primary active
-     development branch where all codebase features, bug fixes, and development take place. All development and feature
-     work in `holon-agentic-coder-ref/` must be based off the `origin/develop` branch.
+   - **For the `develop` branch** (checked out to `holon-agentic-coder-ref/develop`): This is the baseline active
+     development branch tracking `origin/develop`. **Never develop or modify code directly on `develop`.** All feature
+     changes must be made either in a separate dedicated worktree or as part of the Holon flow.
      ```bash
      git worktree add ../develop develop
      ```
@@ -59,9 +59,11 @@ worktrees. This allows running multiple tasks on different branches simultaneous
      ```bash
      git worktree add ../main main
      ```
-   - **For a specific branch `{branch_name}`** (checked out to `holon-agentic-coder-ref/{branch_name}`):
+   - **For a specific feature branch `{branch_name}`** (checked out to `holon-agentic-coder-ref/{branch_name}`): All
+     development, manual fixes, and feature changes must be created in their own dedicated worktree off
+     `origin/develop`:
      ```bash
-     git worktree add ../{branch_name} {branch_name}
+     git worktree add -b {branch_name} ../{branch_name} origin/develop
      ```
 
 ---
@@ -70,12 +72,14 @@ worktrees. This allows running multiple tasks on different branches simultaneous
 
 To maintain clean repository history, follow this Git workflow:
 
-1. **Branching (Do NOT create branches autonomously)**:
-   - **Never create a new branch unless explicitly instructed by the user.**
-   - Work on the active branch that is currently checked out in the workspace.
+1. **Branching & Worktree Isolation**:
+   - **Never develop or make code changes directly on the `develop` worktree.**
+   - For all code changes in `holon-agentic-coder-ref/`, work must either: a) happen in a dedicated Git worktree (e.g.
+     `holon-agentic-coder-ref/feat-<name>` branched off `origin/develop`), or b) execute autonomously through the Holon
+     flow (`I-...` Intent -> Plan -> Execution branches).
+   - In this metadata repository (`holon-agentic-coder-ref-metadata`), work on the active checked-out branch.
    - If the user explicitly requests you to create a new branch, use the convention:
      `git checkout -b <type>/<bean-id>-<short-description>` (e.g., `feat/0001-add-agent-rules`).
-   - **For `holon-agentic-coder-ref/`**: All development and feature work must be based off the `origin/develop` branch.
 2. **Formatting (Mandatory)**:
    - Always run `npx prettier --write "**/*.md"` to format markdown files before creating any commits.
 3. **Commits**:
