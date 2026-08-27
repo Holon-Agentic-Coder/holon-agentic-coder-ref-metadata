@@ -55,3 +55,36 @@ code in this repository.
      CLI code, or agent configuration logic.
    - Always standardize on `HOLON_AGENT_KEY` across all agents and runner validations. Vendor-specific environment
      variables are mapped exclusively inside container entrypoints (e.g., `role_dispatcher.sh`) from `HOLON_AGENT_KEY`.
+
+---
+
+## 📝 Architectural & Deprecation Directives
+
+1. **Complete Deprecation & Agent Removal**:
+   - When dropping support for an agent (such as `open-codex`), remove all references completely across Dockerfiles,
+     build matrix targets (`docker-bake.hcl`), Python registries (`agent_runner.py`, `cli.py`), entrypoints
+     (`role_dispatcher.sh`), and test suites.
+   - Do NOT introduce deprecation fallback stubs, error interception handlers, CLI transition feedback, or legacy
+     compatibility shims when dropping an agent unless explicitly requested.
+   - Update documentation files by completely stripping all references to the dropped agent rather than adding legacy,
+     migration, or deprecation documentation sections.
+   - Do NOT generate migration notices, transition guides, or deprecation warnings in release notes or changelogs when
+     an agent is dropped.
+
+---
+
+## 🧠 Permanent Engineering Learnings & Invariants
+
+1. **Agent Removal Invariant**:
+   - Dropping an agent means total elimination without legacy stubs, CLI deprecation error checks, migration guides, or
+     release notes deprecation warnings.
+
+2. **Dynamic Version Resolution Invariant**:
+   - Do NOT maintain static hardcoded fallback version maps in code. Dynamic CLI binary execution inside Docker
+     containers is the single source of truth. If execution fails, fall back to `"unknown"`.
+   - Validate `subprocess.run` exit codes (`result.returncode == 0`) and explicitly catch `subprocess.TimeoutExpired`
+     for debug logging clarity.
+
+3. **Empirical Verification Invariant**:
+   - Never accept a hypothesized syntax or import failure from a raw LLM diff review without verifying via actual code
+     execution (`pytest`, `python3 -c "import ..."`). Unified diff context lines must not be confused with deleted code.
