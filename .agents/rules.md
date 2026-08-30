@@ -92,8 +92,10 @@ code in this repository.
      execution (`pytest`, `python3 -c "import ..."`). Unified diff context lines must not be confused with deleted code.
 
 4. **No `PYTHONPATH=...` Command Style & `uv` Enforcement Everywhere**:
-   - Never use or document `PYTHONPATH=... python3` for testing, running scripts, or writing documentation. Always
-     execute and document tests and commands using `uv` (e.g., `uv run pytest`).
+   - Never use, execute, or document `PYTHONPATH=... python3` or `PYTHONPATH=... python3 -c` for running scripts,
+     testing, inspecting modules, or writing documentation.
+   - Always navigate to the target workspace root (`cd holon-agentic-coder-ref/develop`) and execute inline Python
+     snippets using `uv run python -c "..."` or test suites using `uv run pytest`.
 
 5. **Strict Repository Separation (Implementation vs Metadata)**:
    - `holon-agentic-coder-ref-metadata` is the control plane harness and metadata store
@@ -105,3 +107,14 @@ code in this repository.
      `holon-agentic-coder-ref` must be executed strictly inside `holon-agentic-coder-ref/` (or its git worktrees), and
      the `origin` remote of `holon-agentic-coder-ref-metadata` must NEVER be altered to point to
      `holon-agentic-coder-ref.git`.
+
+6. **Real API Test Script Invariant (No Pre-Canned Workloads)**:
+   - Test scripts designed to hit live LLM provider APIs must NEVER contain hardcoded, pre-canned, or mocked workload
+     arrays/dictionaries in source code.
+   - Real API test scripts must always accept dynamic user inputs: direct user prompts (`-p` / `--prompt`) or external
+     request payload files (`-f` / `--file`).
+
+7. **Explicit API Execution & Key State Invariant**:
+   - Never claim or report that a live API test was executed when no API key was supplied by the user.
+   - Always declare upfront whether an execution was an offline payload simulation (zero API calls) versus an actual
+     live network socket request to upstream provider endpoints.
