@@ -27,7 +27,9 @@ code in this repository.
    - Never run command strings containing arbitrary, uninspected bash code or scripts from untrusted external URLs.
    - Do not invoke interactive prompts or commands that block indefinitely unless you set appropriate timeouts.
    - **Python & Test Execution**: Always run Python scripts, tests, and CLI tools using `uv` from the repository root
-     directory. Never invoke `python3`, `pytest`, or `.venv` binaries directly.
+     directory. Never invoke `python3`, `pytest`, or `.venv` binaries directly. When generating documentation, scratch
+     scripts, or instructions, ALWAYS specify `uv run pytest` (or `uv run <script>`) and NEVER document or generate
+     `PYTHONPATH=...` prefixes or raw `python3` invocations.
      - **Unit Test Execution**: Run unit tests using `uv run pytest -m "not integration_test"` from the repository root.
      - **Integration Test Execution**: When running integration tests, first build required container images using
        `./apps/sandbox-executor/build_all_images.sh --output-log`, then run `uv run pytest -m "integration_test"`.
@@ -89,9 +91,9 @@ code in this repository.
    - Never accept a hypothesized syntax or import failure from a raw LLM diff review without verifying via actual code
      execution (`pytest`, `python3 -c "import ..."`). Unified diff context lines must not be confused with deleted code.
 
-4. **No `PYTHONPATH=...` Command Style & `uv` Enforcement**:
-   - Never use `PYTHONPATH=... python3` for testing or running scripts. Always execute tests and commands using `uv`
-     (e.g., `uv run pytest`).
+4. **No `PYTHONPATH=...` Command Style & `uv` Enforcement Everywhere**:
+   - Never use or document `PYTHONPATH=... python3` for testing, running scripts, or writing documentation. Always
+     execute and document tests and commands using `uv` (e.g., `uv run pytest`).
 
 5. **Strict Repository Separation (Implementation vs Metadata)**:
    - `holon-agentic-coder-ref-metadata` is the control plane harness and metadata store
