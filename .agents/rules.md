@@ -118,3 +118,19 @@ code in this repository.
    - Never claim or report that a live API test was executed when no API key was supplied by the user.
    - Always declare upfront whether an execution was an offline payload simulation (zero API calls) versus an actual
      live network socket request to upstream provider endpoints.
+
+8. **Holon Flow Sandbox Execution Invariant (`./holon`)**:
+   - For all autonomous agent feature tasks in `holon-agentic-coder-ref`, execute the full containerized lifecycle using
+     the `./holon` host CLI wrapper (`./holon intent <file>`, `./holon plan <intent_branch>`,
+     `./holon execute <plan_branch>`).
+   - The `./holon` script automatically manages container sandbox isolation, credential discovery, SSH agent socket
+     forwarding, branch creation (`I-...` Intent, `P-...` Plan, `E-...` Execution), and automated remote branch pushing
+     to `origin`.
+   - Never bypass `./holon` by performing manual host-side git worktree code edits unless explicitly instructed by the
+     user.
+
+9. **MITM Proxy Telemetry System of Record (`X-Holon-*`)**:
+   - Streaming performance metrics (TTFT, Prefill TPS, Tail Prefill TPS, Decode Time, Output TPS, Total Time, Prompt
+     Cache Hit Rate) MUST be computed centrally inside `sandbox_executor.token_reduction.mitm_addon`.
+   - Injects standardized `X-Holon-*` HTTP response headers to ensure 100% provider-agnostic and agent-agnostic
+     telemetry across all containerized AI agents (`antigravity`, `claude`, `codex`, `pi`).
