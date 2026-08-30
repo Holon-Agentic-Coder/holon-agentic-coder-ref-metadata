@@ -88,3 +88,18 @@ code in this repository.
 3. **Empirical Verification Invariant**:
    - Never accept a hypothesized syntax or import failure from a raw LLM diff review without verifying via actual code
      execution (`pytest`, `python3 -c "import ..."`). Unified diff context lines must not be confused with deleted code.
+
+4. **No `PYTHONPATH=...` Command Style & `uv` Enforcement**:
+   - Never use `PYTHONPATH=... python3` for testing or running scripts. Always execute tests and commands using `uv`
+     (e.g., `uv run pytest`).
+
+5. **Strict Repository Separation (Implementation vs Metadata)**:
+   - `holon-agentic-coder-ref-metadata` is the control plane harness and metadata store
+     (`git@github.com:Holon-Agentic-Coder/holon-agentic-coder-ref-metadata.git`).
+   - `holon-agentic-coder-ref` is the target implementation codebase
+     (`git@github.com:Holon-Agentic-Coder/holon-agentic-coder-ref.git`), located inside the `holon-agentic-coder-ref/`
+     directory.
+   - NEVER mix up their git remotes, working directories, commit histories, or task contexts. Commands targeting
+     `holon-agentic-coder-ref` must be executed strictly inside `holon-agentic-coder-ref/` (or its git worktrees), and
+     the `origin` remote of `holon-agentic-coder-ref-metadata` must NEVER be altered to point to
+     `holon-agentic-coder-ref.git`.
