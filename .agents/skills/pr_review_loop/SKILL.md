@@ -21,8 +21,9 @@ resolution step is executed in a dedicated, fresh subagent**.
 2. **Termination Safety & Consensus Integrity**: The loop terminates when the 3-agent ensemble consensus review returns
    **`APPROVED`** (zero Critical or Important issues remain; only Nit/Optional findings allowed) AND all CI checks pass
    cleanly, or when the **max iteration cap** (default: `10`) is reached. **If the consensus agent reviewers flag any
-   Critical or Important issues, the loop MUST NOT terminate; it must resolve the issues, push the fixes, and run the
-   ensemble consensus review again.**
+   Critical or Important issues, the review results MUST NOT be posted to the PR on GitHub.** The loop must resolve the
+   issues, push the fixes, and run the review again. Review results are **strictly posted to GitHub only when there are
+   no more Critical or Important issues left to action** (or when the max iteration cap is reached).
 3. **Remote Sync**: After each resolution pass, changes are committed and pushed to the remote feature branch so GitHub
    PR diffs update dynamically for subsequent review passes.
 4. **Existing Comment Audit & Resolution**: In addition to new code review passes, inspect pre-existing review comments
@@ -112,33 +113,54 @@ Wait for the subagent to complete and inspect its report.
      1. The dry-run reviewer subagent verdict is **`APPROVED`** (zero Critical 🔴 or Important 🟡 issues remain; **only
         Nit / Optional 🟢 findings are allowed**).
      2. **ALL GitHub Actions CI checks (`gh pr checks <pr>`) pass cleanly** with no failing jobs.
-   - **Execute 3-Agent Ensemble Consensus Review (Real Mode)**: Spawn a `pr_reviewer` subagent in **Real Mode** (using
-     model `inherit`) with **Ensemble Consensus Mode** enabled.
+   - **Execute 3-Agent Ensemble Consensus Review**: Spawn a `pr_reviewer` subagent with **Ensemble Consensus Mode**
+     enabled.
      - **Prompt Instructions**:
-       > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` in **Real Mode** using the **3-Agent Ensemble
-       > Consensus Model**. Spawn 3 independent subagents, merge their consensus findings, and post the review to
-       > GitHub.
-   - **Evaluate Consensus Review Verdict**:
-     - **Case 1: Consensus APPROVED (0 Critical, 0 Important issues)**:
-       - The PR has received unanimous ensemble consensus approval with zero blocking issues.
+       > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` using the **3-Agent Ensemble Consensus
+       > Model**. Spawn 3 independent subagents, merge their consensus findings into a consolidated report, and evaluate
+       > issue counts.
+       >
+       > **Posting Gate**:
+       >
+       > - If ANY Critical (🔴) or Important (🟡) issues are flagged by the consensus reviewers:
+       >   - **DO NOT POST TO GITHUB**. Skip executing `gh pr review`.
+       >   - Save the consolidated findings report locally to
+       >     `.subagent/consensus_review_iter_<iteration>_{short_git_commit}.md`.
+       > - If and ONLY IF zero Critical (🔴) and zero Important (🟡) issues remain (only Nit/Optional 🟢 findings
+       >   allowed) AND all GitHub Actions CI checks pass cleanly:
+       >   - Write the review body to `.subagent/review_body.md`.
+       >   - Post the official review to GitHub via
+       >     `gh pr review <pr_url_or_number> --approve -F .subagent/review_body.md` (falling back to `--comment` if PR
+       >     author is the authenticated user).
+   - **Evaluate Consensus Review Verdict & Exit Conditions**:
+     - **Case 1: Clean Consensus Pass (0 Critical, 0 Important issues remaining)**:
+       - The PR has received unanimous ensemble consensus approval with zero blocking or important issues left to
+         action.
+       - Official review has been posted to GitHub.
        - **STOP THE LOOP**.
        - Output success message:
          `PR review loop completed successfully! Final consensus review posted to GitHub and all CI builds are passing.`
-     - **Case 2: Consensus Reviewers Flagged Critical or Important Issues (`CHANGES_REQUESTED`)**:
-       - **DO NOT STOP THE LOOP**.
-       - If `iteration >= max_iterations`, stop and report that the maximum iteration cap was reached.
-       - Otherwise, **proceed immediately to Phase C (Resolver Subagent)** with the consensus findings report. The
-         resolver subagent MUST resolve all flagged Critical and Important issues, commit the fixes, push to the remote
-         feature branch, and **re-run the 3-Agent Ensemble Consensus Review** in the next iteration.
+     - **Case 2: Critical or Important Issues Flagged by Consensus Reviewers**:
+       - **DO NOT POST TO GITHUB**. Ensure no intermediate review comment was posted to the GitHub PR thread.
+       - If `iteration >= max_iterations`:
+         - Spawn a final `pr_reviewer` subagent to post the final review comment detailing remaining issues to GitHub PR
+           via `gh pr review`.
+         - **STOP THE LOOP**.
+         - Output warning:
+           `Reached maximum iteration cap (<max_iterations>). Posted final review comment to GitHub. Stopping loop.`
+       - Otherwise:
+         - **DO NOT STOP THE LOOP**.
+         - **Proceed immediately to Phase C (Resolver Subagent)** with the consensus findings report from
+           `.subagent/consensus_review_iter_<iteration>_{short_git_commit}.md`. The resolver subagent MUST resolve all
+           flagged Critical and Important issues, commit the fixes, push to the remote feature branch, and re-run the
+           review in the next iteration.
 
 2. **Max Iterations Cap**:
-   - If `iteration >= max_iterations` and issues remain:
-   - **Post Final Review to GitHub (Real Mode)**: Spawn a final `pr_reviewer` subagent in **Real Mode** (using model
-     `inherit`) with **Ensemble Consensus Mode** enabled to post the single final review comment detailing remaining
-     issues to GitHub PR via `gh pr review`.
-   - **STOP THE LOOP**.
-   - Output a warning:
-     `Reached maximum iteration cap (<max_iterations>). Posted final review comment to GitHub. Stopping loop.`
+   - If `iteration >= max_iterations` and unresolved Critical or Important issues remain after Phase C:
+     - Post a single final review comment to GitHub PR via `gh pr review` summarizing remaining issues.
+     - **STOP THE LOOP**.
+     - Output a warning:
+       `Reached maximum iteration cap (<max_iterations>). Posted final review comment to GitHub. Stopping loop.`
 
 ---
 
