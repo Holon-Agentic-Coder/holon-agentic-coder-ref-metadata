@@ -18,8 +18,11 @@ resolution step is executed in a dedicated, fresh subagent**.
 ## 📐 Architecture & Principles
 
 1. **Context Isolation**: Each review pass and resolution pass runs in a newly spawned subagent with fresh context.
-2. **Termination Safety**: The loop terminates when the PR review returns **`APPROVED`** (or zero actionable issues
-   remain), or when the **max iteration cap** (default: `10`) is reached.
+2. **Termination Safety & Consensus Integrity**: The loop terminates when the 3-agent ensemble consensus review returns
+   **`APPROVED`** (zero Critical or Important issues remain; only Nit/Optional findings allowed) AND all CI checks pass
+   cleanly, or when the **max iteration cap** (default: `10`) is reached. **If the consensus agent reviewers flag any
+   Critical or Important issues, the loop MUST NOT terminate; it must resolve the issues, push the fixes, and run the
+   ensemble consensus review again.**
 3. **Remote Sync**: After each resolution pass, changes are committed and pushed to the remote feature branch so GitHub
    PR diffs update dynamically for subsequent review passes.
 4. **Existing Comment Audit & Resolution**: In addition to new code review passes, inspect pre-existing review comments
@@ -105,18 +108,28 @@ Wait for the subagent to complete and inspect its report.
 #### Phase B: Evaluate Exit Conditions & Post Final Review
 
 1. **Approval / Clean Pass**:
-   - The loop terminates with approval **ONLY IF**:
-     1. The reviewer subagent verdict is **`APPROVED`** (or zero actionable CRITICAL/IMPORTANT issues were found).
+   - The loop moves to consensus review **ONLY IF**:
+     1. The dry-run reviewer subagent verdict is **`APPROVED`** (zero Critical 🔴 or Important 🟡 issues remain; **only
+        Nit / Optional 🟢 findings are allowed**).
      2. **ALL GitHub Actions CI checks (`gh pr checks <pr>`) pass cleanly** with no failing jobs.
-   - **Post Final Review to GitHub (Real Mode)**: Spawn a final `pr_reviewer` subagent in **Real Mode** (using model
-     `inherit`) with **Ensemble Consensus Mode** enabled.
+   - **Execute 3-Agent Ensemble Consensus Review (Real Mode)**: Spawn a `pr_reviewer` subagent in **Real Mode** (using
+     model `inherit`) with **Ensemble Consensus Mode** enabled.
      - **Prompt Instructions**:
        > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` in **Real Mode** using the **3-Agent Ensemble
-       > Consensus Model**. Spawn 3 independent subagents, merge their consensus findings, and post the final review to
+       > Consensus Model**. Spawn 3 independent subagents, merge their consensus findings, and post the review to
        > GitHub.
-   - **STOP THE LOOP**.
-   - Output success message:
-     `PR review loop completed successfully! Final review posted to GitHub and all CI builds are passing.`
+   - **Evaluate Consensus Review Verdict**:
+     - **Case 1: Consensus APPROVED (0 Critical, 0 Important issues)**:
+       - The PR has received unanimous ensemble consensus approval with zero blocking issues.
+       - **STOP THE LOOP**.
+       - Output success message:
+         `PR review loop completed successfully! Final consensus review posted to GitHub and all CI builds are passing.`
+     - **Case 2: Consensus Reviewers Flagged Critical or Important Issues (`CHANGES_REQUESTED`)**:
+       - **DO NOT STOP THE LOOP**.
+       - If `iteration >= max_iterations`, stop and report that the maximum iteration cap was reached.
+       - Otherwise, **proceed immediately to Phase C (Resolver Subagent)** with the consensus findings report. The
+         resolver subagent MUST resolve all flagged Critical and Important issues, commit the fixes, push to the remote
+         feature branch, and **re-run the 3-Agent Ensemble Consensus Review** in the next iteration.
 
 2. **Max Iterations Cap**:
    - If `iteration >= max_iterations` and issues remain:
@@ -131,7 +144,8 @@ Wait for the subagent to complete and inspect its report.
 
 #### Phase C: Run Resolver Subagent
 
-If changes were requested or actionable issues exist (from new review findings or existing PR comments):
+If changes were requested or actionable issues exist (any Critical 🔴 or Important 🟡 findings, or actionable Nit 🟢
+suggestions):
 
 Spawn a subagent using `invoke_subagent`:
 
@@ -141,9 +155,11 @@ Spawn a subagent using `invoke_subagent`:
 - **Prompt Instructions**:
   > Load and execute the `pr-review-resolver` skill for `<pr_url_or_number>`.
   >
-  > 1. Fetch PR diff and existing review comments via `gh`.
-  > 2. Critically evaluate each comment for diff grounding, technical accuracy, actionability, and scope relevance.
-  > 3. Apply changes from valid comments to the working tree.
+  > 1. Fetch PR diff and existing review comments / dry-run review findings report via `gh` or `.subagent/`.
+  > 2. Critically evaluate each comment/finding across **all severity levels (Critical 🔴, Important 🟡, and
+  >    Nit/Optional 🟢)** for diff grounding, technical accuracy, actionability, and scope relevance.
+  > 3. Apply changes to resolve **all Critical (🔴) and Important (🟡) issues**, as well as any actionable
+  >    **Nit/Optional (🟢)** suggestions.
   > 4. Commit applied changes with message: `fix: apply validated PR review suggestions (Iteration <iteration>)`.
   > 5. Push local commits to remote feature branch (`git push origin <branch_name>`) so GitHub PR diff updates for the
   >    next review pass.
