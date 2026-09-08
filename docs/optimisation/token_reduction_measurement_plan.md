@@ -94,11 +94,16 @@ that appends full transaction details to `${WIRE_LOG_DIR}/turn_{turn_id}_{flow_i
 - **Turn ID Derivation & Multi-Agent Flow Scoping**: When running multi-agent workflows (such as Method 6 Ringer),
   multiple subagents execute concurrently through `:8080`. HTTP requests arriving at the proxy are stateless; relying
   solely on a naive sequential counter can cause interleaved turn counts across concurrent subagents. To establish
-  strict correlation, `mitm_addon.py` derives the turn ID using the following precedence order:
-  1. **Harness Header**: Extract from an explicit request header if supplied by the test harness (e.g.,
-     `X-Holon-Turn-Id`).
-  2. **Message Depth Counter**: Count user-role turns in the request payload
-     (`len([m for m in messages if m.get('role') == 'user'])`).
+  strict flow correlation and subagent attribution, companion request headers (`X-Holon-Turn-Id`, `X-Holon-Agent-Id`,
+  `X-Holon-Agent-Role`) can be supplied directly by the benchmark harness or multi-agent orchestrator. If headers are
+  absent, `mitm_addon.py` derives the turn ID using the following precedence order:
+  1. **Harness Header**: Extract from explicit request headers if supplied by the test harness (e.g., `X-Holon-Turn-Id`,
+     `X-Holon-Agent-Id`, `X-Holon-Agent-Role`).
+  2. **Message Depth Counter**: Count user and tool turns in the request payload
+     (`len([m for m in messages if m.get('role') in ('user', 'tool')])` or
+     `len([m for m in messages if m.get('role') == 'assistant']) + 1`). This ensures turn IDs increment reliably across
+     both Anthropic (user-wrapped tool results) and OpenAI/OpenAI-compatible tool-calling loops (dedicated `tool` role
+     turns).
   3. **Sequence Counter Fallback**: Fallback to an internal per-flow sequential counter.
 
   Individual transaction dump files are scoped by turn ID and flow or subagent ID (`turn_{turn_id}_{flow_id}.json`) to
@@ -112,10 +117,16 @@ that appends full transaction details to `${WIRE_LOG_DIR}/turn_{turn_id}_{flow_i
   scrub URL query parameters matching sensitive keys (e.g., stripping Google Gemini `?key=...` or `?api_key=...`
   parameter values to `?key=[REDACTED]`). Furthermore, to protect against accidental secret leakage in agentic workflows
   (such as an agent inspecting a `.env` file or executing shell commands with tokens), `dump_wire_transaction()` must
-  perform deep payload scrubbing across message contents, tool inputs, and tool outputs using regex pattern matching for
-  common API key signatures (e.g., Anthropic keys `sk-ant-[a-zA-Z0-9_\-]+`, OpenAI keys `sk-[a-zA-Z0-9_\-]+`, Google AI
-  keys `AIzaSy[a-zA-Z0-9_\-]+`) replacing detected secrets with `"[REDACTED_SECRET]"` prior to persisting transaction
-  payloads or endpoint URLs to disk.
+  perform deep payload scrubbing across message contents, tool inputs, and tool outputs using word-boundary-anchored
+  regex pattern matching for common API key signatures:
+  - Anthropic API keys: `r'\bsk-ant-[a-zA-Z0-9_\-]+\b'`
+  - OpenAI Project & User API keys: `r'\bsk-proj-[a-zA-Z0-9_\-]+\b'`, `r'\bsk-[a-zA-Z0-9_\-]+\b'`
+  - Google AI keys: `r'\bAIzaSy[a-zA-Z0-9_\-]+\b'`
+  - GitHub Personal Access Tokens: `r'\bghp_[a-zA-Z0-9]{36}\b'`, `r'\bgithub_pat_[a-zA-Z0-9_]{82}\b'`
+  - AWS Access Key IDs: `r'\bAKIA[0-9A-Z]{16}\b'`, `r'\bASIA[0-9A-Z]{16}\b'`
+
+  All detected secret matches in message bodies and payloads are replaced with `"[REDACTED_SECRET]"` prior to persisting
+  transaction payloads or endpoint URLs to disk.
 
 ```json
 {
@@ -164,16 +175,19 @@ that appends full transaction details to `${WIRE_LOG_DIR}/turn_{turn_id}_{flow_i
 }
 ```
 
-### 2. Live Web Dashboard (`mitmweb`)
+### 2. Live Web Dashboard (`mitmweb`) & Headless CI Runner (`mitmdump`)
 
-Instead of running headless `mitmdump`, expose `mitmweb` with the web interface on port `8081`:
+#### Interactive Development (`mitmweb`)
+
+For local development and real-time request inspection, expose `mitmweb` with the web interface on port `8081`:
 
 ```bash
 # Ensure log directory exists on host prior to container startup
 mkdir -p todo/mitm_wire_logs
 
 # Tip (Linux hosts): If UID/GID permissions prevent container writes (mitmproxy runs as UID 1000),
-# grant write permissions via 'chmod 777 todo/mitm_wire_logs' or add '--user $(id -u):$(id -g)' to docker run.
+# grant write permissions via 'chmod 777 todo/mitm_wire_logs' or add '--user $(id -u):$(id -g)'
+# along with '-e HOME=/tmp' (to prevent permission errors when accessing /home/mitmproxy).
 
 docker run --rm -it \
   -p 127.0.0.1:8080:8080 \
@@ -192,6 +206,26 @@ docker run --rm -it \
 - Navigate to `http://localhost:8081` in your browser.
 - Every HTTP request, modified body, diff view, SSE event stream, and header will be interactively visualizable and
   inspectable in real time.
+
+#### Automated CI/CD Headless Execution (`mitmdump`)
+
+In automated CI/CD runner pipelines (e.g., GitHub Actions, GitLab CI), interactive pseudo-TTY allocation (`-it`) and
+long-lived web UIs can block pipeline execution. Launch `mitmdump` in detached mode (`-d`) without the web interface:
+
+```bash
+# Headless detached container execution for CI/CD runner environments
+docker run -d --name mitmproxy-wire-logger \
+  -p 127.0.0.1:8080:8080 \
+  -e WIRE_LOG_DIR=/tmp/wire_logs \
+  -e PYTHONPATH=/tmp/src \
+  -v $(pwd)/holon-agentic-coder-ref/develop/apps/sandbox-executor/src:/tmp/src:ro \
+  -v $(pwd)/holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/mitm_addon.py:/tmp/mitm_addon.py:ro \
+  -v $(pwd)/todo/mitm_wire_logs:/tmp/wire_logs \
+  -v ~/.holon/proxy-ca:/home/mitmproxy/.mitmproxy \
+  mitmproxy/mitmproxy:12.2.3 \
+  mitmdump -s /tmp/mitm_addon.py --listen-port 8080 \
+  --set ignore_hosts='^(api\.github\.com|github\.com):443$'
+```
 
 > [!NOTE] **Security Advisory**: Ports `8080` and `8081` are bound to loopback `127.0.0.1` by default. If binding to an
 > external network interface (e.g., in shared staging or remote environments), pass `--web-password <PASSWORD>` to
@@ -294,6 +328,15 @@ _Example for Claude 3.5 Sonnet: Base input price is \$3.00/MTok, cache read is \
 \$2.70/MTok read), while cache creation incurs a 25% surcharge at \$3.75/MTok (costing \$0.75/MTok extra). Net monetary
 savings accounts for both read discounts and cache write overhead._
 
+> [!NOTE] **Provider Minimum Prompt Caching Token Thresholds**: Frontier LLM providers enforce minimum prompt token
+> thresholds before prompt caching activates. Anthropic requires a minimum of 1,024 prompt tokens for Claude 3.5 Sonnet
+> (and 2,048 tokens for Claude 3 Opus and Claude 3 Haiku) before `cache_control` breakpoints are cached. In
+> micro-benchmarks or early agent turns where cumulative prompt context is below these thresholds, upstream providers
+> will return `cache_read_input_tokens: 0` and `cache_creation_input_tokens: 0` even when cache breakpoints are properly
+> injected. Ensure benchmark test suites provide sufficient baseline prompt context (system prompts, tool definitions,
+> initial conversation history) to exceed provider thresholds and prevent misdiagnosing zero cache reads as an
+> instrumentation defect.
+
 #### Instrumentation:
 
 - In `mitm_addon.py:extract_token_counts()`, parse the exact usage dictionary from JSON or SSE chunks.
@@ -389,7 +432,8 @@ Tier 2 models (e.g., Gemini 2.5 Flash: \$0.10/MTok input vs \$0.40/MTok output).
 ## 📈 Part 3: Unified Efficacy Scorecard
 
 To ensure statistical rigor and eliminate non-deterministic path variance across frontier LLM trajectories (such as
-differing exploration paths or tool call sequences), benchmark evaluations must fix `temperature: 0.0` and execute
+differing exploration paths or tool call sequences), benchmark evaluations must fix `temperature: 0.0`, configure a
+deterministic seed parameter (e.g., `seed: 42` for providers supporting deterministic sampling controls), and execute
 $N \ge 3$ iterations per task suite. The unified scorecard reports sample mean values ($\mu$) and standard deviations
 ($\sigma$) across both baseline (unoptimized) and fully optimized runs on an identical standard task (e.g., executing a
 multi-file refactoring or bug fix):
@@ -401,7 +445,7 @@ multi-file refactoring or bug fix):
 
 - Task: Refactor auth middleware & add unit tests
 - Agent Harness: Antigravity / Claude
-- Sampling Temperature: 0.0
+- Sampling Temperature: 0.0 (seed: 42)
 - Iterations: N = 3 (reported as mean ± std dev)
 - Streaming: Disabled (for Method 2 local cache evaluation)
 - Total Turns: 18 ± 0.8
@@ -452,14 +496,16 @@ gantt
      `${WIRE_LOG_DIR}/turn_{turn_id}_{flow_id}.json` and atomic line appends to `${WIRE_LOG_DIR}/transactions.jsonl` (or
      via an async queue).
    - Scrub sensitive credentials and authentication headers (`Authorization`, `x-api-key`, `api-key`, `x-goog-api-key`,
-     `holon-agent-key`, `proxy-authorization`), URL query parameters (`?key=...`, `?api_key=...`), and deep message body
-     regex credential patterns (e.g., Anthropic `sk-ant-...`, OpenAI `sk-...`, Google AI `AIzaSy...`) with `[REDACTED]`
-     before persisting transaction payloads or endpoint URLs to disk.
+     `holon-agent-key`, `proxy-authorization`) and URL query parameters (`?key=...`, `?api_key=...`) with `[REDACTED]`.
+   - Deep-scrub message bodies and tool payloads using word-boundary regex patterns for API keys and tokens (Anthropic
+     `sk-ant-...`, OpenAI `sk-proj-...` / `sk-...`, Google AI `AIzaSy...`, GitHub PATs `ghp_...` / `github_pat_...`, AWS
+     `AKIA...` / `ASIA...`) replacing detected secrets with `[REDACTED_SECRET]` before persisting transaction payloads
+     or endpoint URLs to disk.
    - Ensure SSE stream accumulation decodes and writes the complete final assistant message to the transaction record.
 2. **Update Runner CLI**:
    - Add flag `--mitm-web` to launch `mitmweb` instead of `mitmdump` with web port `8081` bound to localhost.
 3. **Implement A/B Benchmark Script**:
    - Provide an automated runner in `todo/ab_measure_all_methods.py` that enforces a benchmark pre-clean step (cleaning
      or archiving previous `${WIRE_LOG_DIR}` transaction logs before test runs), executes $N \ge 3$ iterations at fixed
-     `temperature: 0.0`, aggregates mean ($\mu$) and standard deviation ($\sigma$) metrics, and prints the completed
-     Efficacy Scorecard.
+     `temperature: 0.0` with `seed: 42`, aggregates mean ($\mu$) and standard deviation ($\sigma$) metrics, and prints
+     the completed Efficacy Scorecard.
