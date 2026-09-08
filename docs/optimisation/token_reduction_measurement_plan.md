@@ -60,10 +60,11 @@ graph TD
     end
 
     subgraph Inspection & Sinks
+        ProxyPort --> WebUI["mitmweb UI :8081"]
         DiffEngine --> WireLogger["JSONL Wire Log: transactions.jsonl"]
+        LocalResp --> WireLogger
         StreamInterceptor --> WireLogger
         UsageParser --> WireLogger
-        WireLogger --> WebUI["mitmweb UI :8081"]
         WireLogger --> ABMetrics[A/B Telemetry Report]
     end
 ```
@@ -81,27 +82,47 @@ Add a structured file logger to
 that appends full transaction details to `${WIRE_LOG_DIR}/turn_{turn_id}_{flow_id}.json` and
 `${WIRE_LOG_DIR}/transactions.jsonl`.
 
-- **Log Directory Parameterization**: Configure the destination directory via the `WIRE_LOG_DIR` environment variable:
+- **Log Directory Parameterization & Git Ignore**: Configure the destination directory via the `WIRE_LOG_DIR`
+  environment variable:
   ```python
   WIRE_LOG_DIR = os.getenv("WIRE_LOG_DIR", "todo/mitm_wire_logs")
   ```
   In local development, transactions default to `todo/mitm_wire_logs/`. When running inside Docker containers, pass
-  `-e WIRE_LOG_DIR=/tmp/wire_logs` so output writes directly to the mounted `/tmp/wire_logs` host volume.
-- **Concurrent Multi-Agent Flow Scoping & Non-Blocking I/O**: When running multi-agent workflows (such as Method 6
-  Ringer), multiple subagents execute concurrently through `:8080`. Individual transaction dump files are scoped by turn
-  ID and flow or subagent ID (`turn_{turn_id}_{flow_id}.json`) to prevent write collisions and file overwrites.
-  Furthermore, disk writes for `transactions.jsonl` must use atomic line appending or an asynchronous logging queue to
-  prevent blocking the mitmproxy event loop and distorting TTFT and latency metrics.
+  `-e WIRE_LOG_DIR=/tmp/wire_logs` so output writes directly to the mounted `/tmp/wire_logs` host volume. Ensure
+  `${WIRE_LOG_DIR}` (e.g. `todo/mitm_wire_logs/`) is explicitly included in `.gitignore` to prevent committing raw
+  conversation transcripts, tool outputs, and LLM payloads to source control.
+- **Turn ID Derivation & Multi-Agent Flow Scoping**: When running multi-agent workflows (such as Method 6 Ringer),
+  multiple subagents execute concurrently through `:8080`. HTTP requests arriving at the proxy are stateless; relying
+  solely on a naive sequential counter can cause interleaved turn counts across concurrent subagents. To establish
+  strict correlation, `mitm_addon.py` derives the turn ID using the following precedence order:
+  1. **Harness Header**: Extract from an explicit request header if supplied by the test harness (e.g.,
+     `X-Holon-Turn-Id`).
+  2. **Message Depth Counter**: Count user-role turns in the request payload
+     (`len([m for m in messages if m.get('role') == 'user'])`).
+  3. **Sequence Counter Fallback**: Fallback to an internal per-flow sequential counter.
+
+  Individual transaction dump files are scoped by turn ID and flow or subagent ID (`turn_{turn_id}_{flow_id}.json`) to
+  prevent write collisions and file overwrites. Furthermore, disk writes for `transactions.jsonl` must use atomic line
+  appending or an asynchronous logging queue to prevent blocking the mitmproxy event loop and distorting TTFT and
+  latency metrics.
+
 - **Credential & Secret Sanitization**: In accordance with security best practices, `dump_wire_transaction()` must scrub
   all sensitive credential headers (`Authorization`, `x-api-key`, `api-key`, `x-goog-api-key`, `holon-agent-key`,
   `proxy-authorization`) by replacing their values with `"[REDACTED]"`. In addition, `dump_wire_transaction()` must
   scrub URL query parameters matching sensitive keys (e.g., stripping Google Gemini `?key=...` or `?api_key=...`
-  parameter values to `?key=[REDACTED]`) prior to persisting transaction payloads or endpoint URLs to disk.
+  parameter values to `?key=[REDACTED]`). Furthermore, to protect against accidental secret leakage in agentic workflows
+  (such as an agent inspecting a `.env` file or executing shell commands with tokens), `dump_wire_transaction()` must
+  perform deep payload scrubbing across message contents, tool inputs, and tool outputs using regex pattern matching for
+  common API key signatures (e.g., Anthropic keys `sk-ant-[a-zA-Z0-9_\-]+`, OpenAI keys `sk-[a-zA-Z0-9_\-]+`, Google AI
+  keys `AIzaSy[a-zA-Z0-9_\-]+`) replacing detected secrets with `"[REDACTED_SECRET]"` prior to persisting transaction
+  payloads or endpoint URLs to disk.
 
 ```json
 {
   "turn_id": 4,
   "flow_id": "flow_a1b2c3d4",
+  "agent_id": "subagent_executor_01",
+  "agent_role": "executor",
   "timestamp": "2026-09-08T21:30:00.000Z",
   "provider": "anthropic",
   "endpoint": "https://api.anthropic.com/v1/messages",
@@ -151,6 +172,9 @@ Instead of running headless `mitmdump`, expose `mitmweb` with the web interface 
 # Ensure log directory exists on host prior to container startup
 mkdir -p todo/mitm_wire_logs
 
+# Tip (Linux hosts): If UID/GID permissions prevent container writes (mitmproxy runs as UID 1000),
+# grant write permissions via 'chmod 777 todo/mitm_wire_logs' or add '--user $(id -u):$(id -g)' to docker run.
+
 docker run --rm -it \
   -p 127.0.0.1:8080:8080 \
   -p 127.0.0.1:8081:8081 \
@@ -161,7 +185,8 @@ docker run --rm -it \
   -v $(pwd)/todo/mitm_wire_logs:/tmp/wire_logs \
   -v ~/.holon/proxy-ca:/home/mitmproxy/.mitmproxy \
   mitmproxy/mitmproxy:12.2.3 \
-  mitmweb -s /tmp/mitm_addon.py --web-host 0.0.0.0 --web-port 8081 --listen-port 8080
+  mitmweb -s /tmp/mitm_addon.py --web-host 0.0.0.0 --web-port 8081 --listen-port 8080 \
+  --set ignore_hosts='^(api\.github\.com|github\.com):443$'
 ```
 
 - Navigate to `http://localhost:8081` in your browser.
@@ -202,6 +227,12 @@ docker run --rm -it \
 #### Measurement Formula:
 
 $$\text{Cleaning Reduction Ratio} = \frac{\text{Tokens}_{\text{raw}} - \text{Tokens}_{\text{cleaned}}}{\text{Tokens}_{\text{raw}}} \times 100\%$$
+
+> [!NOTE] **Tokenizer Discrepancy & Heuristics vs Exact Counts**: While character heuristic counters (e.g., ~4
+> chars/token) provide lightweight, zero-overhead telemetry within the proxy event loop for real-time diffing, official
+> token reduction percentages and benchmark scorecards must be computed using provider token counters (or exact BPE
+> tokenizers like `tiktoken` or Hugging Face `tokenizers`) to account for token boundary merges and formatting token
+> overhead.
 
 #### Instrumentation:
 
@@ -305,16 +336,21 @@ $$\text{Turn 0 Token Reduction} = \frac{\text{Tokens}_{\text{naive\_repo}} - \te
 
 $$\Delta \text{Turns} = \text{Turns}_{\text{cold\_start}} - \text{Turns}_{\text{with\_memory}}$$
 
-$$\text{Net Token ROI} = \left(\sum \text{Tokens}_{\text{cold\_start}} - \sum \text{Tokens}_{\text{with\_memory}}\right) - \sum \text{Tokens}_{\text{memory\_injected}}$$
+$$\text{Net Tokens Saved} = \sum \text{Tokens}_{\text{cold\_start}} - \sum \text{Tokens}_{\text{with\_memory}}$$
+
+$$\text{Token ROI (Ratio)} = \frac{\sum \text{Tokens}_{\text{cold\_start}} - \sum \text{Tokens}_{\text{with\_memory}}}{\sum \text{Tokens}_{\text{memory\_injected}}}$$
 
 _Note on Ephemeral vs Persistent Context Overhead_: In multi-turn chat architectures, prompt context grows monotonically
 ($O(N)$ or $O(N^2)$ prompt accumulation), making turns saved toward the end of an execution trajectory yield
-significantly higher token reductions than early or average turns. Additionally, when episodic memories are injected
-ephemerally (retrieved on-demand for a single turn or tool execution), $\sum \text{Tokens}_{\text{memory\_injected}}$ is
-incurred only once. Conversely, if injected into persistent system prompts or Turn-0 context, the memory tokens recur
-across all subsequent turns ($N \times \text{Tokens}_{\text{memory\_injected}}$) unless amortized by provider prompt
-caching. The cumulative trajectory formula directly captures this distinction without relying on imprecise per-turn
-averages.
+significantly higher token reductions than early or average turns. Because $\sum \text{Tokens}_{\text{with\_memory}}$
+already incorporates the injected memory tokens present in the trajectory's prompts, defining Net Tokens Saved as
+$\sum \text{Tokens}_{\text{cold\_start}} - \sum \text{Tokens}_{\text{with\_memory}}$ avoids double-counting the memory
+overhead. Meanwhile, Token ROI measures the efficiency ratio of net tokens saved per injected memory token.
+Additionally, when episodic memories are injected ephemerally (retrieved on-demand for a single turn or tool execution),
+$\sum \text{Tokens}_{\text{memory\_injected}}$ is incurred only once. Conversely, if injected into persistent system
+prompts or Turn-0 context, the memory tokens recur across all subsequent turns
+($N \times \text{Tokens}_{\text{memory\_injected}}$) unless amortized by provider prompt caching. The cumulative
+trajectory formula directly captures this distinction without relying on imprecise per-turn averages.
 
 #### Instrumentation:
 
@@ -352,8 +388,11 @@ Tier 2 models (e.g., Gemini 2.5 Flash: \$0.10/MTok input vs \$0.40/MTok output).
 
 ## 📈 Part 3: Unified Efficacy Scorecard
 
-Run both baseline (unoptimized) and fully optimized runs on an identical standard task (e.g., executing a multi-file
-refactoring or bug fix), and generate this comparison report:
+To ensure statistical rigor and eliminate non-deterministic path variance across frontier LLM trajectories (such as
+differing exploration paths or tool call sequences), benchmark evaluations must fix `temperature: 0.0` and execute
+$N \ge 3$ iterations per task suite. The unified scorecard reports sample mean values ($\mu$) and standard deviations
+($\sigma$) across both baseline (unoptimized) and fully optimized runs on an identical standard task (e.g., executing a
+multi-file refactoring or bug fix):
 
 ```markdown
 # Token Reduction Efficacy Scorecard
@@ -362,20 +401,23 @@ refactoring or bug fix), and generate this comparison report:
 
 - Task: Refactor auth middleware & add unit tests
 - Agent Harness: Antigravity / Claude
-- Total Turns: 18
+- Sampling Temperature: 0.0
+- Iterations: N = 3 (reported as mean ± std dev)
+- Streaming: Disabled (for Method 2 local cache evaluation)
+- Total Turns: 18 ± 0.8
 
 ### Metrics Comparison Table
 
 | Metric                               | Baseline (Direct) | Optimized (All 6 Active) | Net Impact                                   |
 | :----------------------------------- | :---------------- | :----------------------- | :------------------------------------------- |
-| **Total Prompt Tokens (Cumulative)** | 142,500           | 48,200                   | **-66.2% (-94,300 tok)**                     |
-| **Turn 0 Context Injection**         | 18,400            | 2,800 (RAG)              | **-84.8% (-15,600 tok)**                     |
-| **Tool Output Redundancy Pruned**    | 0 bytes           | 42,600 bytes             | **12 duplicate file reads omitted**          |
-| **Provider Prompt Cache Hit Rate**   | 0%                | 78.4%                    | **37,788 tokens billed at 90% discount**     |
+| **Total Prompt Tokens (Cumulative)** | 142,500 ± 2,100   | 48,200 ± 850             | **-66.2% (-94,300 tok)**                     |
+| **Turn 0 Context Injection**         | 18,400 ± 0        | 2,800 ± 0 (RAG)          | **-84.8% (-15,600 tok)**                     |
+| **Tool Output Redundancy Pruned**    | 0 bytes           | 42,600 ± 1,200 bytes     | **12 duplicate file reads omitted**          |
+| **Provider Prompt Cache Hit Rate**   | 0%                | 78.4% ± 1.5%             | **37,788 tokens billed at 90% discount**     |
 | **Local Cache Short-Circuits**       | 0 calls           | 2 calls                  | **2 calls (11%) served at 0 tokens**         |
 | **Architect / Executor Token Split** | 100% Sonnet       | 25% Sonnet / 75% Flash   | **75% of execution delegated to cheap tier** |
 | **Episodic Memory Turns Saved**      | 0 turns           | 3 turns                  | **Setup error avoided via OpenBrain memory** |
-| **Total Monetary Cost**              | **$0.86**         | **$0.14**                | **-83.7% ($0.72 saved per task)**            |
+| **Total Monetary Cost**              | **$0.86 ± $0.02** | **$0.14 ± $0.01**        | **-83.7% ($0.72 saved per task)**            |
 ```
 
 ---
@@ -410,11 +452,14 @@ gantt
      `${WIRE_LOG_DIR}/turn_{turn_id}_{flow_id}.json` and atomic line appends to `${WIRE_LOG_DIR}/transactions.jsonl` (or
      via an async queue).
    - Scrub sensitive credentials and authentication headers (`Authorization`, `x-api-key`, `api-key`, `x-goog-api-key`,
-     `holon-agent-key`, `proxy-authorization`) as well as URL query parameters (`?key=...`, `?api_key=...`) with
-     `[REDACTED]` before persisting transaction payloads or endpoint URLs to disk.
+     `holon-agent-key`, `proxy-authorization`), URL query parameters (`?key=...`, `?api_key=...`), and deep message body
+     regex credential patterns (e.g., Anthropic `sk-ant-...`, OpenAI `sk-...`, Google AI `AIzaSy...`) with `[REDACTED]`
+     before persisting transaction payloads or endpoint URLs to disk.
    - Ensure SSE stream accumulation decodes and writes the complete final assistant message to the transaction record.
 2. **Update Runner CLI**:
    - Add flag `--mitm-web` to launch `mitmweb` instead of `mitmdump` with web port `8081` bound to localhost.
 3. **Implement A/B Benchmark Script**:
-   - Provide an automated runner in `todo/ab_measure_all_methods.py` that executes a standard task in both modes and
-     prints the completed Efficacy Scorecard.
+   - Provide an automated runner in `todo/ab_measure_all_methods.py` that enforces a benchmark pre-clean step (cleaning
+     or archiving previous `${WIRE_LOG_DIR}` transaction logs before test runs), executes $N \ge 3$ iterations at fixed
+     `temperature: 0.0`, aggregates mean ($\mu$) and standard deviation ($\sigma$) metrics, and prints the completed
+     Efficacy Scorecard.
