@@ -14,7 +14,7 @@ During live runs, token counters increment, but developers cannot see the actual
 This occurs because:
 
 1. **Summarized Console Logging**:
-   [`mitm_addon.py`](file:///Users/thomashan/git/holon-agentic-coder-ref-metadata/holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/mitm_addon.py)
+   [`mitm_addon.py`](../../holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/mitm_addon.py)
    outputs only single-line `📊 [TELEMETRY]` summaries to standard output.
 2. **Streaming (SSE) Buffering Without Inspection Sinks**: When agents stream responses via Server-Sent Events (SSE),
    chunks are assembled in-memory solely to parse usage metadata and count tokens, without emitting the full
@@ -77,9 +77,18 @@ To inspect the raw traffic going out and coming back in real time:
 ### 1. Structured Wire Logger (`todo/mitm_wire_logs/`)
 
 Add a structured file logger to
-[`mitm_addon.py`](file:///Users/thomashan/git/holon-agentic-coder-ref-metadata/holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/mitm_addon.py)
-that appends full transaction details to `todo/mitm_wire_logs/turn_{N}.json` and
-`todo/mitm_wire_logs/transactions.jsonl`:
+[`mitm_addon.py`](../../holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/mitm_addon.py)
+that appends full transaction details to `${WIRE_LOG_DIR}/turn_{N}.json` and `${WIRE_LOG_DIR}/transactions.jsonl`.
+
+- **Log Directory Parameterization**: Configure the destination directory via the `WIRE_LOG_DIR` environment variable:
+  ```python
+  WIRE_LOG_DIR = os.getenv("WIRE_LOG_DIR", "todo/mitm_wire_logs")
+  ```
+  In local development, transactions default to `todo/mitm_wire_logs/`. When running inside Docker containers, pass
+  `-e WIRE_LOG_DIR=/tmp/wire_logs` so output writes directly to the mounted `/tmp/wire_logs` host volume.
+- **Credential & Secret Sanitization**: In accordance with security best practices, `dump_wire_transaction()` must scrub
+  all sensitive credential headers (`Authorization`, `x-api-key`, `api-key`, `proxy-authorization`) by replacing their
+  values with `"[REDACTED]"` prior to persisting transaction payloads to disk.
 
 ```json
 {
@@ -87,6 +96,11 @@ that appends full transaction details to `todo/mitm_wire_logs/turn_{N}.json` and
   "timestamp": "2026-09-08T21:30:00.000Z",
   "provider": "anthropic",
   "endpoint": "https://api.anthropic.com/v1/messages",
+  "headers": {
+    "content-type": "application/json",
+    "x-api-key": "[REDACTED]",
+    "authorization": "[REDACTED]"
+  },
   "raw_request": {
     "model": "claude-3-5-sonnet-20241022",
     "messages": [...]
@@ -128,6 +142,7 @@ Instead of running headless `mitmdump`, expose `mitmweb` with the web interface 
 docker run --rm -it \
   -p 127.0.0.1:8080:8080 \
   -p 127.0.0.1:8081:8081 \
+  -e WIRE_LOG_DIR=/tmp/wire_logs \
   -v $(pwd)/holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/mitm_addon.py:/tmp/mitm_addon.py:ro \
   -v $(pwd)/todo/mitm_wire_logs:/tmp/wire_logs \
   mitmproxy/mitmproxy:12.2.3 \
@@ -215,9 +230,12 @@ $$\text{Tokens Avoided} = \sum_{\text{cache hits}} (\text{Prompt Tokens} + \text
 #### Measurement Formula:
 
 $$\text{Prompt Cache Efficiency} = \frac{\text{Cache Read Tokens}}{\text{Total Input Tokens}} \times 100\%$$
-$$\text{Monetary Savings (\$)} = (\text{Cache Read Tokens} \times (\text{Price}_{\text{uncached}} - \text{Price}_{\text{cached}}))$$
 
-_Example for Claude 3.5 Sonnet: \$3.00/MTok base vs \$0.30/MTok cached read = 90% discount on cached tokens._
+$$\text{Net Monetary Savings (\$)} = \left(\text{Cache Read Tokens} \times (\text{Price}_{\text{base}} - \text{Price}_{\text{read}})\right) - \left(\text{Cache Creation Tokens} \times (\text{Price}_{\text{create}} - \text{Price}_{\text{base}})\right)$$
+
+_Example for Claude 3.5 Sonnet: Base input price is \$3.00/MTok, cache read is \$0.30/MTok (90% discount, saving
+\$2.70/MTok read), while cache creation incurs a 25% surcharge at \$3.75/MTok (costing \$0.75/MTok extra). Net monetary
+savings accounts for both read discounts and cache write overhead._
 
 #### Instrumentation:
 
@@ -281,8 +299,13 @@ $$\text{Net Token ROI} = (\Delta \text{Turns} \times \text{Avg Tokens Per Turn})
 
 #### Measurement Formula:
 
-$$\text{Cost}_{\text{monolithic}} = \text{Tokens}_{\text{total}} \times \text{Price}_{\text{architect}}$$
-$$\text{Cost}_{\text{ringer}} = (\text{Tokens}_{\text{arch}} \times \text{Price}_{\text{arch}}) + \sum (\text{Tokens}_{\text{exec}_i} \times \text{Price}_{\text{exec}_i})$$
+$$\text{Cost}_{\text{monolithic}} = (\text{Tokens}_{\text{in, total}} \times \text{Price}_{\text{in, arch}}) + (\text{Tokens}_{\text{out, total}} \times \text{Price}_{\text{out, arch}})$$
+
+$$\text{Cost}_{\text{ringer}} = \left[(\text{Tokens}_{\text{in, arch}} \times \text{Price}_{\text{in, arch}}) + (\text{Tokens}_{\text{out, arch}} \times \text{Price}_{\text{out, arch}})\right] + \sum_i \left[(\text{Tokens}_{\text{in, exec}_i} \times \text{Price}_{\text{in, exec}_i}) + (\text{Tokens}_{\text{out, exec}_i} \times \text{Price}_{\text{out, exec}_i})\right]$$
+
+_Differentiating input and output token pricing is critical because completion tokens are typically 3× to 5× more
+expensive than prompt tokens across both Tier 1 (e.g., Claude 3.5 Sonnet: \$3.00/MTok input vs \$15.00/MTok output) and
+Tier 2 models (e.g., Gemini 2.5 Flash: \$0.10/MTok input vs \$0.40/MTok output)._
 
 #### Instrumentation:
 
@@ -345,9 +368,12 @@ gantt
 ### Action Items:
 
 1. **Update
-   [`mitm_addon.py`](file:///Users/thomashan/git/holon-agentic-coder-ref-metadata/holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/mitm_addon.py)**:
+   [`mitm_addon.py`](../../holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/mitm_addon.py)**:
+   - Parameterize log directory using `WIRE_LOG_DIR` environment variable (default: `todo/mitm_wire_logs/`).
    - Implement `dump_wire_transaction()` to write full raw request, cleaned request, and response payloads to
-     `todo/mitm_wire_logs/`.
+     `${WIRE_LOG_DIR}/turn_{N}.json` and `${WIRE_LOG_DIR}/transactions.jsonl`.
+   - Scrub sensitive credentials and authentication headers (`Authorization`, `x-api-key`, `api-key`) with `[REDACTED]`
+     before persisting transaction payloads to disk.
    - Ensure SSE stream accumulation decodes and writes the complete final assistant message to the transaction record.
 2. **Update Runner CLI**:
    - Add flag `--mitm-web` to launch `mitmweb` instead of `mitmdump` with web port `8081` bound to localhost.
