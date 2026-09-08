@@ -43,7 +43,7 @@ This occurs because:
 ```mermaid
 graph TD
     subgraph Sandbox Container
-        Agent[Agent Harness] -->|Raw Outbound Request| ProxyPort[Proxy Port :8080]
+        Agent[Agent Harness] -->|Raw Outbound Request| ProxyPort["Proxy Port :8080"]
     end
 
     subgraph MITM Sidecar Engine
@@ -60,10 +60,10 @@ graph TD
     end
 
     subgraph Inspection & Sinks
-        DiffEngine --> WireLogger[JSONL Wire Log: requests.jsonl]
+        DiffEngine --> WireLogger["JSONL Wire Log: transactions.jsonl"]
         StreamInterceptor --> WireLogger
         UsageParser --> WireLogger
-        WireLogger --> WebUI[mitmweb UI :8081]
+        WireLogger --> WebUI["mitmweb UI :8081"]
         WireLogger --> ABMetrics[A/B Telemetry Report]
     end
 ```
@@ -78,7 +78,8 @@ To inspect the raw traffic going out and coming back in real time:
 
 Add a structured file logger to
 [`mitm_addon.py`](../../holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/mitm_addon.py)
-that appends full transaction details to `${WIRE_LOG_DIR}/turn_{N}.json` and `${WIRE_LOG_DIR}/transactions.jsonl`.
+that appends full transaction details to `${WIRE_LOG_DIR}/turn_{turn_id}_{flow_id}.json` and
+`${WIRE_LOG_DIR}/transactions.jsonl`.
 
 - **Log Directory Parameterization**: Configure the destination directory via the `WIRE_LOG_DIR` environment variable:
   ```python
@@ -86,13 +87,21 @@ that appends full transaction details to `${WIRE_LOG_DIR}/turn_{N}.json` and `${
   ```
   In local development, transactions default to `todo/mitm_wire_logs/`. When running inside Docker containers, pass
   `-e WIRE_LOG_DIR=/tmp/wire_logs` so output writes directly to the mounted `/tmp/wire_logs` host volume.
+- **Concurrent Multi-Agent Flow Scoping & Non-Blocking I/O**: When running multi-agent workflows (such as Method 6
+  Ringer), multiple subagents execute concurrently through `:8080`. Individual transaction dump files are scoped by turn
+  ID and flow or subagent ID (`turn_{turn_id}_{flow_id}.json`) to prevent write collisions and file overwrites.
+  Furthermore, disk writes for `transactions.jsonl` must use atomic line appending or an asynchronous logging queue to
+  prevent blocking the mitmproxy event loop and distorting TTFT and latency metrics.
 - **Credential & Secret Sanitization**: In accordance with security best practices, `dump_wire_transaction()` must scrub
-  all sensitive credential headers (`Authorization`, `x-api-key`, `api-key`, `proxy-authorization`) by replacing their
-  values with `"[REDACTED]"` prior to persisting transaction payloads to disk.
+  all sensitive credential headers (`Authorization`, `x-api-key`, `api-key`, `x-goog-api-key`, `holon-agent-key`,
+  `proxy-authorization`) by replacing their values with `"[REDACTED]"`. In addition, `dump_wire_transaction()` must
+  scrub URL query parameters matching sensitive keys (e.g., stripping Google Gemini `?key=...` or `?api_key=...`
+  parameter values to `?key=[REDACTED]`) prior to persisting transaction payloads or endpoint URLs to disk.
 
 ```json
 {
   "turn_id": 4,
+  "flow_id": "flow_a1b2c3d4",
   "timestamp": "2026-09-08T21:30:00.000Z",
   "provider": "anthropic",
   "endpoint": "https://api.anthropic.com/v1/messages",
@@ -139,12 +148,18 @@ that appends full transaction details to `${WIRE_LOG_DIR}/turn_{N}.json` and `${
 Instead of running headless `mitmdump`, expose `mitmweb` with the web interface on port `8081`:
 
 ```bash
+# Ensure log directory exists on host prior to container startup
+mkdir -p todo/mitm_wire_logs
+
 docker run --rm -it \
   -p 127.0.0.1:8080:8080 \
   -p 127.0.0.1:8081:8081 \
   -e WIRE_LOG_DIR=/tmp/wire_logs \
+  -e PYTHONPATH=/tmp/src \
+  -v $(pwd)/holon-agentic-coder-ref/develop/apps/sandbox-executor/src:/tmp/src:ro \
   -v $(pwd)/holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/mitm_addon.py:/tmp/mitm_addon.py:ro \
   -v $(pwd)/todo/mitm_wire_logs:/tmp/wire_logs \
+  -v ~/.holon/proxy-ca:/home/mitmproxy/.mitmproxy \
   mitmproxy/mitmproxy:12.2.3 \
   mitmweb -s /tmp/mitm_addon.py --web-host 0.0.0.0 --web-port 8081 --listen-port 8080
 ```
@@ -152,6 +167,10 @@ docker run --rm -it \
 - Navigate to `http://localhost:8081` in your browser.
 - Every HTTP request, modified body, diff view, SSE event stream, and header will be interactively visualizable and
   inspectable in real time.
+
+> [!NOTE] **Security Advisory**: Ports `8080` and `8081` are bound to loopback `127.0.0.1` by default. If binding to an
+> external network interface (e.g., in shared staging or remote environments), pass `--web-password <PASSWORD>` to
+> `mitmweb` to prevent unauthorized inspection of captured payloads and credentials.
 
 ---
 
@@ -196,6 +215,13 @@ $$\text{Cleaning Reduction Ratio} = \frac{\text{Tokens}_{\text{raw}} - \text{Tok
 
 ### Method 2: Local & Semantic Cache
 
+> [!NOTE] **Streaming Request Bypass & Cache Evaluation Constraint**: In the current implementation of `mitm_addon.py`,
+> streaming requests (`stream: true` or SSE endpoints) bypass local cache storage and retrieval (`put()` and `get()`)
+> because returning cached completions requires token-by-token stream replay. Therefore, when evaluating Method 2
+> (_Local Hybrid & Semantic Caching_) in benchmarks, agent harnesses must be configured in non-streaming mode to observe
+> cache hits and short-circuited token savings. Synthetic SSE stream replay for cached responses is planned for a future
+> iteration.
+
 #### What to Measure:
 
 1. **Exact Cache Hit Rate**: Percentage of requests served directly from SQLite without outbound network calls.
@@ -231,7 +257,7 @@ $$\text{Tokens Avoided} = \sum_{\text{cache hits}} (\text{Prompt Tokens} + \text
 
 $$\text{Prompt Cache Efficiency} = \frac{\text{Cache Read Tokens}}{\text{Total Input Tokens}} \times 100\%$$
 
-$$\text{Net Monetary Savings (\$)} = \left(\text{Cache Read Tokens} \times (\text{Price}_{\text{base}} - \text{Price}_{\text{read}})\right) - \left(\text{Cache Creation Tokens} \times (\text{Price}_{\text{create}} - \text{Price}_{\text{base}})\right)$$
+$$\text{Net Monetary Savings (USD)} = \left(\text{Cache Read Tokens} \times (\text{Price}_{\text{base}} - \text{Price}_{\text{read}})\right) - \left(\text{Cache Creation Tokens} \times (\text{Price}_{\text{create}} - \text{Price}_{\text{base}})\right)$$
 
 _Example for Claude 3.5 Sonnet: Base input price is \$3.00/MTok, cache read is \$0.30/MTok (90% discount, saving
 \$2.70/MTok read), while cache creation incurs a 25% surcharge at \$3.75/MTok (costing \$0.75/MTok extra). Net monetary
@@ -278,7 +304,17 @@ $$\text{Turn 0 Token Reduction} = \frac{\text{Tokens}_{\text{naive\_repo}} - \te
 #### Measurement Formula:
 
 $$\Delta \text{Turns} = \text{Turns}_{\text{cold\_start}} - \text{Turns}_{\text{with\_memory}}$$
-$$\text{Net Token ROI} = (\Delta \text{Turns} \times \text{Avg Tokens Per Turn}) - \text{Tokens}_{\text{memory\_injected}}$$
+
+$$\text{Net Token ROI} = \left(\sum \text{Tokens}_{\text{cold\_start}} - \sum \text{Tokens}_{\text{with\_memory}}\right) - \sum \text{Tokens}_{\text{memory\_injected}}$$
+
+_Note on Ephemeral vs Persistent Context Overhead_: In multi-turn chat architectures, prompt context grows monotonically
+($O(N)$ or $O(N^2)$ prompt accumulation), making turns saved toward the end of an execution trajectory yield
+significantly higher token reductions than early or average turns. Additionally, when episodic memories are injected
+ephemerally (retrieved on-demand for a single turn or tool execution), $\sum \text{Tokens}_{\text{memory\_injected}}$ is
+incurred only once. Conversely, if injected into persistent system prompts or Turn-0 context, the memory tokens recur
+across all subsequent turns ($N \times \text{Tokens}_{\text{memory\_injected}}$) unless amortized by provider prompt
+caching. The cumulative trajectory formula directly captures this distinction without relying on imprecise per-turn
+averages.
 
 #### Instrumentation:
 
@@ -292,7 +328,7 @@ $$\text{Net Token ROI} = (\Delta \text{Turns} \times \text{Avg Tokens Per Turn})
 #### What to Measure:
 
 1. **Tiered Model Token Split**: Ratio of tokens consumed on Tier 1 Architect models (e.g., Claude 3.5 Sonnet @
-   \$3.00/MTok) vs Tier 2 Executor models (e.g., Gemini 3.5 Flash @ \$0.10/MTok).
+   \$3.00/MTok) vs Tier 2 Executor models (e.g., Gemini 2.5 Flash @ \$0.10/MTok).
 2. **Subagent Context Compression**: Token size of raw executor tool logs vs compressed summary returned to the
    architect.
 3. **Composite Financial Cost**: Total cost per completed task under Ringer vs a monolithic single-agent setup.
@@ -351,8 +387,8 @@ gantt
     title Efficacy Measurement Implementation Schedule
     dateFormat  YYYY-MM-DD
     section Visibility & Wire Logger
-    JSONL wire logger & diff engine in mitm_addon.py       :done,    des1, 2026-09-09, 2d
-    Expose mitmweb port 8081 in docker-compose/runner     :done,    des2, after des1, 1d
+    JSONL wire logger & diff engine in mitm_addon.py       :active,  des1, 2026-09-09, 2d
+    Expose mitmweb port 8081 in docker-compose/runner     :active,  des2, after des1, 1d
     section Methods 1-3 Instrumentation
     Context cleaner payload diff metrics                  :active,  des3, after des2, 2d
     Hybrid cache event logger & staleness check           :active,  des4, after des3, 1d
@@ -371,9 +407,11 @@ gantt
    [`mitm_addon.py`](../../holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/mitm_addon.py)**:
    - Parameterize log directory using `WIRE_LOG_DIR` environment variable (default: `todo/mitm_wire_logs/`).
    - Implement `dump_wire_transaction()` to write full raw request, cleaned request, and response payloads to
-     `${WIRE_LOG_DIR}/turn_{N}.json` and `${WIRE_LOG_DIR}/transactions.jsonl`.
-   - Scrub sensitive credentials and authentication headers (`Authorization`, `x-api-key`, `api-key`) with `[REDACTED]`
-     before persisting transaction payloads to disk.
+     `${WIRE_LOG_DIR}/turn_{turn_id}_{flow_id}.json` and atomic line appends to `${WIRE_LOG_DIR}/transactions.jsonl` (or
+     via an async queue).
+   - Scrub sensitive credentials and authentication headers (`Authorization`, `x-api-key`, `api-key`, `x-goog-api-key`,
+     `holon-agent-key`, `proxy-authorization`) as well as URL query parameters (`?key=...`, `?api_key=...`) with
+     `[REDACTED]` before persisting transaction payloads or endpoint URLs to disk.
    - Ensure SSE stream accumulation decodes and writes the complete final assistant message to the transaction record.
 2. **Update Runner CLI**:
    - Add flag `--mitm-web` to launch `mitmweb` instead of `mitmdump` with web port `8081` bound to localhost.
