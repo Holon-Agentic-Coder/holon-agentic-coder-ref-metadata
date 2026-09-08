@@ -6,8 +6,8 @@ wire-level LLM traffic and measuring the empirical effectiveness of all six toke
 
 > [!NOTE] **Repository Topology & Relative Links**: Relative file paths targeting `../../holon-agentic-coder-ref/...`
 > navigate from this document's directory (`docs/optimisation/`) to the repository root where `holon-agentic-coder-ref`
-> is located. In standalone GitHub web views, cross-repository relative links do not resolve across separate repository
-> boundaries; refer directly to the upstream
+> resides as a submodule or nested folder. In standalone GitHub web views, cross-repository relative links do not
+> resolve across separate repository boundaries; refer directly to the upstream
 > [`holon-agentic-coder-ref`](https://github.com/Holon-Agentic-Coder/holon-agentic-coder-ref) repository.
 
 ---
@@ -133,20 +133,21 @@ that appends full transaction details to `${WIRE_LOG_DIR}/turn_{turn_id}_{flow_i
 
 - **Credential & Secret Sanitization**: In accordance with security best practices, `dump_wire_transaction()` must scrub
   all sensitive credential headers (case-insensitively normalizing names to lowercase: `authorization`, `x-api-key`,
-  `api-key`, `x-goog-api-key`, `holon-agent-key`, `proxy-authorization`) by replacing their values with `"[REDACTED]"`.
-  In addition, `dump_wire_transaction()` must scrub URL query parameters matching sensitive keys using URL query parser
-  logic or regex ``r'(?i)([?&](?:key|api_key|apiKey|token|access_token)=)[^&\s"\'`<>#]+'`` (e.g., stripping Google
-  Gemini `?key=...` or non-leading `&key=...` / `&api_key=...` parameter values to `\1[REDACTED]`, avoiding consuming
-  closing quotes in JSON strings or URL fragment `#` anchors). Furthermore, to protect against accidental secret leakage
-  in agentic workflows (such as an agent inspecting a `.env` file or executing shell commands with tokens),
-  `dump_wire_transaction()` must perform deep payload scrubbing across message contents, tool inputs, and tool outputs.
-  To avoid regex recompilation overhead across high-throughput message payloads, compile patterns once using
-  `re.compile()` for common API key and private certificate signatures:
+  `api-key`, `x-goog-api-key`, `holon-agent-key`, `proxy-authorization`, `x-amz-security-token`) by replacing their
+  values with `"[REDACTED]"`. In addition, `dump_wire_transaction()` must scrub URL query parameters matching sensitive
+  keys using URL query parser logic or regex ``r'(?i)([?&](?:key|api_key|apiKey|token|access_token)=)[^&\s"\'`<>#]+'``
+  (e.g., stripping Google Gemini `?key=...` or non-leading `&key=...` / `&api_key=...` parameter values to
+  `\1[REDACTED]`, avoiding consuming closing quotes in JSON strings or URL fragment `#` anchors). Furthermore, to
+  protect against accidental secret leakage in agentic workflows (such as an agent inspecting a `.env` file or executing
+  shell commands with tokens), `dump_wire_transaction()` must perform deep payload scrubbing across message contents,
+  tool inputs, and tool outputs. To avoid regex recompilation overhead across high-throughput message payloads, compile
+  patterns once using `re.compile()` for common API key and private certificate signatures:
   - Anthropic API keys: `r'\bsk-ant-[a-zA-Z0-9_\-]+\b'`
-  - OpenAI Project, Service Account & User API keys: `r'\bsk-(?:proj-|admin-)?[a-zA-Z0-9_\-]{20,}\b'`
+  - OpenAI Project, Service Account & User API keys: `r'\bsk-(?:proj-|admin-|svcacct-)?[a-zA-Z0-9_\-]{20,}\b'`
   - Google Cloud / Vertex AI / AI Studio keys: `r'\bAIza[0-9A-Za-z\-_]{35}\b'`
   - GitHub Tokens (PAT, OAuth, App, Refresh): `r'\bgh[pousr]_[a-zA-Z0-9]{36}\b'`, `r'\bgithub_pat_[a-zA-Z0-9_]{82}\b'`
-  - AWS Access Key IDs: `r'\bAKIA[0-9A-Z]{16}\b'`, `r'\bASIA[0-9A-Z]{16}\b'`
+  - AWS Access Key IDs & Secret Access Keys: `r'\bAKIA[0-9A-Z]{16}\b'`, `r'\bASIA[0-9A-Z]{16}\b'`, and key-value pattern
+    `r'(?i)\b(?:aws_secret_access_key|aws_secret_key|secret_access_key)\s*[:=]\s*["\']?([A-Za-z0-9/+=]{40})["\']?'`
   - Hugging Face Access Tokens: `r'\bhf_[a-zA-Z0-9]{34,}\b'`
   - JWT Bearer Tokens: `r'\beyJ[a-zA-Z0-9_\-]{20,}\.[a-zA-Z0-9_\-]{20,}\.[a-zA-Z0-9_\-]{20,}\b'`
   - PEM & PGP Private Key Blocks (including PKCS#8):
@@ -192,7 +193,8 @@ that appends full transaction details to `${WIRE_LOG_DIR}/turn_{turn_id}_{flow_i
       "input_tokens": 3120,
       "cache_creation_input_tokens": 0,
       "cache_read_input_tokens": 2850,
-      "output_tokens": 420
+      "output_tokens": 420,
+      "reasoning_tokens": 150
     },
     "content": "..."
   },
@@ -210,6 +212,13 @@ that appends full transaction details to `${WIRE_LOG_DIR}/turn_{turn_id}_{flow_i
 > $$\text{input\_tokens} = \text{uncached\_input} + \text{cache\_read\_input\_tokens} + \text{cache\_creation\_input\_tokens}$$
 > For downstream consumers requiring verbatim upstream provider payloads, raw unnormalized responses remain accessible
 > in per-turn dump records (`turn_{turn_id}_{flow_id}.json`).
+
+> [!NOTE] **Reasoning / Extended Thinking Tokens in Wire Telemetry**: For models supporting extended thinking/reasoning
+> (e.g. OpenAI o-series or Claude 3.7 Sonnet with thinking enabled), internal reasoning tokens (e.g.
+> `usage.completion_tokens_details.reasoning_tokens` or Anthropic `thinking` blocks) are recorded under
+> `usage.reasoning_tokens`. In the normalized wire telemetry schema and downstream cost calculations,
+> `usage.output_tokens` represents the comprehensive total completion tokens (visible response tokens plus reasoning
+> tokens) since providers bill reasoning tokens at full completion rates.
 
 > [!NOTE] **Schema Timing Metric (`ttft_ms`)**: In the wire transaction schema, `ttft_ms` records Time-To-First-Token
 > for streaming SSE responses. For non-streaming synchronous requests, `ttft_ms` is `null` (or equal to `total_ms`).
@@ -246,10 +255,20 @@ docker run --rm -it \
   -v ~/.holon/proxy-ca:/home/mitmproxy/.mitmproxy \
   mitmproxy/mitmproxy:12.2.3 \
   mitmweb -s /tmp/mitm_addon.py --web-host 0.0.0.0 --web-port 8081 --listen-port 8080 \
-  --set ignore_hosts='^(api\.github\.com|github\.com):443$'
+  --set ignore_hosts='^(api\.github\.com|github\.com|pypi\.org|files\.pythonhosted\.org|registry\.npmjs\.org):443$'
 ```
 
 - Navigate to `http://localhost:8081` in your browser.
+- Configure agent harness environment variables to trust the proxy CA, route outbound LLM requests, and bypass package
+  registries:
+  ```bash
+  export HTTP_PROXY="http://127.0.0.1:8080"
+  export HTTPS_PROXY="http://127.0.0.1:8080"
+  export NO_PROXY="localhost,127.0.0.1,api.github.com,github.com,pypi.org,files.pythonhosted.org,registry.npmjs.org"
+  export SSL_CERT_FILE="${HOME}/.holon/proxy-ca/mitmproxy-ca-cert.pem"
+  export REQUESTS_CA_BUNDLE="${HOME}/.holon/proxy-ca/mitmproxy-ca-cert.pem"
+  export NODE_EXTRA_CA_CERTS="${HOME}/.holon/proxy-ca/mitmproxy-ca-cert.pem"
+  ```
 - Every HTTP request, modified body, diff view, SSE event stream, and header will be interactively visualizable and
   inspectable in real time.
 
@@ -278,7 +297,7 @@ docker run -d --name mitmproxy-wire-logger \
   -v ~/.holon/proxy-ca:/home/mitmproxy/.mitmproxy \
   mitmproxy/mitmproxy:12.2.3 \
   mitmdump -s /tmp/mitm_addon.py --listen-port 8080 \
-  --set ignore_hosts='^(api\.github\.com|github\.com):443$'
+  --set ignore_hosts='^(api\.github\.com|github\.com|pypi\.org|files\.pythonhosted\.org|registry\.npmjs\.org):443$'
 
 # CI readiness healthcheck probe: verify proxy socket is actively accepting traffic before launching test harnesses
 # TIMEOUT=50 represents 50 retry attempts (~10s at 0.2s sleep intervals under fast socket refusal)
@@ -286,6 +305,11 @@ TIMEOUT=50
 COUNT=0
 until curl -s --fail --connect-timeout 1 --max-time 2 -x http://127.0.0.1:8080 http://mitm.it > /dev/null; do
   sleep 0.2
+  if [ -z "$(docker ps -q -f status=running -f name=mitmproxy-wire-logger)" ]; then
+    echo "❌ Error: mitmproxy-wire-logger container exited unexpectedly during startup" >&2
+    docker logs mitmproxy-wire-logger
+    exit 1
+  fi
   COUNT=$((COUNT + 1))
   if [ "$COUNT" -ge "$TIMEOUT" ]; then
     echo "❌ Error: mitmproxy wire logger failed to become ready on port 8080 after 50 retry attempts (~10s)" >&2
@@ -353,7 +377,10 @@ _(with denominator guard: defaults to $0.0\%$ if $\text{Tokens}_{\text{raw}} = 0
 
 - In
   [`mitm_addon.py`](../../holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/mitm_addon.py):`request()`,
-  calculate hash and length of `data` (incoming) vs `cleaned_data` (outgoing).
+  calculate hash and length of `data` (incoming) vs `cleaned_data` (outgoing) to compute character-level deltas.
+- Obtain structured reduction statistics by extending the `JSONContextCleaner` API contract to return a
+  `CleaningResult(payload=..., stats=...)` dataclass (or invoke `process_payload_with_stats()`), or alternatively
+  compute deltas by comparing pre-cleaned vs post-cleaned message trees in `mitm_addon.py`.
 - Emit a `CLEANER_METRICS` event standardized to match wire schema `delta` properties:
   - `chars_saved` (net character reduction: `raw_chars - cleaned_chars`)
   - `tool_outputs_omitted` (count of pruned tool execution blocks)
@@ -370,7 +397,8 @@ _(with denominator guard: defaults to $0.0\%$ if $\text{Tokens}_{\text{raw}} = 0
 > because returning cached completions requires token-by-token stream replay. Therefore, when evaluating Method 2
 > (_Local Hybrid & Semantic Caching_) in benchmarks, agent harnesses must be configured in non-streaming mode to observe
 > cache hits and short-circuited token savings. Synthetic SSE stream replay for cached responses is planned for a future
-> iteration.
+> iteration (architected as a mock generator emitting chunked `text/event-stream` payloads matching provider schemas,
+> e.g. OpenAI `chat.completion.chunk` and Anthropic `content_block_delta` event sequences).
 
 #### What to Measure:
 
@@ -544,7 +572,11 @@ $$\text{Cost}_{\text{ringer}} = \frac{1}{10^6} \left[ (\text{Tokens}_{\text{in, 
 _Where $\text{Price}$ is quoted in USD per million tokens (MTok), scaled by the dimensional factor $\frac{1}{10^6}$ to
 yield cost in USD. Differentiating input and output token pricing is critical because completion tokens are typically 3×
 to 5× more expensive than prompt tokens across both Tier 1 (e.g., Claude 3.5 Sonnet: \$3.00/MTok input vs \$15.00/MTok
-output) and Tier 2 models (e.g., Gemini 2.5 Flash: \$0.10/MTok input vs \$0.40/MTok output)._
+output) and Tier 2 models (e.g., Gemini 2.5 Flash: \$0.10/MTok input vs \$0.40/MTok output). For models supporting
+extended thinking/reasoning (e.g., Claude 3.7 Sonnet or OpenAI o-series), output tokens ($\text{Tokens}_{\text{out}}$)
+must explicitly aggregate both visible response tokens and internal reasoning/thinking tokens (e.g., Anthropic
+`thinking` blocks or OpenAI `completion_tokens_details.reasoning_tokens`), as provider pricing bills reasoning tokens at
+full completion rates._
 
 #### Instrumentation:
 
@@ -625,9 +657,17 @@ gantt
     Unified A/B automated comparison script in todo/      :         des9, after des8, 2d
 ```
 
+> [!NOTE] **Roadmap Milestone Timelines**: Schedule dates depicted in the Gantt chart represent illustrative reference
+> milestones and relative sprint sequences post-merge.
+
 ### Action Items:
 
 1. **Update
+   [`payload_cleaner.py`](../../holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/payload_cleaner.py)**:
+   - Extend `JSONContextCleaner` to track and return execution stats (`tool_outputs_omitted`, `turns_summarized`,
+     `cache_control_injected`) via a `CleaningResult(payload=..., stats=...)` dataclass (or provide
+     `process_payload_with_stats()`) to avoid redundant post-hoc AST diffing or tree traversals.
+2. **Update
    [`mitm_addon.py`](../../holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/mitm_addon.py)**:
    - Parameterize log directory using `WIRE_LOG_DIR` environment variable (default: `todo/mitm_wire_logs/`) and cache
      directory using `CACHE_DIR` environment variable (default: `~/.holon/cache/`) so SQLite cache persistence can be
@@ -637,22 +677,26 @@ gantt
      offloaded via an asynchronous logging queue or thread pool (`asyncio.to_thread` / background worker) to prevent
      blocking the mitmproxy event loop.
    - Scrub sensitive credentials and authentication headers (case-insensitively normalizing names to lowercase:
-     `authorization`, `x-api-key`, `api-key`, `x-goog-api-key`, `holon-agent-key`, `proxy-authorization`) and URL query
-     parameters via query parser logic or regex
+     `authorization`, `x-api-key`, `api-key`, `x-goog-api-key`, `holon-agent-key`, `proxy-authorization`,
+     `x-amz-security-token`) and URL query parameters via query parser logic or regex
      ``r'(?i)([?&](?:key|api_key|apiKey|token|access_token)=)[^&\s"\'`<>#]+'`` with `[REDACTED]`.
    - Deep-scrub message bodies and tool payloads using word-boundary regex patterns for API keys and tokens (Anthropic
-     `sk-ant-...`, OpenAI `r'\bsk-(?:proj-|admin-)?[a-zA-Z0-9_\-]{20,}\b'`, Google Cloud / Vertex AI
-     `r'\bAIza[0-9A-Za-z\-_]{35}\b'`, GitHub tokens `r'\bgh[pousr]_[a-zA-Z0-9]{36}\b'` / `github_pat_...`, AWS `AKIA...`
-     / `ASIA...`, Hugging Face tokens `r'\bhf_[a-zA-Z0-9]{34,}\b'`, JWT Bearer tokens
+     `sk-ant-...`, OpenAI `r'\bsk-(?:proj-|admin-|svcacct-)?[a-zA-Z0-9_\-]{20,}\b'`, Google Cloud / Vertex AI
+     `r'\bAIza[0-9A-Za-z\-_]{35}\b'`, GitHub tokens `r'\bgh[pousr]_[a-zA-Z0-9]{36}\b'` / `github_pat_...`, AWS
+     `r'\bAKIA[0-9A-Z]{16}\b'` / `r'\bASIA[0-9A-Z]{16}\b'` and AWS secret access key regex
+     `r'(?i)\b(?:aws_secret_access_key|aws_secret_key|secret_access_key)\s*[:=]\s*["\']?([A-Za-z0-9/+=]{40})["\']?'`,
+     Hugging Face tokens `r'\bhf_[a-zA-Z0-9]{34,}\b'`, JWT Bearer tokens
      `r'\beyJ[a-zA-Z0-9_\-]{20,}\.[a-zA-Z0-9_\-]{20,}\.[a-zA-Z0-9_\-]{20,}\b'`, and PEM/PGP private key blocks including
      PKCS#8
      `r'-----BEGIN (?:[A-Z\s]+ )?PRIVATE KEY(?: BLOCK)?-----[\s\S]*?-----END (?:[A-Z\s]+ )?PRIVATE KEY(?: BLOCK)?-----'`),
      replacing detected secrets with `[REDACTED_SECRET]` before persisting transaction payloads or endpoint URLs to
      disk.
-   - Ensure SSE stream accumulation decodes and writes the complete final assistant message to the transaction record.
-2. **Update Runner CLI**:
-   - Add flag `--mitm-web` to launch `mitmweb` instead of `mitmdump` with web port `8081` bound to localhost.
-3. **Implement A/B Benchmark Script**:
+   - Ensure SSE stream accumulation decodes and writes the complete final assistant message to the transaction record,
+     capturing internal reasoning tokens (`usage.completion_tokens_details.reasoning_tokens`) alongside visible content.
+3. **Update Runner CLI**:
+   - Add flag `--mitm-web` to launch `mitmweb` instead of `mitmdump` with web port `8081` bound to localhost, logging
+     `🌐 mitmweb dashboard active at http://localhost:8081` upon startup.
+4. **Implement A/B Benchmark Script**:
    - Provide an automated runner in `todo/ab_measure_all_methods.py` that enforces a benchmark pre-clean step:
      explicitly purging or isolating the SQLite cache database (`llm_cache.db` / `~/.holon/cache/` /
      `hybrid_cache.sqlite` via parameterized `CACHE_DIR`) alongside archiving previous `${WIRE_LOG_DIR}` transaction
