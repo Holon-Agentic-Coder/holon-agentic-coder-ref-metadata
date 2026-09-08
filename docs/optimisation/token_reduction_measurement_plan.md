@@ -60,7 +60,7 @@ graph TD
     end
 
     subgraph Inspection & Sinks
-        ProxyPort --> WebUI["mitmweb UI :8081"]
+        ProxyPort -->|Live Inspection| WebUI["mitmweb UI :8081"]
         DiffEngine --> WireLogger["JSONL Wire Log: transactions.jsonl"]
         LocalResp --> WireLogger
         StreamInterceptor --> WireLogger
@@ -111,10 +111,11 @@ that appends full transaction details to `${WIRE_LOG_DIR}/turn_{turn_id}_{flow_i
   2. **Message Depth Counter**: Count user and tool turns in the request payload
      (`len([m for m in messages if m.get('role') in ('user', 'tool')])` or
      `len([m for m in messages if m.get('role') == 'assistant']) + 1`). When `messages` is absent (such as in Google
-     Gemini endpoints), inspect `payload.get('contents')` and count user and model turns
-     (`len([c for c in contents if c.get('role') in ('user', 'model')])`). This ensures turn IDs increment reliably
-     across Anthropic (user-wrapped tool results), OpenAI/OpenAI-compatible tool-calling loops (dedicated `tool` role
-     turns), and Google Gemini conversational structures.
+     Gemini endpoints), inspect `payload.get('contents')` and count user turns
+     (`len([c for c in contents if c.get('role') == 'user'])` or
+     `len([c for c in contents if c.get('role') == 'model']) + 1`). This ensures turn IDs increment reliably across
+     Anthropic (user-wrapped tool results), OpenAI/OpenAI-compatible tool-calling loops (dedicated `tool` role turns),
+     and Google Gemini conversational structures.
   3. **Sequence Counter Fallback**: Fallback to an internal per-flow sequential counter.
 
   Individual transaction dump files are scoped by turn ID and flow or subagent ID (`turn_{turn_id}_{flow_id}.json`) to
@@ -202,8 +203,8 @@ For local development and real-time request inspection, expose `mitmweb` with th
 # Obtain repository root to ensure mounts are directory-agnostic
 REPO_ROOT=$(git rev-parse --show-toplevel)
 
-# Ensure log directory exists on host prior to container startup
-mkdir -p "${REPO_ROOT}/todo/mitm_wire_logs"
+# Ensure log and proxy CA directories exist on host prior to container startup
+mkdir -p "${REPO_ROOT}/todo/mitm_wire_logs" ~/.holon/proxy-ca
 
 # Tip (Linux hosts): If UID/GID permissions prevent container writes (mitmproxy runs as UID 1000),
 # grant write permissions via 'chmod 777 todo/mitm_wire_logs' or add '--user $(id -u):$(id -g)'
@@ -235,8 +236,10 @@ long-lived web UIs can block pipeline execution. Launch `mitmdump` in detached m
 ```bash
 # Headless detached container execution for CI/CD runner environments
 REPO_ROOT=$(git rev-parse --show-toplevel)
+docker rm -f mitmproxy-wire-logger 2>/dev/null || true
 
 docker run -d --name mitmproxy-wire-logger \
+  --rm \
   -p 127.0.0.1:8080:8080 \
   -e WIRE_LOG_DIR=/tmp/wire_logs \
   -e PYTHONPATH=/tmp/src \
@@ -249,14 +252,22 @@ docker run -d --name mitmproxy-wire-logger \
   --set ignore_hosts='^(api\.github\.com|github\.com):443$'
 
 # CI readiness healthcheck probe: verify proxy socket is actively accepting traffic before launching test harnesses
+TIMEOUT=50
+COUNT=0
 until curl -s -x http://127.0.0.1:8080 http://mitm.it > /dev/null; do
   sleep 0.2
+  COUNT=$((COUNT + 1))
+  if [ "$COUNT" -ge "$TIMEOUT" ]; then
+    echo "❌ Error: mitmproxy wire logger failed to become ready on port 8080 within 10s" >&2
+    docker logs mitmproxy-wire-logger
+    exit 1
+  fi
 done
 ```
 
 > [!NOTE] **Security Advisory**: Ports `8080` and `8081` are bound to loopback `127.0.0.1` by default. If binding to an
-> external network interface (e.g., in shared staging or remote environments), pass `--web-password <PASSWORD>` to
-> `mitmweb` to prevent unauthorized inspection of captured payloads and credentials.
+> external network interface (e.g., in shared staging or remote environments), pass `--web-password <PASSWORD>` (or
+> `--set web_password=<PASSWORD>`) to `mitmweb` to prevent unauthorized inspection of captured payloads and credentials.
 
 ---
 
@@ -455,6 +466,8 @@ trajectory formula directly captures this distinction without relying on impreci
 2. **Subagent Context Compression**: Token size of raw executor tool logs vs compressed summary returned to the
    architect.
 3. **Composite Financial Cost**: Total cost per completed task under Ringer vs a monolithic single-agent setup.
+4. **Trajectory Wall-Clock Time ($T_{\text{wall}}$)**: Total elapsed execution time across the trajectory to evaluate
+   parallel subagent concurrency speedups versus inter-agent coordination overhead.
 
 #### Measurement Formula:
 
@@ -511,6 +524,11 @@ compromise functional correctness or software quality:
 | **Architect / Executor Token Split**   | 100% Sonnet       | 25% Sonnet / 75% Flash   | **75% of execution delegated to cheap tier**    |
 | **Episodic Memory Turns Saved**        | 0 turns           | 3 turns                  | **Setup error avoided via OpenBrain memory**    |
 | **Total Monetary Cost**                | **$0.86 ± $0.02** | **$0.14 ± $0.01**        | **-83.7% ($0.72 saved per task)**               |
+
+> [!NOTE] **Scorecard Financial Accounting Note**: Baseline and optimized monetary costs model cumulative multi-turn
+> prompt token accumulation and cache creation write surcharges across the 18 session turns. Illustrative rates assume
+> Tier 1 Claude 3.5 Sonnet ($3.00 in / $15.00 out / $3.75 create / $0.30 read per MTok) and Tier 2 Gemini 2.5 Flash
+> ($0.10 in / $0.40 out per MTok).
 ```
 
 ---
@@ -559,4 +577,5 @@ gantt
      `hybrid_cache.sqlite`) alongside archiving previous `${WIRE_LOG_DIR}` transaction logs before benchmark runs to
      prevent residual cache hits from distorting baseline measurements.
    - Execute $N \ge 3$ iterations at fixed `temperature: 0.0` with `seed: 42`, aggregate mean ($\mu$) and standard
-     deviation ($\sigma$) metrics, verify the task success rate guardrail, and print the completed Efficacy Scorecard.
+     deviation ($\sigma$) metrics, verify the task success rate guardrail by evaluating sandbox test execution exit
+     codes (`pytest` returncode == 0), and print the completed Efficacy Scorecard.
