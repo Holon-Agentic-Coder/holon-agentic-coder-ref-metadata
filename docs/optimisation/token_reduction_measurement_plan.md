@@ -4,6 +4,11 @@ This document outlines the architecture, instrumentation strategy, and step-by-s
 wire-level LLM traffic and measuring the empirical effectiveness of all six token reduction techniques across the
 `holon-agentic-coder-ref` ecosystem.
 
+> [!NOTE] **Repository Topology & Relative Links**: Relative file paths targeting `../../holon-agentic-coder-ref/...`
+> assume a standard local workspace topology where `holon-agentic-coder-ref-metadata` and `holon-agentic-coder-ref`
+> reside as sibling directories under a shared workspace parent. In standalone GitHub web views, cross-repository
+> relative links do not resolve across separate repository boundaries.
+
 ---
 
 ## 🎯 Problem Statement & Diagnostic
@@ -108,41 +113,39 @@ that appends full transaction details to `${WIRE_LOG_DIR}/turn_{turn_id}_{flow_i
   absent, `mitm_addon.py` derives the turn ID using the following precedence order:
   1. **Harness Header**: Extract from explicit request headers if supplied by the test harness (e.g., `X-Holon-Turn-Id`,
      `X-Holon-Agent-Id`, `X-Holon-Agent-Role`).
-  2. **Message Depth Counter**: Count user and tool turns in the request payload
-     (`len([m for m in messages if m.get('role') in ('user', 'tool')])` or
-     `len([m for m in messages if m.get('role') == 'assistant']) + 1`). When `messages` is absent (such as in Google
-     Gemini endpoints), inspect `payload.get('contents')` and count user turns
-     (`len([c for c in contents if c.get('role') == 'user'])` or
-     `len([c for c in contents if c.get('role') == 'model']) + 1`). This ensures turn IDs increment reliably across
-     Anthropic (user-wrapped tool results), OpenAI/OpenAI-compatible tool-calling loops (dedicated `tool` role turns),
-     and Google Gemini conversational structures.
+  2. **Message Depth Counter**: Count conversational assistant completions in the request payload
+     (`len([m for m in messages if m.get('role') == 'assistant']) + 1`), which avoids turn jitter during parallel tool
+     execution, or count user turns. When `messages` is absent (such as in Google Gemini endpoints), inspect
+     `payload.get('contents')` and count model responses (`len([c for c in contents if c.get('role') == 'model']) + 1`)
+     or user turns (`len([c for c in contents if c.get('role') == 'user'])`). This ensures turn IDs increment reliably
+     across Anthropic (user-wrapped tool results), OpenAI/OpenAI-compatible tool-calling loops (dedicated `tool` role
+     turns), and Google Gemini conversational structures.
   3. **Sequence Counter Fallback**: Fallback to an internal per-flow sequential counter.
 
   Individual transaction dump files are scoped by turn ID and flow or subagent ID (`turn_{turn_id}_{flow_id}.json`) to
-  prevent write collisions and file overwrites. Furthermore, disk writes for `transactions.jsonl` must use atomic line
-  appending or an asynchronous logging queue to prevent blocking the mitmproxy event loop and distorting TTFT and
-  latency metrics.
+  prevent write collisions and file overwrites. Furthermore, disk writes for both individual turn dumps and
+  `transactions.jsonl` must use an asynchronous logging queue or thread pool offloading (`asyncio.to_thread` /
+  background worker) to prevent blocking the mitmproxy event loop and distorting TTFT and latency metrics.
 
 - **Credential & Secret Sanitization**: In accordance with security best practices, `dump_wire_transaction()` must scrub
-  all sensitive credential headers (`Authorization`, `x-api-key`, `api-key`, `x-goog-api-key`, `holon-agent-key`,
-  `proxy-authorization`) by replacing their values with `"[REDACTED]"`. In addition, `dump_wire_transaction()` must
-  scrub URL query parameters matching sensitive keys using URL query parser logic or regex
-  `r'([?&](?:key|api_key)=)[^&\s]+'` (e.g., stripping Google Gemini `?key=...` or non-leading `&key=...` /
-  `&api_key=...` parameter values to `\1[REDACTED]`). Furthermore, to protect against accidental secret leakage in
-  agentic workflows (such as an agent inspecting a `.env` file or executing shell commands with tokens),
-  `dump_wire_transaction()` must perform deep payload scrubbing across message contents, tool inputs, and tool outputs.
-  To avoid regex recompilation overhead across high-throughput message payloads, compile patterns once using
-  `re.compile()` for common API key and private certificate signatures:
+  all sensitive credential headers (case-insensitively normalizing names to lowercase: `authorization`, `x-api-key`,
+  `api-key`, `x-goog-api-key`, `holon-agent-key`, `proxy-authorization`) by replacing their values with `"[REDACTED]"`.
+  In addition, `dump_wire_transaction()` must scrub URL query parameters matching sensitive keys using URL query parser
+  logic or regex `r'(?i)([?&](?:key|api_key|apiKey|token|access_token)=)[^&\s]+'` (e.g., stripping Google Gemini
+  `?key=...` or non-leading `&key=...` / `&api_key=...` parameter values to `\1[REDACTED]`). Furthermore, to protect
+  against accidental secret leakage in agentic workflows (such as an agent inspecting a `.env` file or executing shell
+  commands with tokens), `dump_wire_transaction()` must perform deep payload scrubbing across message contents, tool
+  inputs, and tool outputs. To avoid regex recompilation overhead across high-throughput message payloads, compile
+  patterns once using `re.compile()` for common API key and private certificate signatures:
   - Anthropic API keys: `r'\bsk-ant-[a-zA-Z0-9_\-]+\b'`
-  - OpenAI Project, Service Account & User API keys: `r'\bsk-proj-[a-zA-Z0-9_\-]+\b'`,
-    `r'\bsk-admin-[a-zA-Z0-9_\-]+\b'`, `r'\bsk-[a-zA-Z0-9_\-]+\b'`
-  - Google AI keys: `r'\bAIzaSy[a-zA-Z0-9_\-]+\b'`
+  - OpenAI Project, Service Account & User API keys: `r'\bsk-(?:proj-|admin-)?[a-zA-Z0-9_\-]{20,}\b'`
+  - Google Cloud / Vertex AI / AI Studio keys: `r'\bAIza[0-9A-Za-z\-_]{35}\b'`
   - GitHub Personal Access Tokens: `r'\bghp_[a-zA-Z0-9]{36}\b'`, `r'\bgithub_pat_[a-zA-Z0-9_]{82}\b'`
   - AWS Access Key IDs: `r'\bAKIA[0-9A-Z]{16}\b'`, `r'\bASIA[0-9A-Z]{16}\b'`
   - Hugging Face Access Tokens: `r'\bhf_[a-zA-Z0-9]{34,}\b'`
   - JWT Bearer Tokens: `r'\beyJ[a-zA-Z0-9_\-]{20,}\.[a-zA-Z0-9_\-]{20,}\.[a-zA-Z0-9_\-]{20,}\b'`
-  - PEM Private Key Blocks (including PKCS#8):
-    `r'-----BEGIN (?:[A-Z\s]+ )?PRIVATE KEY-----[\s\S]*?-----END (?:[A-Z\s]+ )?PRIVATE KEY-----'`
+  - PEM & PGP Private Key Blocks (including PKCS#8):
+    `r'-----BEGIN (?:[A-Z\s]+ )?PRIVATE KEY(?: BLOCK)?-----[\s\S]*?-----END (?:[A-Z\s]+ )?PRIVATE KEY(?: BLOCK)?-----'`
 
   All detected secret matches in message bodies and payloads are replaced with `"[REDACTED_SECRET]"` prior to persisting
   transaction payloads or endpoint URLs to disk.
@@ -220,9 +223,9 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
 mkdir -p "${REPO_ROOT}/todo/mitm_wire_logs" "${REPO_ROOT}/todo/cache" ~/.holon/proxy-ca
 
 # Tip (Linux hosts): If UID/GID permissions prevent container writes (mitmproxy runs as UID 1000),
-# grant write permissions via 'chmod 777 todo/mitm_wire_logs todo/cache' or add '--user $(id -u):$(id -g)'
-# along with '-e HOME=/tmp'. When passing '-e HOME=/tmp', ensure the proxy CA volume mounts to
-# '/tmp/.mitmproxy' (e.g. '-v ~/.holon/proxy-ca:/tmp/.mitmproxy') or pass '--set confdir=/tmp/.mitmproxy'
+# ensure ownership or write permissions via 'chown -R 1000:1000 todo/mitm_wire_logs todo/cache ~/.holon/proxy-ca'
+# (or 'chmod -R 775 todo/mitm_wire_logs todo/cache ~/.holon/proxy-ca'). Alternatively, add '--user $(id -u):$(id -g)'
+# along with '-e HOME=/tmp' and mount '-v ~/.holon/proxy-ca:/tmp/.mitmproxy' (or pass '--set confdir=/tmp/.mitmproxy')
 # since mitmproxy resolves its default configuration under '$HOME/.mitmproxy'.
 
 docker run --rm -it \
@@ -254,10 +257,11 @@ long-lived web UIs can block pipeline execution. Launch `mitmdump` in detached m
 # Headless detached container execution for CI/CD runner environments
 REPO_ROOT=$(git rev-parse --show-toplevel)
 mkdir -p "${REPO_ROOT}/todo/mitm_wire_logs" "${REPO_ROOT}/todo/cache" ~/.holon/proxy-ca
+chmod -R 775 "${REPO_ROOT}/todo/mitm_wire_logs" "${REPO_ROOT}/todo/cache" ~/.holon/proxy-ca 2>/dev/null || true
 docker rm -f mitmproxy-wire-logger 2>/dev/null || true
+trap 'docker rm -f mitmproxy-wire-logger >/dev/null 2>&1 || true' EXIT
 
 docker run -d --name mitmproxy-wire-logger \
-  --rm \
   -p 127.0.0.1:8080:8080 \
   -e WIRE_LOG_DIR=/tmp/wire_logs \
   -e CACHE_DIR=/tmp/cache \
@@ -610,17 +614,22 @@ gantt
      directory using `CACHE_DIR` environment variable (default: `~/.holon/cache/`) so SQLite cache persistence can be
      mapped to host directories (`-e CACHE_DIR=/tmp/cache -v "${REPO_ROOT}/todo/cache":/tmp/cache`).
    - Implement `dump_wire_transaction()` to write full raw request, cleaned request, and response payloads to
-     `${WIRE_LOG_DIR}/turn_{turn_id}_{flow_id}.json` and atomic line appends to `${WIRE_LOG_DIR}/transactions.jsonl` (or
-     via an async queue).
-   - Scrub sensitive credentials and authentication headers (`Authorization`, `x-api-key`, `api-key`, `x-goog-api-key`,
-     `holon-agent-key`, `proxy-authorization`) and URL query parameters via query parser logic or regex
-     `r'([?&](?:key|api_key)=)[^&\s]+'` with `[REDACTED]`.
+     `${WIRE_LOG_DIR}/turn_{turn_id}_{flow_id}.json` and atomic line appends to `${WIRE_LOG_DIR}/transactions.jsonl`,
+     offloaded via an asynchronous logging queue or thread pool (`asyncio.to_thread` / background worker) to prevent
+     blocking the mitmproxy event loop.
+   - Scrub sensitive credentials and authentication headers (case-insensitively normalizing names to lowercase:
+     `authorization`, `x-api-key`, `api-key`, `x-goog-api-key`, `holon-agent-key`, `proxy-authorization`) and URL query
+     parameters via query parser logic or regex `r'(?i)([?&](?:key|api_key|apiKey|token|access_token)=)[^&\s]+'` with
+     `[REDACTED]`.
    - Deep-scrub message bodies and tool payloads using word-boundary regex patterns for API keys and tokens (Anthropic
-     `sk-ant-...`, OpenAI `sk-proj-...` / `sk-admin-...` / `sk-...`, Google AI `AIzaSy...`, GitHub PATs `ghp_...` /
-     `github_pat_...`, AWS `AKIA...` / `ASIA...`, Hugging Face tokens `r'\bhf_[a-zA-Z0-9]{34,}\b'`, JWT Bearer tokens
-     `r'\beyJ[a-zA-Z0-9_\-]{20,}\.[a-zA-Z0-9_\-]{20,}\.[a-zA-Z0-9_\-]{20,}\b'`, and PEM private key blocks including
-     PKCS#8 `r'-----BEGIN (?:[A-Z\s]+ )?PRIVATE KEY-----[\s\S]*?-----END (?:[A-Z\s]+ )?PRIVATE KEY-----'`), replacing
-     detected secrets with `[REDACTED_SECRET]` before persisting transaction payloads or endpoint URLs to disk.
+     `sk-ant-...`, OpenAI `r'\bsk-(?:proj-|admin-)?[a-zA-Z0-9_\-]{20,}\b'`, Google Cloud / Vertex AI
+     `r'\bAIza[0-9A-Za-z\-_]{35}\b'`, GitHub PATs `ghp_...` / `github_pat_...`, AWS `AKIA...` / `ASIA...`, Hugging Face
+     tokens `r'\bhf_[a-zA-Z0-9]{34,}\b'`, JWT Bearer tokens
+     `r'\beyJ[a-zA-Z0-9_\-]{20,}\.[a-zA-Z0-9_\-]{20,}\.[a-zA-Z0-9_\-]{20,}\b'`, and PEM/PGP private key blocks including
+     PKCS#8
+     `r'-----BEGIN (?:[A-Z\s]+ )?PRIVATE KEY(?: BLOCK)?-----[\s\S]*?-----END (?:[A-Z\s]+ )?PRIVATE KEY(?: BLOCK)?-----'`),
+     replacing detected secrets with `[REDACTED_SECRET]` before persisting transaction payloads or endpoint URLs to
+     disk.
    - Ensure SSE stream accumulation decodes and writes the complete final assistant message to the transaction record.
 2. **Update Runner CLI**:
    - Add flag `--mitm-web` to launch `mitmweb` instead of `mitmdump` with web port `8081` bound to localhost.
