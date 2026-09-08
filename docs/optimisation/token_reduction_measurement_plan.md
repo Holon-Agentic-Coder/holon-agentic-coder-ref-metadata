@@ -126,19 +126,23 @@ that appends full transaction details to `${WIRE_LOG_DIR}/turn_{turn_id}_{flow_i
 - **Credential & Secret Sanitization**: In accordance with security best practices, `dump_wire_transaction()` must scrub
   all sensitive credential headers (`Authorization`, `x-api-key`, `api-key`, `x-goog-api-key`, `holon-agent-key`,
   `proxy-authorization`) by replacing their values with `"[REDACTED]"`. In addition, `dump_wire_transaction()` must
-  scrub URL query parameters matching sensitive keys (e.g., stripping Google Gemini `?key=...` or `?api_key=...`
-  parameter values to `?key=[REDACTED]`). Furthermore, to protect against accidental secret leakage in agentic workflows
-  (such as an agent inspecting a `.env` file or executing shell commands with tokens), `dump_wire_transaction()` must
-  perform deep payload scrubbing across message contents, tool inputs, and tool outputs. To avoid regex recompilation
-  overhead across high-throughput message payloads, compile patterns once using `re.compile()` for common API key and
-  private certificate signatures:
+  scrub URL query parameters matching sensitive keys using URL query parser logic or regex
+  `r'([?&](?:key|api_key)=)[^&\s]+'` (e.g., stripping Google Gemini `?key=...` or non-leading `&key=...` /
+  `&api_key=...` parameter values to `\1[REDACTED]`). Furthermore, to protect against accidental secret leakage in
+  agentic workflows (such as an agent inspecting a `.env` file or executing shell commands with tokens),
+  `dump_wire_transaction()` must perform deep payload scrubbing across message contents, tool inputs, and tool outputs.
+  To avoid regex recompilation overhead across high-throughput message payloads, compile patterns once using
+  `re.compile()` for common API key and private certificate signatures:
   - Anthropic API keys: `r'\bsk-ant-[a-zA-Z0-9_\-]+\b'`
   - OpenAI Project, Service Account & User API keys: `r'\bsk-proj-[a-zA-Z0-9_\-]+\b'`,
     `r'\bsk-admin-[a-zA-Z0-9_\-]+\b'`, `r'\bsk-[a-zA-Z0-9_\-]+\b'`
   - Google AI keys: `r'\bAIzaSy[a-zA-Z0-9_\-]+\b'`
   - GitHub Personal Access Tokens: `r'\bghp_[a-zA-Z0-9]{36}\b'`, `r'\bgithub_pat_[a-zA-Z0-9_]{82}\b'`
   - AWS Access Key IDs: `r'\bAKIA[0-9A-Z]{16}\b'`, `r'\bASIA[0-9A-Z]{16}\b'`
-  - PEM Private Key Headers: `r'-----BEGIN [A-Z]+ PRIVATE KEY-----'`
+  - Hugging Face Access Tokens: `r'\bhf_[a-zA-Z0-9]{34,}\b'`
+  - JWT Bearer Tokens: `r'\beyJ[a-zA-Z0-9_\-]{20,}\.[a-zA-Z0-9_\-]{20,}\.[a-zA-Z0-9_\-]{20,}\b'`
+  - PEM Private Key Blocks (including PKCS#8):
+    `r'-----BEGIN (?:[A-Z\s]+ )?PRIVATE KEY-----[\s\S]*?-----END (?:[A-Z\s]+ )?PRIVATE KEY-----'`
 
   All detected secret matches in message bodies and payloads are replaced with `"[REDACTED_SECRET]"` prior to persisting
   transaction payloads or endpoint URLs to disk.
@@ -170,6 +174,7 @@ that appends full transaction details to `${WIRE_LOG_DIR}/turn_{turn_id}_{flow_i
     "cleaned_chars": 12100,
     "chars_saved": 16350,
     "tool_outputs_omitted": 2,
+    "turns_summarized": 1,
     "cache_control_injected": 3
   },
   "cache_action": "MISS",
@@ -190,6 +195,14 @@ that appends full transaction details to `${WIRE_LOG_DIR}/turn_{turn_id}_{flow_i
 }
 ```
 
+> [!NOTE] **Anthropic Wire Schema `usage.input_tokens` Semantics**: In raw Anthropic Messages API responses,
+> `usage.input_tokens` denotes only _uncached base prompt tokens_ ($3,120 - 2,850 = 270$ tokens in this example). In
+> Holon's normalized wire telemetry schema persisted to `transactions.jsonl`, `usage.input_tokens` records the
+> comprehensive total prompt token count across all cache tiers:
+> $$\text{input\_tokens} = \text{uncached\_input} + \text{cache\_read\_input\_tokens} + \text{cache\_creation\_input\_tokens}$$
+> For downstream consumers requiring verbatim upstream provider payloads, raw unnormalized responses remain accessible
+> in per-turn dump records (`turn_{turn_id}_{flow_id}.json`).
+
 > [!NOTE] **Schema Timing Metric (`ttft_ms`)**: In the wire transaction schema, `ttft_ms` records Time-To-First-Token
 > for streaming SSE responses. For non-streaming synchronous requests, `ttft_ms` is `null` (or equal to `total_ms`).
 
@@ -203,21 +216,25 @@ For local development and real-time request inspection, expose `mitmweb` with th
 # Obtain repository root to ensure mounts are directory-agnostic
 REPO_ROOT=$(git rev-parse --show-toplevel)
 
-# Ensure log and proxy CA directories exist on host prior to container startup
-mkdir -p "${REPO_ROOT}/todo/mitm_wire_logs" ~/.holon/proxy-ca
+# Ensure log, cache, and proxy CA directories exist on host prior to container startup
+mkdir -p "${REPO_ROOT}/todo/mitm_wire_logs" "${REPO_ROOT}/todo/cache" ~/.holon/proxy-ca
 
 # Tip (Linux hosts): If UID/GID permissions prevent container writes (mitmproxy runs as UID 1000),
-# grant write permissions via 'chmod 777 todo/mitm_wire_logs' or add '--user $(id -u):$(id -g)'
-# along with '-e HOME=/tmp' (to prevent permission errors when accessing /home/mitmproxy).
+# grant write permissions via 'chmod 777 todo/mitm_wire_logs todo/cache' or add '--user $(id -u):$(id -g)'
+# along with '-e HOME=/tmp'. When passing '-e HOME=/tmp', ensure the proxy CA volume mounts to
+# '/tmp/.mitmproxy' (e.g. '-v ~/.holon/proxy-ca:/tmp/.mitmproxy') or pass '--set confdir=/tmp/.mitmproxy'
+# since mitmproxy resolves its default configuration under '$HOME/.mitmproxy'.
 
 docker run --rm -it \
   -p 127.0.0.1:8080:8080 \
   -p 127.0.0.1:8081:8081 \
   -e WIRE_LOG_DIR=/tmp/wire_logs \
+  -e CACHE_DIR=/tmp/cache \
   -e PYTHONPATH=/tmp/src \
   -v "${REPO_ROOT}/holon-agentic-coder-ref/develop/apps/sandbox-executor/src":/tmp/src:ro \
   -v "${REPO_ROOT}/holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/mitm_addon.py":/tmp/mitm_addon.py:ro \
   -v "${REPO_ROOT}/todo/mitm_wire_logs":/tmp/wire_logs \
+  -v "${REPO_ROOT}/todo/cache":/tmp/cache \
   -v ~/.holon/proxy-ca:/home/mitmproxy/.mitmproxy \
   mitmproxy/mitmproxy:12.2.3 \
   mitmweb -s /tmp/mitm_addon.py --web-host 0.0.0.0 --web-port 8081 --listen-port 8080 \
@@ -236,16 +253,19 @@ long-lived web UIs can block pipeline execution. Launch `mitmdump` in detached m
 ```bash
 # Headless detached container execution for CI/CD runner environments
 REPO_ROOT=$(git rev-parse --show-toplevel)
+mkdir -p "${REPO_ROOT}/todo/mitm_wire_logs" "${REPO_ROOT}/todo/cache" ~/.holon/proxy-ca
 docker rm -f mitmproxy-wire-logger 2>/dev/null || true
 
 docker run -d --name mitmproxy-wire-logger \
   --rm \
   -p 127.0.0.1:8080:8080 \
   -e WIRE_LOG_DIR=/tmp/wire_logs \
+  -e CACHE_DIR=/tmp/cache \
   -e PYTHONPATH=/tmp/src \
   -v "${REPO_ROOT}/holon-agentic-coder-ref/develop/apps/sandbox-executor/src":/tmp/src:ro \
   -v "${REPO_ROOT}/holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/mitm_addon.py":/tmp/mitm_addon.py:ro \
   -v "${REPO_ROOT}/todo/mitm_wire_logs":/tmp/wire_logs \
+  -v "${REPO_ROOT}/todo/cache":/tmp/cache \
   -v ~/.holon/proxy-ca:/home/mitmproxy/.mitmproxy \
   mitmproxy/mitmproxy:12.2.3 \
   mitmdump -s /tmp/mitm_addon.py --listen-port 8080 \
@@ -254,7 +274,7 @@ docker run -d --name mitmproxy-wire-logger \
 # CI readiness healthcheck probe: verify proxy socket is actively accepting traffic before launching test harnesses
 TIMEOUT=50
 COUNT=0
-until curl -s -x http://127.0.0.1:8080 http://mitm.it > /dev/null; do
+until curl -s --fail --connect-timeout 1 --max-time 2 -x http://127.0.0.1:8080 http://mitm.it > /dev/null; do
   sleep 0.2
   COUNT=$((COUNT + 1))
   if [ "$COUNT" -ge "$TIMEOUT" ]; then
@@ -300,6 +320,8 @@ done
 
 $$\text{Cleaning Reduction Ratio} = \frac{\text{Tokens}_{\text{raw}} - \text{Tokens}_{\text{cleaned}}}{\text{Tokens}_{\text{raw}}} \times 100\%$$
 
+_(with denominator guard: defaults to $0.0\%$ if $\text{Tokens}_{\text{raw}} = 0$)_
+
 > [!NOTE] **Tokenizer Discrepancy & Heuristics vs Exact Counts**: While character heuristic counters (e.g., ~4
 > chars/token) provide lightweight, zero-overhead telemetry within the proxy event loop for real-time diffing, official
 > token reduction percentages and benchmark scorecards must be computed using provider token counters (or exact BPE
@@ -308,17 +330,21 @@ $$\text{Cleaning Reduction Ratio} = \frac{\text{Tokens}_{\text{raw}} - \text{Tok
 
 #### Instrumentation:
 
-- In `mitm_addon.py:request()`, calculate hash and length of `data` (incoming) vs `cleaned_data` (outgoing).
-- Emit a `CLEANER_METRICS` event with:
-  - `omitted_tool_blocks_count`
-  - `summarized_turns_count`
-  - `net_bytes_saved`
+- In
+  [`mitm_addon.py`](../../holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/mitm_addon.py):`request()`,
+  calculate hash and length of `data` (incoming) vs `cleaned_data` (outgoing).
+- Emit a `CLEANER_METRICS` event standardized to match wire schema `delta` properties:
+  - `chars_saved` (net character reduction: `raw_chars - cleaned_chars`)
+  - `tool_outputs_omitted` (count of pruned tool execution blocks)
+  - `turns_summarized` (count of historical conversation turns condensed)
+  - `cache_control_injected` (count of provider cache breakpoint blocks added)
 
 ---
 
 ### Method 2: Local & Semantic Cache
 
-> [!NOTE] **Streaming Request Bypass & Cache Evaluation Constraint**: In the current implementation of `mitm_addon.py`,
+> [!NOTE] **Streaming Request Bypass & Cache Evaluation Constraint**: In the current implementation of
+> [`mitm_addon.py`](../../holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/mitm_addon.py),
 > streaming requests (`stream: true` or SSE endpoints) bypass local cache storage and retrieval (`put()` and `get()`)
 > because returning cached completions requires token-by-token stream replay. Therefore, when evaluating Method 2
 > (_Local Hybrid & Semantic Caching_) in benchmarks, agent harnesses must be configured in non-streaming mode to observe
@@ -337,12 +363,16 @@ $$\text{Cleaning Reduction Ratio} = \frac{\text{Tokens}_{\text{raw}} - \text{Tok
 #### Measurement Formula:
 
 $$\text{Local Cache Hit Rate} = \frac{\text{Requests}_{\text{cached}}}{\text{Requests}_{\text{total}}} \times 100\%$$
+
+_(with denominator guard: defaults to $0.0\%$ if $\text{Requests}_{\text{total}} = 0$)_
+
 $$\text{Tokens Avoided} = \sum_{\text{cache hits}} (\text{Prompt Tokens} + \text{Completion Tokens})$$
 
 #### Instrumentation:
 
-- In `hybrid_cache.py:get()`, log cache query results with `key`, `hit_type` (`EXACT`, `SEMANTIC`, `MISS`),
-  `similarity_score`, and `hit_count`.
+- In
+  [`hybrid_cache.py`](../../holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/hybrid_cache.py):`get()`,
+  log cache query results with `key`, `hit_type` (`EXACT`, `SEMANTIC`, `MISS`), `similarity_score`, and `hit_count`.
 
 ---
 
@@ -360,11 +390,14 @@ $$\text{Tokens Avoided} = \sum_{\text{cache hits}} (\text{Prompt Tokens} + \text
 
 $$\text{Prompt Cache Efficiency} = \frac{\text{Cache Read Tokens}}{\text{Total Input Tokens}} \times 100\%$$
 
-$$\text{Net Monetary Savings (USD)} = \left(\text{Cache Read Tokens} \times (\text{Price}_{\text{base}} - \text{Price}_{\text{read}})\right) - \left(\text{Cache Creation Tokens} \times (\text{Price}_{\text{create}} - \text{Price}_{\text{base}})\right)$$
+_(with denominator guard: defaults to $0.0\%$ if $\text{Total Input Tokens} = 0$)_
 
-_Example for Claude 3.5 Sonnet: Base input price is \$3.00/MTok, cache read is \$0.30/MTok (90% discount, saving
-\$2.70/MTok read), while cache creation incurs a 25% surcharge at \$3.75/MTok (costing \$0.75/MTok extra). Net monetary
-savings accounts for both read discounts and cache write overhead._
+$$\text{Net Monetary Savings (USD)} = \frac{1}{10^6} \left[ \left(\text{Cache Read Tokens} \times (\text{Price}_{\text{base}} - \text{Price}_{\text{read}})\right) - \left(\text{Cache Creation Tokens} \times (\text{Price}_{\text{create}} - \text{Price}_{\text{base}})\right) \right]$$
+
+_Where $\text{Price}$ is quoted in USD per million tokens (MTok), scaled by the dimensional factor $\frac{1}{10^6}$ to
+yield cost in USD. Example for Claude 3.5 Sonnet: Base input price is \$3.00/MTok, cache read is \$0.30/MTok (90%
+discount, saving \$2.70/MTok read), while cache creation incurs a 25% surcharge at \$3.75/MTok (costing \$0.75/MTok
+extra). Net monetary savings accounts for both read discounts and cache write overhead._
 
 > [!NOTE] **Provider Minimum Prompt Caching Token Thresholds**: Frontier LLM providers enforce minimum prompt token
 > thresholds before prompt caching activates. Anthropic requires a minimum of 1,024 prompt tokens for Claude 3.5 Sonnet
@@ -386,7 +419,9 @@ savings accounts for both read discounts and cache write overhead._
 
 #### Instrumentation:
 
-- In `mitm_addon.py:extract_token_counts()`, parse the exact usage dictionary from JSON or SSE chunks.
+- In
+  [`mitm_addon.py`](../../holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/mitm_addon.py):`extract_token_counts()`,
+  parse the exact usage dictionary from JSON or SSE chunks.
 - Validate that `cache_control` breakpoints were injected and honored by the upstream provider.
 
 ---
@@ -406,6 +441,8 @@ savings accounts for both read discounts and cache write overhead._
 
 $$\text{Turn 0 Token Reduction} = \frac{\text{Tokens}_{\text{naive\_repo}} - \text{Tokens}_{\text{rag\_injected}}}{\text{Tokens}_{\text{naive\_repo}}} \times 100\%$$
 
+_(with denominator guard: defaults to $0.0\%$ if $\text{Tokens}_{\text{naive\_repo}} = 0$)_
+
 $$\text{Net RAG Trajectory Savings} = \sum \text{Tokens}_{\text{naive\_session}} - \sum \text{Tokens}_{\text{rag\_session}}$$
 
 _Trajectory Trade-Off Evaluation_: While the Turn 0 formula measures initial prompt pruning efficiency, aggressive
@@ -416,7 +453,9 @@ lifecycle.
 
 #### Instrumentation:
 
-- In `rag_indexer.py`, log the token count of generated context blocks.
+- In
+  [`rag_indexer.py`](../../holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/rag_indexer.py),
+  log the token count of generated context blocks.
 - Track agent tool invocations (`grep`, `find`, `semantic_search`) during the execution phase.
 
 ---
@@ -438,6 +477,8 @@ $$\text{Net Tokens Saved} = \sum \text{Tokens}_{\text{cold\_start}} - \sum \text
 
 $$\text{Token ROI (Ratio)} = \frac{\sum \text{Tokens}_{\text{cold\_start}} - \sum \text{Tokens}_{\text{with\_memory}}}{\sum \text{Tokens}_{\text{memory\_injected}}}$$
 
+_(with denominator guard: defaults to $0.0$ if $\sum \text{Tokens}_{\text{memory\_injected}} = 0$)_
+
 _Note on Ephemeral vs Persistent Context Overhead_: In multi-turn chat architectures, prompt context grows monotonically
 ($O(N)$ or $O(N^2)$ prompt accumulation), making turns saved toward the end of an execution trajectory yield
 significantly higher token reductions than early or average turns. Because $\sum \text{Tokens}_{\text{with\_memory}}$
@@ -452,7 +493,9 @@ trajectory formula directly captures this distinction without relying on impreci
 
 #### Instrumentation:
 
-- In `openbrain_memory.py`, log retrieved memory IDs, similarity scores, and injected token counts.
+- In
+  [`openbrain_memory.py`](../../holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/openbrain_memory.py),
+  log retrieved memory IDs, similarity scores, and injected token counts.
 - Compare task success speed on regression benchmark suites.
 
 ---
@@ -471,18 +514,22 @@ trajectory formula directly captures this distinction without relying on impreci
 
 #### Measurement Formula:
 
-$$\text{Cost}_{\text{monolithic}} = (\text{Tokens}_{\text{in, total}} \times \text{Price}_{\text{in, arch}}) + (\text{Tokens}_{\text{out, total}} \times \text{Price}_{\text{out, arch}})$$
+$$\text{Cost}_{\text{monolithic}} = \frac{1}{10^6} \left[ (\text{Tokens}_{\text{in, total}} \times \text{Price}_{\text{in, arch}}) + (\text{Tokens}_{\text{out, total}} \times \text{Price}_{\text{out, arch}}) \right]$$
 
-$$\text{Cost}_{\text{ringer}} = \left[(\text{Tokens}_{\text{in, arch}} \times \text{Price}_{\text{in, arch}}) + (\text{Tokens}_{\text{out, arch}} \times \text{Price}_{\text{out, arch}})\right] + \sum_i \left[(\text{Tokens}_{\text{in, exec}_i} \times \text{Price}_{\text{in, exec}_i}) + (\text{Tokens}_{\text{out, exec}_i} \times \text{Price}_{\text{out, exec}_i})\right]$$
+$$\text{Cost}_{\text{ringer}} = \frac{1}{10^6} \left[ (\text{Tokens}_{\text{in, arch}} \times \text{Price}_{\text{in, arch}} + \text{Tokens}_{\text{out, arch}} \times \text{Price}_{\text{out, arch}}) + \sum_i (\text{Tokens}_{\text{in, exec}_i} \times \text{Price}_{\text{in, exec}_i} + \text{Tokens}_{\text{out, exec}_i} \times \text{Price}_{\text{out, exec}_i}) \right]$$
 
-_Differentiating input and output token pricing is critical because completion tokens are typically 3× to 5× more
-expensive than prompt tokens across both Tier 1 (e.g., Claude 3.5 Sonnet: \$3.00/MTok input vs \$15.00/MTok output) and
-Tier 2 models (e.g., Gemini 2.5 Flash: \$0.10/MTok input vs \$0.40/MTok output)._
+_Where $\text{Price}$ is quoted in USD per million tokens (MTok), scaled by the dimensional factor $\frac{1}{10^6}$ to
+yield cost in USD. Differentiating input and output token pricing is critical because completion tokens are typically 3×
+to 5× more expensive than prompt tokens across both Tier 1 (e.g., Claude 3.5 Sonnet: \$3.00/MTok input vs \$15.00/MTok
+output) and Tier 2 models (e.g., Gemini 2.5 Flash: \$0.10/MTok input vs \$0.40/MTok output)._
 
 #### Instrumentation:
 
-- In `ringer_orchestrator.py`, record separate token ledgers for the architect and each subagent child conversation.
-- Measure compression ratio: $\frac{\text{Tokens}_{\text{summary}}}{\text{Tokens}_{\text{raw\_subagent\_history}}}$.
+- In
+  [`ringer_orchestrator.py`](../../holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/ringer_orchestrator.py),
+  record separate token ledgers for the architect and each subagent child conversation.
+- Measure compression ratio: $\frac{\text{Tokens}_{\text{summary}}}{\text{Tokens}_{\text{raw\_subagent\_history}}}$
+  _(with denominator guard: defaults to $0.0$ if $\text{Tokens}_{\text{raw\_subagent\_history}} = 0$)_.
 
 ---
 
@@ -491,7 +538,8 @@ Tier 2 models (e.g., Gemini 2.5 Flash: \$0.10/MTok input vs \$0.40/MTok output).
 To ensure statistical rigor and eliminate non-deterministic path variance across frontier LLM trajectories (such as
 differing exploration paths or tool call sequences), benchmark evaluations must fix `temperature: 0.0`, configure a
 deterministic seed parameter (e.g., `seed: 42` for providers supporting deterministic sampling controls), and execute
-$N \ge 3$ iterations per task suite. The unified scorecard reports sample mean values ($\mu$) and standard deviations
+$N \ge 3$ iterations per task suite with workspace state resetting (`git clean -fdx` or sandbox container
+re-initialization) between runs. The unified scorecard reports sample mean values ($\mu$) and standard deviations
 ($\sigma$) across both baseline (unoptimized) and fully optimized runs on an identical standard task (e.g., executing a
 multi-file refactoring or bug fix). In addition to prompt tokens, cumulative output tokens are tracked explicitly to
 account for provider completion pricing tiers (3× to 5× higher than input pricing). Furthermore, a **Task Success Rate /
@@ -515,7 +563,7 @@ compromise functional correctness or software quality:
 | Metric                                 | Baseline (Direct) | Optimized (All 6 Active) | Net Impact                                      |
 | :------------------------------------- | :---------------- | :----------------------- | :---------------------------------------------- |
 | **Task Success Rate / Test Pass Rate** | 100% (3/3 pass)   | 100% (3/3 pass)          | **100% (Functional correctness guardrail met)** |
-| **Total Prompt Tokens (Cumulative)**   | 142,500 ± 2,100   | 48,200 ± 850             | **-66.2% (-94,300 tok)**                        |
+| **Total Prompt Tokens (Cumulative)**   | 262,500 ± 3,800   | 48,200 ± 850             | **-81.6% (-214,300 tok)**                       |
 | **Total Output Tokens (Cumulative)**   | 4,850 ± 120       | 3,920 ± 90               | **-19.2% (-930 tok)**                           |
 | **Turn 0 Context Injection**           | 18,400 ± 0        | 2,800 ± 0 (RAG)          | **-84.8% (-15,600 tok)**                        |
 | **Tool Output Redundancy Pruned**      | 0 bytes           | 42,600 ± 1,200 bytes     | **12 duplicate file reads omitted**             |
@@ -558,24 +606,32 @@ gantt
 
 1. **Update
    [`mitm_addon.py`](../../holon-agentic-coder-ref/develop/apps/sandbox-executor/src/sandbox_executor/token_reduction/mitm_addon.py)**:
-   - Parameterize log directory using `WIRE_LOG_DIR` environment variable (default: `todo/mitm_wire_logs/`).
+   - Parameterize log directory using `WIRE_LOG_DIR` environment variable (default: `todo/mitm_wire_logs/`) and cache
+     directory using `CACHE_DIR` environment variable (default: `~/.holon/cache/`) so SQLite cache persistence can be
+     mapped to host directories (`-e CACHE_DIR=/tmp/cache -v "${REPO_ROOT}/todo/cache":/tmp/cache`).
    - Implement `dump_wire_transaction()` to write full raw request, cleaned request, and response payloads to
      `${WIRE_LOG_DIR}/turn_{turn_id}_{flow_id}.json` and atomic line appends to `${WIRE_LOG_DIR}/transactions.jsonl` (or
      via an async queue).
    - Scrub sensitive credentials and authentication headers (`Authorization`, `x-api-key`, `api-key`, `x-goog-api-key`,
-     `holon-agent-key`, `proxy-authorization`) and URL query parameters (`?key=...`, `?api_key=...`) with `[REDACTED]`.
+     `holon-agent-key`, `proxy-authorization`) and URL query parameters via query parser logic or regex
+     `r'([?&](?:key|api_key)=)[^&\s]+'` with `[REDACTED]`.
    - Deep-scrub message bodies and tool payloads using word-boundary regex patterns for API keys and tokens (Anthropic
      `sk-ant-...`, OpenAI `sk-proj-...` / `sk-admin-...` / `sk-...`, Google AI `AIzaSy...`, GitHub PATs `ghp_...` /
-     `github_pat_...`, AWS `AKIA...` / `ASIA...`, PEM private keys `-----BEGIN ... PRIVATE KEY-----`) replacing detected
-     secrets with `[REDACTED_SECRET]` before persisting transaction payloads or endpoint URLs to disk.
+     `github_pat_...`, AWS `AKIA...` / `ASIA...`, Hugging Face tokens `r'\bhf_[a-zA-Z0-9]{34,}\b'`, JWT Bearer tokens
+     `r'\beyJ[a-zA-Z0-9_\-]{20,}\.[a-zA-Z0-9_\-]{20,}\.[a-zA-Z0-9_\-]{20,}\b'`, and PEM private key blocks including
+     PKCS#8 `r'-----BEGIN (?:[A-Z\s]+ )?PRIVATE KEY-----[\s\S]*?-----END (?:[A-Z\s]+ )?PRIVATE KEY-----'`), replacing
+     detected secrets with `[REDACTED_SECRET]` before persisting transaction payloads or endpoint URLs to disk.
    - Ensure SSE stream accumulation decodes and writes the complete final assistant message to the transaction record.
 2. **Update Runner CLI**:
    - Add flag `--mitm-web` to launch `mitmweb` instead of `mitmdump` with web port `8081` bound to localhost.
 3. **Implement A/B Benchmark Script**:
    - Provide an automated runner in `todo/ab_measure_all_methods.py` that enforces a benchmark pre-clean step:
      explicitly purging or isolating the SQLite cache database (`llm_cache.db` / `~/.holon/cache/` /
-     `hybrid_cache.sqlite`) alongside archiving previous `${WIRE_LOG_DIR}` transaction logs before benchmark runs to
-     prevent residual cache hits from distorting baseline measurements.
+     `hybrid_cache.sqlite` via parameterized `CACHE_DIR`) alongside archiving previous `${WIRE_LOG_DIR}` transaction
+     logs before benchmark runs to prevent residual cache hits from distorting baseline measurements.
+   - Mandate resetting workspace state between benchmark iterations (via `git clean -fdx` or sandbox container
+     re-initialization) to guarantee that each run begins from a pristine repository state without inheriting modified
+     files from earlier turns, ensuring statistical independence across $N \ge 3$ iterations.
    - Execute $N \ge 3$ iterations at fixed `temperature: 0.0` with `seed: 42`, aggregate mean ($\mu$) and standard
      deviation ($\sigma$) metrics, verify the task success rate guardrail by evaluating sandbox test execution exit
      codes (`pytest` returncode == 0), and print the completed Efficacy Scorecard.
