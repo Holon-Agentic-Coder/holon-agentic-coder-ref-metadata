@@ -5,9 +5,10 @@ wire-level LLM traffic and measuring the empirical effectiveness of all six toke
 `holon-agentic-coder-ref` ecosystem.
 
 > [!NOTE] **Repository Topology & Relative Links**: Relative file paths targeting `../../holon-agentic-coder-ref/...`
-> assume a standard local workspace topology where `holon-agentic-coder-ref-metadata` and `holon-agentic-coder-ref`
-> reside as sibling directories under a shared workspace parent. In standalone GitHub web views, cross-repository
-> relative links do not resolve across separate repository boundaries.
+> navigate from this document's directory (`docs/optimisation/`) to the repository root where `holon-agentic-coder-ref`
+> is located. In standalone GitHub web views, cross-repository relative links do not resolve across separate repository
+> boundaries; refer directly to the upstream
+> [`holon-agentic-coder-ref`](https://github.com/Holon-Agentic-Coder/holon-agentic-coder-ref) repository.
 
 ---
 
@@ -48,10 +49,11 @@ This occurs because:
 ```mermaid
 graph TD
     subgraph Sandbox Container
-        Agent[Agent Harness] -->|Raw Outbound Request| ProxyPort["Proxy Port :8080"]
+        Agent[Agent Harness]
     end
 
     subgraph MITM Sidecar Engine
+        Agent -->|Raw Outbound Request| ProxyPort["Proxy Port :8080"]
         ProxyPort --> RawCapture[1. Capture Raw Request & Tokenize]
         RawCapture --> Cleaner[2. Context Cleaner & Prompt Cache Injector]
         Cleaner --> DiffEngine[3. Diff Engine: Raw vs Cleaned]
@@ -101,9 +103,11 @@ that appends full transaction details to `${WIRE_LOG_DIR}/turn_{turn_id}_{flow_i
 
   _Log Retention & Disk Quota Policy_: In long-running benchmark suites ($N \ge 3$ across 50+ turns), full raw
   transaction dumps (`turn_{turn_id}_{flow_id}.json`) can accumulate hundreds of megabytes of disk storage. For
-  resource-constrained CI/CD runners, implement a retention policy—such as archiving runs older than 7 days, compressing
-  individual turn dumps into a tarball artifact (`tar -czf wire_logs.tar.gz ${WIRE_LOG_DIR}`), or retaining only the
-  compact summary lines in `transactions.jsonl` while purging raw per-turn payload dumps once benchmark assertions pass.
+  resource-constrained CI/CD runners, implement a retention policy—such as configuring CI pipeline artifact uploads
+  (e.g., `actions/upload-artifact`) with `retention-days: 1` (or uploading only on test failure), archiving runs older
+  than 7 days, compressing individual turn dumps into a tarball artifact (`tar -czf wire_logs.tar.gz ${WIRE_LOG_DIR}`),
+  or retaining only the compact summary lines in `transactions.jsonl` while purging raw per-turn payload dumps once
+  benchmark assertions pass.
 
 - **Turn ID Derivation & Multi-Agent Flow Scoping**: When running multi-agent workflows (such as Method 6 Ringer),
   multiple subagents execute concurrently through `:8080`. HTTP requests arriving at the proxy are stateless; relying
@@ -131,16 +135,17 @@ that appends full transaction details to `${WIRE_LOG_DIR}/turn_{turn_id}_{flow_i
   all sensitive credential headers (case-insensitively normalizing names to lowercase: `authorization`, `x-api-key`,
   `api-key`, `x-goog-api-key`, `holon-agent-key`, `proxy-authorization`) by replacing their values with `"[REDACTED]"`.
   In addition, `dump_wire_transaction()` must scrub URL query parameters matching sensitive keys using URL query parser
-  logic or regex `r'(?i)([?&](?:key|api_key|apiKey|token|access_token)=)[^&\s]+'` (e.g., stripping Google Gemini
-  `?key=...` or non-leading `&key=...` / `&api_key=...` parameter values to `\1[REDACTED]`). Furthermore, to protect
-  against accidental secret leakage in agentic workflows (such as an agent inspecting a `.env` file or executing shell
-  commands with tokens), `dump_wire_transaction()` must perform deep payload scrubbing across message contents, tool
-  inputs, and tool outputs. To avoid regex recompilation overhead across high-throughput message payloads, compile
-  patterns once using `re.compile()` for common API key and private certificate signatures:
+  logic or regex ``r'(?i)([?&](?:key|api_key|apiKey|token|access_token)=)[^&\s"\'`<>#]+'`` (e.g., stripping Google
+  Gemini `?key=...` or non-leading `&key=...` / `&api_key=...` parameter values to `\1[REDACTED]`, avoiding consuming
+  closing quotes in JSON strings or URL fragment `#` anchors). Furthermore, to protect against accidental secret leakage
+  in agentic workflows (such as an agent inspecting a `.env` file or executing shell commands with tokens),
+  `dump_wire_transaction()` must perform deep payload scrubbing across message contents, tool inputs, and tool outputs.
+  To avoid regex recompilation overhead across high-throughput message payloads, compile patterns once using
+  `re.compile()` for common API key and private certificate signatures:
   - Anthropic API keys: `r'\bsk-ant-[a-zA-Z0-9_\-]+\b'`
   - OpenAI Project, Service Account & User API keys: `r'\bsk-(?:proj-|admin-)?[a-zA-Z0-9_\-]{20,}\b'`
   - Google Cloud / Vertex AI / AI Studio keys: `r'\bAIza[0-9A-Za-z\-_]{35}\b'`
-  - GitHub Personal Access Tokens: `r'\bghp_[a-zA-Z0-9]{36}\b'`, `r'\bgithub_pat_[a-zA-Z0-9_]{82}\b'`
+  - GitHub Tokens (PAT, OAuth, App, Refresh): `r'\bgh[pousr]_[a-zA-Z0-9]{36}\b'`, `r'\bgithub_pat_[a-zA-Z0-9_]{82}\b'`
   - AWS Access Key IDs: `r'\bAKIA[0-9A-Z]{16}\b'`, `r'\bASIA[0-9A-Z]{16}\b'`
   - Hugging Face Access Tokens: `r'\bhf_[a-zA-Z0-9]{34,}\b'`
   - JWT Bearer Tokens: `r'\beyJ[a-zA-Z0-9_\-]{20,}\.[a-zA-Z0-9_\-]{20,}\.[a-zA-Z0-9_\-]{20,}\b'`
@@ -257,9 +262,9 @@ long-lived web UIs can block pipeline execution. Launch `mitmdump` in detached m
 # Headless detached container execution for CI/CD runner environments
 REPO_ROOT=$(git rev-parse --show-toplevel)
 mkdir -p "${REPO_ROOT}/todo/mitm_wire_logs" "${REPO_ROOT}/todo/cache" ~/.holon/proxy-ca
-chmod -R 775 "${REPO_ROOT}/todo/mitm_wire_logs" "${REPO_ROOT}/todo/cache" ~/.holon/proxy-ca 2>/dev/null || true
+chmod -R 777 "${REPO_ROOT}/todo/mitm_wire_logs" "${REPO_ROOT}/todo/cache" ~/.holon/proxy-ca 2>/dev/null || true
 docker rm -f mitmproxy-wire-logger 2>/dev/null || true
-trap 'docker rm -f mitmproxy-wire-logger >/dev/null 2>&1 || true' EXIT
+trap 'docker rm -f mitmproxy-wire-logger >/dev/null 2>&1 || true' EXIT INT TERM
 
 docker run -d --name mitmproxy-wire-logger \
   -p 127.0.0.1:8080:8080 \
@@ -276,18 +281,30 @@ docker run -d --name mitmproxy-wire-logger \
   --set ignore_hosts='^(api\.github\.com|github\.com):443$'
 
 # CI readiness healthcheck probe: verify proxy socket is actively accepting traffic before launching test harnesses
+# TIMEOUT=50 represents 50 retry attempts (~10s at 0.2s sleep intervals under fast socket refusal)
 TIMEOUT=50
 COUNT=0
 until curl -s --fail --connect-timeout 1 --max-time 2 -x http://127.0.0.1:8080 http://mitm.it > /dev/null; do
   sleep 0.2
   COUNT=$((COUNT + 1))
   if [ "$COUNT" -ge "$TIMEOUT" ]; then
-    echo "❌ Error: mitmproxy wire logger failed to become ready on port 8080 within 10s" >&2
+    echo "❌ Error: mitmproxy wire logger failed to become ready on port 8080 after 50 retry attempts (~10s)" >&2
     docker logs mitmproxy-wire-logger
     exit 1
   fi
 done
 ```
+
+> [!NOTE] **CI Workflow Teardown (`if: always()`)**: While `trap ... EXIT INT TERM` cleans up the sidecar container
+> during single-script executions, multi-step CI workflows (e.g., GitHub Actions) execute each `run:` step in an
+> independent subshell where an `EXIT` trap triggers immediately when the setup step completes. In multi-step pipelines,
+> configure container teardown in a dedicated post-execution step using `if: always()`:
+>
+> ```yaml
+> - name: Stop Proxy Sidecar
+>   if: always()
+>   run: docker rm -f mitmproxy-wire-logger || true
+> ```
 
 > [!NOTE] **Security Advisory**: Ports `8080` and `8081` are bound to loopback `127.0.0.1` by default. If binding to an
 > external network interface (e.g., in shared staging or remote environments), pass `--web-password <PASSWORD>` (or
@@ -401,7 +418,9 @@ $$\text{Net Monetary Savings (USD)} = \frac{1}{10^6} \left[ \left(\text{Cache Re
 _Where $\text{Price}$ is quoted in USD per million tokens (MTok), scaled by the dimensional factor $\frac{1}{10^6}$ to
 yield cost in USD. Example for Claude 3.5 Sonnet: Base input price is \$3.00/MTok, cache read is \$0.30/MTok (90%
 discount, saving \$2.70/MTok read), while cache creation incurs a 25% surcharge at \$3.75/MTok (costing \$0.75/MTok
-extra). Net monetary savings accounts for both read discounts and cache write overhead._
+extra). Net monetary savings accounts for both read discounts and cache write overhead. Note that for OpenAI automatic
+prompt caching, there is no write surcharge: $(\text{Price}_{\text{create}} - \text{Price}_{\text{base}}) = 0$,
+simplifying net monetary savings strictly to cache read discounts._
 
 > [!NOTE] **Provider Minimum Prompt Caching Token Thresholds**: Frontier LLM providers enforce minimum prompt token
 > thresholds before prompt caching activates. Anthropic requires a minimum of 1,024 prompt tokens for Claude 3.5 Sonnet
@@ -619,12 +638,12 @@ gantt
      blocking the mitmproxy event loop.
    - Scrub sensitive credentials and authentication headers (case-insensitively normalizing names to lowercase:
      `authorization`, `x-api-key`, `api-key`, `x-goog-api-key`, `holon-agent-key`, `proxy-authorization`) and URL query
-     parameters via query parser logic or regex `r'(?i)([?&](?:key|api_key|apiKey|token|access_token)=)[^&\s]+'` with
-     `[REDACTED]`.
+     parameters via query parser logic or regex
+     ``r'(?i)([?&](?:key|api_key|apiKey|token|access_token)=)[^&\s"\'`<>#]+'`` with `[REDACTED]`.
    - Deep-scrub message bodies and tool payloads using word-boundary regex patterns for API keys and tokens (Anthropic
      `sk-ant-...`, OpenAI `r'\bsk-(?:proj-|admin-)?[a-zA-Z0-9_\-]{20,}\b'`, Google Cloud / Vertex AI
-     `r'\bAIza[0-9A-Za-z\-_]{35}\b'`, GitHub PATs `ghp_...` / `github_pat_...`, AWS `AKIA...` / `ASIA...`, Hugging Face
-     tokens `r'\bhf_[a-zA-Z0-9]{34,}\b'`, JWT Bearer tokens
+     `r'\bAIza[0-9A-Za-z\-_]{35}\b'`, GitHub tokens `r'\bgh[pousr]_[a-zA-Z0-9]{36}\b'` / `github_pat_...`, AWS `AKIA...`
+     / `ASIA...`, Hugging Face tokens `r'\bhf_[a-zA-Z0-9]{34,}\b'`, JWT Bearer tokens
      `r'\beyJ[a-zA-Z0-9_\-]{20,}\.[a-zA-Z0-9_\-]{20,}\.[a-zA-Z0-9_\-]{20,}\b'`, and PEM/PGP private key blocks including
      PKCS#8
      `r'-----BEGIN (?:[A-Z\s]+ )?PRIVATE KEY(?: BLOCK)?-----[\s\S]*?-----END (?:[A-Z\s]+ )?PRIVATE KEY(?: BLOCK)?-----'`),
