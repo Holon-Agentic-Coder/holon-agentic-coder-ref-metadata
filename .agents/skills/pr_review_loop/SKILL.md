@@ -52,8 +52,12 @@ Determine the target Pull Request and iteration limit from the user's request:
 
 - **`<pr_url_or_number>`**: GitHub PR URL or PR number (e.g.,
   `https://github.com/Holon-Agentic-Coder/holon-agentic-coder-ref/pull/25` or `25`).
-- **`<max_iterations>`**: Maximum number of review-resolve cycles (default: `25`, or environment variable
-  `HOLON_PR_LOOP_MAX_ITERATIONS`, configurable via `--max-iterations <N>`).
+- **`<max_iterations>`**: Maximum number of review-resolve cycles (precedence: CLI `--max-iterations <N>` > env var
+  `HOLON_PR_LOOP_MAX_ITERATIONS` > default: `25`).
+
+> [!TIP] **CI Runner Job Timeouts**: In automated CI workflows (e.g., GitHub Actions), job timeout limits may be
+> exceeded if running high-iteration cycles continuously. Operators should consider configuring
+> `HOLON_PR_LOOP_MAX_ITERATIONS=5` or `10` in CI environments to prevent runner timeouts.
 
 Verify GitHub CLI authentication before starting:
 
@@ -161,7 +165,15 @@ Wait for the subagent to complete and inspect its report.
            flagged Critical and Important issues, commit the fixes, push to the remote feature branch, and re-run the
            review in the next iteration.
 
-2. **Max Iterations Cap**:
+2. **Anti-Oscillation & Stagnation Circuit Breaker**:
+   - Inspect dry-run and consensus reports from prior iterations (`.subagent/*_review_iter_*.md`).
+   - If the exact same issue is flagged across 3 consecutive iterations with no diff change, or if reviewers oscillate
+     between conflicting recommendations:
+     - **DO NOT POST TO GITHUB**.
+     - **PAUSE THE LOOP**.
+     - Prompt the user with the oscillating findings and request guidance rather than exhausting iterations.
+
+3. **Max Iterations Cap**:
    - If `iteration >= max_iterations` and unresolved Critical or Important issues remain after Phase C:
      - Post a single final review comment to GitHub PR via `gh pr review` summarizing remaining issues.
      - **STOP THE LOOP**.
@@ -212,7 +224,7 @@ Once the loop terminates, format all findings into a clean summary table for the
 
 - **PR Target**: `<pr_url_or_number>`
 - **Total Iterations Completed**: `<total_iterations>` / `<max_iterations>`
-- **Final PR Status**: `APPROVED` / `CHANGES_REQUESTED` (Cap Reached)
+- **Final PR Status**: `APPROVED` / `CHANGES_REQUESTED` (Cap Reached) / `PAUSED` (Circuit Breaker Tripped)
 
 #### Cycle History:
 
