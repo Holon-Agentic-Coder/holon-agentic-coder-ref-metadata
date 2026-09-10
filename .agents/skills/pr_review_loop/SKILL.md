@@ -55,9 +55,10 @@ Determine the target Pull Request and iteration limit from the user's request:
 - **`<max_iterations>`**: Maximum number of review-resolve cycles (precedence: CLI `--max-iterations <N>` > env var
   `HOLON_PR_LOOP_MAX_ITERATIONS` > default: `25`).
 
-> [!TIP] **CI Runner Job Timeouts**: In automated CI workflows (e.g., GitHub Actions), job timeout limits may be
-> exceeded if running high-iteration cycles continuously. Operators should consider configuring
-> `HOLON_PR_LOOP_MAX_ITERATIONS=5` or `10` in CI environments to prevent runner timeouts.
+> [!TIP]  
+> **CI Runner Job Timeouts**: In automated CI workflows (e.g., GitHub Actions), job timeout limits may be exceeded if
+> running high-iteration cycles continuously. Operators should consider configuring `HOLON_PR_LOOP_MAX_ITERATIONS=5` or
+> `10` in CI environments to prevent runner timeouts.
 
 Verify GitHub CLI authentication before starting:
 
