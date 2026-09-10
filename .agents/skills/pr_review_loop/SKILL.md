@@ -2,7 +2,7 @@
 name: pr-review-loop
 description:
   Automates the iterative PR review and resolution process by running `pr-reviewer` and `pr-review-resolver` in fresh
-  subagent contexts until the PR is approved or the maximum iteration cap (default 10) is reached. Activate this skill
+  subagent contexts until the PR is approved or the maximum iteration cap (default 25) is reached. Activate this skill
   whenever the user asks to run an autonomous review loop, auto-fix PR issues continuously, or execute
   `/pr-review-loop`.
 ---
@@ -20,16 +20,21 @@ resolution step is executed in a dedicated, fresh subagent**.
 1. **Context Isolation**: Each review pass and resolution pass runs in a newly spawned subagent with fresh context.
 2. **Termination Safety & Consensus Integrity**: The loop terminates when the 3-agent ensemble consensus review returns
    **`APPROVED`** (zero Critical or Important issues remain; only Nit/Optional findings allowed) AND all CI checks pass
-   cleanly, or when the **max iteration cap** (default: `10`) is reached. **If the consensus agent reviewers flag any
-   Critical or Important issues, the review results MUST NOT be posted to the PR on GitHub.** The loop must resolve the
-   issues, push the fixes, and run the review again. Review results are **strictly posted to GitHub only when there are
-   no more Critical or Important issues left to action** (or when the max iteration cap is reached).
-3. **Remote Sync**: After each resolution pass, changes are committed and pushed to the remote feature branch so GitHub
+   cleanly, or when the **max iteration cap** (default: `25`, configurable) is reached. **If the consensus agent
+   reviewers flag any Critical or Important issues, the review results MUST NOT be posted to the PR on GitHub.** The
+   loop must resolve the issues, push the fixes, and run the review again. Review results are **strictly posted to
+   GitHub only when there are no more Critical or Important issues left to action** (or when the max iteration cap is
+   reached).
+3. **Anti-Oscillation Circuit Breaker**: To guard against runaway cases without arbitrarily cutting off legitimate
+   progress, the loop monitors convergence. If the exact same issue is flagged across 3 consecutive iterations with no
+   diff change, or if reviewers oscillate between conflicting recommendations, pause and request guidance rather than
+   exhausting iterations.
+4. **Remote Sync**: After each resolution pass, changes are committed and pushed to the remote feature branch so GitHub
    PR diffs update dynamically for subsequent review passes.
-4. **Existing Comment Audit & Resolution**: In addition to new code review passes, inspect pre-existing review comments
+5. **Existing Comment Audit & Resolution**: In addition to new code review passes, inspect pre-existing review comments
    posted on the GitHub PR. Evaluate each comment for diff grounding, technical accuracy, actionability, and scope. If
    verified to be true, apply the resolution, commit, and push the fix.
-5. **Temporary Files & Intermediate Artifacts Location**: All temporary files, diff dumps (e.g.,
+6. **Temporary Files & Intermediate Artifacts Location**: All temporary files, diff dumps (e.g.,
    `.subagent/pr<number>.diff`), draft review bodies (`.subagent/review_body.md`), and dry-run reports
    (`.subagent/dry_run_review_iter_<iteration>_{short_git_commit}.md`) **MUST be placed into the `.subagent/`
    directory** (git ignored). Never write intermediate files to `scratch/` or other root folders. Prior to execution,
@@ -47,7 +52,13 @@ Determine the target Pull Request and iteration limit from the user's request:
 
 - **`<pr_url_or_number>`**: GitHub PR URL or PR number (e.g.,
   `https://github.com/Holon-Agentic-Coder/holon-agentic-coder-ref/pull/25` or `25`).
-- **`<max_iterations>`**: Maximum number of review-resolve cycles (default: `10`).
+- **`<max_iterations>`**: Maximum number of review-resolve cycles (precedence: CLI `--max-iterations <N>` > env var
+  `HOLON_PR_LOOP_MAX_ITERATIONS` > default: `25`).
+
+> [!TIP]  
+> **CI Runner Job Timeouts**: In automated CI workflows (e.g., GitHub Actions), job timeout limits may be exceeded if
+> running high-iteration cycles continuously. Operators should consider configuring `HOLON_PR_LOOP_MAX_ITERATIONS=5` or
+> `10` in CI environments to prevent runner timeouts.
 
 Verify GitHub CLI authentication before starting:
 
@@ -155,7 +166,15 @@ Wait for the subagent to complete and inspect its report.
            flagged Critical and Important issues, commit the fixes, push to the remote feature branch, and re-run the
            review in the next iteration.
 
-2. **Max Iterations Cap**:
+2. **Anti-Oscillation & Stagnation Circuit Breaker**:
+   - Inspect dry-run and consensus reports from prior iterations (`.subagent/*_review_iter_*.md`).
+   - If the exact same issue is flagged across 3 consecutive iterations with no diff change, or if reviewers oscillate
+     between conflicting recommendations:
+     - **DO NOT POST TO GITHUB**.
+     - **PAUSE THE LOOP**.
+     - Prompt the user with the oscillating findings and request guidance rather than exhausting iterations.
+
+3. **Max Iterations Cap**:
    - If `iteration >= max_iterations` and unresolved Critical or Important issues remain after Phase C:
      - Post a single final review comment to GitHub PR via `gh pr review` summarizing remaining issues.
      - **STOP THE LOOP**.
@@ -206,7 +225,7 @@ Once the loop terminates, format all findings into a clean summary table for the
 
 - **PR Target**: `<pr_url_or_number>`
 - **Total Iterations Completed**: `<total_iterations>` / `<max_iterations>`
-- **Final PR Status**: `APPROVED` / `CHANGES_REQUESTED` (Cap Reached)
+- **Final PR Status**: `APPROVED` / `CHANGES_REQUESTED` (Cap Reached) / `PAUSED` (Circuit Breaker Tripped)
 
 #### Cycle History:
 
