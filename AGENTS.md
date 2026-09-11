@@ -47,6 +47,9 @@ When you are spawned or begin a new session, follow these steps sequentially:
    by the user.** Do NOT push directly to `main`.
 8. **Report and Document**: Summarize changes cleanly and concisely. Point both the user and successor agents to updated
    files or artifacts.
+9. **Zero Synthetic Data for Benchmarking**: Absolutely never use synthetic or mock data to measure efficacy or
+   benchmark token reduction. Official evaluations and scorecards must derive exclusively from authentic real data
+   streams (live sandbox task executions, genuine wire logs, or real production payloads).
 
 ---
 
