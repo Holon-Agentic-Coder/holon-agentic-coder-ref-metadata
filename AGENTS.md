@@ -29,8 +29,9 @@ entirety before performing any operations or modifying any code.
 When you are spawned or begin a new session, follow these steps sequentially:
 
 1. **Verify Your Environment**: Check the current working directory, workspace structure, and locate the `.beans`
-   configuration. If the reference repository is not set up, follow the checkout instructions in
-   [README.md](README.md#-reference-repository-setup-git-worktree) to clone the bare repository and configure worktrees.
+   configuration. If the target repositories (`holon-agentic-coder-ref/` or `holon-coherence/`) are not set up, follow
+   the checkout instructions in [README.md](README.md#-target-repositories-setup-git-worktree) to clone the bare
+   repositories and configure worktrees.
 2. **Review the Tasks**: List the tasks in the [.beans/](.beans/) directory to determine your current assignment or log
    a new task if none exists.
 3. **Internalize Constraints**: Load [.agents/rules.md](.agents/rules.md) to understand linting rules, language choices,
@@ -38,8 +39,9 @@ When you are spawned or begin a new session, follow these steps sequentially:
 4. **Execute Tasks Systematically**: Follow the lifecycle specified in [.agents/workflows.md](.agents/workflows.md) to
    transition tasks from `todo` to `in-progress` and finally `done`.
 5. **No Autonomous Branches**: Never create a new branch unless explicitly instructed by the user. Work on the active
-   branch that is currently checked out. For the reference repository `holon-agentic-coder-ref/`, all development and
-   feature work must be based off the `origin/develop` branch.
+   branch that is currently checked out:
+   - For `holon-agentic-coder-ref/`, all development and feature work must be based off the `origin/develop` branch.
+   - For `holon-coherence/`, all development and feature work must be based off the `origin/main` branch.
 6. **Format Before Commit**: Always execute `npx prettier --write "**/*.md"` before committing to format all markdown
    files according to repository guidelines.
 7. **Squash and Push (No Autonomous Pushing)**: Ensure all commits on your feature branch are squashed into a single
@@ -47,6 +49,23 @@ When you are spawned or begin a new session, follow these steps sequentially:
    by the user.** Do NOT push directly to `main`.
 8. **Report and Document**: Summarize changes cleanly and concisely. Point both the user and successor agents to updated
    files or artifacts.
+9. **Zero Synthetic Data for Benchmarking**: Absolutely never use synthetic or mock data to measure efficacy or
+   benchmark token reduction. Official evaluations and scorecards must derive exclusively from authentic real data
+   streams (live sandbox task executions, genuine wire logs, or real production payloads).
+
+---
+
+## 🌲 Managed Repositories & Git Worktree Structure
+
+This metadata repository hosts bare clones of target codebases with checkout worktrees:
+
+| Repository                  | Worktree Directory                | Bare Git Location              | Base Branch      | Feature Branch Command                                               |
+| --------------------------- | --------------------------------- | ------------------------------ | ---------------- | -------------------------------------------------------------------- |
+| **holon-agentic-coder-ref** | `holon-agentic-coder-ref/develop` | `holon-agentic-coder-ref/.git` | `origin/develop` | `git worktree add --no-track -b {branch} ../{branch} origin/develop` |
+| **holon-coherence**         | `holon-coherence/main`            | `holon-coherence/.git`         | `origin/main`    | `git worktree add --no-track -b {branch} ../{branch} origin/main`    |
+
+All code development must take place within the appropriate repository worktree. The metadata repository root is
+strictly for coordination, task tracking (`.beans/`), and agent guidance.
 
 ---
 

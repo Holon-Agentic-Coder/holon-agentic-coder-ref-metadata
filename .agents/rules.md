@@ -97,16 +97,18 @@ code in this repository.
    - Always navigate to the target workspace root (`cd holon-agentic-coder-ref/develop`) and execute inline Python
      snippets using `uv run python -c "..."` or test suites using `uv run pytest`.
 
-5. **Strict Repository Separation (Implementation vs Metadata)**:
+5. **Strict Repository Separation (Target Codebases vs Metadata)**:
    - `holon-agentic-coder-ref-metadata` is the control plane harness and metadata store
      (`git@github.com:Holon-Agentic-Coder/holon-agentic-coder-ref-metadata.git`).
-   - `holon-agentic-coder-ref` is the target implementation codebase
+   - `holon-agentic-coder-ref` is the target engine codebase
      (`git@github.com:Holon-Agentic-Coder/holon-agentic-coder-ref.git`), located inside the `holon-agentic-coder-ref/`
      directory.
+   - `holon-coherence` is the proxy and optimization gateway codebase
+     (`git@github.com:Holon-Agentic-Coder/holon-coherence.git`), located inside the `holon-coherence/` directory.
    - NEVER mix up their git remotes, working directories, commit histories, or task contexts. Commands targeting
-     `holon-agentic-coder-ref` must be executed strictly inside `holon-agentic-coder-ref/` (or its git worktrees), and
-     the `origin` remote of `holon-agentic-coder-ref-metadata` must NEVER be altered to point to
-     `holon-agentic-coder-ref.git`.
+     `holon-agentic-coder-ref` or `holon-coherence` must be executed strictly inside their respective directories (or
+     git worktrees), and the `origin` remote of `holon-agentic-coder-ref-metadata` must NEVER be altered to point to
+     target codebases.
 
 6. **Real API Test Script Invariant (No Pre-Canned Workloads)**:
    - Test scripts designed to hit live LLM provider APIs must NEVER contain hardcoded, pre-canned, or mocked workload
@@ -134,3 +136,22 @@ code in this repository.
      Cache Hit Rate) MUST be computed centrally inside `sandbox_executor.token_reduction.mitm_addon`.
    - Injects standardized `X-Holon-*` HTTP response headers to ensure 100% provider-agnostic and agent-agnostic
      telemetry across all containerized AI agents (`antigravity`, `claude`, `codex`, `pi`).
+
+10. **Zero Synthetic / Mock Data Invariant for Token Reduction & Efficacy Measurements**:
+    - Absolutely NO synthetic data, artificial dummy string loops (e.g., repeated dummy functions or lines in memory),
+      mock stream generators, or randomized simulation loops (`generate_synthetic_iteration()`) may ever be used to
+      measure or benchmark the efficacy of token reduction methods or LLM performance.
+    - All token reduction benchmarks, efficacy evaluations, and scorecards must derive exclusively from authentic
+      real-world data streams: (1) live containerized task executions (`./holon execute`), (2) authentic wire
+      transaction logs (`transactions.jsonl` containing genuine agent/tool payloads), or (3) authentic production
+      payload JSON files.
+    - Token accounting must be extracted directly from upstream provider response headers and usage metadata
+      (`usage.input_tokens`, `usage.cache_read_input_tokens`, `usage.cache_creation_input_tokens`,
+      `usage.output_tokens`, `usage.completion_tokens_details.reasoning_tokens`) or exact BPE tokenizers, never crude
+      character heuristics (`len // 4`).
+    - **Mandatory Tool Calling & Artifact Production**: Benchmarks must not be restricted to conversational text-only
+      loops (prompt $\to$ completion). Workloads must execute authentic multi-turn tool calling (`write_to_file`,
+      `view_file`, `replace_file_content`, `run_command`, `generate_image`, `grep_search`, `find_by_name`), produce
+      tangible structured deliverables (markdown artifacts with Mermaid diagrams, working code files, UI assets, and
+      automated test pass logs), and exercise agent domain skills (e.g., full-stack web development or systems
+      architecture ideation).

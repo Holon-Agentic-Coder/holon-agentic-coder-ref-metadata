@@ -1,6 +1,7 @@
 .idea
 *.iml
 holon-agentic-coder-ref/
+holon-coherence/
 
 todo
 .subagent
