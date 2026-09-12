@@ -137,6 +137,10 @@ uv run python -m sandbox_executor.cli execute develop --agent claude-agent --mod
 | **Prompt Cache Breakpoints**  | 0 points               | 8 points                 | **Ephemeral cache breakpoints injected**      |
 | **Tool Output Deduplication** | 0 omitted              | 1 omitted turn           | **1,204 bytes saved on repeated `view_file`** |
 
+> [!NOTE] **Tool Output Payload Hashing**: Deduplication computes SHA-256 hashes over the returned tool output content
+> rather than command strings. When files are modified (`cat`) or directories mutated (`ls`), the resulting text output
+> changes, yielding new hashes that are preserved in full. Active working turns are never deduplicated.
+
 ---
 
 ## 🔍 Phase 3: Direct Interceptor Proxy Inspection

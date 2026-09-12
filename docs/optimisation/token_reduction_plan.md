@@ -47,9 +47,15 @@ traffic through the proxy using environment variables.
 The MITM proxy dynamically parses and modifies outgoing JSON payloads before forwarding them to the LLM.
 
 - **Repeated Tool Output Deduplication**:
-  - Detects when an agent repeatedly reads the same file or runs similar diagnostic commands.
-  - In older conversation history turns, large identical payloads (like full file contents) are replaced with compact
-    metadata references: `[Omitted: Content of filename.py is identical to Turn N]`.
+  - Intercepts outbound conversation history turns and computes SHA-256 hashes on the returned **output content
+    payloads** (`tool_result.content`), not command names.
+  - **File & Directory Mutation Safety**: If a file is modified, re-executing `cat` produces different content and a new
+    hash, which is preserved in full. If a file is renamed, re-executing `ls` produces a different directory listing and
+    a new hash, which is preserved in full.
+  - In older conversation history turns, byte-for-byte identical tool outputs (>100 characters) are replaced with
+    compact structural references: `[Omitted: Tool result content is identical to Turn N (call_id)]`.
+  - **Working Memory Protection**: Active turns (`_RECENT_TURNS_TO_KEEP = 6`) are never deduplicated, ensuring the agent
+    always sees fresh, verbatim tool results in its immediate context.
 - **Provider Prompt Caching Optimization**:
   - For Anthropic, the proxy automatically inserts `"cache_control": {"type": "ephemeral"}` blocks at optimal points:
     after the system prompt/tool definitions, and at the most recent stable message turn history.
