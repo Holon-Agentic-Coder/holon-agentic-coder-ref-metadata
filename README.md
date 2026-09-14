@@ -25,14 +25,15 @@ efficiently and safely. This repository provides:
 3. **Task Tracking:** A lightweight, text-based task database using the `.beans` schema (`.beans/`) to record goals,
    statuses, and history without heavy external dependencies.
 
-## 📥 Reference Repository Setup (Git Worktree)
+## 📥 Target Repositories Setup (Git Worktree)
 
-To work with the primary codebase repository
-([holon-agentic-coder-ref](https://github.com/Holon-Agentic-Coder/holon-agentic-coder-ref)) within this metadata
-repository (at `holon-agentic-coder-ref/`), you must clone it as a Git bare repository and check out branches as Git
-worktrees. This allows running multiple tasks on different branches simultaneously under a clean directory structure.
+To work with codebase repositories within this metadata repository, you must clone them as Git bare repositories and
+check out branches as Git worktrees. This allows running multiple tasks on different branches simultaneously under a
+clean directory structure.
 
-Follow these steps to set it up:
+### 1. `holon-agentic-coder-ref` (Primary Engine Repository)
+
+Located at `holon-agentic-coder-ref/`:
 
 1. **Clone the repository as bare** into the hidden `.git` folder of the `holon-agentic-coder-ref` directory:
    ```bash
@@ -59,6 +60,32 @@ Follow these steps to set it up:
      git worktree add --no-track -b {branch_name} ../{branch_name} origin/develop
      ```
 
+### 2. `holon-coherence` (Optimization Gateway & Wire Telemetry)
+
+Located at `holon-coherence/`:
+
+1. **Clone the repository as bare** into the hidden `.git` folder of the `holon-coherence` directory:
+   ```bash
+   git clone --bare git@github.com:Holon-Agentic-Coder/holon-coherence.git holon-coherence/.git
+   ```
+2. **Navigate into the git database directory and configure fetch refspec**:
+   ```bash
+   cd holon-coherence/.git
+   git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+   git fetch origin
+   ```
+3. **Set up worktrees for your branches**:
+   - **For the `main` branch** (checked out to `holon-coherence/main`): This is the baseline active branch for the
+     coherence proxy gateway.
+     ```bash
+     git worktree add ../main main
+     ```
+   - **For a specific feature branch `{branch_name}`** (checked out to `holon-coherence/{branch_name}`): All development
+     and feature changes must be branched off `origin/main`:
+     ```bash
+     git worktree add --no-track -b {branch_name} ../{branch_name} origin/main
+     ```
+
 ## 📂 Directory Structure
 
 ```text
@@ -70,6 +97,8 @@ Follow these steps to set it up:
 │   ├── workflows.md         # Step-by-step developer and release workflows
 │   └── coordination.md      # Protocols for multi-agent communication and subagent management
 ├── .beans/                  # Text-based task and issue tracking database (managed via .beans.yml)
+├── holon-agentic-coder-ref/ # Target engine codebase (bare git + worktrees develop, main; git ignored)
+├── holon-coherence/         # Coherence proxy & optimization gateway (bare git + worktree main; git ignored)
 └── todo/                    # Local temporary scratchpad for images, docs, and notes (git ignored)
 ```
 
