@@ -2,8 +2,8 @@
 
 > [!NOTE] **Bootstrapping Harness Intent** This repository is a temporary control plane and metadata store. It will only
 > be used until the bootstrap process for
-> [holon-agentic-coder-ref](https://github.com/Holon-Agentic-Coder/holon-agentic-coder-ref) is fully completed. Until
-> that repository is fully bootstrapped, it does not possess enough autonomous power to develop or maintain itself. This
+> [holon-agentic-coder](https://github.com/Holon-Agentic-Coder/holon-agentic-coder) is fully completed. Until that
+> repository is fully bootstrapped, it does not possess enough autonomous power to develop or maintain itself. This
 > repository serves as the external harness to bridge that gap.
 
 Welcome, Agent. This document is your starting point for operating within this workspace. Read this document in its
@@ -29,8 +29,8 @@ entirety before performing any operations or modifying any code.
 When you are spawned or begin a new session, follow these steps sequentially:
 
 1. **Verify Your Environment**: Check the current working directory, workspace structure, and locate the `.beans`
-   configuration. If the target repositories (`holon-agentic-coder-ref/` or `holon-coherence/`) are not set up, follow
-   the checkout instructions in [README.md](README.md#-target-repositories-setup-git-worktree) to clone the bare
+   configuration. If the target repositories (`holon-agentic-coder/` or `holon-coherence/`) are not set up, follow the
+   checkout instructions in [README.md](README.md#-target-repositories-setup-git-worktree) to clone the bare
    repositories and configure worktrees.
 2. **Review the Tasks**: List the tasks in the [.beans/](.beans/) directory to determine your current assignment or log
    a new task if none exists.
@@ -40,7 +40,7 @@ When you are spawned or begin a new session, follow these steps sequentially:
    transition tasks from `todo` to `in-progress` and finally `done`.
 5. **No Autonomous Branches**: Never create a new branch unless explicitly instructed by the user. Work on the active
    branch that is currently checked out:
-   - For `holon-agentic-coder-ref/`, all development and feature work must be based off the `origin/develop` branch.
+   - For `holon-agentic-coder/`, all development and feature work must be based off the `origin/main` branch.
    - For `holon-coherence/`, all development and feature work must be based off the `origin/main` branch.
 6. **Format Before Commit**: Always execute `npx prettier --write "**/*.md"` before committing to format all markdown
    files according to repository guidelines.
@@ -59,10 +59,10 @@ When you are spawned or begin a new session, follow these steps sequentially:
 
 This metadata repository hosts bare clones of target codebases with checkout worktrees:
 
-| Repository                  | Worktree Directory                | Bare Git Location              | Base Branch      | Feature Branch Command                                               |
-| --------------------------- | --------------------------------- | ------------------------------ | ---------------- | -------------------------------------------------------------------- |
-| **holon-agentic-coder-ref** | `holon-agentic-coder-ref/develop` | `holon-agentic-coder-ref/.git` | `origin/develop` | `git worktree add --no-track -b {branch} ../{branch} origin/develop` |
-| **holon-coherence**         | `holon-coherence/main`            | `holon-coherence/.git`         | `origin/main`    | `git worktree add --no-track -b {branch} ../{branch} origin/main`    |
+| Repository              | Worktree Directory         | Bare Git Location          | Base Branch   | Feature Branch Command                                            |
+| ----------------------- | -------------------------- | -------------------------- | ------------- | ----------------------------------------------------------------- |
+| **holon-agentic-coder** | `holon-agentic-coder/main` | `holon-agentic-coder/.git` | `origin/main` | `git worktree add --no-track -b {branch} ../{branch} origin/main` |
+| **holon-coherence**     | `holon-coherence/main`     | `holon-coherence/.git`     | `origin/main` | `git worktree add --no-track -b {branch} ../{branch} origin/main` |
 
 All code development must take place within the appropriate repository worktree. The metadata repository root is
 strictly for coordination, task tracking (`.beans/`), and agent guidance.
