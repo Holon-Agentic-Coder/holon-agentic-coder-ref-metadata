@@ -9,10 +9,11 @@ description: >
   `[project.scripts]` console script entrypoint in `apps/sandbox-executor/pyproject.toml` so `holon` can be installed
   globally via `uv tool install` and executed from any repository.
 created_at: 2026-09-17
-updated_at: 2026-09-17
+updated_at: 2026-09-18
 notes:
   - "CLI implementation: apps/sandbox-executor/src/sandbox_executor/cli.py"
-  - "Packaging: add `[project.scripts] holon = 'sandbox_executor.cli:main'` to apps/sandbox-executor/pyproject.toml"
+  - "Packaging: add `[project.scripts] holon = 'sandbox_executor.cli:main'` to apps/sandbox-executor/pyproject.toml
+    (coordinated with Bean 0025)"
   - "Scaffolds `holon-config/` (world/ruleset.md, world/constraints.md, metrics configs, prompt templates)"
   - "Scaffolds `holon-knowledge/` (empty ledger JSONLs, plans/, kb/)"
   - "Supports `holon init [TARGET_DIR] [--template <python|generic>] [--force]`"

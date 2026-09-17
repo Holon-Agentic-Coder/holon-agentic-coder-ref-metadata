@@ -9,10 +9,10 @@ description: >
   `uv tool install`). Covers running the latest tip (`--refresh` against `@main`), pinned versions (`@<tag-or-sha>`),
   local editable installs, and tool upgrades.
 created_at: 2026-09-17
-updated_at: 2026-09-17
+updated_at: 2026-09-18
 notes:
   - "Implementation: configure `[project.scripts] holon = 'sandbox_executor.cli:main'` and build backend in
-    apps/sandbox-executor/pyproject.toml."
+    apps/sandbox-executor/pyproject.toml (coordinated with Bean 0024)."
   - "Ephemeral execution (latest): uvx --refresh --from
     'git+https://github.com/Holon-Agentic-Coder/holon-agentic-coder.git@main#subdirectory=apps/sandbox-executor' holon
     <subcommand>"

@@ -1,33 +1,36 @@
 id: holon-agentic-coder-ref-metadata-0026
-title:
-  "Implement coding agent runners (agy, claude, codex, opencode, pi) with automated background proxy in holon-coherence"
+title: "Implement coding agent runners with automated background proxy in holon-coherence"
 type: task
 status: todo
 assignee: unassigned
 description: >
   Implement CLI subcommands in `holon-coherence` (e.g., `holon-coherence agy`, `holon-coherence claude`, etc.) that
   automatically launch the optimization proxy Docker container in the background, configure and pass in all required
-  proxy routing and certificate environment variables (HTTP_PROXY, HTTPS_PROXY, SSL_CERT_FILE, NODE_EXTRA_CA_CERTS),
-  inject agent-specific API keys/tokens, and execute the selected coding agent with wire telemetry and token
-  optimization enabled.
+  proxy routing and certificate environment variables (HTTP_PROXY, HTTPS_PROXY, NO_PROXY, SSL_CERT_FILE,
+  NODE_EXTRA_CA_CERTS), map and inject universal credentials (HOLON_AGENT_KEY), and execute the selected coding agent
+  with wire telemetry and token optimization enabled.
 created_at: 2026-09-18
 updated_at: 2026-09-18
 notes:
   - "Target repository: holon-coherence (src/holon_coherence/cli.py and documentation)"
+  - "Execution Semantics: Host agent CLI tools run natively as host subprocesses (inheriting user environment and
+    preserving config paths like ~/.gemini or ~/.claude.json), while the optimization proxy sidecar runs inside a
+    background Docker container. Optional containerized agent mode can mount config paths if supported."
   - "Automated Background Docker: start the proxy container (if not already healthy) in detached mode prior to agent
     execution, and manage teardown/lifecycle cleanly."
-  - "Supported Coding Agents (initial short list):"
-  - "  1. agy (Antigravity): maps AGY_USER_TOKEN / GOOGLE_API_KEY / GEMINI_API_KEY, mounts ~/.gemini or auth session if
-    present."
-  - "  2. claude (Claude Code / Anthropic): maps ANTHROPIC_API_KEY, mounts Claude CLI auth config (~/.claude.json or
-    ~/.anthropic)."
-  - "  3. codex (OpenAI Codex / ChatGPT CLI): maps OPENAI_API_KEY."
-  - "  4. opencode (OpenCode): maps OPENCODE_API_KEY."
-  - "  5. pi (Inflection Pi / Pi Agent): maps PI_API_KEY."
+  - "Universal Agent Credentials (HOLON_AGENT_KEY): Invariant rule 5 - runners accept HOLON_AGENT_KEY on the host and
+    map it to child process environment variables internally:"
+  - "  1. agy (Antigravity): maps HOLON_AGENT_KEY to GEMINI_API_KEY / AGY_USER_TOKEN internally for child process."
+  - "  2. claude (Claude Code / Anthropic): maps HOLON_AGENT_KEY to ANTHROPIC_API_KEY internally for child process."
+  - "  3. codex (OpenAI Codex / ChatGPT CLI): maps HOLON_AGENT_KEY to OPENAI_API_KEY internally for child process."
+  - "  4. opencode (OpenCode): maps HOLON_AGENT_KEY to OPENCODE_API_KEY internally for child process."
+  - "  5. pi (Inflection Pi / Pi Agent): maps HOLON_AGENT_KEY to PI_API_KEY internally for child process."
   - "Proxy Environment Variables Injected:"
   - "  - HTTP_PROXY=http://127.0.0.1:<port>"
   - "  - HTTPS_PROXY=http://127.0.0.1:<port>"
   - "  - ALL_PROXY=http://127.0.0.1:<port>"
+  - "  - NO_PROXY=localhost,127.0.0.1,api.github.com,github.com"
+  - "  - Lowercase equivalents (http_proxy, https_proxy, all_proxy, no_proxy)"
   - "  - SSL_CERT_FILE / REQUESTS_CA_BUNDLE / CURL_CA_BUNDLE pointing to generated CA certificate"
   - "  - NODE_EXTRA_CA_CERTS for Node.js-based agents (e.g. Claude CLI)"
   - "CLI Interface Design: Support direct aliases (`holon-coherence <agent> [agent_args...]`) as well as
