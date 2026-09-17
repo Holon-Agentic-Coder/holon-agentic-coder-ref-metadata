@@ -1,0 +1,19 @@
+id: holon-agentic-coder-ref-metadata-0023
+title: "Create clean-branches skill to remove stale and merged branches and PRs"
+type: task
+status: done
+assignee: antigravity
+description: >
+  Create a specialized skill (.agents/skills/clean_branches/SKILL.md) to audit, prune, and delete stale and merged pull
+  requests, local branches, and remote branches across all managed repositories in the Holon ecosystem
+  (holon-agentic-coder, holon-coherence, and holon-agentic-coder-ref-metadata).
+created_at: 2026-09-17
+updated_at: 2026-09-17
+notes:
+  - "Target path: .agents/skills/clean_branches/SKILL.md"
+  - "Includes multi-repo discovery, PR merge detection via gh CLI, safe protection of base branches (main), and git
+    worktree cleanup."
+resolution: >
+  Created .agents/skills/clean_branches/SKILL.md defining multi-repository discovery, strict base branch protection
+  (main), safe worktree removal and pruning, remote branch pruning and deletion via gh CLI and git push --delete, and
+  local tracking branch cleanup.
