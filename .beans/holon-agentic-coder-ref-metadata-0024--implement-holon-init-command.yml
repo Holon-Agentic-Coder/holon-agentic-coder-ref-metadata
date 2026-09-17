@@ -1,0 +1,21 @@
+id: holon-agentic-coder-ref-metadata-0024
+title: "Implement holon init CLI command to scaffold new and existing projects"
+type: task
+status: todo
+assignee: unassigned
+description: >
+  Implement a `holon init` CLI subcommand in `apps/sandbox-executor/src/sandbox_executor/cli.py` to automate onboarding
+  and scaffolding of new or existing projects (such as `holon-coherence`) into the Holon ecosystem. Also register a
+  `[project.scripts]` console script entrypoint in `apps/sandbox-executor/pyproject.toml` so `holon` can be installed
+  globally via `uv tool install` and executed from any repository.
+created_at: 2026-09-17
+updated_at: 2026-09-17
+notes:
+  - "CLI implementation: apps/sandbox-executor/src/sandbox_executor/cli.py"
+  - "Packaging: add `[project.scripts] holon = 'sandbox_executor.cli:main'` to apps/sandbox-executor/pyproject.toml"
+  - "Scaffolds `holon-config/` (world/ruleset.md, world/constraints.md, metrics configs, prompt templates)"
+  - "Scaffolds `holon-knowledge/` (empty ledger JSONLs, plans/, kb/)"
+  - "Supports `holon init [TARGET_DIR] [--template <python|generic>] [--force]`"
+  - "Idempotency invariant: never truncate or overwrite existing ledger files"
+  - "Verification target: bootstrap holon-coherence using `holon init`"
+resolution: ""

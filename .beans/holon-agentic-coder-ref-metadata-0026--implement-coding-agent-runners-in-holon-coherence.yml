@@ -1,0 +1,37 @@
+id: holon-agentic-coder-ref-metadata-0026
+title:
+  "Implement coding agent runners (agy, claude, codex, opencode, pi) with automated background proxy in holon-coherence"
+type: task
+status: todo
+assignee: unassigned
+description: >
+  Implement CLI subcommands in `holon-coherence` (e.g., `holon-coherence agy`, `holon-coherence claude`, etc.) that
+  automatically launch the optimization proxy Docker container in the background, configure and pass in all required
+  proxy routing and certificate environment variables (HTTP_PROXY, HTTPS_PROXY, SSL_CERT_FILE, NODE_EXTRA_CA_CERTS),
+  inject agent-specific API keys/tokens, and execute the selected coding agent with wire telemetry and token
+  optimization enabled.
+created_at: 2026-09-18
+updated_at: 2026-09-18
+notes:
+  - "Target repository: holon-coherence (src/holon_coherence/cli.py and documentation)"
+  - "Automated Background Docker: start the proxy container (if not already healthy) in detached mode prior to agent
+    execution, and manage teardown/lifecycle cleanly."
+  - "Supported Coding Agents (initial short list):"
+  - "  1. agy (Antigravity): maps AGY_USER_TOKEN / GOOGLE_API_KEY / GEMINI_API_KEY, mounts ~/.gemini or auth session if
+    present."
+  - "  2. claude (Claude Code / Anthropic): maps ANTHROPIC_API_KEY, mounts Claude CLI auth config (~/.claude.json or
+    ~/.anthropic)."
+  - "  3. codex (OpenAI Codex / ChatGPT CLI): maps OPENAI_API_KEY."
+  - "  4. opencode (OpenCode): maps OPENCODE_API_KEY."
+  - "  5. pi (Inflection Pi / Pi Agent): maps PI_API_KEY."
+  - "Proxy Environment Variables Injected:"
+  - "  - HTTP_PROXY=http://127.0.0.1:<port>"
+  - "  - HTTPS_PROXY=http://127.0.0.1:<port>"
+  - "  - ALL_PROXY=http://127.0.0.1:<port>"
+  - "  - SSL_CERT_FILE / REQUESTS_CA_BUNDLE / CURL_CA_BUNDLE pointing to generated CA certificate"
+  - "  - NODE_EXTRA_CA_CERTS for Node.js-based agents (e.g. Claude CLI)"
+  - "CLI Interface Design: Support direct aliases (`holon-coherence <agent> [agent_args...]`) as well as
+    `holon-coherence run-agent <agent> [agent_args...]`."
+  - "Documentation: Update holon-coherence/README.md and AGENTS.md documenting agent invocation, required credentials,
+    and proxy lifecycle."
+resolution: ""

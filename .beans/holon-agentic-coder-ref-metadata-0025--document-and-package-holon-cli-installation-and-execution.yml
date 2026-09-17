@@ -1,0 +1,27 @@
+id: holon-agentic-coder-ref-metadata-0025
+title: "Package, document, and support global installation and ephemeral execution of holon CLI"
+type: task
+status: todo
+assignee: unassigned
+description: >
+  Configure entrypoints in `apps/sandbox-executor/pyproject.toml` and document standard execution pathways for the
+  `holon` CLI so external projects and developers can run Holon either ephemerally (using `uvx`) or persistently (using
+  `uv tool install`). Covers running the latest tip (`--refresh` against `@main`), pinned versions (`@<tag-or-sha>`),
+  local editable installs, and tool upgrades.
+created_at: 2026-09-17
+updated_at: 2026-09-17
+notes:
+  - "Implementation: configure `[project.scripts] holon = 'sandbox_executor.cli:main'` and build backend in
+    apps/sandbox-executor/pyproject.toml."
+  - "Ephemeral execution (latest): uvx --refresh --from
+    'git+https://github.com/Holon-Agentic-Coder/holon-agentic-coder.git@main#subdirectory=apps/sandbox-executor' holon
+    <subcommand>"
+  - "Ephemeral execution (pinned): uvx --from
+    'git+https://github.com/Holon-Agentic-Coder/holon-agentic-coder.git@<tag-or-sha>#subdirectory=apps/sandbox-executor'
+    holon <subcommand>"
+  - "Global installation: uv tool install
+    'git+https://github.com/Holon-Agentic-Coder/holon-agentic-coder.git@<tag-or-main>#subdirectory=apps/sandbox-executor'"
+  - "Global tool upgrade: uv tool upgrade holon"
+  - "Local editable installation: uv tool install --editable apps/sandbox-executor"
+  - "Documentation: update README.md and docs in holon-agentic-coder to guide multi-repo / external project usage."
+resolution: ""
