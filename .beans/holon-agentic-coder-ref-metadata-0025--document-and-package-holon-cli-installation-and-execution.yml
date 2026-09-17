@@ -23,6 +23,10 @@ notes:
   - "Ephemeral execution (pinned): uvx --from
     'git+https://github.com/Holon-Agentic-Coder/holon-agentic-coder.git@<tag-or-sha>#subdirectory=apps/sandbox-executor'
     holon <subcommand>"
+  - "Ephemeral execution caveat: Ephemeral execution must explicitly use the `--from
+    'git+https://github.com/Holon-Agentic-Coder/holon-agentic-coder.git#subdirectory=apps/sandbox-executor'` parameter
+    (or local path `--from apps/sandbox-executor`) rather than bare `uvx holon` to prevent package namespace collisions
+    with PyPI before official namespace reservation."
   - "Global installation: uv tool install
     'git+https://github.com/Holon-Agentic-Coder/holon-agentic-coder.git@<tag-or-main>#subdirectory=apps/sandbox-executor'"
   - "Global tool upgrade: uv tool upgrade holon (or `uv tool upgrade sandbox-executor` if package name remains
@@ -31,5 +35,6 @@ notes:
   - "Workspace Synchronization: Update root `holon-agentic-coder/pyproject.toml` dependency to `holon` and update
     `[tool.uv.sources] holon = { path = 'apps/sandbox-executor', editable = true }`, then run `uv lock` to maintain
     lockfile integrity."
-  - "Documentation: update README.md and docs in holon-agentic-coder to guide multi-repo / external project usage."
+  - "Documentation: Update README.md and docs in holon-agentic-coder to guide multi-repo / external project usage,
+    highlighting the `--from` requirement for ephemeral uvx execution to avoid PyPI namespace collisions."
 resolution: ""

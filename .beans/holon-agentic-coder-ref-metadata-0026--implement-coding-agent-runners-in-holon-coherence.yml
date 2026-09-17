@@ -16,14 +16,20 @@ notes:
   - "Execution Semantics: Host agent CLI tools run natively as host subprocesses (inheriting user environment and
     preserving config paths like ~/.gemini or ~/.claude.json), while the optimization proxy sidecar runs inside a
     background Docker container. Optional containerized agent mode can mount config paths if supported."
+  - "Interactive TTY & Stdio Passthrough: Host runner child subprocess execution for interactive coding agents (claude,
+    agy, etc.) must maintain standard interactive TTY attachment (stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr,
+    or pty on POSIX systems) and terminal signal passthrough (SIGWINCH for window resizing, SIGINT for interrupt
+    handling) so interactive prompts, ANSI styling, and cursor positioning are preserved."
   - "Docker Proxy Lifecycle and Teardown Policy:"
   - "  - Background daemon mode by default across invocations to minimize container startup latency."
   - "  - Automatically starts the proxy container (if not already healthy) in detached mode prior to agent execution."
   - "  - Provides `holon-coherence stop` CLI command to stop and remove the background proxy container on demand."
   - "  - Supports optional `--ephemeral` flag to tear down the proxy container upon agent process exit."
-  - "  - Implements signal traps (SIGINT, SIGTERM) to ensure graceful teardown and accurate child exit code propagation."
-  - "  - Supports configurable proxy port allocation (via `--port` CLI flag or `HOLON_PROXY_PORT` environment variable)
-    with port conflict detection during container startup."
+  - "  - Implements signal traps and process group signal forwarding (SIGINT, SIGTERM) to ensure child processes receive
+    signals directly and can execute terminal cleanup before runner teardown, ensuring accurate child exit code
+    propagation."
+  - "  - Supports configurable proxy port allocation (via `--port` CLI flag or `HOLON_PROXY_PORT` environment variable,
+    defaulting to 8080) with port conflict detection during container startup."
   - "  - Diagnostic error handling when Docker daemon is unreachable, reporting actionable guidance instead of raw
     client tracebacks."
   - "Sensitive Credential Redaction in Wire Telemetry: The proxy and telemetry logging layers must redact sensitive
@@ -39,9 +45,9 @@ notes:
   - "  4. opencode (OpenCode): maps HOLON_AGENT_KEY to OPENCODE_API_KEY internally for child process."
   - "  5. pi (Inflection Pi / Pi Agent): maps HOLON_AGENT_KEY to PI_API_KEY internally for child process."
   - "Proxy Environment Variables Injected:"
-  - "  - HTTP_PROXY=http://127.0.0.1:<port>"
-  - "  - HTTPS_PROXY=http://127.0.0.1:<port>"
-  - "  - ALL_PROXY=http://127.0.0.1:<port>"
+  - "  - HTTP_PROXY=http://127.0.0.1:<port> (default: 8080)"
+  - "  - HTTPS_PROXY=http://127.0.0.1:<port> (default: 8080)"
+  - "  - ALL_PROXY=http://127.0.0.1:<port> (default: 8080)"
   - "  - NO_PROXY=localhost,127.0.0.1,::1,169.254.169.254,api.github.com,github.com"
   - "  - Lowercase equivalents (http_proxy, https_proxy, all_proxy, no_proxy)"
   - "  - SSL_CERT_FILE / REQUESTS_CA_BUNDLE / CURL_CA_BUNDLE pointing to a merged CA certificate bundle on the host
@@ -51,8 +57,9 @@ notes:
   - "CLI Interface Design: Support direct aliases (`holon-coherence <agent> [agent_args...]`) as well as
     `holon-coherence run-agent <agent> [agent_args...]`."
   - "Test Coverage & Error Handling: Add unit and integration tests in `holon-coherence/tests/test_cli.py` covering
-    child process exit code propagation, credential mapping, fallback to native auth, proxy lifecycle flags, and clean
-    diagnostic error reporting when the Docker daemon is unreachable."
+    child process exit code propagation, credential mapping, fallback to native auth, proxy lifecycle flags, interactive
+    TTY/PTY stdio passthrough, signal forwarding, and clean diagnostic error reporting when the Docker daemon is
+    unreachable."
   - "Documentation: Update holon-coherence/README.md and AGENTS.md documenting agent invocation, required credentials,
     and proxy lifecycle."
 resolution: ""
