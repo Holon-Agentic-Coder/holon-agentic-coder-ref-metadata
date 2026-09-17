@@ -94,21 +94,21 @@ code in this repository.
 4. **No `PYTHONPATH=...` Command Style & `uv` Enforcement Everywhere**:
    - Never use, execute, or document `PYTHONPATH=... python3` or `PYTHONPATH=... python3 -c` for running scripts,
      testing, inspecting modules, or writing documentation.
-   - Always navigate to the target workspace root (`cd holon-agentic-coder-ref/develop`) and execute inline Python
-     snippets using `uv run python -c "..."` or test suites using `uv run pytest`.
+   - Always navigate to the target workspace root (`cd holon-agentic-coder/main` or `cd holon-coherence/main`) and
+     execute inline Python snippets using `uv run python -c "..."` or test suites using `uv run pytest`.
 
 5. **Strict Repository Separation (Target Codebases vs Metadata)**:
    - `holon-agentic-coder-ref-metadata` is the control plane harness and metadata store
      (`git@github.com:Holon-Agentic-Coder/holon-agentic-coder-ref-metadata.git`).
-   - `holon-agentic-coder-ref` is the target engine codebase
-     (`git@github.com:Holon-Agentic-Coder/holon-agentic-coder-ref.git`), located inside the `holon-agentic-coder-ref/`
+   - `holon-agentic-coder` is the primary fractal intent evolution engine codebase
+     (`git@github.com:Holon-Agentic-Coder/holon-agentic-coder.git`), located inside the `holon-agentic-coder/`
      directory.
    - `holon-coherence` is the proxy and optimization gateway codebase
      (`git@github.com:Holon-Agentic-Coder/holon-coherence.git`), located inside the `holon-coherence/` directory.
    - NEVER mix up their git remotes, working directories, commit histories, or task contexts. Commands targeting
-     `holon-agentic-coder-ref` or `holon-coherence` must be executed strictly inside their respective directories (or
-     git worktrees), and the `origin` remote of `holon-agentic-coder-ref-metadata` must NEVER be altered to point to
-     target codebases.
+     `holon-agentic-coder` or `holon-coherence` must be executed strictly inside their respective directories (or git
+     worktrees), and the `origin` remote of `holon-agentic-coder-ref-metadata` must NEVER be altered to point to target
+     codebases.
 
 6. **Real API Test Script Invariant (No Pre-Canned Workloads)**:
    - Test scripts designed to hit live LLM provider APIs must NEVER contain hardcoded, pre-canned, or mocked workload
@@ -122,8 +122,8 @@ code in this repository.
      live network socket request to upstream provider endpoints.
 
 8. **Holon Flow Sandbox Execution Invariant (`./holon`)**:
-   - For all autonomous agent feature tasks in `holon-agentic-coder-ref`, execute the full containerized lifecycle using
-     the `./holon` host CLI wrapper (`./holon intent <file>`, `./holon plan <intent_branch>`,
+   - For all autonomous agent feature tasks in `holon-agentic-coder`, execute the full containerized lifecycle using the
+     `./holon` host CLI wrapper (`./holon intent <file>`, `./holon plan <intent_branch>`,
      `./holon execute <plan_branch>`).
    - The `./holon` script automatically manages container sandbox isolation, credential discovery, SSH agent socket
      forwarding, branch creation (`I-...` Intent, `P-...` Plan, `E-...` Execution), and automated remote branch pushing

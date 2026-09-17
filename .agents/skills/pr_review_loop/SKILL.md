@@ -51,7 +51,7 @@ Follow these steps when executing the `pr-review-loop` skill:
 Determine the target Pull Request and iteration limit from the user's request:
 
 - **`<pr_url_or_number>`**: GitHub PR URL or PR number (e.g.,
-  `https://github.com/Holon-Agentic-Coder/holon-agentic-coder-ref/pull/25` or `25`).
+  `https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/25` or `25`).
 - **`<max_iterations>`**: Maximum number of review-resolve cycles (precedence: CLI `--max-iterations <N>` > env var
   `HOLON_PR_LOOP_MAX_ITERATIONS` > default: `25`).
 

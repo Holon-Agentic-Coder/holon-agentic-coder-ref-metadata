@@ -2,8 +2,8 @@
 
 > [!NOTE] **Bootstrapping Harness Intent** This repository is a temporary control plane and metadata store. It will only
 > be used until the bootstrap process for
-> [holon-agentic-coder-ref](https://github.com/Holon-Agentic-Coder/holon-agentic-coder-ref) is fully completed. Until
-> that repository is fully bootstrapped, it does not possess enough autonomous power to develop or maintain itself. This
+> [holon-agentic-coder](https://github.com/Holon-Agentic-Coder/holon-agentic-coder) is fully completed. Until that
+> repository is fully bootstrapped, it does not possess enough autonomous power to develop or maintain itself. This
 > repository serves as the external harness to bridge that gap.
 
 **IMPORTANT**: before you do anything else, run the `beans prime` command and heed its output.
@@ -31,33 +31,30 @@ To work with codebase repositories within this metadata repository, you must clo
 check out branches as Git worktrees. This allows running multiple tasks on different branches simultaneously under a
 clean directory structure.
 
-### 1. `holon-agentic-coder-ref` (Primary Engine Repository)
+### 1. `holon-agentic-coder` (Primary Fractal Intent Evolution Engine)
 
-Located at `holon-agentic-coder-ref/`:
+Located at `holon-agentic-coder/`:
 
-1. **Clone the repository as bare** into the hidden `.git` folder of the `holon-agentic-coder-ref` directory:
+1. **Clone the repository as bare** into the hidden `.git` folder of the `holon-agentic-coder` directory:
    ```bash
-   git clone --bare git@github.com:Holon-Agentic-Coder/holon-agentic-coder-ref.git holon-agentic-coder-ref/.git
+   git clone --bare git@github.com:Holon-Agentic-Coder/holon-agentic-coder.git holon-agentic-coder/.git
    ```
-2. **Navigate into the git database directory**:
+2. **Navigate into the git database directory and configure fetch refspec**:
    ```bash
-   cd holon-agentic-coder-ref/.git
+   cd holon-agentic-coder/.git
+   git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+   git fetch origin
    ```
 3. **Set up worktrees for your branches**:
-   - **For the `develop` branch** (checked out to `holon-agentic-coder-ref/develop`): This is the primary active
-     development branch where all codebase features, bug fixes, and development take place. All development and feature
-     work in `holon-agentic-coder-ref/` must be based off the `origin/develop` branch.
-     ```bash
-     git worktree add ../develop develop
-     ```
-   - **For the `main` branch** (checked out to `holon-agentic-coder-ref/main`): This branch is from the upstream
-     repository and only contains documentation and specifications.
+   - **For the `main` branch** (checked out to `holon-agentic-coder/main`): This is the primary active branch tracking
+     `origin/main`.
      ```bash
      git worktree add ../main main
      ```
-   - **For a specific feature branch `{branch_name}`** (checked out to `holon-agentic-coder-ref/{branch_name}`):
+   - **For a specific feature branch `{branch_name}`** (checked out to `holon-agentic-coder/{branch_name}`): All
+     development and feature changes must be branched off `origin/main`:
      ```bash
-     git worktree add --no-track -b {branch_name} ../{branch_name} origin/develop
+     git worktree add --no-track -b {branch_name} ../{branch_name} origin/main
      ```
 
 ### 2. `holon-coherence` (Optimization Gateway & Wire Telemetry)
@@ -91,14 +88,16 @@ Located at `holon-coherence/`:
 ```text
 ├── README.md                # General repository information (this file)
 ├── AGENTS.md                # Entry point & landing page for agents
+├── SUBMODULES.md            # Git submodules ecosystem guide
 ├── .agents/                 # Core agent configurations and instructions
 │   ├── instructions.md      # General operational instructions for coding agents
 │   ├── rules.md             # Code standards, formatting, and behavioral constraints
 │   ├── workflows.md         # Step-by-step developer and release workflows
+│   ├── submodules.md        # Submodule operational workflows and CI guidance
 │   └── coordination.md      # Protocols for multi-agent communication and subagent management
 ├── .beans/                  # Text-based task and issue tracking database (managed via .beans.yml)
-├── holon-agentic-coder-ref/ # Target engine codebase (bare git + worktrees develop, main; git ignored)
-├── holon-coherence/         # Coherence proxy & optimization gateway (bare git + worktree main; git ignored)
+├── holon-agentic-coder/     # Primary engine codebase (bare git + worktree main; git ignored)
+├── holon-coherence/         # Coherence proxy & optimization gateway (bare git + worktrees main; git ignored)
 └── todo/                    # Local temporary scratchpad for images, docs, and notes (git ignored)
 ```
 

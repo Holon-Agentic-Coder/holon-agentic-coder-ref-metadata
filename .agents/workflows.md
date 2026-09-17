@@ -38,33 +38,29 @@ To work with codebase repositories within this metadata repository, you must clo
 check out branches as Git worktrees. This allows running multiple tasks on different branches simultaneously under a
 clean directory structure.
 
-### 1. `holon-agentic-coder-ref` (Primary Engine Repository)
+### 1. `holon-agentic-coder` (Primary Fractal Intent Evolution Engine)
 
-1. **Clone the repository as bare** into the hidden `.git` folder of the `holon-agentic-coder-ref` directory:
+1. **Clone the repository as bare** into the hidden `.git` folder of the `holon-agentic-coder` directory:
    ```bash
-   git clone --bare git@github.com:Holon-Agentic-Coder/holon-agentic-coder-ref.git holon-agentic-coder-ref/.git
+   git clone --bare git@github.com:Holon-Agentic-Coder/holon-agentic-coder.git holon-agentic-coder/.git
    ```
-2. **Navigate into the git database directory**:
+2. **Navigate into the git database directory and configure fetch refspec**:
    ```bash
-   cd holon-agentic-coder-ref/.git
+   cd holon-agentic-coder/.git
+   git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+   git fetch origin
    ```
 3. **Set up worktrees for your branches**:
-   - **For the `develop` branch** (checked out to `holon-agentic-coder-ref/develop`): This is the baseline active
-     development branch tracking `origin/develop`. **Never develop or modify code directly on `develop`.** All feature
-     changes must be made either in a separate dedicated worktree or as part of the Holon flow.
-     ```bash
-     git worktree add ../develop develop
-     ```
-   - **For the `main` branch** (checked out to `holon-agentic-coder-ref/main`): This branch is from the upstream
-     repository and only contains documentation and specifications.
+   - **For the `main` branch** (checked out to `holon-agentic-coder/main`): This is the primary active branch tracking
+     `origin/main`.
      ```bash
      git worktree add ../main main
      ```
-   - **For a specific feature branch `{branch_name}`** (checked out to `holon-agentic-coder-ref/{branch_name}`): All
-     development, manual fixes, and feature changes must be created in their own dedicated worktree off `origin/develop`
-     with `--no-track`:
+   - **For a specific feature branch `{branch_name}`** (checked out to `holon-agentic-coder/{branch_name}`): All
+     development and feature changes must be created in their own dedicated worktree off `origin/main` with
+     `--no-track`:
      ```bash
-     git worktree add --no-track -b {branch_name} ../{branch_name} origin/develop
+     git worktree add --no-track -b {branch_name} ../{branch_name} origin/main
      ```
 
 ### 2. `holon-coherence` (Optimization Gateway & Wire Telemetry)
@@ -97,11 +93,10 @@ clean directory structure.
 To maintain clean repository history, follow this Git workflow:
 
 1. **Branching & Worktree Isolation**:
-   - **Never develop or make code changes directly on the `develop` worktree in `holon-agentic-coder-ref` or `main`
-     worktree in `holon-coherence`.**
-   - For all code changes in `holon-agentic-coder-ref/`, work must either: a) happen in a dedicated Git worktree (e.g.
-     `holon-agentic-coder-ref/feat-<name>` branched off `origin/develop`), or b) execute autonomously through the Holon
-     flow (`I-...` Intent -> Plan -> Execution branches).
+   - **Never develop or make code changes directly on the `main` worktree in `holon-agentic-coder` or `main` worktree in
+     `holon-coherence`.**
+   - For all code changes in `holon-agentic-coder/`, work must happen in a dedicated Git worktree (e.g.
+     `holon-agentic-coder/feat-<name>` branched off `origin/main`).
    - For all code changes in `holon-coherence/`, work must happen in a dedicated Git worktree (e.g.
      `holon-coherence/feat-<name>` branched off `origin/main`).
    - In this metadata repository (`holon-agentic-coder-ref-metadata`), work on the active checked-out branch.
@@ -123,18 +118,13 @@ To maintain clean repository history, follow this Git workflow:
    - Avoid generic commit messages like "update files" or "fix".
 4. **Squashing (Mandatory)**:
    - Before pushing your feature branch to the remote repository, you **MUST squash all commits** on your branch
-     relative to the target branch into a **single commit** (e.g., relative to `main` in this metadata repository, or
-     `develop` in the reference repository).
+     relative to the target branch into a **single commit** (e.g., relative to `main` in this metadata repository,
+     `holon-agentic-coder`, or `holon-coherence`).
    - Your feature branch should only ever contain exactly **one commit** differing from the target branch.
    - To perform the squash, execute:
 
      ```bash
-     # For the metadata repository:
-     git reset $(git merge-base main HEAD)
-
-     # For the reference repository:
-     git reset $(git merge-base develop HEAD)
-
+     git reset $(git merge-base origin/main HEAD)
      git add -A
      git commit -m "your-semantic-commit-message"
      ```
@@ -142,5 +132,5 @@ To maintain clean repository history, follow this Git workflow:
 5. **Pull Requests & Pushing (No Autonomous Pushing)**:
    - **Never push to the remote repository (`origin`) unless explicitly instructed by the user.**
    - Once explicitly instructed to push, execute: `git push origin <branch-name> --force`.
-   - **Do NOT push directly to `main` or `develop` under any circumstances.**
+   - **Do NOT push directly to `main` under any circumstances.**
    - The human repository maintainer will review the changes, raise the Pull Request, and merge it.
