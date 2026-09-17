@@ -22,13 +22,17 @@ notes:
   - "  - Provides `holon-coherence stop` CLI command to stop and remove the background proxy container on demand."
   - "  - Supports optional `--ephemeral` flag to tear down the proxy container upon agent process exit."
   - "  - Implements signal traps (SIGINT, SIGTERM) to ensure graceful teardown and accurate child exit code propagation."
+  - "  - Supports configurable proxy port allocation (via `--port` CLI flag or `HOLON_PROXY_PORT` environment variable)
+    with port conflict detection during container startup."
+  - "  - Diagnostic error handling when Docker daemon is unreachable, reporting actionable guidance instead of raw
+    client tracebacks."
   - "Sensitive Credential Redaction in Wire Telemetry: The proxy and telemetry logging layers must redact sensitive
     authentication credentials (e.g. `Authorization` bearer tokens, `x-api-key`, and credential query parameters) prior
     to persisting request dumps or streaming logs to disk."
   - "Universal Agent Credentials (HOLON_AGENT_KEY) & Native Auth Fallback: Invariant rule 5 - runners accept
     HOLON_AGENT_KEY on the host and map it to child process environment variables internally. If HOLON_AGENT_KEY is
-    omitted, fallback gracefully to native host authentication sessions or existing vendor credentials (e.g. ~/.gemini,
-    ~/.claude.json, or ANTHROPIC_API_KEY / GEMINI_API_KEY / OPENAI_API_KEY in host environment):"
+    omitted, the host runner does not inspect or validate vendor API keys; it allows child subprocesses to transparently
+    inherit native host auth sessions and existing credentials (e.g. ~/.gemini, ~/.claude.json):"
   - "  1. agy (Antigravity): maps HOLON_AGENT_KEY to GEMINI_API_KEY / AGY_USER_TOKEN internally for child process."
   - "  2. claude (Claude Code / Anthropic): maps HOLON_AGENT_KEY to ANTHROPIC_API_KEY internally for child process."
   - "  3. codex (OpenAI Codex / ChatGPT CLI): maps HOLON_AGENT_KEY to OPENAI_API_KEY internally for child process."
@@ -46,8 +50,9 @@ notes:
   - "  - NODE_EXTRA_CA_CERTS for Node.js-based agents (e.g. Claude CLI)"
   - "CLI Interface Design: Support direct aliases (`holon-coherence <agent> [agent_args...]`) as well as
     `holon-coherence run-agent <agent> [agent_args...]`."
-  - "Test Coverage: Add unit and integration tests in `holon-coherence/tests/test_cli.py` covering child process exit
-    code propagation, credential mapping, fallback to native auth, and proxy lifecycle flags."
+  - "Test Coverage & Error Handling: Add unit and integration tests in `holon-coherence/tests/test_cli.py` covering
+    child process exit code propagation, credential mapping, fallback to native auth, proxy lifecycle flags, and clean
+    diagnostic error reporting when the Docker daemon is unreachable."
   - "Documentation: Update holon-coherence/README.md and AGENTS.md documenting agent invocation, required credentials,
     and proxy lifecycle."
 resolution: ""

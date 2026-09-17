@@ -23,4 +23,6 @@ notes:
   - "Supports `holon init [TARGET_DIR] [--template <python|generic>] [--force]`"
   - "Idempotency invariant: never truncate or overwrite existing ledger files"
   - "Verification target: bootstrap holon-coherence using `holon init`"
+  - "Test Coverage: Add automated unit tests in `apps/sandbox-executor/tests/test_init.py` covering directory
+    scaffolding, `--template` variations, `--force` flag, and verifying the idempotency invariant on pre-existing files."
 resolution: ""
