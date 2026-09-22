@@ -1,10 +1,10 @@
 ---
-id: holon-agentic-coder-ref-metadata-0020
+# holon-agentic-coder-ref-metadata-0020
 title: Fix MITM Telemetry Log Formatting and SSE Stream Token Extraction
-status: done
+status: completed
 type: task
-created_at: 2026-08-31T21:38:00+10:00
-updated_at: 2026-08-31T21:41:00+10:00
+created_at: 2026-08-31T11:38:00Z
+updated_at: 2026-08-31T11:41:00Z
 ---
 
 # Fix MITM Telemetry Log Formatting and SSE Stream Token Extraction

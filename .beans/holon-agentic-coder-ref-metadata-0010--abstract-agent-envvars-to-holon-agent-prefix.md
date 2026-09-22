@@ -1,13 +1,11 @@
 ---
 # holon-agentic-coder-ref-metadata-0010
-title: Abstract all agent-specific env vars to `HOLON_AGENT_*` prefix
-status: done
+title: "Abstract all agent-specific env vars to `HOLON_AGENT_*` prefix"
+status: completed
 type: task
 priority: high
 created_at: 2026-07-26T21:28:00Z
 updated_at: 2026-07-27T18:48:00Z
-branch_metadata: feat/holon-agent-envvar-abstraction
-branch_ref: feat/holon-agent-envvar-abstraction
 ---
 
 ## Overview

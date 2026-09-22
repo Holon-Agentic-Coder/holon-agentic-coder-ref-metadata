@@ -1,10 +1,10 @@
 ---
-id: holon-agentic-coder-ref-metadata-0018
+# holon-agentic-coder-ref-metadata-0018
 title: Fix MITM Proxy 400 Bad Request on Generic googleapis Endpoints
-status: done
+status: completed
 type: task
-created_at: 2026-08-31T20:34:00+10:00
-updated_at: 2026-08-31T20:37:00+10:00
+created_at: 2026-08-31T10:34:00Z
+updated_at: 2026-08-31T10:37:00Z
 ---
 
 # Fix MITM Proxy 400 Bad Request on Generic googleapis Endpoints

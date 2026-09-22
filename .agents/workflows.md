@@ -6,14 +6,32 @@ This document describes the workflow protocols you must follow when executing a 
 
 ## 🔄 Task Lifecycle (The Bean System)
 
-All work should be tracked under the `.beans/` directory. Each task has a matching text file named:
-`.beans/<prefix><id>.yml` or `.beans/<prefix><id>.md` (e.g., `.beans/holon-agentic-coder-ref-metadata-0001.yml`).
+All work should be tracked under the `.beans/` directory. Bean files are **Markdown with YAML front matter** (`.md`
+only). The `beans` CLI ignores any other extension, because `ParseFilename` strips only `.md`, so a `.yml` bean is
+invisible to it.
+
+Filename pattern: `.beans/<prefix><id>--<slug>.md` e.g.
+`.beans/holon-agentic-coder-ref-metadata-0028--runner-no-native-proxy-fallback-port-conflict.md`
+
+- `<id>` is a 4-character suffix from `[0-9a-z]` (`id_length` in `.beans.yml`), prefixed by `prefix`.
+- `<slug>` is the lowercased, hyphenated title, truncated to 50 characters with no trailing hyphen.
+- The ID comes from the **filename**; it is not a front matter field. The `# <full id>` line at the top of the front
+  matter is a cosmetic comment.
+- Only the fields documented in [`.beans/template.md`](../.beans/template.md) may appear in front matter. The CLI
+  persists exactly those and silently discards any other key on its next write, so task description, notes, assignee and
+  resolution summary belong in the Markdown body, never in YAML block scalars.
+- Timestamps are unquoted RFC3339 UTC (`2026-09-22T13:10:00Z`). Quoting them turns the value into a string that the CLI
+  cannot decode into a timestamp.
+- Statuses are fixed by the CLI and are `draft`, `todo`, `in-progress`, `completed` and `scrapped`. Do not use `done` or
+  `in_progress`: the CLI rejects them, and `beans archive` only moves `completed` and `scrapped` beans out of the active
+  directory.
 
 ### 1. Task Acquisition
 
 - Look at the `.beans/` folder. Select a task with status `todo`.
-- If no task matches the user's request, create a new bean file using the next available ID.
-- Update the status field of the task file to `in_progress`.
+- If no task matches the user's request, create a new bean: prefer `beans create`, otherwise copy
+  [`.beans/template.md`](../.beans/template.md) and pick an unused ID.
+- Update the status field of the task file to `in-progress`.
 
 ### 2. Implementation Cycle
 
@@ -24,7 +42,7 @@ All work should be tracked under the `.beans/` directory. Each task has a matchi
 
 ### 3. Task Completion
 
-- Change the status field to `done`.
+- Change the status field to `completed`.
 - Format all markdown files by running `npx prettier --write "**/*.md"`.
 - Commit the changes on the current active branch (**Do NOT create a new branch unless explicitly told**).
 - Squash all branch commits relative to the `main` branch into a single commit.

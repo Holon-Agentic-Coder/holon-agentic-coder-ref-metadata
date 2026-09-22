@@ -1,10 +1,10 @@
 ---
-id: holon-agentic-coder-ref-metadata-0019
+# holon-agentic-coder-ref-metadata-0019
 title: Fix executor.py git re-initialization fallback wiping parent commit history
 status: todo
 type: task
-created_at: 2026-08-31T20:56:00+10:00
-updated_at: 2026-08-31T20:56:00+10:00
+created_at: 2026-08-31T10:56:00Z
+updated_at: 2026-09-22T13:10:00Z
 ---
 
 # Fix executor.py git re-initialization fallback wiping parent commit history
@@ -35,3 +35,19 @@ orphan root commit containing only the execution ledger files (`executions/*.md`
 3. **Add Unit Tests**:
    - Add unit test in `apps/sandbox-executor/tests/test_executor.py` simulating git re-initialization to ensure parent
      commit history and codebase files are preserved.
+
+## Status Verification (2026-09-22)
+
+Status remains `todo`. Re-audited against the current `holon-agentic-coder` tip (`origin/main` = `a4d6930`) and the
+defect is still present and unfixed:
+
+- `apps/sandbox-executor/src/sandbox_executor/entrypoint/executor.py:516-531` still implements the fallback as
+  `rmtree(.git)` -> `git init` -> `git symbolic-ref HEAD refs/heads/<exec_branch>` -> `git remote add origin`, with no
+  `git fetch`, `git reset`, or `git update-ref` step to re-attach the parent `plan_branch` commit. The subsequent
+  `git add` / `git commit` therefore produces an orphan root commit.
+- The fallback is now worse than originally described: it deletes the existing `.git` directory outright, so any local
+  object database and refs present in the sandbox at that moment are destroyed before re-initialisation.
+- `apps/sandbox-executor/tests/test_executor.py:342` still asserts only that a `git symbolic-ref HEAD` command was
+  issued, which actively locks in the defective behaviour; the goal 3 regression test must replace that assertion.
+
+No code change is warranted in the metadata repository; this bean stays open against `holon-agentic-coder`.

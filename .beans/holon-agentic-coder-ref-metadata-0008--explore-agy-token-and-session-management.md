@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0008
 title: Explore universal agent token and session token standardization for sandbox execution
-status: done
+status: completed
 type: task
 priority: high
 created_at: 2026-07-25T22:27:00Z
