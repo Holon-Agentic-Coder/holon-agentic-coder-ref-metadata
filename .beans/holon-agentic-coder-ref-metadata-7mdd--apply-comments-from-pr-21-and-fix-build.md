@@ -5,7 +5,7 @@ status: completed
 type: task
 priority: normal
 created_at: 2026-07-23T12:34:45Z
-updated_at: 2026-07-23T12:40:32Z
+updated_at: 2026-09-22T13:10:00Z
 ---
 
 Go through comments on PR 21, apply the suggestions, and verify build passes.
@@ -25,3 +25,7 @@ Applied all reviewer suggestions on PR #21:
 - Clarified SSH key preconditions and empty `SSH_AUTH_SOCK` handling for Linux in `docs/sandbox/create_intent.md`,
   `docs/sandbox/create_plan.md`, and `intents/README.md`.
 - Ran unit tests and formatters/linters, and verified all checks pass successfully.
+
+> [!NOTE] **Status Vocabulary (2026-09-22)** This bean's status was earlier rewritten from `completed` to `done` to
+> match a local vocabulary that did not match the `beans` CLI. `done` is not a valid CLI status and is never archived,
+> so it reads `completed` again. No change to the recorded outcome.

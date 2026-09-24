@@ -1,0 +1,24 @@
+---
+# holon-agentic-coder-ref-metadata-0005
+title: Checkout holon-agentic-coder-ref with develop and main branches
+status: completed
+type: task
+created_at: 2026-07-18T00:00:00Z
+updated_at: 2026-07-18T00:00:00Z
+---
+
+Clone the holon-agentic-coder-ref repository as a bare git repository and check out both develop and main branches as
+git worktrees.
+
+## Notes
+
+- Clone path should be inside the holon-agentic-coder-ref/ directory which is git ignored.
+
+## Assignment
+
+Assignee: `antigravity`
+
+## Resolution
+
+Cloned the repository as a bare repository into the hidden `.git/` folder to keep the structure clean, and set up
+worktrees for develop and main branches. Updated setup instructions in README.md and .agents/workflows.md.

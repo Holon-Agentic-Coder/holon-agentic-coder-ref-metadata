@@ -1,10 +1,10 @@
 ---
-id: holon-agentic-coder-ref-metadata-0017
-title: Implement MITM Proxy Telemetry & Streaming TPS Metrics
-status: done
+# holon-agentic-coder-ref-metadata-0017
+title: "Implement MITM Proxy Telemetry & Streaming TPS Metrics"
+status: completed
 type: task
-created_at: 2026-08-30T21:16:00+10:00
-updated_at: 2026-08-30T21:17:00+10:00
+created_at: 2026-08-30T11:16:00Z
+updated_at: 2026-08-30T11:17:00Z
 ---
 
 # Implement MITM Proxy Telemetry & Streaming TPS Metrics

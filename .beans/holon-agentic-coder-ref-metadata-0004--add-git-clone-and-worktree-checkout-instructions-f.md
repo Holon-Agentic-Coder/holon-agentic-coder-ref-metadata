@@ -1,0 +1,25 @@
+---
+# holon-agentic-coder-ref-metadata-0004
+title: Add git clone and worktree checkout instructions for reference repository
+status: completed
+type: task
+created_at: 2026-07-18T00:00:00Z
+updated_at: 2026-07-18T00:00:00Z
+---
+
+Add detailed instructions to the repository (e.g., README.md, AGENTS.md, workflows.md) on how to clone the reference
+repository git@github.com:Holon-Agentic-Coder/holon-agentic-coder-ref.git as a bare repository under
+`holon-agentic-coder-ref` and add git worktrees for main (at `holon-agentic-coder-ref/main`) and other branches (at
+`holon-agentic-coder-ref/{branch_name}`).
+
+## Assignment
+
+Assignee: `antigravity`
+
+## Resolution
+
+Added detailed repository clone and Git worktree instructions to README.md and .agents/workflows.md. Explicitly
+documented branch definitions: `develop` as the primary active development branch and `main` as the upstream
+documentation/specification branch. Also updated the 'Incoming Agent Checklist' in AGENTS.md to link to the new setup
+instructions. Formatted modified markdown files with Prettier and ran the validation script to verify that no links are
+broken.

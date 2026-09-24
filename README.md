@@ -6,7 +6,11 @@
 > repository is fully bootstrapped, it does not possess enough autonomous power to develop or maintain itself. This
 > repository serves as the external harness to bridge that gap.
 
-**IMPORTANT**: before you do anything else, run the `beans prime` command and heed its output.
+**IMPORTANT**: before you do anything else, run the `beans prime` command and heed its output. This requires the
+[`beans` CLI](https://github.com/hmans/beans) to be installed and on your `PATH`; it is **not** part of this repository.
+If `beans` is not installed, skip the command and work directly from [AGENTS.md](AGENTS.md) plus the bean files in
+[`.beans/`](.beans/), following the format rules in
+[.agents/workflows.md](.agents/workflows.md#-task-lifecycle-the-bean-system).
 
 This repository acts as the central control plane, metadata store, and coordination hub for agentic workflows operating
 on the **Holon Agentic Coder** ecosystem.

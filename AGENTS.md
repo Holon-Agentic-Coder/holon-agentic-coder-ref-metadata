@@ -37,7 +37,7 @@ When you are spawned or begin a new session, follow these steps sequentially:
 3. **Internalize Constraints**: Load [.agents/rules.md](.agents/rules.md) to understand linting rules, language choices,
    and test requirements.
 4. **Execute Tasks Systematically**: Follow the lifecycle specified in [.agents/workflows.md](.agents/workflows.md) to
-   transition tasks from `todo` to `in-progress` and finally `done`.
+   transition tasks from `todo` to `in-progress` and finally `completed`.
 5. **No Autonomous Branches**: Never create a new branch unless explicitly instructed by the user. Work on the active
    branch that is currently checked out:
    - For `holon-agentic-coder/`, all development and feature work must be based off the `origin/main` branch.
@@ -76,8 +76,11 @@ This repository tracks work items using a lightweight file-based system in the [
 - Each bean represents a single task or user request.
 - The metadata config [.beans.yml](.beans.yml) defines naming conventions (e.g. prefix
   `holon-agentic-coder-ref-metadata-`).
-- When picking up a task, update its status inside the task file to `in_progress`.
-- Once completed, change the status to `done` and add a summary of your resolution.
+- When picking up a task, update its status inside the task file to `in-progress`.
+- Once finished, change the status to `completed` and add a summary of your resolution.
+- Valid statuses are fixed by the [beans CLI](https://github.com/hmans/beans) and are `draft`, `todo`, `in-progress`,
+  `completed` and `scrapped`. `done` and `in_progress` are **not** valid: the CLI rejects them on create and never
+  archives them, because `beans archive` only moves `completed` and `scrapped` beans out of the active directory.
 
 For details on how to create and manage task files, refer to [.agents/workflows.md](.agents/workflows.md).
 
