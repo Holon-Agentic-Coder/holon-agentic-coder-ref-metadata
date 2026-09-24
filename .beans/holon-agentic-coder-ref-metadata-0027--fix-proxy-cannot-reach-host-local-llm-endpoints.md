@@ -38,7 +38,7 @@ telemetry for the entire session and therefore defeats the purpose of the gatewa
 ## Notes
 
 - Target repository: holon-coherence (src/holon_coherence/cli.py and src/holon_coherence/mitm_addon.py). Work in a
-  dedicated worktree off origin/main, never in holon-coherence/main.
+  dedicated worktree off origin/main, never in apps/holon-coherence/main.
 - Related: Bean 0026 (runners), Bean 0028 (native proxy gap in the same startup path).
 - Recommended fix step 1: add `--add-host=host.docker.internal:host-gateway` to both docker run command builders in
   cli.py so the gateway name resolves on Docker Desktop and on Linux alike.

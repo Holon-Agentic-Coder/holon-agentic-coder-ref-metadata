@@ -22,22 +22,41 @@ external docs). Follow these rules:
 
 ### 1. When to Spawn a Subagent
 
-- **Context Isolation**: When a task requires many search and file-reading steps that would otherwise fill your main
-  context window.
-- **Specialization**: Spawning a specialized agent (e.g. "Security Auditor", "Lint fixer") to run a single, narrow task.
-- **Parallel Work**: Running independent tasks concurrently.
+- **Context Isolation**: When a task requires many search, review, and file-reading steps that would otherwise pollute
+  the main context window (e.g. PR reviews in `pr-review-loop`).
+- **Specialization**: Spawning a specialized agent (e.g. "PR Reviewer", "Security Auditor", "Lint Fixer") to execute a
+  narrow, focused task.
+- **Parallel Work**: Running independent tasks concurrently (e.g. 3-agent ensemble review).
 
-### 2. Instructing a Subagent
+### 2. Generic Subagent Protocol (Any Coding Agent)
 
-When using `invoke_subagent`, provide:
+For any coding agent runner operating in this workspace (Antigravity/AGY, Claude Code, Codex, Pi, OpenCodeInterpreter):
 
-- **Role**: A clear 2-5 word job title (e.g. "Typescript Code Reviewer").
-- **Actionable Prompt**: Be explicit about the inputs, expected outputs, constraints, and the format of the final
-  report.
-- **Reference Material**: Point the subagent to the target files using workspace-relative paths and line numbers if
-  possible.
+- **Role**: Assign a clear 2-5 word job description (e.g. `PR Reviewer (Iteration 1)`).
+- **Self-Contained Actionable Prompt**: Provide all necessary context, target branch names, repository paths under
+  `apps/` (`apps/holon-agentic-coder` or `apps/holon-coherence`), explicit input parameters, and output format.
+- **Target Artifacts**: Direct child agents to persist structured output to `.subagent/` (git ignored) or task
+  artifacts.
+- **Context Isolation**: Always spin off each iteration in a clean, fresh child context to prevent prompt degradation.
 
-### 3. Monitoring & Completion
+### 3. Antigravity (AGY) Runtime Instructions
 
-- Do not poll subagents continuously. Allow the platform to wake you up when a subagent sends a message.
-- Upon subagent completion, review their report, merge any files/work if applicable, and terminate the subagent.
+When executing within the **Antigravity (AGY)** environment:
+
+- **Invocation Tool**: Use `invoke_subagent` to spawn child tasks.
+- **Subagent Type**:
+  - `TypeName: "self"`: Use for coding, fixing, reviewing, and testing tasks that require full tool access (file
+    reading, file writing, terminal commands, web search). It inherits the parent agent's configuration and system
+    prompts.
+  - `TypeName: "research"`: Use for read-only codebase exploration and reference lookups.
+  - `define_subagent`: Use when custom tool groupings or specialized system prompts are strictly required.
+- **Model Configuration**: Always set `Model: "inherit"` to maintain model parity across parent and child sessions
+  unless explicitly requested otherwise.
+- **Reactive Wakeup (Zero Polling)**: AGY resumes parent execution automatically upon child message arrival or task
+  completion. **Never poll, sleep, or loop on task status.**
+
+### 4. Monitoring & Completion
+
+- Review the subagent's report upon reactive resumption.
+- In multi-turn workflows, inspect output artifacts (e.g. `.subagent/dry_run_review_iter_*.md`) and verify commits
+  before proceeding to subsequent phases.

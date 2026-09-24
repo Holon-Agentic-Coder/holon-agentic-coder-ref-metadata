@@ -3,8 +3,10 @@
 This document outlines how Git submodules are managed across the **Holon Agentic Coder** ecosystem, focusing on the
 **`holon-coherence`** submodule embedded within **`holon-agentic-coder`**.
 
-> [!NOTE] For internal agent operating protocols and execution workflows, see
-> [.agents/submodules.md](.agents/submodules.md).
+> [!NOTE] When operating within this control plane workspace (`holon-agentic-coder-ref-metadata`), the parent repository
+> **`holon-agentic-coder`** is located at **`apps/holon-agentic-coder/main`** (or a dedicated worktree). Always navigate
+> to that worktree root before executing submodule commands. For internal agent operating protocols and execution
+> workflows, see [.agents/submodules.md](.agents/submodules.md).
 
 ---
 
@@ -42,7 +44,7 @@ completely separate.
 
 ### Initializing Submodules
 
-When checking out a worktree or fresh clone:
+When checking out a worktree or fresh clone (from `apps/holon-agentic-coder/main` or target worktree):
 
 ```bash
 git submodule update --init --recursive

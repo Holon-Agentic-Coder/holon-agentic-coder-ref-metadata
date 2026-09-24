@@ -77,7 +77,8 @@ list of `rejected_suggestions`. If the review comment's request or topic matches
 ### Step 4: Apply Changes from Valid Comments & Findings
 
 For every comment or review finding that passes all checks (grounded, accurate, actionable, in scope, and NOT rejected
-by the user in the ledger), apply the suggested code change directly to the working tree:
+by the user in the ledger), apply the suggested code change directly to the working tree (located in the repository root
+or the target repository worktree under `apps/holon-agentic-coder` or `apps/holon-coherence`):
 
 - Evaluate and apply valid recommendations across **Critical (🔴), Important (🟡), and Nit / Optional (🟢)** findings
   found in the review report or PR comments.

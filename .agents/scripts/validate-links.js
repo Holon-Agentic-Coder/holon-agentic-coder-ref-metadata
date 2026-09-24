@@ -8,10 +8,17 @@ const rootDir = path.resolve(__dirname, '../..');
 const filesToCheck = [
   path.join(rootDir, 'README.md'),
   path.join(rootDir, 'AGENTS.md'),
+  path.join(rootDir, 'SUBMODULES.md'),
   path.join(rootDir, '.agents/instructions.md'),
   path.join(rootDir, '.agents/rules.md'),
   path.join(rootDir, '.agents/workflows.md'),
+  path.join(rootDir, '.agents/submodules.md'),
   path.join(rootDir, '.agents/coordination.md'),
+  path.join(rootDir, '.agents/skills/answer/SKILL.md'),
+  path.join(rootDir, '.agents/skills/clean_branches/SKILL.md'),
+  path.join(rootDir, '.agents/skills/pr_review_loop/SKILL.md'),
+  path.join(rootDir, '.agents/skills/pr_review_resolver/SKILL.md'),
+  path.join(rootDir, '.agents/skills/pr_reviewer/SKILL.md'),
 ];
 
 let hasErrors = false;

@@ -80,7 +80,8 @@ Before launching the new dry-run code review pass on Iteration 1:
 
 1. Check for pre-existing review comments on the target PR (`gh pr view <pr> --json reviews`).
 2. If actionable review comments exist from human reviewers or previous review passes:
-   - Spawn a `pr_resolver` subagent to execute `pr-review-resolver` on `<pr_url_or_number>`.
+   - Spawn a resolver subagent (in AGY via `invoke_subagent` with `TypeName: "self"`, or native child agent delegation)
+     to execute `pr-review-resolver` on `<pr_url_or_number>`.
    - The resolver will critically evaluate each comment for diff grounding, technical accuracy, actionability, and
      scope.
    - If any comment is verified to be true and valid, apply the fix, commit
@@ -88,11 +89,14 @@ Before launching the new dry-run code review pass on Iteration 1:
 
 #### Phase A: Run Reviewer Subagent (Dry-Run Mode)
 
-Spawn a subagent using `invoke_subagent`:
+Execute the review pass in a clean, isolated subagent context.
 
-- **TypeName**: `pr_reviewer`
+##### 📋 Generic Subagent Contract (Any Coding Agent):
+
 - **Role**: `PR Reviewer (Iteration <iteration>)`
-- **Model**: `inherit` (Inherit the parent agent's model for all dry-run review passes).
+- **Context Isolation**: Spin off a dedicated child context using your agent's native subagent tool, child task runner,
+  or child process to keep parent context clean and prevent prompt degradation.
+- **Model**: Inherit the parent agent's model (`inherit`).
 - **Prompt Instructions**:
   > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` in **Dry-Run Mode (`--dry-run`)** with
   > **Single-Agent Mode** enabled.
@@ -113,6 +117,25 @@ Spawn a subagent using `invoke_subagent`:
   >    - Path to the generated dry run review markdown file
   >      (`.subagent/dry_run_review_iter_<iteration>_{short_git_commit}.md`).
 
+##### 🚀 Antigravity (AGY) Invocation:
+
+In the AGY runtime, call `invoke_subagent`:
+
+```json
+{
+  "Subagents": [
+    {
+      "TypeName": "self",
+      "Role": "PR Reviewer (Iteration <iteration>)",
+      "Model": "inherit",
+      "Prompt": "<Prompt Instructions from above>"
+    }
+  ]
+}
+```
+
+_Note on AGY: Do not poll or sleep; AGY resumes execution automatically upon subagent completion._
+
 Wait for the subagent to complete and inspect its report.
 
 ---
@@ -124,25 +147,41 @@ Wait for the subagent to complete and inspect its report.
      1. The dry-run reviewer subagent verdict is **`APPROVED`** (zero Critical 🔴 or Important 🟡 issues remain; **only
         Nit / Optional 🟢 findings are allowed**).
      2. **ALL GitHub Actions CI checks (`gh pr checks <pr>`) pass cleanly** with no failing jobs.
-   - **Execute 3-Agent Ensemble Consensus Review**: Spawn a `pr_reviewer` subagent with **Ensemble Consensus Mode**
-     enabled.
-     - **Prompt Instructions**:
-       > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` using the **3-Agent Ensemble Consensus
-       > Model**. Spawn 3 independent subagents, merge their consensus findings into a consolidated report, and evaluate
-       > issue counts.
-       >
-       > **Posting Gate**:
-       >
-       > - If ANY Critical (🔴) or Important (🟡) issues are flagged by the consensus reviewers:
-       >   - **DO NOT POST TO GITHUB**. Skip executing `gh pr review`.
-       >   - Save the consolidated findings report locally to
-       >     `.subagent/consensus_review_iter_<iteration>_{short_git_commit}.md`.
-       > - If and ONLY IF zero Critical (🔴) and zero Important (🟡) issues remain (only Nit/Optional 🟢 findings
-       >   allowed) AND all GitHub Actions CI checks pass cleanly:
-       >   - Write the review body to `.subagent/review_body.md`.
-       >   - Post the official review to GitHub via
-       >     `gh pr review <pr_url_or_number> --approve -F .subagent/review_body.md` (falling back to `--comment` if PR
-       >     author is the authenticated user).
+   - **Execute 3-Agent Ensemble Consensus Review**: Spin off a consensus review in an isolated child context with
+     **Ensemble Consensus Mode** enabled:
+     - **Generic Subagent Contract (Any Coding Agent)**:
+       - **Role**: `PR Ensemble Reviewer (Iteration <iteration>)`
+       - **Model**: Inherit parent model (`inherit`).
+       - **Prompt Instructions**:
+         > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` using the **3-Agent Ensemble Consensus
+         > Model**. Spawn 3 independent subagents, merge their consensus findings into a consolidated report, and
+         > evaluate issue counts.
+         >
+         > **Posting Gate**:
+         >
+         > - If ANY Critical (🔴) or Important (🟡) issues are flagged by the consensus reviewers:
+         >   - **DO NOT POST TO GITHUB**. Skip executing `gh pr review`.
+         >   - Save the consolidated findings report locally to
+         >     `.subagent/consensus_review_iter_<iteration>_{short_git_commit}.md`.
+         > - If and ONLY IF zero Critical (🔴) and zero Important (🟡) issues remain (only Nit/Optional 🟢 findings
+         >   allowed) AND all GitHub Actions CI checks pass cleanly:
+         >   - Write the review body to `.subagent/review_body.md`.
+         >   - Post the official review to GitHub via
+         >     `gh pr review <pr_url_or_number> --approve -F .subagent/review_body.md` (falling back to `--comment` if
+         >     PR author is the authenticated user).
+     - **Antigravity (AGY) Invocation**:
+       ```json
+       {
+         "Subagents": [
+           {
+             "TypeName": "self",
+             "Role": "PR Ensemble Reviewer (Iteration <iteration>)",
+             "Model": "inherit",
+             "Prompt": "<Prompt Instructions from above>"
+           }
+         ]
+       }
+       ```
    - **Evaluate Consensus Review Verdict & Exit Conditions**:
      - **Case 1: Clean Consensus Pass (0 Critical, 0 Important issues remaining)**:
        - The PR has received unanimous ensemble consensus approval with zero blocking or important issues left to
@@ -188,11 +227,16 @@ Wait for the subagent to complete and inspect its report.
 If changes were requested or actionable issues exist (any Critical 🔴 or Important 🟡 findings, or actionable Nit 🟢
 suggestions):
 
-Spawn a subagent using `invoke_subagent`:
+Execute the resolution pass in a clean, isolated subagent context.
 
-- **TypeName**: `pr_resolver`
+##### 📋 Generic Subagent Contract (Any Coding Agent):
+
 - **Role**: `PR Review Resolver (Iteration <iteration>)`
-- **Model**: `inherit` (Inherit the parent agent's model for all resolution passes).
+- **Context Isolation**: Spin off a dedicated child context using your agent's native subagent tool, child task runner,
+  or child process to keep parent context clean and apply code fixes safely.
+- **Model**: Inherit the parent agent's model (`inherit`).
+- **Target Worktree**: Locate the target repository worktree under `apps/holon-agentic-coder/{branch}`,
+  `apps/holon-coherence/{branch}`, or repository root.
 - **Prompt Instructions**:
   > Load and execute the `pr-review-resolver` skill for `<pr_url_or_number>`.
   >
@@ -205,6 +249,25 @@ Spawn a subagent using `invoke_subagent`:
   > 5. Push local commits to remote feature branch (`git push origin <branch_name>`) so GitHub PR diff updates for the
   >    next review pass.
   > 6. Return a summary of applied fixes and skipped comments.
+
+##### 🚀 Antigravity (AGY) Invocation:
+
+In the AGY runtime, call `invoke_subagent`:
+
+```json
+{
+  "Subagents": [
+    {
+      "TypeName": "self",
+      "Role": "PR Review Resolver (Iteration <iteration>)",
+      "Model": "inherit",
+      "Prompt": "<Prompt Instructions from above>"
+    }
+  ]
+}
+```
+
+_Note on AGY: Do not poll or sleep; AGY resumes execution automatically upon subagent completion._
 
 Wait for the subagent to complete and inspect its report.
 
