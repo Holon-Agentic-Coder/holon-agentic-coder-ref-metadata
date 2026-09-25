@@ -39,6 +39,9 @@ resolution step is executed in a dedicated, fresh subagent**.
    (`.subagent/dry_run_review_iter_<iteration>_{short_git_commit}.md`) **MUST be placed into the `.subagent/`
    directory** (git ignored). Never write intermediate files to `scratch/` or other root folders. Prior to execution,
    read `.subagent/coordination.json` (if it exists) to fetch user-rejected recommendations and active constraints.
+7. **Human-Only PR Merging Boundary**: The loop scope strictly terminates upon posting the approved consensus review.
+   Agents and subagents **MUST NEVER execute `gh pr merge`, enable auto-merge, or add the PR to a merge queue**. Merging
+   is exclusively the human maintainer's responsibility.
 
 ---
 
@@ -187,9 +190,14 @@ Wait for the subagent to complete and inspect its report.
        - The PR has received unanimous ensemble consensus approval with zero blocking or important issues left to
          action.
        - Official review has been posted to GitHub.
-       - **STOP THE LOOP**.
-       - Output success message:
-         `PR review loop completed successfully! Final consensus review posted to GitHub and all CI builds are passing.`
+       - **STOP THE LOOP.**
+       - **Notify the user** that the PR is approved and awaits manual merge:
+         > ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub and all CI checks
+         > are passing. Please review and merge it manually at `<pr_url>` when you are ready.
+       - **NEVER merge autonomously**: Agents MUST NOT run `gh pr merge`, add the PR to the merge queue, or enable
+         auto-merge. Merging is strictly reserved for the human maintainer.
+       - Branch and worktree cleanup must only be performed after the human confirms the merge has completed, or when
+         the user explicitly requests cleanup.
      - **Case 2: Critical or Important Issues Flagged by Consensus Reviewers**:
        - **DO NOT POST TO GITHUB**. Ensure no intermediate review comment was posted to the GitHub PR thread.
        - If `iteration >= max_iterations`:

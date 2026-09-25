@@ -1,11 +1,11 @@
 ---
-# holon-agentic-coder-ref-metadata-7mdd
+# holon-agentic-coder-ref-metadata-0055
 title: Apply comments from PR 21 and fix build
 status: completed
 type: task
 priority: normal
 created_at: 2026-07-23T12:34:45Z
-updated_at: 2026-09-22T13:10:00Z
+updated_at: 2026-09-27T13:05:00Z
 ---
 
 Go through comments on PR 21, apply the suggestions, and verify build passes.
@@ -29,3 +29,10 @@ Applied all reviewer suggestions on PR #21:
 > [!NOTE] **Status Vocabulary (2026-09-22)** This bean's status was earlier rewritten from `completed` to `done` to
 > match a local vocabulary that did not match the `beans` CLI. `done` is not a valid CLI status and is never archived,
 > so it reads `completed` again. No change to the recorded outcome.
+
+## ID Normalisation (2026-09-27)
+
+Renamed from the base36 id `7mdd` to the sequential integer id `0055` (by the maintainer) to comply with the strictly
+sequential 4-digit rule in `.beans.yml` and `.beans/template.md`. Historical review artefacts in the git-ignored
+`.subagent/` directory still mention `7mdd` -- including a note that it was "intentionally left random" -- and are left
+untouched as records of what was true when they were written. `0055` also raises the next available id to `0056`.

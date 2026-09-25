@@ -121,18 +121,25 @@ code in this repository.
    - Always declare upfront whether an execution was an offline payload simulation (zero API calls) versus an actual
      live network socket request to upstream provider endpoints.
 
-8. **Holon Flow Sandbox Execution Invariant (`./holon`)**:
-   - For all autonomous agent feature tasks in `holon-agentic-coder`, execute the full containerized lifecycle using the
-     `./holon` host CLI wrapper (`./holon intent <file>`, `./holon plan <intent_branch>`,
-     `./holon execute <plan_branch>`).
-   - The `./holon` script automatically manages container sandbox isolation, credential discovery, SSH agent socket
-     forwarding, branch creation (`I-...` Intent, `P-...` Plan, `E-...` Execution), and automated remote branch pushing
-     to `origin`.
-   - Never bypass `./holon` by performing manual host-side git worktree code edits unless explicitly instructed by the
-     user.
-   - Scope: this invariant covers `holon-agentic-coder` tasks run through the `./holon` sandbox lifecycle. It does not
-     override the per-agent worktree rule in AGENTS.md rule 5 for work outside that lifecycle (for example
-     `holon-coherence` changes).
+8. **Holon Flow Sole-Change-Path Invariant (`./holon`)**:
+   - **All** changes to a managed target codebase (currently `holon-agentic-coder`, and any repository under `apps/`)
+     MUST be produced through the Holon flow, spanning the complete lifecycle: Intent -> Plan -> Execute -> PR Review
+     Loop -> Calibration.
+   - Manual stage-by-stage execution (`./holon intent`, `./holon plan`, `./holon execute`, `pr-review-loop`,
+     `holon calibrate`) is fully compliant and is the required mode until the pipeline engine (Bean 0039) and the
+     unified `holon flow <intent.json>` runner (Bean 0040) exist. Automation is an optimization of the flow, never a
+     substitute for any of its five stages.
+   - The `./holon` wrapper automatically manages sandbox isolation, credential discovery, SSH agent socket forwarding,
+     branch creation (`I-...` Intent, `P-...` Plan, `E-...` Execution, `/calibrated`), and remote pushes to `origin`.
+   - Never bypass the flow with manual host-side git or worktree source edits, and never hand-apply a diff because a
+     stage failed. A blocked stage means the change is blocked: report the blocker.
+   - Per-agent worktrees remain mandatory for harness operation, image builds, code inspection, and verification runs --
+     they are explicitly **not** a surface for authoring target-repo changes. This supersedes any reading of the
+     per-agent worktree rule in AGENTS.md that would allow committing agent-authored target-repo source from a worktree.
+   - The sole exceptions are (a) the `holon-agentic-coder-ref-metadata` control plane itself (`.beans/`, `.agents/`,
+     `AGENTS.md`), which the flow cannot target because `get_repo_url()` only resolves the target codebase, and (b) an
+     explicit, specific user instruction to edit outside the flow, which must be recorded in the commit message and the
+     bean summary.
 
 9. **MITM Proxy Telemetry System of Record (`X-Holon-*`)**:
    - Streaming performance metrics (TTFT, Prefill TPS, Tail Prefill TPS, Decode Time, Output TPS, Total Time, Prompt
@@ -158,3 +165,10 @@ code in this repository.
       tangible structured deliverables (markdown artifacts with Mermaid diagrams, working code files, UI assets, and
       automated test pass logs), and exercise agent domain skills (e.g., full-stack web development or systems
       architecture ideation).
+
+11. **Human-Only Pull Request Merging Invariant**:
+    - Agents MUST NEVER merge a Pull Request, enable auto-merge, or add a PR to the merge queue.
+    - Commands such as `gh pr merge` (with `--squash`, `--rebase`, `--merge`, `--auto`, etc.), `gh api` calls to merge
+      endpoints, or toggling `allow_auto_merge` via `gh repo edit` are strictly prohibited.
+    - Merging is strictly reserved for the human maintainer. Once all review iterations pass with consensus approval,
+      the agent must stop and hand off to the human.

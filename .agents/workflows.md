@@ -36,12 +36,27 @@ Filename pattern: `.beans/<prefix><id>--<slug>.md` e.g.
   Do not use `beans create` if it generates random base36 IDs.
 - Update the status field of the task file to `in-progress`.
 
-### 2. Implementation Cycle
+### 2. Implementation Cycle (The Holon Flow)
 
-- **Plan**: Create a step-by-step plan. If the task is complex, document it in an artifact.
-- **Implement**: Make changes to the code using the files and tools as prescribed in [rules.md](rules.md).
-- **Test**: Run all relevant tests. Check for compilation errors or linters.
-- **Document**: Add notes inside the task file explaining how the task was resolved.
+Changes to target codebases are authored by the flow, not by hand. Run the five stages in order; each stage produces the
+branch and ledger record the next one consumes (see invariant 8 in [rules.md](rules.md)).
+
+- **Intent**: Write the intent JSON (`description`, `goal`, `slug`, optional `target_branch`) and run
+  `./holon intent <file>` to open the `I-.../_` branch and append to `holon-knowledge/ledger/intents.jsonl`. Encode the
+  sandbox constraints the executor must respect inside `goal`.
+- **Plan**: Run `./holon plan <intent_branch> --agent <agent> --model <model>`; review the generated `plans/P-*.md` and
+  the predicted metrics recorded in `plans.jsonl` before proceeding.
+- **Execute**: Run `./holon execute <plan_branch> --agent <agent> --model <model>`. Verify the pushed `E-...` branch is
+  a real descendant of the plan branch (`git log --format='%H %P'`) and that the codebase tree survived -- an
+  `executions.jsonl` `status: success` does not prove it.
+- **Review**: Run the `pr-review-loop` skill until the ensemble reaches consensus approval. Never merge (see the
+  Human-Only rule below).
+- **Calibrate**: Run `holon calibrate <execution_branch>` to commit predicted-versus-actual deltas.
+- **Document**: Add notes inside the task file explaining how the task was resolved, including the intent, plan, and
+  execution branch names.
+
+Until Beans 0039 and 0040 land, invoke these stages individually. Once they land, `holon flow <intent.json>` is the
+preferred entrypoint; both modes satisfy the same requirement.
 
 ### 3. Task Completion
 
@@ -175,5 +190,22 @@ To maintain clean repository history, follow this Git workflow:
    - When rewriting history on your own branch, use `git push --force-with-lease origin <branch-name>`.
    - **Do NOT push directly to `main` under any circumstances**, never push or force-push a branch you do not own, and
      never push from a `main` worktree.
-   - The human repository maintainer will review the changes, raise the Pull Request, and merge it. Raising a Pull
-     Request still requires explicit instruction, even though pushing does not.
+   - The human repository maintainer will review the changes and raise the Pull Request. Raising a Pull Request still
+     requires explicit instruction, even though pushing does not.
+
+> [!CAUTION] **Agents MUST NEVER merge a Pull Request.** Merging is exclusively the human maintainer's responsibility.
+> The following actions are **strictly forbidden** with no exceptions:
+>
+> - `gh pr merge` (with any flags: `--squash`, `--rebase`, `--merge`, `--auto`, `--delete-branch`, etc.)
+> - `gh pr merge --auto` or enabling auto-merge by any means
+> - `gh api …` calls or any other mechanism that triggers a merge or adds a PR to the merge queue
+> - `gh repo edit --enable-auto-merge` or any repository setting that enables automatic merging
+>
+> After the pr-reviewer ensemble consensus review is approved and posted to GitHub, the agent MUST stop all PR-related
+> activity and notify the user:
+>
+> > ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub. Please review and merge
+> > it manually at `<pr_url>` when you are ready. No further agent action is required.
+>
+> Branch and worktree cleanup may only be performed **after** the human confirms the merge has completed, or when the
+> user explicitly requests it.

@@ -152,10 +152,10 @@ _For each **Active** persona, provide a dedicated section. Skip Inactive persona
 
 Provide a final verdict for the PR:
 
-- **✅ APPROVED**: The PR is in excellent shape and can be merged as-is.
+- **✅ APPROVED**: The PR is in excellent shape and ready for the human maintainer to merge.
 - **💬 COMMENT**: Good work overall, but there are some suggestions or questions (Nits and Improvements) that should be
   considered.
-- **❌ CHANGES REQUESTED**: Critical/Blocker issues must be resolved before this PR can be merged.
+- **❌ CHANGES REQUESTED**: Critical/Blocker issues must be resolved before this PR can be approved.
 
 ---
 
