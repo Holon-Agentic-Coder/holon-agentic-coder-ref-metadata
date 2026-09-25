@@ -110,4 +110,9 @@ Skipped (invalid/out of scope):
 - <bullet list of skipped comment titles>"
 ```
 
-Do **not** push to the remote unless the user explicitly instructs you to do so.
+Do **not** push to the remote unless the user explicitly instructs you to do so (or when operating within an automated
+`pr-review-loop` iteration).
+
+> [!CAUTION] **Agents MUST NEVER merge a Pull Request.** Resolving review findings only updates the branch for review.
+> Do NOT run `gh pr merge`, do NOT add the PR to the merge queue, and do NOT enable auto-merge. Merging is strictly
+> reserved for the human maintainer.
