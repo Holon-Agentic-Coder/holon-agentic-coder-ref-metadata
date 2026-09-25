@@ -48,7 +48,12 @@ subagents or isolated subagent contexts):
    - Prior to spawning, read `.subagent/coordination.json` (if it exists) to retrieve any user-rejected recommendations
      or custom constraints.
    - Spawn subagents (`Reviewer Subagent 1`, `Reviewer Subagent 2`, `Reviewer Subagent 3`) concurrently in parallel
-     using a subagent delegation tool (e.g. `invoke_subagent`).
+     using your coding agent's native subagent delegation mechanism:
+     - **In Antigravity (AGY)**: Call `invoke_subagent` with 3 entries, using `TypeName: "self"` (or
+       `TypeName: "research"` for read-only review), `Model: "inherit"`, and distinct roles (`Reviewer Subagent 1`, `2`,
+       `3`).
+     - **In other coding agents (Claude Code, Codex, Pi, OpenCodeInterpreter)**: Spawn 3 isolated child sessions or task
+       threads with the review prompt.
    - Each reviewer subagent receives the PR Title, Description, Code Diff, and system prompt from
      `.agents/prompts/pr_review_prompt.md`, along with any user-rejected recommendations or constraints retrieved from
      the ledger.

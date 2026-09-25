@@ -42,3 +42,21 @@ system safety, and clean documentation. Follow these core guidelines in every se
 - If no test suite exists, write unit tests directly within the codebase to verify your changes, rather than relying on
   untracked external scratch files.
 - Check git status and diff output to ensure only the intended changes have been made.
+
+### 4. Workspace Structure (`apps/`)
+
+- Target application codebases reside under the `apps/` directory (`apps/holon-agentic-coder` and
+  `apps/holon-coherence`).
+- All code modifications must occur within the appropriate repository worktree (e.g. `apps/holon-agentic-coder/main` or
+  feature branch worktree).
+- The repository root is strictly for control plane coordination, task tracking (`.beans/`), and agent guidance.
+
+### 5. Subagent Delegation (AGY & Generic Coding Agents)
+
+- Subagent delegation in this ecosystem is primarily targeted towards the **Antigravity (AGY)** runtime:
+  - Use `invoke_subagent` with `TypeName: "self"` so child agents inherit full tools (view, edit, bash execution) and
+    environment settings. Use `TypeName: "research"` for read-only research.
+  - Set `Model: "inherit"` to match the parent agent's configuration.
+  - Never poll or sleep in a loop; AGY wakes the parent agent automatically when child tasks finish.
+- Generic coding agents (such as Claude Code, Codex, Pi, OpenCodeInterpreter) can execute child tasks using their native
+  subagent or child process delegation mechanisms following the same prompt contracts.

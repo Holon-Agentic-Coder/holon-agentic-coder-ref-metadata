@@ -2,6 +2,11 @@
 
 > [!NOTE] This guide outlines how Git submodules are managed across the **Holon Agentic Coder** ecosystem, using the
 > **`holon-coherence`** submodule in **`holon-agentic-coder`** as the primary example.
+>
+> In this control plane repository (`holon-agentic-coder-ref-metadata`), the parent repository **`holon-agentic-coder`**
+> is maintained under **`apps/holon-agentic-coder/main`** (or a dedicated worktree branch
+> `apps/holon-agentic-coder/<worktree>`). Submodule operations must be executed from within that worktree root, never
+> directly from the metadata repository root.
 
 ---
 
@@ -14,8 +19,8 @@ Git tracks submodules through two separate mechanisms:
 
 ### A. `.gitmodules` (Repository Configuration)
 
-Stored at the root of the parent repository. Defines the mapping of the local directory to the remote URL and default
-tracking branch:
+Stored at the root of the parent repository (`apps/holon-agentic-coder/main/.gitmodules`). Defines the mapping of the
+local directory to the remote URL and default tracking branch:
 
 ```ini
 [submodule "holon-coherence"]
@@ -45,11 +50,15 @@ The submodule commit pointer is **not stored in a text file**. It is stored in G
 
 ## 2. Initializing & Populating Submodules
 
-When checking out a fresh clone or creating a new Git worktree, submodule directories are created empty. You must
-explicitly initialize and fetch them:
+When checking out a fresh clone or creating a new Git worktree under `apps/holon-agentic-coder/`, submodule directories
+are created empty. You must explicitly initialize and fetch them:
 
 ```bash
-# In the parent repository or worktree root:
+# 1. From the metadata repository harness, navigate to the parent repository worktree:
+cd apps/holon-agentic-coder/main
+# (or cd apps/holon-agentic-coder/<branch-worktree>)
+
+# 2. In the parent worktree root, initialize and populate submodules:
 git submodule update --init --recursive
 ```
 
@@ -66,7 +75,7 @@ git clone --recurse-submodules <repo-url>
 To embed an external repository as a submodule:
 
 ```bash
-# 1. Add the submodule specifying HTTPS URL and default tracking branch:
+# 1. Inside the parent worktree (e.g. apps/holon-agentic-coder/main):
 git submodule add -b main https://github.com/Holon-Agentic-Coder/holon-coherence.git holon-coherence
 
 # 2. Inspect the staged files (.gitmodules and gitlink 160000):
@@ -86,7 +95,7 @@ When upstream updates occur on `holon-coherence`, you can advance the submodule 
 ### Method A: Fast-forward using the configured branch (`main`)
 
 ```bash
-# Fetch and merge the latest remote commits for holon-coherence:
+# From the parent worktree root (apps/holon-agentic-coder/main):
 git submodule update --remote --merge holon-coherence
 
 # Stage and commit the updated commit SHA:
@@ -97,6 +106,7 @@ git commit -m "chore(submodule): update holon-coherence to $(git -C holon-cohere
 ### Method B: Explicitly pin to a specific commit or tag
 
 ```bash
+# From the parent worktree root (apps/holon-agentic-coder/main):
 cd holon-coherence
 git fetch origin
 git checkout <commit-sha-or-tag>
@@ -110,6 +120,8 @@ git commit -m "chore(submodule): pin holon-coherence to <commit-sha>"
 ---
 
 ## 5. Inspecting Submodule Status
+
+From the parent worktree root (`apps/holon-agentic-coder/main`):
 
 - **Status overview**:
 
@@ -142,9 +154,9 @@ git commit -m "chore(submodule): pin holon-coherence to <commit-sha>"
 
 When developing changes directly inside the embedded `holon-coherence/` folder:
 
-1. Switch to a feature branch inside the submodule:
+1. From the metadata harness root, navigate into the embedded submodule inside the parent worktree:
    ```bash
-   cd holon-coherence
+   cd apps/holon-agentic-coder/main/holon-coherence
    git checkout -b feat/<feature-name>
    ```
 2. Make code edits, test, and commit inside the submodule:
@@ -153,7 +165,7 @@ When developing changes directly inside the embedded `holon-coherence/` folder:
    git commit -m "feat: implement feature in holon-coherence"
    git push origin feat/<feature-name>
    ```
-3. Return to the parent repository root, stage the new commit pointer, and commit:
+3. Return to the parent repository worktree root, stage the new commit pointer, and commit:
    ```bash
    cd ..
    git add holon-coherence
@@ -184,7 +196,7 @@ submodules: recursive
 
 ## 8. Removing a Submodule
 
-To cleanly remove a submodule from a repository:
+To cleanly remove a submodule from a repository (executed inside the parent worktree `apps/holon-agentic-coder/main`):
 
 ```bash
 # 1. De-register the submodule from local .git/config:

@@ -67,7 +67,7 @@ teardown on startup failure.
 ## Notes
 
 - Target repository: `holon-coherence` (`src/holon_coherence/cli.py`). Work in a dedicated worktree off `origin/main`,
-  never in `holon-coherence/main`.
+  never in `apps/holon-coherence/main`.
 - Related: Bean 0026 (the runners that own this startup path) and Bean 0027 (host-local LLM endpoints unreachable
   through the containerized proxy). Bean 0027's fix (adding `--add-host=host.docker.internal:host-gateway` and upstream
   address rewriting) is independent of this one; native mode and port allocation are not a substitute for it.

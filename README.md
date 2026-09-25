@@ -37,25 +37,25 @@ clean directory structure.
 
 ### 1. `holon-agentic-coder` (Primary Fractal Intent Evolution Engine)
 
-Located at `holon-agentic-coder/`:
+Located at `apps/holon-agentic-coder/`:
 
-1. **Clone the repository as bare** into the hidden `.git` folder of the `holon-agentic-coder` directory:
+1. **Clone the repository as bare** into the hidden `.git` folder of the `apps/holon-agentic-coder` directory:
    ```bash
-   git clone --bare git@github.com:Holon-Agentic-Coder/holon-agentic-coder.git holon-agentic-coder/.git
+   git clone --bare git@github.com:Holon-Agentic-Coder/holon-agentic-coder.git apps/holon-agentic-coder/.git
    ```
 2. **Navigate into the git database directory and configure fetch refspec**:
    ```bash
-   cd holon-agentic-coder/.git
+   cd apps/holon-agentic-coder/.git
    git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
    git fetch origin
    ```
 3. **Set up worktrees for your branches**:
-   - **For the `main` branch** (checked out to `holon-agentic-coder/main`): This is the primary active branch tracking
-     `origin/main`.
+   - **For the `main` branch** (checked out to `apps/holon-agentic-coder/main`): This is the primary active branch
+     tracking `origin/main`.
      ```bash
      git worktree add ../main main
      ```
-   - **For a specific feature branch `{branch_name}`** (checked out to `holon-agentic-coder/{branch_name}`): All
+   - **For a specific feature branch `{branch_name}`** (checked out to `apps/holon-agentic-coder/{branch_name}`): All
      development and feature changes must be branched off `origin/main`:
      ```bash
      git worktree add --no-track -b {branch_name} ../{branch_name} origin/main
@@ -63,26 +63,26 @@ Located at `holon-agentic-coder/`:
 
 ### 2. `holon-coherence` (Optimization Gateway & Wire Telemetry)
 
-Located at `holon-coherence/`:
+Located at `apps/holon-coherence/`:
 
-1. **Clone the repository as bare** into the hidden `.git` folder of the `holon-coherence` directory:
+1. **Clone the repository as bare** into the hidden `.git` folder of the `apps/holon-coherence` directory:
    ```bash
-   git clone --bare git@github.com:Holon-Agentic-Coder/holon-coherence.git holon-coherence/.git
+   git clone --bare git@github.com:Holon-Agentic-Coder/holon-coherence.git apps/holon-coherence/.git
    ```
 2. **Navigate into the git database directory and configure fetch refspec**:
    ```bash
-   cd holon-coherence/.git
+   cd apps/holon-coherence/.git
    git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
    git fetch origin
    ```
 3. **Set up worktrees for your branches**:
-   - **For the `main` branch** (checked out to `holon-coherence/main`): This is the baseline active branch for the
+   - **For the `main` branch** (checked out to `apps/holon-coherence/main`): This is the baseline active branch for the
      coherence proxy gateway.
      ```bash
      git worktree add ../main main
      ```
-   - **For a specific feature branch `{branch_name}`** (checked out to `holon-coherence/{branch_name}`): All development
-     and feature changes must be branched off `origin/main`:
+   - **For a specific feature branch `{branch_name}`** (checked out to `apps/holon-coherence/{branch_name}`): All
+     development and feature changes must be branched off `origin/main`:
      ```bash
      git worktree add --no-track -b {branch_name} ../{branch_name} origin/main
      ```
@@ -100,8 +100,9 @@ Located at `holon-coherence/`:
 │   ├── submodules.md        # Submodule operational workflows and CI guidance
 │   └── coordination.md      # Protocols for multi-agent communication and subagent management
 ├── .beans/                  # Text-based task and issue tracking database (managed via .beans.yml)
-├── holon-agentic-coder/     # Primary engine codebase (bare git + worktree main; git ignored)
-├── holon-coherence/         # Coherence proxy & optimization gateway (bare git + worktrees main; git ignored)
+├── apps/                    # Target application repositories (git ignored)
+│   ├── holon-agentic-coder/ # Primary engine codebase (bare git + worktree main)
+│   └── holon-coherence/     # Coherence proxy & optimization gateway (bare git + worktrees main)
 └── todo/                    # Local temporary scratchpad for images, docs, and notes (git ignored)
 ```
 

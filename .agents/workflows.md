@@ -58,23 +58,23 @@ clean directory structure.
 
 ### 1. `holon-agentic-coder` (Primary Fractal Intent Evolution Engine)
 
-1. **Clone the repository as bare** into the hidden `.git` folder of the `holon-agentic-coder` directory:
+1. **Clone the repository as bare** into the hidden `.git` folder of the `apps/holon-agentic-coder` directory:
    ```bash
-   git clone --bare git@github.com:Holon-Agentic-Coder/holon-agentic-coder.git holon-agentic-coder/.git
+   git clone --bare git@github.com:Holon-Agentic-Coder/holon-agentic-coder.git apps/holon-agentic-coder/.git
    ```
 2. **Navigate into the git database directory and configure fetch refspec**:
    ```bash
-   cd holon-agentic-coder/.git
+   cd apps/holon-agentic-coder/.git
    git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
    git fetch origin
    ```
 3. **Set up worktrees for your branches**:
-   - **For the `main` branch** (checked out to `holon-agentic-coder/main`): This is the primary active branch tracking
-     `origin/main`.
+   - **For the `main` branch** (checked out to `apps/holon-agentic-coder/main`): This is the primary active branch
+     tracking `origin/main`.
      ```bash
      git worktree add ../main main
      ```
-   - **For a specific feature branch `{branch_name}`** (checked out to `holon-agentic-coder/{branch_name}`): All
+   - **For a specific feature branch `{branch_name}`** (checked out to `apps/holon-agentic-coder/{branch_name}`): All
      development and feature changes must be created in their own dedicated worktree off `origin/main` with
      `--no-track`:
      ```bash
@@ -83,23 +83,24 @@ clean directory structure.
 
 ### 2. `holon-coherence` (Optimization Gateway & Wire Telemetry)
 
-1. **Clone the repository as bare** into the hidden `.git` folder of the `holon-coherence` directory:
+1. **Clone the repository as bare** into the hidden `.git` folder of the `apps/holon-coherence` directory:
    ```bash
-   git clone --bare git@github.com:Holon-Agentic-Coder/holon-coherence.git holon-coherence/.git
+   git clone --bare git@github.com:Holon-Agentic-Coder/holon-coherence.git apps/holon-coherence/.git
    ```
 2. **Navigate into the git database directory and configure fetch refspec**:
    ```bash
-   cd holon-coherence/.git
+   cd apps/holon-coherence/.git
    git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
    git fetch origin
    ```
 3. **Set up worktrees for your branches**:
-   - **For the `main` branch** (checked out to `holon-coherence/main`): This is the baseline active branch.
+   - **For the `main` branch** (checked out to `apps/holon-coherence/main`): This is the baseline active branch.
      ```bash
      git worktree add ../main main
      ```
-   - **For a specific feature branch `{branch_name}`** (checked out to `holon-coherence/{branch_name}`): All development
-     and feature changes must be created in their own dedicated worktree off `origin/main` with `--no-track`:
+   - **For a specific feature branch `{branch_name}`** (checked out to `apps/holon-coherence/{branch_name}`): All
+     development and feature changes must be created in their own dedicated worktree off `origin/main` with
+     `--no-track`:
      ```bash
      git worktree add --no-track -b {branch_name} ../{branch_name} origin/main
      ```
@@ -111,12 +112,12 @@ clean directory structure.
 To maintain clean repository history, follow this Git workflow:
 
 1. **Branching & Worktree Isolation**:
-   - **Never develop or make code changes directly on the `main` worktree in `holon-agentic-coder` or `main` worktree in
-     `holon-coherence`.**
-   - For all code changes in `holon-agentic-coder/`, work must happen in a dedicated Git worktree (e.g.
-     `holon-agentic-coder/feat-<name>` branched off `origin/main`).
-   - For all code changes in `holon-coherence/`, work must happen in a dedicated Git worktree (e.g.
-     `holon-coherence/feat-<name>` branched off `origin/main`).
+   - **Never develop or make code changes directly on the `main` worktree in `apps/holon-agentic-coder` or `main`
+     worktree in `apps/holon-coherence`.**
+   - For all code changes in `apps/holon-agentic-coder/`, work must happen in a dedicated Git worktree (e.g.
+     `apps/holon-agentic-coder/feat-<name>` branched off `origin/main`).
+   - For all code changes in `apps/holon-coherence/`, work must happen in a dedicated Git worktree (e.g.
+     `apps/holon-coherence/feat-<name>` branched off `origin/main`).
    - In this metadata repository (`holon-agentic-coder-ref-metadata`), work on the active checked-out branch.
    - If the user explicitly requests you to create a new branch, use the convention:
      `git checkout -b <type>/<bean-id>-<short-description>` (e.g., `feat/0001-add-agent-rules`).
