@@ -69,7 +69,8 @@ token optimization enabled.
   diff vs origin/main was empty); remote ref already gone.
 - Post-merge defect 2026-09-22: first real-world use (holon-coherence pi against a local vMLX server) exposed that the
   proxy container cannot reach host-local LLM endpoints. Measured, root-caused, and tracked as Bean 0027; the related
-  --native proxy/port-conflict gap in ensure_proxy_running is tracked as Bean 0028.
+  --native proxy/port-conflict gap in ensure_proxy_running was tracked as Bean 0028, which was scrapped on 2026-09-25
+  without implementation.
 
 ## Assignment
 

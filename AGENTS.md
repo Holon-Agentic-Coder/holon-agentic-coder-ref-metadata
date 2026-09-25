@@ -39,15 +39,32 @@ When you are spawned or begin a new session, follow these steps sequentially:
    and test requirements.
 4. **Execute Tasks Systematically**: Follow the lifecycle specified in [.agents/workflows.md](.agents/workflows.md) to
    transition tasks from `todo` to `in-progress` and finally `completed`.
-5. **No Autonomous Branches**: Never create a new branch unless explicitly instructed by the user. Work on the active
-   branch that is currently checked out:
+5. **Per-Agent Worktrees (Autonomous Branches Are Allowed)**: Every agent gets **its own worktree per project** and
+   works **exclusively** inside it. Creating that branch and worktree is autonomous -- no user instruction required:
    - For `apps/holon-agentic-coder/`, all development and feature work must be based off the `origin/main` branch.
    - For `apps/holon-coherence/`, all development and feature work must be based off the `origin/main` branch.
+   - Name the worktree and branch after you or your bean (for example
+     `apps/holon-coherence/fix-0027-host-local-llm-routing` for branch `fix/0027-host-local-llm-routing`) so concurrent
+     agents never share a directory or a branch.
+   - Create it from the bare repository directory with
+     `git worktree add --no-track -b {branch} ../{branch} origin/main`. Note that `../` resolves relative to
+     `<project>/.git`, which is what places the checkout at `<project>/{branch}`.
+   - Each worktree needs its own environment: virtualenvs are per-directory and cannot be shared, so run
+     `uv sync --group dev` inside the new worktree and never point at another worktree's `.venv/`.
+   - Inside your own worktree you have full latitude to edit, commit, squash, test, rebuild images and push.
+   - **The `main` worktree is the user's playground.** `apps/holon-agentic-coder/main` and `apps/holon-coherence/main`
+     are off-limits to agents: never edit, stage, commit, stash, reset, clean or checkout in them, never build into or
+     leave stray files there, and do not mutate their local state either (`.venv/`, caches, generated artifacts).
+   - If changes have already landed in a `main` worktree, move them into a dedicated worktree and restore `main` to a
+     pristine checkout of its committed state.
 6. **Format Before Commit**: Always execute `npx prettier --write "**/*.md"` before committing to format all markdown
    files according to repository guidelines.
-7. **Squash and Push (No Autonomous Pushing)**: Ensure all commits on your feature branch are squashed into a single
-   commit relative to the `main` branch. **Never push to the remote repository (`origin`) unless explicitly instructed
-   by the user.** Do NOT push directly to `main`.
+7. **Squash, Then Push Your Own Branch Freely**: Ensure all commits on your feature branch are squashed into a single
+   commit relative to the `main` branch. Pushing **your own** feature branch is allowed autonomously, without waiting
+   for instruction: `git push -u origin {branch}`, and `--force-with-lease` when you rewrite history on it.
+   - Never push to `main` (or any branch you do not own), never force-push a shared branch, and never push from a `main`
+     worktree.
+   - Review, Pull Request creation and merge stay with the human maintainer unless the user instructs otherwise.
 8. **Report and Document**: Summarize changes cleanly and concisely. Point both the user and successor agents to updated
    files or artifacts.
 9. **Zero Synthetic Data for Benchmarking**: Absolutely never use synthetic or mock data to measure efficacy or
@@ -67,6 +84,12 @@ This metadata repository hosts bare clones of target codebases with checkout wor
 
 All code development must take place within the appropriate repository worktree. The metadata repository root is
 strictly for coordination, task tracking (`.beans/`), and agent guidance.
+
+> [!IMPORTANT] **One worktree per agent.** Each agent creates and owns its own worktree per project, named after its
+> agent or bean id, and works exclusively inside it -- never in `main` (the user's playground) and never in another
+> agent's worktree. Run the feature-branch command from the bare repository directory (for example
+> `apps/holon-coherence/.git`): `../` resolves relative to that directory, which is what places the checkout at
+> `apps/holon-coherence/{branch}`. Each worktree also owns its own virtualenv (`uv sync --group dev`).
 
 ---
 
@@ -94,8 +117,11 @@ Subagent delegation in this ecosystem is primarily targeted towards the **Antigr
 This repository tracks work items using a lightweight file-based system in the [.beans/](.beans/) folder.
 
 - Each bean represents a single task or user request.
-- The metadata config [.beans.yml](.beans.yml) defines naming conventions (e.g. prefix
-  `holon-agentic-coder-ref-metadata-`).
+- The metadata config [.beans.yml](.beans.yml) defines naming conventions (prefix `holon-agentic-coder-ref-metadata-`).
+- **Strict Sequential Numbering**: Bean IDs MUST follow a strictly sequential 4-digit zero-padded integer format
+  (`0001`, `0002`, ..., `0033`, `0034`, `0035`, etc.). Never generate random base36 IDs (e.g. `k4t7`, `1lh8`). To
+  determine the next ID, inspect existing files in `.beans/`, find the highest integer ID, increment by 1, and zero-pad
+  to 4 digits.
 - When picking up a task, update its status inside the task file to `in-progress`.
 - Once finished, change the status to `completed` and add a summary of your resolution.
 - Valid statuses are fixed by the [beans CLI](https://github.com/hmans/beans) and are `draft`, `todo`, `in-progress`,

@@ -1,11 +1,11 @@
 ---
 # holon-agentic-coder-ref-metadata-1lh8
 title: Align CI/CD workflows across all projects with agentic-knowledge-base convention
-status: todo
+status: completed
 type: task
 priority: normal
 created_at: 2026-09-24T12:22:00Z
-updated_at: 2026-09-24T12:23:45Z
+updated_at: 2026-09-25T02:27:00Z
 ---
 
 Adopt and standardize the CI/CD workflow architecture and conventions from
@@ -78,22 +78,40 @@ The standard CI/CD convention established in `thomashan/agentic-knowledge-base` 
 
 ## Tasks & Acceptance Criteria
 
-- [ ] **`apps/holon-agentic-coder`**:
-  - [ ] Add `.github/workflows/README.md` and `.github/macos-docker.md`.
-  - [ ] Implement `test-hygiene.yml` (lockfile check, ruff, prettier).
-  - [ ] Implement `test-unit.yml` (`ubuntu-latest`, `macos-latest` matrix with caching).
-  - [ ] Implement `test-integration.yml` (`ubuntu-latest` with container setup).
-  - [ ] Add composite actions under `.github/actions/` where applicable.
-  - [ ] Verify Makefile and build targets.
-- [ ] **`apps/holon-coherence`**:
-  - [ ] Audit existing modular workflows and ensure complete feature parity with `agentic-knowledge-base/.github`.
-  - [ ] Verify `test-hygiene.yml`, `test-unit.yml`, and `test-integration.yml` follow exact conventions.
-- [ ] **`holon-agentic-coder-ref-metadata`**:
-  - [ ] Reorganize `.github/workflows/` with `test-hygiene.yml` and `README.md`.
-  - [ ] Ensure formatting and agent link validation run reliably in CI.
-- [ ] **Ecosystem Verification**:
-  - [ ] Validate workflow syntax and run local verification across all 3 repositories.
-  - [ ] Verify that branch protection rules and CI status checks cleanly map to the updated workflow names.
+- [x] **`apps/holon-agentic-coder`**:
+  - [x] Add `.github/workflows/README.md` and `.github/macos-docker.md`.
+  - [x] Implement `test-hygiene.yml` (lockfile check, ruff, prettier).
+  - [x] Implement `test-unit.yml` (`ubuntu-latest`, `macos-latest` matrix with caching).
+  - [x] Implement `test-integration.yml` (`ubuntu-latest` with container setup).
+  - [x] Add composite actions under `.github/actions/` where applicable (`docker-pull`).
+  - [x] Verify Makefile and build targets (`make help`, `make check-prerequisites`).
+- [x] **`apps/holon-coherence`**:
+  - [x] Audit existing modular workflows and ensure complete feature parity with `agentic-knowledge-base/.github`.
+  - [x] Verify `test-hygiene.yml`, `test-unit.yml`, and `test-integration.yml` follow exact conventions.
+  - [x] Add `.github/actions/docker-pull` composite action and update README.md.
+- [x] **`holon-agentic-coder-ref-metadata`**:
+  - [x] Reorganize `.github/workflows/` with `test-hygiene.yml` and `README.md`.
+  - [x] Ensure formatting and agent link validation run reliably in CI.
+- [x] **Ecosystem Verification**:
+  - [x] Validate workflow syntax and run local verification across all 3 repositories.
+  - [x] Verify that branch protection rules and CI status checks cleanly map to the updated workflow names.
+
+## Resolution Summary
+
+Successfully standardized the CI/CD architecture and conventions across all three repositories in the Holon ecosystem:
+
+1. **`holon-agentic-coder-ref-metadata`**: Transitioned legacy `markdown-lint.yml` to modular `test-hygiene.yml` and
+   added `.github/workflows/README.md`. Committed to `main` (commit `fbef552`).
+2. **`apps/holon-agentic-coder`**: Created dedicated feature worktree
+   `apps/holon-agentic-coder/feat-ci-cd-standardisation` off `origin/main`. Replaced legacy monolithic workflows with
+   modular `test-hygiene.yml`, multi-OS `test-unit.yml`, Linux `test-integration.yml`, and multi-OS `make.yml`.
+   Introduced root `Makefile`, `.github/macos-docker.md`, `.github/workflows/README.md`, and
+   `.github/actions/docker-pull/action.yml`. Committed as a single squashed commit (`7080056`).
+3. **`apps/holon-coherence`**: Created dedicated feature worktree `apps/holon-coherence/feat-ci-cd-standardisation` off
+   `origin/main`. Added `.github/actions/docker-pull/action.yml`, updated `.github/workflows/README.md`, and validated
+   full parity. Committed as a single squashed commit (`40f4f17`).
+4. **Git Safety Invariants Preserved**: Neither remote `origin` was pushed to, and feature branches remain isolated in
+   their respective worktrees ready for PR creation or review loops.
 
 ## Notes & Worktrees
 
@@ -101,6 +119,6 @@ The standard CI/CD convention established in `thomashan/agentic-knowledge-base` 
   [thomashan/agentic-knowledge-base/.github](https://github.com/thomashan/agentic-knowledge-base/tree/main/.github).
 - Prior Art: Bean `holon-agentic-coder-ref-metadata-0021`.
 - Targets:
-  - `apps/holon-agentic-coder`: Dedicated worktree off `origin/main`.
-  - `apps/holon-coherence`: Dedicated worktree off `origin/main`.
-  - `holon-agentic-coder-ref-metadata`: Active checked-out branch.
+  - `apps/holon-agentic-coder`: Dedicated worktree off `origin/main` (`feat/ci-cd-standardisation`).
+  - `apps/holon-coherence`: Dedicated worktree off `origin/main` (`feat/ci-cd-standardisation`).
+  - `holon-agentic-coder-ref-metadata`: Active checked-out branch (`main`).

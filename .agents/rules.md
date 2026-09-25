@@ -130,6 +130,9 @@ code in this repository.
      to `origin`.
    - Never bypass `./holon` by performing manual host-side git worktree code edits unless explicitly instructed by the
      user.
+   - Scope: this invariant covers `holon-agentic-coder` tasks run through the `./holon` sandbox lifecycle. It does not
+     override the per-agent worktree rule in AGENTS.md rule 5 for work outside that lifecycle (for example
+     `holon-coherence` changes).
 
 9. **MITM Proxy Telemetry System of Record (`X-Holon-*`)**:
    - Streaming performance metrics (TTFT, Prefill TPS, Tail Prefill TPS, Decode Time, Output TPS, Total Time, Prompt

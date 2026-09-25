@@ -11,9 +11,11 @@ only). The `beans` CLI ignores any other extension, because `ParseFilename` stri
 invisible to it.
 
 Filename pattern: `.beans/<prefix><id>--<slug>.md` e.g.
-`.beans/holon-agentic-coder-ref-metadata-0028--runner-no-native-proxy-fallback-port-conflict.md`
+`.beans/holon-agentic-coder-ref-metadata-0033--remove-the-native-host-mitmproxy-flag.md`
 
-- `<id>` is a 4-character suffix from `[0-9a-z]` (`id_length` in `.beans.yml`), prefixed by `prefix`.
+- `<id>` is a strictly sequential 4-digit zero-padded integer (`0001` through `9999`), prefixed by `prefix`. Never use
+  random base36 IDs (e.g. `k4t7`, `1lh8`). To determine the next ID, inspect existing files in `.beans/`, find the
+  highest integer ID, increment by 1, and zero-pad to 4 digits (e.g. `0034`).
 - `<slug>` is the lowercased, hyphenated title, truncated to 50 characters with no trailing hyphen.
 - The ID comes from the **filename**; it is not a front matter field. The `# <full id>` line at the top of the front
   matter is a cosmetic comment.
@@ -29,8 +31,9 @@ Filename pattern: `.beans/<prefix><id>--<slug>.md` e.g.
 ### 1. Task Acquisition
 
 - Look at the `.beans/` folder. Select a task with status `todo`.
-- If no task matches the user's request, create a new bean: prefer `beans create`, otherwise copy
-  [`.beans/template.md`](../.beans/template.md) and pick an unused ID.
+- If no task matches the user's request, create a new bean: copy [`.beans/template.md`](../.beans/template.md) and
+  assign the next sequential 4-digit ID (`0001`..`9999`) by incrementing the highest existing integer ID in `.beans/`.
+  Do not use `beans create` if it generates random base36 IDs.
 - Update the status field of the task file to `in-progress`.
 
 ### 2. Implementation Cycle
@@ -44,9 +47,11 @@ Filename pattern: `.beans/<prefix><id>--<slug>.md` e.g.
 
 - Change the status field to `completed`.
 - Format all markdown files by running `npx prettier --write "**/*.md"`.
-- Commit the changes on the current active branch (**Do NOT create a new branch unless explicitly told**).
+- Commit the changes on your own feature branch/worktree (creating one is allowed autonomously; never commit in a `main`
+  worktree).
 - Squash all branch commits relative to the `main` branch into a single commit.
-- **Do NOT push to the remote repository (`origin`) unless explicitly instructed by the user.**
+- **Pushing your own feature branch is allowed autonomously** (see step 5 below). Never push `main`, never push a branch
+  another agent owns, and never push from a `main` worktree.
 
 ---
 
@@ -111,16 +116,32 @@ clean directory structure.
 
 To maintain clean repository history, follow this Git workflow:
 
-1. **Branching & Worktree Isolation**:
+1. **Branching & Worktree Isolation (One Worktree Per Agent)**:
+   - **Every agent works in its own worktree, and works exclusively there.** Give the worktree and branch your agent or
+     bean identifier so concurrent agents never share a directory or a branch (e.g.
+     `apps/holon-coherence/fix-0027-host-local-llm-routing` for branch `fix/0027-host-local-llm-routing`). Never edit,
+     commit to, or reuse another agent's worktree or branch.
    - **Never develop or make code changes directly on the `main` worktree in `apps/holon-agentic-coder` or `main`
-     worktree in `apps/holon-coherence`.**
+     worktree in `apps/holon-coherence`.** Those checkouts are the **user's playground**: no edits, staging, commits,
+     stashes, resets, cleans, checkouts, builds, stray files, or local-state mutation of any kind (including `.venv/`,
+     caches, and generated artifacts).
+   - **Autonomous branch creation is allowed.** Do not wait to be asked: create the worktree and branch yourself, then
+     work exclusively inside it. Inside your own worktree you have full latitude to edit, commit, squash, test, and
+     rebuild images.
    - For all code changes in `apps/holon-agentic-coder/`, work must happen in a dedicated Git worktree (e.g.
      `apps/holon-agentic-coder/feat-<name>` branched off `origin/main`).
    - For all code changes in `apps/holon-coherence/`, work must happen in a dedicated Git worktree (e.g.
      `apps/holon-coherence/feat-<name>` branched off `origin/main`).
+   - If work has already landed in a `main` worktree, move it into a dedicated worktree and restore `main` to a pristine
+     checkout.
+   - Each worktree owns its environment: run `uv sync --group dev` inside it. Virtualenvs are directory-bound and their
+     console-script shebangs are absolute, so never reuse another worktree's `.venv/` or reuse one after moving the
+     repository (recreate it instead).
    - In this metadata repository (`holon-agentic-coder-ref-metadata`), work on the active checked-out branch.
-   - If the user explicitly requests you to create a new branch, use the convention:
-     `git checkout -b <type>/<bean-id>-<short-description>` (e.g., `feat/0001-add-agent-rules`).
+   - Branch naming convention:
+     `git worktree add --no-track -b <type>/<bean-id>-<short-description> ../<branch-dir> origin/main` (e.g.,
+     `feat/0001-add-agent-rules`). Run this from the bare repository directory (`<project>/.git`): `../` resolves
+     relative to that directory, which is what places the checkout at `<project>/<branch-dir>`.
 2. **Formatting (Mandatory)**:
    - Always run `npx prettier --write "**/*.md"` to format markdown files before creating any commits.
 3. **Commits**:
@@ -148,8 +169,11 @@ To maintain clean repository history, follow this Git workflow:
      git commit -m "your-semantic-commit-message"
      ```
 
-5. **Pull Requests & Pushing (No Autonomous Pushing)**:
-   - **Never push to the remote repository (`origin`) unless explicitly instructed by the user.**
-   - Once explicitly instructed to push, execute: `git push origin <branch-name> --force`.
-   - **Do NOT push directly to `main` under any circumstances.**
-   - The human repository maintainer will review the changes, raise the Pull Request, and merge it.
+5. **Pull Requests & Pushing (Push Your Own Worktree Branch Freely)**:
+   - Pushing **your own** feature branch is autonomous -- no user instruction needed, once it is squashed to a single
+     commit: `git push -u origin <branch-name>`.
+   - When rewriting history on your own branch, use `git push --force-with-lease origin <branch-name>`.
+   - **Do NOT push directly to `main` under any circumstances**, never push or force-push a branch you do not own, and
+     never push from a `main` worktree.
+   - The human repository maintainer will review the changes, raise the Pull Request, and merge it. Raising a Pull
+     Request still requires explicit instruction, even though pushing does not.

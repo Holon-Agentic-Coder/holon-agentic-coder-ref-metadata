@@ -1,12 +1,21 @@
 ---
 # holon-agentic-coder-ref-metadata-0028
 title: "Agent runner startup path has no native proxy fallback and hard-exits on port conflicts"
-status: todo
+status: scrapped
 type: task
 priority: normal
 created_at: 2026-09-22T13:52:43Z
-updated_at: 2026-09-22T13:52:43Z
+updated_at: 2026-09-25T02:26:23Z
 ---
+
+> [!WARNING] **Scrapped 2026-09-25 — do not pick up.** Retired by user request before any implementation. The `--native`
+> / port-conflict gaps described below were deliberately not taken up as work: the host-local LLM routing fix in Bean
+> 0027 is the active scope, and native mode plus port allocation is not a substitute for it. This file is kept as the
+> diagnostic record only (the analysis below is verified against `origin/main` = `c374760` and still holds). It is
+> archived by `beans archive` along with any other `scrapped` bean. Superseded outright on 2026-09-25: Bean 0033 deleted
+> the `--native` flag from `holon-coherence start` altogether, so exposing it to runners is no longer a possible
+> outcome. If the native-proxy gap ever becomes blocking again, re-file it as a fresh bean rather than reviving this
+> one.
 
 Discovered while root-causing Bean 0027 and referenced as "Bean 0028" from both Bean 0026 and Bean 0027, but never
 actually filed. This bean is that missing record.

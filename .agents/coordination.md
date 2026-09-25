@@ -38,6 +38,9 @@ For any coding agent runner operating in this workspace (Antigravity/AGY, Claude
 - **Target Artifacts**: Direct child agents to persist structured output to `.subagent/` (git ignored) or task
   artifacts.
 - **Context Isolation**: Always spin off each iteration in a clean, fresh child context to prevent prompt degradation.
+- **Worktree Ownership**: A delegated agent that mutates files must be given its own worktree and branch (named after
+  that agent or its bean) and must work exclusively inside it. Never delegate two writers onto the same worktree, and
+  never delegate work into a `main` worktree. Read-only reviewers and searchers need no worktree of their own.
 
 ### 3. Antigravity (AGY) Runtime Instructions
 
