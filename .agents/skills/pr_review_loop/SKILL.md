@@ -25,23 +25,36 @@ resolution step is executed in a dedicated, fresh subagent**.
    loop must resolve the issues, push the fixes, and run the review again. Review results are **strictly posted to
    GitHub only when there are no more Critical or Important issues left to action** (or when the max iteration cap is
    reached).
-3. **Anti-Oscillation Circuit Breaker**: To guard against runaway cases without arbitrarily cutting off legitimate
-   progress, the loop monitors convergence. If the exact same issue is flagged across 3 consecutive iterations with no
-   diff change, or if reviewers oscillate between conflicting recommendations, pause and request guidance rather than
-   exhausting iterations.
-4. **Remote Sync**: After each resolution pass, changes are committed and pushed to the remote feature branch so GitHub
-   PR diffs update dynamically for subsequent review passes.
-5. **Existing Comment Audit & Resolution**: In addition to new code review passes, inspect pre-existing review comments
+3. **Deterministic Convergence (Never Pause)**: The loop has **no pause state and never asks for guidance mid-flight**.
+   The only exits are a clean consensus approval posted to the PR, or the **max iteration cap** with a final review
+   posted. If the exact same issue is flagged across 3 consecutive iterations with no diff change, or if reviewers
+   oscillate between conflicting recommendations, the loop climbs the **Convergence Escalation Ladder** in
+   [Phase B](#phase-b-evaluate-exit-conditions--post-final-review) instead of stopping: re-sync, re-adjudicate the
+   finding against primary sources, apply the union of the competing recommendations, rule false findings out in writing
+   in `.subagent/coordination.json`, or defer an out-of-scope finding to a new bean. Iterations are spent resolving, not
+   waiting.
+4. **Drift Self-Healing (Out-Of-Sync State Is Work, Not A Blocker)**: Divergence between what the loop expects and what
+   the repository and PR actually contain -- a new commit pushed by someone else, a parallel agent session editing the
+   same worktree, an unexpectedly dirty tree, a stale cached diff, a rejected push, CI that moved from `pending` to
+   `failure` -- is always reconciled and then worked, never reported as a blocker and never turned into a stop. The
+   reconciliation procedure is [Phase A0.5](#phase-a05-re-sync--consolidate-drifted-state-every-iteration), run before
+   every review pass. Consolidating another author's verified in-flight edits (committing them on top, with attribution)
+   is the default; discarding them is not.
+5. **Remote Sync**: After each resolution pass, changes are committed and pushed to the remote feature branch so GitHub
+   PR diffs update dynamically for subsequent review passes. Drift is integrated with `git pull --rebase`, never with a
+   force-push.
+6. **Existing Comment Audit & Resolution**: In addition to new code review passes, inspect pre-existing review comments
    posted on the GitHub PR. Evaluate each comment for diff grounding, technical accuracy, actionability, and scope. If
    verified to be true, apply the resolution, commit, and push the fix.
-6. **Temporary Files & Intermediate Artifacts Location**: All temporary files, diff dumps (e.g.,
+7. **Temporary Files & Intermediate Artifacts Location**: All temporary files, diff dumps (e.g.,
    `.subagent/pr<number>.diff`), draft review bodies (`.subagent/review_body.md`), and dry-run reports
    (`.subagent/dry_run_review_iter_<iteration>_{short_git_commit}.md`) **MUST be placed into the `.subagent/`
    directory** (git ignored). Never write intermediate files to `scratch/` or other root folders. Prior to execution,
    read `.subagent/coordination.json` (if it exists) to fetch user-rejected recommendations and active constraints.
-7. **Human-Only PR Merging Boundary**: The loop scope strictly terminates upon posting the approved consensus review.
-   Agents and subagents **MUST NEVER execute `gh pr merge`, enable auto-merge, or add the PR to a merge queue**. Merging
-   is exclusively the human maintainer's responsibility.
+8. **Human-Only PR Merging Boundary**: The loop scope strictly terminates upon posting the approved consensus review.
+   This boundary is absolute and is **not** relaxed by the never-pause policy. Agents and subagents **MUST NEVER execute
+   `gh pr merge`, enable auto-merge, or add the PR to a merge queue**. Merging is exclusively the human maintainer's
+   responsibility.
 
 ---
 
@@ -89,6 +102,34 @@ Before launching the new dry-run code review pass on Iteration 1:
      scope.
    - If any comment is verified to be true and valid, apply the fix, commit
      (`fix: resolve verified pre-existing PR review comments`), and push (`git push origin <branch_name>`).
+
+#### Phase A0.5: Re-Sync & Consolidate Drifted State (Every Iteration)
+
+Run this reconciliation before **every** review pass. Its purpose is to make the loop's view of the branch identical to
+reality, so reviewers never evaluate a diff that no longer exists. Nothing here may end the loop.
+
+1. **Refresh remote truth**: `git fetch origin <branch_name>` and
+   `gh pr view <pr_url_or_number> --json headRefOid,state,mergeable`. Compare the PR head, local `HEAD`, and
+   `origin/<branch_name>`. If any of them moved, delete cached dumps (`.subagent/pr<number>.diff`) and re-fetch, so the
+   next review pass reads the current diff.
+2. **Consolidate another author's in-flight work**: run `git status --porcelain`. If tracked files hold edits the loop
+   did not author (a human maintainer or a parallel agent session working the same branch):
+   - Capture them first: `git diff > .subagent/concurrent_iter_<iteration>_{short_git_commit}.patch`.
+   - Re-verify each hunk against the PR diff, `.agents/rules.md`, `.beans/` ground truth and CI. Verified, in-scope,
+     prettier-clean edits are **adopted**: commit them as their own `fix: consolidate concurrent review fixes ...`
+     commit that names where the work came from and lists any dropped hunk with the reason (for example "re-wrapped by
+     `prettier --check`, which CI enforces").
+   - Only edits proven factually wrong or CI-breaking are reverted, and only after the patch file exists on disk, with
+     the ruling recorded in `.subagent/coordination.json` and in the following resolution commit.
+   - Never `git stash`, `git reset --hard`, `git checkout --`, or `git clean` unverified work: in-flight work must stay
+     recoverable, and another author's commits are never dropped to make a push easy.
+3. **Integrate diverged pushes**: if `origin/<branch_name>` carries commits the loop lacks, run
+   `git pull --rebase origin <branch_name>`, keep both intents when rebasing documentation, re-run
+   `npx prettier --write "**/*.md"`, and continue. A rejected push is a rebase, never a `--force`.
+4. **Re-query volatile state**: CI status, review threads, and PR `mergeable` are re-read for the current head; results
+   captured for an older head are never reused.
+5. **Log the reconciliation**: append a row to the loop history (drift detected, action taken, head after sync) so the
+   final report shows exactly what was consolidated.
 
 #### Phase A: Run Reviewer Subagent (Dry-Run Mode)
 
@@ -213,13 +254,29 @@ Wait for the subagent to complete and inspect its report.
            flagged Critical and Important issues, commit the fixes, push to the remote feature branch, and re-run the
            review in the next iteration.
 
-2. **Anti-Oscillation & Stagnation Circuit Breaker**:
+2. **Convergence Escalation Ladder (Never Pause)**:
    - Inspect dry-run and consensus reports from prior iterations (`.subagent/*_review_iter_*.md`).
    - If the exact same issue is flagged across 3 consecutive iterations with no diff change, or if reviewers oscillate
-     between conflicting recommendations:
-     - **DO NOT POST TO GITHUB**.
-     - **PAUSE THE LOOP**.
-     - Prompt the user with the oscillating findings and request guidance rather than exhausting iterations.
+     between conflicting recommendations: **do not post to GitHub, do not stop, do not wait for input.** Climb the
+     ladder inside the same iteration and keep counting:
+     1. **Re-sync** (Phase A0.5) and re-review the refreshed diff. Adopting a concurrent commit or rebasing a moved head
+        silently clears a surprising share of "stuck" findings, because reviewers were reading a diff that no longer
+        exists.
+     2. **Re-adjudicate against primary sources.** Read the file, run the command, open the bean, check the YAML schema,
+        or read the CI log instead of trusting any reviewer's recollection. A finding that cites a claim must be checked
+        against that claim's source of truth (e.g. `grep '^status:' .beans/*-0039--*.md`).
+     3. **Apply the union of recommendations.** When reviewers prescribe different fixes for the same defect, implement
+        the most conservative superset that satisfies all of them simultaneously; for prose, choose the wording that is
+        true under every reading.
+     4. **Rule false findings out in writing.** Append each disproved, out-of-scope, or rule-conflicting finding to
+        `rejected_suggestions` in `.subagent/coordination.json` with evidence and the ruling. Reviewer and resolver
+        passes read that ledger (step 3e of `pr-review-resolver`), which is the mechanism that actually stops
+        re-flagging -- a pause never did.
+     5. **Re-scope oversized findings.** When a finding is real but bigger than this PR (cross-repository bug, missing
+        migration, product decision), open a new sequentially numbered bean, mark the finding `deferred -> <bean id>` in
+        the coordination ledger, and continue reviewing the reduced scope.
+   - Every rung is executed and pushed by the loop itself. If the ladder is exhausted for a finding, keep iterating to
+     the cap and surface it there: the iteration cap is the only place an unresolved finding may end the loop.
 
 3. **Max Iterations Cap**:
    - If `iteration >= max_iterations` and unresolved Critical or Important issues remain after Phase C:
@@ -255,7 +312,9 @@ Execute the resolution pass in a clean, isolated subagent context.
   >    **Nit/Optional (🟢)** suggestions.
   > 4. Commit applied changes with message: `fix: apply validated PR review suggestions (Iteration <iteration>)`.
   > 5. Push local commits to remote feature branch (`git push origin <branch_name>`) so GitHub PR diff updates for the
-  >    next review pass.
+  >    next review pass. If the push is rejected as non-fast-forward, run `git pull --rebase origin <branch_name>`, keep
+  >    both intents, re-run `npx prettier --write "**/*.md"`, and push again -- never resolve drift with `--force`,
+  >    `--force-with-lease`, or by dropping the other author's commits.
   > 6. Return a summary of applied fixes and skipped comments.
 
 ##### 🚀 Antigravity (AGY) Invocation:
@@ -296,12 +355,14 @@ Once the loop terminates, format all findings into a clean summary table for the
 
 - **PR Target**: `<pr_url_or_number>`
 - **Total Iterations Completed**: `<total_iterations>` / `<max_iterations>`
-- **Final PR Status**: `APPROVED` / `CHANGES_REQUESTED` (Cap Reached) / `PAUSED` (Circuit Breaker Tripped)
+- **Final PR Status**: `APPROVED` / `CHANGES_REQUESTED` (Cap Reached). There is no `PAUSED` status: the loop self-heals
+  drift and escalates non-convergent findings instead of stopping.
+- **Drift Consolidated During Loop**: `<none | list of adopted/rebased commits and patches>`
 
 #### Cycle History:
 
-| Iteration | Review Verdict    | Issues Found | Resolutions Applied | Commit Pushed |
-| --------- | ----------------- | ------------ | ------------------- | ------------- |
-| 1         | CHANGES_REQUESTED | 3            | 3 applied           | `a1b2c3d`     |
-| 2         | APPROVED          | 0            | 0 applied           | N/A           |
+| Iteration | Review Verdict    | Issues Found | Resolutions Applied | Commit Pushed | Drift & Sync Actions                |
+| --------- | ----------------- | ------------ | ------------------- | ------------- | ----------------------------------- |
+| 1         | CHANGES_REQUESTED | 3            | 3 applied           | `a1b2c3d`     | adopted concurrent commit `b7c2f1a` |
+| 2         | APPROVED          | 0            | 0 applied           | N/A           | re-fetched diff after push          |
 ```
