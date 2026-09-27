@@ -153,6 +153,10 @@ FINDINGS: <int>
 ```
 
 - `CRITICAL`, `IMPORTANT`, and `NIT` are the totals recorded in the report body; `FINDINGS` is their sum.
+- Two `FINDINGS` spellings exist and each has its place: the on-disk report carries the **integer sum** above, while a
+  pass's short final reply may carry the **semicolon-separated ids of its open findings**, which is what a resolver
+  actions by name. Only the report file's block is machine-parsed as the completeness signal, so never put the id list
+  there.
 - The block sits after the Step 3.3 breakdown footer, as the file's final lines.
 - It belongs to the on-disk report only. The body posted to GitHub in real mode ends with the Step 3.3 footer and
   carries no trailers.

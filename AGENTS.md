@@ -70,8 +70,8 @@ usage docs still outstanding on it, while the pipeline engine itself (Bean 0039)
 
 **Harness exception (control plane only).** The Holon CLI can only clone and branch the target repository reported by
 `get_repo_url()`, so the `holon-agentic-coder-ref-metadata` control plane itself (`.beans/`, `.agents/`, `AGENTS.md`)
-cannot be edited through the flow. Those harness files stay directly editable, and Bean 0039 is the place to generalize
-the pipeline if flow-gated edits are ever wanted there too.
+cannot be edited through the flow. Those harness files stay directly editable, and generalizing the pipeline so
+flow-gated edits can reach the control plane takes a fresh bean id (Bean 0039, the pipeline engine, is `completed`).
 
 ---
 
@@ -102,8 +102,10 @@ When you are spawned or begin a new session, follow these steps sequentially:
    - Each worktree needs its own environment: virtualenvs are per-directory and cannot be shared, so run
      `uv sync --group dev` inside the new worktree and never point at another worktree's `.venv/`.
    - Inside your own worktree you have full latitude to edit, commit, squash, test, rebuild images and push -- **for
-     harness work, image builds, verification runs, and handling branches the flow produced**. Authoring
-     `holon-agentic-coder` source changes by hand in a worktree is prohibited: that is the flow's job (see
+     harness work, image builds, verification runs, and handling branches the flow produced**. That squash latitude
+     **never extends to a branch the Holon flow or a review loop drives** (item 7 below; rule 4 in
+     [.agents/workflows.md](.agents/workflows.md)). Authoring `holon-agentic-coder` source changes by hand in a worktree
+     is prohibited: that is the flow's job (see
      [🔒 Sole Change Path: The Holon Flow](#-sole-change-path-the-holon-flow)). `holon-coherence` is not reachable by
      the flow, so its changes are authored in your own worktree.
    - **The `main` worktree is the user's playground.** `apps/holon-agentic-coder/main` and `apps/holon-coherence/main`
@@ -119,7 +121,8 @@ When you are spawned or begin a new session, follow these steps sequentially:
    iteration and is never squashed, rewritten, or force-pushed (rule 4 in [.agents/workflows.md](.agents/workflows.md)).
    Pushing **your own** feature branch is allowed autonomously, without waiting for instruction:
    `git push -u origin {branch}`, and `--force-with-lease` when you rewrite history on it. The flow pushes its own
-   `I-...`/`P-...`/`E-...` branches; never rewrite or force-push those, since they are the audited provenance record.
+   `I-...`/`P-...`/`E-...` branches; never squash, rewrite, or force-push those, since they are the audited provenance
+   record.
    - Never push to `main` (or any branch you do not own), never force-push a shared branch, and never push from a `main`
      worktree.
    - Review and Pull Request _creation_ stay with the human maintainer unless the user instructs otherwise. **PR merging
@@ -199,7 +202,9 @@ After the pr-reviewer ensemble consensus review is approved and posted to GitHub
 activity and report to the user:
 
 > ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub. Please review and merge it
-> manually at `<pr_url>` when you are ready. No further agent action is required.
+> manually at `<pr_url>` when you are ready. On a PR the Holon flow drove, stage 5
+> (`holon calibrate <execution_branch>`) is still outstanding and MUST run before that merge; apart from that stage, no
+> further agent action is required.
 
 Branch and worktree cleanup (removal of feature branch worktrees, pruning tracking refs) must only be performed
 **after** the human confirms the merge has completed, or when the user explicitly requests cleanup.

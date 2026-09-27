@@ -9,7 +9,7 @@ tags:
   - holon-flow
   - developer-experience
 created_at: 2026-09-26T09:20:00Z
-updated_at: 2026-09-27T13:05:00Z
+updated_at: 2026-09-27T21:12:00Z
 ---
 
 Implement the `holon flow <intent_file>` subcommand in `sandbox_executor.cli` to trigger the end-to-end Holon lifecycle
@@ -46,7 +46,7 @@ most of this bean's acceptance criteria are satisfied on `origin/main`:
 
 | Original criterion                           | State on `origin/main`                                                                                                                                                                                   |
 | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `holon flow` subcommand in `cli.py`          | done -- `cli.py:809` (`flow` parser), dispatched at `cli.py:862`, engine in `sandbox_executor/flow.py`                                                                                                   |
+| `holon flow` subcommand in `cli.py`          | done -- the `flow` subparser in `cli.py`, dispatched from the `args.command == "flow"` branch of `main()`, engine in `sandbox_executor/flow.py`                                                          |
 | Wire to the Bean 0039 pipeline engine        | done                                                                                                                                                                                                     |
 | Structured stage progress on stdout          | done                                                                                                                                                                                                     |
 | Unit + CLI parsing tests                     | done, but in `tests/test_flow.py` (`test_cli_flow_help`, `test_cli_flow_dry_run_dispatch`, `test_cli_flow_missing_intent_file`, `test_cli_flow_missing_checkpoint_file`) rather than `tests/test_cli.py` |
@@ -77,5 +77,5 @@ Status stays `todo` (nothing in flight); it is now substantially smaller than or
 `holon flow` exists on `origin/main` with exactly these options: `intent_file` (positional, `nargs="?"`),
 `--from-stage`, `--checkpoint`, `--agent`, `--model`, `--dry-run`, `--json`, `--repo-dir`, `--skip-push`. Still absent
 from the flow parser: `--skip-review`, `--skip-calibrate`, `--max-review-iterations`, and `--token-reduce` /
-`--mitm-web` -- the latter two are implemented only on the intent/plan/execute paths (`cli.py:367-600`), so a
+`--mitm-web` -- the latter two are implemented only on the intent/plan/execute subparsers in `cli.py`, so a
 full-lifecycle run cannot opt into token reduction. Confirms the re-scoped remainder recorded on 2026-09-26.

@@ -10,7 +10,7 @@ tags:
   - governance
   - concurrency
 created_at: 2026-09-27T15:52:00Z
-updated_at: 2026-09-27T19:28:03Z
+updated_at: 2026-09-27T21:12:00Z
 ---
 
 The `pr-review-loop` skill mandated stopping the run and asking the maintainer for input whenever reviewers disagreed or
@@ -78,8 +78,9 @@ Rewritten in `.agents/skills/pr_review_loop/SKILL.md`:
 ## Verification
 
 - `npx prettier --check .agents/skills/pr_review_loop/SKILL.md` passes.
-- `grep -n "PAUSE\|request guidance" .agents/skills/pr_review_loop/SKILL.md` returns nothing; the remaining pause-shaped
-  text lives only in the escalation ladder's prohibitions.
+- `grep -n "PAUSE\|request guidance" .agents/skills/pr_review_loop/SKILL.md` returns exactly one line -- the Step 3
+  summary template's "There is no `PAUSED` status" note -- plus nothing in the escalation ladder, and no imperative
+  pause instruction remains anywhere in the skill.
 - Both new in-body anchors (`#phase-b-evaluate-exit-conditions--post-final-review`,
   `#phase-a05-re-sync--consolidate-drifted-state-every-iteration`) resolve to headings in the same file.
 

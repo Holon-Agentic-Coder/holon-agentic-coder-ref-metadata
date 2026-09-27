@@ -187,7 +187,9 @@ To maintain clean repository history, follow this Git workflow:
      commits are the audited provenance record: never squash, rewrite, or force-push them. Squashing mid-loop would
      require the `--force` that Principle 5 of the `pr-review-loop` skill forbids as an answer to drift, and the squash
      itself would swallow the other session's commits. The maintainer squashes when merging.
-   - To perform the squash, execute:
+   - **Before resetting**, take the path list from `git diff --name-status $(git merge-base origin/main HEAD) HEAD` plus
+     whatever you edited in the working tree: after the reset the merge base **is** `HEAD`, so running that command
+     afterwards prints nothing and leaves the squash with no paths to stage. Then execute:
 
      ```bash
      git reset $(git merge-base origin/main HEAD)
@@ -197,8 +199,7 @@ To maintain clean repository history, follow this Git workflow:
 
    - Stage the branch's own paths explicitly; **never `git add -A` or `git add .`**. A parallel agent session can hold
      unrelated in-flight edits in the same worktree, and a blanket add swallows them into your commit under your message
-     (the hazard recorded in bean 0056). Take the list from
-     `git diff --name-status $(git merge-base origin/main HEAD) HEAD` plus whatever you edited in the working tree.
+     (the hazard recorded in bean 0056).
 
 5. **Pull Requests & Pushing (Push Your Own Worktree Branch Freely)**:
    - Pushing **your own** feature branch is autonomous -- no user instruction needed, once it is squashed to a single
@@ -222,7 +223,9 @@ To maintain clean repository history, follow this Git workflow:
 > activity and notify the user:
 >
 > > ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub. Please review and merge
-> > it manually at `<pr_url>` when you are ready. No further agent action is required.
+> > it manually at `<pr_url>` when you are ready. On a PR the Holon flow drove, stage 5
+> > (`holon calibrate <execution_branch>`) is still outstanding and MUST run before that merge; apart from that stage,
+> > no further agent action is required.
 >
 > Branch and worktree cleanup may only be performed **after** the human confirms the merge has completed, or when the
 > user explicitly requests it.
