@@ -39,14 +39,24 @@ gh pr view <pr_url_or_number> --json title,body
 gh pr diff <pr_url_or_number>
 ```
 
+> [!IMPORTANT] **Every artifact this skill writes is namespaced by repository and pull request.** `.subagent/` is shared
+> by every session and PR worked in the same checkout, so any unscoped name collides. Use
+> `.subagent/<repo>_pr<N>_<purpose>_iter_<iteration>_{short_git_commit}.<ext>` for per-pass files and
+> `.subagent/<repo>_pr<N>_<purpose>.<ext>` for per-PR singletons, where `<repo>` is the repository name (for example
+> `holon-agentic-coder-ref-metadata`) and `<N>` is the bare PR number: `holon-agentic-coder-ref-metadata_pr47_diff.txt`,
+> `holon-agentic-coder-ref-metadata_pr47_meta.json`, `holon-agentic-coder-ref-metadata_pr47_review_body.md`. Write
+> nowhere else -- not `scratch/`, not the repository root, not an unscoped name. Legacy unscoped files may be read for
+> continuity but are never written to.
+
 ### Step 3: Run Multi-Agent Ensemble Review (3 Independent Passes)
 
 To eliminate single-pass LLM variance, flakiness, and missed edge cases, execute **3 independent review passes** (via
 subagents or isolated subagent contexts):
 
 1. **Spawn 3 Independent Reviewer Subagents**:
-   - Prior to spawning, read `.subagent/coordination.json` (if it exists) to retrieve any user-rejected recommendations
-     or custom constraints.
+   - Prior to spawning, read `.subagent/<repo>_pr<N>_coordination.json` (falling back to the legacy
+     `.subagent/coordination.json` when only that exists) to retrieve any user-rejected recommendations or custom
+     constraints.
    - Spawn subagents (`Reviewer Subagent 1`, `Reviewer Subagent 2`, `Reviewer Subagent 3`) concurrently in parallel
      using your coding agent's native subagent delegation mechanism:
      - **In Antigravity (AGY)**: Call `invoke_subagent` with 3 entries, using `TypeName: "self"` (or
@@ -139,8 +149,8 @@ and LLM model:
 
 ### Step 3.4: Append the Machine-Readable Trailer Block
 
-Every report written to `.subagent/` -- dry-run review, consensus review, and resolution report alike -- MUST close with
-the trailer block as its last lines:
+Every report written to `.subagent/` -- dry-run review, ensemble reviewer pass, consensus review, and resolution report
+alike -- MUST carry the `<repo>_pr<N>_` prefix (see Step 2) and close with the trailer block as its last lines:
 
 ```text
 VERDICT: <APPROVED | CHANGES_REQUESTED | COMMENT>
@@ -176,20 +186,20 @@ Check if **Dry-Run Mode** is enabled (e.g. via `--dry-run` parameter or loop ins
   - Output the structured review findings and verdict strictly to local context/logs for the resolver subagent.
 
 - **If Real Mode is ON (Default / Final Pass)**:
-  - Write your review output to a temporary file (`.subagent/review_body.md`) to prevent shell character escaping
-    issues.
+  - Write your review output to a temporary file (`.subagent/<repo>_pr<N>_review_body.md`) to prevent shell character
+    escaping issues.
   - Submit the review to GitHub using the flag matching your overall ensemble verdict:
     - **APPROVED**:
       ```bash
-      gh pr review <pr_url_or_number> --approve -F .subagent/review_body.md
+      gh pr review <pr_url_or_number> --approve -F .subagent/<repo>_pr<N>_review_body.md
       ```
     - **CHANGES REQUESTED**:
       ```bash
-      gh pr review <pr_url_or_number> --request-changes -F .subagent/review_body.md
+      gh pr review <pr_url_or_number> --request-changes -F .subagent/<repo>_pr<N>_review_body.md
       ```
     - **COMMENT**:
       ```bash
-      gh pr review <pr_url_or_number> --comment -F .subagent/review_body.md
+      gh pr review <pr_url_or_number> --comment -F .subagent/<repo>_pr<N>_review_body.md
       ```
 
 _Note: GitHub disallows users from approving or requesting changes on their own PRs. If `--approve` or
@@ -201,8 +211,9 @@ _Note: GitHub disallows users from approving or requesting changes on their own 
 
 ### Step 5: Clean Up
 
-Remove any temporary files created in the `.subagent/` directory:
+Remove the temporary files this run created in the `.subagent/` directory -- scoped to this repository and PR, never a
+wildcard that could delete another PR's work:
 
 ```bash
-rm -f .subagent/review_body.md
+rm -f .subagent/<repo>_pr<N>_review_body.md
 ```

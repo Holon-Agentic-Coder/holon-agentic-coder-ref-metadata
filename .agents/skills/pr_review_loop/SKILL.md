@@ -46,11 +46,42 @@ resolution step is executed in a dedicated, fresh subagent**.
 6. **Existing Comment Audit & Resolution**: In addition to new code review passes, inspect pre-existing review comments
    posted on the GitHub PR. Evaluate each comment for diff grounding, technical accuracy, actionability, and scope. If
    verified to be true, apply the resolution, commit, and push the fix.
-7. **Temporary Files & Intermediate Artifacts Location**: All temporary files, diff dumps (e.g.,
-   `.subagent/pr<number>.diff`), draft review bodies (`.subagent/review_body.md`), and dry-run reports
-   (`.subagent/dry_run_review_iter_<iteration>_{short_git_commit}.md`) **MUST be placed into the `.subagent/`
-   directory** (git ignored). Never write intermediate files to `scratch/` or other root folders. Prior to execution,
-   read `.subagent/coordination.json` (if it exists) to fetch user-rejected recommendations and active constraints.
+7. **Temporary Artifacts Are Namespaced By Repository AND Pull Request**: `.subagent/` is shared by every session and
+   every Pull Request worked in the same checkout, so an unscoped filename is a collision waiting to happen -- one
+   already happened on PR #47, where a parallel session's `consensus_review_iter_1_<sha>.md` landed on the same path as
+   this loop's report of the same name and had to be archived by hand. **Every** file any pass of this loop creates,
+   including anything a subagent invents for itself, MUST live under `.subagent/` and match:
+
+   ```text
+   .subagent/<repo>_pr<N>_<purpose>_iter_<iteration>_{short_git_commit}.<ext>
+   ```
+
+   where `<repo>` is the repository name (`holon-agentic-coder-ref-metadata`, `holon-agentic-coder`, `holon-coherence`),
+   `<N>` is the bare PR number, and the `_iter_..._{sha}` tail is dropped only for per-PR singletons (caches, body,
+   ledger, history). Never write to `scratch/`, the repository root, `todo/`, or any unscoped name.
+
+   | Artifact                                            | Name                                                                  |
+   | --------------------------------------------------- | --------------------------------------------------------------------- |
+   | Diff dump / PR metadata cache                       | `<repo>_pr<N>_diff.txt` / `<repo>_pr<N>_meta.json`                    |
+   | Dry-run review report                               | `<repo>_pr<N>_dry_run_review_iter_<iteration>_{sha}.md`               |
+   | Ensemble reviewer pass (k = 1..3)                   | `<repo>_pr<N>_ensemble_review_iter_<iteration>_reviewer_<k>_{sha}.md` |
+   | Consensus report                                    | `<repo>_pr<N>_consensus_review_iter_<iteration>_{sha}.md`             |
+   | Resolution report                                   | `<repo>_pr<N>_resolver_iter_<iteration>_{sha}.md`                     |
+   | Sync / reconciliation log                           | `<repo>_pr<N>_sync_iter_<iteration>_{sha}.md`                         |
+   | Foreign in-flight edit capture                      | `<repo>_pr<N>_concurrent_iter_<iteration>_{sha}.patch`                |
+   | Review body to post                                 | `<repo>_pr<N>_review_body.md`                                         |
+   | Regenerated PR title/body                           | `<repo>_pr<N>_pr_body.md`                                             |
+   | Loop history                                        | `<repo>_pr<N>_loop_history.md`                                        |
+   | Adjudication ledger                                 | `<repo>_pr<N>_coordination.json`                                      |
+   | Anything else (commit message, gate logs, captures) | `<repo>_pr<N>_<purpose>_iter_<iteration>_{sha}.<ext>`                 |
+
+   **Legacy fallback:** read the namespaced path first; if it is absent, also read the unscoped legacy names
+   (`coordination.json`, `dry_run_review_iter_*.md`, `consensus_review_iter_*.md`, `pr<number>.diff`) so a loop already
+   in flight keeps its rulings, then write onward using the namespaced name. Before running any pass, read
+   `<repo>_pr<N>_coordination.json` (or its legacy fallback) to fetch user-rejected recommendations and active
+   constraints. **Cleanup at a terminal state**: delete this repo+PR's intermediates except the final consensus report
+   and the ledger, and never touch another repository's or another PR's files.
+
 8. **Human-Only PR Merging Boundary**: The loop scope strictly terminates upon posting the approved consensus review.
    This boundary is absolute and is **not** relaxed by the never-pause policy. Agents and subagents **MUST NEVER execute
    `gh pr merge`, enable auto-merge, or add the PR to a merge queue**. Merging is exclusively the human maintainer's
@@ -135,17 +166,17 @@ reality, so reviewers never evaluate a diff that no longer exists. Nothing here 
 
 1. **Refresh remote truth**: `git fetch origin <branch_name>` and
    `gh pr view <pr_url_or_number> --json headRefOid,state,mergeable`. Compare the PR head, local `HEAD`, and
-   `origin/<branch_name>`. If any of them moved, delete cached dumps (`.subagent/pr<number>.diff`) and re-fetch, so the
-   next review pass reads the current diff.
+   `origin/<branch_name>`. If any of them moved, delete the cached dumps (`<repo>_pr<N>_diff.txt`,
+   `<repo>_pr<N>_meta.json`) and re-fetch, so the next review pass reads the current diff.
 2. **Consolidate another author's in-flight work**: run `git status --porcelain`. If tracked files hold edits the loop
    did not author (a human maintainer or a parallel agent session working the same branch):
-   - Capture them first: `git diff > .subagent/concurrent_iter_<iteration>_{short_git_commit}.patch`.
+   - Capture them first: `git diff > .subagent/<repo>_pr<N>_concurrent_iter_<iteration>_{short_git_commit}.patch`.
    - Re-verify each hunk against the PR diff, `.agents/rules.md`, `.beans/` ground truth and CI. Verified, in-scope,
      prettier-clean edits are **adopted**: commit them as their own `fix: consolidate concurrent review fixes ...`
      commit that names where the work came from and lists any dropped hunk with the reason (for example "re-wrapped by
      `prettier --check`, which CI enforces").
    - Only edits proven factually wrong or CI-breaking are reverted, and only after the patch file exists on disk, with
-     the ruling recorded in `.subagent/coordination.json` and in the following resolution commit.
+     the ruling recorded in `<repo>_pr<N>_coordination.json` and in the following resolution commit.
    - Never `git stash`, `git reset --hard`, `git checkout --`, or `git clean` unverified work: in-flight work must stay
      recoverable, and another author's commits are never dropped to make a push easy.
 3. **Integrate diverged pushes**: if `origin/<branch_name>` carries commits the loop lacks, run
@@ -178,13 +209,13 @@ Execute the review pass in a clean, isolated subagent context.
   >    (🟡) issues are found in the code review (defer checking build status if code changes are required).
   > 5. Do **NOT** post comments to GitHub (Dry-Run mode is ON).
   > 6. Save the detailed review findings and report to a markdown file:
-  >    `.subagent/dry_run_review_iter_<iteration>_{short_git_commit}.md` (creating the directory if needed) so the user
-  >    can review the dry-run feedback.
+  >    `.subagent/<repo>_pr<N>_dry_run_review_iter_<iteration>_{short_git_commit}.md` (creating the directory if needed)
+  >    so the user can review the dry-run feedback.
   > 7. Return a concise report containing:
   >    - Overall Verdict (`APPROVED`, `CHANGES_REQUESTED`, or `COMMENT`).
   >    - Total number of Critical, Important, and Nit findings.
   >    - Path to the generated dry run review markdown file
-  >      (`.subagent/dry_run_review_iter_<iteration>_{short_git_commit}.md`).
+  >      (`.subagent/<repo>_pr<N>_dry_run_review_iter_<iteration>_{short_git_commit}.md`).
 
 ##### 🚀 Antigravity (AGY) Invocation:
 
@@ -231,13 +262,13 @@ Wait for the subagent to complete and inspect its report.
          > - If ANY Critical (🔴) or Important (🟡) issues are flagged by the consensus reviewers:
          >   - **DO NOT POST TO GITHUB**. Skip executing `gh pr review`.
          >   - Save the consolidated findings report locally to
-         >     `.subagent/consensus_review_iter_<iteration>_{short_git_commit}.md`.
+         >     `.subagent/<repo>_pr<N>_consensus_review_iter_<iteration>_{short_git_commit}.md`.
          > - If and ONLY IF zero Critical (🔴) and zero Important (🟡) issues remain (only Nit/Optional 🟢 findings
          >   allowed) AND all GitHub Actions CI checks pass cleanly:
-         >   - Write the review body to `.subagent/review_body.md`.
+         >   - Write the review body to `.subagent/<repo>_pr<N>_review_body.md`.
          >   - Post the official review to GitHub via
-         >     `gh pr review <pr_url_or_number> --approve -F .subagent/review_body.md` (falling back to `--comment` if
-         >     PR author is the authenticated user).
+         >     `gh pr review <pr_url_or_number> --approve -F .subagent/<repo>_pr<N>_review_body.md` (falling back to
+         >     `--comment` if PR author is the authenticated user).
      - **Antigravity (AGY) Invocation**:
        ```json
        {
@@ -281,12 +312,13 @@ Wait for the subagent to complete and inspect its report.
        - Otherwise:
          - **DO NOT STOP THE LOOP**.
          - **Proceed immediately to Phase C (Resolver Subagent)** with the consensus findings report from
-           `.subagent/consensus_review_iter_<iteration>_{short_git_commit}.md`. The resolver subagent MUST resolve all
-           flagged Critical and Important issues, commit the fixes, push to the remote feature branch, and re-run the
-           review in the next iteration.
+           `.subagent/<repo>_pr<N>_consensus_review_iter_<iteration>_{short_git_commit}.md`. The resolver subagent MUST
+           resolve all flagged Critical and Important issues, commit the fixes, push to the remote feature branch, and
+           re-run the review in the next iteration.
 
 2. **Convergence Escalation Ladder (Never Pause)**:
-   - Inspect dry-run and consensus reports from prior iterations (`.subagent/*_review_iter_*.md`).
+   - Inspect dry-run and consensus reports from prior iterations (`.subagent/*_pr<N>_dry_run_review_iter_*.md`,
+     `.subagent/*_pr<N>_consensus_review_iter_*.md`, plus any unscoped legacy counterparts).
    - If the exact same issue is flagged across 3 consecutive iterations with no diff change, or if reviewers oscillate
      between conflicting recommendations: **do not post to GitHub, do not stop, do not wait for input.** Climb the
      ladder inside the same iteration and keep counting:
@@ -300,7 +332,7 @@ Wait for the subagent to complete and inspect its report.
         the most conservative superset that satisfies all of them simultaneously; for prose, choose the wording that is
         true under every reading.
      4. **Rule false findings out in writing.** Append each disproved, out-of-scope, or rule-conflicting finding to
-        `rejected_suggestions` in `.subagent/coordination.json` with evidence and the ruling. Reviewer and resolver
+        `rejected_suggestions` in `<repo>_pr<N>_coordination.json` with evidence and the ruling. Reviewer and resolver
         passes read that ledger (step 3e of `pr-review-resolver`), which is the mechanism that actually stops
         re-flagging -- a pause never did.
      5. **Re-scope oversized findings.** When a finding is real but bigger than this PR (cross-repository bug, missing
@@ -346,7 +378,9 @@ Execute the resolution pass in a clean, isolated subagent context.
   >    next review pass. If the push is rejected as non-fast-forward, run `git pull --rebase origin <branch_name>`, keep
   >    both intents, re-run `npx prettier --write "**/*.md"`, and push again -- never resolve drift with `--force`,
   >    `--force-with-lease`, or by dropping the other author's commits.
-  > 6. Return a summary of applied fixes and skipped comments.
+  > 6. Return a summary of applied fixes and skipped comments, saved to
+  >    `.subagent/<repo>_pr<N>_resolver_iter_<iteration>_{short_git_commit}.md`; every scratch file (commit message,
+  >    gate output capture) follows the same `<repo>_pr<N>_<purpose>...` naming rule.
 
 ##### 🚀 Antigravity (AGY) Invocation:
 

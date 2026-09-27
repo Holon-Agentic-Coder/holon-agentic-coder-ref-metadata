@@ -61,5 +61,5 @@ When executing within the **Antigravity (AGY)** environment:
 ### 4. Monitoring & Completion
 
 - Review the subagent's report upon reactive resumption.
-- In multi-turn workflows, inspect output artifacts (e.g. `.subagent/dry_run_review_iter_*.md`) and verify commits
-  before proceeding to subsequent phases.
+- In multi-turn workflows, inspect output artifacts (e.g. `.subagent/<repo>_pr<N>_dry_run_review_iter_*.md`, namespaced
+  per the `pr-review-loop` skill's artifact convention) and verify commits before proceeding to subsequent phases.
