@@ -126,9 +126,9 @@ code in this repository.
      MUST be produced through the Holon flow, spanning the complete lifecycle: Intent -> Plan -> Execute -> PR Review
      Loop -> Calibration.
    - Manual stage-by-stage execution (`./holon intent`, `./holon plan`, `./holon execute`, `pr-review-loop`,
-     `holon calibrate`) is fully compliant and is the required mode until the pipeline engine (Bean 0039) and the
-     unified `holon flow <intent.json>` runner (Bean 0040) exist. Automation is an optimization of the flow, never a
-     substitute for any of its five stages.
+     `holon calibrate`) is fully compliant and is the required mode until the unified `holon flow <intent.json>` runner
+     (Bean 0040) lands. The pipeline engine (Bean 0039) is already completed. Automation is an optimization of the flow,
+     never a substitute for any of its five stages.
    - The `./holon` wrapper automatically manages sandbox isolation, credential discovery, SSH agent socket forwarding,
      branch creation (`I-...` Intent, `P-...` Plan, `E-...` Execution, `/calibrated`), and remote pushes to `origin`.
    - Never bypass the flow with manual host-side git or worktree source edits, and never hand-apply a diff because a

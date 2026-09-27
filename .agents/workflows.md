@@ -55,8 +55,9 @@ branch and ledger record the next one consumes (see invariant 8 in [rules.md](ru
 - **Document**: Add notes inside the task file explaining how the task was resolved, including the intent, plan, and
   execution branch names.
 
-Until Beans 0039 and 0040 land, invoke these stages individually. Once they land, `holon flow <intent.json>` is the
-preferred entrypoint; both modes satisfy the same requirement.
+Until Bean 0040 (`holon flow` single-command runner) lands (Bean 0039 pipeline engine is already completed), invoke
+these stages individually. Once Bean 0040 lands, `holon flow <intent.json>` is the preferred entrypoint; both modes
+satisfy the same requirement.
 
 ### 3. Task Completion
 

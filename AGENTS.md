@@ -44,8 +44,8 @@ its stages:
 
 **Whether the pipeline is driven by hand or by automation is irrelevant -- only that all five stages are executed.**
 Running the stages one at a time with the individual commands is exactly as compliant as the unified runner, and remains
-the required mode until Bean 0039 (pipeline engine) and Bean 0040 (`holon flow <intent.json>`) land. When those land,
-`holon flow` becomes the preferred entrypoint; it does not change what "through the flow" means.
+the required mode until Bean 0040 (`holon flow <intent.json>`) lands (Bean 0039 pipeline engine is already completed).
+Once Bean 0040 lands, `holon flow` becomes the preferred entrypoint; it does not change what "through the flow" means.
 
 **Consequences for agents:**
 
@@ -118,8 +118,8 @@ When you are spawned or begin a new session, follow these steps sequentially:
    files or artifacts.
 9. **Route Every Change Through the Flow**: Produce all target-repo changes via the five-stage Holon flow (intent ->
    plan -> execute -> PR review loop -> calibration) rather than hand-authored host-side edits. Manual stage-by-stage
-   invocation is fully compliant; automating it (`holon flow`, Beans 0039/0040) is optional. See
-   [🔒 Sole Change Path: The Holon Flow](#-sole-change-path-the-holon-flow).
+   invocation is fully compliant; automating it (`holon flow`, Bean 0040 — Bean 0039 is already completed) is optional.
+   See [🔒 Sole Change Path: The Holon Flow](#-sole-change-path-the-holon-flow).
 10. **Zero Synthetic Data for Benchmarking**: Absolutely never use synthetic or mock data to measure efficacy or
     benchmark token reduction. Official evaluations and scorecards must derive exclusively from authentic real data
     streams (live sandbox task executions, genuine wire logs, or real production payloads).
