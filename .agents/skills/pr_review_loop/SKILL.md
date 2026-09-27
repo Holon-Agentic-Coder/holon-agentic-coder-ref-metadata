@@ -31,8 +31,8 @@ resolution step is executed in a dedicated, fresh subagent**.
    oscillate between conflicting recommendations, the loop climbs the **Convergence Escalation Ladder** in
    [Phase B](#phase-b-evaluate-exit-conditions--post-final-review) instead of stopping: re-sync, re-adjudicate the
    finding against primary sources, apply the union of the competing recommendations, rule false findings out in writing
-   in `.subagent/coordination.json`, or defer an out-of-scope finding to a new bean. Iterations are spent resolving, not
-   waiting.
+   in `<repo>_pr<N>_coordination.json`, or defer an out-of-scope finding to a new bean. Iterations are spent resolving,
+   not waiting.
 4. **Drift Self-Healing (Out-Of-Sync State Is Work, Not A Blocker)**: Divergence between what the loop expects and what
    the repository and PR actually contain -- a new commit pushed by someone else, a parallel agent session editing the
    same worktree, an unexpectedly dirty tree, a stale cached diff, a rejected push, CI that moved from `pending` to
