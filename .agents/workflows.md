@@ -66,7 +66,8 @@ completed). Both modes satisfy the same requirement.
 - Format all markdown files by running `npx prettier --write "**/*.md"`.
 - Commit the changes on your own feature branch/worktree (creating one is allowed autonomously; never commit in a `main`
   worktree).
-- Squash all branch commits relative to the `main` branch into a single commit.
+- Squash all branch commits relative to the `main` branch into a single commit, rule 4 exemptions excepted: a branch the
+  Holon flow or a review loop drives keeps one commit per pass and is never squashed.
 - **Pushing your own feature branch is allowed autonomously** (see step 5 below). Never push `main`, never push a branch
   another agent owns, and never push from a `main` worktree.
 

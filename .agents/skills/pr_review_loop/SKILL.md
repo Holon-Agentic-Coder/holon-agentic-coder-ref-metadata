@@ -76,9 +76,10 @@ resolution step is executed in a dedicated, fresh subagent**.
      failure repeats. A step is recorded `FAILED` only after those retries, and even then the loop proceeds: a missing
      reviewer vote removes eligibility for an `APPROVED` verdict under the ensemble rule, it does not abort the run.
      Operators SHOULD set a wall-clock budget per step type in the launch parameters (defaults: sync and posting passes
-     10 minutes, review and consensus passes 25 minutes; `HOLON_PR_LOOP_STEP_TIMEOUTS` overrides them). A checkpoint
-     posted when a budget expires is **not** "asking for guidance": the pass states its partial result and keeps
-     running, it never waits for a reply, and the two exits in Principle 3 stay the only stops.
+     10 minutes, review and consensus passes 25 minutes; `HOLON_PR_LOOP_STEP_TIMEOUTS` is the agreed name for those
+     overrides in the launcher -- nothing in this repository reads it, so the budget is advisory, not enforced). A
+     checkpoint posted when a budget expires is **not** "asking for guidance": the pass states its partial result and
+     keeps running, it never waits for a reply, and the two exits in Principle 3 stay the only stops.
 
 ---
 
@@ -258,7 +259,8 @@ Wait for the subagent to complete and inspect its report.
        - **STOP THE LOOP.**
        - **Notify the user** that the PR is approved and awaits manual merge:
          > ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub and all CI checks
-         > are passing. Please review and merge it manually at `<pr_url>` when you are ready.
+         > are passing. Please review and merge it manually at `<pr_url>` when you are ready. On a PR the Holon flow
+         > drove, stage 5 (`holon calibrate <execution_branch>`) is still outstanding and must run before that merge.
        - **NEVER merge autonomously**: Agents MUST NOT run `gh pr merge`, add the PR to the merge queue, or enable
          auto-merge. Merging is strictly reserved for the human maintainer.
        - **Hand off to stage 5 (Calibration) before the merge, not after**: when the change reached the PR through the

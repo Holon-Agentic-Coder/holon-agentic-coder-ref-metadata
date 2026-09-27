@@ -10,7 +10,7 @@ tags:
   - governance
   - concurrency
 created_at: 2026-09-27T15:52:00Z
-updated_at: 2026-09-27T18:13:07Z
+updated_at: 2026-09-27T19:28:03Z
 ---
 
 The `pr-review-loop` skill mandated stopping the run and asking the maintainer for input whenever reviewers disagreed or
@@ -64,8 +64,8 @@ Rewritten in `.agents/skills/pr_review_loop/SKILL.md`:
   trailer block (`VERDICT`, `CI`, `REPORT`, `CRITICAL`, `IMPORTANT`, `NIT`, `FINDINGS`, defined in
   `.agents/skills/pr_reviewer/SKILL.md` step 3.4 and mirrored into `.agents/prompts/pr_review_prompt.md`), so an aborted
   stub is never trusted as a baseline; and operators set a wall-clock budget per step type in the launch parameters
-  (`HOLON_PR_LOOP_STEP_TIMEOUTS`, defaults 10 minutes for sync/posting and 25 for review/consensus) without introducing
-  a pause state.
+  (`HOLON_PR_LOOP_STEP_TIMEOUTS`, defaults 10 minutes for sync/posting and 25 for review/consensus -- a launcher-side
+  name only: nothing in this repository reads it, so the budget is advisory) without introducing a pause state.
 
 ## Preserved invariants
 

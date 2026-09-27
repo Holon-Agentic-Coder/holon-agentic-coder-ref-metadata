@@ -113,12 +113,13 @@ When you are spawned or begin a new session, follow these steps sequentially:
      pristine checkout of its committed state.
 6. **Format Before Commit**: Always execute `npx prettier --write "**/*.md"` before committing to format all markdown
    files according to repository guidelines.
-7. **Squash, Then Push Your Own Branch Freely**: Applies to branches you own -- harness branches in this metadata repo
-   and any supporting branch you cut for the flow. Ensure all commits on your feature branch are squashed into a single
-   commit relative to the `main` branch. Pushing **your own** feature branch is allowed autonomously, without waiting
-   for instruction: `git push -u origin {branch}`, and `--force-with-lease` when you rewrite history on it. The flow
-   pushes its own `I-...`/`P-...`/`E-...` branches; never rewrite or force-push those, since they are the audited
-   provenance record.
+7. **Squash, Then Push Your Own Branch Freely**: Applies to branches you hand-author -- harness branches in this
+   metadata repo and any supporting branch you cut for the flow. Ensure all commits on such a branch are squashed into a
+   single commit relative to the `main` branch. **A branch a `pr-review-loop` run drives is exempt**: it pushes once per
+   iteration and is never squashed, rewritten, or force-pushed (rule 4 in [.agents/workflows.md](.agents/workflows.md)).
+   Pushing **your own** feature branch is allowed autonomously, without waiting for instruction:
+   `git push -u origin {branch}`, and `--force-with-lease` when you rewrite history on it. The flow pushes its own
+   `I-...`/`P-...`/`E-...` branches; never rewrite or force-push those, since they are the audited provenance record.
    - Never push to `main` (or any branch you do not own), never force-push a shared branch, and never push from a `main`
      worktree.
    - Review and Pull Request _creation_ stay with the human maintainer unless the user instructs otherwise. **PR merging
