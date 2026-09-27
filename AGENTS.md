@@ -27,9 +27,10 @@ entirety before performing any operations or modifying any code.
 
 ## 🔒 Sole Change Path: The Holon Flow
 
-> [!IMPORTANT] **Every change to a managed target codebase MUST be produced by the Holon flow.** No agent or developer
-> may hand-author, hand-patch, or directly commit changes to `holon-agentic-coder` (or any other target repository under
-> `apps/`) outside the flow lifecycle.
+> [!IMPORTANT] **Every change to a target codebase the flow can drive MUST be produced by the Holon flow.** No agent or
+> developer may hand-author, hand-patch, or directly commit changes to `holon-agentic-coder` outside the flow lifecycle.
+> Today the flow drives exactly one repository -- the single remote resolved by `get_repo_url()` -- so `holon-coherence`
+> is authored in per-agent worktrees under the worktree rules below until a multi-repo flow vehicle exists.
 
 The lifecycle is a single pipeline, not a menu. A change is only "done through the flow" when it has traversed all of
 its stages:
@@ -42,18 +43,26 @@ its stages:
 | 4   | PR review loop | `pr-review-loop` skill (3-agent ensemble + resolver) | Consensus approval posted to the PR                                             |
 | 5   | Calibration    | `holon calibrate <execution_branch>` (Bean 0038)     | `/calibrated` branch + `plans/P-*_calibration.md`                               |
 
+**Ordering of the merge boundary**: stage 5 (Calibration) is a **pre-merge** stage, matching `STAGE_ORDER` in
+`sandbox_executor/flow.py` (intent -> plan -> execute -> review -> calibrate). Run the review loop to consensus
+approval, calibrate, and only then stop and request the merge -- never calibrate after it, because merging a flow PR
+consumes the `E-...` execution branch that calibration reads. Merging itself stays human-only (see "🔒 PR Merging —
+Human-Only" below).
+
 **Whether the pipeline is driven by hand or by automation is irrelevant -- only that all five stages are executed.**
-Running the stages one at a time with the individual commands is exactly as compliant as the unified runner, and remains
-the required mode until Bean 0040 (`holon flow <intent.json>`) lands (Bean 0039 pipeline engine is already completed).
-Once Bean 0040 lands, `holon flow` becomes the preferred entrypoint; it does not change what "through the flow" means.
+Running the stages one at a time with the individual commands is exactly as compliant as the unified runner. That runner
+(`./holon flow <intent.json>`) already exists on `main` with a reduced flag set; Bean 0040 tracks the five flags and the
+usage docs still outstanding on it, while the pipeline engine itself (Bean 0039) is completed. Neither form changes what
+"through the flow" means.
 
 **Consequences for agents:**
 
 - Changes are authored by the sandboxed role agents inside the containerized plan/execution branches and recorded in the
   append-only ledgers. The ledgers, not the agent's word, are the system of record.
 - Host-side worktrees (`apps/<project>/{branch}`) exist to **build images, inspect code, run verification, and operate
-  the harness** -- they are not a change-authoring surface. Editing target-repo source in a worktree and committing it
-  bypasses intent provenance, plan metrics, EV accounting, and the execution ledger, and is therefore prohibited.
+  the harness** -- they are not a change-authoring surface. Editing `holon-agentic-coder` source in a worktree and
+  committing it bypasses intent provenance, plan metrics, EV accounting, and the execution ledger, and is therefore
+  prohibited.
 - Skipping a stage is not permitted. If a stage cannot run (missing image, failed agent, unreachable remote), the change
   is **blocked**: report the blocker instead of hand-applying the diff as a workaround.
 - The only permitted exception is an explicit, unambiguous user instruction to make a specific edit outside the flow,
@@ -93,9 +102,10 @@ When you are spawned or begin a new session, follow these steps sequentially:
    - Each worktree needs its own environment: virtualenvs are per-directory and cannot be shared, so run
      `uv sync --group dev` inside the new worktree and never point at another worktree's `.venv/`.
    - Inside your own worktree you have full latitude to edit, commit, squash, test, rebuild images and push -- **for
-     harness work, image builds, verification runs, and handling branches the flow produced**. Authoring target-repo
-     source changes by hand in a worktree is prohibited: that is the flow's job (see
-     [🔒 Sole Change Path: The Holon Flow](#-sole-change-path-the-holon-flow)).
+     harness work, image builds, verification runs, and handling branches the flow produced**. Authoring
+     `holon-agentic-coder` source changes by hand in a worktree is prohibited: that is the flow's job (see
+     [🔒 Sole Change Path: The Holon Flow](#-sole-change-path-the-holon-flow)). `holon-coherence` is not reachable by
+     the flow, so its changes are authored in your own worktree.
    - **The `main` worktree is the user's playground.** `apps/holon-agentic-coder/main` and `apps/holon-coherence/main`
      are off-limits to agents: never edit, stage, commit, stash, reset, clean or checkout in them, never build into or
      leave stray files there, and do not mutate their local state either (`.venv/`, caches, generated artifacts).
@@ -116,9 +126,11 @@ When you are spawned or begin a new session, follow these steps sequentially:
      Human-Only" below).**
 8. **Report and Document**: Summarize changes cleanly and concisely. Point both the user and successor agents to updated
    files or artifacts.
-9. **Route Every Change Through the Flow**: Produce all target-repo changes via the five-stage Holon flow (intent ->
-   plan -> execute -> PR review loop -> calibration) rather than hand-authored host-side edits. Manual stage-by-stage
-   invocation is fully compliant; automating it (`holon flow`, Bean 0040 — Bean 0039 is already completed) is optional.
+9. **Route Every Change Through the Flow**: Produce all `holon-agentic-coder` changes via the five-stage Holon flow
+   (intent -> plan -> execute -> PR review loop -> calibration) rather than hand-authored host-side edits, and calibrate
+   before requesting the merge. Manual stage-by-stage invocation is fully compliant; automating it with the `holon flow`
+   runner that already exists on `main` is optional (Bean 0040 tracks its remaining flags and usage docs; the Bean 0039
+   engine is completed). `holon-coherence` changes stay worktree-driven because the flow cannot reach that repository.
    See [🔒 Sole Change Path: The Holon Flow](#-sole-change-path-the-holon-flow).
 10. **Zero Synthetic Data for Benchmarking**: Absolutely never use synthetic or mock data to measure efficacy or
     benchmark token reduction. Official evaluations and scorecards must derive exclusively from authentic real data

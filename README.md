@@ -35,9 +35,10 @@ To work with codebase repositories within this metadata repository, you must clo
 check out branches as Git worktrees. This allows running multiple tasks on different branches simultaneously under a
 clean directory structure.
 
-> [!IMPORTANT] Worktrees are a **workspace** mechanism, not a change-authoring path. All changes to a target codebase
-> are produced by the Holon flow (intent -> plan -> execute -> PR review loop -> calibration), whether you run its five
-> stages by hand or drive them through the unified `holon flow` runner. See
+> [!IMPORTANT] Worktrees are a **workspace** mechanism, not a change-authoring path. All changes to
+> `holon-agentic-coder` are produced by the Holon flow (intent -> plan -> execute -> PR review loop -> calibration),
+> whether you run its five stages by hand or drive them through the unified `holon flow` runner. `holon-coherence` is
+> not reachable by the flow -- which resolves exactly one remote per run -- and is developed in per-agent worktrees. See
 > [AGENTS.md — Sole Change Path: The Holon Flow](AGENTS.md#-sole-change-path-the-holon-flow).
 
 ### 1. `holon-agentic-coder` (Primary Fractal Intent Evolution Engine)

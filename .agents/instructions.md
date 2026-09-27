@@ -47,12 +47,14 @@ system safety, and clean documentation. Follow these core guidelines in every se
 
 - Target application codebases reside under the `apps/` directory (`apps/holon-agentic-coder` and
   `apps/holon-coherence`).
-- **All code modifications must be produced by the Holon flow** (intent -> plan -> execute -> PR review loop ->
-  calibration) as sandbox-authored commits on `I-.../P-.../E-...` branches. Manual stage-by-stage commands are as
-  compliant as `holon flow`; skipping any stage is not. See the Sole Change Path rule in `AGENTS.md` and invariant 8 in
-  `.agents/rules.md`.
+- **All `holon-agentic-coder` code modifications must be produced by the Holon flow** (intent -> plan -> execute -> PR
+  review loop -> calibration) as sandbox-authored commits on `I-.../P-.../E-...` branches. Manual stage-by-stage
+  commands are as compliant as `holon flow`; skipping any stage is not. See the Sole Change Path rule in `AGENTS.md` and
+  invariant 8 in `.agents/rules.md`.
+- `holon-coherence` is not reachable by the flow -- it resolves exactly one remote per run -- so its changes are
+  authored in per-agent worktrees.
 - Repository worktrees (e.g. `apps/holon-agentic-coder/{branch}`) are for building images, reading code, running
-  verification, and operating the harness -- never for authoring or committing target-repo source changes.
+  verification, and operating the harness -- never for authoring or committing `holon-agentic-coder` source changes.
 - The repository root is strictly for control plane coordination, task tracking (`.beans/`), and agent guidance; those
   harness files are edited directly, since the flow cannot target this metadata repository.
 

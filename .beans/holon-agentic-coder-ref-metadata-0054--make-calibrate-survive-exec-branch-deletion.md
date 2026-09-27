@@ -10,11 +10,13 @@ tags:
   - git
   - ci
 created_at: 2026-09-27T11:35:00Z
-updated_at: 2026-09-27T11:35:00Z
+updated_at: 2026-09-27T17:15:00Z
 ---
 
-Stage 5 (`holon calibrate <execution_branch>`) runs **after** the PR is merged, but merging a flow PR deletes the
-execution branch. The command therefore cannot run at the moment the lifecycle calls for it.
+Stage 5 (`holon calibrate <execution_branch>`) is a **pre-merge** stage -- `STAGE_ORDER` in `sandbox_executor/flow.py`
+runs `CALIBRATE` after `REVIEW` and the pipeline halts for the human without merging -- but in the Bean 0019 incident it
+could only be run **after** the PR was merged, and merging a flow PR deletes the execution branch. The command therefore
+cannot run at the moment the lifecycle calls for it.
 
 ## Measured evidence (Bean 0019, PR #59, 2026-09-27)
 
@@ -48,3 +50,6 @@ it.
 - Target repository: `holon-agentic-coder` -- `apps/sandbox-executor/src/sandbox_executor/calibration.py`
   (`run_calibrate`) and `cli.py` (`calibrate_parser`). Route the change through the flow.
 - Found while running stage 5 for Bean 0019; recorded there as a systemic finding.
+- Premise corrected during PR #47 review: the lifecycle places stage 5 before the merge (see the merge-boundary ordering
+  note in `AGENTS.md`), so the defect is that the incident ran it after the merge and the branch was already gone -- not
+  that the lifecycle asks for a post-merge calibration.

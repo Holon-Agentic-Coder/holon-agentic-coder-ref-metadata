@@ -51,13 +51,14 @@ branch and ledger record the next one consumes (see invariant 8 in [rules.md](ru
   `executions.jsonl` `status: success` does not prove it.
 - **Review**: Run the `pr-review-loop` skill until the ensemble reaches consensus approval. Never merge (see the
   Human-Only rule below).
-- **Calibrate**: Run `holon calibrate <execution_branch>` to commit predicted-versus-actual deltas.
+- **Calibrate**: Run `holon calibrate <execution_branch>` to commit predicted-versus-actual deltas. This is a
+  **pre-merge** stage: merging consumes the `E-...` branch it reads (Bean 0054).
 - **Document**: Add notes inside the task file explaining how the task was resolved, including the intent, plan, and
   execution branch names.
 
-Until Bean 0040 (`holon flow` single-command runner) lands (Bean 0039 pipeline engine is already completed), invoke
-these stages individually. Once Bean 0040 lands, `holon flow <intent.json>` is the preferred entrypoint; both modes
-satisfy the same requirement.
+Invoke these stages individually or drive them with `holon flow <intent.json>`, which already exists on `main` with a
+reduced flag set (Bean 0040 tracks the flags and usage docs still outstanding; the Bean 0039 pipeline engine is
+completed). Both modes satisfy the same requirement.
 
 ### 3. Task Completion
 

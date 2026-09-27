@@ -122,20 +122,24 @@ code in this repository.
      live network socket request to upstream provider endpoints.
 
 8. **Holon Flow Sole-Change-Path Invariant (`./holon`)**:
-   - **All** changes to a managed target codebase (currently `holon-agentic-coder`, and any repository under `apps/`)
-     MUST be produced through the Holon flow, spanning the complete lifecycle: Intent -> Plan -> Execute -> PR Review
-     Loop -> Calibration.
+   - **All** changes to the flow-driven target codebase (`holon-agentic-coder`) MUST be produced through the Holon flow,
+     spanning the complete lifecycle: Intent -> Plan -> Execute -> PR Review Loop -> Calibration. Stage 5 (Calibration)
+     is a **pre-merge** stage: calibrate, then request the human merge.
+   - The flow resolves exactly one remote per run (`get_repo_url()`), so `holon-coherence` is not reachable by it and
+     stays worktree-driven until a multi-repo flow vehicle exists.
    - Manual stage-by-stage execution (`./holon intent`, `./holon plan`, `./holon execute`, `pr-review-loop`,
-     `holon calibrate`) is fully compliant and is the required mode until the unified `holon flow <intent.json>` runner
-     (Bean 0040) lands. The pipeline engine (Bean 0039) is already completed. Automation is an optimization of the flow,
-     never a substitute for any of its five stages.
+     `holon calibrate`) is fully compliant and as compliant as the unified `holon flow <intent.json>` runner, which
+     already exists on `main` with a reduced flag set (Bean 0040 tracks the flags and usage docs still outstanding; the
+     Bean 0039 pipeline engine is completed). Automation is an optimization of the flow, never a substitute for any of
+     its five stages.
    - The `./holon` wrapper automatically manages sandbox isolation, credential discovery, SSH agent socket forwarding,
      branch creation (`I-...` Intent, `P-...` Plan, `E-...` Execution, `/calibrated`), and remote pushes to `origin`.
    - Never bypass the flow with manual host-side git or worktree source edits, and never hand-apply a diff because a
      stage failed. A blocked stage means the change is blocked: report the blocker.
    - Per-agent worktrees remain mandatory for harness operation, image builds, code inspection, and verification runs --
-     they are explicitly **not** a surface for authoring target-repo changes. This supersedes any reading of the
-     per-agent worktree rule in AGENTS.md that would allow committing agent-authored target-repo source from a worktree.
+     they are explicitly **not** a surface for authoring `holon-agentic-coder` changes. This supersedes any reading of
+     the per-agent worktree rule in AGENTS.md that would allow committing agent-authored `holon-agentic-coder` source
+     from a worktree; `holon-coherence` development is outside this invariant and stays worktree-driven.
    - The sole exceptions are (a) the `holon-agentic-coder-ref-metadata` control plane itself (`.beans/`, `.agents/`,
      `AGENTS.md`), which the flow cannot target because `get_repo_url()` only resolves the target codebase, and (b) an
      explicit, specific user instruction to edit outside the flow, which must be recorded in the commit message and the
