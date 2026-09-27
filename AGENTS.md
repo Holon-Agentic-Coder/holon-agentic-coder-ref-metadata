@@ -198,13 +198,14 @@ phrasing, or skill instructions:
 
 **What agents must do instead:**
 
-After the pr-reviewer ensemble consensus review is approved and posted to GitHub, the agent MUST stop all PR-related
-activity and report to the user:
+After the pr-reviewer ensemble consensus review is approved and posted to GitHub, the agent MUST stop all GitHub-facing
+PR activity (no further `gh pr` writes of any kind). On a PR the Holon flow drove it then runs stage 5
+(`holon calibrate <execution_branch>`) itself before requesting the merge, per "Ordering of the merge boundary" above,
+and reports:
 
 > ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub. Please review and merge it
-> manually at `<pr_url>` when you are ready. On a PR the Holon flow drove, stage 5
-> (`holon calibrate <execution_branch>`) is still outstanding and MUST run before that merge; apart from that stage, no
-> further agent action is required.
+> manually at `<pr_url>` when you are ready; merging before stage 5 (`holon calibrate`) has run destroys the `E-...`
+> branch that calibration reads.
 
 Branch and worktree cleanup (removal of feature branch worktrees, pruning tracking refs) must only be performed
 **after** the human confirms the merge has completed, or when the user explicitly requests cleanup.

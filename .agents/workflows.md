@@ -219,13 +219,14 @@ To maintain clean repository history, follow this Git workflow:
 > - `gh api …` calls or any other mechanism that triggers a merge or adds a PR to the merge queue
 > - `gh repo edit --enable-auto-merge` or any repository setting that enables automatic merging
 >
-> After the pr-reviewer ensemble consensus review is approved and posted to GitHub, the agent MUST stop all PR-related
-> activity and notify the user:
+> After the pr-reviewer ensemble consensus review is approved and posted to GitHub, the agent MUST stop all
+> GitHub-facing PR activity (no further `gh pr` writes of any kind). On a PR the Holon flow drove it then runs stage 5
+> (`holon calibrate <execution_branch>`) itself before requesting the merge, per "Ordering of the merge boundary" in
+> [AGENTS.md](../AGENTS.md), and notifies the user:
 >
 > > ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub. Please review and merge
-> > it manually at `<pr_url>` when you are ready. On a PR the Holon flow drove, stage 5
-> > (`holon calibrate <execution_branch>`) is still outstanding and MUST run before that merge; apart from that stage,
-> > no further agent action is required.
+> > it manually at `<pr_url>` when you are ready; merging before stage 5 (`holon calibrate`) has run destroys the
+> > `E-...` branch that calibration reads.
 >
 > Branch and worktree cleanup may only be performed **after** the human confirms the merge has completed, or when the
 > user explicitly requests it.

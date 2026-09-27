@@ -9,7 +9,7 @@ tags:
   - holon-flow
   - developer-experience
 created_at: 2026-09-26T09:20:00Z
-updated_at: 2026-09-27T21:12:00Z
+updated_at: 2026-09-27T21:46:00Z
 ---
 
 Implement the `holon flow <intent_file>` subcommand in `sandbox_executor.cli` to trigger the end-to-end Holon lifecycle
@@ -77,5 +77,5 @@ Status stays `todo` (nothing in flight); it is now substantially smaller than or
 `holon flow` exists on `origin/main` with exactly these options: `intent_file` (positional, `nargs="?"`),
 `--from-stage`, `--checkpoint`, `--agent`, `--model`, `--dry-run`, `--json`, `--repo-dir`, `--skip-push`. Still absent
 from the flow parser: `--skip-review`, `--skip-calibrate`, `--max-review-iterations`, and `--token-reduce` /
-`--mitm-web` -- the latter two are implemented only on the intent/plan/execute subparsers in `cli.py`, so a
+`--mitm-web` -- the latter two are implemented only on the `plan` and `execute` subparsers in `cli.py`, so a
 full-lifecycle run cannot opt into token reduction. Confirms the re-scoped remainder recorded on 2026-09-26.
