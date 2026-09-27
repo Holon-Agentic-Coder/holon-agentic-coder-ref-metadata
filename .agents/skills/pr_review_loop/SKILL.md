@@ -257,10 +257,10 @@ Wait for the subagent to complete and inspect its report.
          action.
        - Official review has been posted to GitHub.
        - **STOP THE LOOP.**
-       - **Notify the user** that the PR is approved and awaits manual merge:
-         > ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub and all CI checks
-         > are passing. Please review and merge it manually at `<pr_url>` when you are ready. On a PR the Holon flow
-         > drove, stage 5 (`holon calibrate <execution_branch>`) is still outstanding and must run before that merge.
+       - **Notify the user** that the PR is approved, then hand off to stage 5 before any merge is requested:
+         > ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub. On a PR the Holon
+         > flow drove, run stage 5 (`holon calibrate <execution_branch>`) before requesting the merge, then ask the
+         > maintainer to merge manually at `<pr_url>`; merging early destroys the `E-...` branch calibration reads.
        - **NEVER merge autonomously**: Agents MUST NOT run `gh pr merge`, add the PR to the merge queue, or enable
          auto-merge. Merging is strictly reserved for the human maintainer.
        - **Hand off to stage 5 (Calibration) before the merge, not after**: when the change reached the PR through the
