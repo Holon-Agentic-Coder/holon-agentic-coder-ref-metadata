@@ -63,15 +63,22 @@ resolution step is executed in a dedicated, fresh subagent**.
      final message loses nothing;
    - **answer briefly** -- the final reply carries a two-sentence summary plus the machine-readable trailers, never the
      review itself;
-   - **review increments once a report exists** -- when a report from an earlier head is on disk, review
-     `git diff <prior-head>..HEAD` plus the touched files and re-verify only the findings still open; previously cleared
-     items stay cleared unless the increment disturbs them;
+   - **close every report with the trailer block** -- the last lines of the report are the trailer block defined in
+     [`pr-reviewer` step 3.4](../pr_reviewer/SKILL.md#step-34-append-the-machine-readable-trailer-block) (`VERDICT`,
+     `CI`, `REPORT`, `CRITICAL`, `IMPORTANT`, `NIT`, `FINDINGS`). Keep it current as findings are appended, because it
+     is the only machine-detectable signal that a report is finished;
+   - **review increments once a complete report exists** -- when a report from an earlier head of the **same loop** is
+     on disk AND closes with that trailer block, review `git diff <prior-head>..HEAD` plus the touched files and
+     re-verify only the findings still open; previously cleared items stay cleared unless the increment disturbs them. A
+     report without the footer is a stub, and a stub is never a baseline: complete it with a full-file review;
    - **be salvaged on death** -- re-run the step in salvage mode: find the partial report, re-verify what it
      established, review only what is missing or moved, finish. Reduce the thinking level or split the scope if the
      failure repeats. A step is recorded `FAILED` only after those retries, and even then the loop proceeds: a missing
      reviewer vote removes eligibility for an `APPROVED` verdict under the ensemble rule, it does not abort the run.
-     Wall-clock budgets are set per step type (review passes outlast sync and posting passes), with a checkpoint
-     requested before the deadline.
+     Operators SHOULD set a wall-clock budget per step type in the launch parameters (defaults: sync and posting passes
+     10 minutes, review and consensus passes 25 minutes; `HOLON_PR_LOOP_STEP_TIMEOUTS` overrides them). A checkpoint
+     posted when a budget expires is **not** "asking for guidance": the pass states its partial result and keeps
+     running, it never waits for a reply, and the two exits in Principle 3 stay the only stops.
 
 ---
 
@@ -254,6 +261,11 @@ Wait for the subagent to complete and inspect its report.
          > are passing. Please review and merge it manually at `<pr_url>` when you are ready.
        - **NEVER merge autonomously**: Agents MUST NOT run `gh pr merge`, add the PR to the merge queue, or enable
          auto-merge. Merging is strictly reserved for the human maintainer.
+       - **Hand off to stage 5 (Calibration) before the merge, not after**: when the change reached the PR through the
+         Holon flow, the same notification must name the outstanding pre-merge stage --
+         `holon calibrate <execution_branch>`, see [AGENTS.md](../../../AGENTS.md) -- because merging consumes the
+         `E-...` branch calibration reads and the loop itself does not run calibration. A PR approved here is "ready to
+         calibrate, then merge", never "ready to merge".
        - Branch and worktree cleanup must only be performed after the human confirms the merge has completed, or when
          the user explicitly requests cleanup.
      - **Case 2: Critical or Important Issues Flagged by Consensus Reviewers**:

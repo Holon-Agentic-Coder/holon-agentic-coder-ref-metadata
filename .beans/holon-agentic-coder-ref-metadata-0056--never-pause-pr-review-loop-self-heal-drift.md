@@ -10,7 +10,7 @@ tags:
   - governance
   - concurrency
 created_at: 2026-09-27T15:52:00Z
-updated_at: 2026-09-27T15:52:00Z
+updated_at: 2026-09-27T18:13:07Z
 ---
 
 The `pr-review-loop` skill mandated stopping the run and asking the maintainer for input whenever reviewers disagreed or
@@ -56,6 +56,16 @@ Rewritten in `.agents/skills/pr_review_loop/SKILL.md`:
   oversized findings into a new sequentially numbered bean. Every rung runs inside the loop and is pushed.
 - **Report template**: `PAUSED` is no longer a terminal status, and the cycle history table gained a
   `Drift & Sync Actions` column plus a `Drift Consolidated During Loop` line.
+- **Principle 9 -- Runtime Attrition Is Absorbed, Never Propagated** (commit `a9e7018`): a pass death caused by anything
+  other than the change under review -- a child wall-clock timeout, a model that spends its output budget on reasoning
+  and returns no final message, a transport rejection that tears down the enclosing orchestration -- never ends the loop
+  and never cancels the iteration. Passes write their `.subagent/` report early, answer briefly, and are re-run in
+  salvage mode; increment review is gated on a prior report from the same loop that closes with the machine-readable
+  trailer block (`VERDICT`, `CI`, `REPORT`, `CRITICAL`, `IMPORTANT`, `NIT`, `FINDINGS`, defined in
+  `.agents/skills/pr_reviewer/SKILL.md` step 3.4 and mirrored into `.agents/prompts/pr_review_prompt.md`), so an aborted
+  stub is never trusted as a baseline; and operators set a wall-clock budget per step type in the launch parameters
+  (`HOLON_PR_LOOP_STEP_TIMEOUTS`, defaults 10 minutes for sync/posting and 25 for review/consensus) without introducing
+  a pause state.
 
 ## Preserved invariants
 
@@ -86,3 +96,8 @@ Implemented in `.agents/skills/pr_review_loop/SKILL.md` on `actions/features` (P
 which consolidated the interrupted concurrent resolver output exactly as the new Phase A0.5 prescribes -- hunks kept
 after re-verification (`Bean 0039 is completed` staleness fix, bean 0046 `created_at`) and the CI-breaking bean 0052
 hunk dropped with the reason recorded in the commit message.
+
+Principle 9 landed afterwards in commit `a9e7018`, which recorded the attrition rules but left two of them unnamed -- no
+step ever set a wall-clock budget and no shipped document defined the trailer schema the salvage mode trusts. The
+Iteration-1 resolver pass on the same PR pinned both down (named defaults plus `HOLON_PR_LOOP_STEP_TIMEOUTS`, and the
+trailer block defined in `pr_reviewer/SKILL.md` step 3.4), which is why this record was advanced to describe them.

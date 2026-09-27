@@ -100,7 +100,8 @@ or the target repository worktree under `apps/holon-agentic-coder` or `apps/holo
 Once all valid changes have been applied, stage and commit them to the current branch:
 
 ```bash
-git add -A
+git status --porcelain   # confirm only the paths you edited are listed
+git add <path/you/edited> <another/path/you/edited>
 git commit -m "fix: apply validated PR review suggestions from <pr_url_or_number>
 
 Changes applied:
@@ -109,6 +110,11 @@ Changes applied:
 Skipped (invalid/out of scope):
 - <bullet list of skipped comment titles>"
 ```
+
+> [!WARNING] **Never `git add -A` or `git add .`.** Stage the explicit paths this pass edited, immediately after
+> re-running `git status --porcelain`. A parallel agent session or the human maintainer can hold unrelated in-flight
+> edits in the same worktree, and a blanket add commits them under your message -- the hazard bean 0056 records as the
+> reason `pr-review-loop` runs Phase A0.5 before every pass.
 
 Do **not** push to the remote unless the user explicitly instructs you to do so (or when operating within an automated
 `pr-review-loop` iteration).

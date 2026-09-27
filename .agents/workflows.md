@@ -145,10 +145,14 @@ To maintain clean repository history, follow this Git workflow:
    - **Autonomous branch creation is allowed.** Do not wait to be asked: create the worktree and branch yourself, then
      work exclusively inside it. Inside your own worktree you have full latitude to edit, commit, squash, test, and
      rebuild images.
-   - For all code changes in `apps/holon-agentic-coder/`, work must happen in a dedicated Git worktree (e.g.
-     `apps/holon-agentic-coder/feat-<name>` branched off `origin/main`).
+   - For `apps/holon-agentic-coder/`, a dedicated Git worktree (e.g. `apps/holon-agentic-coder/feat-<name>` branched off
+     `origin/main`) is where you build images, inspect code, run verification, and operate the harness. It is **not** a
+     surface for authoring changes: every `holon-agentic-coder` source change is produced by the Holon flow (invariant 8
+     in [rules.md](rules.md) and the Sole Change Path in [AGENTS.md](../AGENTS.md)), so hand-authoring or
+     hand-committing that repository's source from a worktree stays prohibited.
    - For all code changes in `apps/holon-coherence/`, work must happen in a dedicated Git worktree (e.g.
-     `apps/holon-coherence/feat-<name>` branched off `origin/main`).
+     `apps/holon-coherence/feat-<name>` branched off `origin/main`). The flow resolves exactly one remote per run and
+     cannot reach this repository, so coherence changes are worktree-authored.
    - If work has already landed in a `main` worktree, move it into a dedicated worktree and restore `main` to a pristine
      checkout.
    - Each worktree owns its environment: run `uv sync --group dev` inside it. Virtualenvs are directory-bound and their
@@ -173,22 +177,32 @@ To maintain clean repository history, follow this Git workflow:
      ```
 
    - Avoid generic commit messages like "update files" or "fix".
-4. **Squashing (Mandatory)**:
-   - Before pushing your feature branch to the remote repository, you **MUST squash all commits** on your branch
-     relative to the target branch into a **single commit** (e.g., relative to `main` in this metadata repository,
-     `holon-agentic-coder`, or `holon-coherence`).
-   - Your feature branch should only ever contain exactly **one commit** differing from the target branch.
+4. **Squashing (Mandatory On Branches You Author)**:
+   - Before pushing a branch you hand-authored, you **MUST squash all commits** on it relative to the target branch into
+     a **single commit** (e.g., relative to `main` in this metadata repository, `holon-agentic-coder`, or
+     `holon-coherence`). Such a branch should only ever contain exactly **one commit** differing from the target branch.
+   - **Branches the Holon flow or a review loop pushes are exempt.** `I-...`/`P-...`/`E-...` branches, and the branch a
+     `pr-review-loop` run drives, carry one commit per intent, plan, execution, review, or resolution pass, and those
+     commits are the audited provenance record: never squash, rewrite, or force-push them. Squashing mid-loop would
+     require the `--force` that Principle 5 of the `pr-review-loop` skill forbids as an answer to drift, and the squash
+     itself would swallow the other session's commits. The maintainer squashes when merging.
    - To perform the squash, execute:
 
      ```bash
      git reset $(git merge-base origin/main HEAD)
-     git add -A
+     git add <path/this/branch/changed> <another/path/this/branch/changed>
      git commit -m "your-semantic-commit-message"
      ```
 
+   - Stage the branch's own paths explicitly; **never `git add -A` or `git add .`**. A parallel agent session can hold
+     unrelated in-flight edits in the same worktree, and a blanket add swallows them into your commit under your message
+     (the hazard recorded in bean 0056). Take the list from
+     `git diff --name-status $(git merge-base origin/main HEAD) HEAD` plus whatever you edited in the working tree.
+
 5. **Pull Requests & Pushing (Push Your Own Worktree Branch Freely)**:
    - Pushing **your own** feature branch is autonomous -- no user instruction needed, once it is squashed to a single
-     commit: `git push -u origin <branch-name>`.
+     commit (rule 4; flow- and loop-driven branches push per iteration instead of squashing):
+     `git push -u origin <branch-name>`.
    - When rewriting history on your own branch, use `git push --force-with-lease origin <branch-name>`.
    - **Do NOT push directly to `main` under any circumstances**, never push or force-push a branch you do not own, and
      never push from a `main` worktree.

@@ -137,6 +137,31 @@ and LLM model:
   Determine this from the `MODEL_NAME` environment variable if set, otherwise use the model name you know yourself to be
   running as.
 
+### Step 3.4: Append the Machine-Readable Trailer Block
+
+Every report written to `.subagent/` -- dry-run review, consensus review, and resolution report alike -- MUST close with
+the trailer block as its last lines:
+
+```text
+VERDICT: <APPROVED | CHANGES_REQUESTED | COMMENT>
+CI: <PASS | FAIL | SKIPPED | PENDING>
+REPORT: <path to this report>
+CRITICAL: <int>
+IMPORTANT: <int>
+NIT: <int>
+FINDINGS: <int>
+```
+
+- `CRITICAL`, `IMPORTANT`, and `NIT` are the totals recorded in the report body; `FINDINGS` is their sum.
+- The block sits after the Step 3.3 breakdown footer, as the file's final lines.
+- It belongs to the on-disk report only. The body posted to GitHub in real mode ends with the Step 3.3 footer and
+  carries no trailers.
+- Write the block into the stub before the prose and rewrite it after each appended finding. It is seven lines, so
+  keeping it current costs far less than the review it protects, and it survives an aborted final message.
+- The block is the completeness signal the loop depends on: `pr-review-loop` Principle 9 only lets a pass shrink its
+  work to `git diff <prior-head>..HEAD` when the prior report closes with this footer, and treats a report without it as
+  a stub that must be completed by a full-file review.
+
 ### Step 4: Post the Review Back to GitHub (Real Mode vs Dry-Run Mode)
 
 Check if **Dry-Run Mode** is enabled (e.g. via `--dry-run` parameter or loop instruction):
