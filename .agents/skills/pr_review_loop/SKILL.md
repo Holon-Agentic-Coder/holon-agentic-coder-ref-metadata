@@ -55,6 +55,23 @@ resolution step is executed in a dedicated, fresh subagent**.
    This boundary is absolute and is **not** relaxed by the never-pause policy. Agents and subagents **MUST NEVER execute
    `gh pr merge`, enable auto-merge, or add the PR to a merge queue**. Merging is exclusively the human maintainer's
    responsibility.
+9. **Runtime Attrition Is Absorbed, Never Propagated**: A review, consensus or resolution pass can die for reasons that
+   have nothing to do with the change under review -- a child wall-clock timeout, a model that spends its output budget
+   on reasoning and returns no final message, or a launch/transport error whose rejection tears down the enclosing
+   orchestration. A pass death never ends the loop and never cancels the iteration. Every pass therefore MUST:
+   - **write its report early** -- create the file as a stub and append after each finding, so an aborted or timed-out
+     final message loses nothing;
+   - **answer briefly** -- the final reply carries a two-sentence summary plus the machine-readable trailers, never the
+     review itself;
+   - **review increments once a report exists** -- when a report from an earlier head is on disk, review
+     `git diff <prior-head>..HEAD` plus the touched files and re-verify only the findings still open; previously cleared
+     items stay cleared unless the increment disturbs them;
+   - **be salvaged on death** -- re-run the step in salvage mode: find the partial report, re-verify what it
+     established, review only what is missing or moved, finish. Reduce the thinking level or split the scope if the
+     failure repeats. A step is recorded `FAILED` only after those retries, and even then the loop proceeds: a missing
+     reviewer vote removes eligibility for an `APPROVED` verdict under the ensemble rule, it does not abort the run.
+     Wall-clock budgets are set per step type (review passes outlast sync and posting passes), with a checkpoint
+     requested before the deadline.
 
 ---
 
