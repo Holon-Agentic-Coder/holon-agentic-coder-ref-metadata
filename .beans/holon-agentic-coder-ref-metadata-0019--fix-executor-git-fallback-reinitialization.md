@@ -1,10 +1,10 @@
 ---
 # holon-agentic-coder-ref-metadata-0019
 title: Fix executor.py git re-initialization fallback wiping parent commit history
-status: in-progress
+status: completed
 type: task
 created_at: 2026-08-31T10:56:00Z
-updated_at: 2026-09-27T11:35:00Z
+updated_at: 2026-09-28T07:50:00Z
 ---
 
 # Fix executor.py git re-initialization fallback wiping parent commit history
@@ -414,3 +414,91 @@ through the flow after the hermetic-tests execution lands -- the executor recove
 
 Branches produced by this diagnostic run still exist on the remote and should be deleted once the fix lands
 (`I-1790379192-*/_`, `.../P-1790379215-*/_`, `.../E-1790379447-*/_` -- the last is the junk orphan branch).
+**2026-09-28: still present, and deliberately not deleted by the agent.** They are shared remote refs and one is the
+provenance record of this bean's root-cause run; deleting remote refs is maintainer work (`clean-branches` skill), so it
+is listed under "Handover" below rather than acted on unilaterally.
+
+---
+
+## Closeout of criteria 2-5 (2026-09-28) -- PR #60 and PR #61, all five flow stages executed twice
+
+The four outstanding acceptance criteria were driven through the flow as two intents, each traversing intent -> plan ->
+execute -> PR review loop -> calibration.
+
+| Slice | Criteria                                                                                    | Intent / plan / execution branches                                                                            | Flow head | PR                                                                        | Consensus                                                           | Calibration                                                                                                                                               |
+| ----- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | --------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A     | 2 (non-destructive, history-preserving recovery) + 5 (replace the `symbolic-ref` assertion) | `I-1790562445-preserve-parent-history-in-executor-git-recovery/_` -> `P-1790562483-...` -> `E-1790563015-...` | `2552584` | [#60](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/60) | 3/3 `APPROVED`, 0 Critical / 0 Important, CI 10/10                  | predicted EV 66.21 -> actual 68.96, **dEV +2.75**, branch `.../E-1790563015-.../calibrated` (`a086d8d`; first pass `4ce1baf` mismeasured -- see defect 5) |
+| B     | 3 (bounded, redacted agent output in the record) + 4 (`get_repo_url()` default)             | `I-1790564113-record-agent-output-and-default-active-repo-url/_` -> `P-1790564277-...` -> `E-1790564813-...`  | `16e530a` | [#61](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/61) | 3/3 `APPROVED`, 0 Critical / 0 Important / 1 deferred Nit, CI 10/10 | predicted EV 69.98 -> actual 73.76, **dEV +3.78**, branch `.../E-1790564813-.../calibrated` (`a41627b`; first pass `3ae79da` mismeasured -- see defect 5) |
+
+Both execution commits are true children of their plan tips (`4052853` parent `055c2c5`; `c1381a9` parent `fad33e0`),
+and neither run tripped the orphan path -- because slice A had already removed it.
+
+### What the review loop found in slice A, and what it cost to fix
+
+Every finding below was reproduced in a real fixture before being fixed, and re-verified after the fix by running the
+helper again -- the reports in `.subagent/holon-agentic-coder_pr60_*.md` carry the captured output.
+
+| id  | sev       | defect                                                                                                                                                                                                             | resolution                                                                                                                                                                                                                                       |
+| --- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| F-1 | Important | the lock repair walked the whole `.git` tree and deleted every `*.lock`, including `refs/heads/*.lock` and `config.lock` held by a live git process (probe output showed all three removed)                        | scoped to `.git/index.lock` plus `refs/` and `logs/` locks, never `config.lock` / `packed-refs.lock` / `shallow.lock` / `HEAD.lock`, and only when older than `HOLON_GIT_LOCK_AGE_SECONDS` (default 60 s); young locks are reported, not deleted |
+| F-4 | Important | the damaged-`HEAD` repair pinned `HEAD` to `available_branches[0]`, which on a single-branch workspace is the **plan branch**, so the execution commit landed on the wrong ref and the `E-` push had no source ref | `HEAD` is restored onto the execution branch, with the tip read straight from `.git` (git cannot run at all while `HEAD` is missing), and the repair refuses to guess another branch                                                             |
+| F-5 | Nit       | a parentage-verification failure appended a second, contradictory `executions.jsonl` row for the same `execution_id`                                                                                               | rows now carry `ledger_revision` 1 / 2 so an append-only reader can pick the authoritative one                                                                                                                                                   |
+| F-7 | Nit       | four benign-repair sub-cases shared one test and one workspace                                                                                                                                                     | split into four tests, plus `test_lock_repair_removes_only_abandoned_locks` and `test_missing_head_is_restored_on_the_execution_branch`, both of which fail if the fix is reverted                                                               |
+| F-8 | Nit       | the failure path rewrote `executions/<id>.md`, discarding the agent's own summary                                                                                                                                  | appends a `## Git Recovery Failure` section instead                                                                                                                                                                                              |
+| F-6 | Nit       | `-c safe.directory` is injected based on a substring test of `.git/config`                                                                                                                                         | deferred to **Bean 0058**; the injection mechanism itself is correct because `GIT_CONFIG_COUNT`/`GIT_CONFIG_KEY_0` is not honoured by the image's git (see the integration notes above)                                                          |
+
+### Independent verification (not trusting the agent's "success" summaries)
+
+Two adversarial suites were written by the harness outside the flow and run against each execution head; they are
+retained in `todo/` (`verify_0019_a_adversarial.py`, `verify_0019_b_adversarial.py`, `probe_0019_head_symref.py`,
+`probe_0019_record_write_failure.py`).
+
+- Slice A (3 passed): asserts on the **pushed remote** ref after the agent deletes the entire `.git` -- parent equals
+  the plan tip, tree still holds codebase files, agent edits, the record and the ledger; and that an unusable `.git`
+  (garbage `config`) is moved aside with a canary file intact and never enters the commit.
+- Slice B (7 passed): a token printed by the agent reaches neither the record nor the ledger row; the byte budget keeps
+  the tail and announces truncation; a raising capture helper leaves `exec_status` alone; a failing agent keeps its
+  stderr line; `get_repo_url()` precedence matrix; no shipped `src` file names the retired repo.
+- Test totals: A `346 passed` / 45 subtests unit, `6 passed` / 18 subtests integration; B `349 passed` / 45 subtests
+  unit, `6 passed` / 18 subtests integration; ruff check + format and prettier clean on both.
+
+### Deviations and systemic findings recorded while closing
+
+1. **Review child attrition is now 5 for 5.** All four PR #60 lanes died at a 900 s wall clock (three with stub files,
+   one with nothing) and the single PR #61 lane died at 600 s with a 5-byte stub, in the same runner where a control
+   probe returns in seconds. The loop therefore ran its passes in the parent in salvage mode and verified every claim by
+   executing code instead of reading it; per-PR rulings live in
+   `.subagent/holon-agentic-coder_pr{60,61}_coordination.json`. One reviewer-style claim was **disproved** this way: "a
+   record-write failure still aborts the run and loses the ledger row" -- `executor.py` filters `add_targets` to
+   existing paths with `check=False`, and the probe showed `main()` surviving with the ledger row committed.
+2. **`prettier@3.8.4` is not idempotent on planner-generated markdown.** One `--write` pass on `plans/P-1790564277-*.md`
+   still left `prettier --check` failing (8 more lines moved on the second pass), which is why every flow PR fails the
+   hygiene job even right after being formatted. Logged as **Bean 0058**.
+3. **`holon calibrate` cannot resolve the execution branch unless a local ref exists.** With only
+   `refs/remotes/origin/<E-branch>/_` present it dies with `'...' is not a commit`; worked around with
+   `git branch -f "<E-branch>" <sha>` before invoking it. Same family as Bean 0054 (merge deletes the exec ref) -- noted
+   there. **Worse, when that ref is simply missing stage 5 does not fail -- it lies.** `parse_actual_metrics` swallows
+   the non-zero `git diff --shortstat <plan>..<exec>` and reports a zero patch size, so both calibration reports
+   published "`0 files modified`, SSA 0.2" (slice A: truth is 5 files / +976 / -103; slice B: 7 files / +777 / -116) and
+   the ledger carried the inflated `EV_actual` (69.52 and 74.27; corrected to 68.96 and 73.76). Slice A compounded it
+   with a stale local execution ref (`4052853` while the approved head was `2552584`), i.e. it calibrated a base the
+   review loop had already superseded. Both branches were repaired append-only -- `47a9864` + `a086d8d` for slice A,
+   `a41627b` for slice B -- so no published flow commit was rewritten and both pushes stayed fast-forward. Logged as
+   **Bean 0060**.
+4. **The two slices overlap by construction.** PR #60 and PR #61 both rewrite the post-agent block of `executor.py`.
+   Whichever merges second must take `main`'s version of that region plus the **union** of the append-only ledger rows
+   -- the Bean 0053 failure mode, recorded in the PR bodies so the merge order is explicit: **#60 first (calibrated),
+   then #61 after merging `main`.**
+
+### Handover
+
+- Merge #60 then #61 by hand (Bean 0034 boundary: agents never merge). Both are calibrated, so merging destroys the `E-`
+  branches calibration read only after the fact.
+- Remote cleanup still owed by the maintainer: the 2026-09-26 diagnostic refs
+  `I-1790379192-fix-executor-git-fallback-reinitialization/_`, `.../P-1790379215-.../_` and the junk orphan
+  `.../E-1790379447-.../_`; plus the six stale `I-1790382419-*/E-*/_` attempts from the Bean 0039 work.
+- Follow-ups opened: **Bean 0058** (prettier convergence in the flow), **Bean 0059** (`safe.directory` detection),
+  **Bean 0060** (stage 5 measures a stale/missing ref and reports it as a zero-diff success).
+
+**Bean 0019 is closed.** All five revised acceptance criteria are implemented, reviewed to consensus, calibrated and
+awaiting human merge.

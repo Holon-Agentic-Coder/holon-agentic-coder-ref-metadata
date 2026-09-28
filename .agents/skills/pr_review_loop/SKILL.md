@@ -62,6 +62,17 @@ resolution step is executed in a dedicated, fresh subagent**.
    `<N>` is the bare PR number, and the `_iter_..._{sha}` tail is dropped only for per-PR singletons (caches, body,
    ledger, history). Never write to `scratch/`, the repository root, `todo/`, or any unscoped name.
 
+   **Which `.subagent/` — the harness, always.** The artifacts directory is the `.subagent/` of the
+   `holon-agentic-coder-ref-metadata` **harness** checkout: the repository holding the `.agents/` and `.beans/`
+   directories and the copy of this skill being executed. It is **not** the `.subagent/` of the target-repository
+   worktree the PR branch happens to be checked out in. The worktree is disposable — Bean 0061 renamed one mid-loop, and
+   a merged PR's worktree is deleted — while the harness outlives every loop, so a handoff written into a worktree
+   vanishes at the exact moment a successor needs it. Resolve the harness root once per session from the location of
+   this skill file and write every artifact path under it; record the absolute path in `<repo>_pr<N>_state.json` as
+   `artifacts_dir` so no later agent has to guess. When a prior pass left artifacts in some other `.subagent/` (a
+   worktree, or this loop's own earlier location), read them, **copy** them forward into the harness directory — never
+   move, never delete, never assume the source survives — and note the source path in the state file as `migrated_from`.
+
    | Artifact                                            | Name                                                                  |
    | --------------------------------------------------- | --------------------------------------------------------------------- |
    | Diff dump / PR metadata cache                       | `<repo>_pr<N>_diff.txt` / `<repo>_pr<N>_meta.json`                    |
@@ -75,6 +86,8 @@ resolution step is executed in a dedicated, fresh subagent**.
    | Regenerated PR title/body                           | `<repo>_pr<N>_pr_body.md`                                             |
    | Loop history                                        | `<repo>_pr<N>_loop_history.md`                                        |
    | Adjudication ledger                                 | `<repo>_pr<N>_coordination.json`                                      |
+   | Resume state (canonical handoff)                    | `<repo>_pr<N>_state.json`                                             |
+   | Posted review body, kept permanently                | `<repo>_pr<N>_posted_review.md`                                       |
    | Anything else (commit message, gate logs, captures) | `<repo>_pr<N>_<purpose>_iter_<iteration>_{sha}.<ext>`                 |
 
    **Legacy fallback (a union, never an either/or):** read the namespaced path and, when the unscoped legacy names
@@ -83,9 +96,16 @@ resolution step is executed in a dedicated, fresh subagent**.
    the legacy ledger while new passes write the namespaced one, so reading only one copy silently reopens adjudicated
    items. Write onward using the namespaced name. Before running any pass, read
    `.subagent/<repo>_pr<N>_coordination.json` **together with** any rulings still held by `.subagent/coordination.json`
-   to fetch user-rejected recommendations and active constraints. **Cleanup at a terminal state**: delete this repo+PR's
-   intermediates except the final consensus report and the ledger, and never touch another repository's or another PR's
-   files.
+   to fetch user-rejected recommendations and active constraints. **Nothing this loop writes is ever deleted.** At a
+   terminal state the intermediates simply stay where they are; if the directory genuinely must be tidied, **move** this
+   repo+PR's completed intermediates into `.subagent/<repo>_pr<N>_archive/` — move, never `rm`, never a wildcard, and
+   never another repository's or another PR's files. Five files a successor cannot work without are permanent and are
+   excluded from any tidy pass: `_state.json`, `_coordination.json`, `_loop_history.md`, the final consensus report, and
+   `_posted_review.md` when a review was posted. The delete-on-completion rule this replaces cost PR #61 an entire
+   re-derivation: the following session inherited two stub reports and rebuilt the review from the GitHub thread, which
+   does not record the head a review was written against (Bean 0063). Regenerable caches are the one exception: Phase
+   A0.5 discards and re-fetches stale `<repo>_pr<N>_diff.txt` / `<repo>_pr<N>_meta.json` dumps whenever the head moves,
+   because a stale diff is worse than no diff — a cache is disposable precisely because re-fetching it is free.
 
 8. **Human-Only PR Merging Boundary**: The loop's **GitHub-write** scope terminates upon posting the approved consensus
    review -- after that it makes no further `gh pr` call of any kind, and the only action it still takes is stage 5
@@ -117,6 +137,73 @@ resolution step is executed in a dedicated, fresh subagent**.
      overrides in the launcher -- nothing in this repository reads it, so the budget is advisory, not enforced). A
      checkpoint posted when a budget expires is **not** "asking for guidance": the pass states its partial result and
      keeps running, it never waits for a reply, and the two exits in Principle 3 stay the only stops.
+10. **Every Pass Leaves a File the Next Agent Can Read Cold**: A review's durability is measured by what survives its
+    own session, not by what the session remembered. **Both modes — dry-run AND real — therefore write two things, in
+    this order, before any GitHub write: the pass report (Principle 9) and an update to the per-PR resume file
+    `.subagent/<repo>_pr<N>_state.json`.** A pass that ends without updating that file has not finished, even if its
+    report is complete. It is a per-PR singleton, the single source of truth for where this loop's work lives, and
+    machine-readable so a successor resumes without reading prose first:
+
+    ```json
+    {
+      "repo": "holon-agentic-coder",
+      "pr": 61,
+      "pr_url": "https://github.com/<org>/<repo>/pull/61",
+      "head": "<sha>",
+      "iteration": 12,
+      "mode": "dry-run | real",
+      "worktree": "/abs/path/to/the/branch/checkout",
+      "artifacts_dir": "/abs/path/to/harness/.subagent",
+      "migrated_from": null,
+      "passes": [
+        {
+          "pass": "dry_run | ensemble_reviewer_1..3 | consensus | resolver | sync",
+          "iteration": 12,
+          "report": ".subagent/<repo>_pr<N>_dry_run_review_iter_12_<sha>.md",
+          "status": "COMPLETE | STUB | DEAD",
+          "verdict": "APPROVED | CHANGES_REQUESTED | COMMENT | UNKNOWN",
+          "critical": 0,
+          "important": 0,
+          "nit": 0,
+          "done": ["<item already established, do not redo>"],
+          "remaining": ["<item never reached>"],
+          "updated": "<iso8601>"
+        }
+      ],
+      "ci": { "state": "PASS | FAIL | PENDING", "head": "<sha>", "checked_at": "<iso8601>" },
+      "posting_gate": { "open": false, "reason": "<finding id, or 'clean'>" },
+      "posted_review": {
+        "exists": true,
+        "kind": "APPROVE | COMMENT | REQUEST_CHANGES",
+        "url": "<review permalink>",
+        "submitted_at": "<iso8601>",
+        "head": "<sha the review was written against>",
+        "body_file": ".subagent/<repo>_pr<N>_posted_review.md"
+      },
+      "residual_risks": ["<open nit / deferred finding / out-of-scope item and where it was deferred to>"],
+      "next_action": "<one sentence: exactly what the next agent should do first>",
+      "updated": "<iso8601>"
+    }
+    ```
+
+    The rules that make it a handoff rather than a log:
+    - **Write it before you can be killed.** Create the file at the start of a pass with your own entry at
+      `status: "DEAD"`, then flip that entry to `COMPLETE` when you finish. A pass that dies mid-flight therefore leaves
+      behind an entry naming what it had already established in `done` and what it never reached in `remaining`, which
+      is what turns the next attempt into a salvage instead of a restart — the difference between a loop that recovers
+      and one that stalls.
+    - **Update it after posting.** A review that is posted but not recorded in `posted_review` is invisible to the next
+      agent unless it re-fetches GitHub, and the PR thread does not say which head the review was written against.
+      Record the `url`, `submitted_at`, the kind GitHub actually accepted (which may be `COMMENT` after the own-PR
+      fallback) and the `head` SHA, and keep the submitted text permanently as
+      `.subagent/<repo>_pr<N>_posted_review.md`.
+    - **A cold start reads three files before any prose**: `_state.json` first — where the loop stands, what is already
+      verified, what to do next; then `_coordination.json` for rulings that must not be re-litigated; then the newest
+      report whose entry has `status: "COMPLETE"` as the baseline for an increment review under Principle 9. If
+      `_state.json` is absent, say so and start fresh; if its `head` differs from the live PR head, run Phase A0.5
+      before anything else.
+    - **Never invent a parallel state file.** Exactly one resume file per repo+PR. A fourth or fifth log file means the
+      next agent reads the wrong one.
 
 ---
 
@@ -218,7 +305,10 @@ Execute the review pass in a clean, isolated subagent context.
   > 5. Do **NOT** post comments to GitHub (Dry-Run mode is ON).
   > 6. Save the detailed review findings and report to a markdown file:
   >    `.subagent/<repo>_pr<N>_dry_run_review_iter_<iteration>_{short_git_commit}.md` (creating the directory if needed)
-  >    so the user can review the dry-run feedback.
+  >    so the user can review the dry-run feedback. **A dry run keeps its files too** — then update the per-PR resume
+  >    file `.subagent/<repo>_pr<N>_state.json` (Principle 10) with your entry: report path, `status`, verdict, finding
+  >    counts, `done`, `remaining` and `next_action`. The only difference between dry-run and real is the GitHub write;
+  >    the next agent resumes from precisely this report, so a dry run that leaves nothing behind gets re-run from zero.
   > 7. Return a concise report containing:
   >    - Overall Verdict (`APPROVED`, `CHANGES_REQUESTED`, or `COMMENT`).
   >    - Total number of Critical, Important, and Nit findings.
@@ -277,6 +367,11 @@ Wait for the subagent to complete and inspect its report.
          >   - Post the official review to GitHub via
          >     `gh pr review <pr_url_or_number> --approve -F .subagent/<repo>_pr<N>_review_body.md` (falling back to
          >     `--comment` if PR author is the authenticated user).
+         >   - **Then keep the receipt.** Copy the submitted text verbatim to `.subagent/<repo>_pr<N>_posted_review.md`
+         >     and record it in `.subagent/<repo>_pr<N>_state.json` under `posted_review`: the review `url`,
+         >     `submitted_at`, the kind GitHub accepted, and the head SHA the review was written against. **Do NOT
+         >     delete `_review_body.md`.** A posted review that leaves no local record forces the next session to
+         >     reconstruct the verdict from the GitHub thread, which cannot say what it was reviewed against.
      - **Antigravity (AGY) Invocation**:
        ```json
        {

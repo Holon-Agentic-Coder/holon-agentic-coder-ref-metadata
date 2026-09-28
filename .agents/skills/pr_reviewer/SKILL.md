@@ -47,6 +47,12 @@ gh pr diff <pr_url_or_number>
 > `holon-agentic-coder-ref-metadata_pr47_meta.json`, `holon-agentic-coder-ref-metadata_pr47_review_body.md`. Write
 > nowhere else -- not `scratch/`, not the repository root, not an unscoped name. Legacy unscoped files may be read for
 > continuity but are never written to.
+>
+> [!IMPORTANT] **`<artifacts_dir>` is the `.subagent/` of the `holon-agentic-coder-ref-metadata` harness checkout** --
+> the repository holding `.agents/` and `.beans/` and this copy of the skill -- never the `.subagent/` of the
+> target-repository worktree the PR branch sits in. A worktree is disposable (it gets renamed, and deleted once the PR
+> merges); the harness outlives every run, so it is the only place a successor will think to look. Record the absolute
+> path as `artifacts_dir` in `<repo>_pr<N>_state.json`.
 
 ### Step 3: Run Multi-Agent Ensemble Review (3 Independent Passes)
 
@@ -185,6 +191,12 @@ Check if **Dry-Run Mode** is enabled (e.g. via `--dry-run` parameter or loop ins
   - **DO NOT** execute `gh pr review`.
   - Skip posting comments to GitHub to prevent PR discussion thread clutter during intermediate loop iterations.
   - Output the structured review findings and verdict strictly to local context/logs for the resolver subagent.
+  - **A dry run still keeps its files.** Write the report above and update the per-PR resume file
+    `.subagent/<repo>_pr<N>_state.json` (Principle 10 of
+    [`pr-review-loop`](../pr_review_loop/SKILL.md#10-every-pass-leaves-a-file-the-next-agent-can-read-cold)) exactly as
+    a real pass does: report path, `status`, verdict, finding counts, `done`, `remaining`, `next_action`. The only thing
+    dry-run mode suppresses is the GitHub write -- a dry run that leaves nothing durable behind is re-run from zero by
+    whoever picks the work up next.
 
 - **If Real Mode is ON (Default / Final Pass)**:
   - Write your review output to a temporary file (`.subagent/<repo>_pr<N>_review_body.md`) to prevent shell character
@@ -203,6 +215,13 @@ Check if **Dry-Run Mode** is enabled (e.g. via `--dry-run` parameter or loop ins
       gh pr review <pr_url_or_number> --comment -F .subagent/<repo>_pr<N>_review_body.md
       ```
 
+- **Keep the receipt after posting.** Copy the submitted text verbatim to `.subagent/<repo>_pr<N>_posted_review.md`, and
+  record in `.subagent/<repo>_pr<N>_state.json` under `posted_review`: the review `url`, `submitted_at`, the kind GitHub
+  actually accepted -- which may be `COMMENT` after the own-PR fallback -- and the head SHA the review was written
+  against. **Do not delete `_review_body.md`.**
+- Update `.subagent/<repo>_pr<N>_state.json` with this pass's entry (report path, `status: "COMPLETE"`, verdict, finding
+  counts, `done`, `remaining`, `next_action`) whether or not the post succeeded.
+
 _Note: GitHub disallows users from approving or requesting changes on their own PRs. If `--approve` or
 `--request-changes` returns an error because the PR author is the authenticated user, fallback to `--comment`._
 
@@ -210,11 +229,16 @@ _Note: GitHub disallows users from approving or requesting changes on their own 
 > `gh pr merge`, do NOT add the PR to the merge queue, and do NOT enable auto-merge. PR merging is strictly reserved for
 > the human maintainer.
 
-### Step 5: Clean Up
+### Step 5: Keep the Artifacts (Nothing Is Deleted)
 
-Remove the temporary files this run created in the `.subagent/` directory -- scoped to this repository and PR, never a
-wildcard that could delete another PR's work:
+Earlier versions of this skill ended by removing `.subagent/<repo>_pr<N>_review_body.md`. **That rule is withdrawn.**
+The body is the only local record of what was actually submitted, and its absence on PR #61 forced a later session to
+reconstruct a verdict from the GitHub thread -- which does not record the head that review was written against (Bean
+0063).
 
-```bash
-rm -f .subagent/<repo>_pr<N>_review_body.md
-```
+- Keep `<repo>_pr<N>_review_body.md`, and keep the permanent copy of the submitted text in
+  `<repo>_pr<N>_posted_review.md` with its GitHub receipt (`url`, `submitted_at`, accepted kind, head SHA) mirrored in
+  `<repo>_pr<N>_state.json`.
+- If the artifacts directory genuinely must be tidied, **move** this repo+PR's completed intermediates into
+  `.subagent/<repo>_pr<N>_archive/`. Never `rm`, never a wildcard that could reach another PR's work, and never another
+  repository's files.
