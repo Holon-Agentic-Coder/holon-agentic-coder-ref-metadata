@@ -62,7 +62,11 @@ Located at `apps/holon-agentic-coder/`:
      git worktree add ../main main
      ```
    - **For a specific feature branch `{branch_name}`** (checked out to `apps/holon-agentic-coder/{branch_name}`): All
-     development and feature changes must be branched off `origin/main`:
+     development and feature changes must be branched off `origin/main`. Name `{branch_name}` after the PR
+     (`pr<N>-<slug>`, e.g. `pr61-agent-output-capture`) when the checkout tracks a Holon flow branch
+     (`I-.../P-.../E-.../...`, which always has a PR -- the flow ref itself keeps its audited name), otherwise after the
+     bean (`<type>-<bean-id>-<slug>`); a temporary checkout takes a fully descriptive `<purpose>-<subject>-<qualifier>`
+     name and is deleted when done (see item 5 of `AGENTS.md`):
      ```bash
      git worktree add --no-track -b {branch_name} ../{branch_name} origin/main
      ```
@@ -88,7 +92,9 @@ Located at `apps/holon-coherence/`:
      git worktree add ../main main
      ```
    - **For a specific feature branch `{branch_name}`** (checked out to `apps/holon-coherence/{branch_name}`): All
-     development and feature changes must be branched off `origin/main`:
+     development and feature changes must be branched off `origin/main`. Coherence is not reachable by the flow, so its
+     branches carry the bean number (`<type>-<bean-id>-<slug>`); name a PR-driven checkout `pr<N>-<slug>` and a
+     temporary one `<purpose>-<subject>-<qualifier>` (see item 5 of `AGENTS.md`):
      ```bash
      git worktree add --no-track -b {branch_name} ../{branch_name} origin/main
      ```

@@ -138,7 +138,19 @@ To maintain clean repository history, follow this Git workflow:
    - **Every agent works in its own worktree, and works exclusively there.** Give the worktree and branch your agent or
      bean identifier so concurrent agents never share a directory or a branch (e.g.
      `apps/holon-coherence/fix-0027-host-local-llm-routing` for branch `fix/0027-host-local-llm-routing`). Never edit,
-     commit to, or reuse another agent's worktree or branch.
+     commit to, or reuse another agent's worktree or branch. Name it by whichever of these applies:
+     - The checkout tracks a **Holon flow branch** (`I-.../P-.../E-.../...`), which always has a Pull Request: the
+       worktree directory carries the **PR number and a slug**, `apps/<project>/pr<N>-<slug>` (e.g.
+       `apps/holon-agentic-coder/pr61-agent-output-capture`). The flow ref keeps its exact audited name -- never rename
+       or re-cut it -- so the marker lives on the directory.
+     - **No Holon flow branch** is involved: the directory carries the **bean number**,
+       `apps/<project>/<type>-<bean-id>-<slug>` for branch `<type>/<bean-id>-<slug>`. Log the bean first if the work is
+       not tracked yet.
+     - The worktree is **temporary**: make the name state its purpose in full,
+       `apps/<project>/<purpose>-<subject>-<qualifier>` (e.g. `verify-pr61-agent-output-redaction`,
+       `repro-0028-proxy-port-conflict`). Opaque names (`tmp`, `wip`, `scratch`, `test1`, or letter suffixes such as
+       `resolve-a` / `calib-b`) are prohibited, because `git worktree list` exposes only path, commit and refname and a
+       cleanup pass cannot attribute what it cannot read. Remove it when the purpose is done.
    - **Never develop or make code changes directly on the `main` worktree in `apps/holon-agentic-coder` or `main`
      worktree in `apps/holon-coherence`.** Those checkouts are the **user's playground**: no edits, staging, commits,
      stashes, resets, cleans, checkouts, builds, stray files, or local-state mutation of any kind (including `.venv/`,
@@ -163,7 +175,10 @@ To maintain clean repository history, follow this Git workflow:
    - Branch naming convention:
      `git worktree add --no-track -b <type>/<bean-id>-<short-description> ../<branch-dir> origin/main` (e.g.,
      `feat/0001-add-agent-rules`). Run this from the bare repository directory (`<project>/.git`): `../` resolves
-     relative to that directory, which is what places the checkout at `<project>/<branch-dir>`.
+     relative to that directory, which is what places the checkout at `<project>/<branch-dir>`. When the checkout is
+     raised for an existing Pull Request instead -- always the case for a `I-.../P-.../E-.../...` flow branch -- name
+     the directory `pr<N>-<slug>` (e.g. `pr61-agent-output-capture`) while checking the flow ref out under its own exact
+     name; a temporary checkout takes a fully descriptive `<purpose>-<subject>-<qualifier>` directory name.
 2. **Formatting (Mandatory)**:
    - Always run `npx prettier --write "**/*.md"` to format markdown files before creating any commits.
 3. **Commits**:
