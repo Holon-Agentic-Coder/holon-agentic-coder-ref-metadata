@@ -54,9 +54,10 @@ To eliminate single-pass LLM variance, flakiness, and missed edge cases, execute
 subagents or isolated subagent contexts):
 
 1. **Spawn 3 Independent Reviewer Subagents**:
-   - Prior to spawning, read `.subagent/<repo>_pr<N>_coordination.json` (falling back to the legacy
-     `.subagent/coordination.json` when only that exists) to retrieve any user-rejected recommendations or custom
-     constraints.
+   - Prior to spawning, read `.subagent/<repo>_pr<N>_coordination.json` and, when the legacy
+     `.subagent/coordination.json` is also on disk, read it too and **union** the two ledgers' user-rejected
+     recommendations and custom constraints. The union is mandatory while the transition is in flight: a resolver pass
+     may have appended its rulings to either copy, so reading only one silently reopens findings the other closed.
    - Spawn subagents (`Reviewer Subagent 1`, `Reviewer Subagent 2`, `Reviewer Subagent 3`) concurrently in parallel
      using your coding agent's native subagent delegation mechanism:
      - **In Antigravity (AGY)**: Call `invoke_subagent` with 3 entries, using `TypeName: "self"` (or

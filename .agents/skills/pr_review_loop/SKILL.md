@@ -31,8 +31,8 @@ resolution step is executed in a dedicated, fresh subagent**.
    oscillate between conflicting recommendations, the loop climbs the **Convergence Escalation Ladder** in
    [Phase B](#phase-b-evaluate-exit-conditions--post-final-review) instead of stopping: re-sync, re-adjudicate the
    finding against primary sources, apply the union of the competing recommendations, rule false findings out in writing
-   in `<repo>_pr<N>_coordination.json`, or defer an out-of-scope finding to a new bean. Iterations are spent resolving,
-   not waiting.
+   in `.subagent/<repo>_pr<N>_coordination.json`, or defer an out-of-scope finding to a new bean. Iterations are spent
+   resolving, not waiting.
 4. **Drift Self-Healing (Out-Of-Sync State Is Work, Not A Blocker)**: Divergence between what the loop expects and what
    the repository and PR actually contain -- a new commit pushed by someone else, a parallel agent session editing the
    same worktree, an unexpectedly dirty tree, a stale cached diff, a rejected push, CI that moved from `pending` to
@@ -49,8 +49,10 @@ resolution step is executed in a dedicated, fresh subagent**.
 7. **Temporary Artifacts Are Namespaced By Repository AND Pull Request**: `.subagent/` is shared by every session and
    every Pull Request worked in the same checkout, so an unscoped filename is a collision waiting to happen -- one
    already happened on PR #47, where a parallel session's `consensus_review_iter_1_<sha>.md` landed on the same path as
-   this loop's report of the same name and had to be archived by hand. **Every** file any pass of this loop creates,
-   including anything a subagent invents for itself, MUST live under `.subagent/` and match:
+   this loop's report of that name, and the earlier `dry_run_review_iter_1_<sha>.md` had to be archived by hand as
+   `prior_antigravity_dry_run_iter_1_<sha>.md` before the loop could write its own (bean 0057). **Every** file any pass
+   of this loop creates, including anything a subagent invents for itself, MUST live under `.subagent/` and match the
+   pattern below -- or, for an artifact class the table enumerates, that row's name:
 
    ```text
    .subagent/<repo>_pr<N>_<purpose>_iter_<iteration>_{short_git_commit}.<ext>
@@ -75,17 +77,21 @@ resolution step is executed in a dedicated, fresh subagent**.
    | Adjudication ledger                                 | `<repo>_pr<N>_coordination.json`                                      |
    | Anything else (commit message, gate logs, captures) | `<repo>_pr<N>_<purpose>_iter_<iteration>_{sha}.<ext>`                 |
 
-   **Legacy fallback:** read the namespaced path first; if it is absent, also read the unscoped legacy names
-   (`coordination.json`, `dry_run_review_iter_*.md`, `consensus_review_iter_*.md`, `pr<number>.diff`) so a loop already
-   in flight keeps its rulings, then write onward using the namespaced name. Before running any pass, read
-   `<repo>_pr<N>_coordination.json` (or its legacy fallback) to fetch user-rejected recommendations and active
-   constraints. **Cleanup at a terminal state**: delete this repo+PR's intermediates except the final consensus report
-   and the ledger, and never touch another repository's or another PR's files.
+   **Legacy fallback (a union, never an either/or):** read the namespaced path and, when the unscoped legacy names
+   (`coordination.json`, `dry_run_review_iter_*.md`, `consensus_review_iter_*.md`, `pr<number>.diff`) are also on disk,
+   read them too and **union** the two views. During the transition a loop already in flight keeps appending rulings to
+   the legacy ledger while new passes write the namespaced one, so reading only one copy silently reopens adjudicated
+   items. Write onward using the namespaced name. Before running any pass, read
+   `.subagent/<repo>_pr<N>_coordination.json` **together with** any rulings still held by `.subagent/coordination.json`
+   to fetch user-rejected recommendations and active constraints. **Cleanup at a terminal state**: delete this repo+PR's
+   intermediates except the final consensus report and the ledger, and never touch another repository's or another PR's
+   files.
 
-8. **Human-Only PR Merging Boundary**: The loop scope strictly terminates upon posting the approved consensus review.
-   This boundary is absolute and is **not** relaxed by the never-pause policy. Agents and subagents **MUST NEVER execute
-   `gh pr merge`, enable auto-merge, or add the PR to a merge queue**. Merging is exclusively the human maintainer's
-   responsibility.
+8. **Human-Only PR Merging Boundary**: The loop's **GitHub-write** scope terminates upon posting the approved consensus
+   review -- after that it makes no further `gh pr` call of any kind, and the only action it still takes is stage 5
+   (Calibration), a local-git operation on the flow checkout that pushes nothing (see Phase B, Case 1). This boundary is
+   absolute and is **not** relaxed by the never-pause policy. Agents and subagents **MUST NEVER execute `gh pr merge`,
+   enable auto-merge, or add the PR to a merge queue**. Merging is exclusively the human maintainer's responsibility.
 9. **Runtime Attrition Is Absorbed, Never Propagated**: A review, consensus or resolution pass can die for reasons that
    have nothing to do with the change under review -- a child wall-clock timeout, a model that spends its output budget
    on reasoning and returns no final message, or a launch/transport error whose rejection tears down the enclosing
@@ -166,8 +172,10 @@ reality, so reviewers never evaluate a diff that no longer exists. Nothing here 
 
 1. **Refresh remote truth**: `git fetch origin <branch_name>` and
    `gh pr view <pr_url_or_number> --json headRefOid,state,mergeable`. Compare the PR head, local `HEAD`, and
-   `origin/<branch_name>`. If any of them moved, delete the cached dumps (`<repo>_pr<N>_diff.txt`,
-   `<repo>_pr<N>_meta.json`) and re-fetch, so the next review pass reads the current diff.
+   `origin/<branch_name>`. If any of them moved, delete the cached dumps in **both** naming schemes -- namespaced
+   (`<repo>_pr<N>_diff.txt`, `<repo>_pr<N>_meta.json`) and the legacy unscoped names the fallback in principle 7 still
+   reads (`pr<number>.diff`, `pr<number>_meta.json`) -- and re-fetch, so the next review pass reads the current diff
+   rather than a stale head under the other name.
 2. **Consolidate another author's in-flight work**: run `git status --porcelain`. If tracked files hold edits the loop
    did not author (a human maintainer or a parallel agent session working the same branch):
    - Capture them first: `git diff > .subagent/<repo>_pr<N>_concurrent_iter_<iteration>_{short_git_commit}.patch`.
@@ -176,7 +184,7 @@ reality, so reviewers never evaluate a diff that no longer exists. Nothing here 
      commit that names where the work came from and lists any dropped hunk with the reason (for example "re-wrapped by
      `prettier --check`, which CI enforces").
    - Only edits proven factually wrong or CI-breaking are reverted, and only after the patch file exists on disk, with
-     the ruling recorded in `<repo>_pr<N>_coordination.json` and in the following resolution commit.
+     the ruling recorded in `.subagent/<repo>_pr<N>_coordination.json` and in the following resolution commit.
    - Never `git stash`, `git reset --hard`, `git checkout --`, or `git clean` unverified work: in-flight work must stay
      recoverable, and another author's commits are never dropped to make a push easy.
 3. **Integrate diverged pushes**: if `origin/<branch_name>` carries commits the loop lacks, run
@@ -288,17 +296,19 @@ Wait for the subagent to complete and inspect its report.
          action.
        - Official review has been posted to GitHub.
        - **STOP THE LOOP.**
-       - **Notify the user** that the PR is approved, then hand off to stage 5 before any merge is requested:
-         > ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub. On a PR the Holon
-         > flow drove, run stage 5 (`holon calibrate <execution_branch>`) before requesting the merge, then ask the
-         > maintainer to merge manually at `<pr_url>`; merging early destroys the `E-...` branch calibration reads.
+       - **Run stage 5 (Calibration) yourself before any merge is requested, not after**: when the change reached the PR
+         through the Holon flow, calibration is this loop's own job, not the maintainer's -- run
+         `holon calibrate <execution_branch>`, see [AGENTS.md](../../../AGENTS.md). It is a **local-git operation on the
+         flow checkout**: it re-branches from the `E-...` execution branch and commits the calibration deltas in place,
+         so it opens no new GitHub-write path -- no `gh pr` write, no push, no merge. A PR approved here is "calibrated,
+         ready to merge", never "ready to merge" while stage 5 is still outstanding, because merging consumes the
+         `E-...` branch calibration reads.
        - **NEVER merge autonomously**: Agents MUST NOT run `gh pr merge`, add the PR to the merge queue, or enable
          auto-merge. Merging is strictly reserved for the human maintainer.
-       - **Hand off to stage 5 (Calibration) before the merge, not after**: when the change reached the PR through the
-         Holon flow, the same notification must name the outstanding pre-merge stage --
-         `holon calibrate <execution_branch>`, see [AGENTS.md](../../../AGENTS.md) -- because merging consumes the
-         `E-...` branch calibration reads and the loop itself does not run calibration. A PR approved here is "ready to
-         calibrate, then merge", never "ready to merge".
+       - **Notify the user** that the PR is approved, in the same words [AGENTS.md](../../../AGENTS.md) prescribes:
+         > ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub. Please review and
+         > merge it manually at `<pr_url>` when you are ready; merging before stage 5 (`holon calibrate`) has run
+         > destroys the `E-...` branch that calibration reads.
        - Branch and worktree cleanup must only be performed after the human confirms the merge has completed, or when
          the user explicitly requests cleanup.
      - **Case 2: Critical or Important Issues Flagged by Consensus Reviewers**:
@@ -317,8 +327,11 @@ Wait for the subagent to complete and inspect its report.
            re-run the review in the next iteration.
 
 2. **Convergence Escalation Ladder (Never Pause)**:
-   - Inspect dry-run and consensus reports from prior iterations (`.subagent/*_pr<N>_dry_run_review_iter_*.md`,
-     `.subagent/*_pr<N>_consensus_review_iter_*.md`, plus any unscoped legacy counterparts).
+   - Inspect this repo+PR's prior reports -- dry-run, consensus, the individual ensemble passes and the resolution
+     passes (`.subagent/*_pr<N>_dry_run_review_iter_*.md`, `.subagent/*_pr<N>_consensus_review_iter_*.md`,
+     `.subagent/*_pr<N>_ensemble_review_iter_*_reviewer_*.md`, `.subagent/*_pr<N>_resolver_iter_*.md`, plus any unscoped
+     legacy counterparts) -- because "the same issue across 3 consecutive iterations" and "reviewers oscillate" are only
+     visible once the per-reviewer and per-resolver passes are in the set.
    - If the exact same issue is flagged across 3 consecutive iterations with no diff change, or if reviewers oscillate
      between conflicting recommendations: **do not post to GitHub, do not stop, do not wait for input.** Climb the
      ladder inside the same iteration and keep counting:
@@ -332,8 +345,8 @@ Wait for the subagent to complete and inspect its report.
         the most conservative superset that satisfies all of them simultaneously; for prose, choose the wording that is
         true under every reading.
      4. **Rule false findings out in writing.** Append each disproved, out-of-scope, or rule-conflicting finding to
-        `rejected_suggestions` in `<repo>_pr<N>_coordination.json` with evidence and the ruling. Reviewer and resolver
-        passes read that ledger (step 3e of `pr-review-resolver`), which is the mechanism that actually stops
+        `rejected_suggestions` in `.subagent/<repo>_pr<N>_coordination.json` with evidence and the ruling. Reviewer and
+        resolver passes read that ledger (step 3e of `pr-review-resolver`), which is the mechanism that actually stops
         re-flagging -- a pause never did.
      5. **Re-scope oversized findings.** When a finding is real but bigger than this PR (cross-repository bug, missing
         migration, product decision), open a new sequentially numbered bean, mark the finding `deferred -> <bean id>` in

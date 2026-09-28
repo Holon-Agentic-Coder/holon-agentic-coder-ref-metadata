@@ -70,12 +70,14 @@ of scope** — do not apply them.
 
 #### 3e. User Rejections (Ledger Check)
 
-Has the user explicitly rejected this recommendation? Read `.subagent/<repo>_pr<N>_coordination.json` (falling back to
-the legacy `.subagent/coordination.json` when only that exists) to check the list of `rejected_suggestions`. If the
-review comment's request or topic matches one of the rejected suggestions, it is **invalid** — do not apply it. Findings
-this pass disproves as inaccurate, out of scope, or contrary to a higher-priority rule are appended to that same
-namespaced ledger under `rejected_suggestions` (with `finding`, `evidence` and `ruling`) so later review passes stop
-re-raising them; that write-back, not a human prompt, is what converges a stalled loop.
+Has the user explicitly rejected this recommendation? Read `.subagent/<repo>_pr<N>_coordination.json` and, when the
+legacy `.subagent/coordination.json` is also on disk, read it too and **union** both ledgers' `rejected_suggestions` —
+during the namespacing transition a ruling may have been appended to either copy, so reading only one silently reopens
+findings the other closed. If the review comment's request or topic matches one of the rejected suggestions, it is
+**invalid** — do not apply it. Findings this pass disproves as inaccurate, out of scope, or contrary to a
+higher-priority rule are appended to that same namespaced ledger under `rejected_suggestions` (with `finding`,
+`evidence` and `ruling`) so later review passes stop re-raising them; that write-back, not a human prompt, is what
+converges a stalled loop.
 
 ### Step 4: Apply Changes from Valid Comments & Findings
 
