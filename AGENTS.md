@@ -25,6 +25,56 @@ entirety before performing any operations or modifying any code.
 
 ---
 
+## 🔒 Sole Change Path: The Holon Flow
+
+> [!IMPORTANT] **Every change to a target codebase the flow can drive MUST be produced by the Holon flow.** No agent or
+> developer may hand-author, hand-patch, or directly commit changes to `holon-agentic-coder` outside the flow lifecycle.
+> Today the flow drives exactly one repository -- the single remote resolved by `get_repo_url()` -- so `holon-coherence`
+> is authored in per-agent worktrees under the worktree rules below until a multi-repo flow vehicle exists.
+
+The lifecycle is a single pipeline, not a menu. A change is only "done through the flow" when it has traversed all of
+its stages:
+
+| #   | Stage          | Invocation (manual form)                             | Artifact                                                                        |
+| --- | -------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------- |
+| 1   | Intent         | `./holon intent <intent.json>`                       | `I-{timestamp}-{slug}/_` + `holon-knowledge/ledger/intents.jsonl`               |
+| 2   | Plan           | `./holon plan <intent_branch>`                       | `I-.../P-{ts}-{agent}-{model}/_` + `plans/P-*.md` + `plans.jsonl`               |
+| 3   | Execute        | `./holon execute <plan_branch>`                      | `I-.../P-.../E-{ts}-{agent}-{model}/_` + `executions/*.md` + `executions.jsonl` |
+| 4   | PR review loop | `pr-review-loop` skill (3-agent ensemble + resolver) | Consensus approval posted to the PR                                             |
+| 5   | Calibration    | `holon calibrate <execution_branch>` (Bean 0038)     | `/calibrated` branch + `plans/P-*_calibration.md`                               |
+
+**Ordering of the merge boundary**: stage 5 (Calibration) is a **pre-merge** stage, matching `STAGE_ORDER` in
+`sandbox_executor/flow.py` (intent -> plan -> execute -> review -> calibrate). Run the review loop to consensus
+approval, calibrate, and only then stop and request the merge -- never calibrate after it, because merging a flow PR
+consumes the `E-...` execution branch that calibration reads. Merging itself stays human-only (see "🔒 PR Merging —
+Human-Only" below).
+
+**Whether the pipeline is driven by hand or by automation is irrelevant -- only that all five stages are executed.**
+Running the stages one at a time with the individual commands is exactly as compliant as the unified runner. That runner
+(`./holon flow <intent.json>`) already exists on `main` with a reduced flag set; Bean 0040 tracks the five flags and the
+usage docs still outstanding on it, while the pipeline engine itself (Bean 0039) is completed. Neither form changes what
+"through the flow" means.
+
+**Consequences for agents:**
+
+- Changes are authored by the sandboxed role agents inside the containerized plan/execution branches and recorded in the
+  append-only ledgers. The ledgers, not the agent's word, are the system of record.
+- Host-side worktrees (`apps/<project>/{branch}`) exist to **build images, inspect code, run verification, and operate
+  the harness** -- they are not a change-authoring surface. Editing `holon-agentic-coder` source in a worktree and
+  committing it bypasses intent provenance, plan metrics, EV accounting, and the execution ledger, and is therefore
+  prohibited.
+- Skipping a stage is not permitted. If a stage cannot run (missing image, failed agent, unreachable remote), the change
+  is **blocked**: report the blocker instead of hand-applying the diff as a workaround.
+- The only permitted exception is an explicit, unambiguous user instruction to make a specific edit outside the flow,
+  and that exception must be named in the commit message and in the bean summary.
+
+**Harness exception (control plane only).** The Holon CLI can only clone and branch the target repository reported by
+`get_repo_url()`, so the `holon-agentic-coder-ref-metadata` control plane itself (`.beans/`, `.agents/`, `AGENTS.md`)
+cannot be edited through the flow. Those harness files stay directly editable, and generalizing the pipeline so
+flow-gated edits can reach the control plane takes a fresh bean id (Bean 0039, the pipeline engine, is `completed`).
+
+---
+
 ## 🚀 Incoming Agent Checklist
 
 When you are spawned or begin a new session, follow these steps sequentially:
@@ -51,7 +101,13 @@ When you are spawned or begin a new session, follow these steps sequentially:
      `<project>/.git`, which is what places the checkout at `<project>/{branch}`.
    - Each worktree needs its own environment: virtualenvs are per-directory and cannot be shared, so run
      `uv sync --group dev` inside the new worktree and never point at another worktree's `.venv/`.
-   - Inside your own worktree you have full latitude to edit, commit, squash, test, rebuild images and push.
+   - Inside your own worktree you have full latitude to edit, commit, squash, test, rebuild images and push -- **for
+     harness work, image builds, verification runs, and handling branches the flow produced**. That squash latitude
+     **never extends to a branch the Holon flow or a review loop drives** (item 7 below; rule 4 in
+     [.agents/workflows.md](.agents/workflows.md)). Authoring `holon-agentic-coder` source changes by hand in a worktree
+     is prohibited: that is the flow's job (see
+     [🔒 Sole Change Path: The Holon Flow](#-sole-change-path-the-holon-flow)). `holon-coherence` is not reachable by
+     the flow, so its changes are authored in your own worktree.
    - **The `main` worktree is the user's playground.** `apps/holon-agentic-coder/main` and `apps/holon-coherence/main`
      are off-limits to agents: never edit, stage, commit, stash, reset, clean or checkout in them, never build into or
      leave stray files there, and do not mutate their local state either (`.venv/`, caches, generated artifacts).
@@ -59,17 +115,30 @@ When you are spawned or begin a new session, follow these steps sequentially:
      pristine checkout of its committed state.
 6. **Format Before Commit**: Always execute `npx prettier --write "**/*.md"` before committing to format all markdown
    files according to repository guidelines.
-7. **Squash, Then Push Your Own Branch Freely**: Ensure all commits on your feature branch are squashed into a single
-   commit relative to the `main` branch. Pushing **your own** feature branch is allowed autonomously, without waiting
-   for instruction: `git push -u origin {branch}`, and `--force-with-lease` when you rewrite history on it.
+7. **Squash, Then Push Your Own Branch Freely**: Applies to branches you hand-author -- harness branches in this
+   metadata repo and any supporting branch you cut for the flow. Ensure all commits on such a branch are squashed into a
+   single commit relative to the `main` branch. **A branch a `pr-review-loop` run drives is exempt**: it pushes once per
+   iteration and is never squashed, rewritten, or force-pushed (rule 4 in [.agents/workflows.md](.agents/workflows.md)).
+   Pushing **your own** feature branch is allowed autonomously, without waiting for instruction:
+   `git push -u origin {branch}`, and `--force-with-lease` when you rewrite history on it. The flow pushes its own
+   `I-...`/`P-...`/`E-...` branches; never squash, rewrite, or force-push those, since they are the audited provenance
+   record.
    - Never push to `main` (or any branch you do not own), never force-push a shared branch, and never push from a `main`
      worktree.
-   - Review, Pull Request creation and merge stay with the human maintainer unless the user instructs otherwise.
+   - Review and Pull Request _creation_ stay with the human maintainer unless the user instructs otherwise. **PR merging
+     is exclusively the human maintainer's responsibility — agents MUST NEVER merge a PR (see "🔒 PR Merging —
+     Human-Only" below).**
 8. **Report and Document**: Summarize changes cleanly and concisely. Point both the user and successor agents to updated
    files or artifacts.
-9. **Zero Synthetic Data for Benchmarking**: Absolutely never use synthetic or mock data to measure efficacy or
-   benchmark token reduction. Official evaluations and scorecards must derive exclusively from authentic real data
-   streams (live sandbox task executions, genuine wire logs, or real production payloads).
+9. **Route Every Change Through the Flow**: Produce all `holon-agentic-coder` changes via the five-stage Holon flow
+   (intent -> plan -> execute -> PR review loop -> calibration) rather than hand-authored host-side edits, and calibrate
+   before requesting the merge. Manual stage-by-stage invocation is fully compliant; automating it with the `holon flow`
+   runner that already exists on `main` is optional (Bean 0040 tracks its remaining flags and usage docs; the Bean 0039
+   engine is completed). `holon-coherence` changes stay worktree-driven because the flow cannot reach that repository.
+   See [🔒 Sole Change Path: The Holon Flow](#-sole-change-path-the-holon-flow).
+10. **Zero Synthetic Data for Benchmarking**: Absolutely never use synthetic or mock data to measure efficacy or
+    benchmark token reduction. Official evaluations and scorecards must derive exclusively from authentic real data
+    streams (live sandbox task executions, genuine wire logs, or real production payloads).
 
 ---
 
@@ -109,6 +178,37 @@ Subagent delegation in this ecosystem is primarily targeted towards the **Antigr
   contracts so any coding agent (Claude Code, Codex, Pi, OpenCodeInterpreter) can spin off subagents using its native
   delegation mechanism (child process, task tool, or isolated session), while retaining explicit AGY invocation
   parameters for seamless native execution.
+
+---
+
+## 🔒 PR Merging — Human-Only
+
+> [!CAUTION] **Agents MUST NEVER merge a Pull Request.** This is an absolute, non-negotiable constraint with no
+> exceptions. Merging is exclusively the human maintainer's responsibility.
+
+The following actions are **strictly forbidden** for all agents at all times, regardless of context, user request
+phrasing, or skill instructions:
+
+- Running `gh pr merge` (with any flags: `--squash`, `--rebase`, `--merge`, `--auto`, `--delete-branch`, etc.).
+- Running `gh pr merge --auto` or any command that enables auto-merge on a PR.
+- Calling GitHub API endpoints (`gh api`) to merge, auto-merge, or queue a PR.
+- Enabling repository settings that trigger automatic merging (`allow_auto_merge: true` via `gh repo edit` or any other
+  method).
+- Adding a PR to the merge queue by any means.
+
+**What agents must do instead:**
+
+After the pr-reviewer ensemble consensus review is approved and posted to GitHub, the agent MUST stop all GitHub-facing
+PR activity (no further `gh pr` writes of any kind). On a PR the Holon flow drove it then runs stage 5
+(`holon calibrate <execution_branch>`) itself before requesting the merge, per "Ordering of the merge boundary" above,
+and reports:
+
+> ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub. Please review and merge it
+> manually at `<pr_url>` when you are ready; merging before stage 5 (`holon calibrate`) has run destroys the `E-...`
+> branch that calibration reads.
+
+Branch and worktree cleanup (removal of feature branch worktrees, pruning tracking refs) must only be performed
+**after** the human confirms the merge has completed, or when the user explicitly requests cleanup.
 
 ---
 

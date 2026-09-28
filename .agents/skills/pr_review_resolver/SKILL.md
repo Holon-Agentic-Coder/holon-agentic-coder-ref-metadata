@@ -70,9 +70,14 @@ of scope** — do not apply them.
 
 #### 3e. User Rejections (Ledger Check)
 
-Has the user explicitly rejected this recommendation? Read `.subagent/coordination.json` (if it exists) to check the
-list of `rejected_suggestions`. If the review comment's request or topic matches one of the rejected suggestions, it is
-**invalid** — do not apply it.
+Has the user explicitly rejected this recommendation? Read `.subagent/<repo>_pr<N>_coordination.json` and, when the
+legacy `.subagent/coordination.json` is also on disk, read it too and **union** both ledgers' `rejected_suggestions` —
+during the namespacing transition a ruling may have been appended to either copy, so reading only one silently reopens
+findings the other closed. If the review comment's request or topic matches one of the rejected suggestions, it is
+**invalid** — do not apply it. Findings this pass disproves as inaccurate, out of scope, or contrary to a
+higher-priority rule are appended to that same namespaced ledger under `rejected_suggestions` (with `finding`,
+`evidence` and `ruling`) so later review passes stop re-raising them; that write-back, not a human prompt, is what
+converges a stalled loop.
 
 ### Step 4: Apply Changes from Valid Comments & Findings
 
@@ -100,7 +105,8 @@ or the target repository worktree under `apps/holon-agentic-coder` or `apps/holo
 Once all valid changes have been applied, stage and commit them to the current branch:
 
 ```bash
-git add -A
+git status --porcelain   # confirm only the paths you edited are listed
+git add <path/you/edited> <another/path/you/edited>
 git commit -m "fix: apply validated PR review suggestions from <pr_url_or_number>
 
 Changes applied:
@@ -110,4 +116,24 @@ Skipped (invalid/out of scope):
 - <bullet list of skipped comment titles>"
 ```
 
-Do **not** push to the remote unless the user explicitly instructs you to do so.
+> [!WARNING] **Never `git add -A` or `git add .`.** Stage the explicit paths this pass edited, immediately after
+> re-running `git status --porcelain`. A parallel agent session or the human maintainer can hold unrelated in-flight
+> edits in the same worktree, and a blanket add commits them under your message -- the hazard bean 0056 records as the
+> reason `pr-review-loop` runs Phase A0.5 before every pass.
+
+Do **not** push to the remote unless the user explicitly instructs you to do so (or when operating within an automated
+`pr-review-loop` iteration).
+
+> [!CAUTION] **Agents MUST NEVER merge a Pull Request.** Resolving review findings only updates the branch for review.
+> Do NOT run `gh pr merge`, do NOT add the PR to the merge queue, and do NOT enable auto-merge. Merging is strictly
+> reserved for the human maintainer.
+
+### Step 6: Write the Resolution Report
+
+Save the adjudication (verified findings, applied edits, skipped items with reasons, gate output) to
+`.subagent/<repo>_pr<N>_resolver_iter_<iteration>_{short_git_commit}.md`, where `<repo>` is the repository name (for
+example `holon-agentic-coder`) and `<N>` is the bare PR number. Every other scratch file this pass creates follows the
+same prefix — `.subagent/<repo>_pr<N>_<purpose>_iter_<iteration>_{short_git_commit}.<ext>` — because `.subagent/` is
+shared across sessions and pull requests in one checkout, and unscoped names collide. Close the report with the
+machine-readable trailer block defined in step 3.4 of the `pr-reviewer` skill, and write the report incrementally so an
+aborted or timed-out final message cannot lose the adjudication.

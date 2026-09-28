@@ -152,10 +152,19 @@ _For each **Active** persona, provide a dedicated section. Skip Inactive persona
 
 Provide a final verdict for the PR:
 
-- **✅ APPROVED**: The PR is in excellent shape and can be merged as-is.
+- **✅ APPROVED**: The PR is in excellent shape and ready for the human maintainer to merge.
 - **💬 COMMENT**: Good work overall, but there are some suggestions or questions (Nits and Improvements) that should be
   considered.
-- **❌ CHANGES REQUESTED**: Critical/Blocker issues must be resolved before this PR can be merged.
+- **❌ CHANGES REQUESTED**: Critical/Blocker issues must be resolved before this PR can be approved.
+
+### 🏁 Report Trailer Block
+
+When the review is saved to a report file under `.subagent/` (dry-run mode or a `pr-review-loop` pass), close that file
+with the machine-readable trailer block as its last lines -- `VERDICT`, `CI`, `REPORT`, `CRITICAL`, `IMPORTANT`, `NIT`,
+`FINDINGS` -- exactly as defined in step 3.4 of [`.agents/skills/pr_reviewer/SKILL.md`](../skills/pr_reviewer/SKILL.md).
+The loop reads those trailers to tell a finished report from an aborted stub, and a report without the footer is
+re-reviewed in full instead of being trusted as an increment baseline. A review body posted to GitHub carries no
+trailers.
 
 ---
 
