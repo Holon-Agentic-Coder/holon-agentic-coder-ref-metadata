@@ -95,7 +95,24 @@ When you are spawned or begin a new session, follow these steps sequentially:
    - For `apps/holon-coherence/`, all development and feature work must be based off the `origin/main` branch.
    - Name the worktree and branch after you or your bean (for example
      `apps/holon-coherence/fix-0027-host-local-llm-routing` for branch `fix/0027-host-local-llm-routing`) so concurrent
-     agents never share a directory or a branch.
+     agents never share a directory or a branch. Which name applies is decided by this order:
+     - **Checked out from a Holon flow branch** (`I-.../P-.../E-.../...`): such a branch always has a Pull Request, so
+       the worktree **must carry the PR number and a slug** -- `apps/<project>/pr<N>-<slug>`, for example
+       `apps/holon-agentic-coder/pr61-agent-output-capture`. Keep the flow ref itself exactly as the flow created it
+       (never rename or re-cut an audited provenance branch); the `pr<N>-<slug>` marker lives on the **directory**.
+     - **No Holon flow branch involved** (hand-authored harness work, or any `holon-coherence` change): the **bean
+       number goes in the name** -- directory `apps/<project>/<type>-<bean-id>-<slug>` for branch
+       `<type>/<bean-id>-<slug>`, for example `apps/holon-coherence/fix-0027-host-local-llm-routing` for
+       `fix/0027-host-local-llm-routing`. Work that has neither a PR nor a bean yet needs the bean logged first.
+   - **A worktree created for temporary use MUST be named descriptively enough to still read as its purpose months
+     later**: `<purpose>-<subject>-<qualifier>`, for example
+     `apps/holon-agentic-coder/verify-pr61-agent-output-redaction` or
+     `apps/holon-coherence/repro-0028-proxy-port-conflict`. Opaque names are prohibited -- `tmp`, `wip`, `scratch`,
+     `test1`, `worktree2`, or letter-suffixed names such as `resolve-a`, `calib-b`, `verify-0019-a` -- because
+     `git worktree list` reports only path, commit and refname, so a cleanup pass cannot attribute a directory it cannot
+     read. Delete the worktree as soon as its stated purpose is complete.
+   - When a harness change must not disturb the user's active checkout of this metadata repository, cut the worktree
+     under the git-ignored `apps/` tree instead: `apps/holon-agentic-coder-ref-metadata/{branch-dir}`.
    - Create it from the bare repository directory with
      `git worktree add --no-track -b {branch} ../{branch} origin/main`. Note that `../` resolves relative to
      `<project>/.git`, which is what places the checkout at `<project>/{branch}`.
