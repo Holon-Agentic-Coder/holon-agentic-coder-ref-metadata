@@ -137,3 +137,11 @@ same prefix — `.subagent/<repo>_pr<N>_<purpose>_iter_<iteration>_{short_git_co
 shared across sessions and pull requests in one checkout, and unscoped names collide. Close the report with the
 machine-readable trailer block defined in step 3.4 of the `pr-reviewer` skill, and write the report incrementally so an
 aborted or timed-out final message cannot lose the adjudication.
+
+Write that file under the **harness** `.subagent/` — the `holon-agentic-coder-ref-metadata` checkout, not the
+target-repository worktree's — because the worktree is renamed mid-loop or deleted once the PR merges, and this report
+is what a successor needs afterwards. Then update the per-PR resume file `.subagent/<repo>_pr<N>_state.json` (Principle
+10 of [`pr-review-loop`](../pr_review_loop/SKILL.md#10-every-pass-leaves-a-file-the-next-agent-can-read-cold)) with this
+pass's entry: report path, `status`, verdict, finding counts, and in `done` / `remaining` exactly which findings were
+applied and which were skipped with the reason. A resolver pass that commits and pushes but leaves no state update
+behind forces the next iteration to re-adjudicate every finding from scratch.
