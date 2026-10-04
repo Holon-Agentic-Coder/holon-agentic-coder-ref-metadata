@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0065
 title: "The calibration report carried on the execution branch silently goes stale as review commits land"
-status: todo
+status: completed
 type: bug
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - review-loop
   - provenance
 created_at: 2026-10-03T12:10:00Z
-updated_at: 2026-10-03T12:10:00Z
+updated_at: 2026-10-05T09:50:00Z
 ---
 
 Stage 5 measures the change, and `be01f21` (PR #61) also **carries that measurement on the execution branch itself**, as
@@ -77,4 +77,50 @@ Both concern **generating** the report; neither concerns **invalidating** one th
 
 ## Resolution
 
-Open.
+Resolved via the 5-stage Holon flow (Batch B) in PR
+[#63](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/63):
+
+1. **Stage 1 (Intent)**:
+   - Branch `I-1791151674-calibration-integrity-resilience-and-staleness-detection/_` logged in `intents.jsonl`.
+2. **Stage 2 (Plan)**:
+   - Branch `I-1791151674-.../P-1791151683-antigravity-agent-gemini-3.8-flash-medium/_`.
+   - Artifact `plans/P-1791151683-antigravity-agent-gemini-3.8-flash-medium.md` logged in `plans.jsonl`.
+3. **Stage 3 (Execute)**:
+   - Branch `I-1791151674-.../E-1791151927-antigravity-agent-gemini-3.8-flash-medium/_`.
+   - Core implementation:
+     - `CalibrationReport` dataclass, JSON export, and markdown report generation now explicitly record
+       `- **Evaluated Commit SHA:** <sha>`.
+     - Implemented `parse_evaluated_commit_sha` and `is_calibration_stale(report_path, current_head_ref, repo_dir)` to
+       provide mechanical staleness detection by comparing the recorded commit against the branch head.
+     - Added comprehensive unit tests in `TestEvaluatedCommitShaAndStaleness` in
+       `apps/sandbox-executor/tests/test_calibration.py`.
+4. **Stage 4 (PR Review Loop)**:
+   - PR [#63](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/63) opened.
+   - Iteration 1 ensemble review flagged start-point resolution on branch checkout; resolved in commit `1171601`.
+   - Iteration 2 ensemble review achieved unanimous approval (3/3 `APPROVED`, 0 Critical, 0 Important).
+   - Consensus review posted to PR #63.
+   - GitHub CI: 10/10 checks green.
+5. **Stage 5 (Calibration)**:
+   - Generated calibration report with predicted EV 85.95, actual EV 93.89 (ΔEV: +7.94), recording evaluated commit SHA
+     `1171601c159b7c12d16d0a69265d119702e2c97a`.
+   - Pushed to `/calibrated` branch.
+6. **Merge Boundary**:
+   - Preserved human-only PR merge constraint; halted with consensus approval and calibration complete. Ready for human
+     merge at https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/63.
+7. **Type Refinement (User Instruction)**:
+   - In commit `12153b9`, refined `CalibrationReport.evaluated_commit_sha` from `str = ""` to `str | None = None` to
+     strictly adhere to optional type semantics, updated `format_markdown_report` to format `None` as `N/A`, and added
+     unit test assertions for `None` handling.
+8. **Partition Stress Suite into Dedicated Workflow (User Instruction)**:
+   - Extracted `workspace-survival` stress test out of `.github/workflows/test-unit.yml` into a dedicated
+     `.github/workflows/test-stress.yml` workflow (`Test - Stress`).
+   - Updated `pyproject.toml` default pytest addopts to `-m "not integration_test and not stress"`, isolating
+     long-running workspace cloning from standard fast unit test runs and allowing explicit benchmarking with
+     `pytest -m stress`.
+   - Re-ran stage 5 calibration, pushed `/calibrated` (`63efcce`), and carried updated report to PR #63 (`eeee170`).
+9. **Remove `develop` Branch Triggers from All Workflows (User Instruction)**:
+   - In commit `570d492`, stripped all references and triggers targeting the `develop` branch across all GitHub Actions
+     workflows (`make.yml`, `test-hygiene.yml`, `test-integration.yml`, `test-stress.yml`, `test-unit.yml`) and updated
+     `.github/workflows/README.md`.
+   - Re-calibrated with `holon calibrate`, updated `/calibrated` (`f4ac3de`), and carried updated report to PR #63
+     (`00b8606`).
