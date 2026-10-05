@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0060
 title: "Stage 5 calibrates a stale base: holon calibrate resolves branch names against stale local refs"
-status: todo
+status: completed
 type: task
 priority: medium
 tags:
@@ -10,7 +10,7 @@ tags:
   - git
   - review-loop
 created_at: 2026-09-28T07:45:00Z
-updated_at: 2026-09-28T07:50:00Z
+updated_at: 2026-10-05T09:50:00Z
 ---
 
 ## The defect
@@ -88,3 +88,38 @@ it took.
   guard from point 4 above.
 - Target repository: `holon-agentic-coder`, `apps/sandbox-executor/src/sandbox_executor/calibration.py` plus
   `apps/sandbox-executor/tests/test_calibration.py`. Changes must go through the flow, not a host-side hand edit.
+
+## Resolution
+
+Resolved via the 5-stage Holon flow (Batch B) in PR
+[#63](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/63):
+
+1. **Stage 1 (Intent)**:
+   - Branch `I-1791151674-calibration-integrity-resilience-and-staleness-detection/_` logged in `intents.jsonl`.
+2. **Stage 2 (Plan)**:
+   - Branch `I-1791151674-.../P-1791151683-antigravity-agent-gemini-3.8-flash-medium/_`.
+   - Artifact `plans/P-1791151683-antigravity-agent-gemini-3.8-flash-medium.md` logged in `plans.jsonl`.
+3. **Stage 3 (Execute)**:
+   - Branch `I-1791151674-.../E-1791151927-antigravity-agent-gemini-3.8-flash-medium/_`.
+   - Core implementation:
+     - `resolve_git_ref`: Resolves refs against remote tracking refs (`origin/<branch>`), commit SHAs, and fetches
+       origin before measuring to prevent calibrating stale local refs.
+     - `parse_actual_metrics`: Fails loudly with `RuntimeError` on non-zero `git diff` exit codes, completely
+       eliminating silent "0 files modified" mismeasurements.
+     - Reads ledger rows (`executions.jsonl`) and execution markdown records via immutable `git show <ref>:<path>`
+       rather than trusting host working tree checkouts.
+     - Re-running Stage 5 is append-only: checks out and fast-forwards existing `/calibrated` branches instead of wiping
+       them with `checkout -B`.
+     - Warns if evaluated commit SHA diverges from PR head reference (`HOLON_PR_HEAD_SHA`).
+4. **Stage 4 (PR Review Loop)**:
+   - PR [#63](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/63) opened.
+   - Iteration 1 ensemble review flagged start-point resolution on branch checkout; resolved in commit `1171601`.
+   - Iteration 2 ensemble review achieved unanimous approval (3/3 `APPROVED`, 0 Critical, 0 Important).
+   - Consensus review posted to PR #63.
+   - GitHub CI: 10/10 checks green.
+5. **Stage 5 (Calibration)**:
+   - Generated calibration report with predicted EV 85.95, actual EV 93.89 (ΔEV: +7.94).
+   - Pushed to `/calibrated` branch.
+6. **Merge Boundary**:
+   - Preserved human-only PR merge constraint; halted with consensus approval and calibration complete. Ready for human
+     merge at https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/63.

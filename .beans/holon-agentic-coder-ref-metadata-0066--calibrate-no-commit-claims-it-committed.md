@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0066
 title: "`holon calibrate --no-commit` announces that it committed and created the calibrated branch"
-status: todo
+status: completed
 type: bug
 priority: low
 tags:
@@ -9,7 +9,7 @@ tags:
   - calibration
   - cli
 created_at: 2026-10-03T12:12:00Z
-updated_at: 2026-10-03T12:12:00Z
+updated_at: 2026-10-05T09:50:00Z
 ---
 
 `run_calibrate()` gates the branch reset and the commit behind `if not skip_commit:`, but prints its success messages
@@ -54,4 +54,31 @@ tree, not an agent's or a tool's word, are the system of record.
 
 ## Resolution
 
-Open.
+Resolved via the 5-stage Holon flow (Batch B) in PR
+[#63](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/63):
+
+1. **Stage 1 (Intent)**:
+   - Branch `I-1791151674-calibration-integrity-resilience-and-staleness-detection/_` logged in `intents.jsonl`.
+2. **Stage 2 (Plan)**:
+   - Branch `I-1791151674-.../P-1791151683-antigravity-agent-gemini-3.8-flash-medium/_`.
+   - Artifact `plans/P-1791151683-antigravity-agent-gemini-3.8-flash-medium.md` logged in `plans.jsonl`.
+3. **Stage 3 (Execute)**:
+   - Branch `I-1791151674-.../E-1791151927-antigravity-agent-gemini-3.8-flash-medium/_`.
+   - Core implementation:
+     - In `run_calibrate`, when `skip_commit=True` (`--no-commit`), the console prints an accurate message stating that
+       the report was written to the working tree and that no branch was created and nothing was committed.
+     - The `Calibrated branch: ...` line is omitted when `skip_commit=True`.
+     - `report.committed = not skip_commit`, ensuring that `--json` output explicitly includes `"committed": false`.
+     - Added comprehensive unit tests in `TestNoCommitFlag` in `apps/sandbox-executor/tests/test_calibration.py`.
+4. **Stage 4 (PR Review Loop)**:
+   - PR [#63](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/63) opened.
+   - Iteration 1 ensemble review flagged start-point resolution on branch checkout; resolved in commit `1171601`.
+   - Iteration 2 ensemble review achieved unanimous approval (3/3 `APPROVED`, 0 Critical, 0 Important).
+   - Consensus review posted to PR #63.
+   - GitHub CI: 10/10 checks green.
+5. **Stage 5 (Calibration)**:
+   - Generated calibration report with predicted EV 85.95, actual EV 93.89 (ΔEV: +7.94).
+   - Pushed to `/calibrated` branch.
+6. **Merge Boundary**:
+   - Preserved human-only PR merge constraint; halted with consensus approval and calibration complete. Ready for human
+     merge at https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/63.
