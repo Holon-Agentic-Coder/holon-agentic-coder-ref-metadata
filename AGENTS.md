@@ -35,13 +35,13 @@ entirety before performing any operations or modifying any code.
 The lifecycle is a single pipeline, not a menu. A change is only "done through the flow" when it has traversed all of
 its stages:
 
-| #   | Stage          | Invocation (manual form)                             | Artifact                                                                        |
-| --- | -------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------- |
-| 1   | Intent         | `./holon intent <intent.json>`                       | `I-{timestamp}-{slug}/_` + `holon-knowledge/ledger/intents.jsonl`               |
-| 2   | Plan           | `./holon plan <intent_branch>`                       | `I-.../P-{ts}-{agent}-{model}/_` + `plans/P-*.md` + `plans.jsonl`               |
-| 3   | Execute        | `./holon execute <plan_branch>`                      | `I-.../P-.../E-{ts}-{agent}-{model}/_` + `executions/*.md` + `executions.jsonl` |
-| 4   | PR review loop | `pr-review-loop` skill (3-agent ensemble + resolver) | Consensus approval posted to the PR                                             |
-| 5   | Calibration    | `holon calibrate <execution_branch>` (Bean 0038)     | `/calibrated` branch + `plans/P-*_calibration.md`                               |
+| #   | Stage          | Invocation (manual form)                             | Artifact                                                                           |
+| --- | -------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| 1   | Intent         | `./holon intent <intent.json>`                       | `I-{timestamp}-{slug}/_` + `holon-knowledge/ledger/intents.jsonl`                  |
+| 2   | Plan           | `./holon plan <intent_branch>`                       | `I-.../P-{ts}-{agent}-{model}/_` + `plans/P-*.md` + `plans.jsonl`                  |
+| 3   | Execute        | `./holon execute <plan_branch>`                      | `I-.../P-.../E-{ts}-{agent}-{model}/_` + `holon-knowledge/ledger/executions.jsonl` |
+| 4   | PR review loop | `pr-review-loop` skill (3-agent ensemble + resolver) | Consensus approval posted to the PR                                                |
+| 5   | Calibration    | `holon calibrate <execution_branch>` (Bean 0038)     | `/calibrated` branch + `plans/P-*_calibration.md`                                  |
 
 **Ordering of the merge boundary**: stage 5 (Calibration) is a **pre-merge** stage, matching `STAGE_ORDER` in
 `sandbox_executor/flow.py` (intent -> plan -> execute -> review -> calibrate). Run the review loop to consensus

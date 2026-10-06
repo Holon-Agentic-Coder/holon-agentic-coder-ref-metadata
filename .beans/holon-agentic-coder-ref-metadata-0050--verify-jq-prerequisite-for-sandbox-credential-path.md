@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0050
 title: "Verify and assert the jq prerequisite for the sandbox credential path"
-status: todo
+status: completed
 type: task
 priority: normal
 tags:
@@ -11,7 +11,7 @@ tags:
   - docker
   - agent-runner
 created_at: 2026-09-26T16:40:00Z
-updated_at: 2026-09-27T13:05:00Z
+updated_at: 2026-10-06T15:00:00Z
 ---
 
 `jq` is a hard runtime prerequisite for agent credential delivery inside the sandbox, but nothing asserts it. The one
@@ -71,34 +71,34 @@ Two further sharp edges in the same block:
 
 ## Acceptance Criteria
 
-- [ ] With `HOLON_SECRET_BUNDLE_PATH` pointing at an existing file and `jq` absent from `PATH`, the entrypoint prints
+- [x] With `HOLON_SECRET_BUNDLE_PATH` pointing at an existing file and `jq` absent from `PATH`, the entrypoint prints
       one actionable stderr warning naming the bundle path and the downstream symptom, then continues to `exec` the
       role.
-- [ ] A malformed/truncated secret bundle no longer aborts the entrypoint under `set -euo pipefail`; the run continues
+- [x] A malformed/truncated secret bundle no longer aborts the entrypoint under `set -euo pipefail`; the run continues
       without a bundle-derived key and says so on stderr.
-- [ ] A test asserts `jq` is present and functional in the built sandbox image (and is skipped, not silently absent, if
+- [x] A test asserts `jq` is present and functional in the built sandbox image (and is skipped, not silently absent, if
       image tests are deselected).
-- [ ] Existing behaviour is preserved: a valid bundle still exports `HOLON_AGENT_KEY` and the vendor mapping
+- [x] Existing behaviour is preserved: a valid bundle still exports `HOLON_AGENT_KEY` and the vendor mapping
       (`AGY_USER_TOKEN`, `ANTHROPIC_API_KEY`, `PI_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `OPENCODE_API_KEY`) is
       unchanged, with agent-id matching (`BUNDLE_AGENT_ID` vs `TARGET_AGENT_ID`) intact.
-- [ ] `docs/executor/agent_credentials_requirements.md` names `jq` as a container-side prerequisite and notes that
+- [x] `docs/executor/agent_credentials_requirements.md` names `jq` as a container-side prerequisite and notes that
       `gh --jq` needs no host binary.
-- [ ] Suites stay green under `uv run pytest -m "not integration_test"`, plus `uv run ruff check .` /
+- [x] Suites stay green under `uv run pytest -m "not integration_test"`, plus `uv run ruff check .` /
       `ruff format --check .`.
 
-## Notes
+## Resolution (2026-10-06)
 
-- Target repository: `apps/holon-agentic-coder/` -- `apps/sandbox-executor/entrypoint/role_dispatcher.sh`,
-  `apps/sandbox-executor/Dockerfile`, `apps/sandbox-executor/tests/test_build_all_images.py`,
-  `docs/executor/agent_credentials_requirements.md`.
-- **Must run through the Holon flow**: this edits the target repository, so it needs its own `I-.../P-.../E-...` cycle
-  rather than a host-side worktree edit -- see the "Sole Change Path: The Holon Flow" section of `AGENTS.md`.
-- Related: Bean 0032 (standardized prerequisite checks for docker/uv/npx -- extend that pattern rather than inventing a
-  second one), Bean 0049 (keyless/credential validation asymmetry in `AgentRunner.validate()`, the downstream symptom
-  this bean makes diagnosable), Bean 0019 (silent-failure class of defect; execution records with no diagnostics).
+Resolved via the 5-stage Holon flow in Batch A (PR
+[#67](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/67)):
 
-## Status Re-audit (2026-09-27) -- unchanged, still `todo`
-
-`apps/sandbox-executor/entrypoint/role_dispatcher.sh:7` is still
-`if [ -f "$SECRET_BUNDLE" ] && command -v jq &>/dev/null; then`, so a missing `jq` skips credential extraction with no
-diagnostic. The image still installs `jq` (`Dockerfile:11`), so the defect remains latent rather than active.
+- Updated `apps/sandbox-executor/entrypoint/role_dispatcher.sh` to emit a loud, actionable stderr diagnostic when a
+  secret bundle exists but `jq` is unavailable, naming the bundle path and downstream auth symptom.
+- Guarded `jq` parsing logic with `|| true` and error checks so malformed/corrupted secret bundles log a warning to
+  stderr instead of aborting the container entrypoint under `set -euo pipefail`.
+- Added test coverage in `apps/sandbox-executor/tests/test_build_all_images.py` asserting `jq` presence in sandbox
+  images and verifying missing-`jq` stderr warning behavior.
+- Updated `docs/executor/agent_credentials_requirements.md` documenting `jq` container prerequisite and clarifying that
+  `gh --jq` uses built-in Go templating and requires no host binary.
+- Unanimously approved by 3-agent ensemble review
+  ([receipt](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/67#pullrequestreview-5430326410)), Stage 5
+  calibrated ($\Delta\text{EV}: +4.30$). Ready for human merge.

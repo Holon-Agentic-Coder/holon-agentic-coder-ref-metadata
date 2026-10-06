@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0059
 title: "Detect safe.directory with git plumbing instead of substring-matching .git/config"
-status: todo
+status: completed
 type: task
 priority: low
 tags:
@@ -9,7 +9,7 @@ tags:
   - git
   - review-nit
 created_at: 2026-09-28T05:10:00Z
-updated_at: 2026-09-28T05:10:00Z
+updated_at: 2026-10-06T15:00:00Z
 ---
 
 Finding F-6 from the PR #60 review loop (Bean 0019 slice A), deferred rather than fixed there because it is detection
@@ -43,9 +43,22 @@ Replacing the argument injection with `GIT_CONFIG_COUNT` / `GIT_CONFIG_KEY_0` wa
 `.subagent/holon-agentic-coder_pr60_coordination.json` and in the Bean 0019 stage-4 notes. Do not re-propose it without
 new evidence against the current image.
 
-## Notes
+## Resolution (2026-10-06)
 
-- Target repository: `holon-agentic-coder`, `apps/sandbox-executor/src/sandbox_executor/entrypoint/executor.py` plus
-  `apps/sandbox-executor/tests/test_executor.py`.
-- Small, self-contained; a good candidate to bundle with another sandbox-executor change.
-- Changes must go through the flow, not a host-side hand edit.
+Resolved via the 5-stage Holon flow in Batch A (PR
+[#67](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/67)):
+
+- In `apps/sandbox-executor/src/sandbox_executor/entrypoint/executor.py`, replaced manual substring matching of
+  `.git/config` with git plumbing query: `_get_local_safe_directories(repo_dir)`.
+- Provided `-c safe.directory={repo_dir}` to the plumbing command so Git safely bypasses repository discovery barriers
+  under dubious ownership.
+- Used `git -c safe.directory={repo_dir} config --local --add safe.directory <path>` in `_repair_git_repo`, deleting the
+  hand-written `.git/config` string manipulation.
+- Implemented `_FALLBACK_SAFE_DIRECTORIES` tracking when git config is unwritable, ensuring per-invocation
+  `-c safe.directory={cwd}` fallback injection without modifying `.git/config`.
+- Scanned `cmd_args` for existing `safe.directory` flags so arbitrary `-c` options do not suppress needed safe directory
+  arguments or cause duplicated flags.
+- Added comprehensive hermetic unit tests in `apps/sandbox-executor/tests/test_executor.py`.
+- Unanimously approved by 3-agent ensemble review
+  ([receipt](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/67#pullrequestreview-5430326410)), Stage 5
+  calibrated ($\Delta\text{EV}: +4.30$). Ready for human merge.

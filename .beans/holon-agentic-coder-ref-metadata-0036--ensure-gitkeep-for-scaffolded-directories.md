@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0036
 title: "Ensure .gitkeep and directory persistence for scaffolded Holon project structures"
-status: todo
+status: completed
 type: task
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - holon-cli
   - git
 created_at: 2026-09-26T09:05:00Z
-updated_at: 2026-09-27T13:05:00Z
+updated_at: 2026-10-06T15:00:00Z
 ---
 
 When initializing a new repository or onboarding a project using `holon init`, Git requires tracking at least one file
@@ -40,21 +40,17 @@ Currently, `holon init` scaffolds:
    without overwriting or erroring.
 4. Verify all unit tests pass with `uv run pytest apps/sandbox-executor/tests/test_init.py`.
 
-## Notes
+## Resolution (2026-10-06)
 
-- Target repository: `apps/holon-agentic-coder/`
-- Target files:
-  - `apps/sandbox-executor/src/sandbox_executor/scaffold.py`
-  - `apps/sandbox-executor/tests/test_init.py`
+Resolved via the 5-stage Holon flow in Batch A (PR
+[#67](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/67)):
 
-## Status Verification (2026-09-26)
-
-Still open. Verified against the current tip of the target repository: `scaffold.py` still creates `.gitkeep` for only
-`plans/` and `kb/` (`for sub_dir in ["plans", "kb"]`); there is no `holon-knowledge/ledger/.gitkeep` and `intents/` is
-still not scaffolded.
-
-## Status Re-audit (2026-09-27) -- unchanged, still `todo` (partially satisfied by construction)
-
-`apps/sandbox-executor/src/sandbox_executor/scaffold.py:352-371` creates `.gitkeep` in a loop over `["plans", "kb"]`
-only -- `holon-knowledge/ledger/` still gets no `.gitkeep` (just the three 0-byte `.jsonl` files), and `intents/` is
-still not scaffolded. The two gaps this bean exists for are both open.
+- Updated `apps/sandbox-executor/src/sandbox_executor/scaffold.py` so `holon init` scaffolds `.gitkeep` across `plans`,
+  `kb`, and `ledger` subdirectories under `holon-knowledge/`.
+- Added scaffolding for `intents/` directory with `intents/.gitkeep` and `intents/README.md`.
+- Added assertions in `apps/sandbox-executor/tests/test_init.py` verifying presence of `holon-knowledge/ledger/.gitkeep`
+  and `intents/.gitkeep`.
+- Verified idempotency: re-running `holon init` does not clobber existing `.gitkeep` or ledger files.
+- Unanimously approved by 3-agent ensemble review
+  ([receipt](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/67#pullrequestreview-5430326410)), Stage 5
+  calibrated ($\Delta\text{EV}: +4.30$). Ready for human merge.

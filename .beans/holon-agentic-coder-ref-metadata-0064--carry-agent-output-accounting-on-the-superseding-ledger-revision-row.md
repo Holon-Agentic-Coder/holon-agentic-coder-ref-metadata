@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0064
 title: "Carry the agent-output accounting on the superseding ledger_revision: 2 row"
-status: todo
+status: completed
 type: bug
 priority: low
 tags:
@@ -10,7 +10,7 @@ tags:
   - observability
   - flow
 created_at: 2026-09-30T18:55:00Z
-updated_at: 2026-09-30T18:55:00Z
+updated_at: 2026-10-09T13:35:00Z
 ---
 
 The git-recovery-failure path in `apps/sandbox-executor/src/sandbox_executor/entrypoint/executor.py` writes **two**
@@ -51,3 +51,18 @@ last-mile edit at a review gate (`F-IT13-R2-1` in `.subagent/holon-agentic-coder
    intends readers to rely on", or "readers must merge rows by `execution_id`". Pick one and say so where the
    `ledger_revision` comment lives, so the next field added to `rev-1` does not reproduce this gap.
 4. `holon-knowledge/ledger/executions.jsonl` stays append-only: no historical row is rewritten.
+
+---
+
+## Resolution
+
+- **`holon-agentic-coder` (PR [#68](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/68))**:
+  - Updated `executor.py` so the `ledger_revision: 2` superseding row in the git-recovery failure path copies
+    `agent_output_truncated` and `agent_output_bytes` from the original scope.
+  - Documented the Reader Contract in code comments: superseding rows repeat all fields readers require; readers must
+    prefer the record with the highest `ledger_revision`.
+  - Added regression test `test_git_recovery_rev2_carries_agent_output_accounting` in `tests/test_executor.py`.
+  - Updated `calibration.py` (`parse_actual_metrics`) to inspect all records matching the `execution_id` and pick the
+    one with the highest `ledger_revision`, with regression test in `tests/test_calibration.py`.
+  - Verified append-only invariant preserved; all tests passing; consensus approved across 3-agent ensemble; Stage 5
+    pre-merge calibration completed.
