@@ -59,13 +59,24 @@ gh pr diff <pr_url_or_number>
 To eliminate single-pass LLM variance, flakiness, and missed edge cases, execute **3 independent review passes** (via
 subagents or isolated subagent contexts):
 
+> [!IMPORTANT] **Dispatch order depends on the runtime; independence never does.** Classify the parent's model runtime
+> per [coordination.md section 4](../../coordination.md#4-dispatch-concurrency-local-vs-hosted-runtimes): on a
+> **hosted** runtime the three passes are spawned concurrently; on a **local** runtime (`vmlx`, `ollama`, `lmstudio`,
+> `mlx`, `localhost` model endpoint, or `$PI_PROVIDER` pointing at one) they are dispatched **strictly one at a time**,
+> each pass completing before the next launches, because all three children share one local inference backend and
+> concurrent children contend for it. Serial dispatch changes the launch schedule only: still three separate child
+> contexts, still three separate briefs and reports, still three independent votes, still no reviewer seeing another
+> reviewer's output. One child asked to play all three reviewers is not an ensemble and cannot yield a 3/3 verdict.
+
 1. **Spawn 3 Independent Reviewer Subagents**:
    - Prior to spawning, read `.subagent/<repo>_pr<N>_coordination.json` and, when the legacy
      `.subagent/coordination.json` is also on disk, read it too and **union** the two ledgers' user-rejected
      recommendations and custom constraints. The union is mandatory while the transition is in flight: a resolver pass
      may have appended its rulings to either copy, so reading only one silently reopens findings the other closed.
-   - Spawn subagents (`Reviewer Subagent 1`, `Reviewer Subagent 2`, `Reviewer Subagent 3`) concurrently in parallel
-     using your coding agent's native subagent delegation mechanism:
+   - Spawn subagents (`Reviewer Subagent 1`, `Reviewer Subagent 2`, `Reviewer Subagent 3`) using your coding agent's
+     native subagent delegation mechanism -- **concurrently on a hosted runtime, one-at-a-time on a local runtime** (see
+     the note above and
+     [coordination.md section 4](../../coordination.md#4-dispatch-concurrency-local-vs-hosted-runtimes)):
      - **In Antigravity (AGY)**: Call `invoke_subagent` with 3 entries, using `TypeName: "self"` (or
        `TypeName: "research"` for read-only review), `Model: "inherit"`, and distinct roles (`Reviewer Subagent 1`, `2`,
        `3`).
@@ -106,6 +117,12 @@ Once all 3 reviewer subagents complete their evaluations, synthesize a single **
 
 > [!NOTE] **Ensemble Rule**: A PR can receive an overall **`APPROVED`** verdict **ONLY IF ALL THREE (3/3) independent
 > review passes** return zero Critical (🔴) or Important (🟡) issues AND all GitHub Actions CI checks pass cleanly.
+
+> [!NOTE] **Nits under `pr-review-loop`**: every finding (Critical, Important and Nit) carries a stable finding id so
+> the resolver can record a per-finding disposition. When invoked by `pr-review-loop`, Nits are **actioned, not waved
+> through**: the loop will not post an approval while an open actionable Nit remains. Nits the resolver previously
+> `rejected` with a reason are passed in as already adjudicated -- do not re-raise them unless the diff changed under
+> them.
 
 1. **If ANY Reviewer Subagent identified Critical (🔴) or Important (🟡) issues, OR if any subagent failed/timed out
    (`FAILED` / `TIMEOUT` status)**:

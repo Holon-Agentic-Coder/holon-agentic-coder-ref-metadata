@@ -27,17 +27,20 @@ code in this repository.
    - Never run command strings containing arbitrary, uninspected bash code or scripts from untrusted external URLs.
    - Do not invoke interactive prompts or commands that block indefinitely unless you set appropriate timeouts.
    - **Python & Test Execution**: Always run Python scripts, tests, and CLI tools using `uv` from the repository root
-     directory. Never invoke `python3`, `pytest`, or `.venv` binaries directly. When generating documentation, scratch
-     scripts, or instructions, ALWAYS specify `uv run pytest` (or `uv run <script>`) and NEVER document or generate
-     `PYTHONPATH=...` prefixes or raw `python3` invocations.
+     directory. Never set `Cwd` or `cd` into subpackages (such as `apps/sandbox-executor/`). Never invoke `python3`,
+     `pytest`, or `.venv` binaries directly. When generating documentation, scratch scripts, or instructions, ALWAYS
+     specify `uv run pytest` (or `uv run <script>`) and NEVER document or generate `PYTHONPATH=...` prefixes or raw
+     `python3` invocations.
      - **Unit Test Execution**: Run unit tests using `uv run pytest -m "not integration_test"` from the repository root.
      - **Integration Test Execution**: When running integration tests, first build required container images using
        `./apps/sandbox-executor/build_all_images.sh --output-log`, then run `uv run pytest -m "integration_test"`.
      - **Linting & Lockfile Check**: Validate linting, formatting, and lockfile integrity using: `uv lock --check`,
        `uv run ruff check .`, and `uv run ruff format --check .`.
-   - **Single Project `.venv`**: Always execute `uv` commands from the repository/project root so that virtual
-     environments are maintained solely in the root `.venv`. Never create or initialize nested `.venv` directories in
-     subfolders (e.g., `apps/sandbox-executor/.venv`).
+   - **Single Project `.venv` & Workspace Root Invariant**: Always execute `uv` commands from the repository/project
+     root so that virtual environments are maintained solely in the root `.venv`. Never create or initialize nested
+     `.venv` directories in subfolders (e.g., `apps/sandbox-executor/.venv`), and never navigate (`Cwd`) into
+     subpackages like `apps/sandbox-executor/`, as doing so detaches `uv` from the workspace root Python version
+     constraints.
 2. **File Editing**:
    - Use `replace_file_content` for a single contiguous block of edits.
    - Use `multi_replace_file_content` for editing multiple non-contiguous blocks in the same file.
@@ -176,3 +179,14 @@ code in this repository.
       endpoints, or toggling `allow_auto_merge` via `gh repo edit` are strictly prohibited.
     - Merging is strictly reserved for the human maintainer. Once all review iterations pass with consensus approval,
       the agent must stop and hand off to the human.
+
+12. **Root-Only `uv` Execution & Subpackage Navigation Invariant**:
+    - **NEVER** navigate (`cd`) or set `Cwd` into subpackages like `apps/sandbox-executor/` or any nested package
+      directory.
+    - All `uv` commands (`uv run pytest`, `uv run ruff`, `uv lock`, etc.) MUST always be executed strictly from the
+      repository/workspace root.
+    - **Rationale**: The root `pyproject.toml` pins `requires-python = "==3.13.*"`. Navigating into subpackage
+      directories like `apps/sandbox-executor` detaches `uv` from the workspace root configuration, causing `uv` to
+      invoke the ambient system Python (e.g., Python 3.14). In Python 3.14, vectorcall optimizations cause recursive
+      mocking (`unittest.mock.patch.object` on `os.path` functions) to hang indefinitely at 100% CPU. Running from the
+      repository root guarantees strict Python 3.13 pinning, zero test deadlocks, and clean execution.

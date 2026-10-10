@@ -2,11 +2,11 @@
 name: clean-branches
 description:
   Audits, prunes, and safely deletes stale and merged Pull Requests, local Git branches, remote tracking refs, and
-  detached worktrees, and detects orphaned or superfluous leftover directories that no git worktree command will report,
-  across all managed repositories in the Holon ecosystem (holon-agentic-coder, holon-coherence, and
-  holon-agentic-coder-ref-metadata). Activate this skill whenever the user asks to remove stale or merged branches,
-  clean up completed PR branches, prune deleted remote refs, clean worktrees, or find leftover, stray, or superfluous
-  directories in the workspace.
+  detached worktrees, cleans up completed Holon flow intent hierarchy branches (I-.../_, P-.../_, E-.../calibrated), and
+  detects orphaned or superfluous leftover directories that no git worktree command will report, across all managed
+  repositories in the Holon ecosystem (holon-agentic-coder, holon-coherence, and holon-agentic-coder-ref-metadata).
+  Activate this skill whenever the user asks to remove stale or merged branches, clean up completed PR branches, prune
+  deleted remote refs, clean worktrees, or find leftover, stray, or superfluous directories in the workspace.
 ---
 
 # Clean Branches & Worktrees Skill (`clean-branches`)
@@ -62,6 +62,20 @@ Requests across all active projects within the Holon Agentic Coder workspace.
    absence of any `.git` gitfile, a detached-worktree probe, and the merged/closed state of the matching branch — never
    assumed from the directory name. If any residual file looks like authored work rather than a regenerable artefact,
    stop and surface it to the user instead of deleting it.
+
+8. **Holon Flow Intent Hierarchy & Provenance Tree Cleanup**: Changes driven by the Holon flow create multi-stage
+   provenance branches on `origin`:
+   - Intent: `I-<timestamp>-<slug>/_`
+   - Plan: `I-<timestamp>-<slug>/P-<timestamp>-<agent>-<model>/_`
+   - Execution: `I-<timestamp>-<slug>/P-.../E-<timestamp>-<agent>-<model>/_`
+   - Calibration: `I-<timestamp>-<slug>/P-.../E-.../calibrated` Only one branch in this hierarchy (typically the
+     execution or calibrated branch) is submitted as a GitHub Pull Request. The intermediate intent and plan branches,
+     as well as sibling execution/calibration branches, do **not** have their own GitHub PRs. When the flow PR is merged
+     on GitHub (frequently via squash-merge) or closed, standard Git ancestry checks
+     (`git branch -r --merged origin/main`) fail to detect these unlinked parent and sibling branches as merged, and
+     querying `gh pr list --head <branch>` for `I-.../_` returns empty. Therefore, agents must group flow branches by
+     their root intent identifier (`I-<timestamp>-<slug>`), determine if ANY branch under that intent was merged or
+     closed, and prune the entire tree of related remote and local branches. See Step 4.3.
 
 ---
 
@@ -270,12 +284,12 @@ For each repository, inspect remote branches that are merged into `origin/main` 
      gh pr list --repo <owner>/<repo> --state merged --json headRefName --jq '.[].headRefName'
      ```
 
-2. **Process Non-Base Branches**: For each candidate remote branch (strip `origin/` prefix; ignore `origin/HEAD` and
-   `origin/main`):
+2. **Process Non-Base Feature & Docs Branches**: For each candidate remote branch (strip `origin/` prefix; ignore
+   `origin/HEAD` and `origin/main`):
 
    - **Extract Remote Branch Name**:
      ```bash
-     # Strip remote prefix (e.g. origin/feat-123 -> feat-123)
+     # Strip remote prefix (e.g. origin/feat-123 -> feat-123, origin/docs/0058-... -> docs/0058-...)
      branch_name="${raw_branch#origin/}"
      ```
    - **Ignore Base Branches**: Skip if `$branch_name` is `HEAD`, `main`, or `master`.
@@ -283,11 +297,65 @@ For each repository, inspect remote branches that are merged into `origin/main` 
      ```bash
      gh pr list --repo <owner>/<repo> --head "$branch_name" --state all
      ```
+   - **Verify Direct or Squash-Merged Status / Completed Bean**: If the associated PR is `MERGED` or `CLOSED` with no
+     active work, or if the commit diff is fully contained in `main` (or its associated `.beans/` task is
+     `completed`/`scrapped` and the branch is abandoned), the remote branch is stale.
    - **Delete Merged Remote Branch**:
      ```bash
      git -C <repo_worktree> push origin --delete "$branch_name"
      git -C <repo_worktree> fetch origin --prune
      ```
+
+3. **Detect & Prune Holon Flow Provenance Trees (`I-.../**`)**:
+
+   > [!IMPORTANT] **Intent branches and plan branches never have their own PRs.** The Holon flow creates `I-.../_`,
+   > `I-.../P-.../_`, and `I-.../P-.../E-.../_` or `.../calibrated`. Only the PR head branch is registered on GitHub.
+   > When that PR merges into `main` (often via squash-merge), neither `git branch -r --merged` nor `gh pr list --head`
+   > on the parent intent/plan branches will report them as merged. They must be resolved hierarchically by intent
+   > prefix.
+
+   **a. Identify Holon flow candidate branches on remote**:
+
+   ```bash
+   git -C <repo_worktree> branch -r --list 'origin/I-*' | sed 's/^[ *]*origin\///'
+   ```
+
+   **b. Extract unique intent prefixes**: Each flow branch root begins with `I-<timestamp>-<slug>`:
+
+   ```bash
+   # Extract unique root intent identifiers
+   intent_prefixes=$(git -C <repo_worktree> branch -r --list 'origin/I-*' | sed 's/^[ *]*origin\///' | sed -E 's/^(I-[0-9]+-[^\/]+).*/\1/' | sort -u)
+   ```
+
+   **c. Check PR status for each intent tree**: For each `$intent_prefix`, find any Pull Request whose head branch
+   contains that prefix:
+
+   ```bash
+   gh pr list --repo <owner>/<repo> --state all --search "$intent_prefix in:head" --json number,state,headRefName
+   ```
+
+   Alternatively, search merged and closed PRs across the repository:
+
+   ```bash
+   gh pr list --repo <owner>/<repo> --state all --json number,state,headRefName \
+     --jq '.[] | select(.headRefName | startswith("I-")) | select(.state == "MERGED" or .state == "CLOSED") | .headRefName'
+   ```
+
+   **d. Batch delete all branches under merged or closed intent trees**: If the PR for an intent is `MERGED` or `CLOSED`
+   (and stage 5 calibration was completed prior to merge per the flow rules), all remote branches belonging to that
+   intent tree (`I-<timestamp>-<slug>/**`: intent `/_`, plan `P-.../_`, execution `E-.../_`, and calibration
+   `/calibrated`) are obsolete and safe to delete:
+
+   ```bash
+   # List all remote branches under this intent prefix
+   branches_to_delete=$(git -C <repo_worktree> branch -r --list "origin/$intent_prefix*" | sed 's/^[ *]*origin\///')
+
+   # Delete matched remote branches in a single push call
+   if [ -n "$branches_to_delete" ]; then
+     echo "$branches_to_delete" | xargs git -C <repo_worktree> push origin --delete
+     git -C <repo_worktree> fetch origin --prune
+   fi
+   ```
 
 ---
 
@@ -299,11 +367,25 @@ Inspect local branches in each repository:
 git -C <repo_worktree> branch -vv
 ```
 
-Delete any local branches whose upstream is `[gone]` or that are fully merged into `main`:
+1. **Delete Branches with Gone Remotes**: Delete any local branches whose upstream tracking ref is marked `[gone]`:
 
-```bash
-git -C <repo_worktree> branch -D <stale_local_branch>
-```
+   ```bash
+   git -C <repo_worktree> branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git -C <repo_worktree> branch -D
+   ```
+
+2. **Clean Local Holon Flow Hierarchy Branches (`I-.../**`)**: Flow runs check out or create local
+   plan/execution/calibration branches (e.g. `.../calibrated` or `.../_`). Once the remote branches have been pruned and
+   the PR is merged, delete these local branches:
+
+   ```bash
+   git -C <repo_worktree> branch --list 'I-*' | xargs -r git -C <repo_worktree> branch -D
+   ```
+
+3. **Clean Local Feature, Harness & Documentation Branches**: Delete local topic branches (e.g., `docs/0058-...`,
+   `docs/bean-updates-...`) once their changes have merged into `main` or their corresponding bean task is completed:
+   ```bash
+   git -C <repo_worktree> branch -D <stale_local_branch>
+   ```
 
 ---
 

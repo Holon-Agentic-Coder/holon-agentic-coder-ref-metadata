@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0062
 title: "Redact credentials whose key name is not in redact_text's closed list"
-status: todo
+status: completed
 type: bug
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - sandbox-executor
   - security
 created_at: 2026-09-30T04:30:00Z
-updated_at: 2026-09-30T11:40:00Z
+updated_at: 2026-10-05T23:12:00Z
 ---
 
 `redact_text` in `apps/sandbox-executor/src/sandbox_executor/entrypoint/executor.py` masks a credential only when it can
@@ -80,4 +80,72 @@ not a diff appended to a redaction-ordering change.
 
 ## Resolution
 
-Open.
+Resolved via the complete 5-stage Holon flow in Pull Request
+[#64](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/64):
+
+1. **Stage 1 (Intent)**:
+   - Created Intent `I-1791190247-redact-credentials-closed-list` and logged to `holon-knowledge/ledger/intents.jsonl`.
+   - Pushed branch `I-1791190247-redact-credentials-closed-list/_` to `origin`.
+
+2. **Stage 2 (Plan)**:
+   - Generated Plan `P-1791190262-antigravity-agent-gemini-3.8-flash-medium` via containerized `planner-agent`.
+   - Logged in `plans.jsonl` and committed plan artifact
+     `plans/P-1791190262-antigravity-agent-gemini-3.8-flash-medium.md`.
+   - Pushed branch
+     `I-1791190247-redact-credentials-closed-list/P-1791190262-antigravity-agent-gemini-3.8-flash-medium/_` to `origin`.
+
+3. **Stage 3 (Execute)**:
+   - Executed plan via containerized `executor-agent` (Execution ID:
+     `E-1791190583-antigravity-agent-gemini-3.8-flash-medium`).
+   - Implemented expanded key alternations, line-scoped URL query parameter anchors, and line-scoped key-value
+     separators in `executor.py`.
+   - Added adversarial witness tests in `test_executor.py`.
+   - Committed and logged execution record `executions/E-1791190583-antigravity-agent-gemini-3.8-flash-medium.md`.
+   - Pushed branch `I-1791190247-.../P-1791190262-.../E-1791190583-.../_` to `origin`.
+
+4. **Stage 4 (PR Review Loop)**:
+   - Opened PR [#64](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/64).
+   - **Iteration 1**:
+     - 3-agent ensemble review flagged 2 Critical issues: kebab-case over-masking (`sort-key=asc`) via ASCII `\bkey\b`
+       and Branch B multiline newline bleeding swallowing nested quoted keys.
+     - Resolver subagent resolved both issues: replaced `\bkey\b` with `(?<![a-zA-Z0-9_-])key\b`, added lookahead
+       `(?=[ \t]*(?:,|\n|$))` rejecting colons on the following token, constrained URL parameters with `key(?=[=_-])`,
+       preserved delimiter whitespace (`sep = match.group(3)`), and expanded adversarial unit tests.
+     - Pushed fix commit `867d8c6` to `origin`.
+   - **Iteration 2**:
+     - 3-agent ensemble review achieved unanimous approval: Reviewer 1 (`APPROVED`), Reviewer 2 (`APPROVED`), Reviewer 3
+       (`APPROVED`) (0 Critical, 0 Important, 0 Nits).
+     - Posted consolidated consensus approval review to PR #64 on GitHub.
+
+5. **Follow-Up Refinement (Operator Explicit Instruction Exception)**:
+   - Per explicit operator instruction, removed unnecessary and unused keys (`NON_SECRET_FLAGS`, `--pwd`,
+     `--credential`, `--credentials`, `--db-password`, `--client-secret`, `--key`) from `SECRET_FLAGS` and
+     `_is_secret_flag` in `executor.py`.
+   - Removed corresponding synthetic CLI argument test cases from `test_executor.py` while keeping all text-based
+     witness patterns (`key = ...`, `pwd = ...`, `client_secret = ...`, `db_password = ...`, line-scoped URL queries,
+     and multiline YAML nested dictionaries) intact.
+   - Pushed commit `f81d3c8` to PR #64 branch.
+
+6. **Conflict Resolution & Main Sync**:
+   - Reconciled merge conflict with `origin/main` after PR #65 landed: merged append-only ledger rows (`intents.jsonl`,
+     `plans.jsonl`, `executions.jsonl`) in chronological order.
+   - Verified clean test suite execution (414 passing unit tests).
+   - Committed merge commit `ae65e24` and pushed to PR #64 branch (`mergeable: MERGEABLE`).
+
+7. **Stage 4 (PR Review Loop — Iteration 4)**:
+   - Dry-run review passed with `APPROVED` (0 Critical, 0 Important, 0 Nit).
+   - 3-agent ensemble consensus review achieved unanimous approval: Reviewer 1 (`APPROVED`), Reviewer 2 (`APPROVED`),
+     Reviewer 3 (`APPROVED`) (0 Critical, 0 Important, 0 Nit; 10/10 CI checks passing).
+   - Posted consensus review to PR #64 on GitHub
+     ([receipt](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/64#pullrequestreview-5425917675)).
+
+8. **Stage 5 (Calibration)**:
+   - Ran `holon calibrate` against the execution branch.
+   - Generated calibration report: Predicted EV: `72.60`, Actual EV: `73.86` ($\Delta\text{EV}: +1.26$).
+   - Pushed `/calibrated` branch to `origin`: `I-1791190247-.../P-1791190262-.../E-1791190583-.../calibrated`.
+   - Committed updated calibration report directly on top of PR #64 branch (`01adf1b`) and pushed to `origin`.
+
+9. **Human-Only Merge Hand-off**:
+   - In accordance with the immutable Human-Only PR Merging Invariant, all agent activity ceases upon posting approval
+     and pushing calibration. Ready for manual human review and merge at
+     https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/64.

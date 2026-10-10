@@ -87,9 +87,13 @@ or the target repository worktree under `apps/holon-agentic-coder` or `apps/holo
 
 - Evaluate and apply valid recommendations across **Critical (🔴), Important (🟡), and Nit / Optional (🟢)** findings
   found in the review report or PR comments.
-- **Strict Requirement**: All Critical (🔴) and Important (🟡) issues MUST be resolved. Any valid Nit / Optional (🟢)
-  suggestions should also be applied where actionable.
-- An overall `APPROVED` verdict permits **only Nit / Optional (🟢)** items to remain.
+- **Strict Requirement**: All Critical (🔴) and Important (🟡) issues MUST be resolved. **Every Nit / Optional (🟢)
+  finding MUST also be actioned**: applied when valid and actionable, otherwise explicitly `rejected` with a one-line
+  reason (not diff-grounded, inaccurate, out of scope, or conflicting with a higher-severity finding). Never leave a Nit
+  without a disposition.
+- Record a disposition table (`id | severity | applied/rejected | reason`) in the resolver report; rejected Nits are
+  passed to the next review pass as already adjudicated.
+- An overall `APPROVED` verdict permits **only `rejected`-with-reason Nits** to remain.
 - Use the proposed code diff or recommendation from the comment/finding as the specification for the change.
 - Make the minimal edit required — do not refactor or touch code outside the scope of the comment.
 - If a comment's suggestion conflicts with another valid comment's suggestion on the same lines, apply them together and
@@ -97,8 +101,9 @@ or the target repository worktree under `apps/holon-agentic-coder` or `apps/holo
 - Skip any comment that failed one or more checks — do not apply changes from unverified, inaccurate, or rejected
   feedback.
 
-> [!IMPORTANT] All Critical (🔴) and Important (🟡) issues must be resolved before a PR can be approved. Only Nit /
-> Optional (🟢) findings are permitted to remain on approval.
+> [!IMPORTANT] All Critical (🔴) and Important (🟡) issues must be resolved before a PR can be approved, and every Nit /
+> Optional (🟢) finding must be `applied` or `rejected` with a recorded reason. Only adjudicated-rejected Nits may
+> remain on approval.
 
 ### Step 5: Commit the Applied Changes
 
@@ -113,7 +118,12 @@ Changes applied:
 - <bullet list of applied comment titles>
 
 Skipped (invalid/out of scope):
-- <bullet list of skipped comment titles>"
+- <bullet list of skipped comment titles>
+
+Action-Origin: pr_review
+Review-Severity: <critical|important|nit>
+Review-Iteration: <n>
+Review-Finding-Ids: <comma-separated ids>"
 ```
 
 > [!WARNING] **Never `git add -A` or `git add .`.** Stage the explicit paths this pass edited, immediately after

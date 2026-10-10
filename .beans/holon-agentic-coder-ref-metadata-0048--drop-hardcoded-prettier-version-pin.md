@@ -1,11 +1,11 @@
 ---
 # holon-agentic-coder-ref-metadata-0048
 title: "Drop hardcoded Prettier version pin across Makefile and workflows"
-status: todo
+status: completed
 type: task
 priority: normal
 created_at: 2026-09-26T00:21:00Z
-updated_at: 2026-09-27T13:05:00Z
+updated_at: 2026-10-06T15:00:00Z
 ---
 
 Evaluate and remove the hardcoded Prettier version pin (`@3.8.4` in `npx --yes prettier@3.8.4`) across `Makefile`, CI
@@ -50,13 +50,18 @@ npx --yes prettier@3.8.4 --write "**/*.md"
    - Ensure `make lint-docs` and `npx prettier --check "**/*.md"` succeed consistently.
    - Verify CI hygiene workflows pass with the standardized command.
 
-## Status Verification (2026-09-26)
+## Resolution (2026-10-06)
 
-Still open. Verified against the current tip of the target repository: `Makefile:87` and `Makefile:96` still invoke
-`npx --yes prettier@3.8.4`.
+Resolved via the 5-stage Holon flow in Batch A (PR
+[#67](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/67)):
 
-## Status Re-audit (2026-09-27) -- unchanged, still `todo`
-
-The pin is still hardcoded in four places: `apps/holon-agentic-coder/main/Makefile:87` and `:96`,
-`.github/workflows/test-hygiene.yml:61`, and `.github/workflows/README.md:14`. This session had to invoke
-`npx --yes prettier@3.8.4` explicitly to match CI, which is exactly the drift this bean targets.
+- Removed `@3.8.4` hardcoded pins from `Makefile`, `.github/workflows/test-hygiene.yml`, and
+  `.github/workflows/README.md`.
+- Standardized markdown hygiene invocations to unpinned `npx prettier --check "**/*.md"` and
+  `npx prettier --write "**/*.md"`.
+- Configured `[tool.taskipy.tasks]` in `pyproject.toml` with `lint-docs = "npx --yes prettier --check \"**/*.md\""` and
+  `format-docs = "npx --yes prettier --write \"**/*.md\""`.
+- Formatted all existing repository markdown documents; verified 100% Prettier compliance in CI `Test - Hygiene` job.
+- Unanimously approved by 3-agent ensemble review
+  ([receipt](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/67#pullrequestreview-5430326410)), Stage 5
+  calibrated ($\Delta\text{EV}: +4.30$). Ready for human merge.

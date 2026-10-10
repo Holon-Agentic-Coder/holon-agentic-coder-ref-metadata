@@ -1,11 +1,11 @@
 ---
 # holon-agentic-coder-ref-metadata-0047
 title: "Standardize project tasks through uv and evaluate retiring make check"
-status: todo
+status: completed
 type: task
 priority: normal
 created_at: 2026-09-26T00:19:00Z
-updated_at: 2026-09-27T13:05:00Z
+updated_at: 2026-10-06T15:00:00Z
 ---
 
 Standardize all developer and CI project verification tasks through native `uv` commands and evaluate retiring or
@@ -61,14 +61,21 @@ In Python/uv ecosystems:
    - Update `.agents/rules.md` and contributor guides to specify `uv run` commands as the primary task execution
      interface.
 
-## Status Verification (2026-09-26)
+## Resolution (2026-10-06)
 
-Still open. Verified against the current tip of the target repository: `Makefile:78` still defines
-`check: lint lint-docs`, and the CI workflows still shell out through `make`.
+Resolved via the 5-stage Holon flow in Batch A (PR
+[#67](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/67)):
 
-## Status Re-audit (2026-09-27) -- unchanged, still `todo`
-
-`apps/holon-agentic-coder/main/Makefile` still owns the whole task surface (`setup`, `test`, `test-integration`,
-`check`, `lint`, `lint-docs`, `format`, `format-code`, `format-docs`, `clean`, `distclean`) while `[tool.taskipy.tasks]`
-exposes only `clean`, `lint`, `format`, `auto-format`. `Run Make` remains a required workflow, so the Makefile is not
-yet retirable.
+- Defined native task runner commands in `pyproject.toml` under `[tool.taskipy.tasks]`: `check`, `lint`, `lint-docs`,
+  `format`, `format-code`, `format-docs`, `test`, `test-integration`, `test-stress`, and `clean`.
+- Completely retired all Python/uv project-specific targets (`setup`, `test`, `test-integration`, `check`, `lint`,
+  `lint-docs`, `format`, `format-code`, `format-docs`, `clean`, `distclean`) from `Makefile`. `Makefile` is now strictly
+  reserved for Docker image orchestration (`build-images`) and system prerequisites (`check-prerequisites`,
+  `check-docker`, `install-docker`, `install-homebrew`), ensuring zero Python/uv wrapper targets in `Makefile` with all
+  Python operations executed directly through `uv` and `taskipy`.
+- Updated developer documentation in `README.md` and `.github/workflows/` specifying `uv run task ...` and `uv sync` as
+  the sole Python interface.
+- Verified all tasks (`uv run task check`, `uv run task test`) pass hermetically in local runs and CI.
+- Unanimously approved by 3-agent ensemble review
+  ([receipt](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/67#pullrequestreview-5430326410)), Stage 5
+  calibrated ($\Delta\text{EV}: +4.30$). Ready for human merge.

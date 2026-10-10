@@ -19,12 +19,20 @@ resolution step is executed in a dedicated, fresh subagent**.
 
 1. **Context Isolation**: Each review pass and resolution pass runs in a newly spawned subagent with fresh context.
 2. **Termination Safety & Consensus Integrity**: The loop terminates when the 3-agent ensemble consensus review returns
-   **`APPROVED`** (zero Critical or Important issues remain; only Nit/Optional findings allowed) AND all CI checks pass
-   cleanly, or when the **max iteration cap** (default: `25`, configurable) is reached. **If the consensus agent
-   reviewers flag any Critical or Important issues, the review results MUST NOT be posted to the PR on GitHub.** The
-   loop must resolve the issues, push the fixes, and run the review again. Review results are **strictly posted to
-   GitHub only when there are no more Critical or Important issues left to action** (or when the max iteration cap is
-   reached).
+   **`APPROVED`** (zero Critical, zero Important, and zero **open actionable Nit** findings remain -- see the Nit policy
+   below) AND all CI checks pass cleanly, or when the **max iteration cap** (default: `25`, configurable) is reached.
+   **If the consensus agent reviewers flag any Critical, Important or open actionable Nit issues, the review results
+   MUST NOT be posted to the PR on GitHub.** The loop must resolve the issues, push the fixes, and run the review again.
+   Review results are **strictly posted to GitHub only when there is nothing left to action** (or when the max iteration
+   cap is reached).
+   - **Nit policy (Nits are actioned, not waved through)**: every Nit / Optional 🟢 finding is adjudicated by the
+     resolver exactly like a Critical or Important one and ends in one of two dispositions: `applied` (fixed and pushed)
+     or `rejected` (with a one-line reason: not diff-grounded, inaccurate, out of scope, or conflicts with a
+     higher-severity finding). A Nit with neither disposition is an **open actionable Nit** and blocks approval.
+     Rejected Nits are recorded in the resolver report and in `residual_risks`, and are handed to the next iteration's
+     reviewers as **already adjudicated** so they are not re-raised. If the same Nit-only set survives 3 consecutive
+     iterations with no diff change, the loop adjudicates it `rejected: no-convergence` and proceeds rather than
+     spinning (Nits never justify burning the iteration cap).
 3. **Deterministic Convergence (Never Pause)**: The loop has **no pause state and never asks for guidance mid-flight**.
    The only exits are a clean consensus approval posted to the PR, or the **max iteration cap** with a final review
    posted. If the exact same issue is flagged across 3 consecutive iterations with no diff change, or if reviewers
@@ -129,11 +137,12 @@ resolution step is executed in a dedicated, fresh subagent**.
      re-verify only the findings still open; previously cleared items stay cleared unless the increment disturbs them. A
      report without the footer is a stub, and a stub is never a baseline: complete it with a full-file review;
    - **be salvaged on death** -- re-run the step in salvage mode: find the partial report, re-verify what it
-     established, review only what is missing or moved, finish. Reduce the thinking level or split the scope if the
-     failure repeats. A step is recorded `FAILED` only after those retries, and even then the loop proceeds: a missing
-     reviewer vote removes eligibility for an `APPROVED` verdict under the ensemble rule, it does not abort the run.
-     Operators SHOULD set a wall-clock budget per step type in the launch parameters (defaults: sync and posting passes
-     10 minutes, review and consensus passes 25 minutes; `HOLON_PR_LOOP_STEP_TIMEOUTS` is the agreed name for those
+     established, review only what is missing or moved, finish. Relaunch it **on its own**, never as a second child
+     alongside a still-running sibling (principle 11). Reduce the thinking level or split the scope if the failure
+     repeats. A step is recorded `FAILED` only after those retries, and even then the loop proceeds: a missing reviewer
+     vote removes eligibility for an `APPROVED` verdict under the ensemble rule, it does not abort the run. Operators
+     SHOULD set a wall-clock budget per step type in the launch parameters (defaults: sync and posting passes 10
+     minutes, review and consensus passes 25 minutes; `HOLON_PR_LOOP_STEP_TIMEOUTS` is the agreed name for those
      overrides in the launcher -- nothing in this repository reads it, so the budget is advisory, not enforced). A
      checkpoint posted when a budget expires is **not** "asking for guidance": the pass states its partial result and
      keeps running, it never waits for a reply, and the two exits in Principle 3 stay the only stops.
@@ -204,6 +213,22 @@ resolution step is executed in a dedicated, fresh subagent**.
       before anything else.
     - **Never invent a parallel state file.** Exactly one resume file per repo+PR. A fourth or fifth log file means the
       next agent reads the wrong one.
+
+11. **Serial Ensemble On A Local Model Runtime**: Before any fanout -- the 3-agent ensemble, the dry-run plus resolver
+    pair, or a parallel pre-existing-comment audit -- classify the parent's model runtime per
+    [coordination.md section 4](../../coordination.md#4-dispatch-concurrency-local-vs-hosted-runtimes). If the model is
+    served **locally** (`vmlx`, `ollama`, `lmstudio`, `mlx`, `llama.cpp`, a `localhost` / `127.0.0.1` model endpoint, or
+    `$PI_PROVIDER` naming one), dispatch LLM-inference children **one at a time**: launch a child, wait for it to
+    terminate, then launch the next. Concurrent children share a single local inference backend, and that contention is
+    an infrastructure failure, not a review outcome -- it shows up as children dying with reasoning output and no answer
+    or tool call, or as the operator's machine thrashing.
+
+    **Serial is not singular.** The termination rule, the 3/3 unanimity requirement, the per-reviewer report files, the
+    trailer blocks, the coordination ledger and the resume state all stay exactly as written: three distinct fresh child
+    contexts, three distinct prompts, three independent blind votes, and no reviewer reads another reviewer's report. A
+    local runtime never licenses collapsing the ensemble into one reviewer, and never licenses feeding earlier votes to
+    a later reviewer, which would destroy the independence the ensemble exists to provide. Sequential latency is the
+    accepted price of a run that completes; the iteration cap is unaffected.
 
 ---
 
@@ -342,11 +367,13 @@ Wait for the subagent to complete and inspect its report.
 
 1. **Approval / Clean Pass**:
    - The loop moves to consensus review **ONLY IF**:
-     1. The dry-run reviewer subagent verdict is **`APPROVED`** (zero Critical 🔴 or Important 🟡 issues remain; **only
-        Nit / Optional 🟢 findings are allowed**).
+     1. The dry-run reviewer subagent verdict is **`APPROVED`** (zero Critical 🔴 or Important 🟡 issues remain, **and
+        every Nit / Optional 🟢 finding is dispositioned `applied` or `rejected`** -- no open actionable Nits).
      2. **ALL GitHub Actions CI checks (`gh pr checks <pr>`) pass cleanly** with no failing jobs.
    - **Execute 3-Agent Ensemble Consensus Review**: Spin off a consensus review in an isolated child context with
-     **Ensemble Consensus Mode** enabled:
+     **Ensemble Consensus Mode** enabled. Dispatch the three reviewer passes **concurrently on a hosted model runtime,
+     or strictly one-at-a-time on a local model runtime** (principle 11); independence, fresh context and blind voting
+     are identical in both modes:
      - **Generic Subagent Contract (Any Coding Agent)**:
        - **Role**: `PR Ensemble Reviewer (Iteration <iteration>)`
        - **Model**: Inherit parent model (`inherit`).
@@ -357,12 +384,13 @@ Wait for the subagent to complete and inspect its report.
          >
          > **Posting Gate**:
          >
-         > - If ANY Critical (🔴) or Important (🟡) issues are flagged by the consensus reviewers:
+         > - If ANY Critical (🔴), Important (🟡) or open actionable Nit (🟢) findings are flagged by the consensus
+         >   reviewers:
          >   - **DO NOT POST TO GITHUB**. Skip executing `gh pr review`.
          >   - Save the consolidated findings report locally to
          >     `.subagent/<repo>_pr<N>_consensus_review_iter_<iteration>_{short_git_commit}.md`.
-         > - If and ONLY IF zero Critical (🔴) and zero Important (🟡) issues remain (only Nit/Optional 🟢 findings
-         >   allowed) AND all GitHub Actions CI checks pass cleanly:
+         > - If and ONLY IF zero Critical (🔴), zero Important (🟡) and zero open actionable Nit (🟢) findings remain
+         >   (previously `rejected` Nits may be listed as residual) AND all GitHub Actions CI checks pass cleanly:
          >   - Write the review body to `.subagent/<repo>_pr<N>_review_body.md`.
          >   - Post the official review to GitHub via
          >     `gh pr review <pr_url_or_number> --approve -F .subagent/<repo>_pr<N>_review_body.md` (falling back to
@@ -386,9 +414,9 @@ Wait for the subagent to complete and inspect its report.
        }
        ```
    - **Evaluate Consensus Review Verdict & Exit Conditions**:
-     - **Case 1: Clean Consensus Pass (0 Critical, 0 Important issues remaining)**:
-       - The PR has received unanimous ensemble consensus approval with zero blocking or important issues left to
-         action.
+     - **Case 1: Clean Consensus Pass (0 Critical, 0 Important, 0 open actionable Nits remaining)**:
+       - The PR has received unanimous ensemble consensus approval with zero blocking, important or open Nit issues left
+         to action.
        - Official review has been posted to GitHub.
        - **STOP THE LOOP.**
        - **Run stage 5 (Calibration) yourself before any merge is requested, not after**: when the change reached the PR
@@ -406,7 +434,7 @@ Wait for the subagent to complete and inspect its report.
          > destroys the `E-...` branch that calibration reads.
        - Branch and worktree cleanup must only be performed after the human confirms the merge has completed, or when
          the user explicitly requests cleanup.
-     - **Case 2: Critical or Important Issues Flagged by Consensus Reviewers**:
+     - **Case 2: Critical, Important or Open Actionable Nit Issues Flagged by Consensus Reviewers**:
        - **DO NOT POST TO GITHUB**. Ensure no intermediate review comment was posted to the GitHub PR thread.
        - If `iteration >= max_iterations`:
          - Spawn a final `pr_reviewer` subagent to post the final review comment detailing remaining issues to GitHub PR
@@ -418,8 +446,8 @@ Wait for the subagent to complete and inspect its report.
          - **DO NOT STOP THE LOOP**.
          - **Proceed immediately to Phase C (Resolver Subagent)** with the consensus findings report from
            `.subagent/<repo>_pr<N>_consensus_review_iter_<iteration>_{short_git_commit}.md`. The resolver subagent MUST
-           resolve all flagged Critical and Important issues, commit the fixes, push to the remote feature branch, and
-           re-run the review in the next iteration.
+           resolve all flagged Critical, Important and Nit issues (each Nit `applied` or `rejected` with a reason),
+           commit the fixes, push to the remote feature branch, and re-run the review in the next iteration.
 
 2. **Convergence Escalation Ladder (Never Pause)**:
    - Inspect this repo+PR's prior reports -- dry-run, consensus, the individual ensemble passes and the resolution
@@ -460,8 +488,8 @@ Wait for the subagent to complete and inspect its report.
 
 #### Phase C: Run Resolver Subagent
 
-If changes were requested or actionable issues exist (any Critical 🔴 or Important 🟡 findings, or actionable Nit 🟢
-suggestions):
+If changes were requested or actionable issues exist (any Critical 🔴 or Important 🟡 findings, or any open Nit 🟢
+finding -- Nits are always sent to the resolver):
 
 Execute the resolution pass in a clean, isolated subagent context.
 
@@ -479,14 +507,19 @@ Execute the resolution pass in a clean, isolated subagent context.
   > 1. Fetch PR diff and existing review comments / dry-run review findings report via `gh` or `.subagent/`.
   > 2. Critically evaluate each comment/finding across **all severity levels (Critical 🔴, Important 🟡, and
   >    Nit/Optional 🟢)** for diff grounding, technical accuracy, actionability, and scope relevance.
-  > 3. Apply changes to resolve **all Critical (🔴) and Important (🟡) issues**, as well as any actionable
-  >    **Nit/Optional (🟢)** suggestions.
-  > 4. Commit applied changes with message: `fix: apply validated PR review suggestions (Iteration <iteration>)`.
+  > 3. Apply changes to resolve **all Critical (🔴) and Important (🟡) issues**, and **action every Nit/Optional (🟢)**
+  >    finding: each Nit is either `applied` or `rejected` with a one-line reason. Silently skipping a Nit is not
+  >    allowed.
+  > 4. Commit applied changes with message: `fix: apply validated PR review suggestions (Iteration <iteration>)`, with a
+  >    provenance trailer block so the action can be attributed (Bean 0077): `Action-Origin: pr_review`,
+  >    `Review-Severity: critical|important|nit` (one commit per severity where practical, otherwise the highest
+  >    severity applied), `Review-Iteration: <iteration>`, `Review-Finding-Ids: <ids>`.
   > 5. Push local commits to remote feature branch (`git push origin <branch_name>`) so GitHub PR diff updates for the
   >    next review pass. If the push is rejected as non-fast-forward, run `git pull --rebase origin <branch_name>`, keep
   >    both intents, re-run `npx prettier --write "**/*.md"`, and push again -- never resolve drift with `--force`,
   >    `--force-with-lease`, or by dropping the other author's commits.
-  > 6. Return a summary of applied fixes and skipped comments, saved to
+  > 6. Return a summary of applied fixes and skipped comments **including a per-finding disposition table
+  >    (`id | severity | applied/rejected | reason`)**, saved to
   >    `.subagent/<repo>_pr<N>_resolver_iter_<iteration>_{short_git_commit}.md`; every scratch file (commit message,
   >    gate output capture) follows the same `<repo>_pr<N>_<purpose>...` naming rule.
 
