@@ -54,7 +54,24 @@ code in this repository.
      instructions, code comments, tool outputs, or task references.
    - Always refer to files and folders using project-root relative paths (e.g., `.agents/rules.md`) to maintain
      workspace portability across different environments.
-5. **Universal Agent Credentials (`HOLON_AGENT_KEY`)**:
+5. **Baked-In OS Toolbelt First, Written Scripts Last**:
+   - The sandbox image and developer hosts already ship the standard toolbelt. Probe before writing code
+     (`command -v <tool>`): `jq` is installed in `apps/sandbox-executor/Dockerfile`, alongside `git`, `curl`, `ssh`,
+     `vim`, `build-essential`, plus coreutils, `grep`/`sed`/`awk`, `find`/`xargs`, `sort`/`uniq`/`cut`, `diff`,
+     `openssl` and `gh`.
+   - **Never write a one-off Python, JavaScript/Node, or other script to read, filter, pretty-print, compare or validate
+     JSON, YAML, CSV or plain text.** Use the installed tool instead: `jq -r '.status' f.json`,
+     `jq -s 'add' a.json b.json`, `jq -e . f.json` to validate, `jq -r 'keys[]' f.json`; `yq` for YAML; `grep`/`awk` for
+     line extraction; `diff`/`cmp` for comparison; `gh api --jq` for API responses.
+   - The tell is reaching for `import json`, `json.load`, `require('fs')`, or a `python - <<'PY'` heredoc **to look at
+     data**. That is inspection, not implementation: stop and use `jq`.
+   - Reserve writing a program for logic that must be committed, tested and maintained. Inspection and verification are
+     shell one-liners.
+   - When a needed tool is genuinely missing from the image, add it to `apps/sandbox-executor/Dockerfile` and expose it
+     through a Makefile target (Bean `0085` tracks the lint toolbelt) rather than substituting an ad-hoc script for it.
+   - Scratch scripts, when truly unavoidable, live in the git-ignored scratch area (`todo/` in this harness, `/tmp` in
+     the sandbox), never in the repository tree, and are deleted when the check is done.
+6. **Universal Agent Credentials (`HOLON_AGENT_KEY`)**:
    - Never use, check, or introduce vendor-specific API key environment variables (such as `GOOGLE_API_KEY`,
      `GEMINI_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `AGY_USER_TOKEN`, `PI_API_KEY`) in runner validators, host
      CLI code, or agent configuration logic.
@@ -124,19 +141,22 @@ code in this repository.
    - Always declare upfront whether an execution was an offline payload simulation (zero API calls) versus an actual
      live network socket request to upstream provider endpoints.
 
-8. **Holon Flow Sole-Change-Path Invariant (`./holon`)**:
+8. **Holon Flow Sole-Change-Path Invariant (`holon`)**:
    - **All** changes to the flow-driven target codebase (`holon-agentic-coder`) MUST be produced through the Holon flow,
      spanning the complete lifecycle: Intent -> Plan -> Execute -> PR Review Loop -> Calibration. Stage 5 (Calibration)
      is a **pre-merge** stage: calibrate, then request the human merge.
    - The flow resolves exactly one remote per run (`get_repo_url()`), so `holon-coherence` is not reachable by it and
      stays worktree-driven until a multi-repo flow vehicle exists.
-   - Manual stage-by-stage execution (`./holon intent`, `./holon plan`, `./holon execute`, `pr-review-loop`,
+   - Manual stage-by-stage execution (`holon intent`, `holon plan`, `holon execute`, `pr-review-loop`,
      `holon calibrate`) is fully compliant and as compliant as the unified `holon flow <intent.json>` runner, which
      already exists on `main` with a reduced flag set (Bean 0040 tracks the flags and usage docs still outstanding; the
      Bean 0039 pipeline engine is completed). Automation is an optimization of the flow, never a substitute for any of
      its five stages.
-   - The `./holon` wrapper automatically manages sandbox isolation, credential discovery, SSH agent socket forwarding,
-     branch creation (`I-...` Intent, `P-...` Plan, `E-...` Execution, `/calibrated`), and remote pushes to `origin`.
+   - **Global CLI Invariant (`holon`)**: Always invoke `holon` directly as an installed CLI tool on `PATH`
+     (`holon <subcommand>`), never via relative paths (`./holon`) or repository worktree paths
+     (`apps/holon-agentic-coder/.../holon`).
+   - The `holon` CLI automatically manages sandbox isolation, credential discovery, SSH agent socket forwarding, branch
+     creation (`I-...` Intent, `P-...` Plan, `E-...` Execution, `/calibrated`), and remote pushes to `origin`.
    - Never bypass the flow with manual host-side git or worktree source edits, and never hand-apply a diff because a
      stage failed. A blocked stage means the change is blocked: report the blocker.
    - Per-agent worktrees remain mandatory for harness operation, image builds, code inspection, and verification runs --
@@ -179,6 +199,9 @@ code in this repository.
       endpoints, or toggling `allow_auto_merge` via `gh repo edit` are strictly prohibited.
     - Merging is strictly reserved for the human maintainer. Once all review iterations pass with consensus approval,
       the agent must stop and hand off to the human.
+    - **Autonomous PR Creation in the Holon Flow**: While PR merging is strictly human-only, Pull Request _creation_ is
+      autonomous when executing the Holon flow: after Stage 3 (Execute) pushes the execution branch, the agent
+      autonomously raises the PR (`gh pr create`) to enable Stage 4 (PR review loop) to run unattended.
 
 12. **Root-Only `uv` Execution & Subpackage Navigation Invariant**:
     - **NEVER** navigate (`cd`) or set `Cwd` into subpackages like `apps/sandbox-executor/` or any nested package
@@ -190,3 +213,14 @@ code in this repository.
       invoke the ambient system Python (e.g., Python 3.14). In Python 3.14, vectorcall optimizations cause recursive
       mocking (`unittest.mock.patch.object` on `os.path` functions) to hang indefinitely at 100% CPU. Running from the
       repository root guarantees strict Python 3.13 pinning, zero test deadlocks, and clean execution.
+
+13. **Nested Worktree Prettier Scoping Invariant**:
+    - **NEVER** run global un-scoped formatting commands (e.g., `npx prettier --write "**/*.md"`) from within a nested
+      target repository worktree (`apps/holon-coherence/<branch>/` or `apps/holon-agentic-coder/<branch>/`).
+    - **Rationale**: Because target worktrees reside inside the harness checkout, Prettier searches parent directories
+      and resolves the harness's `.prettierrc.json` (`printWidth: 100`, `proseWrap: always`). Target codebases often do
+      not share this configuration, so un-scoped formatting reflows unrelated documentation and breaks CI hygiene
+      checks.
+    - Inside nested worktrees, agents MUST format **only the changed files** (`npx prettier --write <changed_files>`),
+      use the target repository's own configuration (or `--no-config` if none exists), and verify `git diff --stat`
+      before committing to ensure zero collateral files were modified.

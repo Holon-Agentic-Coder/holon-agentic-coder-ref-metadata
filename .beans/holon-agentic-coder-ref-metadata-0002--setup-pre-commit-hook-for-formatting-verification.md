@@ -7,7 +7,7 @@ created_at: 2026-07-18T00:00:00Z
 updated_at: 2026-07-18T00:00:00Z
 ---
 
-Configure a local git pre-commit hook (e.g. using Husky or standard git hooks) to run 'npx prettier --check "**/*.md"'
+Configure a local git pre-commit hook (e.g. using Husky or standard git hooks) to run 'npx prettier --check "\*_/_.md"'
 before commits are made. This ensures local developer/agent environment formatting safety.
 
 ## Assignment
@@ -16,5 +16,5 @@ Assignee: `antigravity`
 
 ## Resolution
 
-Created .git/hooks/pre-commit executable script to run 'npx prettier --check "**/*.md"' before committing changes
+Created .git/hooks/pre-commit executable script to run 'npx prettier --check "\*_/_.md"' before committing changes
 locally.

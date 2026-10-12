@@ -42,9 +42,9 @@ persistently (using `uv tool install`). Covers running the latest tip (`--refres
   highlighting the `--from` requirement for ephemeral uvx execution to avoid PyPI namespace collisions.
 - Merged: holon-agentic-coder PR #52 (2026-09-20), merge commit a4d6930 on origin/main (current main tip).
 - Post-merge audit 2026-09-22: local pr-52 worktree/branch deleted (PR head 528c336 confirmed an ancestor of the merged
-  head 8735755, so no unique work) and the local intent branch I-1789686556-.../E-1789687466-.../_ deleted after
+  head 8735755, so no unique work) and the local intent branch I-1789686556-.../E-1789687466-.../\_ deleted after
   verifying 12/14 touched paths are byte-identical blobs already on origin/main.
-- Open follow-up: three origin/I-1789686556-* intent branches remain on the remote with 1-2 unmerged commits and no
+- Open follow-up: three origin/I-1789686556-\* intent branches remain on the remote with 1-2 unmerged commits and no
   associated PR; deletion withheld pending explicit maintainer authorisation (AGENTS.md rule 7).
 
 ## Assignment

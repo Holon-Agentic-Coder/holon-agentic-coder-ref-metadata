@@ -16,6 +16,7 @@ const filesToCheck = [
   path.join(rootDir, '.agents/coordination.md'),
   path.join(rootDir, '.agents/skills/answer/SKILL.md'),
   path.join(rootDir, '.agents/skills/clean_branches/SKILL.md'),
+  path.join(rootDir, '.agents/skills/clean_workspace/SKILL.md'),
   path.join(rootDir, '.agents/skills/pr_review_loop/SKILL.md'),
   path.join(rootDir, '.agents/skills/pr_review_resolver/SKILL.md'),
   path.join(rootDir, '.agents/skills/pr_reviewer/SKILL.md'),

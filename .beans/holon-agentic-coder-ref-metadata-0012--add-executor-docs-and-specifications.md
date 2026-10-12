@@ -24,9 +24,9 @@ Assignee: `unassigned`
 ## Resolution
 
 Created comprehensive executor documentation and specifications matching the Intent and Planner patterns: - Added
-docs/executor/execution_architecture_specification.md covering sandbox isolation, safelist rules, plan ingestion,
+docs/executor/execution*architecture_specification.md covering sandbox isolation, safelist rules, plan ingestion,
 dynamic decomposition, redaction guardrails, execution report generation, and ledger tracking. - Added
-docs/executor/agent_credentials_requirements.md detailing agent authentication, HOLON_AGENT_* variable forwarding, and
+docs/executor/agent_credentials_requirements.md detailing agent authentication, HOLON_AGENT*\* variable forwarding, and
 session directory mounts. - Expanded docs/sandbox/execute_plan.md into a full guide covering prerequisites, recommended
 `./holon execute` usage, low-level Docker invocations, argument breakdowns, decomposition behavior, and verification
 steps. - Formatted all markdown documentation using prettier and verified all 67 test suites pass.

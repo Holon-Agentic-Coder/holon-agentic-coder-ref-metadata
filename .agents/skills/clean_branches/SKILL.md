@@ -14,6 +14,10 @@ description:
 This skill automates the identification and safe deletion of stale, merged, and orphaned branches, worktrees, and Pull
 Requests across all active projects within the Holon Agentic Coder workspace.
 
+> [!NOTE] For comprehensive end-to-end workspace cleanup including intermediate `.subagent/` review artifacts, temporary
+> files in the `todo/` directory, and automated script execution, refer to the
+> [`clean-workspace`](../clean_workspace/SKILL.md) skill.
+
 ---
 
 ## 📐 Architecture & Operational Principles
@@ -306,7 +310,7 @@ For each repository, inspect remote branches that are merged into `origin/main` 
      git -C <repo_worktree> fetch origin --prune
      ```
 
-3. **Detect & Prune Holon Flow Provenance Trees (`I-.../**`)**:
+3. **Detect & Prune Holon Flow Provenance Trees (`I-.../**`)\*\*:
 
    > [!IMPORTANT] **Intent branches and plan branches never have their own PRs.** The Holon flow creates `I-.../_`,
    > `I-.../P-.../_`, and `I-.../P-.../E-.../_` or `.../calibrated`. Only the PR head branch is registered on GitHub.
@@ -374,7 +378,7 @@ git -C <repo_worktree> branch -vv
    ```
 
 2. **Clean Local Holon Flow Hierarchy Branches (`I-.../**`)**: Flow runs check out or create local
-   plan/execution/calibration branches (e.g. `.../calibrated` or `.../_`). Once the remote branches have been pruned and
+   plan/execution/calibration branches (e.g. `.../calibrated`or`.../\_`). Once the remote branches have been pruned and
    the PR is merged, delete these local branches:
 
    ```bash

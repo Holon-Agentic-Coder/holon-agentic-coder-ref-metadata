@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0043
 title: "Expose comprehensive optimization metrics in holon-coherence web interface"
-status: todo
+status: completed
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - metrics
   - telemetry
 created_at: 2026-09-26T09:25:00Z
-updated_at: 2026-09-27T13:05:00Z
+updated_at: 2026-10-15T16:47:00Z
 ---
 
 Enhance the `holon-coherence` web interface to display live, aggregate optimization metrics—including tool calls saved,
@@ -70,3 +70,18 @@ endpoint, no dashboard route and no `metrics` CLI command exist in `apps/holon-c
 `tool_outputs_omitted` appears only per transaction (`mitm_addon.py:1131`, `1226`, `1232`) in headers and log lines.
 There is no cumulative aggregator and nothing exposed to the dashboard, so criterion 1 (cross-transaction totals) is
 unmet.
+
+## Resolution
+
+- Implemented cumulative in-addon metrics aggregator across intercepted LLM transactions in
+  `src/holon_coherence/mitm_addon.py`, tracking total tool calls saved/pruned, total tokens reduced, global cache hit
+  rate, average TTFT, decode throughput (Output TPS), and total turns processed.
+- Added API endpoints intercepting `GET /holon/api/metrics` and `GET /_holon/metrics` returning live JSON metrics
+  payloads.
+- Added visual web dashboard served at `/holon/` with statistical cards and auto-refresh capability.
+- Added `holon-coherence metrics` CLI command in `src/holon_coherence/commands/metrics.py` and integrated metrics
+  display into `holon-coherence status`.
+- Added unit test suites in `tests/test_mitm_addon.py` and `tests/test_cli.py`.
+- Successfully validated via Holon flow lifecycle stages 1-5 targeting `holon-coherence`; PR #17 achieved 3/3 unanimous
+  ensemble consensus approval, 7/7 green CI checks, pre-merge calibration on `/calibrated` branch ($\Delta EV$: -0.06),
+  and merged to `main` at commit `9e83824555e34424c700827d63fd6871b881783f`.

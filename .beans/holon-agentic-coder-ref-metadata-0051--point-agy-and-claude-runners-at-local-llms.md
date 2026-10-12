@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0051
 title: "Let the AGY and Claude Code harnesses run against arbitrary / host-local LLM endpoints"
-status: todo
+status: completed
 type: feature
 priority: normal
 tags:
@@ -12,7 +12,7 @@ tags:
   - agy
   - claude-code
 created_at: 2026-09-26T09:58:00Z
-updated_at: 2026-09-27T13:05:00Z
+updated_at: 2026-10-15T16:47:00Z
 ---
 
 `holon-coherence <agent>` can intercept and optimise traffic to a host-local model server (Bean 0027), but only the
@@ -132,10 +132,23 @@ Additional constraints found while probing:
 
 ## Resolution
 
-Not yet started.
-
-## Status Re-audit (2026-09-27) -- unchanged, still `todo`
-
-No adapter landed: grepping `apps/holon-coherence/main/src` for `AGY_GATEWAY_URL`, `anthropic-beta` and thinking-block
-normalisation returns nothing. Bean 0049 (PR #57, `6926579`) solved the **sandbox-side** reachability problem and the
-`pi` provider wiring; the AGY catalog lock and the Claude Code Anthropic-extension normalisation are still open.
+- Supported first-class endpoint and model selection in `src/holon_coherence/cli.py` and `commands/agents.py`
+  (`extract_runner_flags`, `build_agent_env`, `run_agent`) supporting `--model` and `--local-llm-base` /
+  `--local-llm-endpoint`.
+- Configured child agent environments:
+  - For Claude Code: sets `ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`, custom model mapping, and suppresses fallback.
+  - For AGY: sets `AGY_GATEWAY_URL` with non-loopback endpoint spelling (`127.0.0.1.nip.io`) to circumvent Go's
+    compiled-in loopback proxy exemption, resolving catalog aliases to local model IDs.
+- Implemented protocol adapter rewrites in `src/holon_coherence/mitm_addon.py`:
+  - Strict Anthropic normalizer stripping `thinking`, `output_config`, `context_management`, vendor-specific
+    `anthropic-beta` headers, and suppressing injected `cache_control` when targeting local endpoints, with incremental
+    SSE streaming pass-through.
+  - Gemini bridge translating Gemini `v1beta` `generateContent` / `streamGenerateContent` to local OpenAI
+    `/v1/chat/completions` (or Anthropic `/v1/messages`), with deterministic multi-turn tool call ID correlation,
+    streaming chunk argument buffering, and usage metadata translation.
+  - Preserved cloud behavior bit-for-bit when no local endpoint is declared.
+- Added comprehensive unit tests in `tests/test_mitm_addon.py` and `tests/test_cli.py`.
+- Updated documentation in `README.md` and `AGENTS.md`.
+- Successfully validated via Holon flow lifecycle stages 1-5 targeting `holon-coherence`; PR #17 achieved 3/3 unanimous
+  ensemble consensus approval, 7/7 green CI checks, pre-merge calibration on `/calibrated` branch ($\Delta EV$: -0.06),
+  and merged to `main` at commit `9e83824555e34424c700827d63fd6871b881783f`.

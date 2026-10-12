@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0041
 title: "Document comprehensive Holon Flow lifecycle instructions for agents and operators"
-status: todo
+status: completed
 type: task
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - holon-flow
   - instructions
 created_at: 2026-09-26T09:22:00Z
-updated_at: 2026-09-27T13:05:00Z
+updated_at: 2026-10-14T00:43:00Z
 ---
 
 Create comprehensive reference and procedural documentation explaining the Holon Flow lifecycle for AI coding agents and
@@ -56,6 +56,15 @@ step-by-step or via the unified `holon flow` command.
   - `.agents/holon_flow.md` (new)
   - `AGENTS.md`
   - `.agents/workflows.md`
+
+## Resolution (2026-10-14)
+
+Completed through the Holon flow under PR #74:
+
+- Created comprehensive architecture and procedural guide in `.agents/holon_flow.md`.
+- Documented 5-stage automated orchestration lifecycle in root `README.md` with Mermaid diagram.
+- Created `apps/sandbox-executor/README.md` with full CLI and engine reference.
+- Verified all documentation passes Prettier code style checks.
 
 ## Status Verification (2026-09-26)
 

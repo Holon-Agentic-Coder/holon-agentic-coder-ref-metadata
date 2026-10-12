@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0042
 title: "Generate and view holon-coherence web interface API key and password"
-status: todo
+status: completed
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - security
   - web-ui
 created_at: 2026-09-26T09:24:00Z
-updated_at: 2026-09-27T13:05:00Z
+updated_at: 2026-10-13T19:42:00Z
 ---
 
 Add support for generating, configuring, and viewing the API key / password for the `holon-coherence` web interface

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0040
 title: "Implement holon flow unified single command CLI runner"
-status: todo
+status: completed
 type: task
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - holon-flow
   - developer-experience
 created_at: 2026-09-26T09:20:00Z
-updated_at: 2026-09-27T21:46:00Z
+updated_at: 2026-10-14T00:43:00Z
 ---
 
 Implement the `holon flow <intent_file>` subcommand in `sandbox_executor.cli` to trigger the end-to-end Holon lifecycle
@@ -79,3 +79,15 @@ Status stays `todo` (nothing in flight); it is now substantially smaller than or
 from the flow parser: `--skip-review`, `--skip-calibrate`, `--max-review-iterations`, and `--token-reduce` /
 `--mitm-web` -- the latter two are implemented only on the `plan` and `execute` subparsers in `cli.py`, so a
 full-lifecycle run cannot opt into token reduction. Confirms the re-scoped remainder recorded on 2026-09-26.
+
+## Resolution (2026-10-14)
+
+Completed through the Holon flow under intent `I-1791881582-holon-flow-runner-flags-and-docs`, plan
+`P-1791882348-antigravity-agent-gemini-3.8-flash-medium`, and PR #74:
+
+- Exposed and plumbed all missing flags (`--skip-review`, `--skip-calibrate`, `--max-review-iterations`,
+  `--token-reduce`, `--mitm-web`) into `sandbox_executor.cli` and `sandbox_executor.flow`.
+- Plumbed flag coupling so `--mitm-web` automatically activates `token_reduce`.
+- Added hermetic test coverage in `test_cli.py` and `test_flow.py` (93 passed).
+- Post-execution calibration completed ($\Delta EV$ +4.60) on calibrated branch.
+- PR #74 approved by 3-agent ensemble consensus.

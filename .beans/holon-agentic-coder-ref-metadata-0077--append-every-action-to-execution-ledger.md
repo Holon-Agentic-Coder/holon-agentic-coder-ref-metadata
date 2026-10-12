@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0077
 title: "Append every action to execution ledger with searchable labels and categories"
-status: todo
+status: completed
 type: feature
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - searchability
   - continuous-learning
 created_at: 2026-10-09T08:15:00Z
-updated_at: 2026-10-09T08:15:00Z
+updated_at: 2026-10-12T21:59:00Z
 ---
 
 ## Summary
@@ -139,3 +139,24 @@ The `pr-review-loop`, `pr-review-resolver` and `pr-reviewer` skills now require 
 or `rejected` with a one-line reason; an open actionable Nit blocks approval. Rejected Nits are passed to the next
 review pass as already adjudicated (no oscillation), and a Nit-only set that survives 3 unchanged iterations is closed
 as `rejected: no-convergence`. This is what makes `review_severity: nit` rows exist in the ledger at all.
+
+## Resolution
+
+- **Flow Pipeline**: Traversed all 5 Holon flow stages (Intent `I-1791839030-append-every-action-to-execution-ledger/_`,
+  Plan `P-1791839038-antigravity-agent-gemini-3.8-flash-medium/_`, Execution
+  `E-1791839487-antigravity-agent-gemini-3.8-flash-medium/_`, PR Review Loop, and Pre-merge Calibration).
+- **Pull Request**: Raised [PR #73](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/73) autonomously.
+- **Review Loop & Ensemble Consensus**: Passed 3-agent ensemble consensus review with approval (`0945177`) across
+  Principal Architecture, QA/Test, and Security/Hygiene personas with 10/10 green GitHub Actions CI checks.
+- **Calibration**: Calibrated pre-merge on branch
+  `I-1791839030-append-every-action-to-execution-ledger/P-1791839038-antigravity-agent-gemini-3.8-flash-medium/E-1791839487-antigravity-agent-gemini-3.8-flash-medium/calibrated`
+  (Predicted EV: 86.86 | Actual EV: 91.89 | $\Delta EV$: +5.03).
+- **Core Implementation**:
+  - `ActionRecord` and `SummaryRecord` schemas in `apps/sandbox-executor/src/sandbox_executor/ledger.py`.
+  - Action provenance tracking and full commit trailers parsing (`Action-Origin`, `Review-Severity`, `Review-Iteration`,
+    `Review-Finding-Ids`, `Review-Disposition`, `Rejection-Reason`, `Introduced-By-Action-Id`).
+  - `holon ledger query` CLI subcommand with rich filtering (`--entry-type`, `--category`, `--labels`, `--target`,
+    `--outcome`, `--origin`, `--review-severity`, `--query`, `--limit`, `--json`) and table formatting.
+  - Hardened readers in `calibration.py` and `executor.py` for backward compatibility with interleaved action rows.
+  - Updated `docs/ledger_schema.md` and `.agents/AGENTS.md`.
+  - Comprehensive hermetic test suite in `apps/sandbox-executor/tests/test_ledger_query.py` (533 tests passing).

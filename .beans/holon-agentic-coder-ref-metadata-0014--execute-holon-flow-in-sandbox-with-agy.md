@@ -13,10 +13,10 @@ Rebuild all Holon Docker images from scratch (--no-cache) and execute the comple
 
 ## Notes
 
-- Intent Branch: I-1787398945-support-antigravity-sandbox-session/_
-- Plan Branch: I-1787398945-support-antigravity-sandbox-session/P-1787398953-antigravity-agent-gemini-3.5-flash/_
+- Intent Branch: I-1787398945-support-antigravity-sandbox-session/\_
+- Plan Branch: I-1787398945-support-antigravity-sandbox-session/P-1787398953-antigravity-agent-gemini-3.5-flash/\_
 - Execution Branch:
-  I-1787398945-support-antigravity-sandbox-session/P-1787398953-antigravity-agent-gemini-3.5-flash/E-1787398972-antigravity-agent-gemini-3.5-flash/_
+  I-1787398945-support-antigravity-sandbox-session/P-1787398953-antigravity-agent-gemini-3.5-flash/E-1787398972-antigravity-agent-gemini-3.5-flash/\_
 
 ## Assignment
 
@@ -27,7 +27,7 @@ Assignee: `antigravity-agent`
 Successfully rebuilt all container images with --no-cache and executed the entire Holon lifecycle flow in sandbox
 containers: - Rebuilt all 9 Docker images (holon/base, holon/orchestrator, holon/agent-antigravity, holon/agent-claude,
 holon/agent-codex, holon/agent-gemini, holon/agent-opencode, holon/agent-open-codex, holon/agent-pi). - Executed Intent
-Creator in holon/orchestrator to initialize intent I-1787398945-support-antigravity-sandbox-session/_ and append to
+Creator in holon/orchestrator to initialize intent I-1787398945-support-antigravity-sandbox-session/\_ and append to
 intents.jsonl. - Executed Planner in holon/agent-antigravity to generate markdown plan
 P-1787398953-antigravity-agent-gemini-3.5-flash.md, compute metrics/EV, append to plans.jsonl, and push plan branch. -
 Executed Executor in holon/agent-antigravity to run execution E-1787398972-antigravity-agent-gemini-3.5-flash with agy,
