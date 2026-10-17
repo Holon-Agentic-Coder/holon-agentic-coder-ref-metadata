@@ -142,15 +142,15 @@ code in this repository.
      live network socket request to upstream provider endpoints.
 
 8. **Holon Flow Sole-Change-Path Invariant (`holon`)**:
-   - **All** changes to the flow-driven target codebase (`holon-agentic-coder`) MUST be produced through the Holon flow,
-     spanning the complete lifecycle: Intent -> Plan -> Execute -> PR Review Loop -> Calibration. Stage 5 (Calibration)
-     is a **pre-merge** stage: calibrate, then request the human merge.
-   - The flow resolves exactly one remote per run (`get_repo_url()`), so `holon-coherence` is not reachable by it and
-     stays worktree-driven until a multi-repo flow vehicle exists.
+   - **All** changes to flow-driven target codebases (`holon-agentic-coder` and `holon-coherence`) MUST be produced
+     through the 5-stage Holon flow, spanning the complete lifecycle: Intent -> Plan -> Execute -> PR Review Loop ->
+     Calibration. Stage 5 (Calibration) is a **pre-merge** stage: calibrate, then request the human merge.
+   - Running `holon` inside either target repository's worktree dynamically resolves `remote.origin.url` via
+     `resolve_target_repo_url()`, driving that repository's `holon-knowledge/ledger/` provenance pipeline.
    - Manual stage-by-stage execution (`holon intent`, `holon plan`, `holon execute`, `pr-review-loop`,
      `holon calibrate`) is fully compliant and as compliant as the unified `holon flow <intent.json>` runner, which
      already exists on `main` with a reduced flag set (Bean 0040 tracks the flags and usage docs still outstanding; the
-     Bean 0039 pipeline engine is completed). Automation is an optimization of the flow, never a substitute for any of
+     Bean 0039 pipeline engine is completed). Automation is an optimisation of the flow, never a substitute for any of
      its five stages.
    - **Global CLI Invariant (`holon`)**: Always invoke `holon` directly as an installed CLI tool on `PATH`
      (`holon <subcommand>`), never via relative paths (`./holon`) or repository worktree paths
@@ -160,31 +160,29 @@ code in this repository.
    - Never bypass the flow with manual host-side git or worktree source edits, and never hand-apply a diff because a
      stage failed. A blocked stage means the change is blocked: report the blocker.
    - Per-agent worktrees remain mandatory for harness operation, image builds, code inspection, and verification runs --
-     they are explicitly **not** a surface for authoring `holon-agentic-coder` changes. This supersedes any reading of
-     the per-agent worktree rule in AGENTS.md that would allow committing agent-authored `holon-agentic-coder` source
-     from a worktree; `holon-coherence` development is outside this invariant and stays worktree-driven.
+     they are explicitly **not** a surface for hand-authoring `holon-agentic-coder` or `holon-coherence` changes outside
+     the flow.
    - The sole exceptions are (a) the `holon-agentic-coder-ref-metadata` control plane itself (`.beans/`, `.agents/`,
-     `AGENTS.md`), which the flow cannot target because `get_repo_url()` only resolves the target codebase, and (b) an
-     explicit, specific user instruction to edit outside the flow, which must be recorded in the commit message and the
-     bean summary.
+     `AGENTS.md`), which is edited directly, and (b) an explicit, specific user instruction to edit outside the flow,
+     which must be recorded in the commit message and the bean summary.
 
 9. **MITM Proxy Telemetry System of Record (`X-Holon-*`)**:
    - Streaming performance metrics (TTFT, Prefill TPS, Tail Prefill TPS, Decode Time, Output TPS, Total Time, Prompt
      Cache Hit Rate) MUST be computed centrally inside `sandbox_executor.token_reduction.mitm_addon`.
-   - Injects standardized `X-Holon-*` HTTP response headers to ensure 100% provider-agnostic and agent-agnostic
-     telemetry across all containerized AI agents (`antigravity`, `claude`, `codex`, `pi`).
+   - Injects standardised `X-Holon-*` HTTP response headers to ensure 100% provider-agnostic and agent-agnostic
+     telemetry across all containerised AI agents (`antigravity`, `claude`, `codex`, `pi`).
 
 10. **Zero Synthetic / Mock Data Invariant for Token Reduction & Efficacy Measurements**:
     - Absolutely NO synthetic data, artificial dummy string loops (e.g., repeated dummy functions or lines in memory),
-      mock stream generators, or randomized simulation loops (`generate_synthetic_iteration()`) may ever be used to
+      mock stream generators, or randomised simulation loops (`generate_synthetic_iteration()`) may ever be used to
       measure or benchmark the efficacy of token reduction methods or LLM performance.
     - All token reduction benchmarks, efficacy evaluations, and scorecards must derive exclusively from authentic
-      real-world data streams: (1) live containerized task executions (`./holon execute`), (2) authentic wire
-      transaction logs (`transactions.jsonl` containing genuine agent/tool payloads), or (3) authentic production
-      payload JSON files.
+      real-world data streams: (1) live containerised task executions (`holon execute`), (2) authentic wire transaction
+      logs (`transactions.jsonl` containing genuine agent/tool payloads), or (3) authentic production payload JSON
+      files.
     - Token accounting must be extracted directly from upstream provider response headers and usage metadata
       (`usage.input_tokens`, `usage.cache_read_input_tokens`, `usage.cache_creation_input_tokens`,
-      `usage.output_tokens`, `usage.completion_tokens_details.reasoning_tokens`) or exact BPE tokenizers, never crude
+      `usage.output_tokens`, `usage.completion_tokens_details.reasoning_tokens`) or exact BPE tokenisers, never crude
       character heuristics (`len // 4`).
     - **Mandatory Tool Calling & Artifact Production**: Benchmarks must not be restricted to conversational text-only
       loops (prompt $\to$ completion). Workloads must execute authentic multi-turn tool calling (`write_to_file`,
@@ -210,7 +208,7 @@ code in this repository.
       repository/workspace root.
     - **Rationale**: The root `pyproject.toml` pins `requires-python = "==3.13.*"`. Navigating into subpackage
       directories like `apps/sandbox-executor` detaches `uv` from the workspace root configuration, causing `uv` to
-      invoke the ambient system Python (e.g., Python 3.14). In Python 3.14, vectorcall optimizations cause recursive
+      invoke the ambient system Python (e.g., Python 3.14). In Python 3.14, vectorcall optimisations cause recursive
       mocking (`unittest.mock.patch.object` on `os.path` functions) to hang indefinitely at 100% CPU. Running from the
       repository root guarantees strict Python 3.13 pinning, zero test deadlocks, and clean execution.
 
@@ -224,3 +222,13 @@ code in this repository.
     - Inside nested worktrees, agents MUST format **only the changed files** (`npx prettier --write <changed_files>`),
       use the target repository's own configuration (or `--no-config` if none exists), and verify `git diff --stat`
       before committing to ensure zero collateral files were modified.
+
+14. **Pre-Commit Credential Leakage & Scratch File Detection Invariant (Bean 0110)**:
+    - Before committing staged changes in any repository, run `uv run python .agents/scripts/pre_commit_check.py` (or
+      `scripts/pre_commit_check.py` in target codebases) to ensure no API keys (`AIza...`, `ghp_...`, `github_pat_...`,
+      `sk-...`, `sk-ant-...`) or disallowed ephemeral scratch paths (`tmp/*`, `*.tmp`, `*.log`, `.index/*`) are staged.
+
+15. **Australian English (`en-AU`) Orthography Invariant (Bean 0105)**:
+    - All documentation, markdown guides, skill instructions, bean specifications, and user-facing strings must use
+      Australian English (`en-AU`) spelling (`standardise`, `optimise`, `synchronise`, `prioritise`, `behaviour`,
+      `colour`, `catalogue`), while keeping programmatic code symbols and external API contracts unchanged.

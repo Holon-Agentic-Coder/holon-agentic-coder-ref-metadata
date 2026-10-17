@@ -34,3 +34,19 @@ jobs:
 
       - name: Validate Markdown Links
         run: node .agents/scripts/validate-links.js
+
+      - name: Setup uv and Python
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Dev Dependencies
+        run: uv sync --group dev
+
+      - name: Run Ruff Lint and Format Checks
+        run: |
+          uv run ruff check .agents/ tests/
+          uv run ruff format --check .agents/ tests/
+
+      - name: Run Python Unit Tests
+        run: uv run pytest tests/ -q

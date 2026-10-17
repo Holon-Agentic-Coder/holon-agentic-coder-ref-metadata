@@ -1,0 +1,32 @@
+[project]
+name = "holon-agentic-coder-ref-metadata"
+version = "0.1.0"
+description = "Control plane, metadata store, and multi-agent harness for the Holon ecosystem"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "LICENSE" }
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.8.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = ["apps", "todo", ".subagent", ".venv", ".git"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+exclude = [
+    "apps",
+    "todo",
+    ".subagent",
+    ".venv",
+    ".git",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]

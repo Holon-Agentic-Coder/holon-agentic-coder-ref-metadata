@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0105
 title: "Adopt Australian English spelling across all documentation, guidelines, and user-facing copy"
-status: todo
+status: completed
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - standards
   - australian-english
 created_at: 2026-10-17T03:54:30Z
-updated_at: 2026-10-17T03:54:30Z
+updated_at: 2026-10-18T09:40:00Z
 ---
 
 Adopt Australian English (`en-AU`) spelling across all documentation, guidelines, agent instructions, skill
@@ -28,12 +28,18 @@ descriptions, commit conventions, and user-facing messages across the Holon ecos
 
 ## Tasks
 
-- [ ] Add an orthography guideline in `.agents/instructions.md` specifying Australian English (`en-AU`) as the canonical
+- [x] Add an orthography guideline in `.agents/instructions.md` specifying Australian English (`en-AU`) as the canonical
       documentation and communication standard.
-- [ ] Audit and adjust spellings in core instructions (`AGENTS.md`, `.agents/instructions.md`, `.agents/rules.md`,
+- [x] Audit and adjust spellings in core instructions (`AGENTS.md`, `.agents/instructions.md`, `.agents/rules.md`,
       `.agents/workflows.md`, `.agents/coordination.md`).
-- [ ] Audit skill descriptions, prompts, and docstrings in `.agents/skills/`.
-- [ ] Audit user-facing strings in `holon-coherence` (web interface, CLI help text) and `holon-agentic-coder`.
-- [ ] Ensure programmatic identifiers / external API contracts remain unchanged while comments, docstrings, and
+- [x] Audit skill descriptions, prompts, and docstrings in `.agents/skills/`.
+- [x] Audit user-facing strings in `holon-coherence` (web interface, CLI help text) and `holon-agentic-coder`.
+- [x] Ensure programmatic identifiers / external API contracts remain unchanged while comments, docstrings, and
       documentation adopt Australian spelling.
-- [ ] Format all modified markdown files with Prettier and verify link validation.
+- [x] Format all modified markdown files with Prettier and verify link validation.
+
+## Resolution Summary
+
+Standardised orthography to Australian English (`en-AU`) across all documentation, guidelines, agent prompts, and
+comments in `holon-agentic-coder-ref-metadata`, `holon-agentic-coder` (PR #84), and `holon-coherence` (PR #25). All
+programmatic contracts, API identifiers, and CLI flags were safely preserved.
