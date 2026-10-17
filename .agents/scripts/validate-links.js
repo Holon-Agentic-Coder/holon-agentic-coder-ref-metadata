@@ -20,6 +20,8 @@ const filesToCheck = [
   path.join(rootDir, '.agents/skills/pr_review_loop/SKILL.md'),
   path.join(rootDir, '.agents/skills/pr_review_resolver/SKILL.md'),
   path.join(rootDir, '.agents/skills/pr_reviewer/SKILL.md'),
+  path.join(rootDir, '.agents/skills/install_holon/SKILL.md'),
+  path.join(rootDir, '.agents/skills/install_coherence/SKILL.md'),
 ];
 
 let hasErrors = false;

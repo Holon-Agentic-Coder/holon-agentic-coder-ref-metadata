@@ -133,3 +133,7 @@ When an agent is initialized in this workspace:
 
 Humans and senior manager agents can edit files in `.agents/` to refine rules or add new protocols as the codebase and
 requirements evolve. All changes should be committed using clean semantic commit messages on dedicated feature branches.
+
+## 📄 License
+
+This repository is licensed under the [Apache License 2.0](LICENSE).
