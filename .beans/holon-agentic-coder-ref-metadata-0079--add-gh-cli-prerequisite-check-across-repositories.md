@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0079
 title: "Add gh and openssl prerequisite checks and align per-repo toolchain requirements"
-status: in-progress
+status: completed
 type: task
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
   - conda
   - holon-flow
 created_at: 2026-10-09T12:12:00Z
-updated_at: 2026-10-09T12:35:00Z
+updated_at: 2026-10-12T19:00:00Z
 ---
 
 ## Summary
@@ -99,3 +99,15 @@ run the proxy or local unit tests.
      values in dry-run and non-interactive modes.
    - Update Makefile tests in `holon-agentic-coder`.
    - Verify dry-run (`make -n`) and non-interactive CI executions pass cleanly.
+
+## Resolution
+
+Both PRs have merged into `origin/main` across both repositories:
+
+- **`holon-agentic-coder` [PR #69](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/69)**:
+  - Consensus `APPROVED` (3/3), 10/10 GitHub Actions checks passed.
+  - Merged into `origin/main` on 2026-10-11 (merge commit `d86b77e9a8755326890e253eef77d8822a6579f8`).
+  - Added `gh` and `openssl` prerequisite validation with unusable-tool detection in Makefile and tests.
+- **`holon-coherence` [PR #13](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/13)**:
+  - Added flexible Conda environment provisioning, interactive confirmation, and `openssl` + `npx` validation.
+  - Merged into `origin/main` on 2026-10-11 (merge commit `a17d0a41677a946db8a2793709cef61055e48ab1`).

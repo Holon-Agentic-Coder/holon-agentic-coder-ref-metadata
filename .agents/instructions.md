@@ -67,3 +67,17 @@ system safety, and clean documentation. Follow these core guidelines in every se
   - Never poll or sleep in a loop; AGY wakes the parent agent automatically when child tasks finish.
 - Generic coding agents (such as Claude Code, Codex, Pi, OpenCodeInterpreter) can execute child tasks using their native
   subagent or child process delegation mechanisms following the same prompt contracts.
+
+### 6. Token Conservation & Concise Communication (Harness & Subagents)
+
+- **Strict Brevity**: Minimize both prompt and completion token consumption across the main harness and all subagents.
+- **Concise Reporting**: Do not produce verbose discursive explanations or repeat full file diffs. Keep responses dense,
+  factual, and strictly actionable.
+- **Targeted Subagent Prompts & Reports**: Subagent prompts and deliverables must be focused strictly on their immediate
+  evaluation or task contract. Reviewers must return structured findings tables and summary blocks rather than narrative
+  essays.
+- **No Premature External Comments**: PR consensus review comments must only be published to GitHub when the ensemble
+  review is fully complete and all findings are definitively classified or resolved. Intermediate iterations stay local
+  to `.subagent/`.
+- **Subagent Cleanup**: Merged, stale, or superseded patch, diff, and review files in `.subagent/` must be pruned
+  immediately once their respective iteration or PR lifecycle completes.

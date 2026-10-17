@@ -14,6 +14,10 @@ description:
 This skill automates the identification and safe deletion of stale, merged, and orphaned branches, worktrees, and Pull
 Requests across all active projects within the Holon Agentic Coder workspace.
 
+> [!NOTE] For comprehensive end-to-end workspace cleanup including intermediate `.subagent/` review artifacts, temporary
+> files in the `todo/` directory, and automated script execution, refer to the
+> [`clean-workspace`](../clean_workspace/SKILL.md) skill.
+
 ---
 
 ## 📐 Architecture & Operational Principles

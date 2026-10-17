@@ -36,6 +36,34 @@ Filename pattern: `.beans/<prefix><id>--<slug>.md` e.g.
   Do not use `beans create` if it generates random base36 IDs.
 - Update the status field of the task file to `in-progress`.
 
+## ❓ Questions Upfront, Then Unattended
+
+Once the operator has specified a task, agent work is **autonomous by default**. Stopping to ask "shall I continue?"
+mid-task is a defect, not courtesy: the operator has already authorised the work and is paying for the round trip.
+
+1. **Surface every unknown before starting, in one batch.** Before touching anything, write out all the decisions the
+   task leaves open that you would otherwise have to guess or ask about later -- scope, which repo/branch, acceptance
+   criteria, destructive actions, fallback behaviour, what to do if a gate fails. Ask them together, once, at the start.
+   If a question can be answered by reading the repository, reading a ledger, or running a probe, **do not ask it**:
+   measure it.
+2. **Then run to a terminal state without checkpoints.** Do not pause for approval between steps of an authorised task,
+   do not summarise and wait at an intermediate stage, and do not end a turn on a confirmation question when the next
+   action is already authorised. Report at the end, or when genuinely blocked.
+3. **Decide the unanticipated conservatively, log it, keep moving.** When something unforeseen appears mid-task, choose
+   the conservative option, record the decision and its rationale, and state it in the final report. A question that
+   arises after work has started is answered this way, not by interrupting the operator.
+4. **The standing exceptions stay absolute.** Merging a PR (human-only, `AGENTS.md`), destructive or irreversible
+   actions (force-pushing a shared branch, deleting worktrees or branches before a merge is confirmed, writing to a
+   `main` worktree, spending real money or quota beyond the task's scope), and any newly discovered scope beyond what
+   was asked. Those stop and ask; nothing else does.
+5. **Local-runtime serial dispatch is not a blocker to ask about.** On a local model runtime, run delegable children one
+   at a time and keep going; do not stop and ask whether to relaunch a child.
+
+Bean `0085` ports the same contract into the flow itself, so the sandboxed role agents inherit it: the Intent stage asks
+everything once, and an intent with unresolved questions is not executable.
+
+---
+
 ### 2. Implementation Cycle (The Holon Flow)
 
 Changes to target codebases are authored by the flow, not by hand. Run the five stages in order; each stage produces the
@@ -52,7 +80,9 @@ branch and ledger record the next one consumes (see invariant 8 in [rules.md](ru
 - **Review**: Run the `pr-review-loop` skill until the ensemble reaches consensus approval. Never merge (see the
   Human-Only rule below).
 - **Calibrate**: Run `holon calibrate <execution_branch>` to commit predicted-versus-actual deltas. This is a
-  **pre-merge** stage: merging consumes the `E-...` branch it reads (Bean 0054).
+  **pre-merge** stage: merging consumes the `E-...` branch it reads (Bean 0054). Push the dedicated `/calibrated`
+  branch, and for Pull Requests, also merge/fast-forward the calibration commit into the PR head branch and push so that
+  the calibration report is included in the PR diff and lands on `main` when merged.
 - **Document**: Add notes inside the task file explaining how the task was resolved, including the intent, plan, and
   execution branch names.
 
@@ -63,7 +93,17 @@ completed). Both modes satisfy the same requirement.
 ### 3. Task Completion
 
 - Change the status field to `completed`.
-- Format all markdown files by running `npx prettier --write "**/*.md"`.
+- **Format Before Commit (Harness vs Nested Target Worktrees)**:
+  - **In the harness (`holon-agentic-coder-ref-metadata`)**: Format all markdown files by running
+    `npx prettier --write "**/*.md"`.
+  - **In nested target worktrees (`apps/<project>/<branch>/`)**: Prettier resolves configuration upward and will
+    erroneously find the parent harness's `.prettierrc.json` (`printWidth: 100`, `proseWrap: always`), which target
+    repositories do not carry. A repo-wide `prettier --write "**/*.md"` in a nested worktree reflows unrelated documents
+    and breaks CI hygiene checks. Inside nested target worktrees:
+    1. Format **only the changed files**: `npx prettier --write <changed_files>`.
+    2. Scope Prettier to the target repository's own configuration if it defines one, or pass `--no-config` if it does
+       not.
+    3. Always verify with `git diff --stat` before committing that no unintended files were touched.
 - Commit the changes on your own feature branch/worktree (creating one is allowed autonomously; never commit in a `main`
   worktree).
 - Squash all branch commits relative to the `main` branch into a single commit, rule 4 exemptions excepted: a branch the
@@ -193,6 +233,7 @@ To maintain clean repository history, follow this Git workflow:
      ```
 
    - Avoid generic commit messages like "update files" or "fix".
+
 4. **Squashing (Mandatory On Branches You Author)**:
    - Before pushing a branch you hand-authored, you **MUST squash all commits** on it relative to the target branch into
      a **single commit** (e.g., relative to `main` in this metadata repository, `holon-agentic-coder`, or
@@ -223,8 +264,11 @@ To maintain clean repository history, follow this Git workflow:
    - When rewriting history on your own branch, use `git push --force-with-lease origin <branch-name>`.
    - **Do NOT push directly to `main` under any circumstances**, never push or force-push a branch you do not own, and
      never push from a `main` worktree.
-   - The human repository maintainer will review the changes and raise the Pull Request. Raising a Pull Request still
-     requires explicit instruction, even though pushing does not.
+   - **Autonomous PR Creation in the Holon Flow**: When executing the Holon flow lifecycle, Pull Request creation is
+     **autonomous**: once Stage 3 (Execute) pushes the execution branch, the agent autonomously creates the Pull Request
+     (`gh pr create`) against the base branch so that Stage 4 (PR review loop) can proceed seamlessly without manual
+     handoff. For non-flow work (such as standalone harness branches or hand-authored worktrees), raising a Pull Request
+     still requires explicit instruction from the human maintainer.
 
 > [!CAUTION] **Agents MUST NEVER merge a Pull Request.** Merging is exclusively the human maintainer's responsibility.
 > The following actions are **strictly forbidden** with no exceptions:
@@ -237,11 +281,12 @@ To maintain clean repository history, follow this Git workflow:
 > After the pr-reviewer ensemble consensus review is approved and posted to GitHub, the agent MUST stop all
 > GitHub-facing PR activity (no further `gh pr` writes of any kind). On a PR the Holon flow drove it then runs stage 5
 > (`holon calibrate <execution_branch>`) itself before requesting the merge, per "Ordering of the merge boundary" in
-> [AGENTS.md](../AGENTS.md), and notifies the user:
+> [AGENTS.md](../AGENTS.md): it pushes the `/calibrated` branch, merges/fast-forwards the calibration commit into the PR
+> execution branch so the calibration report is included in the PR diff, pushes to origin, and notifies the user:
 >
-> > ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub. Please review and merge
-> > it manually at `<pr_url>` when you are ready; merging before stage 5 (`holon calibrate`) has run destroys the
-> > `E-...` branch that calibration reads.
+> > ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub and Stage 5 calibration
+> > has been completed and included in the PR. Please review and merge it manually at `<pr_url>` when you are ready;
+> > merging before stage 5 (`holon calibrate`) has run destroys the `E-...` branch that calibration reads.
 >
 > Branch and worktree cleanup may only be performed **after** the human confirms the merge has completed, or when the
 > user explicitly requests it.

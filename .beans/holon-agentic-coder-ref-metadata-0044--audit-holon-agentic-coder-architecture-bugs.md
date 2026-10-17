@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0044
 title: "Audit holon-agentic-coder architecture, security, bugs, and improvements"
-status: todo
+status: completed
 type: task
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - bugfix
   - holon-agentic-coder
 created_at: 2026-09-26T09:26:00Z
-updated_at: 2026-09-27T13:05:00Z
+updated_at: 2026-10-15T09:10:00Z
 ---
 
 Conduct a comprehensive architectural, security, bug, and quality audit of the `holon-agentic-coder` codebase (located
@@ -72,3 +72,21 @@ been spun off; the highest bean id is still the audit batch itself, so no findin
 
 No audit artefact exists for `holon-agentic-coder`: `find apps/holon-agentic-coder/main/docs -iname '*audit*'` is empty
 (the tree holds `agent_design.md`, `architecture.md`, `core_concepts.md`, ... only). Not started.
+
+## Resolution (2026-10-15)
+
+- Conducted a comprehensive, deep-dive architectural, security, bug, and quality audit across all modules in
+  `apps/holon-agentic-coder/`.
+- Authored production-grade audit report published at `docs/audit_report.md` in `holon-agentic-coder`.
+- Spun off and tracked dedicated sequential remediation task beans in harness `.beans/`:
+  - **Bean 0092**: `holon-agentic-coder-ref-metadata-0092--sandbox-network-firewalling-and-egress-filtering.md`
+    (Security: Egress filtering and user-defined Docker bridge network isolation).
+  - **Bean 0093**: `holon-agentic-coder-ref-metadata-0093--atomic-ledger-locking-and-concurrent-write-safety.md`
+    (Reliability: File locking `fcntl.flock` to prevent concurrent write corruption in `.jsonl` ledgers).
+  - **Bean 0094**: `holon-agentic-coder-ref-metadata-0094--pipeline-checkpoint-schema-versioning-and-migration.md`
+    (Reliability: Explicit `schema_version` and backward compatibility transforms for pipeline checkpoints).
+  - **Bean 0095**: `holon-agentic-coder-ref-metadata-0095--agent-runner-session-state-and-credential-isolation.md`
+    (Security: Elimination of host D-Bus socket mounts and ephemeral credential copy isolation).
+- Validated through Holon flow lifecycle stages 1-5; PR #76 achieved 3/3 unanimous ensemble consensus approval, 10/10
+  green CI workflows, and pre-merge calibration ($\Delta EV$ +4.38); merged to `main` at commit
+  `eec806e4edb160dfb45b0f02cd90b795a074f446`.

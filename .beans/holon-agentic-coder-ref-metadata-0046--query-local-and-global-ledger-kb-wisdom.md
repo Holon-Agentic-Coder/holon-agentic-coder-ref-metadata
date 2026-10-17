@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0046
 title: "Check ledger, KB, and wisdom across intent, planning, execution, pr review loop, and calibration"
-status: todo
+status: scrapped
 type: feature
 priority: high
 tags:
@@ -143,3 +143,16 @@ execute, review or calibration.
 
 Grepping `apps/sandbox-executor/src` and `holon-knowledge/` for `wisdom` returns nothing, and no phase performs a
 ledger/KB consult or writes a verdict back. Prerequisite Bean 0052 is likewise untouched.
+
+## Scrapped (2026-10-11)
+
+Subsumed, per the decision recorded in the 2026-10-03 triage and applied during the 2026-10-11 reassessment: the
+per-stage ledger/KB/wisdom check this bean describes is a strict subset of Bean 0052 (per-action consult and outcome
+logging), which itself depends on Bean 0077's action-level ledger. Keeping both open would double-count the same work in
+the queue.
+
+## Subsumption Completed (2026-10-17)
+
+Bean 0052 has fully completed its 5-stage Holon flow lifecycle and merged into `holon-agentic-coder` main (PR #78,
+commit `9002fc9960f8cd68da6f482f58662c5d7c1be300`), fulfilling the per-action and per-stage ledger/KB/wisdom
+consultation and outcome recording requirements specified here.

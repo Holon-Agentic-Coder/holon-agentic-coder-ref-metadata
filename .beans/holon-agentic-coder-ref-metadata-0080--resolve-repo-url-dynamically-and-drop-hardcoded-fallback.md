@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0080
 title: "Resolve the target repository URL dynamically and drop the hardcoded holon-agentic-coder fallback"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - multi-repo
   - holon-flow
 created_at: 2026-10-09T14:10:00Z
-updated_at: 2026-10-09T14:10:00Z
+updated_at: 2026-10-12T10:33:00Z
 ---
 
 ## Summary
@@ -56,3 +56,22 @@ also never loads `.env`. The URL and token must be derived at invocation time.
 - Flow-gated (`holon-agentic-coder`): must traverse all five stages; no hand-authored edit in a worktree.
 - Natural batch partner for Beans 0078 + 0064 (same package, ledger/executor neighbourhood) or Bean 0079.
 - Prerequisite for running the flow cleanly against `holon-coherence`.
+
+## Resolution
+
+Executed and validated through all 5 stages of the Holon Flow:
+
+1. **Stage 1 (Intent)**: Created intent branch `I-1791798210-resolve-repo-url-dynamically/_`.
+2. **Stage 2 (Plan)**: Generated plan branch
+   `I-1791798210-resolve-repo-url-dynamically/P-1791798221-antigravity-agent-gemini-3.8-flash-medium/_`.
+3. **Stage 3 (Execute)**: Executed implementation under
+   `I-1791798210-resolve-repo-url-dynamically/P-1791798221-antigravity-agent-gemini-3.8-flash-medium/E-1791798742-antigravity-agent-gemini-3.8-flash-medium/_`.
+4. **Stage 4 (PR Review Loop)**: Created [PR #71](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/71).
+   Iteration 1 identified and resolved test environment fixtures in `test_intent_creator.py`, `test_planner.py`, and
+   `test_token_reduction.py`, and cleaned dropped `executions/` directory per Bean 0078. Iteration 2 achieved unanimous
+   3/3 ensemble approval (`antigravity-agent` on `gemini-3.8-flash-medium`) with all 10 GitHub Actions checks passing.
+   Consensus review posted to GitHub.
+5. **Stage 5 (Calibration)**: Executed pre-merge calibration via `holon calibrate`, committing report to
+   `plans/P-1791798221-antigravity-agent-gemini-3.8-flash-medium_calibration.md` on branch
+   `I-1791798210-resolve-repo-url-dynamically/P-1791798221-antigravity-agent-gemini-3.8-flash-medium/E-1791798742-antigravity-agent-gemini-3.8-flash-medium/calibrated`
+   (Predicted EV: 74.45, Actual EV: 74.83, ΔEV: +0.38) and pushed to remote origin.

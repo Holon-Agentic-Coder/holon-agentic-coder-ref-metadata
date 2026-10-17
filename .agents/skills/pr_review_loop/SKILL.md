@@ -33,6 +33,19 @@ resolution step is executed in a dedicated, fresh subagent**.
      reviewers as **already adjudicated** so they are not re-raised. If the same Nit-only set survives 3 consecutive
      iterations with no diff change, the loop adjudicates it `rejected: no-convergence` and proceeds rather than
      spinning (Nits never justify burning the iteration cap).
+   - **Never write "dispositioned" for "I stopped".** `applied` and `rejected` are the only dispositions, and each must
+     exist in the coordination ledger (`residual_risks`) with the commit that applied it or the reason for rejection
+     **before** any text describing it is posted to GitHub. Before asserting that a state lives in a file, read the file
+     and confirm it; a review comment claiming a record exists is as much a claim about the code as a bug report is.
+   - **The cap is the operator's cost governor, not a definition of done.** The default is 25. An agent may run fewer
+     iterations because the loop converged, but MUST NOT silently choose a lower cap to justify stopping while findings
+     are open. Runtime cost (a local model, serialised reviewers, wall-clock per iteration) is reported to the operator
+     as economics and left to them; it is not silently converted into a smaller cap and then cited as the reason for
+     stopping.
+   - **Convergence is a fixed point at one head, not a vote count.** Any push invalidates every vote taken at an earlier
+     head: votes are cast against the head under review, so after a fix the ensemble re-reviews the new head until a
+     pass produces no new actionable finding. A loop that ends with "no head ever held three clean votes" has not
+     converged, and must say so plainly rather than reporting an aggregate verdict across mismatched heads.
 3. **Deterministic Convergence (Never Pause)**: The loop has **no pause state and never asks for guidance mid-flight**.
    The only exits are a clean consensus approval posted to the PR, or the **max iteration cap** with a final review
    posted. If the exact same issue is flagged across 3 consecutive iterations with no diff change, or if reviewers
@@ -124,6 +137,18 @@ resolution step is executed in a dedicated, fresh subagent**.
    have nothing to do with the change under review -- a child wall-clock timeout, a model that spends its output budget
    on reasoning and returns no final message, or a launch/transport error whose rejection tears down the enclosing
    orchestration. A pass death never ends the loop and never cancels the iteration. Every pass therefore MUST:
+   - **ensure child write capability**: every review, consensus, and resolution child MUST possess file-writing tools
+     (`write_to_file`, `replace_file_content`, or child equivalent) to write its report file directly to disk. A pass
+     dispatched to a child that cannot write files (such as read-only `TypeName: "research"` or non-writing local
+     agents) returns unauditable output: even if it outputs a trailer block in chat, **a verdict with no report file on
+     disk is not a vote**. The finding it counted was never preserved, so no subsequent resolver can disposition it. Any
+     verdict returned without an on-disk report artifact is recorded `DEAD` in `passes[]` of `_state.json`, excluded
+     from the vote count, and re-cast on a write-capable child;
+   - **probe admissible child agents and models upfront**: before the first child fanout, discover the valid child agent
+     types and model identifiers supported by the harness instead of guessing and losing a dispatch. In runtimes where
+     agent/model enumeration is not pre-configured, launching a dry probe with an intentionally invalid identifier (e.g.
+     `TypeName: "__probe__"`) causes the harness to return the full list of valid agents and models in the error
+     response without launching or consuming inference quota;
    - **write its report early** -- create the file as a stub and append after each finding, so an aborted or timed-out
      final message loses nothing;
    - **answer briefly** -- the final reply carries a two-sentence summary plus the machine-readable trailers, never the
@@ -211,24 +236,27 @@ resolution step is executed in a dedicated, fresh subagent**.
       report whose entry has `status: "COMPLETE"` as the baseline for an increment review under Principle 9. If
       `_state.json` is absent, say so and start fresh; if its `head` differs from the live PR head, run Phase A0.5
       before anything else.
+    - **On-disk trailer block governs over child summary message**: If a child's final chat message contradicts its
+      on-disk report trailer block (e.g. child message claims `important=1` while the on-disk report trailer reads
+      `IMPORTANT: 0`), **the on-disk file is the canonical record of truth and governs the verdict**. Never silently
+      reconcile either number to match the other. The divergence MUST be recorded in `<repo>_pr<N>_loop_history.md`
+      (e.g.
+      `[DISCREPANCY] Iteration <iter> reviewer <k>: message reported X but report trailer recorded Y; report trailer governs`).
     - **Never invent a parallel state file.** Exactly one resume file per repo+PR. A fourth or fifth log file means the
       next agent reads the wrong one.
 
-11. **Serial Ensemble On A Local Model Runtime**: Before any fanout -- the 3-agent ensemble, the dry-run plus resolver
-    pair, or a parallel pre-existing-comment audit -- classify the parent's model runtime per
-    [coordination.md section 4](../../coordination.md#4-dispatch-concurrency-local-vs-hosted-runtimes). If the model is
-    served **locally** (`vmlx`, `ollama`, `lmstudio`, `mlx`, `llama.cpp`, a `localhost` / `127.0.0.1` model endpoint, or
-    `$PI_PROVIDER` naming one), dispatch LLM-inference children **one at a time**: launch a child, wait for it to
-    terminate, then launch the next. Concurrent children share a single local inference backend, and that contention is
-    an infrastructure failure, not a review outcome -- it shows up as children dying with reasoning output and no answer
-    or tool call, or as the operator's machine thrashing.
-
-    **Serial is not singular.** The termination rule, the 3/3 unanimity requirement, the per-reviewer report files, the
-    trailer blocks, the coordination ledger and the resume state all stay exactly as written: three distinct fresh child
-    contexts, three distinct prompts, three independent blind votes, and no reviewer reads another reviewer's report. A
-    local runtime never licenses collapsing the ensemble into one reviewer, and never licenses feeding earlier votes to
-    a later reviewer, which would destroy the independence the ensemble exists to provide. Sequential latency is the
-    accepted price of a run that completes; the iteration cap is unaffected.
+11. **Local Runtime Has Its Own Operating Rules**: When the orchestrating agent's own model is served locally (`vmlx`,
+    `ollama`, `lmstudio`, `mlx`, `llama.cpp`, a `localhost` / `127.0.0.1` model endpoint, or a child that died with
+    reasoning output and no answer), read [LOCAL_RUNTIME.md](LOCAL_RUNTIME.md) and follow it for the whole loop. In one
+    line each:
+    - **Serial, not singular.** LLM-inference children dispatch one at a time on a shared local backend, because
+      contention is an infrastructure failure that looks like a timeout. Three fresh contexts, three prompts, three
+      blind votes still apply; nothing about termination, unanimity, report files or the ledger is relaxed.
+    - **Compaction is expected and changes nothing about the cap.** The window (currently 262k) will compact during a
+      real loop; state lives in `.subagent/` files, so the cap stays the operator's (default 25), the protocol is never
+      shortened, and the loop is never stopped or paused to ask permission because the window filled.
+    - **Timeouts are infrastructure, not verdicts.** Read the child's report file before deciding whether it voted;
+      recover with a bounded finish-only resume; never run a replacement beside a live sibling.
 
 ---
 
@@ -300,8 +328,9 @@ reality, so reviewers never evaluate a diff that no longer exists. Nothing here 
    - Never `git stash`, `git reset --hard`, `git checkout --`, or `git clean` unverified work: in-flight work must stay
      recoverable, and another author's commits are never dropped to make a push easy.
 3. **Integrate diverged pushes**: if `origin/<branch_name>` carries commits the loop lacks, run
-   `git pull --rebase origin <branch_name>`, keep both intents when rebasing documentation, re-run
-   `npx prettier --write "**/*.md"`, and continue. A rejected push is a rebase, never a `--force`.
+   `git pull --rebase origin <branch_name>`, keep both intents when rebasing documentation, re-run Prettier on changed
+   markdown files only (using the target repository's configuration or `--no-config`, never formatting repo-wide), and
+   continue. A rejected push is a rebase, never a `--force`.
 4. **Re-query volatile state**: CI status, review threads, and PR `mergeable` are re-read for the current head; results
    captured for an older head are never reused.
 5. **Log the reconciliation**: append a row to the loop history (drift detected, action taken, head after sync) so the
@@ -316,6 +345,12 @@ Execute the review pass in a clean, isolated subagent context.
 - **Role**: `PR Reviewer (Iteration <iteration>)`
 - **Context Isolation**: Spin off a dedicated child context using your agent's native subagent tool, child task runner,
   or child process to keep parent context clean and prevent prompt degradation.
+- **Capabilities**: Child agent MUST possess file-writing tools (`write_to_file`, `replace_file_content`, or child
+  equivalent) to write its report file to disk. A pass dispatched to a child that cannot write files returns an
+  unauditable verdict: even if it outputs a trailer block in chat, **a verdict with no report file on disk is not a
+  vote**. The pass is recorded `DEAD` in `passes[]` of `_state.json`, excluded from the vote, and re-cast on a
+  write-capable child. In AGY, always use `TypeName: "self"` (inherits write tools); never use read-only types such as
+  `TypeName: "research"`.
 - **Model**: Inherit the parent agent's model (`inherit`).
 - **Prompt Instructions**:
   > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` in **Dry-Run Mode (`--dry-run`)** with
@@ -376,6 +411,10 @@ Wait for the subagent to complete and inspect its report.
      are identical in both modes:
      - **Generic Subagent Contract (Any Coding Agent)**:
        - **Role**: `PR Ensemble Reviewer (Iteration <iteration>)`
+       - **Capabilities**: All 3 ensemble reviewer children and the consensus synthesizer child MUST possess
+         file-writing tools (`write_to_file`, `replace_file_content`, or child equivalent). In AGY, use
+         `TypeName: "self"`. Any pass that returns a verdict without writing its report artifact to disk is recorded
+         `DEAD` and re-cast.
        - **Model**: Inherit parent model (`inherit`).
        - **Prompt Instructions**:
          > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` using the **3-Agent Ensemble Consensus
@@ -421,17 +460,20 @@ Wait for the subagent to complete and inspect its report.
        - **STOP THE LOOP.**
        - **Run stage 5 (Calibration) yourself before any merge is requested, not after**: when the change reached the PR
          through the Holon flow, calibration is this loop's own job, not the maintainer's -- run
-         `holon calibrate <execution_branch>`, see [AGENTS.md](../../../AGENTS.md). It is a **local-git operation on the
-         flow checkout**: it re-branches from the `E-...` execution branch and commits the calibration deltas in place,
-         so it opens no new GitHub-write path -- no `gh pr` write, no push, no merge. A PR approved here is "calibrated,
-         ready to merge", never "ready to merge" while stage 5 is still outstanding, because merging consumes the
-         `E-...` branch calibration reads.
+         `holon calibrate <execution_branch>`, see [AGENTS.md](../../../AGENTS.md). Create and push the dedicated
+         `/calibrated` branch (`I-.../P-.../E-.../calibrated`), and **include the calibration report in the PR** by
+         fast-forwarding/merging the calibration commit into the PR head execution branch (`.../_`) and pushing to
+         `origin`. This ensures the calibration report is recorded on the provenance `/calibrated` branch, appears in
+         the PR diff, and is preserved on `main` when merged. A PR approved here is "calibrated, ready to merge", never
+         "ready to merge" while stage 5 is still outstanding, because merging consumes the `E-...` branch calibration
+         reads.
        - **NEVER merge autonomously**: Agents MUST NOT run `gh pr merge`, add the PR to the merge queue, or enable
          auto-merge. Merging is strictly reserved for the human maintainer.
        - **Notify the user** that the PR is approved, in the same words [AGENTS.md](../../../AGENTS.md) prescribes:
-         > ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub. Please review and
-         > merge it manually at `<pr_url>` when you are ready; merging before stage 5 (`holon calibrate`) has run
-         > destroys the `E-...` branch that calibration reads.
+         > ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub and Stage 5
+         > calibration has been completed and included in the PR. Please review and merge it manually at `<pr_url>` when
+         > you are ready; merging before stage 5 (`holon calibrate`) has run destroys the `E-...` branch that
+         > calibration reads.
        - Branch and worktree cleanup must only be performed after the human confirms the merge has completed, or when
          the user explicitly requests cleanup.
      - **Case 2: Critical, Important or Open Actionable Nit Issues Flagged by Consensus Reviewers**:
@@ -478,6 +520,11 @@ Wait for the subagent to complete and inspect its report.
      the cap and surface it there: the iteration cap is the only place an unresolved finding may end the loop.
 
 3. **Max Iterations Cap**:
+   - The cap counts **iterations**, not elapsed time, context compactions, or reviewer attrition. Reaching a large
+     iteration number is a legitimate cost of doing the work; compaction is not progress toward the cap, and a reviewer
+     that timed out is not an iteration spent. Never lower the cap, and never report a self-imposed limit as though it
+     were the configured one (see
+     [LOCAL_RUNTIME.md §3](LOCAL_RUNTIME.md#3-compaction-is-expected-the-cap-is-not-your-lever)).
    - If `iteration >= max_iterations` and unresolved Critical or Important issues remain after Phase C:
      - Post a single final review comment to GitHub PR via `gh pr review` summarizing remaining issues.
      - **STOP THE LOOP**.
@@ -498,6 +545,8 @@ Execute the resolution pass in a clean, isolated subagent context.
 - **Role**: `PR Review Resolver (Iteration <iteration>)`
 - **Context Isolation**: Spin off a dedicated child context using your agent's native subagent tool, child task runner,
   or child process to keep parent context clean and apply code fixes safely.
+- **Capabilities**: Child agent MUST possess file-writing and command execution tools (`write_to_file`,
+  `replace_file_content`, `run_command`, or child equivalent). In AGY, always use `TypeName: "self"`.
 - **Model**: Inherit the parent agent's model (`inherit`).
 - **Target Worktree**: Locate the target repository worktree under `apps/holon-agentic-coder/{branch}`,
   `apps/holon-coherence/{branch}`, or repository root.
@@ -516,8 +565,10 @@ Execute the resolution pass in a clean, isolated subagent context.
   >    severity applied), `Review-Iteration: <iteration>`, `Review-Finding-Ids: <ids>`.
   > 5. Push local commits to remote feature branch (`git push origin <branch_name>`) so GitHub PR diff updates for the
   >    next review pass. If the push is rejected as non-fast-forward, run `git pull --rebase origin <branch_name>`, keep
-  >    both intents, re-run `npx prettier --write "**/*.md"`, and push again -- never resolve drift with `--force`,
-  >    `--force-with-lease`, or by dropping the other author's commits.
+  >    both intents, format changed markdown files only using the target repository's configuration or `--no-config`
+  >    (never run un-scoped repo-wide Prettier from inside a nested worktree, which can resolve the harness's
+  >    `.prettierrc.json`), verify `git diff --stat` touches no unintended files, and push again -- never resolve drift
+  >    with `--force`, `--force-with-lease`, or by dropping the other author's commits.
   > 6. Return a summary of applied fixes and skipped comments **including a per-finding disposition table
   >    (`id | severity | applied/rejected | reason`)**, saved to
   >    `.subagent/<repo>_pr<N>_resolver_iter_<iteration>_{short_git_commit}.md`; every scratch file (commit message,

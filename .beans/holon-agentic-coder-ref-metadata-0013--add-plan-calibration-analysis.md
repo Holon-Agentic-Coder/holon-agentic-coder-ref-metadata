@@ -13,10 +13,10 @@ plans/P-1787051525-antigravity-agent-gemini-3.5-flash_calibration.md.
 
 ## Notes
 
-- Intent: I-1787051498-executor-plan-calibration/_
-- Plan: I-1787051498-executor-plan-calibration/P-1787051525-antigravity-agent-gemini-3.5-flash/_
+- Intent: I-1787051498-executor-plan-calibration/\_
+- Plan: I-1787051498-executor-plan-calibration/P-1787051525-antigravity-agent-gemini-3.5-flash/\_
 - Execution:
-  I-1787051498-executor-plan-calibration/P-1787051525-antigravity-agent-gemini-3.5-flash/E-1787051559-antigravity-agent-gemini-3.5-flash/_
+  I-1787051498-executor-plan-calibration/P-1787051525-antigravity-agent-gemini-3.5-flash/E-1787051559-antigravity-agent-gemini-3.5-flash/\_
 - Calibration:
   I-1787051498-executor-plan-calibration/P-1787051525-antigravity-agent-gemini-3.5-flash/E-1787051559-antigravity-agent-gemini-3.5-flash/calibrated
 

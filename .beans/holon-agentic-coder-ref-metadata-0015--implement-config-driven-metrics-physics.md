@@ -20,10 +20,10 @@ dynamic config-driven parameters as specified in architecture.md and metrics.md.
 - Updated Planner decision engine to compute EV using dynamic config-driven parameters (lambda=0.3, mu=0.5).
 - Added load_metrics_config and unit tests covering config loading and dynamic EV recalculation.
 - Executed complete Holon lifecycle flow in Docker sandbox using Antigravity agent (agy):
-  - Intent Branch: I-1787830207-config-driven-metrics-physics/_
-  - Plan Branch: I-1787830207-config-driven-metrics-physics/P-1787830214-antigravity-agent-gemini-3.5-flash/_
+  - Intent Branch: I-1787830207-config-driven-metrics-physics/\_
+  - Plan Branch: I-1787830207-config-driven-metrics-physics/P-1787830214-antigravity-agent-gemini-3.5-flash/\_
   - Execution Branch:
-    I-1787830207-config-driven-metrics-physics/P-1787830214-antigravity-agent-gemini-3.5-flash/E-1787831048-antigravity-agent-gemini-3.5-flash/_
+    I-1787830207-config-driven-metrics-physics/P-1787830214-antigravity-agent-gemini-3.5-flash/E-1787831048-antigravity-agent-gemini-3.5-flash/\_
 
 ## Assignment
 

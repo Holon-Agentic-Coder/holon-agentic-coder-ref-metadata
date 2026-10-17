@@ -35,23 +35,29 @@ entirety before performing any operations or modifying any code.
 The lifecycle is a single pipeline, not a menu. A change is only "done through the flow" when it has traversed all of
 its stages:
 
-| #   | Stage          | Invocation (manual form)                             | Artifact                                                                           |
-| --- | -------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| 1   | Intent         | `./holon intent <intent.json>`                       | `I-{timestamp}-{slug}/_` + `holon-knowledge/ledger/intents.jsonl`                  |
-| 2   | Plan           | `./holon plan <intent_branch>`                       | `I-.../P-{ts}-{agent}-{model}/_` + `plans/P-*.md` + `plans.jsonl`                  |
-| 3   | Execute        | `./holon execute <plan_branch>`                      | `I-.../P-.../E-{ts}-{agent}-{model}/_` + `holon-knowledge/ledger/executions.jsonl` |
-| 4   | PR review loop | `pr-review-loop` skill (3-agent ensemble + resolver) | Consensus approval posted to the PR                                                |
-| 5   | Calibration    | `holon calibrate <execution_branch>` (Bean 0038)     | `/calibrated` branch + `plans/P-*_calibration.md`                                  |
+| #   | Stage          | Invocation (manual form)                                                                       | Artifact                                                                           |
+| --- | -------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| 1   | Intent         | `holon intent <intent.json>`                                                                   | `I-{timestamp}-{slug}/_` + `holon-knowledge/ledger/intents.jsonl`                  |
+| 2   | Plan           | `holon plan <intent_branch>`                                                                   | `I-.../P-{ts}-{agent}-{model}/_` + `plans/P-*.md` + `plans.jsonl`                  |
+| 3   | Execute        | `holon execute <plan_branch>`                                                                  | `I-.../P-.../E-{ts}-{agent}-{model}/_` + `holon-knowledge/ledger/executions.jsonl` |
+| 4   | PR review loop | Autonomous PR creation (`gh pr create`) + `pr-review-loop` skill (3-agent ensemble + resolver) | Consensus approval posted to the PR                                                |
+| 5   | Calibration    | `holon calibrate <execution_branch>` (Bean 0038)                                               | `/calibrated` branch + `plans/P-*_calibration.md` (also included in PR diff)       |
 
 **Ordering of the merge boundary**: stage 5 (Calibration) is a **pre-merge** stage, matching `STAGE_ORDER` in
 `sandbox_executor/flow.py` (intent -> plan -> execute -> review -> calibrate). Run the review loop to consensus
 approval, calibrate, and only then stop and request the merge -- never calibrate after it, because merging a flow PR
-consumes the `E-...` execution branch that calibration reads. Merging itself stays human-only (see "🔒 PR Merging —
-Human-Only" below).
+consumes the `E-...` execution branch that calibration reads.
+
+**Calibration branch and PR inclusion**: Running calibration creates the audited `/calibrated` branch
+(`I-.../P-.../E-.../calibrated`), which must be created and pushed. **For Pull Requests, the calibration report
+(`plans/P-*_calibration.md`) MUST ALSO be included in the PR** (by fast-forwarding or merging the calibration commit
+into the PR head execution branch `.../_` and pushing to `origin`) so that the calibration report appears in the PR diff
+and is preserved in `main` history when merged. Merging itself stays human-only (see "🔒 PR Merging — Human-Only"
+below).
 
 **Whether the pipeline is driven by hand or by automation is irrelevant -- only that all five stages are executed.**
 Running the stages one at a time with the individual commands is exactly as compliant as the unified runner. That runner
-(`./holon flow <intent.json>`) already exists on `main` with a reduced flag set; Bean 0040 tracks the five flags and the
+(`holon flow <intent.json>`) already exists on `main` with a reduced flag set; Bean 0040 tracks the five flags and the
 usage docs still outstanding on it, while the pipeline engine itself (Bean 0039) is completed. Neither form changes what
 "through the flow" means.
 
@@ -130,8 +136,10 @@ When you are spawned or begin a new session, follow these steps sequentially:
      leave stray files there, and do not mutate their local state either (`.venv/`, caches, generated artifacts).
    - If changes have already landed in a `main` worktree, move them into a dedicated worktree and restore `main` to a
      pristine checkout of its committed state.
-6. **Format Before Commit**: Always execute `npx prettier --write "**/*.md"` before committing to format all markdown
-   files according to repository guidelines.
+6. **Format Before Commit**: In the harness repository, always execute `npx prettier --write "**/*.md"` before
+   committing. In nested target worktrees (`apps/<project>/<branch>`), format **only the changed files** using the
+   target repository's configuration (or `--no-config` if none exists) to prevent resolving the harness's
+   `.prettierrc.json` and reflowing unrelated files. Always verify `git diff --stat` before committing.
 7. **Squash, Then Push Your Own Branch Freely**: Applies to branches you hand-author -- harness branches in this
    metadata repo and any supporting branch you cut for the flow. Ensure all commits on such a branch are squashed into a
    single commit relative to the `main` branch. **A branch a `pr-review-loop` run drives is exempt**: it pushes once per
@@ -142,8 +150,11 @@ When you are spawned or begin a new session, follow these steps sequentially:
    record.
    - Never push to `main` (or any branch you do not own), never force-push a shared branch, and never push from a `main`
      worktree.
-   - Review and Pull Request _creation_ stay with the human maintainer unless the user instructs otherwise. **PR merging
-     is exclusively the human maintainer's responsibility — agents MUST NEVER merge a PR (see "🔒 PR Merging —
+   - For hand-authored or non-flow work, Pull Request _creation_ stays with the human maintainer unless the user
+     instructs otherwise. **When executing the Holon flow, Pull Request creation is fully autonomous**: once Stage 3
+     (Execute) pushes the execution branch, the agent autonomously raises the Pull Request via `gh pr create` targeting
+     the base branch so Stage 4 (PR review loop) can proceed seamlessly without manual interruption. **PR merging
+     remains exclusively the human maintainer's responsibility — agents MUST NEVER merge a PR (see "🔒 PR Merging —
      Human-Only" below).**
 8. **Report and Document**: Summarize changes cleanly and concisely. Point both the user and successor agents to updated
    files or artifacts.
@@ -156,6 +167,10 @@ When you are spawned or begin a new session, follow these steps sequentially:
 10. **Zero Synthetic Data for Benchmarking**: Absolutely never use synthetic or mock data to measure efficacy or
     benchmark token reduction. Official evaluations and scorecards must derive exclusively from authentic real data
     streams (live sandbox task executions, genuine wire logs, or real production payloads).
+11. **Token Conservation & Concise Communication**: Minimize prompt and generation token burn across harness and
+    subagents. Deliver dense, factual, and strictly actionable updates without narrative bloat. Intermediate review
+    iterations stay local in `.subagent/` — never post premature review comments to GitHub until all findings are fully
+    resolved or consensus approved. Prune stale `.subagent/` artifacts upon completion.
 
 ---
 
@@ -217,12 +232,14 @@ phrasing, or skill instructions:
 
 After the pr-reviewer ensemble consensus review is approved and posted to GitHub, the agent MUST stop all GitHub-facing
 PR activity (no further `gh pr` writes of any kind). On a PR the Holon flow drove it then runs stage 5
-(`holon calibrate <execution_branch>`) itself before requesting the merge, per "Ordering of the merge boundary" above,
-and reports:
+(`holon calibrate <execution_branch>`) itself before requesting the merge, per "Ordering of the merge boundary" above:
+it creates and pushes the `/calibrated` branch, merges or fast-forwards the calibration commit into the PR head
+execution branch (`.../_`) so the calibration report is included in the PR diff, pushes the updated PR branch to
+`origin`, and reports:
 
-> ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub. Please review and merge it
-> manually at `<pr_url>` when you are ready; merging before stage 5 (`holon calibrate`) has run destroys the `E-...`
-> branch that calibration reads.
+> ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub and Stage 5 calibration has
+> been completed and included in the PR. Please review and merge it manually at `<pr_url>` when you are ready; merging
+> before stage 5 (`holon calibrate`) has run destroys the `E-...` branch that calibration reads.
 
 Branch and worktree cleanup (removal of feature branch worktrees, pruning tracking refs) must only be performed
 **after** the human confirms the merge has completed, or when the user explicitly requests cleanup.

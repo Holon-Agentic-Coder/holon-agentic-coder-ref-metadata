@@ -1,11 +1,11 @@
 ---
 # holon-agentic-coder-ref-metadata-0075
 title: "Decouple orphaned modules and fix documentation path drift in holon-coherence"
-status: todo
+status: completed
 type: task
 priority: normal
 created_at: 2026-10-07T12:50:00Z
-updated_at: 2026-10-07T12:50:00Z
+updated_at: 2026-10-13T19:42:00Z
 ---
 
 ## Summary

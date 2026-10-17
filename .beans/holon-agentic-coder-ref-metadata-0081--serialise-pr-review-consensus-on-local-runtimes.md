@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0081
 title: "Serialise the 3-agent PR review consensus when the model runs locally"
-status: in-progress
+status: completed
 type: task
 priority: high
 tags:
@@ -69,3 +69,19 @@ directly in the harness checkout rather than through the five-stage flow.
   ensemble wording, and principle 9's salvage bullet now forbids launching a replacement next to a live sibling.
 
 Validated by re-running the PR #69 and PR #13 consensus reviews one child at a time on this local runtime.
+
+## Resolution
+
+Closed. The rule, the failure mode and the outcome ceiling are written into `.agents/skills/pr_reviewer/SKILL.md`,
+`.agents/skills/pr_review_loop/SKILL.md` (principle 11) and `.agents/coordination.md`, and they were applied for the
+rest of both loops: every vote after the correction ran as one child at a time in a fresh context with its own blind
+verdict, and no false-timeout vote was used.
+
+Two behaviours the diagnosis did not predict, both now rules:
+
+- **A cap you invent is a cap you enforce.** I recorded "max_iterations: 3" against a documented default of 25 and then
+  reported "the cap is exhausted" as if it were an external limit. The cap is the operator's cost governor; an agent may
+  lower it only on instruction, must say so when reporting, and must not call a self-imposed ceiling exhaustion.
+- **Convergence is a fixed point at one head.** On an audited flow branch a review fix is a new commit, which
+  invalidates every earlier vote at that head, so verdicts cast at different commits never add up to approval. PR #13's
+  loop ended with every head having failed one or more votes, and that is stated as not-approved rather than rounded up.

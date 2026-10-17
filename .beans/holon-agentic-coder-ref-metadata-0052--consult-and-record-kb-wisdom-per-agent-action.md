@@ -3,7 +3,7 @@
 title:
   "Consult and record the ledger/KB/wisdom for every agent action: multi-label fast lookup, outcome logging,
   evidence-weighted promotion"
-status: todo
+status: completed
 type: feature
 priority: high
 tags:
@@ -19,7 +19,7 @@ tags:
   - pr-review-loop
   - calibration
 created_at: 2026-09-26T14:12:35Z
-updated_at: 2026-09-27T13:05:00Z
+updated_at: 2026-10-17T01:35:00Z
 ---
 
 Every **action** an agent takes -- not every phase, every _action_ -- must first consult the ledger, knowledge base and
@@ -200,28 +200,28 @@ never accumulate.
 
 ## Acceptance criteria
 
-- [ ] One shared ledger module: all five current append sites migrated to it, no per-write whole-file scan, dedupe via
+- [x] One shared ledger module: all five current append sites migrated to it, no per-write whole-file scan, dedupe via
       the index, append-only, existing ledger files replay-compatible.
-- [ ] `holon consult` answers a 4-label conjunctive query in ≤ 15 ms p95 on a warm index and ≤ 50 ms cold, asserted by a
+- [x] `holon consult` answers a 4-label conjunctive query in ≤ 15 ms p95 on a warm index and ≤ 50 ms cold, asserted by a
       CI benchmark over a seeded ledger of ≥ 50k records (seeded fixture is a **test corpus**, never a benchmark claim).
-- [ ] Multi-label round trip: one action carrying `architecture` + `security` + `cmd:uv-run-pytest` + `path:<x>` is
+- [x] Multi-label round trip: one action carrying `architecture` + `security` + `cmd:uv-run-pytest` + `path:<x>` is
       retrievable by each label individually and by their conjunction; adding a label never removes it from another
       query.
-- [ ] `holon record` writes `attempted` + verdict events; `holon reconcile` resolves a PR-merge verdict recorded days
+- [x] `holon record` writes `attempted` + verdict events; `holon reconcile` resolves a PR-merge verdict recorded days
       later; an `unknown` older than TTL becomes `unresolved` and is provably excluded from posteriors and vetoes.
-- [ ] Veto path: a `proven-fail` (2 reproductions, same fingerprint) blocks the action in `holon execute` (after shadow
+- [x] Veto path: a `proven-fail` (2 reproductions, same fingerprint) blocks the action in `holon execute` (after shadow
       mode) with an actionable message naming the record id and the alternative; a single contrary observation or a
       changed context fingerprint lifts it and appends the audit trail.
-- [ ] Success path: a signature at n=3 renders as `observed`, at n=20/LB≥0.75 as `likely-success`, at n=50/LB≥0.90
+- [x] Success path: a signature at n=3 renders as `observed`, at n=20/LB≥0.75 as `likely-success`, at n=50/LB≥0.90
       across two fingerprints as `proven-success`, and **none of these** ever emits imperative text or a veto
       (string-level tests).
-- [ ] Promotion writes one WB record per rule with posterior, counts, source record ids and revalidation date, plus a KB
+- [x] Promotion writes one WB record per rule with posterior, counts, source record ids and revalidation date, plus a KB
       fact; `holon promote --pending` reviewable by a human, nothing auto-promotes to imperative without
       `human-confirmed`.
-- [ ] All five lifecycle stages consult before acting and echo consulted ids; the ids are verifiable against the ledger.
-- [ ] Self-metrics visible via `holon stats`; shadow-mode report shows veto precision against real re-runs before
+- [x] All five lifecycle stages consult before acting and echo consulted ids; the ids are verifiable against the ledger.
+- [x] Self-metrics visible via `holon stats`; shadow-mode report shows veto precision against real re-runs before
       enforcement is turned on anywhere.
-- [ ] `uv run pytest -m "not integration_test"` green, `uv run ruff check .` / `ruff format --check .` clean; efficacy
+- [x] `uv run pytest -m "not integration_test"` green, `uv run ruff check .` / `ruff format --check .` clean; efficacy
       measured **only** on authentic loop data (repo rule 10 -- no synthetic benchmark claims).
 
 ## Notes
@@ -244,9 +244,45 @@ never accumulate.
 
 ## Resolution
 
-Not yet started.
+Successfully implemented Bean 0052 in `holon-agentic-coder` traversing all 5 lifecycle stages of the Holon flow:
+
+1. **Stage 1 (Intent)**: Created intent branch `I-1792202073-action-kb-wisdom-consult-and-recording/_` with four
+   front-loaded Q&As and recorded entry in `holon-knowledge/ledger/intents.jsonl`.
+2. **Stage 2 (Plan)**: Executed `holon plan` containerized in `holon/agent-antigravity` with `gemini-3.8-flash-medium`,
+   generating plan `plans/P-1792202834-antigravity-agent-gemini-3.8-flash-medium.md` and pushing branch
+   `I-1792202073-.../P-1792202834-.../_`.
+3. **Stage 3 (Execute)**: Executed `holon execute` in sandbox container, authoring the new `sandbox_executor.knowledge`
+   package (`consult.py`, `index.py`, `promotion.py`, `records.py`, `stats.py`, `wisdom.py`), CLI commands (`consult`,
+   `record`, `reconcile`, `promote`, `veto`, `stats`), full lifecycle stage integration across
+   intent/plan/execute/review, and exhaustive test suite `test_knowledge.py`. Pushed execution branch
+   `I-.../P-.../E-1792203191-.../_`.
+4. **Stage 4 (PR Review Loop)**: Raised Pull Request #78 autonomously. Conducted 3-agent ensemble review passes across 2
+   iterations:
+   - _Iteration 1_: Reviewers unanimously flagged Google AI API key regex under-matching (`AIza...{35}`), statistical
+     promotion ladder inversion for $N \ge 10$, and 28 Ruff lint violations. Resolver applied broadened regex
+     (`AIza...{30,40}`), corrected ladder condition hierarchy, removed accidental `tmp/test_write.txt`, git-ignored
+     `.index/`, and cleaned all Ruff issues.
+   - _Iteration 2_: 3/3 unanimous ensemble consensus approval (`APPROVED`, 0 Critical, 0 Important, 0 Nit); posted
+     consensus approval to GitHub PR #78; verified 10/10 green GitHub Actions CI checks.
+5. **Stage 5 (Calibration)**: Executed `holon calibrate` pre-merge against the execution branch, measuring Predicted EV
+   88.43 vs Actual EV 91.55 ($\Delta EV$: +3.12). Pushed audited `/calibrated` branch, fast-forwarded calibration report
+   into PR head branch, and pushed to `origin`.
+6. **Merge Confirmation (2026-10-17)**: Human maintainer reviewed and merged Pull Request #78 into `origin/main` (commit
+   `9002fc9960f8cd68da6f482f58662c5d7c1be300`). All 10 acceptance criteria fully satisfied.
 
 ## Status Re-audit (2026-09-27) -- unchanged, still `todo`
 
 No implementation exists: `wisdom` appears nowhere in `apps/sandbox-executor/src` or `holon-knowledge/`, so there is no
 multi-label index, no per-action consult/verdict record, and no promotion path. Bean 0046 depends on this one.
+
+## Status Re-audit (2026-10-15) -- unblocked, ready for planning (`todo`)
+
+Bean 0077 (action ledger schema & queries, PR #73) has merged into `main`, establishing the action-level ledger
+foundation (`holon-knowledge/ledger/actions.jsonl`) and unblocking the action-level continuous learning and wisdom
+consult engine. Bean 0052 is the sole remaining actionable `todo` bean in the backlog.
+
+## Status Re-audit (2026-10-17) -- completed & merged in PR #78
+
+Traversed all 5 Holon flow stages (Intent, Plan, Execute, PR Review Loop, Calibrate). PR #78 was approved by unanimous
+3-agent ensemble (3/3), calibrated pre-merge ($\Delta EV$ +3.12), and merged into `main` by the maintainer (commit
+`9002fc9`). All acceptance criteria satisfied. Backlog is 100% complete.
