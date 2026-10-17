@@ -73,10 +73,20 @@ scratchpad files across the Holon Agentic Coder ecosystem.
      (`I-<timestamp>-<slug>`) and batch delete all related parent and sibling branches from `origin` in a single
      operation.
 
-7. **Local `.subagent/` Review Artifact Purge**: The multi-agent PR review ensemble (`pr-review-loop`, `pr-reviewer`,
-   `pr-review-resolver`) stores intermediate review iterations, candidate diffs, reviewer votes, and state files under
-   `.subagent/`. Per AGENTS.md Rule 11, these intermediate artifacts must be pruned upon completion of the review loop
-   or PR merge. Retain `.gitkeep` if present.
+7. **Local `.subagent/` Review Artifact Hygiene & Active PR Protection**: The multi-agent PR review ensemble
+   (`pr-review-loop`, `pr-reviewer`, `pr-review-resolver`) stores intermediate review iterations, candidate diffs,
+   reviewer votes, and state files under `.subagent/`. Per AGENTS.md Rule 11 and PR review loop state persistence
+   invariants:
+   - **STRICT PRESERVATION INVARIANT**:
+     - `.subagent/.gitkeep`: Must **NEVER** be deleted.
+     - **Active PR Files**: Any review artifacts belonging to open PRs (or unresolved loops) must **NEVER** be deleted.
+     - **Permanent State Files**: Across all PRs (even merged/closed), essential loop state files must be preserved:
+       `*_state.json`, `*_coordination.json` (and legacy `coordination.json`), `*_loop_history.md`,
+       `*_posted_review.md`, and final consensus reports (`*_consensus_review_*.md`).
+   - **PRUNABLE ARTIFACTS**:
+     - Only when an associated PR is verified as `MERGED` or `CLOSED`, non-permanent intermediate reviewer drafts and
+       ephemeral diff dumps (e.g. `*_reviewer_*_iter_*.md`, `*_diff.txt`, `*_meta.json`) may be safely pruned or moved
+       to archive directories.
 
 8. **`todo/` Scratchpad Tidy & Strict Preservation Invariant**: The `todo/` directory is a local, git-ignored scratchpad
    for transient notes, flow intents, and agent drafts.
@@ -278,20 +288,19 @@ fi
 
 ---
 
-### Phase 7: Purge Intermediate `.subagent/` Review Files
+### Phase 7: Clean Stale `.subagent/` Review Files
 
-Clean up stale intermediate multi-agent review and consensus artifacts:
+Clean up stale intermediate multi-agent review artifacts from merged/closed PRs while strictly preserving active review
+loops and permanent state files:
 
 ```bash
-for subagent_dir in .subagent apps/holon-agentic-coder/main/.subagent apps/holon-coherence/main/.subagent; do
-  if [ -d "$subagent_dir" ]; then
-    echo "Checking $subagent_dir..."
-    # Find all files except .gitkeep
-    find "$subagent_dir" -mindepth 1 -not -name '.gitkeep' -type f -delete
-    echo "Cleaned stale artifacts from $subagent_dir"
-  fi
-done
+# Execute safe .subagent cleanup using the workspace cleanup script
+python3 .agents/skills/clean_workspace/scripts/clean_workspace.py --subagent-only
 ```
+
+> [!CAUTION] **Strict Preservation Rule**: Never run blanket deletion commands (such as `rm -rf .subagent/*` or
+> `find .subagent -type f -delete`). Active PR review loops and permanent state files (`*_state.json`,
+> `*_coordination.json`, `*_loop_history.md`, `*_posted_review.md`, and consensus reports) must remain intact.
 
 ---
 

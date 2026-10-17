@@ -8,10 +8,27 @@ orphaned directories, .subagent review files, and transient files in todo/.
 import argparse
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Callable, Dict, List, Optional, Set, Tuple
+
+REPO_MAP: Dict[str, str] = {
+    "holon-coherence": "Holon-Agentic-Coder/holon-coherence",
+    "holon-agentic-coder": "Holon-Agentic-Coder/holon-agentic-coder",
+    "holon-agentic-coder-ref-metadata": "Holon-Agentic-Coder/holon-agentic-coder-ref-metadata",
+}
+
+
+def format_rel(path: Path, root: Optional[Path]) -> str:
+    """Format path relative to root to adhere to Rule 4."""
+    if root is not None:
+        try:
+            return str(path.relative_to(root))
+        except ValueError:
+            pass
+    return str(path)
 
 
 def run_cmd(
@@ -58,6 +75,43 @@ def get_pr_status(gh_repo: str, branch: str) -> Optional[str]:
     if code == 0 and stdout:
         return stdout.strip()
     return None
+
+
+def get_pr_status_by_number(gh_repo: str, pr_num: str) -> Optional[str]:
+    """Query GitHub PR state for a PR number via gh CLI."""
+    cmd = [
+        "gh",
+        "pr",
+        "view",
+        pr_num,
+        "--repo",
+        gh_repo,
+        "--json",
+        "state",
+        "--jq",
+        ".state",
+    ]
+    code, stdout, _ = run_cmd(cmd)
+    if code == 0 and stdout:
+        return stdout.strip()
+    return None
+
+
+def is_permanent_subagent_file(filename: str) -> bool:
+    """Check if a file in .subagent/ is a permanent state file."""
+    if filename == ".gitkeep":
+        return True
+    if filename == "coordination.json" or filename.endswith("_coordination.json"):
+        return True
+    if filename.endswith("_state.json"):
+        return True
+    if filename.endswith("_loop_history.md"):
+        return True
+    if filename.endswith("_posted_review.md"):
+        return True
+    if "_consensus_review_" in filename:
+        return True
+    return False
 
 
 def get_merged_intent_trees(gh_repo: str, repo_worktree: Path) -> Set[str]:
@@ -158,7 +212,11 @@ def clean_remotes(
 
 
 def clean_worktrees(
-    bare_dir: Path, main_worktree: Path, gh_repo: str, dry_run: bool
+    bare_dir: Path,
+    main_worktree: Path,
+    gh_repo: str,
+    dry_run: bool,
+    root: Optional[Path] = None,
 ) -> Tuple[List[str], List[str]]:
     """Unmount merged worktrees and delete their branches."""
     removed_worktrees: List[str] = []
@@ -190,11 +248,12 @@ def clean_worktrees(
             continue
 
         branch_name = branch_ref.replace("refs/heads/", "")
+        rel_wt = format_rel(wt_path, root)
 
         # Check if worktree is clean
         if not is_git_clean(wt_path):
             print(
-                f"⚠️  Skipping dirty worktree with uncommitted changes: {wt_path}"
+                f"⚠️  Skipping dirty worktree with uncommitted changes: {rel_wt}"
             )
             continue
 
@@ -213,18 +272,19 @@ def clean_worktrees(
 
         if is_safe:
             if dry_run:
-                removed_worktrees.append(f"[dry-run] {wt_path}")
+                removed_worktrees.append(f"[dry-run] {rel_wt}")
                 deleted_branches.append(f"[dry-run] {branch_name}")
             else:
-                # Remove worktree
+                # Remove worktree with --force to handle untracked/ignored files like .venv
                 r_code, _, _ = run_cmd(
-                    ["git", "worktree", "remove", str(wt_path)], cwd=main_worktree
+                    ["git", "worktree", "remove", "--force", str(wt_path)], cwd=main_worktree
                 )
-                if r_code == 0:
-                    removed_worktrees.append(str(wt_path))
                 # Delete lingering directory if any
                 if wt_path.exists():
                     shutil.rmtree(wt_path, ignore_errors=True)
+
+                if r_code == 0 or not wt_path.exists():
+                    removed_worktrees.append(rel_wt)
 
                 # Delete branch
                 b_code, _, _ = run_cmd(
@@ -233,14 +293,14 @@ def clean_worktrees(
                 if b_code == 0:
                     deleted_branches.append(branch_name)
 
-    if not dry_run and removed_worktrees:
+    if not dry_run:
         run_cmd(["git", "worktree", "prune"], cwd=main_worktree)
 
     return removed_worktrees, deleted_branches
 
 
 def clean_orphaned_dirs(
-    bare_dir: Path, apps_dir: Path, dry_run: bool
+    bare_dir: Path, apps_dir: Path, dry_run: bool, root: Optional[Path] = None
 ) -> List[str]:
     """Diff filesystem against worktree registry to find and purge orphans."""
     purged: List[str] = []
@@ -274,37 +334,69 @@ def clean_orphaned_dirs(
 
         s_code, _, s_err = run_cmd(["git", "status"], cwd=item)
         if "must be run in a work tree" in s_err or s_code != 0:
+            rel_item = format_rel(item, root)
             if dry_run:
-                purged.append(f"[dry-run] {item}")
+                purged.append(f"[dry-run] {rel_item}")
             else:
                 shutil.rmtree(item, ignore_errors=True)
-                purged.append(str(item))
+                purged.append(rel_item)
 
     return purged
 
 
-def clean_subagent_files(root: Path, dry_run: bool) -> List[str]:
+def clean_subagent_files(
+    root: Path,
+    dry_run: bool,
+    pr_status_fn: Optional[Callable[[str, str], Optional[str]]] = None,
+) -> List[str]:
     """Prune stale PR review and intermediate files in .subagent/."""
+    if pr_status_fn is None:
+        pr_status_fn = get_pr_status_by_number
+
     purged: List[str] = []
     subagent_dirs = [
         root / ".subagent",
         root / "apps" / "holon-agentic-coder" / "main" / ".subagent",
         root / "apps" / "holon-coherence" / "main" / ".subagent",
     ]
+    pr_cache: Dict[Tuple[str, str], Optional[str]] = {}
 
     for s_dir in subagent_dirs:
         if not s_dir.exists() or not s_dir.is_dir():
             continue
         for f in s_dir.iterdir():
-            if f.is_file() and f.name != ".gitkeep":
-                if dry_run:
-                    purged.append(f"[dry-run] {f.relative_to(root)}")
-                else:
-                    try:
-                        f.unlink()
-                        purged.append(str(f.relative_to(root)))
-                    except OSError:
-                        pass
+            if not f.is_file():
+                continue
+            if is_permanent_subagent_file(f.name):
+                continue
+
+            # Extract repo and PR number
+            m = re.search(r"^([a-zA-Z0-9-]+)_pr(\d+)_", f.name)
+            if m:
+                repo_key = m.group(1)
+                pr_num = m.group(2)
+                gh_repo = REPO_MAP.get(repo_key, f"Holon-Agentic-Coder/{repo_key}")
+                cache_key = (gh_repo, pr_num)
+                if cache_key not in pr_cache:
+                    pr_cache[cache_key] = pr_status_fn(gh_repo, pr_num)
+                pr_state = pr_cache[cache_key]
+
+                # Protect active or unknown PR files
+                if pr_state not in ("MERGED", "CLOSED"):
+                    continue
+            else:
+                # If file is not associated with a PR, preserve it to protect active session state
+                continue
+
+            rel_path = format_rel(f, root)
+            if dry_run:
+                purged.append(f"[dry-run] {rel_path}")
+            else:
+                try:
+                    f.unlink()
+                    purged.append(rel_path)
+                except OSError:
+                    pass
     return purged
 
 
@@ -412,7 +504,7 @@ def main() -> None:
 
             # Clean worktrees
             rm_wt, del_br = clean_worktrees(
-                bare, main_wt, gh_repo, args.dry_run
+                bare, main_wt, gh_repo, args.dry_run, root=root
             )
             if rm_wt:
                 print(f"  • Unmounted worktrees: {', '.join(rm_wt)}")
@@ -420,7 +512,7 @@ def main() -> None:
                 print(f"  • Deleted local branches: {', '.join(del_br)}")
 
             # Clean orphans
-            purged_orphans = clean_orphaned_dirs(bare, apps_dir, args.dry_run)
+            purged_orphans = clean_orphaned_dirs(bare, apps_dir, args.dry_run, root=root)
             if purged_orphans:
                 print(
                     f"  • Purged orphaned directories: {', '.join(purged_orphans)}"
