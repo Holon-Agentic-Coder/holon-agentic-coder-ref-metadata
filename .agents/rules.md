@@ -232,3 +232,23 @@ code in this repository.
     - All documentation, markdown guides, skill instructions, bean specifications, and user-facing strings must use
       Australian English (`en-AU`) spelling (`standardise`, `optimise`, `synchronise`, `prioritise`, `behaviour`,
       `colour`, `catalogue`), while keeping programmatic code symbols and external API contracts unchanged.
+
+16. **Strict Test Execution & Tooling Prohibition Invariant (NEVER `unittest`, NEVER `python3 -m unittest`, NEVER
+    `PYTHONPATH`)**:
+    - **NEVER** execute tests via `unittest`, `python3 -m unittest`, `python -m unittest`, or bare `pytest`.
+    - **NEVER** run commands with `PYTHONPATH` overrides (e.g. `PYTHONPATH=src ...`, `export PYTHONPATH=...`).
+    - All test execution across all target repositories and the harness MUST strictly use `uv run pytest` executed from
+      the repository/workspace root.
+    - **Rationale**: `uv` automatically manages dependencies, environment isolation, and editable package layout via
+      `pyproject.toml`. Prepending `PYTHONPATH` bypasses package definitions, masks broken entry points, causes subtle
+      module resolution bugs, and violates hermetic testing. Running `unittest` directly ignores `pytest` configuration,
+      plugins, markers, and skips, and risks deadlocks under modern Python runtimes.
+
+17. **Target Repository Isolation & Zero Harness Path Leaks Invariant**:
+    - Target repositories (`holon-agentic-coder` and `holon-coherence`) are independent systems and MUST remain
+      completely decoupled from the harness metadata repository (`holon-agentic-coder-ref-metadata`).
+    - **NEVER** introduce, reference, or hardcode harness-specific paths (`.beans/`, `todo/`, `.agents/`) in any target
+      repository source code, path prefix lists (e.g., `METADATA_PATH_PREFIXES`), regex patterns (e.g.,
+      `SPELLING_EXEMPT_PATTERNS`), ignore lists, or test suites.
+    - Inside target repositories, metadata paths are strictly limited to target-native artifacts (`holon-knowledge/`,
+      `plans/`, `.holon/`). Harness concepts must never leak into target codebases under any circumstances.

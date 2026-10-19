@@ -91,3 +91,17 @@ system safety, and clean documentation. Follow these core guidelines in every se
 - **Code & API Preservation**: Programmatic identifiers, standard library symbols, configuration keys, CLI flags, and
   external API contracts (e.g. `initialize`, `Authorization`, `color` in CSS/HTML) must remain unchanged to preserve
   compatibility.
+
+### 8. Target Repository Isolation & Zero Harness Leaks
+
+- **Strict Boundary**: Target codebases (`apps/holon-agentic-coder`, `apps/holon-coherence`) are independent systems and
+  must remain strictly agnostic to the harness metadata repository (`holon-agentic-coder-ref-metadata`).
+- **Zero Leakage**: Never reference, import, or hardcode harness directories (`.beans/`, `todo/`, `.agents/`) in target
+  repository source code, path prefix lists, ignore patterns, calibration metrics, pre-commit checks, or test suites.
+
+### 9. Strict Test Execution & Tooling Standards
+
+- **Exclusively `uv run pytest`**: All tests must be run using `uv run pytest` from the repository root.
+- **NEVER `unittest`**: Never invoke `unittest`, `python3 -m unittest`, or bare `pytest`.
+- **NEVER `PYTHONPATH`**: Never prefix or export `PYTHONPATH`. `uv` cleanly manages editable package resolution; manual
+  overrides mask packaging defects and break hermetic testing.
