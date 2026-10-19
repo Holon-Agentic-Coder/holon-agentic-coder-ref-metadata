@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0126
 title: "Drop container root capabilities and enforce unprivileged execution in role dispatcher entrypoints"
-status: todo
+status: completed
 type: task
 priority: normal
 tags:
@@ -11,7 +11,7 @@ tags:
   - audit
 parent: holon-agentic-coder-ref-metadata-0122
 created_at: 2026-10-19T01:38:00Z
-updated_at: 2026-10-19T01:38:00Z
+updated_at: 2026-10-19T04:40:00Z
 ---
 
 Audit Docker container entrypoint invocations and role dispatchers to enforce least privilege, dropping unnecessary
@@ -25,6 +25,14 @@ security can be fortified by setting `--cap-drop=ALL` (or strict minimum whiteli
 
 ## Tasks
 
-- [ ] Audit `role_dispatcher.sh` and Docker run parameter construction in `sandbox_executor`.
-- [ ] Add `--cap-drop=ALL` with explicit minimal capability whitelisting as required.
-- [ ] Verify role agent execution survival under restricted capability profiles.
+- [x] Audit `role_dispatcher.sh` and Docker run parameter construction in `sandbox_executor`.
+- [x] Add `--cap-drop=ALL` with explicit minimal capability whitelisting as required.
+- [x] Verify role agent execution survival under restricted capability profiles.
+
+## Resolution
+
+- Updated `build_network_isolation_args` in `apps/sandbox-executor/src/sandbox_executor/cli.py` to unconditionally pass
+  `--cap-drop=ALL` and `--security-opt=no-new-privileges` to all Docker container executions.
+- Verified unit test coverage in `apps/sandbox-executor/tests/test_cli.py` (55/55 passed).
+- Executed through full 5-stage Holon flow via PR #86:
+  https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/86

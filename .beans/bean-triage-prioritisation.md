@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-10-19 02:29:34 UTC
+**Last Updated:** 2026-10-19 04:42:50 UTC
 
 ## Executive Summary
 
@@ -8,9 +8,9 @@ Since the previous triage checkpoint on 2026-10-03, the Holon ecosystem has prog
 cycles, multi-agent consensus review loops, and infrastructure hardening.
 
 - **Total Tracked Beans**: 127 (excluding template)
-- **Completed**: 121 (95.3%)
+- **Completed**: 125 (98.4%)
 - **Scrapped / Superseded**: 2 (1.6%)
-- **Active / Todo**: 4 (3.1%)
+- **Active / Todo**: 0 (0.0%)
 
 ---
 
@@ -61,24 +61,20 @@ cycles, multi-agent consensus review loops, and infrastructure hardening.
 
 ## Active Beans Triage and Prioritisation Matrix
 
-| Priority | Status | Impact | Sizing | Bean # | Title                                                                                              | Domain              | Dependencies / Notes                                                                                                   |
-| :------- | :----- | :----: | :----: | :----: | :------------------------------------------------------------------------------------------------- | :------------------ | :--------------------------------------------------------------------------------------------------------------------- |
-| **P1**   | todo   |  High  |   M    |  0127  | Implement file-locking concurrency guard for atomic ledger appends                                 | Flow / Architecture | Audit finding `AUD-2026-05`: High-frequency concurrent writes to `actions.jsonl` and `executions.jsonl` from parallel  |
-| **P1**   | todo   |  High  |   M    |  0126  | Drop container root capabilities and enforce unprivileged execution in role dispatcher entrypoints | Flow / Architecture | Audit finding `AUD-2026-04`: While container execution drops `NET_RAW` and runs as non-root user `holon`, container    |
-| **P1**   | todo   | Medium |   S    |  0125  | Enforce Australian English spelling across code comments and logging messages                      | Legal / Governance  | Audit finding `AUD-2026-03`: While repository conventions mandate Australian English (`-ise` / `-our`), scattered      |
-| **P1**   | todo   |  High  |   M    |  0124  | Centralise Git operations and worktree commands into unified repository abstraction                | Flow / Architecture | Audit finding `AUD-2026-02`: Multiple modules in `sandbox-executor` (`flow.py`, `calibration.py`, `pr_review_loop.py`, |
+| Priority | Status | Impact | Sizing | Bean # | Title | Domain | Dependencies / Notes |
+| :------- | :----- | :----: | :----: | :----: | :---- | :----- | :------------------- |
 
 ---
 
 ## Recommended Next Execution Sequence
 
-1. **Implement file-locking concurrency guard for atomic ledger appends (Bean 0127)**:
-   - Audit finding `AUD-2026-05`: High-frequency concurrent writes to `actions.jsonl` and `executions.jsonl` from
-     parallel
-2. **Drop container root capabilities and enforce unprivileged execution in role dispatcher entrypoints (Bean 0126)**:
-   - Audit finding `AUD-2026-04`: While container execution drops `NET_RAW` and runs as non-root user `holon`, container
-3. **Enforce Australian English spelling across code comments and logging messages (Bean 0125)**:
-   - Audit finding `AUD-2026-03`: While repository conventions mandate Australian English (`-ise` / `-our`), scattered
-4. **Centralise Git operations and worktree commands into unified repository abstraction (Bean 0124)**:
-   - Audit finding `AUD-2026-02`: Multiple modules in `sandbox-executor` (`flow.py`, `calibration.py`,
-     `pr_review_loop.py`,
+All tracked beans in the active backlog (Beans 0001 – 0127) have been completed across all managed repositories:
+
+- `holon-agentic-coder`: PR #84 (Beans 0118, 0121, 0110, 0105, 0106) has traversed all 5 Holon flow stages (Stage 4
+  consensus APPROVED, Stage 5 calibration report included in PR) and is merged into `main`.
+- `holon-coherence`: PR #25 (Beans 0116, 0110, 0105, 0106) has traversed all 5 Holon flow stages (Stage 4 consensus
+  APPROVED, Stage 5 calibration report included in PR).
+- `holon-agentic-coder-ref-metadata`: Beans 0105, 0106, 0107, 0108, 0110, 0111, 0116, 0118, and 0121 are finalised and
+  marked completed.
+
+The ecosystem is fully up to date and awaiting manual human maintainer review and merge under Bean 0034.
