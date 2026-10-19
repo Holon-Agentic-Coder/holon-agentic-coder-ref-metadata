@@ -7,7 +7,7 @@ system safety, and clean documentation. Follow these core guidelines in every se
 
 ## 🧠 Core Agent Mindset
 
-1. **Be Rigorous**: Do not make assumptions about the codebase structure or behavior. Always read the code and test
+1. **Be Rigorous**: Do not make assumptions about the codebase structure or behaviour. Always read the code and test
    suites before making changes.
 2. **Be Minimalist**: Write clean, readable, and well-targeted code. Avoid introducing unnecessary dependencies or
    over-engineering solutions.
@@ -47,16 +47,16 @@ system safety, and clean documentation. Follow these core guidelines in every se
 
 - Target application codebases reside under the `apps/` directory (`apps/holon-agentic-coder` and
   `apps/holon-coherence`).
-- **All `holon-agentic-coder` code modifications must be produced by the Holon flow** (intent -> plan -> execute -> PR
-  review loop -> calibration) as sandbox-authored commits on `I-.../P-.../E-...` branches. Manual stage-by-stage
-  commands are as compliant as `holon flow`; skipping any stage is not. See the Sole Change Path rule in `AGENTS.md` and
-  invariant 8 in `.agents/rules.md`.
-- `holon-coherence` is not reachable by the flow -- it resolves exactly one remote per run -- so its changes are
-  authored in per-agent worktrees.
-- Repository worktrees (e.g. `apps/holon-agentic-coder/{branch}`) are for building images, reading code, running
-  verification, and operating the harness -- never for authoring or committing `holon-agentic-coder` source changes.
+- **All `holon-agentic-coder` and `holon-coherence` code modifications must be produced by the 5-stage Holon flow**
+  (intent -> plan -> execute -> PR review loop -> calibration) as sandbox-authored commits on `I-.../P-.../E-...`
+  branches. Running `holon` inside either target repository worktree dynamically resolves `remote.origin.url` via
+  `resolve_target_repo_url()`. Manual stage-by-stage commands are as compliant as `holon flow`; skipping any stage is
+  not. See the Sole Change Path rule in `AGENTS.md` and invariant 8 in `.agents/rules.md`.
+- Repository worktrees (e.g. `apps/holon-agentic-coder/{branch}` or `apps/holon-coherence/{branch}`) are for building
+  images, reading code, running verification, and operating the harness -- never for hand-authoring target codebase
+  source changes outside the flow.
 - The repository root is strictly for control plane coordination, task tracking (`.beans/`), and agent guidance; those
-  harness files are edited directly, since the flow cannot target this metadata repository.
+  harness files are edited directly, since the flow does not target this metadata repository.
 
 ### 5. Subagent Delegation (AGY & Generic Coding Agents)
 
@@ -70,7 +70,7 @@ system safety, and clean documentation. Follow these core guidelines in every se
 
 ### 6. Token Conservation & Concise Communication (Harness & Subagents)
 
-- **Strict Brevity**: Minimize both prompt and completion token consumption across the main harness and all subagents.
+- **Strict Brevity**: Minimise both prompt and completion token consumption across the main harness and all subagents.
 - **Concise Reporting**: Do not produce verbose discursive explanations or repeat full file diffs. Keep responses dense,
   factual, and strictly actionable.
 - **Targeted Subagent Prompts & Reports**: Subagent prompts and deliverables must be focused strictly on their immediate
@@ -79,5 +79,15 @@ system safety, and clean documentation. Follow these core guidelines in every se
 - **No Premature External Comments**: PR consensus review comments must only be published to GitHub when the ensemble
   review is fully complete and all findings are definitively classified or resolved. Intermediate iterations stay local
   to `.subagent/`.
-- **Subagent Cleanup**: Merged, stale, or superseded patch, diff, and review files in `.subagent/` must be pruned
-  immediately once their respective iteration or PR lifecycle completes.
+- **Subagent Cleanup**: Merged, stale, or superseded patch, diff, and review files in `.subagent/` must be pruned or
+  archived immediately once their respective iteration or PR lifecycle completes.
+
+### 7. Australian English (`en-AU`) Orthography Standard (Bean 0105)
+
+- **House Style**: All documentation, agent instructions, skill guides, bean descriptions, commit messages, PR bodies,
+  and user-facing copy across the Holon ecosystem MUST use **Australian English (`en-AU`)** spelling (e.g.
+  `standardise`, `optimise`, `synchronise`, `prioritise`, `categorise`, `behaviour`, `colour`, `catalogue`, `licence` as
+  noun / `license` as verb).
+- **Code & API Preservation**: Programmatic identifiers, standard library symbols, configuration keys, CLI flags, and
+  external API contracts (e.g. `initialize`, `Authorization`, `color` in CSS/HTML) must remain unchanged to preserve
+  compatibility.

@@ -1,135 +1,84 @@
-# Holon Agentic Coder Reference Metadata
+# Holon Agentic Coder — Reference Metadata & Control Plane
 
-> [!NOTE] **Bootstrapping Harness Intent** This repository is a temporary control plane and metadata store. It will only
-> be used until the bootstrap process for
-> [holon-agentic-coder](https://github.com/Holon-Agentic-Coder/holon-agentic-coder) is fully completed. Until that
-> repository is fully bootstrapped, it does not possess enough autonomous power to develop or maintain itself. This
-> repository serves as the external harness to bridge that gap.
+[![Test - Hygiene](https://github.com/Holon-Agentic-Coder/holon-agentic-coder-ref-metadata/actions/workflows/test-hygiene.yml/badge.svg)](https://github.com/Holon-Agentic-Coder/holon-agentic-coder-ref-metadata/actions/workflows/test-hygiene.yml)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-3776AB.svg)](pyproject.toml)
+[![Code Style: Prettier & Ruff](https://img.shields.io/badge/style-Prettier_%26_Ruff-f7b93e.svg)](.prettierrc.json)
 
-**IMPORTANT**: before you do anything else, run the `beans prime` command and heed its output. This requires the
-[`beans` CLI](https://github.com/hmans/beans) to be installed and on your `PATH`; it is **not** part of this repository.
-If `beans` is not installed, skip the command and work directly from [AGENTS.md](AGENTS.md) plus the bean files in
-[`.beans/`](.beans/), following the format rules in
-[.agents/workflows.md](.agents/workflows.md#-task-lifecycle-the-bean-system).
+## ⚡ At a Glance
 
-This repository acts as the central control plane, metadata store, and coordination hub for agentic workflows operating
-on the **Holon Agentic Coder** ecosystem.
+`holon-agentic-coder-ref-metadata` is the central control plane, task ledger, and multi-agent orchestration harness for
+the **Holon Agentic Coder** ecosystem. It provides autonomous AI agents with canonical operating rules, reusable skills,
+and sequential task tracking (`.beans/`) to drive development across
+[`holon-agentic-coder`](https://github.com/Holon-Agentic-Coder/holon-agentic-coder) and
+[`holon-coherence`](https://github.com/Holon-Agentic-Coder/holon-coherence) via the 5-stage Holon flow.
 
-It defines how autonomous AI coding agents interact, coordinate, track tasks, and execute instructions to maintain and
-develop codebases within this organization.
+> [!IMPORTANT] **Agent Entrypoint**: Before performing any action, run `beans prime` (if installed) and read
+> [**AGENTS.md**](AGENTS.md) in its entirety. All changes to `holon-agentic-coder` and `holon-coherence` MUST be
+> produced through the 5-stage Holon flow (`intent -> plan -> execute -> pr-review-loop -> calibrate`).
 
-## 📌 Repository Purpose
+---
 
-Autonomous agents require shared context, explicit operating guidelines, and standardized task tracking to operate
-efficiently and safely. This repository provides:
+## 🚀 Key Capabilities & Improvements
 
-1. **Agent Instructions:** Guidelines, playbooks, and constraints for coding agents (`.agents/`).
-2. **Coordination Protocols:** Procedures for multi-agent interaction, subagent delegation, and handoffs
-   ([AGENTS.md](AGENTS.md)).
-3. **Task Tracking:** A lightweight, text-based task database using the `.beans` schema (`.beans/`) to record goals,
-   statuses, and history without heavy external dependencies.
+| Capability                         | Description                                                                                                           | Reference                                                                          |
+| :--------------------------------- | :-------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
+| **5-Stage Holon Flow Governance**  | Enforces end-to-end provenance (`I-.../P-.../E-.../calibrated`) and proactive conflict resolution across target repos | [AGENTS.md](AGENTS.md#-sole-change-path-the-holon-flow)                            |
+| **3-Agent Ensemble Review Loop**   | Autonomous multi-agent PR review (`pr-reviewer`), validation/fixing (`pr-review-resolver`), and iterative convergence | [.agents/skills/pr_review_loop/SKILL.md](.agents/skills/pr_review_loop/SKILL.md)   |
+| **Sequential Bean Task Ledger**    | File-based task tracking in `.beans/` with automated triage and priority matrix generation (`prioritise-beans`)       | [.beans/bean-triage-prioritisation.md](.beans/bean-triage-prioritisation.md)       |
+| **Workspace & Branch Hygiene**     | Automated cleanup of merged worktrees, provenance trees, orphaned folders, and 30-day `.subagent/` archives           | [.agents/skills/clean_workspace/SKILL.md](.agents/skills/clean_workspace/SKILL.md) |
+| **Pre-Commit Security Guardrails** | Blocks leaked credentials (`AIza...`, `ghp_...`, `sk-...`) and ephemeral scratch files (`tmp/*`, `.index/*`)          | [.agents/scripts/pre_commit_check.py](.agents/scripts/pre_commit_check.py)         |
+| **Buildx Bake & CLI Installers**   | One-command container builds and global `uv tool install` for `holon` and `holon-coherence`                           | [.agents/skills/install_holon/SKILL.md](.agents/skills/install_holon/SKILL.md)     |
 
-## 📥 Target Repositories Setup (Git Worktree)
+---
 
-To work with codebase repositories within this metadata repository, you must clone them as Git bare repositories and
-check out branches as Git worktrees. This allows running multiple tasks on different branches simultaneously under a
-clean directory structure.
+## 🛠️ Quick Getting Started
 
-> [!IMPORTANT] Worktrees are a **workspace** mechanism, not a change-authoring path. All changes to
-> `holon-agentic-coder` are produced by the Holon flow (intent -> plan -> execute -> PR review loop -> calibration),
-> whether you run its five stages by hand or drive them through the unified `holon flow` runner. `holon-coherence` is
-> not reachable by the flow -- which resolves exactly one remote per run -- and is developed in per-agent worktrees. See
-> [AGENTS.md — Sole Change Path: The Holon Flow](AGENTS.md#-sole-change-path-the-holon-flow).
+### 1. Initialise Target Repository Bare Clones & Worktrees {#-target-repositories-setup-git-worktree}
 
-### 1. `holon-agentic-coder` (Primary Fractal Intent Evolution Engine)
+```bash
+# 1. Clone holon-agentic-coder bare repository and main worktree
+git clone --bare git@github.com:Holon-Agentic-Coder/holon-agentic-coder.git apps/holon-agentic-coder/.git
+git --git-dir=apps/holon-agentic-coder/.git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+git --git-dir=apps/holon-agentic-coder/.git fetch origin
+git --git-dir=apps/holon-agentic-coder/.git worktree add apps/holon-agentic-coder/main main
 
-Located at `apps/holon-agentic-coder/`:
-
-1. **Clone the repository as bare** into the hidden `.git` folder of the `apps/holon-agentic-coder` directory:
-   ```bash
-   git clone --bare git@github.com:Holon-Agentic-Coder/holon-agentic-coder.git apps/holon-agentic-coder/.git
-   ```
-2. **Navigate into the git database directory and configure fetch refspec**:
-   ```bash
-   cd apps/holon-agentic-coder/.git
-   git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-   git fetch origin
-   ```
-3. **Set up worktrees for your branches**:
-   - **For the `main` branch** (checked out to `apps/holon-agentic-coder/main`): This is the primary active branch
-     tracking `origin/main`.
-     ```bash
-     git worktree add ../main main
-     ```
-   - **For a specific feature branch `{branch_name}`** (checked out to `apps/holon-agentic-coder/{branch_name}`): All
-     development and feature changes must be branched off `origin/main`. Name `{branch_name}` after the PR
-     (`pr<N>-<slug>`, e.g. `pr61-agent-output-capture`) when the checkout tracks a Holon flow branch
-     (`I-.../P-.../E-.../...`, which always has a PR -- the flow ref itself keeps its audited name), otherwise after the
-     bean (`<type>-<bean-id>-<slug>`); a temporary checkout takes a fully descriptive `<purpose>-<subject>-<qualifier>`
-     name and is deleted when done (see item 5 of `AGENTS.md`):
-     ```bash
-     git worktree add --no-track -b {branch_name} ../{branch_name} origin/main
-     ```
-
-### 2. `holon-coherence` (Optimization Gateway & Wire Telemetry)
-
-Located at `apps/holon-coherence/`:
-
-1. **Clone the repository as bare** into the hidden `.git` folder of the `apps/holon-coherence` directory:
-   ```bash
-   git clone --bare git@github.com:Holon-Agentic-Coder/holon-coherence.git apps/holon-coherence/.git
-   ```
-2. **Navigate into the git database directory and configure fetch refspec**:
-   ```bash
-   cd apps/holon-coherence/.git
-   git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-   git fetch origin
-   ```
-3. **Set up worktrees for your branches**:
-   - **For the `main` branch** (checked out to `apps/holon-coherence/main`): This is the baseline active branch for the
-     coherence proxy gateway.
-     ```bash
-     git worktree add ../main main
-     ```
-   - **For a specific feature branch `{branch_name}`** (checked out to `apps/holon-coherence/{branch_name}`): All
-     development and feature changes must be branched off `origin/main`. Coherence is not reachable by the flow, so its
-     branches carry the bean number (`<type>-<bean-id>-<slug>`); name a PR-driven checkout `pr<N>-<slug>` and a
-     temporary one `<purpose>-<subject>-<qualifier>` (see item 5 of `AGENTS.md`):
-     ```bash
-     git worktree add --no-track -b {branch_name} ../{branch_name} origin/main
-     ```
-
-## 📂 Directory Structure
-
-```text
-├── README.md                # General repository information (this file)
-├── AGENTS.md                # Entry point & landing page for agents
-├── SUBMODULES.md            # Git submodules ecosystem guide
-├── .agents/                 # Core agent configurations and instructions
-│   ├── instructions.md      # General operational instructions for coding agents
-│   ├── rules.md             # Code standards, formatting, and behavioral constraints
-│   ├── workflows.md         # Step-by-step developer and release workflows
-│   ├── submodules.md        # Submodule operational workflows and CI guidance
-│   └── coordination.md      # Protocols for multi-agent communication and subagent management
-├── .beans/                  # Text-based task and issue tracking database (managed via .beans.yml)
-├── apps/                    # Target application repositories (git ignored)
-│   ├── holon-agentic-coder/ # Primary engine codebase (bare git + worktree main)
-│   └── holon-coherence/     # Coherence proxy & optimization gateway (bare git + worktrees main)
-└── todo/                    # Local temporary scratchpad for images, docs, and notes (git ignored)
+# 2. Clone holon-coherence bare repository and main worktree
+git clone --bare git@github.com:Holon-Agentic-Coder/holon-coherence.git apps/holon-coherence/.git
+git --git-dir=apps/holon-coherence/.git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+git --git-dir=apps/holon-coherence/.git fetch origin
+git --git-dir=apps/holon-coherence/.git worktree add apps/holon-coherence/main main
 ```
 
-## 🛠 How Agents Use This Repo
+### 2. Run Harness Verification & Tests
 
-When an agent is initialized in this workspace:
+```bash
+uv sync --group dev
+uv run ruff check .agents/ tests/
+uv run pytest tests/ -q
+npx prettier --check "**/*.md"
+node .agents/scripts/validate-links.js
+```
 
-1. **Read the Entrypoint:** The agent must read [AGENTS.md](AGENTS.md) first to understand the workspace structure and
-   its role.
-2. **Consult Instructions:** Refer to [.agents/instructions.md](.agents/instructions.md) and
-   [.agents/rules.md](.agents/rules.md) before writing code.
-3. **Sync Tasks:** Use the `.beans/` directory to look up assigned tasks or log progress following the guidelines in
-   [.agents/workflows.md](.agents/workflows.md).
+---
 
-## 🤝 Contributing & Maintenance
+## 🧭 Documentation & Navigation Matrix
 
-Humans and senior manager agents can edit files in `.agents/` to refine rules or add new protocols as the codebase and
-requirements evolve. All changes should be committed using clean semantic commit messages on dedicated feature branches.
+- [**AGENTS.md**](AGENTS.md) — Canonical agent landing page, incoming checklist, and human-only PR merge boundary.
+- [**docs/architecture-overview.md**](docs/architecture-overview.md) — Detailed architectural reference, git worktree
+  setup mechanics, and directory layout.
+- [**docs/ecosystem-audit-report.md**](docs/ecosystem-audit-report.md) — Multi-dimensional audit report covering code
+  quality, security hermeticity, and DevEx.
+- [**.agents/instructions.md**](.agents/instructions.md) — Core mindset, operational guidelines, and Australian English
+  (`en-AU`) orthography standard.
+- [**.agents/rules.md**](.agents/rules.md) — Coding standards, toolbelt constraints, and permanent engineering
+  invariants.
+- [**.agents/workflows.md**](.agents/workflows.md) — Bean lifecycle, git branch conventions, and PR review procedures.
+- [**.beans/bean-triage-prioritisation.md**](.beans/bean-triage-prioritisation.md) — Live ecosystem bean triage and
+  prioritisation matrix.
+
+---
+
+## 📄 Licence
+
+Licensed under the [Apache License 2.0](LICENSE).

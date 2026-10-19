@@ -288,13 +288,17 @@ fi
 
 ---
 
-### Phase 7: Clean Stale `.subagent/` Review Files
+### Phase 7: Clean or Archive Stale `.subagent/` Review Files
 
-Clean up stale intermediate multi-agent review artifacts from merged/closed PRs while strictly preserving active review
-loops and permanent state files:
+Clean up or archive stale intermediate multi-agent review artifacts from merged/closed PRs while strictly preserving
+active review loops and permanent state files:
 
 ```bash
-# Execute safe .subagent cleanup using the workspace cleanup script
+# Relocate completed intermediate artifacts for closed/merged PRs into .subagent/<repo>_pr<N>_archive/
+# and prune archived intermediate bundles older than 30 days:
+python3 .agents/skills/clean_workspace/scripts/clean_workspace.py --subagent-only --archive --retention-days 30
+
+# Or delete completed intermediate files immediately:
 python3 .agents/skills/clean_workspace/scripts/clean_workspace.py --subagent-only
 ```
 

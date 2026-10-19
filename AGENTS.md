@@ -14,7 +14,7 @@ entirety before performing any operations or modifying any code.
 ## 🎯 Quick Navigation
 
 - [README.md](README.md) - Repository architecture and general overview.
-- [.agents/instructions.md](.agents/instructions.md) - General operating principles and behavioral guidelines.
+- [.agents/instructions.md](.agents/instructions.md) - General operating principles and behavioural guidelines.
 - [.agents/rules.md](.agents/rules.md) - Coding standards, file handling, and sandbox constraints.
 - [.agents/workflows.md](.agents/workflows.md) - Task execution cycle, git guidelines, and PR procedures.
 - [.agents/submodules.md](.agents/submodules.md) - Git submodules management and embedded repository workflows.
@@ -27,21 +27,22 @@ entirety before performing any operations or modifying any code.
 
 ## 🔒 Sole Change Path: The Holon Flow
 
-> [!IMPORTANT] **Every change to a target codebase the flow can drive MUST be produced by the Holon flow.** No agent or
-> developer may hand-author, hand-patch, or directly commit changes to `holon-agentic-coder` outside the flow lifecycle.
-> Today the flow drives exactly one repository -- the single remote resolved by `get_repo_url()` -- so `holon-coherence`
-> is authored in per-agent worktrees under the worktree rules below until a multi-repo flow vehicle exists.
+> [!IMPORTANT] **Every change to a target codebase (`holon-agentic-coder` or `holon-coherence`) MUST be produced by the
+> 5-stage Holon flow.** No agent or developer may hand-author, hand-patch, or directly commit changes to
+> `holon-agentic-coder` or `holon-coherence` outside the flow lifecycle. Invoking `holon` inside either target
+> repository's worktree dynamically resolves `remote.origin.url` via `resolve_target_repo_url()`, driving the target
+> repository's `holon-knowledge/ledger/` provenance pipeline.
 
 The lifecycle is a single pipeline, not a menu. A change is only "done through the flow" when it has traversed all of
 its stages:
 
-| #   | Stage          | Invocation (manual form)                                                                       | Artifact                                                                           |
-| --- | -------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| 1   | Intent         | `holon intent <intent.json>`                                                                   | `I-{timestamp}-{slug}/_` + `holon-knowledge/ledger/intents.jsonl`                  |
-| 2   | Plan           | `holon plan <intent_branch>`                                                                   | `I-.../P-{ts}-{agent}-{model}/_` + `plans/P-*.md` + `plans.jsonl`                  |
-| 3   | Execute        | `holon execute <plan_branch>`                                                                  | `I-.../P-.../E-{ts}-{agent}-{model}/_` + `holon-knowledge/ledger/executions.jsonl` |
-| 4   | PR review loop | Autonomous PR creation (`gh pr create`) + `pr-review-loop` skill (3-agent ensemble + resolver) | Consensus approval posted to the PR                                                |
-| 5   | Calibration    | `holon calibrate <execution_branch>` (Bean 0038)                                               | `/calibrated` branch + `plans/P-*_calibration.md` (also included in PR diff)       |
+| #   | Stage          | Invocation (manual form)                                                                      | Artifact                                                                           |
+| --- | -------------- | --------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| 1   | Intent         | `holon intent <intent.json>`                                                                  | `I-{timestamp}-{slug}/_` + `holon-knowledge/ledger/intents.jsonl`                  |
+| 2   | Plan           | `holon plan <intent_branch>`                                                                  | `I-.../P-{ts}-{agent}-{model}/_` + `plans/P-*.md` + `plans.jsonl`                  |
+| 3   | Execute        | `holon execute <plan_branch>`                                                                 | `I-.../P-.../E-{ts}-{agent}-{model}/_` + `holon-knowledge/ledger/executions.jsonl` |
+| 4   | PR review loop | `holon review <execution_branch>` (+ `pr-review-loop` ensemble/resolver when fixing findings) | Consensus approval posted to the PR + `executions.jsonl` (`ACT-REV`/`ACT-POST`)    |
+| 5   | Calibration    | `holon calibrate <execution_branch>` (Bean 0038)                                              | `/calibrated` branch + `plans/P-*_calibration.md` (also included in PR diff)       |
 
 **Ordering of the merge boundary**: stage 5 (Calibration) is a **pre-merge** stage, matching `STAGE_ORDER` in
 `sandbox_executor/flow.py` (intent -> plan -> execute -> review -> calibrate). Run the review loop to consensus
@@ -63,21 +64,20 @@ usage docs still outstanding on it, while the pipeline engine itself (Bean 0039)
 
 **Consequences for agents:**
 
-- Changes are authored by the sandboxed role agents inside the containerized plan/execution branches and recorded in the
+- Changes are authored by the sandboxed role agents inside the containerised plan/execution branches and recorded in the
   append-only ledgers. The ledgers, not the agent's word, are the system of record.
 - Host-side worktrees (`apps/<project>/{branch}`) exist to **build images, inspect code, run verification, and operate
-  the harness** -- they are not a change-authoring surface. Editing `holon-agentic-coder` source in a worktree and
-  committing it bypasses intent provenance, plan metrics, EV accounting, and the execution ledger, and is therefore
-  prohibited.
+  the harness** -- they are not a change-authoring surface. Editing `holon-agentic-coder` or `holon-coherence` source in
+  a worktree outside the flow bypasses intent provenance, plan metrics, EV accounting, and the execution ledger, and is
+  therefore prohibited.
 - Skipping a stage is not permitted. If a stage cannot run (missing image, failed agent, unreachable remote), the change
   is **blocked**: report the blocker instead of hand-applying the diff as a workaround.
 - The only permitted exception is an explicit, unambiguous user instruction to make a specific edit outside the flow,
   and that exception must be named in the commit message and in the bean summary.
 
-**Harness exception (control plane only).** The Holon CLI can only clone and branch the target repository reported by
-`get_repo_url()`, so the `holon-agentic-coder-ref-metadata` control plane itself (`.beans/`, `.agents/`, `AGENTS.md`)
-cannot be edited through the flow. Those harness files stay directly editable, and generalizing the pipeline so
-flow-gated edits can reach the control plane takes a fresh bean id (Bean 0039, the pipeline engine, is `completed`).
+**Harness exception (control plane only).** The `holon-agentic-coder-ref-metadata` control plane itself (`.beans/`,
+`.agents/`, `AGENTS.md`) is the coordination harness rather than a flow-managed target repository. Those harness files
+stay directly editable.
 
 ---
 
@@ -87,11 +87,10 @@ When you are spawned or begin a new session, follow these steps sequentially:
 
 1. **Verify Your Environment**: Check the current working directory, workspace structure, and locate the `.beans`
    configuration. If the target repositories (`apps/holon-agentic-coder/` or `apps/holon-coherence/`) are not set up,
-   follow the checkout instructions in [README.md](README.md#-target-repositories-setup-git-worktree) to clone the bare
-   repositories and configure worktrees.
+   follow the checkout instructions in [README.md](README.md) to clone the bare repositories and configure worktrees.
 2. **Review the Tasks**: List the tasks in the [.beans/](.beans/) directory to determine your current assignment or log
    a new task if none exists.
-3. **Internalize Constraints**: Load [.agents/rules.md](.agents/rules.md) to understand linting rules, language choices,
+3. **Internalise Constraints**: Load [.agents/rules.md](.agents/rules.md) to understand linting rules, language choices,
    and test requirements.
 4. **Execute Tasks Systematically**: Follow the lifecycle specified in [.agents/workflows.md](.agents/workflows.md) to
    transition tasks from `todo` to `in-progress` and finally `completed`.
@@ -99,17 +98,16 @@ When you are spawned or begin a new session, follow these steps sequentially:
    works **exclusively** inside it. Creating that branch and worktree is autonomous -- no user instruction required:
    - For `apps/holon-agentic-coder/`, all development and feature work must be based off the `origin/main` branch.
    - For `apps/holon-coherence/`, all development and feature work must be based off the `origin/main` branch.
-   - Name the worktree and branch after you or your bean (for example
-     `apps/holon-coherence/fix-0027-host-local-llm-routing` for branch `fix/0027-host-local-llm-routing`) so concurrent
-     agents never share a directory or a branch. Which name applies is decided by this order:
+   - Name the worktree and branch after you or your bean (for example `apps/holon-coherence/pr25-coherence-make-tasks`
+     for a flow PR branch) so concurrent agents never share a directory or a branch. Which name applies is decided by
+     this order:
      - **Checked out from a Holon flow branch** (`I-.../P-.../E-.../...`): such a branch always has a Pull Request, so
        the worktree **must carry the PR number and a slug** -- `apps/<project>/pr<N>-<slug>`, for example
        `apps/holon-agentic-coder/pr61-agent-output-capture`. Keep the flow ref itself exactly as the flow created it
        (never rename or re-cut an audited provenance branch); the `pr<N>-<slug>` marker lives on the **directory**.
-     - **No Holon flow branch involved** (hand-authored harness work, or any `holon-coherence` change): the **bean
-       number goes in the name** -- directory `apps/<project>/<type>-<bean-id>-<slug>` for branch
-       `<type>/<bean-id>-<slug>`, for example `apps/holon-coherence/fix-0027-host-local-llm-routing` for
-       `fix/0027-host-local-llm-routing`. Work that has neither a PR nor a bean yet needs the bean logged first.
+     - **No Holon flow branch involved** (hand-authored harness work): the **bean number goes in the name** -- directory
+       `apps/<project>/<type>-<bean-id>-<slug>` for branch `<type>/<bean-id>-<slug>`. Work that has neither a PR nor a
+       bean yet needs the bean logged first.
    - **A worktree created for temporary use MUST be named descriptively enough to still read as its purpose months
      later**: `<purpose>-<subject>-<qualifier>`, for example
      `apps/holon-agentic-coder/verify-pr61-agent-output-redaction` or
@@ -127,10 +125,9 @@ When you are spawned or begin a new session, follow these steps sequentially:
    - Inside your own worktree you have full latitude to edit, commit, squash, test, rebuild images and push -- **for
      harness work, image builds, verification runs, and handling branches the flow produced**. That squash latitude
      **never extends to a branch the Holon flow or a review loop drives** (item 7 below; rule 4 in
-     [.agents/workflows.md](.agents/workflows.md)). Authoring `holon-agentic-coder` source changes by hand in a worktree
-     is prohibited: that is the flow's job (see
-     [🔒 Sole Change Path: The Holon Flow](#-sole-change-path-the-holon-flow)). `holon-coherence` is not reachable by
-     the flow, so its changes are authored in your own worktree.
+     [.agents/workflows.md](.agents/workflows.md)). Authoring `holon-agentic-coder` or `holon-coherence` source changes
+     by hand in a worktree outside the flow is prohibited: that is the flow's job (see
+     [🔒 Sole Change Path: The Holon Flow](#-sole-change-path-the-holon-flow)).
    - **The `main` worktree is the user's playground.** `apps/holon-agentic-coder/main` and `apps/holon-coherence/main`
      are off-limits to agents: never edit, stage, commit, stash, reset, clean or checkout in them, never build into or
      leave stray files there, and do not mutate their local state either (`.venv/`, caches, generated artifacts).
@@ -156,18 +153,18 @@ When you are spawned or begin a new session, follow these steps sequentially:
      the base branch so Stage 4 (PR review loop) can proceed seamlessly without manual interruption. **PR merging
      remains exclusively the human maintainer's responsibility — agents MUST NEVER merge a PR (see "🔒 PR Merging —
      Human-Only" below).**
-8. **Report and Document**: Summarize changes cleanly and concisely. Point both the user and successor agents to updated
+8. **Report and Document**: Summarise changes cleanly and concisely. Point both the user and successor agents to updated
    files or artifacts.
-9. **Route Every Change Through the Flow**: Produce all `holon-agentic-coder` changes via the five-stage Holon flow
-   (intent -> plan -> execute -> PR review loop -> calibration) rather than hand-authored host-side edits, and calibrate
-   before requesting the merge. Manual stage-by-stage invocation is fully compliant; automating it with the `holon flow`
-   runner that already exists on `main` is optional (Bean 0040 tracks its remaining flags and usage docs; the Bean 0039
-   engine is completed). `holon-coherence` changes stay worktree-driven because the flow cannot reach that repository.
-   See [🔒 Sole Change Path: The Holon Flow](#-sole-change-path-the-holon-flow).
+9. **Route Every Change Through the Flow**: Produce all `holon-agentic-coder` and `holon-coherence` changes via the
+   five-stage Holon flow (intent -> plan -> execute -> PR review loop -> calibration) rather than hand-authored
+   host-side edits, and calibrate before requesting the merge. Manual stage-by-stage invocation is fully compliant;
+   automating it with the `holon flow` runner that already exists on `main` is optional (Bean 0040 tracks its remaining
+   flags and usage docs; the Bean 0039 engine is completed). See
+   [🔒 Sole Change Path: The Holon Flow](#-sole-change-path-the-holon-flow).
 10. **Zero Synthetic Data for Benchmarking**: Absolutely never use synthetic or mock data to measure efficacy or
     benchmark token reduction. Official evaluations and scorecards must derive exclusively from authentic real data
     streams (live sandbox task executions, genuine wire logs, or real production payloads).
-11. **Token Conservation & Concise Communication**: Minimize prompt and generation token burn across harness and
+11. **Token Conservation & Concise Communication**: Minimise prompt and generation token burn across harness and
     subagents. Deliver dense, factual, and strictly actionable updates without narrative bloat. Intermediate review
     iterations stay local in `.subagent/` — never post premature review comments to GitHub until all findings are fully
     resolved or consensus approved. Prune stale `.subagent/` artifacts upon completion.

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0104
 title: "Standardise license to Apache 2.0 across all applications"
-status: todo
+status: completed
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - governance
   - ecosystem
 created_at: 2026-10-17T03:54:00Z
-updated_at: 2026-10-17T03:54:00Z
+updated_at: 2026-10-18T00:22:00Z
 ---
 
 Standardise the open source license across the entire Holon ecosystem (`holon-agentic-coder`, `holon-coherence`, and
@@ -27,10 +27,16 @@ Standardise the open source license across the entire Holon ecosystem (`holon-ag
 
 ## Tasks
 
-- [ ] Add standard `LICENSE` (Apache 2.0) with `Copyright 2026 Holon Agentic Coder Contributors` to
+- [x] Add standard `LICENSE` (Apache 2.0) with `Copyright 2026 Holon Agentic Coder Contributors` to
       `holon-agentic-coder`.
-- [ ] Add standard `LICENSE` (Apache 2.0) with `Copyright 2026 Holon Agentic Coder Contributors` to
+- [x] Add standard `LICENSE` (Apache 2.0) with `Copyright 2026 Holon Agentic Coder Contributors` to
       `holon-agentic-coder-ref-metadata`.
-- [ ] Ensure `pyproject.toml` in `holon-agentic-coder` specifies `license = { text = "Apache-2.0" }`.
-- [ ] Update documentation and README files across repositories with license notices and badges.
-- [ ] Verify formatting with Prettier and run link validation.
+- [x] Ensure `pyproject.toml` in `holon-agentic-coder` specifies `license = { text = "Apache-2.0" }`.
+- [x] Update documentation and README files across repositories with license notices and badges.
+- [x] Verify formatting with Prettier and run link validation.
+
+## Resolution
+
+- In `holon-agentic-coder`, Apache 2.0 LICENSE file and `pyproject.toml` metadata were standardized in PR #79.
+- In `holon-agentic-coder-ref-metadata`, Apache 2.0 LICENSE file was added with
+  `Copyright 2026 Holon Agentic Coder Contributors` and referenced in README.md.
