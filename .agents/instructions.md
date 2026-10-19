@@ -105,3 +105,12 @@ system safety, and clean documentation. Follow these core guidelines in every se
 - **NEVER `unittest`**: Never invoke `unittest`, `python3 -m unittest`, or bare `pytest`.
 - **NEVER `PYTHONPATH`**: Never prefix or export `PYTHONPATH`. `uv` cleanly manages editable package resolution; manual
   overrides mask packaging defects and break hermetic testing.
+
+### 10. Canonical 3-Ledger Architecture (`holon-knowledge/ledger/`)
+
+- **Strict 3-Ledger Triad**: All Holon provenance and lifecycle events are strictly confined to three canonical ledgers:
+  `intents.jsonl`, `plans.jsonl`, and `executions.jsonl`.
+- **NEVER Create Auxiliary Ledgers**: Never create `actions.jsonl`, `reviews.jsonl`, or any secondary ledger file.
+- **Interleaved Actions**: All discrete action records (`entry_type: "action"`) and lifecycle summaries
+  (`entry_type: "summary"`) must be appended exclusively to `executions.jsonl` under advisory file locking
+  (`LedgerLock`).

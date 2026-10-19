@@ -180,6 +180,13 @@ When you are spawned or begin a new session, follow these steps sequentially:
       forbidden. All virtual environment dependencies and editable workspace packages are managed and resolved cleanly
       by `uv`; manual `PYTHONPATH` overrides mask packaging and dependency errors, bypass workspace definitions, and
       break hermetic testing.
+14. **Canonical 3-Ledger Architecture Invariant (`holon-knowledge/ledger/`)**: Target repositories maintain strictly
+    three append-only ledgers under `holon-knowledge/ledger/`: `intents.jsonl` (Intent), `plans.jsonl` (Plan), and
+    `executions.jsonl` (Execution, Review, and Calibration). **NEVER create auxiliary ledgers like `actions.jsonl` or
+    `reviews.jsonl`**. All discrete micro-action records (`entry_type: "action"`, such as `ACT-REV`, `ACT-FIND`,
+    `ACT-POST`, tool operations) and lifecycle summaries (`entry_type: "summary"`, such as `E-...`, `REV-...`) MUST be
+    interleaved chronologically inside `executions.jsonl` under `LedgerLock`. Auxiliary ledgers fragment the provenance
+    trail, break downstream query engines, and are strictly prohibited.
 
 ---
 

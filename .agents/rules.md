@@ -252,3 +252,17 @@ code in this repository.
       `SPELLING_EXEMPT_PATTERNS`), ignore lists, or test suites.
     - Inside target repositories, metadata paths are strictly limited to target-native artifacts (`holon-knowledge/`,
       `plans/`, `.holon/`). Harness concepts must never leak into target codebases under any circumstances.
+
+18. **Canonical 3-Ledger Architecture Invariant (`holon-knowledge/ledger/`)**:
+    - The Holon knowledge and provenance system operates strictly on three canonical append-only ledgers under
+      `holon-knowledge/ledger/`:
+      1. `intents.jsonl`: Intent records (`I-...`).
+      2. `plans.jsonl`: Plan records (`P-...`).
+      3. `executions.jsonl`: Unified execution ledger containing both discrete micro-actions (`entry_type: "action"`,
+         `ACT-...`) and lifecycle summaries (`entry_type: "summary"`, `E-...`, `REV-...`).
+    - **NEVER create auxiliary ledgers**: Under no circumstances should `actions.jsonl`, `reviews.jsonl`, or any other
+      secondary JSONL ledger be introduced.
+    - All action-level telemetry (test suite runs, review loop iterations, findings, GitHub dual-posts, repair steps,
+      late calibration reconciliations) MUST be written exclusively to `executions.jsonl` under `LedgerLock` using
+      `append_action_record()` or `append_action_event(ledger_path=executions_file)`.
+    - Creating auxiliary ledgers fragments provenance, breaks downstream ledger queries, and causes split-brain state.
