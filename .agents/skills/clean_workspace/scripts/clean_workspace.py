@@ -377,6 +377,7 @@ def clean_subagent_files(
                         shutil.move(str(f), str(dest_file))
                         processed.append(f"{rel_path} -> {rel_dest}")
                     except OSError:
+                        # Ignore filesystem errors if file cannot be archived or moved
                         pass
             else:
                 if dry_run:
@@ -386,6 +387,7 @@ def clean_subagent_files(
                         f.unlink()
                         processed.append(rel_path)
                     except OSError:
+                        # Ignore filesystem errors if file was already deleted or cannot be unlinked
                         pass
     return processed
 
@@ -437,6 +439,7 @@ def prune_archived_subagent_bundles(
                             archived_file.unlink()
                             pruned.append(rel_file)
                         except OSError:
+                            # Ignore filesystem errors if archived file cannot be deleted
                             pass
 
             # Remove empty archive directory if all expired files were pruned
@@ -445,6 +448,7 @@ def prune_archived_subagent_bundles(
                     if not any(item.iterdir()):
                         item.rmdir()
                 except OSError:
+                    # Ignore filesystem errors if directory cannot be removed
                     pass
 
     return pruned
@@ -473,6 +477,7 @@ def clean_todo_files(root: Path, dry_run: bool) -> tuple[list[str], list[str]]:
                     item.unlink()
                     purged.append(item.name)
                 except OSError:
+                    # Ignore filesystem errors if transient scratch file cannot be unlinked
                     pass
         else:
             preserved.append(item.name)
