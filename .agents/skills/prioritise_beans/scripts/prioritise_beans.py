@@ -101,8 +101,10 @@ def extract_bean_metadata(filepath: str) -> dict[str, Any] | None:
         domain = "Ledger / Observability"
         impact = "High"
 
-    # Extract summary sentence for notes if available
+    # Extract summary sentence for notes if available (with fallback to ## Context)
     summary_m = re.search(r"## Summary\s*\n+([^\n#]+)", content)
+    if not summary_m:
+        summary_m = re.search(r"## Context\s*\n+([^\n#]+)", content)
     if summary_m:
         notes = summary_m.group(1).strip()
         # Truncate if too long for clean table display
@@ -419,7 +421,8 @@ def generate_triage_document(
     else:
         for i, b in enumerate(active_beans[:5], 1):
             lines.append(f"{i}. **{b['title']} (Bean {b['bean_num']})**:")
-            lines.append(f"   - {b['notes']}")
+            if b.get("notes") and b["notes"].strip():
+                lines.append(f"   - {b['notes'].strip()}")
         lines.append("")
 
     return "\n".join(lines)

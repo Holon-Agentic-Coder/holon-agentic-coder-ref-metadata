@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-10-19 01:39:09 UTC
+**Last Updated:** 2026-10-19 01:56:39 UTC
 
 ## Executive Summary
 
@@ -61,22 +61,24 @@ cycles, multi-agent consensus review loops, and infrastructure hardening.
 
 ## Active Beans Triage and Prioritisation Matrix
 
-| Priority | Status | Impact | Sizing | Bean # | Title                                                                                              | Domain              | Dependencies / Notes |
-| :------- | :----- | :----: | :----: | :----: | :------------------------------------------------------------------------------------------------- | :------------------ | :------------------- |
-| **P1**   | todo   |  High  |   M    |  0127  | Implement file-locking concurrency guard for atomic ledger appends                                 | Flow / Architecture |                      |
-| **P1**   | todo   |  High  |   M    |  0126  | Drop container root capabilities and enforce unprivileged execution in role dispatcher entrypoints | Flow / Architecture |                      |
-| **P1**   | todo   |  Low   |   S    |  0125  | Enforce Australian English spelling across code comments and logging messages                      | Standards / Style   |                      |
-| **P1**   | todo   |  High  |   M    |  0124  | Centralise Git operations and worktree commands into unified repository abstraction                | Flow / Architecture |                      |
+| Priority | Status | Impact | Sizing | Bean # | Title                                                                                              | Domain              | Dependencies / Notes                                                                                                   |
+| :------- | :----- | :----: | :----: | :----: | :------------------------------------------------------------------------------------------------- | :------------------ | :--------------------------------------------------------------------------------------------------------------------- |
+| **P1**   | todo   |  High  |   M    |  0127  | Implement file-locking concurrency guard for atomic ledger appends                                 | Flow / Architecture | Audit finding `AUD-2026-05`: High-frequency concurrent writes to `actions.jsonl` and `executions.jsonl` from parallel  |
+| **P1**   | todo   |  High  |   M    |  0126  | Drop container root capabilities and enforce unprivileged execution in role dispatcher entrypoints | Flow / Architecture | Audit finding `AUD-2026-04`: While container execution drops `NET_RAW` and runs as non-root user `holon`, container    |
+| **P1**   | todo   | Medium |   S    |  0125  | Enforce Australian English spelling across code comments and logging messages                      | Legal / Governance  | Audit finding `AUD-2026-03`: While repository conventions mandate Australian English (`-ise` / `-our`), scattered      |
+| **P1**   | todo   |  High  |   M    |  0124  | Centralise Git operations and worktree commands into unified repository abstraction                | Flow / Architecture | Audit finding `AUD-2026-02`: Multiple modules in `sandbox-executor` (`flow.py`, `calibration.py`, `pr_review_loop.py`, |
 
 ---
 
 ## Recommended Next Execution Sequence
 
 1. **Implement file-locking concurrency guard for atomic ledger appends (Bean 0127)**:
-   -
+   - Audit finding `AUD-2026-05`: High-frequency concurrent writes to `actions.jsonl` and `executions.jsonl` from
+     parallel
 2. **Drop container root capabilities and enforce unprivileged execution in role dispatcher entrypoints (Bean 0126)**:
-   -
+   - Audit finding `AUD-2026-04`: While container execution drops `NET_RAW` and runs as non-root user `holon`, container
 3. **Enforce Australian English spelling across code comments and logging messages (Bean 0125)**:
-   -
+   - Audit finding `AUD-2026-03`: While repository conventions mandate Australian English (`-ise` / `-our`), scattered
 4. **Centralise Git operations and worktree commands into unified repository abstraction (Bean 0124)**:
-   -
+   - Audit finding `AUD-2026-02`: Multiple modules in `sandbox-executor` (`flow.py`, `calibration.py`,
+     `pr_review_loop.py`,

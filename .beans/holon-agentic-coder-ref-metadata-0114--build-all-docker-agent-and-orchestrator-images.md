@@ -27,9 +27,9 @@ and `docker-bake.hcl`.
   September 2026**.
 - Since then, substantial enhancements have been merged into `holon-agentic-coder`:
   - Granular action logging
-    ([Bean 0077](file:///Users/thomashan/git/holon-agentic-coder-ref-metadata/.beans/holon-agentic-coder-ref-metadata-0077--append-every-action-to-execution-ledger.md)).
+    ([Bean 0077](holon-agentic-coder-ref-metadata-0077--append-every-action-to-execution-ledger.md)).
   - Always-enabled action logging
-    ([Bean 0113](file:///Users/thomashan/git/holon-agentic-coder-ref-metadata/.beans/holon-agentic-coder-ref-metadata-0113--append-execution-and-pr-review-loop-actions-to-executions-ledger.md)).
+    ([Bean 0113](holon-agentic-coder-ref-metadata-0113--append-execution-and-pr-review-loop-actions-to-executions-ledger.md)).
   - Upgraded session directory tmpfs mount paths (`--tmpfs /home/holon/.gemini/antigravity-cli/log` and `cache`).
   - Model resolution updates and CLI argument adjustments.
 - Because container images bake the `src/` directory into `/home/holon/src/` at build time, running `holon execute`

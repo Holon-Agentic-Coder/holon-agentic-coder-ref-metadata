@@ -83,8 +83,7 @@ uv tool install --force --reinstall --editable apps/holon-coherence/main
 
 ## Automated Orchestrator Script
 
-A dedicated Python orchestrator is available at
-[install_coherence.py](file:///Users/thomashan/git/holon-agentic-coder-ref-metadata/.agents/skills/install_coherence/scripts/install_coherence.py):
+A dedicated Python orchestrator is available at [install_coherence.py](scripts/install_coherence.py):
 
 ```bash
 # Run full build and installation for holon-coherence
