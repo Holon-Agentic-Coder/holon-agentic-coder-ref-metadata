@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-10-19 04:42:50 UTC
+**Last Updated:** 2026-10-19 12:37:18 UTC
 
 ## Executive Summary
 
@@ -14,7 +14,7 @@ cycles, multi-agent consensus review loops, and infrastructure hardening.
 
 ---
 
-## Key Milestones Completed (Beans 0080 – 0121)
+## Key Milestones Completed (Beans 0080 – 0127)
 
 1. **Holon Flow and Automation Engine**:
    - `0084`: Fixed CI check name collisions in review gates.
@@ -56,6 +56,18 @@ cycles, multi-agent consensus review loops, and infrastructure hardening.
      fallback.
    - `0113`: Granular action logging in `executions.jsonl` recording evaluations, findings, resolver triggers, and
      consensus posting.
+8. **Decoupled Architecture and Canonical 3-Ledger Consolidation (Beans 0122 and 0123 / PR #85)**:
+   - Purged all harness-specific metadata paths (`.beans/`, `todo/`, `.agents/`) from target repositories.
+   - Retired auxiliary `actions.jsonl` ledger; interleaved all discrete micro-actions (`entry_type: 'action'`) and run
+     summaries (`entry_type: 'summary'`) inside `executions.jsonl` under `LedgerLock`.
+   - Codified harness isolation, test execution constraints (strictly `uv run pytest`), and ledger invariants across
+     ecosystem instructions.
+9. **Unified Git Abstraction, Unprivileged Containers, and Hardened Locking (Beans 0124 – 0127 / PR #86)**:
+   - `0124`: Implemented unified Git abstraction in `sandbox_executor.git` with custom exceptions and strict stderr
+     diagnostics.
+   - `0125`: Australian English spelling hygiene across documentation and codebase comments.
+   - `0126`: Enforced unprivileged Docker execution via `--cap-drop=ALL` with selective capability drops.
+   - `0127`: Hardened `LedgerLock` concurrency file locking with exponential backoff and timeouts.
 
 ---
 
@@ -70,11 +82,11 @@ cycles, multi-agent consensus review loops, and infrastructure hardening.
 
 All tracked beans in the active backlog (Beans 0001 – 0127) have been completed across all managed repositories:
 
-- `holon-agentic-coder`: PR #84 (Beans 0118, 0121, 0110, 0105, 0106) has traversed all 5 Holon flow stages (Stage 4
-  consensus APPROVED, Stage 5 calibration report included in PR) and is merged into `main`.
+- `holon-agentic-coder`: PR #84 (Beans 0118, 0121, 0110, 0105, 0106), PR #85 (Beans 0122, 0123), and PR #86 (Beans
+  0124–0127) have traversed all 5 Holon flow stages (Stage 4 consensus APPROVED, Stage 5 calibration report included in
+  PR) and are merged into `main`.
 - `holon-coherence`: PR #25 (Beans 0116, 0110, 0105, 0106) has traversed all 5 Holon flow stages (Stage 4 consensus
   APPROVED, Stage 5 calibration report included in PR).
-- `holon-agentic-coder-ref-metadata`: Beans 0105, 0106, 0107, 0108, 0110, 0111, 0116, 0118, and 0121 are finalised and
-  marked completed.
+- `holon-agentic-coder-ref-metadata`: All beans up to Bean 0127 are finalised and marked completed.
 
 The ecosystem is fully up to date and awaiting manual human maintainer review and merge under Bean 0034.
