@@ -383,35 +383,26 @@ def generate_triage_document(
             "   - `0113`: Granular action logging in `executions.jsonl` recording evaluations, findings, resolver "
             "triggers, and consensus posting."
         ),
+        ("8. **Decoupled Architecture and Canonical 3-Ledger Consolidation (Beans 0122 and 0123 / PR #85)**:"),
+        ("   - Purged all harness-specific metadata paths (`.beans/`, `todo/`, `.agents/`) from target repositories."),
         (
-            "8. **Decoupled Architecture and Canonical 3-Ledger Consolidation (Beans 0122 and 0123 / PR #85)**:"
-        ),
-        (
-            "   - Purged all harness-specific metadata paths (`.beans/`, `todo/`, `.agents/`) from target repositories."
-        ),
-        (
-            "   - Retired auxiliary `actions.jsonl` ledger; interleaved all discrete micro-actions (`entry_type: 'action'`) "
+            "   - Retired auxiliary `actions.jsonl` ledger; interleaved all discrete micro-actions "
+            "(`entry_type: 'action'`) "
             "and run summaries (`entry_type: 'summary'`) inside `executions.jsonl` under `LedgerLock`."
         ),
         (
-            "   - Codified harness isolation, test execution constraints (strictly `uv run pytest`), and ledger invariants "
+            "   - Codified harness isolation, test execution constraints (strictly `uv run pytest`), "
+            "and ledger invariants "
             "across ecosystem instructions."
         ),
+        ("9. **Unified Git Abstraction, Unprivileged Containers, and Hardened Locking (Beans 0124 – 0127 / PR #86)**:"),
         (
-            "9. **Unified Git Abstraction, Unprivileged Containers, and Hardened Locking (Beans 0124 – 0127 / PR #86)**:"
+            "   - `0124`: Implemented unified Git abstraction in `sandbox_executor.git` with custom "
+            "exceptions and strict stderr diagnostics."
         ),
-        (
-            "   - `0124`: Implemented unified Git abstraction in `sandbox_executor.git` with custom exceptions and strict stderr diagnostics."
-        ),
-        (
-            "   - `0125`: Australian English spelling hygiene across documentation and codebase comments."
-        ),
-        (
-            "   - `0126`: Enforced unprivileged Docker execution via `--cap-drop=ALL` with selective capability drops."
-        ),
-        (
-            "   - `0127`: Hardened `LedgerLock` concurrency file locking with exponential backoff and timeouts."
-        ),
+        ("   - `0125`: Australian English spelling hygiene across documentation and codebase comments."),
+        ("   - `0126`: Enforced unprivileged Docker execution via `--cap-drop=ALL` with selective capability drops."),
+        ("   - `0127`: Hardened `LedgerLock` concurrency file locking with exponential backoff and timeouts."),
         "",
         "---",
         "",
@@ -456,7 +447,8 @@ def generate_triage_document(
                     "stages (Stage 4 consensus APPROVED, Stage 5 calibration report included in PR)."
                 ),
                 (
-                    f"- `holon-agentic-coder-ref-metadata`: All beans up to Bean {total:04d} are finalised and marked completed."
+                    f"- `holon-agentic-coder-ref-metadata`: All beans up to Bean {total:04d} are "
+                    "finalised and marked completed."
                 ),
                 "",
                 (
