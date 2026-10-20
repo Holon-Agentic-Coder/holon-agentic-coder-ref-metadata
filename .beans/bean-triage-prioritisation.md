@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-10-20 07:12:18 UTC
+**Last Updated:** 2026-10-20 07:39:09 UTC
 
 ## Executive Summary
 
@@ -8,9 +8,9 @@ Since the previous triage checkpoint on 2026-10-03, the Holon ecosystem has prog
 cycles, multi-agent consensus review loops, and infrastructure hardening.
 
 - **Total Tracked Beans**: 129 (excluding template)
-- **Completed**: 125 (96.9%)
+- **Completed**: 126 (97.7%)
 - **Scrapped / Superseded**: 2 (1.6%)
-- **Active / Todo**: 2 (1.6%)
+- **Active / Todo**: 1 (0.8%)
 
 ---
 
@@ -73,10 +73,9 @@ cycles, multi-agent consensus review loops, and infrastructure hardening.
 
 ## Active Beans Triage and Prioritisation Matrix
 
-| Priority | Status      | Impact | Sizing | Bean # | Title                                                                                 | Domain              | Dependencies / Notes                                                                                              |
-| :------- | :---------- | :----: | :----: | :----: | :------------------------------------------------------------------------------------ | :------------------ | :---------------------------------------------------------------------------------------------------------------- |
-| **P1**   | todo        | Medium |   M    |  0129  | Expose plain mitmweb web interface to inspect live requests and responses             | CLI / Telemetry     | `holon-coherence` serves as the network optimization proxy and telemetry gateway, intercepting LLM API calls for  |
-| **P1**   | in-progress |  High  |   M    |  0128  | Audit ecosystem documentation and remediate coverage gaps across Holon flow lifecycle | Flow / Architecture | Recent milestones across the Holon ecosystem introduced key architectural, operational, and tooling enhancements: |
+| Priority | Status | Impact | Sizing | Bean # | Title                                                                     | Domain          | Dependencies / Notes                                                                                             |
+| :------- | :----- | :----: | :----: | :----: | :------------------------------------------------------------------------ | :-------------- | :--------------------------------------------------------------------------------------------------------------- |
+| **P1**   | todo   | Medium |   M    |  0129  | Expose plain mitmweb web interface to inspect live requests and responses | CLI / Telemetry | `holon-coherence` serves as the network optimization proxy and telemetry gateway, intercepting LLM API calls for |
 
 ---
 
@@ -84,5 +83,3 @@ cycles, multi-agent consensus review loops, and infrastructure hardening.
 
 1. **Expose plain mitmweb web interface to inspect live requests and responses (Bean 0129)**:
    - `holon-coherence` serves as the network optimization proxy and telemetry gateway, intercepting LLM API calls for
-2. **Audit ecosystem documentation and remediate coverage gaps across Holon flow lifecycle (Bean 0128)**:
-   - Recent milestones across the Holon ecosystem introduced key architectural, operational, and tooling enhancements:
