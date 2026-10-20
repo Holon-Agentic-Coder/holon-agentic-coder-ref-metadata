@@ -168,6 +168,25 @@ When you are spawned or begin a new session, follow these steps sequentially:
     subagents. Deliver dense, factual, and strictly actionable updates without narrative bloat. Intermediate review
     iterations stay local in `.subagent/` — never post premature review comments to GitHub until all findings are fully
     resolved or consensus approved. Prune stale `.subagent/` artifacts upon completion.
+12. **Target Repository Isolation & Zero Harness Path Leaks**: Target repositories (`holon-agentic-coder` and
+    `holon-coherence`) are independent, standalone software systems. They **MUST NEVER** know about, import, reference,
+    or configure harness-specific directories, conventions, or tooling (`.beans/`, `todo/`, `.agents/`). Any path lists,
+    ignore patterns, filters, or calibration logic inside target repositories must strictly contain target-native paths
+    only (`holon-knowledge/`, `plans/`, `.holon/`). Harness concerns must never leak into target codebases.
+13. **Strict Test Execution & Tooling Prohibition (NEVER `unittest`, NEVER `python3 -m unittest`, NEVER `PYTHONPATH`)**:
+    All test suites across all target repositories and the harness MUST be executed strictly using `uv run pytest`.
+    - Running `unittest`, `python3 -m unittest`, `python -m unittest`, or bare `pytest` is strictly forbidden.
+    - Executing commands with `PYTHONPATH` overrides (e.g., `PYTHONPATH=...`, `export PYTHONPATH=...`) is strictly
+      forbidden. All virtual environment dependencies and editable workspace packages are managed and resolved cleanly
+      by `uv`; manual `PYTHONPATH` overrides mask packaging and dependency errors, bypass workspace definitions, and
+      break hermetic testing.
+14. **Canonical 3-Ledger Architecture Invariant (`holon-knowledge/ledger/`)**: Target repositories maintain strictly
+    three append-only ledgers under `holon-knowledge/ledger/`: `intents.jsonl` (Intent), `plans.jsonl` (Plan), and
+    `executions.jsonl` (Execution, Review, and Calibration). **NEVER create auxiliary ledgers like `actions.jsonl` or
+    `reviews.jsonl`**. All discrete micro-action records (`entry_type: "action"`, such as `ACT-REV`, `ACT-FIND`,
+    `ACT-POST`, tool operations) and lifecycle summaries (`entry_type: "summary"`, such as `E-...`, `REV-...`) MUST be
+    interleaved chronologically inside `executions.jsonl` under `LedgerLock`. Auxiliary ledgers fragment the provenance
+    trail, break downstream query engines, and are strictly prohibited.
 
 ---
 

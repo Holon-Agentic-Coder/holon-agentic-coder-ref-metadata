@@ -27,10 +27,14 @@ markdown files under `plans/`, these metadata artifacts were counted as project 
 
 ## Remediation
 
-- Defined `METADATA_PATH_PREFIXES = ("holon-knowledge/", "plans/", ".holon/", ".beans/", "todo/")` and
-  `is_metadata_path(path)` in `sandbox_executor.calibration`.
+- Defined `METADATA_PATH_PREFIXES = ("holon-knowledge/", "plans/", ".holon/")` and `is_metadata_path(path)` in
+  `sandbox_executor.calibration`. Strictly decoupled target repository from harness metadata paths (`.beans/`, `todo/`,
+  `.agents/`) per Invariant 17.
 - Switched diff parsing in `parse_actual_metrics` and `run_review_stage` to `git diff --numstat`, filtering out all
   paths matching `is_metadata_path`.
 - Enforced that when zero project code files are modified (`actual.files_changed == 0`), `ssa_obs` evaluates strictly to
   `0.0`.
 - Added unit tests in `test_calibration.py` verifying path filtering and metric calculations.
+- Retired `actions.jsonl` and unified all discrete action events into `executions.jsonl` under `LedgerLock`.
+- Executed through full 5-stage Holon flow via PR #85 (merged):
+  https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/85

@@ -1,20 +1,20 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-10-19 02:29:34 UTC
+**Last Updated:** 2026-10-20 07:39:09 UTC
 
 ## Executive Summary
 
 Since the previous triage checkpoint on 2026-10-03, the Holon ecosystem has progressed through automated Holon flow
 cycles, multi-agent consensus review loops, and infrastructure hardening.
 
-- **Total Tracked Beans**: 127 (excluding template)
-- **Completed**: 121 (95.3%)
+- **Total Tracked Beans**: 129 (excluding template)
+- **Completed**: 126 (97.7%)
 - **Scrapped / Superseded**: 2 (1.6%)
-- **Active / Todo**: 4 (3.1%)
+- **Active / Todo**: 1 (0.8%)
 
 ---
 
-## Key Milestones Completed (Beans 0080 – 0121)
+## Key Milestones Completed (Beans 0080 – 0127)
 
 1. **Holon Flow and Automation Engine**:
    - `0084`: Fixed CI check name collisions in review gates.
@@ -56,29 +56,30 @@ cycles, multi-agent consensus review loops, and infrastructure hardening.
      fallback.
    - `0113`: Granular action logging in `executions.jsonl` recording evaluations, findings, resolver triggers, and
      consensus posting.
+8. **Decoupled Architecture and Canonical 3-Ledger Consolidation (Beans 0122 and 0123 / PR #85)**:
+   - Purged all harness-specific metadata paths (`.beans/`, `todo/`, `.agents/`) from target repositories.
+   - Retired auxiliary `actions.jsonl` ledger; interleaved all discrete micro-actions (`entry_type: 'action'`) and run
+     summaries (`entry_type: 'summary'`) inside `executions.jsonl` under `LedgerLock`.
+   - Codified harness isolation, test execution constraints (strictly `uv run pytest`), and ledger invariants across
+     ecosystem instructions.
+9. **Unified Git Abstraction, Unprivileged Containers, and Hardened Locking (Beans 0124 – 0127 / PR #86)**:
+   - `0124`: Implemented unified Git abstraction in `sandbox_executor.git` with custom exceptions and strict stderr
+     diagnostics.
+   - `0125`: Australian English spelling hygiene across documentation and codebase comments.
+   - `0126`: Enforced unprivileged Docker execution via `--cap-drop=ALL` with selective capability drops.
+   - `0127`: Hardened `LedgerLock` concurrency file locking with exponential backoff and timeouts.
 
 ---
 
 ## Active Beans Triage and Prioritisation Matrix
 
-| Priority | Status | Impact | Sizing | Bean # | Title                                                                                              | Domain              | Dependencies / Notes                                                                                                   |
-| :------- | :----- | :----: | :----: | :----: | :------------------------------------------------------------------------------------------------- | :------------------ | :--------------------------------------------------------------------------------------------------------------------- |
-| **P1**   | todo   |  High  |   M    |  0127  | Implement file-locking concurrency guard for atomic ledger appends                                 | Flow / Architecture | Audit finding `AUD-2026-05`: High-frequency concurrent writes to `actions.jsonl` and `executions.jsonl` from parallel  |
-| **P1**   | todo   |  High  |   M    |  0126  | Drop container root capabilities and enforce unprivileged execution in role dispatcher entrypoints | Flow / Architecture | Audit finding `AUD-2026-04`: While container execution drops `NET_RAW` and runs as non-root user `holon`, container    |
-| **P1**   | todo   | Medium |   S    |  0125  | Enforce Australian English spelling across code comments and logging messages                      | Legal / Governance  | Audit finding `AUD-2026-03`: While repository conventions mandate Australian English (`-ise` / `-our`), scattered      |
-| **P1**   | todo   |  High  |   M    |  0124  | Centralise Git operations and worktree commands into unified repository abstraction                | Flow / Architecture | Audit finding `AUD-2026-02`: Multiple modules in `sandbox-executor` (`flow.py`, `calibration.py`, `pr_review_loop.py`, |
+| Priority | Status | Impact | Sizing | Bean # | Title                                                                     | Domain          | Dependencies / Notes                                                                                             |
+| :------- | :----- | :----: | :----: | :----: | :------------------------------------------------------------------------ | :-------------- | :--------------------------------------------------------------------------------------------------------------- |
+| **P1**   | todo   | Medium |   M    |  0129  | Expose plain mitmweb web interface to inspect live requests and responses | CLI / Telemetry | `holon-coherence` serves as the network optimization proxy and telemetry gateway, intercepting LLM API calls for |
 
 ---
 
 ## Recommended Next Execution Sequence
 
-1. **Implement file-locking concurrency guard for atomic ledger appends (Bean 0127)**:
-   - Audit finding `AUD-2026-05`: High-frequency concurrent writes to `actions.jsonl` and `executions.jsonl` from
-     parallel
-2. **Drop container root capabilities and enforce unprivileged execution in role dispatcher entrypoints (Bean 0126)**:
-   - Audit finding `AUD-2026-04`: While container execution drops `NET_RAW` and runs as non-root user `holon`, container
-3. **Enforce Australian English spelling across code comments and logging messages (Bean 0125)**:
-   - Audit finding `AUD-2026-03`: While repository conventions mandate Australian English (`-ise` / `-our`), scattered
-4. **Centralise Git operations and worktree commands into unified repository abstraction (Bean 0124)**:
-   - Audit finding `AUD-2026-02`: Multiple modules in `sandbox-executor` (`flow.py`, `calibration.py`,
-     `pr_review_loop.py`,
+1. **Expose plain mitmweb web interface to inspect live requests and responses (Bean 0129)**:
+   - `holon-coherence` serves as the network optimization proxy and telemetry gateway, intercepting LLM API calls for
