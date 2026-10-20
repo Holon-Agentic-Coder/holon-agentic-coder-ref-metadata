@@ -1,16 +1,16 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-10-19 12:37:18 UTC
+**Last Updated:** 2026-10-20 07:12:18 UTC
 
 ## Executive Summary
 
 Since the previous triage checkpoint on 2026-10-03, the Holon ecosystem has progressed through automated Holon flow
 cycles, multi-agent consensus review loops, and infrastructure hardening.
 
-- **Total Tracked Beans**: 127 (excluding template)
-- **Completed**: 125 (98.4%)
+- **Total Tracked Beans**: 129 (excluding template)
+- **Completed**: 125 (96.9%)
 - **Scrapped / Superseded**: 2 (1.6%)
-- **Active / Todo**: 0 (0.0%)
+- **Active / Todo**: 2 (1.6%)
 
 ---
 
@@ -73,20 +73,16 @@ cycles, multi-agent consensus review loops, and infrastructure hardening.
 
 ## Active Beans Triage and Prioritisation Matrix
 
-| Priority | Status | Impact | Sizing | Bean # | Title | Domain | Dependencies / Notes |
-| :------- | :----- | :----: | :----: | :----: | :---- | :----- | :------------------- |
+| Priority | Status      | Impact | Sizing | Bean # | Title                                                                                 | Domain              | Dependencies / Notes                                                                                              |
+| :------- | :---------- | :----: | :----: | :----: | :------------------------------------------------------------------------------------ | :------------------ | :---------------------------------------------------------------------------------------------------------------- |
+| **P1**   | todo        | Medium |   M    |  0129  | Expose plain mitmweb web interface to inspect live requests and responses             | CLI / Telemetry     | `holon-coherence` serves as the network optimization proxy and telemetry gateway, intercepting LLM API calls for  |
+| **P1**   | in-progress |  High  |   M    |  0128  | Audit ecosystem documentation and remediate coverage gaps across Holon flow lifecycle | Flow / Architecture | Recent milestones across the Holon ecosystem introduced key architectural, operational, and tooling enhancements: |
 
 ---
 
 ## Recommended Next Execution Sequence
 
-All tracked beans in the active backlog (Beans 0001 – 0127) have been completed across all managed repositories:
-
-- `holon-agentic-coder`: PR #84 (Beans 0118, 0121, 0110, 0105, 0106), PR #85 (Beans 0122, 0123), and PR #86 (Beans
-  0124–0127) have traversed all 5 Holon flow stages (Stage 4 consensus APPROVED, Stage 5 calibration report included in
-  PR) and are merged into `main`.
-- `holon-coherence`: PR #25 (Beans 0116, 0110, 0105, 0106) has traversed all 5 Holon flow stages (Stage 4 consensus
-  APPROVED, Stage 5 calibration report included in PR).
-- `holon-agentic-coder-ref-metadata`: All beans up to Bean 0127 are finalised and marked completed.
-
-The ecosystem is fully up to date and awaiting manual human maintainer review and merge under Bean 0034.
+1. **Expose plain mitmweb web interface to inspect live requests and responses (Bean 0129)**:
+   - `holon-coherence` serves as the network optimization proxy and telemetry gateway, intercepting LLM API calls for
+2. **Audit ecosystem documentation and remediate coverage gaps across Holon flow lifecycle (Bean 0128)**:
+   - Recent milestones across the Holon ecosystem introduced key architectural, operational, and tooling enhancements:
