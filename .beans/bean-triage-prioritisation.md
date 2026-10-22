@@ -7,10 +7,10 @@
 Since the previous triage checkpoint on 2026-10-20, the Holon ecosystem has progressed through automated Holon flow
 cycles, multi-agent consensus review loops, and infrastructure hardening.
 
-- **Total Tracked Beans**: 136 (excluding template)
-- **Completed**: 128 (94.1%)
+- **Total Tracked Beans**: 140 (excluding template)
+- **Completed**: 128 (91.4%)
 - **Scrapped / Superseded**: 2 (1.5%)
-- **Active / Todo**: 6 (4.4%)
+- **Active / Todo**: 10 (7.1%)
 
 ---
 
@@ -97,20 +97,23 @@ cycles, multi-agent consensus review loops, and infrastructure hardening.
 
 ## Recommended Next Execution Sequence
 
-**Gate for all flow work:** no agent runner on this host can currently execute a flow stage. `antigravity-agent` is at
-individual quota (resets 2026-10-24), `claude` is not logged in, `codex` has a used refresh token (401), `opencode` has
-an expired API key, and `pi-agent` against the host-local vMLX gateway truncates planner-length output because the
-`vmlx` entry in `~/.pi/agent/models.json` sets `contextWindow` but no `maxTokens`. Unblock by re-authenticating or
-rotating one runner's credential, or by raising the local model's output cap, then resume stage by stage (not via
-`holon flow`, see Bean 0134).
+**Gate for all flow work:** no agent runner on this host can currently execute a flow stage -- `antigravity-agent` is at
+individual quota (resets ~2026-10-24), `claude` is not logged in, `codex` has a used refresh token, `opencode` has an
+expired key, and `pi-agent` on the host-local vMLX gateway died on a single-response output cap (Bean 0138/0140). The
+`maxTokens` field is now declared explicitly in `~/.pi/agent/models.json`, which makes the cap visible but does not
+raise it, so the runner choice still has to come from a re-authenticated or non-exhausted credential.
 
-1. **Rotate the disclosed GitHub token (Bean 0136, maintainer action)**: `gh auth refresh-token` or revoke the OAuth
-   grant, then re-auth the runner chosen above.
-2. **Bean 0132**: resume at Stage 2 in `apps/holon-agentic-coder/flow-0132-stage-4-5-ledger-actions` against
-   `I-1792635019-flow-stage-4-5-ledger-action-entries/_`, then execute, review-loop to consensus, and calibrate.
-3. **Bean 0134**: make `holon flow` dispatch role agents or refuse to run authoring stages, and fail an empty execution
-   diff instead of recording success; this restores the equivalence AGENTS.md advertises.
-4. **Beans 0129 + 0133**: run the prepared combined coherence intent in
-   `apps/holon-coherence/flow-0129-0133-coherence-mitmweb-monotonic-clock`; its ledger diff also supplies the empirical
+1. **Rotate and re-authenticate (maintainer)**: `gh auth refresh --scopes repo,read:org,gist` to rotate the token that
+   Bean 0136 leaked and to drop `admin:public_key`, then re-auth one coding-agent runner.
+2. **Bean 0137**: inherit the runner from the harness agent and add the pre-flight credential probe, so an unusable
+   runner fails in seconds instead of minutes and the ledger names the runner that actually authored the work.
+3. **Beans 0138 + 0139 + 0140** (one coherence-independent package on `holon-agentic-coder`): incremental artifact
+   writes, turn/stage budgets with stall detection, and an explicit `maxTokens` in the generated sandbox config.
+   Together they make the local-model route usable rather than heroic.
+4. **Bean 0132**: resume at Stage 2 in `apps/holon-agentic-coder/flow-0132-stage-4-5-ledger-actions` against
+   `I-1792635019-flow-stage-4-5-ledger-action-entries/_`.
+5. **Bean 0134**: make `holon flow` dispatch role agents or refuse to author, and fail an empty execution diff instead
+   of recording success.
+6. **Beans 0129 + 0133**: run the prepared combined coherence intent; its ledger diff also supplies the empirical
    coherence-side verification Bean 0132 asks for.
-5. **Bean 0135**: fix the missing-ref mergeability verdict so review-loop halts name the real cause.
+7. **Bean 0135**: fix the missing-ref mergeability verdict so review-loop halts name the real cause.
