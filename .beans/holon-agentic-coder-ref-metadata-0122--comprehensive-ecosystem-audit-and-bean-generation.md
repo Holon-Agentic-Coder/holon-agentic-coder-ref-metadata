@@ -13,7 +13,7 @@ tags:
   - provenance
   - beans
 created_at: 2026-10-19T01:06:26Z
-updated_at: 2026-10-19T01:38:00Z
+updated_at: 2026-10-22T00:35:00Z
 ---
 
 Conduct an end-to-end holistic audit across `holon-agentic-coder`, `holon-coherence`, and
@@ -60,3 +60,20 @@ prioritised bean in `.beans/`.
 2. **Generated Beans**: Formatted per `.beans/template.md`, sequential IDs, validated with schema inspection.
 3. **Triage Matrix**: Updated `.beans/bean-triage-prioritisation.md` containing all newly generated beans with assigned
    priority, sizing, and impact.
+
+## Resolution
+
+All five audit pillars were assessed and published; every confirmed finding became a tracked bean, and every generated
+bean has since closed through the 5-stage Holon flow.
+
+1. **Audit report**: `docs/ecosystem-audit-report-2026-10.md` (findings `AUD-2026-01` – `AUD-2026-05`,
+   severity-categorised with a remediation matrix).
+2. **Generated beans**: `0123` (metric isolation in calibration diffs), `0124` (unified Git abstraction), `0125` (en-AU
+   orthography in code), `0126` (container capability dropping), `0127` (advisory ledger locking) -- sequential 4-digit
+   IDs per `.beans/template.md`.
+3. **Remediation landed**: `AUD-2026-01` / Bean 0123 shipped inside this bean's own execution lifecycle via
+   `holon-agentic-coder` PR [#85](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/85); Beans 0124-0127
+   landed together via PR [#86](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/86). Both traversed
+   Stage 4 consensus approval and Stage 5 calibration before merge.
+4. **Triage matrix**: regenerated with the `prioritise-beans` script at the time of closure and refreshed on every
+   subsequent checkpoint (latest: 2026-10-22).

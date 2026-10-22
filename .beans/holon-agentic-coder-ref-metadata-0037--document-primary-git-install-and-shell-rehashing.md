@@ -9,7 +9,7 @@ tags:
   - holon-coherence
   - installation
 created_at: 2026-09-26T09:06:00Z
-updated_at: 2026-10-13T19:42:00Z
+updated_at: 2026-10-22T00:35:00Z
 ---
 
 Update `holon-coherence` documentation (including `README.md` and onboarding guidelines) to establish
@@ -53,3 +53,14 @@ alternative, and no `rehash` / `hash -r` guidance exists anywhere in the README.
 and the `uv tool install git+https://...` form as an "Or install directly from GitHub" alternative, i.e. not elevated to
 the primary entrypoint. Grepping the README for `rehash` / `hash -r` returns nothing, so the shell-cache guidance is
 missing entirely.
+
+## Resolution
+
+Closed by `holon-coherence` Pull Request [#16](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/16) (merged
+2026-10-13, Beans 0075 / 0042 / 0037). Re-verified on `origin/main` (`29b7e50`) on 2026-10-22 against the acceptance
+criteria, which supersedes the two stale "still `todo`" audits above -- both predate that PR:
+
+- `README.md:149` -- `uv tool install git+https://github.com/Holon-Agentic-Coder/holon-coherence.git` is now the primary
+  install command, with the `uv tool install --editable .` form demoted below it (`README.md:164`).
+- `README.md:152-155` -- a "Shell Rehashing" note tells zsh users to run `rehash` and bash users to run `hash -r` when
+  the freshly installed `holon-coherence` binary is not immediately found.

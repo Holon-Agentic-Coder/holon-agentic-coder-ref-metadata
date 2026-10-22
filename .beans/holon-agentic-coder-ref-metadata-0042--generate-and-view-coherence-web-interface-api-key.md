@@ -10,7 +10,7 @@ tags:
   - security
   - web-ui
 created_at: 2026-09-26T09:24:00Z
-updated_at: 2026-10-13T19:42:00Z
+updated_at: 2026-10-22T00:35:00Z
 ---
 
 Add support for generating, configuring, and viewing the API key / password for the `holon-coherence` web interface
@@ -70,3 +70,21 @@ in `apps/holon-coherence/src/holon_coherence/`.
 Grepping `apps/holon-coherence/main/src` for `web-password`, `web_password` and `WEB_PASSWORD` returns no hits: no CLI
 option, no env fallback, no "print the token on startup" path. The ephemeral `mitmweb` token in detached mode is still
 buried in container logs.
+
+## Resolution
+
+Closed by `holon-coherence` Pull Request [#16](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/16) (merged
+2026-10-13, Beans 0075 / 0042 / 0037). Re-verified on `origin/main` (`29b7e50`) on 2026-10-22, which supersedes the two
+stale "still `todo`" audits above:
+
+- `src/holon_coherence/cli.py:208-213` -- `--web`, `--web-port` and `--web-password`, the latter defaulting to
+  `HOLON_COHERENCE_WEB_PASSWORD` or an auto-generated token.
+- `src/holon_coherence/cli.py:267-268,452` -- `web-token` command with `web-key` alias, so the active dashboard token
+  can be displayed on demand instead of being scraped out of container logs.
+- `src/holon_coherence/commands/web_token.py` (`resolve_web_password` / `save_web_token`) persists the token and is
+  wired into `commands/start.py:28,533,569`.
+- `src/holon_coherence/commands/docker_ops.py:290-293` -- status output prints the tokenised access URL
+  `http://127.0.0.1:<web_port>/?token=...` after resolving the published port.
+
+Related follow-up: Bean 0129 extends this by exposing the plain `mitmweb` UI by default and printing every published
+endpoint from `status` and `metrics`.

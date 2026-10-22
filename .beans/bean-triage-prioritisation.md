@@ -1,20 +1,20 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-10-20 07:39:09 UTC
+**Last Updated:** 2026-10-22 00:34:55 UTC
 
 ## Executive Summary
 
-Since the previous triage checkpoint on 2026-10-03, the Holon ecosystem has progressed through automated Holon flow
+Since the previous triage checkpoint on 2026-10-20, the Holon ecosystem has progressed through automated Holon flow
 cycles, multi-agent consensus review loops, and infrastructure hardening.
 
-- **Total Tracked Beans**: 129 (excluding template)
-- **Completed**: 126 (97.7%)
-- **Scrapped / Superseded**: 2 (1.6%)
-- **Active / Todo**: 1 (0.8%)
+- **Total Tracked Beans**: 133 (excluding template)
+- **Completed**: 128 (96.2%)
+- **Scrapped / Superseded**: 2 (1.5%)
+- **Active / Todo**: 3 (2.3%)
 
 ---
 
-## Key Milestones Completed (Beans 0080 – 0127)
+## Key Milestones Completed (Beans 0080 – 0131)
 
 1. **Holon Flow and Automation Engine**:
    - `0084`: Fixed CI check name collisions in review gates.
@@ -23,7 +23,8 @@ cycles, multi-agent consensus review loops, and infrastructure hardening.
    - `0093`: Atomic ledger locking with exponential backoff and `flock`.
    - `0094`: Checkpoint schema versioning and automated state migration.
 2. **Action Knowledge Base and Wisdom (Bean 0052 / PR #78)**:
-   - Full integration of SQLite FTS5 inverted index and discrete action ledger (`actions.jsonl`).
+   - Full integration of the SQLite FTS5 inverted index over the canonical `executions.jsonl` ledger (the auxiliary
+     `actions.jsonl` was later retired by Bean 0123).
    - Pre-action wisdom consult (`holon consult`) across intent, planning, execution, and review stages.
    - Statistical Wilson score promotion ladder and deterministic failure veto engine.
 3. **Multi-Agent Review Loop and Hygiene (PR #52)**:
@@ -68,18 +69,37 @@ cycles, multi-agent consensus review loops, and infrastructure hardening.
    - `0125`: Australian English spelling hygiene across documentation and codebase comments.
    - `0126`: Enforced unprivileged Docker execution via `--cap-drop=ALL` with selective capability drops.
    - `0127`: Hardened `LedgerLock` concurrency file locking with exponential backoff and timeouts.
+10. **Documentation Gap Remediation and Container `gh` Availability (Beans 0128 and 0131 / PR #87 & PR #88)**:
+    - `0128`: Closed documentation drift across `holon-agentic-coder` (PR #87) and the harness, so flow stage, ledger,
+      and worktree instructions match the implemented behaviour.
+    - `0131`: Installed the GitHub CLI into `holon-base` so every agent image and the Stage 4 review-loop container can
+      post consensus reviews, plus container availability tests (PR #88, Stage 5 calibrated).
+11. **Proxy Cold-Start Readiness and Agent Runner Tests (Bean 0130 / holon-coherence PR #26)**:
+    - Replaced the fixed-sleep readiness probe with HTTP readiness polling, deduplicated the proxy `chmod` handling,
+      routed readiness probes around the proxy, and added agent runner integration tests.
+    - Traversed all 5 Holon flow stages and passed unanimous 3/3 ensemble consensus at iteration 4; residual nits were
+      deferred to Beans 0132 and 0133 instead of being dropped.
 
 ---
 
 ## Active Beans Triage and Prioritisation Matrix
 
-| Priority | Status | Impact | Sizing | Bean # | Title                                                                     | Domain          | Dependencies / Notes                                                                                             |
-| :------- | :----- | :----: | :----: | :----: | :------------------------------------------------------------------------ | :-------------- | :--------------------------------------------------------------------------------------------------------------- |
-| **P1**   | todo   | Medium |   M    |  0129  | Expose plain mitmweb web interface to inspect live requests and responses | CLI / Telemetry | `holon-coherence` serves as the network optimization proxy and telemetry gateway, intercepting LLM API calls for |
+| Priority | Status | Impact | Sizing | Bean # | Title                                                                         | Domain              | Dependencies / Notes                                                                                                                                                                                                        |
+| :------- | :----- | :----: | :----: | :----: | :---------------------------------------------------------------------------- | :------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **P1**   | todo   |  High  |   M    |  0132  | Record stage 4/5 review action entries (ACT-REV/ACT-POST) in executions.jsonl | Ledger / Provenance | Stage 4/5 never append ACT-REV/ACT-FIND/ACT-POST in holon-coherence (0 matches vs 159 in holon-agentic-coder); fix the writer or correct AGENTS.md rule 14. No backfill.                                                    |
+| **P1**   | todo   | Medium |   M    |  0129  | Expose plain mitmweb web interface to inspect live requests and responses     | CLI / Telemetry     | Exposes the plain mitmweb inspection UI by default in holon-coherence start with port fallback, and prints every endpoint (proxy, Coherence dashboard, mitmweb + token) from status, metrics and holon flow --token-reduce. |
+| **P2**   | todo   |  Low   |   S    |  0133  | Use a monotonic clock for the proxy readiness poll deadline                   | CLI / Reliability   | wait_for_proxy_ready() bounds its poll with a wall-clock time.time() deadline while sibling loops use time.monotonic(); NTP slew can stall or short-circuit cold-start readiness.                                           |
 
 ---
 
 ## Recommended Next Execution Sequence
 
-1. **Expose plain mitmweb web interface to inspect live requests and responses (Bean 0129)**:
-   - `holon-coherence` serves as the network optimization proxy and telemetry gateway, intercepting LLM API calls for
+1. **Record stage 4/5 review action entries (ACT-REV/ACT-POST) in executions.jsonl (Bean 0132)**:
+   - Stage 4/5 never append ACT-REV/ACT-FIND/ACT-POST in holon-coherence (0 matches vs 159 in holon-agentic-coder); fix
+     the writer or correct AGENTS.md rule 14. No backfill.
+2. **Expose plain mitmweb web interface to inspect live requests and responses (Bean 0129)**:
+   - Exposes the plain mitmweb inspection UI by default in holon-coherence start with port fallback, and prints every
+     endpoint (proxy, Coherence dashboard, mitmweb + token) from status, metrics and holon flow --token-reduce.
+3. **Use a monotonic clock for the proxy readiness poll deadline (Bean 0133)**:
+   - wait_for_proxy_ready() bounds its poll with a wall-clock time.time() deadline while sibling loops use
+     time.monotonic(); NTP slew can stall or short-circuit cold-start readiness.

@@ -61,3 +61,25 @@ After running the generator, always format markdown files with Prettier:
 ```bash
 npx prettier --write ".beans/bean-triage-prioritisation.md"
 ```
+
+### Generator Maintenance (Required, Not Optional)
+
+`scripts/prioritise_beans.py` carries the Executive Summary lead-in and the **Key Milestones Completed** narrative as
+inline data. The generator will happily emit that narrative verbatim, so a run that only refreshes the statistics ships
+a stale history. Every run MUST therefore:
+
+1. Add the newly completed beans to the milestones narrative (numbered items 1..N) and bump the
+   `Key Milestones Completed (Beans AAAA – BBBB)` heading range.
+2. Add or refresh an entry in the `overrides` map for each bean that stays active, so its Impact / Sizing / Domain /
+   Notes cells read as a triage judgement rather than a truncated first paragraph.
+3. Nest milestone sub-bullets under items 10 and above with **four** spaces of indent (the ordered-item content column
+   is 4 characters wide from `10.` onwards); three spaces makes Prettier detach the bullets into a loose sibling list.
+4. Reformat the script with the repository's own configuration and run the harness tests:
+   ```bash
+   uvx ruff format .agents/skills/prioritise_beans/scripts/prioritise_beans.py
+   uvx ruff check .agents/skills/prioritise_beans/scripts/prioritise_beans.py
+   uv run pytest -q
+   ```
+
+The `**Last Updated:**` date of the pre-existing document is read back and reported as the previous triage checkpoint,
+so regenerate once per checkpoint — a second run on the same day reports that same day as the previous checkpoint.
