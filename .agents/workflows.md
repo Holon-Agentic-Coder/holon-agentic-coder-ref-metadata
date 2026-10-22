@@ -238,6 +238,11 @@ To maintain clean repository history, follow this Git workflow:
    - Before pushing a branch you hand-authored, you **MUST squash all commits** on it relative to the target branch into
      a **single commit** (e.g., relative to `main` in this metadata repository, `holon-agentic-coder`, or
      `holon-coherence`). Such a branch should only ever contain exactly **one commit** differing from the target branch.
+   - **Timing: squash once, at the very end, immediately before the push that finishes the task -- never mid-task.**
+     While work is in progress, keep committing and push as you go; the maintainer checkpoints work in progress as
+     `docs: wip` commits and that granularity is theirs to keep. Never `reset`, `amend`, `rebase` or squash over commits
+     you did not author unless the maintainer explicitly asks: a mid-task squash destroys their checkpoints, rewrites
+     shared history, and can capture another session's in-flight edits under your commit message.
    - **Branches the Holon flow or a review loop pushes are exempt.** `I-...`/`P-...`/`E-...` branches, and the branch a
      `pr-review-loop` run drives, carry one commit per intent, plan, execution, review, or resolution pass, and those
      commits are the audited provenance record: never squash, rewrite, or force-push them. Squashing mid-loop would
