@@ -11,7 +11,7 @@ tags:
   - observability
   - devex
 created_at: 2026-10-20T07:11:00Z
-updated_at: 2026-10-20T07:11:00Z
+updated_at: 2026-10-22T09:35:00Z
 ---
 
 Expose the plain `mitmweb` interface in `holon-coherence` so developers and agents can inspect actual intercepted

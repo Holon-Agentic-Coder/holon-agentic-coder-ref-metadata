@@ -13,7 +13,7 @@ tags:
   - holon-coherence
   - holon-agentic-coder
 created_at: 2026-10-22T09:45:00Z
-updated_at: 2026-10-22T00:30:00Z
+updated_at: 2026-10-22T09:35:00Z
 ---
 
 ## Problem
@@ -89,6 +89,10 @@ cut from `origin/main` at `3bef6f7`, own virtualenv from `uv sync --group dev`).
 - **Related findings logged while attempting this bean:** Bean 0134 (`holon flow` dispatches no role agent and opened
   the now-closed empty PR #89), Bean 0135 (fabricated `CONFLICTING`/`DIRTY` verdict from a missing ref), Bean 0136 (live
   GitHub token printed in CLI command echoes).
+- **GitHub side is verified working as of 2026-10-22 09:30 UTC**, so only the coding-agent credential gates a retry: the
+  maintainer rotated the `gh` token (Bean 0136), `gh api user` and the repository API round-trip succeed, and PR #89 is
+  confirmed `CLOSED`. `holon` needs no reconfiguration because `find_github_token()` (`cli.py:125-138`) falls back to
+  `gh auth token` at call time rather than caching a value.
 - **To resume** once a runner works: in the worktree above run
   `holon plan "I-1792635019-flow-stage-4-5-ledger-action-entries/_" --agent <runner> --model <model> --repo-dir .`, then
   `holon execute`, `holon review-loop <execution_branch> --auto-pr`, and `holon calibrate` as the pre-merge stage.

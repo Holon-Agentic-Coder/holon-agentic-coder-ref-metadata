@@ -11,7 +11,7 @@ tags:
   - time
   - robustness
 created_at: 2026-10-22T00:30:00Z
-updated_at: 2026-10-22T00:30:00Z
+updated_at: 2026-10-22T09:35:00Z
 ---
 
 ## Problem

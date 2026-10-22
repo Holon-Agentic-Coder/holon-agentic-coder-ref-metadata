@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-10-22 00:34:55 UTC
+**Last Updated:** 2026-10-22 09:35:00 UTC
 
 ## Executive Summary
 
@@ -9,7 +9,7 @@ cycles, multi-agent consensus review loops, and infrastructure hardening.
 
 - **Total Tracked Beans**: 140 (excluding template)
 - **Completed**: 128 (91.4%)
-- **Scrapped / Superseded**: 2 (1.5%)
+- **Scrapped / Superseded**: 2 (1.4%)
 - **Active / Todo**: 10 (7.1%)
 
 ---
@@ -79,32 +79,53 @@ cycles, multi-agent consensus review loops, and infrastructure hardening.
       routed readiness probes around the proxy, and added agent runner integration tests.
     - Traversed all 5 Holon flow stages and passed unanimous 3/3 ensemble consensus at iteration 4; residual nits were
       deferred to Beans 0132 and 0133 instead of being dropped.
+12. **Ecosystem install refresh and flow-integrity audit (2026-10-22)**:
+    - Rebuilt all nine container images via Buildx Bake and reinstalled `holon` / `holon-coherence` editable from
+      `origin/main` (`holon-agentic-coder` `3bef6f7`, `holon-coherence` `29b7e50`).
+    - Attempted the three remaining beans through the Holon flow and recorded why they could not complete: Bean 0134
+      (the unified `holon flow` runner dispatches no role agent and opened the now-closed empty PR #89), Bean 0135
+      (mergeability verdict fabricated from a missing ref), and a full inventory of unusable agent runners.
+    - Logged Beans 0137-0140 against the root causes: hard-coded default runner, single-response artifact authoring,
+      absent turn/stage budgets, and an undisclosed sandbox output ceiling. Declared `maxTokens` explicitly in the host
+      pi config so the cap is visible.
+    - Contained the credential leak in CLI command echoes (Bean 0136): token rotated, old value verified rejected.
 
 ---
 
 ## Active Beans Triage and Prioritisation Matrix
 
-| Priority | Status      | Impact | Sizing | Bean # | Title                                                                         | Domain              | Dependencies / Notes                                                                                                                                                                                  |
-| :------- | :---------- | :----: | :----: | :----: | :---------------------------------------------------------------------------- | :------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **P1**   | in-progress |  High  |   M    |  0132  | Record stage 4/5 review action entries (ACT-REV/ACT-POST) in executions.jsonl | Ledger / Provenance | Stage 1 done (`I-1792635019-.../_` pushed). Stage 2 blocked: no agent runner on this host has usable credentials.                                                                                     |
-| **P1**   | todo        |  High  |   M    |  0134  | `holon flow` dispatches no role agent and produces empty-diff PRs             | Holon Flow / CLI    | Runner orchestrates branches/ledger/PR/review/calibration but authors nothing (stub plan, empty execute commit). Caused empty PR #89 (closed). Blocks the documented runner equivalence in AGENTS.md. |
-| **P1**   | todo        |  High  |   S    |  0136  | Redact the GitHub token printed in CLI command echoes                         | Security / Logs     | `holon plan`/`execute` echo `GITHUB_TOKEN` and `git clone https://x-access-token:<tok>@...`. Rotate the exposed `gho_...` token first; then reuse `redact_text()`.                                    |
-| **P1**   | todo        |  High  |   M    |  0129  | Expose plain mitmweb web interface to inspect live requests and responses     | CLI / Telemetry     | Bundled with 0133 in `todo/intent-0129-0133-coherence-mitmweb-monotonic.json`; worktree prepared. Blocked on runner credentials.                                                                      |
-| **P2**   | todo        |  Low   |   S    |  0133  | Use a monotonic clock for the proxy readiness poll deadline                   | CLI / Reliability   | Bundled with 0129. `start.py:154`/`:159` still use `time.time()` on `origin/main` (`29b7e50`).                                                                                                        |
-| **P2**   | todo        | Medium |   S    |  0135  | `check_pr_mergeability` reports CONFLICTING/DIRTY for a missing branch ref    | Review Loop / Git   | `git merge-tree --write-tree <missing>` exits 1 and is read as a conflict, producing a false "CI SIGNAL SUPPRESSED" halt.                                                                             |
+| Priority | Status      | Impact | Sizing | Bean # | Title                                                                         | Domain              | Dependencies / Notes                                                                                                                                      |
+| :------- | :---------- | :----: | :----: | :----- | :---------------------------------------------------------------------------- | :------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **P1**   | in-progress |  High  |   M    | 0132   | Record stage 4/5 review action entries (ACT-REV/ACT-POST) in executions.jsonl | Ledger / Provenance | Stage 1 pushed (`I-1792635019-.../_`); Stage 2 blocked purely on a coding-agent credential -- GitHub side verified working after the Bean 0136 rotation.  |
+| **P1**   | todo        |  High  |   M    | 0134   | `holon flow` dispatches no role agent and produces empty-diff PRs             | Holon Flow / CLI    | Stub plan + empty execute commit; opened empty PR #89 (closed). Breaks the runner/manual equivalence AGENTS.md advertises.                                |
+| **P1**   | todo        |  High  |   S    | 0136   | Redact the GitHub token printed in CLI command echoes                         | Security / Logs     | Token rotated and old value verified `401` on 2026-10-22; **code fix outstanding** -- every `holon plan`/`execute` re-leaks the current token.            |
+| **P1**   | todo        |  High  |   M    | 0137   | Default runner must be inherited from the harness agent                       | CLI / Agent Runner  | `antigravity-agent` hard-coded at `cli.py:1159/1189/1391/1777` and `flow.py:164/232/305`; needs precedence + `HOLON_AGENT` + pre-flight credential probe. |
+| **P1**   | todo        |  High  |   M    | 0138   | Write plans/ and execution artifacts incrementally, not in one final response | Planner / Prompts   | `planner.py` captures one `pi -p` stdout; a `stopReason=length` final message (cap measured at 16384 output tokens) discarded a 17-minute run.            |
+| **P1**   | todo        |  High  |   M    | 0139   | Per-turn and per-stage wall-clock budgets with stall detection                | Reliability         | Proposal: turn `X=5 min`, stall 90s; stage ceilings 10/35/45/15/10 min sized from merged-run commit archaeology.                                          |
+| **P1**   | todo        |  High  |   M    | 0129   | Expose plain mitmweb web interface to inspect live requests and responses     | CLI / Telemetry     | Bundled with 0133 in `todo/intent-0129-0133-coherence-mitmweb-monotonic.json`; worktree `flow-0129-0133-coherence-mitmweb-monotonic-clock` prepared.      |
+| **P2**   | todo        | Medium |   S    | 0140   | `local_llm` must carry an explicit `maxTokens` into the sandbox config        | Sandbox / Local LLM | The generator copies host entries verbatim, so an omitted `maxTokens` becomes an undisclosed cap in the container. Host config now declares 16384.        |
+| **P2**   | todo        | Medium |   S    | 0135   | `check_pr_mergeability` reports CONFLICTING/DIRTY for a missing branch ref    | Review Loop / Git   | `git merge-tree --write-tree <missing>` exits 1 and is read as a conflict, producing a false "CI SIGNAL SUPPRESSED" halt.                                 |
+| **P2**   | todo        |  Low   |   S    | 0133   | Use a monotonic clock for the proxy readiness poll deadline                   | CLI / Reliability   | Bundled with 0129; `start.py:154`/`:159` still use `time.time()` at `29b7e50`.                                                                            |
 
 ---
 
 ## Recommended Next Execution Sequence
 
-**Gate for all flow work:** no agent runner on this host can currently execute a flow stage -- `antigravity-agent` is at
-individual quota (resets ~2026-10-24), `claude` is not logged in, `codex` has a used refresh token, `opencode` has an
-expired key, and `pi-agent` on the host-local vMLX gateway died on a single-response output cap (Bean 0138/0140). The
-`maxTokens` field is now declared explicitly in `~/.pi/agent/models.json`, which makes the cap visible but does not
-raise it, so the runner choice still has to come from a re-authenticated or non-exhausted credential.
+**GitHub side is healthy as of 2026-10-22 09:30 UTC.** The `gh` token Bean 0136 leaked was rotated by the maintainer and
+verified superseded (old value now returns `401 Bad credentials`; `gh api user` and repository reads succeed), PR #89 is
+`CLOSED`, and `holon` needs no reconfiguration since `find_github_token()` (`cli.py:125-138`) calls `gh auth token` per
+run. Only the scopes were left as-is (`admin:public_key` still present -- optional next refresh:
+`gh auth refresh --scopes repo,read:org,gist`).
 
-1. **Rotate and re-authenticate (maintainer)**: `gh auth refresh --scopes repo,read:org,gist` to rotate the token that
-   Bean 0136 leaked and to drop `admin:public_key`, then re-auth one coding-agent runner.
+**Remaining gate:** no agent runner on this host can execute a flow stage -- `antigravity-agent` is at individual quota
+(resets ~2026-10-24), `claude` is not logged in, `codex` has a used refresh token, `opencode` has an expired key, and
+`pi-agent` on the host-local vMLX gateway died on a single-response output cap (Beans 0138/0140). `maxTokens` is now
+declared explicitly in `~/.pi/agent/models.json` (16384, the value pi already sent), which makes the cap visible but
+does not raise it, so the runner choice must still come from a re-authenticated or non-exhausted credential.
+
+1. **Re-authenticate one coding-agent runner (maintainer)**: `claude` login, or `codex` logout/login to clear the used
+   refresh token, or a fresh OpenCode key -- any one of these unblocks Bean 0132 immediately. The `gh` token step is
+   already complete.
 2. **Bean 0137**: inherit the runner from the harness agent and add the pre-flight credential probe, so an unusable
    runner fails in seconds instead of minutes and the ledger names the runner that actually authored the work.
 3. **Beans 0138 + 0139 + 0140** (one coherence-independent package on `holon-agentic-coder`): incremental artifact

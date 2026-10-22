@@ -11,7 +11,7 @@ tags:
   - redaction
   - logs
 created_at: 2026-10-22T02:40:00Z
-updated_at: 2026-10-22T02:40:00Z
+updated_at: 2026-10-22T09:35:00Z
 ---
 
 ## Problem
@@ -58,12 +58,21 @@ design choice.
 - `uv run pytest` passes, including the new no-leak assertions.
 - Existing redaction behaviour for ledger and wire-log records is unchanged.
 
-## Immediate action for the maintainer (not a code change)
+## Containment status (2026-10-22) -- maintainer action DONE, code fix outstanding
 
-The token that was printed on 2026-10-22 (`gho_...`, GitHub OAuth token used by `gh` on this host) should be treated as
-disclosed to local logs and agent transcripts and **rotated**: `gh auth refresh-token` (or revoke the OAuth grant at
-<https://github.com/settings/applications>) and then re-run `gh auth login`. Local log copies under `/tmp` have already
-been scrubbed; rotation is the only real remediation.
+- **Rotated.** The credential was refreshed by the maintainer through `gh auth refresh` (device flow). Agents cannot do
+  this step: it needs a real TTY, a browser and the keyring. A pty driver stalls on the OSC-11 background-colour query
+  before gh ever prints the one-time code, so this stays a human action.
+- **Supersession verified.** The value that was printed on 2026-10-22 now fails with `HTTP 401` /
+  `{"message":"Bad credentials"}` against `GET /user`, while the current token authenticates normally (`gh api user`
+  resolves the account and the core rate limit reads 4998/5000). The stored credential record was rewritten the same
+  day, and the `/tmp` log copies have been scrubbed.
+- **Scopes were NOT reduced.** `gh auth refresh` keeps previously added scopes when none are specified, so the
+  credential still carries `admin:public_key`, which no flow stage needs. Optional hardening at the next refresh:
+  `gh auth refresh --scopes repo,read:org,gist` (add `workflow` only if a flow must push `.github/`).
+- **Why this bean stays open:** rotation is containment only. Until the echoes are redacted, every `holon plan` /
+  `holon execute` run discloses the _current_ token, so the exposure reopens on the first run and the same rotation
+  cycle repeats.
 
 ## Source
 
