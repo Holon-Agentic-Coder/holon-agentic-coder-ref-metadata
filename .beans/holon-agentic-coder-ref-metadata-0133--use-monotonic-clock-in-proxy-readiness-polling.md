@@ -56,3 +56,10 @@ unchanged context at merge-base `d8e34d9`). The loop adjudication recorded it as
 covers only NIT-6b (the `executions.jsonl` stage-4/5 action-record gap), so the clock finding had no tracking bean. This
 bean closes that bookkeeping gap; the ruling recorded in `.subagent/holon-coherence_pr26_coordination.json`
 (`rejected_suggestions`, `adjudicated_findings`) is the primary source.
+
+## Execution status (2026-10-22)
+
+Not started, blocked by the same unusable agent runners recorded in Bean 0132. The change is prepared: it is bundled
+with Bean 0129 in `todo/intent-0129-0133-coherence-mitmweb-monotonic.json`, to be run in
+`apps/holon-coherence/flow-0129-0133-coherence-mitmweb-monotonic-clock`. Target lines on `origin/main` (`29b7e50`) are
+confirmed still present at `src/holon_coherence/commands/start.py:154` and `:159`.

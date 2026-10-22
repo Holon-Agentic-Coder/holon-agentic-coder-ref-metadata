@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0132
 title: "Record stage 4/5 review action entries (ACT-REV/ACT-POST) in executions.jsonl"
-status: todo
+status: in-progress
 type: bug
 priority: medium
 tags:
@@ -66,3 +66,29 @@ audited target-repo ledger from the host worktree would itself violate the sole-
   `ACT-REV|ACT-POST|ACT-FIND` in `holon-knowledge/ledger/executions.jsonl` returns `0` matches, while the same query on
   `holon-agentic-coder` `origin/main` returns `159` matches. The gap is per-repository, so the fix must be verified in
   both target repositories rather than assumed fixed upstream.
+
+## Progress (2026-10-22) -- blocked at Stage 2
+
+Work is in `apps/holon-agentic-coder/flow-0132-stage-4-5-ledger-actions` (branch `flow/0132-stage-4-5-ledger-actions`,
+cut from `origin/main` at `3bef6f7`, own virtualenv from `uv sync --group dev`). Intent file:
+`todo/intent-0132-stage-4-5-ledger-actions.json`.
+
+- **Stage 1 (Intent): done.** `holon intent` created and pushed `I-1792635019-flow-stage-4-5-ledger-action-entries/_`
+  together with its `intents.jsonl` entry.
+- **Stage 2 (Plan): blocked, no usable agent runner.** Every runner on this host failed:
+  - `antigravity-agent` (default): `RESOURCE_EXHAUSTED (code 429) individual quota reached`, resets roughly 47h after
+    the attempt.
+  - `claude-agent`: host CLI reports `Not logged in`.
+  - `codex-agent`: `refresh token was already used ... please log out and sign in again` (401).
+  - `opencode-agent`: `This API key has expired`.
+  - `pi-agent` on the host-local vMLX gateway (`HOLON_LOCAL_LLM=1`, `HOLON_HOST_LOCAL_HOSTS=localhost:8081`, model
+    `vmlx/JANGQ-AI/Qwen3.8-Flash-Next-JANG_4M`): the planner container ran 17 minutes and then failed with
+    `Response was truncated: the model reached its output token limit`. The `vmlx` entry in `~/.pi/agent/models.json`
+    declares `contextWindow` but no `maxTokens`, and a short control prompt on the same model succeeds, so the cap bites
+    at planner-length outputs.
+- **Related findings logged while attempting this bean:** Bean 0134 (`holon flow` dispatches no role agent and opened
+  the now-closed empty PR #89), Bean 0135 (fabricated `CONFLICTING`/`DIRTY` verdict from a missing ref), Bean 0136 (live
+  GitHub token printed in CLI command echoes).
+- **To resume** once a runner works: in the worktree above run
+  `holon plan "I-1792635019-flow-stage-4-5-ledger-action-entries/_" --agent <runner> --model <model> --repo-dir .`, then
+  `holon execute`, `holon review-loop <execution_branch> --auto-pr`, and `holon calibrate` as the pre-merge stage.

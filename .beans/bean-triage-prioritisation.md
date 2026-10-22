@@ -7,10 +7,10 @@
 Since the previous triage checkpoint on 2026-10-20, the Holon ecosystem has progressed through automated Holon flow
 cycles, multi-agent consensus review loops, and infrastructure hardening.
 
-- **Total Tracked Beans**: 133 (excluding template)
-- **Completed**: 128 (96.2%)
+- **Total Tracked Beans**: 136 (excluding template)
+- **Completed**: 128 (94.1%)
 - **Scrapped / Superseded**: 2 (1.5%)
-- **Active / Todo**: 3 (2.3%)
+- **Active / Todo**: 6 (4.4%)
 
 ---
 
@@ -84,22 +84,33 @@ cycles, multi-agent consensus review loops, and infrastructure hardening.
 
 ## Active Beans Triage and Prioritisation Matrix
 
-| Priority | Status | Impact | Sizing | Bean # | Title                                                                         | Domain              | Dependencies / Notes                                                                                                                                                                                                        |
-| :------- | :----- | :----: | :----: | :----: | :---------------------------------------------------------------------------- | :------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **P1**   | todo   |  High  |   M    |  0132  | Record stage 4/5 review action entries (ACT-REV/ACT-POST) in executions.jsonl | Ledger / Provenance | Stage 4/5 never append ACT-REV/ACT-FIND/ACT-POST in holon-coherence (0 matches vs 159 in holon-agentic-coder); fix the writer or correct AGENTS.md rule 14. No backfill.                                                    |
-| **P1**   | todo   | Medium |   M    |  0129  | Expose plain mitmweb web interface to inspect live requests and responses     | CLI / Telemetry     | Exposes the plain mitmweb inspection UI by default in holon-coherence start with port fallback, and prints every endpoint (proxy, Coherence dashboard, mitmweb + token) from status, metrics and holon flow --token-reduce. |
-| **P2**   | todo   |  Low   |   S    |  0133  | Use a monotonic clock for the proxy readiness poll deadline                   | CLI / Reliability   | wait_for_proxy_ready() bounds its poll with a wall-clock time.time() deadline while sibling loops use time.monotonic(); NTP slew can stall or short-circuit cold-start readiness.                                           |
+| Priority | Status      | Impact | Sizing | Bean # | Title                                                                         | Domain              | Dependencies / Notes                                                                                                                                                                                  |
+| :------- | :---------- | :----: | :----: | :----: | :---------------------------------------------------------------------------- | :------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **P1**   | in-progress |  High  |   M    |  0132  | Record stage 4/5 review action entries (ACT-REV/ACT-POST) in executions.jsonl | Ledger / Provenance | Stage 1 done (`I-1792635019-.../_` pushed). Stage 2 blocked: no agent runner on this host has usable credentials.                                                                                     |
+| **P1**   | todo        |  High  |   M    |  0134  | `holon flow` dispatches no role agent and produces empty-diff PRs             | Holon Flow / CLI    | Runner orchestrates branches/ledger/PR/review/calibration but authors nothing (stub plan, empty execute commit). Caused empty PR #89 (closed). Blocks the documented runner equivalence in AGENTS.md. |
+| **P1**   | todo        |  High  |   S    |  0136  | Redact the GitHub token printed in CLI command echoes                         | Security / Logs     | `holon plan`/`execute` echo `GITHUB_TOKEN` and `git clone https://x-access-token:<tok>@...`. Rotate the exposed `gho_...` token first; then reuse `redact_text()`.                                    |
+| **P1**   | todo        |  High  |   M    |  0129  | Expose plain mitmweb web interface to inspect live requests and responses     | CLI / Telemetry     | Bundled with 0133 in `todo/intent-0129-0133-coherence-mitmweb-monotonic.json`; worktree prepared. Blocked on runner credentials.                                                                      |
+| **P2**   | todo        |  Low   |   S    |  0133  | Use a monotonic clock for the proxy readiness poll deadline                   | CLI / Reliability   | Bundled with 0129. `start.py:154`/`:159` still use `time.time()` on `origin/main` (`29b7e50`).                                                                                                        |
+| **P2**   | todo        | Medium |   S    |  0135  | `check_pr_mergeability` reports CONFLICTING/DIRTY for a missing branch ref    | Review Loop / Git   | `git merge-tree --write-tree <missing>` exits 1 and is read as a conflict, producing a false "CI SIGNAL SUPPRESSED" halt.                                                                             |
 
 ---
 
 ## Recommended Next Execution Sequence
 
-1. **Record stage 4/5 review action entries (ACT-REV/ACT-POST) in executions.jsonl (Bean 0132)**:
-   - Stage 4/5 never append ACT-REV/ACT-FIND/ACT-POST in holon-coherence (0 matches vs 159 in holon-agentic-coder); fix
-     the writer or correct AGENTS.md rule 14. No backfill.
-2. **Expose plain mitmweb web interface to inspect live requests and responses (Bean 0129)**:
-   - Exposes the plain mitmweb inspection UI by default in holon-coherence start with port fallback, and prints every
-     endpoint (proxy, Coherence dashboard, mitmweb + token) from status, metrics and holon flow --token-reduce.
-3. **Use a monotonic clock for the proxy readiness poll deadline (Bean 0133)**:
-   - wait_for_proxy_ready() bounds its poll with a wall-clock time.time() deadline while sibling loops use
-     time.monotonic(); NTP slew can stall or short-circuit cold-start readiness.
+**Gate for all flow work:** no agent runner on this host can currently execute a flow stage. `antigravity-agent` is at
+individual quota (resets 2026-10-24), `claude` is not logged in, `codex` has a used refresh token (401), `opencode` has
+an expired API key, and `pi-agent` against the host-local vMLX gateway truncates planner-length output because the
+`vmlx` entry in `~/.pi/agent/models.json` sets `contextWindow` but no `maxTokens`. Unblock by re-authenticating or
+rotating one runner's credential, or by raising the local model's output cap, then resume stage by stage (not via
+`holon flow`, see Bean 0134).
+
+1. **Rotate the disclosed GitHub token (Bean 0136, maintainer action)**: `gh auth refresh-token` or revoke the OAuth
+   grant, then re-auth the runner chosen above.
+2. **Bean 0132**: resume at Stage 2 in `apps/holon-agentic-coder/flow-0132-stage-4-5-ledger-actions` against
+   `I-1792635019-flow-stage-4-5-ledger-action-entries/_`, then execute, review-loop to consensus, and calibrate.
+3. **Bean 0134**: make `holon flow` dispatch role agents or refuse to run authoring stages, and fail an empty execution
+   diff instead of recording success; this restores the equivalence AGENTS.md advertises.
+4. **Beans 0129 + 0133**: run the prepared combined coherence intent in
+   `apps/holon-coherence/flow-0129-0133-coherence-mitmweb-monotonic-clock`; its ledger diff also supplies the empirical
+   coherence-side verification Bean 0132 asks for.
+5. **Bean 0135**: fix the missing-ref mergeability verdict so review-loop halts name the real cause.
