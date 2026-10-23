@@ -137,14 +137,21 @@ When you are spawned or begin a new session, follow these steps sequentially:
    committing. In nested target worktrees (`apps/<project>/<branch>`), format **only the changed files** using the
    target repository's configuration (or `--no-config` if none exists) to prevent resolving the harness's
    `.prettierrc.json` and reflowing unrelated files. Always verify `git diff --stat` before committing.
-7. **Squash, Then Push Your Own Branch Freely**: Applies to branches you hand-author -- harness branches in this
-   metadata repo and any supporting branch you cut for the flow. Ensure all commits on such a branch are squashed into a
-   single commit relative to the `main` branch. **A branch a `pr-review-loop` run drives is exempt**: it pushes once per
-   iteration and is never squashed, rewritten, or force-pushed (rule 4 in [.agents/workflows.md](.agents/workflows.md)).
-   Pushing **your own** feature branch is allowed autonomously, without waiting for instruction:
-   `git push -u origin {branch}`, and `--force-with-lease` when you rewrite history on it. The flow pushes its own
-   `I-...`/`P-...`/`E-...` branches; never squash, rewrite, or force-push those, since they are the audited provenance
-   record.
+7. **Squash Once, at the Very End, Then Push Your Own Branch Freely**: Applies to branches you hand-author -- harness
+   branches in this metadata repo and any supporting branch you cut for the flow. Ensure all commits on such a branch
+   are squashed into a single commit relative to the `main` branch, but **squash exactly once, immediately before the
+   push that finishes the task -- never mid-task**. While work is in progress, add new commits and push them as they
+   are. Mid-task history is the maintainer's checkpoint surface: they commit as `docs: wip` as they go, and those
+   commits are theirs to keep, split or discard. Never `reset`, `amend`, `rebase` or squash over commits you did not
+   author (including `docs: wip` checkpoints) unless the maintainer explicitly asks -- a squash swallows their
+   granularity and can capture another session's in-flight work under your message. Take the path list before any reset,
+   since after the reset the merge base _is_ `HEAD` and the diff that produced the list prints nothing (rule 4 in
+   [.agents/workflows.md](.agents/workflows.md)). **A branch a `pr-review-loop` run drives is exempt**: it pushes once
+   per iteration and is never squashed, rewritten, or force-pushed (rule 4 in
+   [.agents/workflows.md](.agents/workflows.md)). Pushing **your own** feature branch is allowed autonomously, without
+   waiting for instruction: `git push -u origin {branch}`, and `--force-with-lease` when you rewrite history on it. The
+   flow pushes its own `I-...`/`P-...`/`E-...` branches; never squash, rewrite, or force-push those, since they are the
+   audited provenance record.
    - Never push to `main` (or any branch you do not own), never force-push a shared branch, and never push from a `main`
      worktree.
    - For hand-authored or non-flow work, Pull Request _creation_ stays with the human maintainer unless the user

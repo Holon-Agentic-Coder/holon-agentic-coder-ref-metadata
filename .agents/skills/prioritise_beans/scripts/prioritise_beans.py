@@ -125,6 +125,17 @@ def extract_bean_metadata(filepath: str) -> dict[str, Any] | None:
     }
 
 
+def read_previous_checkpoint(output_path: str) -> str | None:
+    """Read the ``**Last Updated:**`` date from an existing triage document, if present."""
+    try:
+        with open(output_path, encoding="utf-8") as f:
+            head = f.read(4096)
+    except OSError:
+        return None
+    m = re.search(r"\*\*Last Updated:\*\*\s*(\d{4}-\d{2}-\d{2})", head)
+    return m.group(1) if m else None
+
+
 def scan_beans(beans_dir: str) -> tuple[list[dict[str, Any]], dict[str, int]]:
     """Scan all beans in directory, returning active list and count statistics."""
     files = sorted(glob.glob(os.path.join(beans_dir, "holon-agentic-coder-ref-metadata-*.md")))
@@ -135,6 +146,37 @@ def scan_beans(beans_dir: str) -> tuple[list[dict[str, Any]], dict[str, int]]:
 
     # Map of custom manual overrides for existing active beans to preserve triage depth
     overrides = {
+        "0129": {
+            "priority": "**P1**",
+            "impact": "Medium",
+            "sizing": "M",
+            "domain": "CLI / Telemetry",
+            "notes": (
+                "Exposes the plain mitmweb inspection UI by default in holon-coherence start with port "
+                "fallback, and prints every endpoint (proxy, Coherence dashboard, mitmweb + token) from "
+                "status, metrics and holon flow --token-reduce."
+            ),
+        },
+        "0132": {
+            "priority": "**P1**",
+            "impact": "High",
+            "sizing": "M",
+            "domain": "Ledger / Provenance",
+            "notes": (
+                "Stage 4/5 never append ACT-REV/ACT-FIND/ACT-POST in holon-coherence (0 matches vs 159 in "
+                "holon-agentic-coder); fix the writer or correct AGENTS.md rule 14. No backfill."
+            ),
+        },
+        "0133": {
+            "priority": "**P2**",
+            "impact": "Low",
+            "sizing": "S",
+            "domain": "CLI / Reliability",
+            "notes": (
+                "wait_for_proxy_ready() bounds its poll with a wall-clock time.time() deadline while sibling "
+                "loops use time.monotonic(); NTP slew can stall or short-circuit cold-start readiness."
+            ),
+        },
         "0116": {
             "priority": "**P1**",
             "impact": "Medium",
@@ -284,7 +326,11 @@ def scan_beans(beans_dir: str) -> tuple[list[dict[str, Any]], dict[str, int]]:
 
 
 def generate_triage_document(
-    active_beans: list[dict[str, Any]], stats: dict[str, int], date_str: str, timestamp_str: str | None = None
+    active_beans: list[dict[str, Any]],
+    stats: dict[str, int],
+    date_str: str,
+    timestamp_str: str | None = None,
+    previous_checkpoint: str | None = None,
 ) -> str:
     """Generate Markdown document adhering strictly to the ecosystem triage format."""
     total = stats["total_tracked"]
@@ -306,8 +352,13 @@ def generate_triage_document(
         "## Executive Summary",
         "",
         (
-            "Since the previous triage checkpoint on 2026-10-03, the Holon ecosystem has progressed through "
-            "automated Holon flow cycles, multi-agent consensus review loops, and infrastructure hardening."
+            f"Since the previous triage checkpoint on {previous_checkpoint}, the Holon ecosystem has progressed "
+            "through automated Holon flow cycles, multi-agent consensus review loops, and infrastructure hardening."
+            if previous_checkpoint
+            else (
+                "As of this checkpoint, the Holon ecosystem has progressed through automated Holon flow cycles, "
+                "multi-agent consensus review loops, and infrastructure hardening."
+            )
         ),
         "",
         f"- **Total Tracked Beans**: {total} (excluding template)",
@@ -317,7 +368,7 @@ def generate_triage_document(
         "",
         "---",
         "",
-        "## Key Milestones Completed (Beans 0080 – 0127)",
+        "## Key Milestones Completed (Beans 0080 – 0131)",
         "",
         "1. **Holon Flow and Automation Engine**:",
         "   - `0084`: Fixed CI check name collisions in review gates.",
@@ -326,7 +377,10 @@ def generate_triage_document(
         "   - `0093`: Atomic ledger locking with exponential backoff and `flock`.",
         "   - `0094`: Checkpoint schema versioning and automated state migration.",
         "2. **Action Knowledge Base and Wisdom (Bean 0052 / PR #78)**:",
-        "   - Full integration of SQLite FTS5 inverted index and discrete action ledger (`actions.jsonl`).",
+        (
+            "   - Full integration of the SQLite FTS5 inverted index over the canonical `executions.jsonl` ledger "
+            "(the auxiliary `actions.jsonl` was later retired by Bean 0123)."
+        ),
         "   - Pre-action wisdom consult (`holon consult`) across intent, planning, execution, and review stages.",
         "   - Statistical Wilson score promotion ladder and deterministic failure veto engine.",
         "3. **Multi-Agent Review Loop and Hygiene (PR #52)**:",
@@ -403,6 +457,27 @@ def generate_triage_document(
         ("   - `0125`: Australian English spelling hygiene across documentation and codebase comments."),
         ("   - `0126`: Enforced unprivileged Docker execution via `--cap-drop=ALL` with selective capability drops."),
         ("   - `0127`: Hardened `LedgerLock` concurrency file locking with exponential backoff and timeouts."),
+        (
+            "10. **Documentation Gap Remediation and Container `gh` Availability (Beans 0128 and 0131 / PR #87 & "
+            "PR #88)**:"
+        ),
+        (
+            "    - `0128`: Closed documentation drift across `holon-agentic-coder` (PR #87) and the harness, so flow "
+            "stage, ledger, and worktree instructions match the implemented behaviour."
+        ),
+        (
+            "    - `0131`: Installed the GitHub CLI into `holon-base` so every agent image and the Stage 4 review-loop "
+            "container can post consensus reviews, plus container availability tests (PR #88, Stage 5 calibrated)."
+        ),
+        ("11. **Proxy Cold-Start Readiness and Agent Runner Tests (Bean 0130 / holon-coherence PR #26)**:"),
+        (
+            "    - Replaced the fixed-sleep readiness probe with HTTP readiness polling, deduplicated the proxy "
+            "`chmod` handling, routed readiness probes around the proxy, and added agent runner integration tests."
+        ),
+        (
+            "    - Traversed all 5 Holon flow stages and passed unanimous 3/3 ensemble consensus at iteration 4; "
+            "residual nits were deferred to Beans 0132 and 0133 instead of being dropped."
+        ),
         "",
         "---",
         "",
@@ -438,13 +513,9 @@ def generate_triage_document(
                 ),
                 "",
                 (
-                    "- `holon-agentic-coder`: PR #84 (Beans 0118, 0121, 0110, 0105, 0106), PR #85 (Beans 0122, 0123), "
-                    "and PR #86 (Beans 0124–0127) have traversed all 5 Holon flow stages (Stage 4 consensus APPROVED, "
-                    "Stage 5 calibration report included in PR) and are merged into `main`."
-                ),
-                (
-                    "- `holon-coherence`: PR #25 (Beans 0116, 0110, 0105, 0106) has traversed all 5 Holon flow "
-                    "stages (Stage 4 consensus APPROVED, Stage 5 calibration report included in PR)."
+                    "- `holon-agentic-coder` and `holon-coherence`: the most recent flow pull requests have traversed "
+                    "all 5 Holon flow stages (Stage 4 consensus APPROVED, Stage 5 calibration report included in the "
+                    "PR diff); see the Key Milestones section above for the current PR numbers."
                 ),
                 (
                     f"- `holon-agentic-coder-ref-metadata`: All beans up to Bean {total:04d} are "
@@ -452,8 +523,8 @@ def generate_triage_document(
                 ),
                 "",
                 (
-                    "The ecosystem is fully up to date and awaiting manual human maintainer review and merge "
-                    "under Bean 0034."
+                    "The ecosystem backlog is empty and any open pull request awaits manual human maintainer review "
+                    "and merge; agents never merge (AGENTS.md, PR Merging — Human-Only)."
                 ),
                 "",
             ]
@@ -479,14 +550,17 @@ def main() -> int:
     date_str = args.date or datetime.now(UTC).strftime("%Y-%m-%d")
     active_beans, stats = scan_beans(args.beans_dir)
 
-    doc = generate_triage_document(active_beans, stats, date_str)
+    prior_output = args.output or os.path.join(args.beans_dir, "bean-triage-prioritisation.md")
+    doc = generate_triage_document(
+        active_beans, stats, date_str, previous_checkpoint=read_previous_checkpoint(prior_output)
+    )
 
     if args.dry_run:
         print(doc)
         return 0
 
     output_path = args.output or os.path.join(args.beans_dir, "bean-triage-prioritisation.md")
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(doc)
 

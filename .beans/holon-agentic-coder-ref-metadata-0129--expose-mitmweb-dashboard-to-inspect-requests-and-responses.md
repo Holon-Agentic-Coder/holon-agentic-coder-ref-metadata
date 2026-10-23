@@ -11,7 +11,7 @@ tags:
   - observability
   - devex
 created_at: 2026-10-20T07:11:00Z
-updated_at: 2026-10-20T07:11:00Z
+updated_at: 2026-10-22T09:35:00Z
 ---
 
 Expose the plain `mitmweb` interface in `holon-coherence` so developers and agents can inspect actual intercepted
@@ -46,3 +46,13 @@ easily enabled feature, allowing users to view:
       patterns (`_SECRET_DICT_KEY_PATTERN`) protect logged requests/responses.
 - [ ] Update documentation in `docs/` and `README.md` explaining how to inspect live requests and responses via the
       plain `mitmweb` UI and how exposed ports are displayed.
+
+## Execution status (2026-10-22)
+
+Not started: Stage 1 could not run because no agent runner on this host has usable credentials (antigravity quota
+exhausted until 2026-10-24, `claude` not logged in, `codex` refresh token revoked, `opencode` key expired, and
+`pi-agent` on the host-local vMLX gateway failed a planner run with
+`Response was truncated: the model reached its output token limit`). See Bean 0132 for the full runner inventory.
+Prepared and ready to run: worktree `apps/holon-coherence/flow-0129-0133-coherence-mitmweb-monotonic-clock` (branch
+`flow/0129-0133-coherence-mitmweb-monotonic-clock` from `origin/main` at `29b7e50`, own virtualenv) and combined intent
+file `todo/intent-0129-0133-coherence-mitmweb-monotonic.json`, which pairs this bean with Bean 0133 in one execution.

@@ -33,10 +33,16 @@ autonomous calibration, this audit evaluated systemic health across six core pil
 | Finding ID      | Domain / Pillar    |   Severity    | Summary & Root Cause                                                                                                                                                    | Remediation Bean |   Status    |
 | :-------------- | :----------------- | :-----------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------- | :---------: |
 | **AUD-2026-01** | Metric Isolation   |   **High**    | Metadata & ledger files (`holon-knowledge/**`, `plans/**`, `.holon/**`) were counted in `git diff` metrics, distorting State Surface Area (SSA) and file counts.        | **Bean 0123**    | `completed` |
-| **AUD-2026-02** | Clean Architecture | **Important** | Scattered, ad-hoc `subprocess.run(["git", ...])` calls across `flow.py`, `calibration.py`, and `pr_review_loop.py` lack unified error handling and typing.              | **Bean 0124**    |   `todo`    |
-| **AUD-2026-03** | Intent & Style     | **Important** | Residual American English orthography (`initialize`, `behavior`, `optimize`) in code comments and logging messages breaks `en-AU` ecosystem standard.                   | **Bean 0125**    |   `todo`    |
-| **AUD-2026-04** | Security Boundary  | **Important** | Container dispatchers should enforce explicit capability dropping (`--cap-drop=ALL` / `--security-opt=no-new-privileges`) to prevent container escape risks.            | **Bean 0126**    |   `todo`    |
-| **AUD-2026-05** | Provenance Safety  | **Important** | High-concurrency agent execution risks interleaved or partially written lines in `holon-knowledge/ledger/*.jsonl` without explicit advisory file locks (`fcntl.flock`). | **Bean 0127**    |   `todo`    |
+| **AUD-2026-02** | Clean Architecture | **Important** | Scattered, ad-hoc `subprocess.run(["git", ...])` calls across `flow.py`, `calibration.py`, and `pr_review_loop.py` lack unified error handling and typing.              | **Bean 0124**    | `completed` |
+| **AUD-2026-03** | Intent & Style     | **Important** | Residual American English orthography (`initialize`, `behavior`, `optimize`) in code comments and logging messages breaks `en-AU` ecosystem standard.                   | **Bean 0125**    | `completed` |
+| **AUD-2026-04** | Security Boundary  | **Important** | Container dispatchers should enforce explicit capability dropping (`--cap-drop=ALL` / `--security-opt=no-new-privileges`) to prevent container escape risks.            | **Bean 0126**    | `completed` |
+| **AUD-2026-05** | Provenance Safety  | **Important** | High-concurrency agent execution risks interleaved or partially written lines in `holon-knowledge/ledger/*.jsonl` without explicit advisory file locks (`fcntl.flock`). | **Bean 0127**    | `completed` |
+
+> [!NOTE] **Status refresh (2026-10-22)** The four `todo` rows above were re-verified against `holon-agentic-coder`
+> `origin/main` and flipped to `completed`: `sandbox_executor/git.py` exists (0124), zero American-orthography hits
+> remain under `apps/sandbox-executor/src` (0125), `--cap-drop` is applied in the dispatchers (0126), and `LedgerLock`
+> uses `fcntl.flock(LOCK_EX | LOCK_NB)` with bounded retries (0127). Beans 0124-0127 landed together through PR #86; the
+> table originally recorded the state at audit time.
 
 ---
 
@@ -89,3 +95,7 @@ autonomous calibration, this audit evaluated systemic health across six core pil
 All five identified audit items have been formalised into sequential beans (`0123` through `0127`), with Bean 0123
 resolved immediately as part of the Bean 0122 execution lifecycle. The remaining four remediation tasks have been
 entered into the active triage matrix for systematic scheduling.
+
+As of the 2026-10-22 status refresh, all four remaining tasks are closed: Beans 0124-0127 traversed the 5-stage Holon
+flow through `holon-agentic-coder` PR #86 (Stage 4 consensus approval, Stage 5 calibration report in the PR diff) and
+are merged into `main`. See the status refresh note in section 2.
