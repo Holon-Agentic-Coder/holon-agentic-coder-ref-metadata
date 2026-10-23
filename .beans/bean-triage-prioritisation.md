@@ -1,16 +1,16 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-10-22 09:35:00 UTC
+**Last Updated:** 2026-10-22 15:15:00 UTC
 
 ## Executive Summary
 
 Since the previous triage checkpoint on 2026-10-20, the Holon ecosystem has progressed through automated Holon flow
 cycles, multi-agent consensus review loops, and infrastructure hardening.
 
-- **Total Tracked Beans**: 140 (excluding template)
-- **Completed**: 128 (91.4%)
+- **Total Tracked Beans**: 142 (excluding template)
+- **Completed**: 128 (89.9%)
 - **Scrapped / Superseded**: 2 (1.4%)
-- **Active / Todo**: 10 (7.1%)
+- **Active / Todo**: 12 (8.5%)
 
 ---
 
@@ -94,18 +94,20 @@ cycles, multi-agent consensus review loops, and infrastructure hardening.
 
 ## Active Beans Triage and Prioritisation Matrix
 
-| Priority | Status      | Impact | Sizing | Bean # | Title                                                                         | Domain              | Dependencies / Notes                                                                                                                                      |
-| :------- | :---------- | :----: | :----: | :----- | :---------------------------------------------------------------------------- | :------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **P1**   | in-progress |  High  |   M    | 0132   | Record stage 4/5 review action entries (ACT-REV/ACT-POST) in executions.jsonl | Ledger / Provenance | Stage 1 pushed (`I-1792635019-.../_`); Stage 2 blocked purely on a coding-agent credential -- GitHub side verified working after the Bean 0136 rotation.  |
-| **P1**   | todo        |  High  |   M    | 0134   | `holon flow` dispatches no role agent and produces empty-diff PRs             | Holon Flow / CLI    | Stub plan + empty execute commit; opened empty PR #89 (closed). Breaks the runner/manual equivalence AGENTS.md advertises.                                |
-| **P1**   | todo        |  High  |   S    | 0136   | Redact the GitHub token printed in CLI command echoes                         | Security / Logs     | Token rotated and old value verified `401` on 2026-10-22; **code fix outstanding** -- every `holon plan`/`execute` re-leaks the current token.            |
-| **P1**   | todo        |  High  |   M    | 0137   | Default runner must be inherited from the harness agent                       | CLI / Agent Runner  | `antigravity-agent` hard-coded at `cli.py:1159/1189/1391/1777` and `flow.py:164/232/305`; needs precedence + `HOLON_AGENT` + pre-flight credential probe. |
-| **P1**   | todo        |  High  |   M    | 0138   | Write plans/ and execution artifacts incrementally, not in one final response | Planner / Prompts   | `planner.py` captures one `pi -p` stdout; a `stopReason=length` final message (cap measured at 16384 output tokens) discarded a 17-minute run.            |
-| **P1**   | todo        |  High  |   M    | 0139   | Per-turn and per-stage wall-clock budgets with stall detection                | Reliability         | Proposal: turn `X=5 min`, stall 90s; stage ceilings 10/35/45/15/10 min sized from merged-run commit archaeology.                                          |
-| **P1**   | todo        |  High  |   M    | 0129   | Expose plain mitmweb web interface to inspect live requests and responses     | CLI / Telemetry     | Bundled with 0133 in `todo/intent-0129-0133-coherence-mitmweb-monotonic.json`; worktree `flow-0129-0133-coherence-mitmweb-monotonic-clock` prepared.      |
-| **P2**   | todo        | Medium |   S    | 0140   | `local_llm` must carry an explicit `maxTokens` into the sandbox config        | Sandbox / Local LLM | The generator copies host entries verbatim, so an omitted `maxTokens` becomes an undisclosed cap in the container. Host config now declares 16384.        |
-| **P2**   | todo        | Medium |   S    | 0135   | `check_pr_mergeability` reports CONFLICTING/DIRTY for a missing branch ref    | Review Loop / Git   | `git merge-tree --write-tree <missing>` exits 1 and is read as a conflict, producing a false "CI SIGNAL SUPPRESSED" halt.                                 |
-| **P2**   | todo        |  Low   |   S    | 0133   | Use a monotonic clock for the proxy readiness poll deadline                   | CLI / Reliability   | Bundled with 0129; `start.py:154`/`:159` still use `time.time()` at `29b7e50`.                                                                            |
+| Priority | Status      | Impact | Sizing | Bean # | Title                                                                                               | Domain                      | Dependencies / Notes                                                                                                                                                                  |
+| :------- | :---------- | :----: | :----: | :----- | :-------------------------------------------------------------------------------------------------- | :-------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **P1**   | in-progress |  High  |   M    | 0132   | Record stage 4/5 review action entries (ACT-REV/ACT-POST) in executions.jsonl                       | Ledger / Provenance         | Stage 1 pushed (`I-1792635019-.../_`); Stage 2 blocked purely on a coding-agent credential -- GitHub side verified working after the Bean 0136 rotation.                              |
+| **P1**   | todo        |  High  |   M    | 0134   | `holon flow` dispatches no role agent and produces empty-diff PRs                                   | Holon Flow / CLI            | Stub plan + empty execute commit; opened empty PR #89 (closed). Breaks the runner/manual equivalence AGENTS.md advertises.                                                            |
+| **P1**   | todo        |  High  |   S    | 0136   | Redact the GitHub token printed in CLI command echoes                                               | Security / Logs             | Token rotated and old value verified `401` on 2026-10-22; **code fix outstanding** -- every `holon plan`/`execute` re-leaks the current token.                                        |
+| **P1**   | todo        |  High  |   M    | 0137   | Default runner must be inherited from the harness agent                                             | CLI / Agent Runner          | `antigravity-agent` hard-coded at `cli.py:1159/1189/1391/1777` and `flow.py:164/232/305`; needs precedence + `HOLON_AGENT` + pre-flight credential probe.                             |
+| **P1**   | todo        |  High  |   M    | 0138   | Write plans/ and execution artifacts incrementally, not in one final response                       | Planner / Prompts           | `planner.py` captures one `pi -p` stdout; a `stopReason=length` final message (cap measured at 16384 output tokens) discarded a 17-minute run.                                        |
+| **P1**   | todo        |  High  |   M    | 0139   | Per-turn and per-stage wall-clock budgets with stall detection                                      | Reliability                 | Proposal: turn `X=5 min`, stall 90s; stage ceilings 10/35/45/15/10 min sized from merged-run commit archaeology.                                                                      |
+| **P1**   | todo        |  High  |   M    | 0129   | Expose plain mitmweb web interface to inspect live requests and responses                           | CLI / Telemetry             | Bundled with 0133 in `todo/intent-0129-0133-coherence-mitmweb-monotonic.json`; worktree `flow-0129-0133-coherence-mitmweb-monotonic-clock` prepared.                                  |
+| **P1**   | todo        |  High  |   L    | 0142   | Benchmark Qwen3.8-27B-JANG_4D (dense) vs Qwen3.8-Flash-Next-JANG_4M (MoE) on real agentic workloads | Model Selection / Benchmark | Quality gate before any speed quote; workloads from real ledger/intents/plans/merged PRs (zero synthetic data, AGENTS.md item 10); picks the flow's default model for 0132/0129/0133. |
+| **P2**   | todo        | Medium |   S    | 0140   | `local_llm` must carry an explicit `maxTokens` into the sandbox config                              | Sandbox / Local LLM         | The generator copies host entries verbatim, so an omitted `maxTokens` becomes an undisclosed cap in the container. Host config now declares 16384.                                    |
+| **P2**   | todo        | Medium |   S    | 0135   | `check_pr_mergeability` reports CONFLICTING/DIRTY for a missing branch ref                          | Review Loop / Git           | `git merge-tree --write-tree <missing>` exits 1 and is read as a conflict, producing a false "CI SIGNAL SUPPRESSED" halt.                                                             |
+| **P2**   | todo        | Medium |   M    | 0141   | Tune vmlx prefill and decode levers for both Qwen3.8 models, crash-safe                             | vmlx / Performance          | Engine launch flags (prefill step/batch, completion batch, timeout); crash-safe procedure. 0142 holds these constant or varies them deliberately.                                     |
+| **P2**   | todo        |  Low   |   S    | 0133   | Use a monotonic clock for the proxy readiness poll deadline                                         | CLI / Reliability           | Bundled with 0129; `start.py:154`/`:159` still use `time.time()` at `29b7e50`.                                                                                                        |
 
 ---
 
