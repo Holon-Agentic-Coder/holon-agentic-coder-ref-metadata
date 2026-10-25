@@ -125,9 +125,9 @@ run. Only the scopes were left as-is (`admin:public_key` still present -- option
 declared explicitly in `~/.pi/agent/models.json` (16384, the value pi already sent), which makes the cap visible but
 does not raise it, so the runner choice must still come from a re-authenticated or non-exhausted credential.
 
-1. **Re-authenticate one coding-agent runner (maintainer)**: `claude` login, or `codex` logout/login to clear the used
-   refresh token, or a fresh OpenCode key -- any one of these unblocks Bean 0132 immediately. The `gh` token step is
-   already complete.
+1. **Re-authenticate one coding-agent runner (maintainer)**: `claude` login, or `codex` logout/login to clear the
+   us/mode1l refresh token, or a fresh OpenCode key -- any one of these unblocks Bean 0132 immediately. The `gh` token
+   step is already complete.
 2. **Bean 0137**: inherit the runner from the harness agent and add the pre-flight credential probe, so an unusable
    runner fails in seconds instead of minutes and the ledger names the runner that actually authored the work.
 3. **Beans 0138 + 0139 + 0140** (one coherence-independent package on `holon-agentic-coder`): incremental artifact
