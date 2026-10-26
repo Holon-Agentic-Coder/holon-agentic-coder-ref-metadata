@@ -873,15 +873,14 @@ def main() -> int:
 
     active_beans, stats = scan_beans(args.beans_dir)
 
-    prior_output = args.output or os.path.join(args.beans_dir, "bean-triage-prioritisation.md")
-    previous_checkpoint = read_previous_checkpoint(prior_output)
+    output_path = args.output or os.path.join(args.beans_dir, "bean-triage-prioritisation.md")
+    previous_checkpoint = read_previous_checkpoint(output_path)
     doc = generate_triage_document(active_beans, stats, previous_checkpoint=previous_checkpoint)
 
     if args.dry_run:
         print(doc)
         return 0
 
-    output_path = args.output or os.path.join(args.beans_dir, "bean-triage-prioritisation.md")
     os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(doc)
