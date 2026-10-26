@@ -105,6 +105,7 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "- **Bean 0145** (holon-coherence) and the holon-coherence half of **Bean 0147**.",
     "- **Bean 0154** and **Bean 0150** (tests only). Check their touch sets against the lane above first.",
     "- **Beans 0142 and 0141** (benchmarking and tuning, no code flow).",
+    ("- **Bean 0164** (plain-language entropy/EV explainer, documentation only, disjoint from `flow.py`/`cli.py`)."),
 ]
 
 # Manual triage overrides for every active bean: display title, priority,
@@ -269,6 +270,17 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "notes": (
             "Turned #97's macOS CI red on 2026-10-26 (second occurrence). Tests only; parallel with flows that "
             "don't touch the fuzz test."
+        ),
+    },
+    "0164": {
+        "title": "Plain-language documentation for entropy, Expected Value, and how they relate",
+        "priority": "**P1**",
+        "impact": "Medium",
+        "sizing": "S",
+        "domain": "Documentation",
+        "notes": (
+            "Documentation only, disjoint from `flow.py`/`cli.py`, so it runs in the parallel lane. Through the "
+            "Holon flow on holon-agentic-coder."
         ),
     },
     "0153": {

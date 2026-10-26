@@ -66,7 +66,3 @@ must split the build into smaller boxes) — but every analogy must be followed 
   lane, so it can run in the parallel lane alongside code flows.
 - Related: Bean 0041 (first-principles flow lifecycle reference, where EV/entropy documentation gaps were first noted),
   Beans 0065/0083/0146 (calibration reads of predicted vs observed entropy), Bean 0159 (entropy budget gate).
-
-## Resolution
-
-(Filled in when the work is finished.)
