@@ -23,6 +23,7 @@ overlapping flows now run one after another.
 itself. They are logged as Beans 0157-0162, and Bean 0144 was raised to critical after its fabricated approval reached
 GitHub. Bean 0156 starts the investigation into moving issue tracking from harness beans to beads inside each target,
 ahead of deprecating this harness.
+
 ---
 
 ## Key Milestones Completed (Beans 0080 – 0140)
@@ -156,8 +157,8 @@ ahead of deprecating this harness.
 | **P1**   | todo        |  High  |   L    | 0156   | Investigate moving issue tracking from harness beans to beads inside each target       | Issue Tracking           | Investigation only, no target code. Can run in parallel with any flow. Precedes deprecating the harness.                     |
 | **P1**   | todo        |  High  |   M    | 0163   | CI timing regression gate: fail builds whose duration regresses beyond a tolerance     | CI / Performance         | macOS unit already over 10 min on `main` (662 s). Baseline on a rolling median; same code varies about ±20%. Both repos.     |
 | **P1**   | todo        |  High  |   XL   | 0152   | Audit long files; decompose oversized functions (flow.py, cli.py first)                | Refactor / Concurrency   | `cli.main` is 1062 lines; `flow.py` is 4400+. Run only while no other flow touches those files.                              |
-| **P2**   | todo        | Medium |   XL   | 0153   | Remove comments and docstrings from all code; make it self-documenting                 | Readability              | Runs with or after 0152.                                                                                                     |
 | **P1**   | todo        | Medium |   S    | 0154   | Fix the flaky URL fuzz leak check that can match temp-file names                       | Tests                    | Turned #97's macOS CI red on 2026-10-26 (second occurrence). Tests only; parallel with flows that don't touch the fuzz test. |
+| **P2**   | todo        | Medium |   XL   | 0153   | Remove comments and docstrings from all code; make it self-documenting                 | Readability              | Runs with or after 0152.                                                                                                     |
 | **P2**   | todo        | Medium |   S    | 0147   | Remove harness paths tracked in the target repositories                                | Hygiene                  | One flow per repository. The coherence part can run in parallel. Fold into 0156's plan if beads lands first.                 |
 | **P2**   | todo        |  Low   |   S    | 0150   | Flow tests write the real checkout's `action_index.db`                                 | Tests                    | Unblocked.                                                                                                                   |
 | **P2**   | todo        | Medium |   S    | 0145   | Pin holon-coherence to Python 3.13                                                     | Build / coherence        | coherence only; parallel with holon-agentic-coder flows.                                                                     |

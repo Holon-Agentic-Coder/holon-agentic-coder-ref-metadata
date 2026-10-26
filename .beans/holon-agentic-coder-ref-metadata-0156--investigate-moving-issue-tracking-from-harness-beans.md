@@ -17,9 +17,9 @@ updated_at: 2026-10-26T04:12:46Z
 
 ## Problem
 
-The `holon-agentic-coder-ref-metadata` harness is going to be deprecated. Its `.beans/` directory (157 beans,
-`0001`–`0155`) is the only issue tracker for both target repositories. Once the harness is gone, the targets need to
-track their own work.
+The `holon-agentic-coder-ref-metadata` harness is going to be deprecated. Its `.beans/` directory (155 beans,
+`0001`–`0155` at the time of writing; new beans keep landing) is the only issue tracker for both target repositories.
+Once the harness is gone, the targets need to track their own work.
 
 The maintainer has decided to move from [beans](https://github.com/hmans/beans) to
 [beads](https://github.com/steveyegge/beads) (`bd`). Issues will live **inside** `holon-agentic-coder` and
@@ -73,7 +73,8 @@ anything or change either target.
 
 - A field-by-field mapping and a deterministic converter design: frontmatter to beads fields, and the Markdown body
   (Problem, Scope, Notes, Resolution) to description, notes and close reason.
-- Routing rules that send each of the 157 beans to `holon-agentic-coder`, `holon-coherence`, or "not migrated".
+- Routing rules that send each of the 155 beans (plus any logged since) to `holon-agentic-coder`, `holon-coherence`, or
+  "not migrated".
 - Whether `completed` and `scrapped` beans are imported as closed issues or left only in harness history.
 - How each issue keeps its original bean ID as an external reference, so commit messages, PR bodies and ledger rows that
   cite `Bean 0NNN` stay traceable.

@@ -21,7 +21,7 @@ updated_at: 2026-10-22T15:10:00Z
 
 The flow's local-runner model choice is currently a guess. Three beans (0132, 0129, 0133) are blocked waiting for a
 usable agent runner, and `pi-agent` on the vMLX gateway is the only candidate that has ever started a flow stage on this
-host. Two very different models are available, and the observed speed order contradives the naive "bigger is better"
+host. Two very different models are available, and the observed speed order contradicts the naive "bigger is better"
 assumption:
 
 - `JANGQ-AI/Qwen3.8-27B-JANG_4D` (`:8004`): **dense** 27B — 64 layers, hidden 5120, dense FFN (intermediate 17408),
@@ -107,7 +107,7 @@ payloads.
 ### Decision rules
 
 - **Quality gate first**: speed is only compared between models that pass the floor — plan parse ≥ 90 % across runs,
-  execute worklands passing the real test suite, no systematic tool-call breakage, review recall ≥ 1/2 on the known
+  execute workloads passing the real test suite, no systematic tool-call breakage, review recall ≥ 1/2 on the known
   findings. A faster model that fails the floor is not eligible whatever its tok/s.
 - Among eligible models: rank by stage wall time (weight plan and execute, where the flow spends its time), then cache
   economics, then memory headroom (swap behaviour counts as a first-class risk, not a footnote).

@@ -16,7 +16,8 @@ updated_at: 2026-10-24T01:41:18Z
 ## Problem
 
 AGENTS.md item 12 says the target repositories must never know about harness directories or conventions (`.beans/`,
-`todo/`, `.agents/`, `.subagent/`). The Stage 4 review loops of 2026-10-24 found these tracked on `origin/main`:
+`todo/`, `.agents/`), and `.subagent/` falls under the same principle. The Stage 4 review loops of 2026-10-24 found
+these tracked on `origin/main`:
 
 | Repository          | Path                                                                         | Introduced by      |
 | ------------------- | ---------------------------------------------------------------------------- | ------------------ |

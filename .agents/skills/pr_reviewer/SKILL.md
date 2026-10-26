@@ -219,10 +219,10 @@ Check if **Dry-Run Mode** is enabled (e.g. via `--dry-run` parameter or loop ins
   - **Always post the full comment template -- even for a clean `APPROVED` with zero findings.** The body MUST contain,
     in order: `📊 PR Metadata & Role Activation` (the consolidated Dynamic Role Activation Matrix), `🔍 Persona Reviews`
     (one section per active persona, including `✅ [PASS]` entries), `🏆 Overall Verdict`, and the
-    `🗳️ Ensemble Review Breakdown` foopi update --extensionster (Step 3.3), exactly as defined in
+    `🗳️ Ensemble Review Breakdown` footer (Step 3.3), exactly as defined in
     [`pr_review_prompt.md`](../../prompts/pr_review_prompt.md#-step-3-output-format). A short summary paragraph, a
     verdict-and-counts one-liner, or the footer alone is **not** a valid posted review. Build the body from the ensemble
-    reviewer reports, not from the trailer counts; if a synthesizer returned a condensed body, expand it before posting.
+    reviewer reports, not from the trailer counts; if a synthesiser returned a condensed body, expand it before posting.
     Never post the machine-readable trailer block.
   - Write your review output to a temporary file (`.subagent/<repo>_pr<N>_review_body.md`) to prevent shell character
     escaping issues.
