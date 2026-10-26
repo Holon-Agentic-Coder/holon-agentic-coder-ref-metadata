@@ -54,6 +54,16 @@ resolution step is executed in a dedicated, fresh subagent**.
    finding against primary sources, apply the union of the competing recommendations, rule false findings out in writing
    in `.subagent/<repo>_pr<N>_coordination.json`, or defer an out-of-scope finding to a new bean. Iterations are spent
    resolving, not waiting.
+   - **CI is a gate, not a waiting room**: wait for CI only when no Critical, Important or Nit finding is outstanding,
+     which means the dry run is clean at the current head and the next step is the ensemble or posting. While any
+     finding is open, never wait for CI:
+     - Start the dry-run review as soon as a push lands, without waiting for CI.
+     - Hand any finding to the resolver straight away.
+     - Let the resolver push without waiting for the previous head's CI.
+
+     That CI run is about to be superseded, so waiting on it only burns wall-clock time. A CI watcher may run in the
+     background throughout. Its result is consulted only at the ensemble and posting gate (Phase B), and only for the
+     head under review.
 4. **Drift Self-Healing (Out-Of-Sync State Is Work, Not A Blocker)**: Divergence between what the loop expects and what
    the repository and PR actually contain -- a new commit pushed by someone else, a parallel agent session editing the
    same worktree, an unexpectedly dirty tree, a stale cached diff, a rejected push, CI that moved from `pending` to
@@ -360,8 +370,11 @@ Execute the review pass in a clean, isolated subagent context.
   > 2. Evaluate code changes against `.agents/prompts/pr_review_prompt.md`.
   > 3. **Single-Agent Execution**: Do NOT spawn 3 independent subagents. Perform the PR review evaluation directly in
   >    this single agent pass to minimize token consumption.
-  > 4. **Conditional CI Check**: Verify CI build status via `gh pr checks` **ONLY IF** zero Critical (🔴) or Important
-  >    (🟡) issues are found in the code review (defer checking build status if code changes are required).
+  > 4. **Conditional CI Check**: Verify CI build status via `gh pr checks` **ONLY IF** zero Critical (🔴), Important
+  >    (🟡) and Nit (🟢) findings are found in the code review. If any finding exists, do not check or wait for CI:
+  >    report `CI: SKIPPED`, because a resolver will push and supersede this head. Do not wait more than about two
+  >    minutes for pending checks. Report `CI: PENDING` honestly and let the orchestrator's CI watcher gate the
+  >    ensemble.
   > 5. Do **NOT** post comments to GitHub (Dry-Run mode is ON).
   > 6. Save the detailed review findings and report to a markdown file:
   >    `.subagent/<repo>_pr<N>_dry_run_review_iter_<iteration>_{short_git_commit}.md` (creating the directory if needed)
@@ -404,7 +417,11 @@ Wait for the subagent to complete and inspect its report.
    - The loop moves to consensus review **ONLY IF**:
      1. The dry-run reviewer subagent verdict is **`APPROVED`** (zero Critical 🔴 or Important 🟡 issues remain, **and
         every Nit / Optional 🟢 finding is dispositioned `applied` or `rejected`** -- no open actionable Nits).
-     2. **ALL GitHub Actions CI checks (`gh pr checks <pr>`) pass cleanly** with no failing jobs.
+     2. **ALL GitHub Actions CI checks (`gh pr checks <pr>`) pass cleanly** with no failing jobs, for the **same head**
+        the dry run approved. This is the only point in the loop that waits for CI (principle 3, "CI is a gate, not a
+        waiting room"). If CI is still running, wait for the watcher here. If a check fails, treat the failure as a
+        finding for the resolver: a genuine failure, or a flake recorded with evidence in the coordination ledger and
+        re-run. Do not start the ensemble early.
    - **Execute 3-Agent Ensemble Consensus Review**: Spin off a consensus review in an isolated child context with
      **Ensemble Consensus Mode** enabled. Dispatch the three reviewer passes **concurrently on a hosted model runtime,
      or strictly one-at-a-time on a local model runtime** (principle 11); independence, fresh context and blind voting
@@ -599,7 +616,9 @@ Wait for the subagent to complete and inspect its report.
 
 #### Phase D: Next Iteration
 
-Increment `iteration = iteration + 1` and proceed to the next cycle in Step 2.
+Increment `iteration = iteration + 1` and proceed to the next cycle in Step 2 **immediately** after the resolver pushes.
+Do not wait for CI on the new head before the next dry run (principle 3, "CI is a gate, not a waiting room"). Start or
+retarget a background CI watcher on the new head so that its result is ready when Phase B needs it.
 
 ---
 
