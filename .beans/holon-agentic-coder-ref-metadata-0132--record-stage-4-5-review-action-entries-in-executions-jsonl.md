@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0132
 title: "Record stage 4/5 review action entries (ACT-REV/ACT-POST) in executions.jsonl"
-status: in-progress
+status: completed
 type: bug
 priority: medium
 tags:
@@ -13,7 +13,7 @@ tags:
   - holon-coherence
   - holon-agentic-coder
 created_at: 2026-10-22T09:45:00Z
-updated_at: 2026-10-22T09:35:00Z
+updated_at: 2026-10-26T02:33:21Z
 ---
 
 ## Problem
@@ -96,3 +96,21 @@ cut from `origin/main` at `3bef6f7`, own virtualenv from `uv sync --group dev`).
 - **To resume** once a runner works: in the worktree above run
   `holon plan "I-1792635019-flow-stage-4-5-ledger-action-entries/_" --agent <runner> --model <model> --repo-dir .`, then
   `holon execute`, `holon review-loop <execution_branch> --auto-pr`, and `holon calibrate` as the pre-merge stage.
+
+## Resolution
+
+- **Pull Request**:
+  [Holon-Agentic-Coder/holon-agentic-coder#90](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/90)
+- **5-Stage Provenance**:
+  - Intent: `I-1792635019-flow-stage-4-5-ledger-action-entries/_`
+  - Plan: `P-1792763923-claude-agent-claude-opus-5-5`
+  - Execution: `E-1792765100-claude-agent-claude-opus-5-5`
+  - Review: 3-agent ensemble consensus `APPROVED` (3/3) at `1529c9c` after 11 iterations (review 5637331907).
+  - Calibration: report `4b4f5bd` plus Bean 0146 annotation `dbf6c0a` (Predicted EV 6.24 from the wrong row; Overall
+    18.53 | Actual EV 7.04).
+- **CI Status**: 10/10 passing. Merged by the maintainer on 2026-10-24 as `a3f1f79`.
+- **Outcome**: Stage 4/5 now record `ACT-REV`, `ACT-FIND`, `ACT-RES`, `ACT-POST` and `ACT-CAL` rows in
+  `executions.jsonl`, with redaction and fail-loud handling. A hook-rejected calibration commit now fails Stage 5, and
+  reconciliation rows are committed on `/calibrated` only on success.
+- **Follow-ups**: Bean 0148 (redaction gaps in #90's `CredentialRedactor`), Bean 0146 (calibration reads the wrong plan
+  row).

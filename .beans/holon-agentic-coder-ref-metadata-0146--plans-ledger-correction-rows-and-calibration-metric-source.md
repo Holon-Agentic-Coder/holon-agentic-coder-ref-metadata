@@ -10,7 +10,7 @@ tags:
   - planner
   - provenance
 created_at: 2026-10-23T16:10:00Z
-updated_at: 2026-10-23T16:10:00Z
+updated_at: 2026-10-26T02:33:21Z
 ---
 
 ## Problem
@@ -46,3 +46,19 @@ Found in the Stage 4 review of holon-agentic-coder PR #91 (Bean 0135), iteration
   known-wrong and quote the Overall values from the plan file.
 - Evidence: `.subagent/holon-agentic-coder_pr91_coordination.json` (`deferred`, id `IMP-1-residual`).
 - Run through the Holon flow on `holon-agentic-coder`.
+
+## Notes (2026-10-26)
+
+Every Stage 5 calibration from 2026-10-24 to 2026-10-26 hit this issue. Each report took its predicted metrics from a
+per-step `plans.jsonl` row instead of the plan's Overall table. Each one got a separate annotation commit quoting the
+Overall values:
+
+| PR                      | Report    | Annotation | Reported predicted EV | Overall `ev_pred` | Actual EV |
+| ----------------------- | --------- | ---------- | --------------------- | ----------------- | --------- |
+| holon-agentic-coder #91 | `30bf3fa` | `33aa221`  | 7.38                  | (wrong row)       | 8.49      |
+| holon-agentic-coder #90 | `4b4f5bd` | `dbf6c0a`  | 6.24                  | 18.53             | 7.04      |
+| holon-agentic-coder #93 | `696632d` | `391a040`  | 4.19                  | 32.44             | 4.39      |
+| holon-agentic-coder #96 | `a3320e6` | `08c0ee3`  | 2.36                  | 15.73             | 3.84      |
+| holon-agentic-coder #95 | `cdc6639` | `5a5e766`  | 4.22                  | 25.60             | 4.39      |
+| holon-agentic-coder #94 | `7e84078` | `8496227`  | 4.75                  | 39.84             | 5.07      |
+| holon-coherence #27     | `aec5f7d` | `ed2cf2f`  | 5.84                  | 6.48              | 5.18      |

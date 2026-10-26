@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0140
 title: "local_llm must declare the sandbox's effective model envelope: maxTokens, reasoning mode, prefix cache"
-status: todo
+status: completed
 type: bug
 priority: medium
 tags:
@@ -13,7 +13,7 @@ tags:
   - reasoning
   - prefill-cache
 created_at: 2026-10-22T07:20:00Z
-updated_at: 2026-10-22T14:45:00Z
+updated_at: 2026-10-26T02:33:21Z
 ---
 
 ## Problem
@@ -137,3 +137,27 @@ Verified on the host against the running vMLX stack (vMLX.app 1.6.81, gateway `:
 
 Bean 0138 (why a single-response cap is fatal today), Bean 0139 (turn budget), Bean 0049 (the module's original
 purpose).
+
+## Resolution
+
+- **Pull Request**:
+  [Holon-Agentic-Coder/holon-agentic-coder#94](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/94)
+- **5-Stage Provenance**:
+  - Intent: `I-1792765424-incremental-artifacts-budgets-and-local-llm-envelope/_`
+  - Plan: `P-1792788153-claude-agent-claude-opus-5-5`
+  - Execution: `E-1792788550-claude-agent-claude-opus-5-5`
+  - Review: 3-agent ensemble consensus `APPROVED` (3/3), first at `b9864ed` (review 5637813577). After merging `main`
+    twice (#96, #95) it went through iterations 14–25 and was re-posted at `28ad58f` (review 5645812038).
+  - Calibration: report `7e84078` plus Bean 0146 annotation `8496227` (Predicted EV 4.75 from the wrong row; Overall
+    39.84 | Actual EV 5.07).
+- **CI Status**: 10/10 passing, CodeQL 0 open alerts. Merged by the maintainer on 2026-10-26 as `e3bbd67`.
+- **Outcome**, delivered together for Beans 0138, 0139 and 0140:
+  - incremental `plans/` and `executions/` artefacts, with validated execution notes
+  - per-turn and per-stage wall-clock budgets with stall supervision, handed down to every Stage 1–3 container
+  - an explicit local-LLM model envelope (`maxTokens` and reasoning)
+  - a unified `holon doctor`
+  - one validated `models.json` loader
+  - doctor sections that cannot crash, and finite numeric bounds
+  - UTF-8 input validation and encoding-safe output
+- **Follow-ups**: Bean 0146 (calibration reads the wrong plan row), Bean 0155 (`HOLON_*` forwarding on the argv, already
+  on main).

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0135
 title: "check_pr_mergeability reports CONFLICTING/DIRTY for a branch ref that does not exist"
-status: todo
+status: completed
 type: bug
 priority: medium
 tags:
@@ -10,7 +10,7 @@ tags:
   - git
   - diagnostics
 created_at: 2026-10-22T02:40:00Z
-updated_at: 2026-10-22T02:40:00Z
+updated_at: 2026-10-26T02:33:21Z
 ---
 
 ## Problem
@@ -63,3 +63,18 @@ operator to GitHub Actions instead of to the actual cause (an unresolved branch 
 
 Observed 2026-10-22 while validating `holon flow --dry-run` for Bean 0132; the run also produced an empty-diff pull
 request (tracked separately in Bean 0134).
+
+## Resolution
+
+- **Pull Request**:
+  [Holon-Agentic-Coder/holon-agentic-coder#91](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/91)
+- **5-Stage Provenance**:
+  - Intent: `I-1792762866-mergeability-missing-ref-not-conflict/_`
+  - Plan: `P-1792765112-claude-agent-claude-opus-5-5`
+  - Execution: `E-1792765484-claude-agent-claude-opus-5-5`
+  - Review: 3-agent ensemble consensus `APPROVED` (3/3) at `36bbf52` after 3 iterations.
+  - Calibration: report `30bf3fa` plus Bean 0146 annotation `33aa221` (Predicted EV 7.38 is from the wrong `plans.jsonl`
+    row | Actual EV 8.49).
+- **CI Status**: 10/10 passing. Merged by the maintainer on 2026-10-24 as `506b4fb`.
+- **Outcome**: `check_pr_mergeability` now reports `MISSING_REF` for a branch ref that does not exist instead of a false
+  `CONFLICTING`/`DIRTY` verdict.

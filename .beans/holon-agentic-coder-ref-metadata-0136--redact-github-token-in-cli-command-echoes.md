@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0136
 title: "Host CLI logs the GitHub token in plaintext in clone and docker command lines"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - redaction
   - logs
 created_at: 2026-10-22T02:40:00Z
-updated_at: 2026-10-22T09:35:00Z
+updated_at: 2026-10-26T02:33:21Z
 ---
 
 ## Problem
@@ -78,3 +78,28 @@ design choice.
 
 Captured 2026-10-22 in `/tmp/s2_plan_pi.log` (since scrubbed) while running Stage 2 of Bean 0132 on
 `holon-agentic-coder`.
+
+## Resolution
+
+- **Pull Request**:
+  [Holon-Agentic-Coder/holon-agentic-coder#96](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/96)
+- **5-Stage Provenance**:
+  - Intent: `I-1792815987-redact-github-token-in-cli-echoes-v2/_`
+  - Plan: `P-1792815994-claude-agent-claude-opus-5-5`
+  - Execution: `E-1792816376-claude-agent-claude-opus-5-5`
+  - Review: 3-agent ensemble consensus `APPROVED` (3/3), first at `f1117d3` (review 5637034878). After merging `main`
+    (#90, #93) it went through iterations 4–21 and was re-posted at `cf2c405` (review 5637983463).
+  - Calibration: report `a3320e6` plus Bean 0146 annotation `08c0ee3` (Predicted EV 2.36 from the wrong row; Overall
+    15.73 | Actual EV 3.84).
+- **CI Status**: 10/10 passing, CodeQL 0 open alerts. Merged by the maintainer on 2026-10-24 as `fbabb3a`.
+- **Supersedes** PR #92 (closed). #92's plan ID collided with #91's (`P-1792765112`), so the bean was re-run under a
+  fresh plan (see Bean 0149).
+- **Outcome**:
+  - There is now a canonical `sandbox_executor/redaction.py`.
+  - Credentials are kept off the docker argv, for the main run and the pre-flight probe, by a 0600 env-file.
+  - Every top-level CLI handler goes through `redact_cli_error`.
+  - Messages about URL-valued config show only a validated host or the variable name, enforced by
+    `tests/test_url_message_fuzz.py`.
+  - The pre-flight argv leak that #93 introduced is fixed.
+- **Follow-ups**: Bean 0148 (#90 `CredentialRedactor` gaps and `error_context`), Bean 0154 (flaky fuzz leak check), Bean
+  0155 (general `HOLON_*` forwarding on the argv).

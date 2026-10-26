@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0134
 title: "holon flow dispatches no role agent and produces empty-diff pull requests"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - orchestration
   - provenance
 created_at: 2026-10-22T02:40:00Z
-updated_at: 2026-10-22T02:40:00Z
+updated_at: 2026-10-26T02:33:21Z
 ---
 
 ## Problem
@@ -69,3 +69,27 @@ Two further consequences:
 
 Observed directly during the 2026-10-22 attempt to execute Bean 0132 through `holon flow`. Related: Bean 0039 (pipeline
 engine), Bean 0040 (single-command runner, whose re-scoped notes already record the runner as incomplete).
+
+## Resolution
+
+- **Pull Request**:
+  [Holon-Agentic-Coder/holon-agentic-coder#95](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/95)
+- **5-Stage Provenance**:
+  - Intent: `I-1792765428-flow-dispatch-role-agents-and-empty-diff-guard/_`
+  - Plan: `P-1792788551-claude-agent-claude-opus-5-5`
+  - Execution: `E-1792788838-claude-agent-claude-opus-5-5`
+  - Review: 3-agent ensemble consensus `APPROVED` (3/3) at `5e2aa6e` (review 5638047023) after 21 iterations. It was
+    then synced with `main` after #96 (`8fd2d81`); that merge-verification dry run (iteration 22) was `APPROVED`. The
+    maintainer merged before the follow-up 3-agent pass finished.
+  - Calibration: report `cdc6639` plus Bean 0146 annotation `5a5e766` (Predicted EV 4.22 from the wrong row; Overall
+    25.60 | Actual EV 4.39).
+- **CI Status**: 10/10 passing, CodeQL 0 open alerts. Merged by the maintainer on 2026-10-25 as `b3e2727`.
+- **Outcome**:
+  - `holon flow` dispatches the role-agent containers for Stages 1–3.
+  - An empty execution diff fails, and the guard refusal fails closed.
+  - Unmeasured tests are recorded as `null`, never as a pass.
+  - A bounded CI-registration wait is followed by a single `not_measured` stop.
+  - `--skip-push` is rejected on every non-dry run.
+  - A suite-wide test guard blocks real `gh` writes.
+- **Follow-ups**: Bean 0144 (guard skipped for PR-number targets and without `--auto-pr`), Bean 0150 (tests write the
+  real `action_index.db`).

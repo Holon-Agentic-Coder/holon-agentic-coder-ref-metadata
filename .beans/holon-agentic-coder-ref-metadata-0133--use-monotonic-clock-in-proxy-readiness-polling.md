@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0133
 title: "Use a monotonic clock for the proxy readiness poll deadline"
-status: todo
+status: completed
 type: bug
 priority: low
 tags:
@@ -11,7 +11,7 @@ tags:
   - time
   - robustness
 created_at: 2026-10-22T00:30:00Z
-updated_at: 2026-10-22T09:35:00Z
+updated_at: 2026-10-26T02:33:21Z
 ---
 
 ## Problem
@@ -63,3 +63,18 @@ Not started, blocked by the same unusable agent runners recorded in Bean 0132. T
 with Bean 0129 in `todo/intent-0129-0133-coherence-mitmweb-monotonic.json`, to be run in
 `apps/holon-coherence/flow-0129-0133-coherence-mitmweb-monotonic-clock`. Target lines on `origin/main` (`29b7e50`) are
 confirmed still present at `src/holon_coherence/commands/start.py:154` and `:159`.
+
+## Resolution
+
+- **Pull Request**:
+  [Holon-Agentic-Coder/holon-coherence#27](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/27)
+- **5-Stage Provenance**:
+  - Intent: `I-1792762893-coherence-mitmweb-inspection-and-monotonic-readiness/_`
+  - Plan: `P-1792766452-claude-agent-claude-opus-5-5`
+  - Execution: `E-1792767369-claude-agent-claude-opus-5-5`
+  - Review: 3-agent ensemble consensus `APPROVED` (3/3) at `de60a6d` after 5 iterations.
+  - Calibration: report `aec5f7d` plus Bean 0146 annotation `ed2cf2f` (Predicted EV 5.84 from the wrong row; Overall
+    6.48 | Actual EV 5.18).
+- **CI Status**: passing. Merged by the maintainer on 2026-10-24 as `acbe924`.
+- **Outcome**: Beans 0129 and 0133 were delivered together. A plain mitmweb inspector exposes live requests and
+  responses, and the proxy readiness deadline now uses a monotonic clock.
