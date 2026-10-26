@@ -55,7 +55,7 @@ Overall values:
 
 | PR                      | Report    | Annotation | Reported predicted EV | Overall `ev_pred` | Actual EV |
 | ----------------------- | --------- | ---------- | --------------------- | ----------------- | --------- |
-| holon-agentic-coder #91 | `30bf3fa` | `33aa221`  | 7.38                  | (wrong row)       | 8.49      |
+| holon-agentic-coder #91 | `30bf3fa` | `33aa221`  | 7.38                  | 52.26             | 8.49      |
 | holon-agentic-coder #90 | `4b4f5bd` | `dbf6c0a`  | 6.24                  | 18.53             | 7.04      |
 | holon-agentic-coder #93 | `696632d` | `391a040`  | 4.19                  | 32.44             | 4.39      |
 | holon-agentic-coder #96 | `a3320e6` | `08c0ee3`  | 2.36                  | 15.73             | 3.84      |

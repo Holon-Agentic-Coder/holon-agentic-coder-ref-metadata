@@ -474,6 +474,7 @@ def scan_beans(beans_dir: str) -> tuple[list[dict[str, Any]], dict[str, int]]:
     completed_count = 0
     scrapped_count = 0
     in_progress_count = 0
+    draft_count = 0
     active_beans: list[dict[str, Any]] = []
 
     for fpath in files:
@@ -490,6 +491,8 @@ def scan_beans(beans_dir: str) -> tuple[list[dict[str, Any]], dict[str, int]]:
             # Active bean (todo, in-progress, draft)
             if status == "in-progress":
                 in_progress_count += 1
+            elif status == "draft":
+                draft_count += 1
             bnum = b["bean_num"]
             if bnum in OVERRIDES:
                 ov = OVERRIDES[bnum]
@@ -523,6 +526,7 @@ def scan_beans(beans_dir: str) -> tuple[list[dict[str, Any]], dict[str, int]]:
         "scrapped": scrapped_count,
         "active": len(active_beans),
         "in_progress": in_progress_count,
+        "draft": draft_count,
     }
     return active_beans, stats
 
@@ -530,7 +534,6 @@ def scan_beans(beans_dir: str) -> tuple[list[dict[str, Any]], dict[str, int]]:
 def generate_triage_document(
     active_beans: list[dict[str, Any]],
     stats: dict[str, int],
-    date_str: str,
     timestamp_str: str | None = None,
     previous_checkpoint: str | None = None,
 ) -> str:
@@ -540,7 +543,8 @@ def generate_triage_document(
     scrapped = stats["scrapped"]
     active = stats["active"]
     in_progress = stats.get("in_progress", 0)
-    todo = active - in_progress
+    draft = stats.get("draft", 0)
+    todo = active - in_progress - draft
 
     completed_pct = (completed / total * 100) if total else 0
     scrapped_pct = (scrapped / total * 100) if total else 0
@@ -574,7 +578,8 @@ def generate_triage_document(
             f"- **Total Tracked Beans**: {total} (excluding template)",
             f"- **Completed**: {completed} ({completed_pct:.1f}%)",
             f"- **Scrapped / Superseded**: {scrapped} ({scrapped_pct:.1f}%)",
-            f"- **Active**: {active} ({active_pct:.1f}%), of which {in_progress} are in progress and {todo} are todo",
+            f"- **Active**: {active} ({active_pct:.1f}%), of which {in_progress} are in progress"
+            + (f", {todo} are todo and {draft} are draft" if draft else f" and {todo} are todo"),
         ]
     )
     if EXECUTIVE_SUMMARY_UPDATE:
@@ -851,16 +856,14 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Triage and prioritise beans across the Holon ecosystem.")
     parser.add_argument("--beans-dir", default=".beans", help="Path to .beans/ directory")
     parser.add_argument("--output", help="Explicit output file path")
-    parser.add_argument("--date", help="Date string for title and filename (defaults to current date)")
     parser.add_argument("--dry-run", action="store_true", help="Print output to stdout without writing to disk")
     args = parser.parse_args()
 
-    date_str = args.date or datetime.now(UTC).strftime("%Y-%m-%d")
     active_beans, stats = scan_beans(args.beans_dir)
 
     prior_output = args.output or os.path.join(args.beans_dir, "bean-triage-prioritisation.md")
     previous_checkpoint = read_previous_checkpoint(prior_output)
-    doc = generate_triage_document(active_beans, stats, date_str, previous_checkpoint=previous_checkpoint)
+    doc = generate_triage_document(active_beans, stats, previous_checkpoint=previous_checkpoint)
 
     if args.dry_run:
         print(doc)

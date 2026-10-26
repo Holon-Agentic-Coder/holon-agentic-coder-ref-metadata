@@ -51,7 +51,6 @@ python3 .agents/skills/prioritise_beans/scripts/prioritise_beans.py
 | :------------ | :--------------------------------------------------------- | :------------------------------------- |
 | `--beans-dir` | Directory containing bean markdown files                   | `.beans`                               |
 | `--output`    | Explicit output file path                                  | `.beans/bean-triage-prioritisation.md` |
-| `--date`      | Target date string (`YYYY-MM-DD`) for title                | Today's UTC date                       |
 | `--dry-run`   | Print generated Markdown to stdout without writing to disk | `false`                                |
 
 ### Post-Generation Hygiene
