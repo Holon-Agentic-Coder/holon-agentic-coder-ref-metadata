@@ -1,20 +1,32 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-10-20 07:39:09 UTC
+**Last Updated:** 2026-10-26 13:11:57 UTC
 
 ## Executive Summary
 
-Since the previous triage checkpoint on 2026-10-03, the Holon ecosystem has progressed through automated Holon flow
-cycles, multi-agent consensus review loops, and infrastructure hardening.
+Since the 2026-10-22 checkpoint, every bean that was active then and blocked on a runner has gone through the full
+5-stage Holon flow and been merged by the maintainer:
 
-- **Total Tracked Beans**: 129 (excluding template)
-- **Completed**: 126 (97.7%)
-- **Scrapped / Superseded**: 2 (1.6%)
-- **Active / Todo**: 1 (0.8%)
+- holon-agentic-coder PRs #90, #91, #93, #94, #95 and #96
+- holon-coherence PR #27
+
+Concurrent flows on overlapping files (#94, #95 and #96 all changed `flow.py` and `cli.py`) forced repeated syncs and
+re-reviews: 141 review-loop passes from the first sync onward, about 10M+ tokens. Beans 0151 and 0152 address that, and
+overlapping flows now run one after another.
+
+- **Total Tracked Beans**: 164 (excluding template)
+- **Completed**: 138 (84.1%)
+- **Scrapped / Superseded**: 2 (1.2%)
+- **Active**: 24 (14.6%), of which 3 are in progress and 21 are todo
+
+**2026-10-26:** the first full claude-agent `holon flow` runs (Beans 0151, 0159) exposed seven defects in the flow
+itself. They are logged as Beans 0157-0162, and Bean 0144 was raised to critical after its fabricated approval reached
+GitHub. Bean 0156 starts the investigation into moving issue tracking from harness beans to beads inside each target,
+ahead of deprecating this harness.
 
 ---
 
-## Key Milestones Completed (Beans 0080 – 0127)
+## Key Milestones Completed (Beans 0080 – 0140)
 
 1. **Holon Flow and Automation Engine**:
    - `0084`: Fixed CI check name collisions in review gates.
@@ -23,7 +35,8 @@ cycles, multi-agent consensus review loops, and infrastructure hardening.
    - `0093`: Atomic ledger locking with exponential backoff and `flock`.
    - `0094`: Checkpoint schema versioning and automated state migration.
 2. **Action Knowledge Base and Wisdom (Bean 0052 / PR #78)**:
-   - Full integration of SQLite FTS5 inverted index and discrete action ledger (`actions.jsonl`).
+   - Full integration of the SQLite FTS5 inverted index over the canonical `executions.jsonl` ledger (the auxiliary
+     `actions.jsonl` was later retired by Bean 0123).
    - Pre-action wisdom consult (`holon consult`) across intent, planning, execution, and review stages.
    - Statistical Wilson score promotion ladder and deterministic failure veto engine.
 3. **Multi-Agent Review Loop and Hygiene (PR #52)**:
@@ -68,18 +81,126 @@ cycles, multi-agent consensus review loops, and infrastructure hardening.
    - `0125`: Australian English spelling hygiene across documentation and codebase comments.
    - `0126`: Enforced unprivileged Docker execution via `--cap-drop=ALL` with selective capability drops.
    - `0127`: Hardened `LedgerLock` concurrency file locking with exponential backoff and timeouts.
+10. **Documentation Gap Remediation and Container `gh` Availability (Beans 0128 and 0131 / PR #87 & PR #88)**:
+    - `0128`: Closed documentation drift across `holon-agentic-coder` (PR #87) and the harness, so flow stage, ledger,
+      and worktree instructions match the implemented behaviour.
+    - `0131`: Installed the GitHub CLI into `holon-base` so every agent image and the Stage 4 review-loop container can
+      post consensus reviews, plus container availability tests (PR #88, Stage 5 calibrated).
+11. **Proxy Cold-Start Readiness and Agent Runner Tests (Bean 0130 / holon-coherence PR #26)**:
+    - Replaced the fixed-sleep readiness probe with HTTP readiness polling, deduplicated the proxy `chmod` handling,
+      routed readiness probes around the proxy, and added agent runner integration tests.
+    - Traversed all 5 Holon flow stages and passed unanimous 3/3 ensemble consensus at iteration 4; residual nits were
+      deferred to Beans 0132 and 0133 instead of being dropped.
+12. **Ecosystem install refresh and flow-integrity audit (2026-10-22)**:
+    - Rebuilt all nine container images via Buildx Bake and reinstalled `holon` / `holon-coherence` editable from
+      `origin/main` (`holon-agentic-coder` `3bef6f7`, `holon-coherence` `29b7e50`).
+    - Attempted the three remaining beans through the Holon flow and recorded why they could not complete: Bean 0134
+      (the unified `holon flow` runner dispatches no role agent and opened the now-closed empty PR #89), Bean 0135
+      (mergeability verdict fabricated from a missing ref), and a full inventory of unusable agent runners.
+    - Logged Beans 0137-0140 against the root causes: hard-coded default runner, single-response artifact authoring,
+      absent turn/stage budgets, and an undisclosed sandbox output ceiling. Declared `maxTokens` explicitly in the host
+      pi config so the cap is visible.
+    - Contained the credential leak in CLI command echoes (Bean 0136): token rotated, old value verified rejected.
+
+13. **Five-stage flow cycle on every runner-blocked bean (2026-10-23 to 2026-10-26)**:
+    - All seven PRs were driven with the `claude-agent` runner (`claude-opus-5-5`) through intent, plan, execute, the
+      3-agent review loop and Stage 5 calibration. Every consensus review was posted; merging stayed with the
+      maintainer.
+    - `0135` (#91): a missing branch ref reports `MISSING_REF`, not a false conflict.
+    - `0129` + `0133` (holon-coherence #27): mitmweb inspector, plus a monotonic proxy readiness deadline.
+    - `0132` (#90): Stage 4/5 `ACT-*` rows in `executions.jsonl`, plus a calibration success gate.
+    - `0137` (#93): the runner is inherited from the harness, with a pre-flight credential probe.
+    - `0136` (#96, superseding #92 after a plan-ID collision): canonical redaction module; credentials off the docker
+      argv through a 0600 env-file; `redact_cli_error`; URL-message fuzz tests.
+    - `0134` (#95): `holon flow` dispatches role agents. Empty diffs are refused fail-closed, unmeasured tests are never
+      counted as a pass, and tests have a `gh` write guard.
+    - `0138` + `0139` + `0140` (#94): incremental artefacts, turn/stage budgets handed to every container, an explicit
+      model envelope, a unified `holon doctor`, a validated `models.json` loader, and malformed-config and UTF-8
+      hardening.
+    - Every calibration report read its predicted metrics from the wrong `plans.jsonl` row. Each got an annotation
+      commit (Bean 0146 has the table).
+
+14. **First claude-agent `holon flow` runs and the defects they surfaced (2026-10-26)**:
+    - The claude runner fix (Bean 0143) was rebased onto `main`, installed as `holon` and baked into
+      `holon/agent-claude`. Role containers run the image's code, not the host install.
+    - Bean 0151 reached a sound plan (EV 19.82). Stage 3 then fabricated two placeholder sub-intents and halted for a
+      human (Bean 0159). Maintainer decision: no stage before merge may halt for human review.
+    - Bean 0159 ran intent -> plan -> execute -> review -> calibrate (PR #97). On the way it hit the following:
+      - Bean 0157: the mitmproxy sidecar auto-starts because its image exists, and role containers cannot reach it.
+      - Bean 0158: every run reorders `intents.jsonl`, which also breaks Stage 4 checkout.
+      - Bean 0160: CI polling consumes review iterations and is then reported as test failures.
+      - Bean 0144: the native review loop posted a fabricated "3-Agent Ensemble" approval to GitHub.
+      - Bean 0162: Stage 5 commits a report that fails the `hygiene` check.
+    - PR #97 then went through the real harness `pr-review-loop` (3 blind reviewers plus a resolver per iteration). Nine
+      iterations applied ledger, design, test-coverage and parser fixes. Decomposed-child aggregation was deferred to
+      Bean 0161.
 
 ---
 
 ## Active Beans Triage and Prioritisation Matrix
 
-| Priority | Status | Impact | Sizing | Bean # | Title                                                                     | Domain          | Dependencies / Notes                                                                                             |
-| :------- | :----- | :----: | :----: | :----: | :------------------------------------------------------------------------ | :-------------- | :--------------------------------------------------------------------------------------------------------------- |
-| **P1**   | todo   | Medium |   M    |  0129  | Expose plain mitmweb web interface to inspect live requests and responses | CLI / Telemetry | `holon-coherence` serves as the network optimization proxy and telemetry gateway, intercepting LLM API calls for |
+| Priority | Status      | Impact | Sizing | Bean # | Title                                                                                  | Domain                   | Dependencies / Notes                                                                                                                  |
+| :------- | :---------- | :----: | :----: | :----- | :------------------------------------------------------------------------------------- | :----------------------- | :------------------------------------------------------------------------------------------------------------------------------------ |
+| **P0**   | in-progress |  High  |   M    | 0159   | Executor honours the intent entropy budget; no fabricated sub-intents; no Stage 3 halt | Holon Flow / Executor    | PR #97 in the harness review loop (iteration 9, head `c479dd4`). Unblocks 0151. Merge, then reinstall from `main`.                    |
+| **P0**   | todo        |  High  |   L    | 0144   | Review loop runs no reviewer and posts a fabricated ensemble approval                  | Review Loop              | Reached GitHub on #97. Real reviewer containers needed. Until then Stage 4 runs through the harness `pr-review-loop` skill.           |
+| **P0**   | todo        |  High  |   S    | 0158   | A flow run reorders existing rows of the append-only `intents.jsonl`                   | Ledger / Holon Flow      | Breaks Stage 4 checkout on every unattended run. Workaround: `git restore` the file, then `--from-stage review`.                      |
+| **P0**   | todo        |  High  |   S    | 0160   | Review loop burns its iteration budget polling pending CI, then reports test failures  | Review Loop / CI         | Every unattended Stage 4 runs out of iterations before review. Workaround: wait for CI, then resume.                                  |
+| **P0**   | in-progress |  High  |   L    | 0151   | Planner estimates the touch set; overlapping concurrent flows are blocked              | Holon Flow / Concurrency | Plan `P-1792988757` exists. Blocked by 0159; re-plan on the new `main`. Wants 0149 for reliable in-flight IDs.                        |
+| **P1**   | in-progress |  High  |   S    | 0143   | Claude runner passes the permission bypass as CLI parameters                           | Agent Runner             | Rebased (`e7149a9`), pushed, no PR yet. All claude-agent flows currently run on this build. Maintainer's PR and merge.                |
+| **P1**   | todo        |  High  |   S    | 0162   | Stage 5 calibration commits a report that fails the `hygiene` Prettier check           | Calibration / CI         | Turns every flow PR red after calibration.                                                                                            |
+| **P1**   | todo        |  High  |   S    | 0157   | `holon flow` auto-enables the mitmproxy sidecar; role containers cannot reach it       | Holon Flow / Proxy       | Workaround: `HOLON_TOKEN_REDUCE=0`. Related to 0130.                                                                                  |
+| **P1**   | todo        |  High  |   M    | 0161   | Decomposed sub-intents have no flow path to `main` and do not build on each other      | Holon Flow               | Deferred from #97 (F2(b) plus resume safety F4). After 0159.                                                                          |
+| **P1**   | todo        |  High  |   M    | 0149   | Plan and execution IDs collide across concurrently planned intents                     | Provenance / Planner     | #91 and #92 shared `P-1792765112`. Prerequisite for 0151.                                                                             |
+| **P1**   | todo        |  High  |   M    | 0155   | General `HOLON_*` forwarding puts credential-shaped values on the docker argv          | Security                 | Already on main. Default fix: send every `HOLON_*` value through the 0600 env-file.                                                   |
+| **P1**   | todo        |  High  |   M    | 0148   | Redact before truncating ledger `error_context`; close `CredentialRedactor` gaps       | Security / Ledger        | Route those rows through `redact_agent_secrets`.                                                                                      |
+| **P1**   | todo        | Medium |   M    | 0146   | Plans-ledger correction rows; calibration picks the right predicted metrics            | Calibration / Ledger     | Every calibration last cycle needed a manual annotation (7 PRs).                                                                      |
+| **P1**   | todo        |  High  |   L    | 0156   | Investigate moving issue tracking from harness beans to beads inside each target       | Issue Tracking           | Investigation only, no target code. Can run in parallel with any flow. Precedes deprecating the harness.                              |
+| **P1**   | todo        |  High  |   M    | 0163   | CI timing regression gate: fail builds whose duration regresses beyond a tolerance     | CI / Performance         | macOS unit already over 10 min on `main` (662 s). Baseline on a rolling median; same code varies about ±20%. Both repos.              |
+| **P1**   | todo        |  High  |   XL   | 0152   | Audit long files; decompose oversized functions (flow.py, cli.py first)                | Refactor / Concurrency   | `cli.main` is 1062 lines; `flow.py` is 4400+. Run only while no other flow touches those files.                                       |
+| **P1**   | todo        | Medium |   S    | 0154   | Fix the flaky URL fuzz leak check that can match temp-file names                       | Tests                    | Turned #97's macOS CI red on 2026-10-26 (second occurrence). Tests only; parallel with flows that don't touch the fuzz test.          |
+| **P1**   | todo        | Medium |   S    | 0164   | Plain-language documentation for entropy, Expected Value, and how they relate          | Documentation            | Documentation only, disjoint from `flow.py`/`cli.py`, so it runs in the parallel lane. Through the Holon flow on holon-agentic-coder. |
+| **P2**   | todo        | Medium |   XL   | 0153   | Remove comments and docstrings from all code; make it self-documenting                 | Readability              | Runs with or after 0152.                                                                                                              |
+| **P2**   | todo        | Medium |   S    | 0147   | Remove harness paths tracked in the target repositories                                | Hygiene                  | One flow per repository. The coherence part can run in parallel. Fold into 0156's plan if beads lands first.                          |
+| **P2**   | todo        |  Low   |   S    | 0150   | Flow tests write the real checkout's `action_index.db`                                 | Tests                    | Unblocked.                                                                                                                            |
+| **P2**   | todo        | Medium |   S    | 0145   | Pin holon-coherence to Python 3.13                                                     | Build / coherence        | coherence only; parallel with holon-agentic-coder flows.                                                                              |
+| **P2**   | todo        |  High  |   L    | 0142   | Real-workload benchmark: Qwen3.8-27B dense vs Flash-Next MoE                           | Model Selection          | Real data only (AGENTS.md item 10).                                                                                                   |
+| **P3**   | todo        | Medium |   M    | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                    | vmlx / Performance       | Pairs with 0142.                                                                                                                      |
 
 ---
 
 ## Recommended Next Execution Sequence
 
-1. **Expose plain mitmweb web interface to inspect live requests and responses (Bean 0129)**:
-   - `holon-coherence` serves as the network optimization proxy and telemetry gateway, intercepting LLM API calls for
+**Rule (2026-10-25):** never run concurrent flows whose touched files overlap. Nearly every holon-agentic-coder bean
+touches `flow.py` or `cli.py`, so those flows run **one at a time**: merge one, then plan the next on the new `main`.
+Only disjoint work runs in parallel. Bean 0151 will make the flow enforce this; Bean 0152 will bring back parallelism.
+
+**Rule (2026-10-26):** no stage before the merge may halt for human review. The PR merge is the only human step, after
+consensus review and Stage 5 calibration.
+
+**Tooling (2026-10-26):** the installed `holon` and `holon/agent-claude:latest` are built from
+`fix/0143-claude-runner-skip-permissions` (rebased on `main` `e3bbd67`), not from `main`. Once 0143 and 0159 are merged,
+reinstall `holon` and rebuild every image from `main`. Until 0157, 0158, 0160 and 0144 land, run flows with
+`HOLON_TOKEN_REDUCE=0`, restore `intents.jsonl` before Stage 4, wait for CI before resuming review, and run Stage 4
+through the harness `pr-review-loop` skill.
+
+Sequential lane, holon-agentic-coder (flow blockers first):
+
+1. **Bean 0159** (PR #97): finish the review loop, re-calibrate on the final head, then the maintainer merges.
+2. **Bean 0143**: the maintainer raises and merges the PR. Reinstall `holon` and rebuild images from `main`.
+3. **Bean 0144**: real reviewer containers for Stage 4. This removes the harness review dependency.
+4. **Bean 0158**, **Bean 0160**, **Bean 0162**, **Bean 0157**: the remaining flow-integrity blockers, one at a time (all
+   touch `flow.py`).
+5. **Bean 0149**, then **Bean 0151**: unique IDs, then touch-set admission. Re-plan 0151 on the new `main`.
+6. **Bean 0161**: decomposed-child chaining and the parent PR.
+7. **Bean 0155**, then **Bean 0148**: credential-redaction gaps (both touch `cli.py`).
+8. **Bean 0146**: calibration reads the correct predicted metrics.
+9. **Bean 0152**, then **Bean 0153**: decomposition and module split, then self-documenting code.
+
+Parallel lane (disjoint files):
+
+- **Bean 0163** (CI timing gate, workflows only, one flow per repository).
+- **Bean 0156** (beads investigation, no target code). Its outcome decides how 0147 and the harness retirement proceed.
+- **Bean 0145** (holon-coherence) and the holon-coherence half of **Bean 0147**.
+- **Bean 0154** and **Bean 0150** (tests only). Check their touch sets against the lane above first.
+- **Beans 0142 and 0141** (benchmarking and tuning, no code flow).
+- **Bean 0164** (plain-language entropy/EV explainer, documentation only, disjoint from `flow.py`/`cli.py`).

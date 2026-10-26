@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0130
 title: "Fix proxy readiness race condition and add agent runner startup integration tests"
-status: in-progress
+status: completed
 type: bug
 priority: critical
 tags:
@@ -78,9 +78,22 @@ Add automated integration tests (`@pytest.mark.integration_test`):
 
 ## Acceptance Criteria
 
-- [ ] `wait_for_proxy_ready()` verifies HTTP 200 response from the proxy before declaring readiness.
-- [ ] Running `holon-coherence agy` from a cold state (no container running) boots the proxy and connects successfully
+- [x] `wait_for_proxy_ready()` verifies HTTP 200 response from the proxy before declaring readiness.
+- [x] Running `holon-coherence agy` from a cold state (no container running) boots the proxy and connects successfully
       without `unexpected EOF` or eligibility check errors.
-- [ ] Integration tests verify cold-start launch of supported agent runners (`agy`, `pi`, `claude`, `codex`,
+- [x] Integration tests verify cold-start launch of supported agent runners (`agy`, `pi`, `claude`, `codex`,
       `opencode`).
-- [ ] All unit and integration test suites pass via `uv run pytest`.
+- [x] All unit and integration test suites pass via `uv run pytest`.
+
+## Resolution
+
+- **Pull Request**:
+  [Holon-Agentic-Coder/holon-coherence#26](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/26)
+- **5-Stage Provenance**:
+  - Intent: `I-1792495073-coherence-fix-proxy-readiness-and-agent-tests/_`
+  - Plan: `P-1792495105-antigravity-agent-gemini-3.8-flash-medium`
+  - Execution: `E-1792495303-antigravity-agent-gemini-3.8-flash-medium`
+  - Review: Consensus `APPROVED` (Reviewer Ensemble, Iteration 1)
+  - Calibration: `plans/P-1792495105-antigravity-agent-gemini-3.8-flash-medium_calibration.md` (Predicted EV: 7.33 |
+    Actual EV: 7.08 | ΔEV: -0.25)
+- **CI Status**: 7/7 passing across Linux and macOS workflows.
