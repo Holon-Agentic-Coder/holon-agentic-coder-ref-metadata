@@ -14,10 +14,10 @@ Concurrent flows on overlapping files (#94, #95 and #96 all changed `flow.py` an
 re-reviews: 141 review-loop passes from the first sync onward, about 10M+ tokens. Beans 0151 and 0152 address that, and
 overlapping flows now run one after another.
 
-- **Total Tracked Beans**: 162 (excluding template)
-- **Completed**: 138 (85.2%)
+- **Total Tracked Beans**: 163 (excluding template)
+- **Completed**: 138 (84.7%)
 - **Scrapped / Superseded**: 2 (1.2%)
-- **Active**: 22 (13.6%), of which 3 are in progress and 19 are todo
+- **Active**: 23 (14.1%), of which 3 are in progress and 20 are todo
 
 **2026-10-26:** the first full claude-agent `holon flow` runs (Beans 0151, 0159) exposed seven defects in the flow
 itself. They are logged as Beans 0157-0162, and Bean 0144 was raised to critical after its fabricated approval reached
@@ -154,6 +154,7 @@ ahead of deprecating this harness.
 | **P1**   | todo        |  High  |   M    | 0148   | Redact before truncating ledger `error_context`; close `CredentialRedactor` gaps       | Security / Ledger        | Route those rows through `redact_agent_secrets`.                                                                             |
 | **P1**   | todo        | Medium |   M    | 0146   | Plans-ledger correction rows; calibration picks the right predicted metrics            | Calibration / Ledger     | Every calibration last cycle needed a manual annotation (7 PRs).                                                             |
 | **P1**   | todo        |  High  |   L    | 0156   | Investigate moving issue tracking from harness beans to beads inside each target       | Issue Tracking           | Investigation only, no target code. Can run in parallel with any flow. Precedes deprecating the harness.                     |
+| **P1**   | todo        |  High  |   M    | 0163   | CI timing regression gate: fail builds whose duration regresses beyond a tolerance     | CI / Performance         | macOS unit already over 10 min on `main` (662 s). Baseline on a rolling median; same code varies about ±20%. Both repos.     |
 | **P1**   | todo        |  High  |   XL   | 0152   | Audit long files; decompose oversized functions (flow.py, cli.py first)                | Refactor / Concurrency   | `cli.main` is 1062 lines; `flow.py` is 4400+. Run only while no other flow touches those files.                              |
 | **P2**   | todo        | Medium |   XL   | 0153   | Remove comments and docstrings from all code; make it self-documenting                 | Readability              | Runs with or after 0152.                                                                                                     |
 | **P1**   | todo        | Medium |   S    | 0154   | Fix the flaky URL fuzz leak check that can match temp-file names                       | Tests                    | Turned #97's macOS CI red on 2026-10-26 (second occurrence). Tests only; parallel with flows that don't touch the fuzz test. |
@@ -195,6 +196,7 @@ Sequential lane, holon-agentic-coder (flow blockers first):
 
 Parallel lane (disjoint files):
 
+- **Bean 0163** (CI timing gate, workflows only, one flow per repository).
 - **Bean 0156** (beads investigation, no target code). Its outcome decides how 0147 and the harness retirement proceed.
 - **Bean 0145** (holon-coherence) and the holon-coherence half of **Bean 0147**.
 - **Bean 0154** and **Bean 0150** (tests only). Check their touch sets against the lane above first.
