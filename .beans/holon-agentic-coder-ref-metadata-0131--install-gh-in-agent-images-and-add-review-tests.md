@@ -24,9 +24,8 @@ During Stage 4 (PR Review Loop) of the Holon flow, the containerised **Holon Rev
 (`HOLON_ROLE=review-loop`, dispatched to `sandbox_executor.entrypoint.review_loop`) runs inside container images such as
 `holon/agent-antigravity`.
 
-Upon completing consensus evaluations, `post_pr_review_consensus()` in
-[`src/sandbox_executor/flow.py`](apps/holon-agentic-coder/main/apps/sandbox-executor/src/sandbox_executor/flow.py)
-attempts to dual-post the review consensus to GitHub using `gh pr comment` and `gh pr review`.
+Upon completing consensus evaluations, `post_pr_review_consensus()` in `src/sandbox_executor/flow.py` attempts to
+dual-post the review consensus to GitHub using `gh pr comment` and `gh pr review`.
 
 However:
 
