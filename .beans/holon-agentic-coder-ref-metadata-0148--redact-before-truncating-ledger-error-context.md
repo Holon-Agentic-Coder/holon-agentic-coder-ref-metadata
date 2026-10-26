@@ -48,5 +48,3 @@ wire-log redaction behaviour to stay unchanged.
 ## Notes
 
 - PRs #90 and #96 have merged, so this can now run through the Holon flow on holon-agentic-coder.
-
-## Resolution

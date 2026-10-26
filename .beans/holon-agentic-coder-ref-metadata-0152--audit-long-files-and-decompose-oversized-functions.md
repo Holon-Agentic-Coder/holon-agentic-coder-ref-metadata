@@ -95,5 +95,3 @@ Tests mirror this: `test_flow.py` 3952 lines, `test_token_reduction.py` 3725, `t
   lines) should be committed with the lint gate in step 3, inside the target repository.
 - Related: Bean 0151 (planner touch sets with a hard block on overlapping concurrent flows). Decomposition makes touch
   sets finer-grained, so more flows can run in parallel.
-
-## Resolution

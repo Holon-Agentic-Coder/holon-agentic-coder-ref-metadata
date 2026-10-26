@@ -106,7 +106,3 @@ anything or change either target.
 
 - Related: Bean 0147 (harness paths tracked in targets), Bean 0151 (touch-set estimation and overlapping flows), Bean
   0152 (decomposition), Bean 0143 (claude runner, needed before flows can run on claude-agent).
-
-## Resolution
-
-Pending.

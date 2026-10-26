@@ -102,5 +102,3 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 - Re-run the baseline count (Python AST pass plus a per-language comment count) after each PR and add the numbers here.
 - Related: Bean 0152 (decompose oversized functions and split modules), Bean 0151 (planner touch sets with a hard block
   on overlapping concurrent flows).
-
-## Resolution

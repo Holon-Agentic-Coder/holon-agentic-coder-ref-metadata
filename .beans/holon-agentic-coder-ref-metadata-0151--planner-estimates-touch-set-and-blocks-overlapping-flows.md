@@ -86,5 +86,3 @@ unions, and the maintainer chose to keep the ledger layout.
   entropy budget and fabricates placeholder sub-intents). Blocked by 0159 (PR #97, in review); re-plan on `main` after
   it merges. Also wants 0149 first for reliable in-flight IDs. Logs `todo/logs/0151-flow*.log`, intent
   `todo/intent-0151-touch-set-admission.json`.
-
-## Resolution

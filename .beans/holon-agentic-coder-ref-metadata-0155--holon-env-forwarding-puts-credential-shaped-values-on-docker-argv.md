@@ -37,5 +37,3 @@ see it. Example: a budget variable that ignores the bad value and falls back to 
 
 - Run through the Holon flow on holon-agentic-coder.
 - Related: Bean 0148 (redaction gaps in ledger `error_context`).
-
-## Resolution

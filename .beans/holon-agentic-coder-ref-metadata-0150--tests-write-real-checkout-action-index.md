@@ -32,5 +32,3 @@ index and can interfere with concurrent runs in the same worktree. PR #95 alread
 ## Notes
 
 - PR #95 has merged, so this can now run through the Holon flow on holon-agentic-coder.
-
-## Resolution

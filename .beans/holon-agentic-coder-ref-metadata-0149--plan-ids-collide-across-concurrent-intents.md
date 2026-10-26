@@ -41,5 +41,3 @@ Execution IDs (`E-<epoch>-<agent>-<model>`) have the same weakness.
 
 - Found by the PR #92 Stage 4 dry run, iteration 8 (finding D8-I1).
 - Run through the Holon flow on holon-agentic-coder.
-
-## Resolution

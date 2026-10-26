@@ -42,5 +42,3 @@ of scope unless it references harness paths.
 
 - Run through the Holon flow, once per target repository.
 - Found by: PR #92 resolver iteration 3, PR #95 dry-run iteration 1, PR #27 dry-run iteration 5.
-
-## Resolution

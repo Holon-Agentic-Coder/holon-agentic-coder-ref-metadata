@@ -42,5 +42,3 @@ happens to share a 4-character run with the fake password, the check reports a l
 
 - Run through the Holon flow on holon-agentic-coder.
 - Found by the PR #94 iteration-15 sync resolver (merge of #95).
-
-## Resolution
