@@ -11,7 +11,7 @@ tags:
   - token-cost
   - holon-agentic-coder
 created_at: 2026-10-25T07:34:25Z
-updated_at: 2026-10-26T04:22:09Z
+updated_at: 2026-10-26T09:42:56Z
 ---
 
 ## Problem
@@ -83,7 +83,8 @@ unions, and the maintainer chose to keep the ledger layout.
 - **2026-10-26 flow run (claude-agent, runner from `fix/0143`):** intent
   `I-1792988604-touch-set-estimate-and-overlap-admission/_` and plan `P-1792988757-claude-agent-claude-opus-5-5` (EV
   19.82, entropy 12.6, touch-set design included) pushed. Stage 3 halted on Bean 0159 (executor ignores the intent
-  entropy budget and fabricates placeholder sub-intents). Blocked by 0159; re-plan on `main` after it merges. Logs
-  `todo/logs/0151-flow*.log`, intent `todo/intent-0151-touch-set-admission.json`.
+  entropy budget and fabricates placeholder sub-intents). Blocked by 0159 (PR #97, in review); re-plan on `main` after
+  it merges. Also wants 0149 first for reliable in-flight IDs. Logs `todo/logs/0151-flow*.log`, intent
+  `todo/intent-0151-touch-set-admission.json`.
 
 ## Resolution

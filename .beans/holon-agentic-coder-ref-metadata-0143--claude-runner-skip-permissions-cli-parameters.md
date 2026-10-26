@@ -10,7 +10,7 @@ tags:
   - permissions
   - flow-bootstrap
 created_at: 2026-10-23T14:40:00Z
-updated_at: 2026-10-23T14:40:00Z
+updated_at: 2026-10-26T09:42:56Z
 ---
 
 ## Problem
@@ -50,6 +50,11 @@ write is still denied until `--permission-mode bypassPermissions` is also passed
   `HOLON_AGENT_SETTINGS`; `ANTHROPIC_API_KEY` rejects OAuth tokens. A first-class `HOLON_AGENT_OAUTH_TOKEN` mapping in
   `role_dispatcher.sh` would remove that workaround -- candidate follow-up through the flow.
 
+- **2026-10-26:** rebased onto `origin/main` (`e3bbd67`) and force-pushed with lease: `3e6b8b3` + `e7149a9`.
+  `uv run task test` 2181 passed, lint clean. The installed `holon` (uv tool, editable) points at this worktree, and
+  `holon/agent-claude:latest` was rebuilt from it (role containers run the baked `/home/holon/src` code, not the host
+  install). Every claude-agent flow on 2026-10-26 (Beans 0151, 0159) ran on this build. Still no PR.
+
 ## Resolution
 
-Pending: push, PR (maintainer), merge, then reinstall `holon` from `origin/main` via the `install-holon` skill.
+Pending: PR (maintainer), merge, then reinstall `holon` from `origin/main` via the `install-holon` skill.

@@ -3,13 +3,13 @@
 title: "holon review-loop <PR number> clones a nonexistent branch and still reports consensus APPROVED"
 status: todo
 type: bug
-priority: high
+priority: critical
 tags:
   - review-loop
   - provenance
   - flow
 created_at: 2026-10-23T15:05:00Z
-updated_at: 2026-10-23T15:05:00Z
+updated_at: 2026-10-26T09:42:56Z
 ---
 
 ## Problem
@@ -63,6 +63,14 @@ as decided by the maintainer on 2026-10-24.
   an ensemble with zero completed reviewers cannot approve.
 
 ## Notes
+
+- **Reached GitHub (2026-10-26, PR #97):** `holon flow` Stage 4 reached "consensus" in 2 s with no reviewer container
+  ("no remaining stage from 'review' dispatches an agent runner") and posted two COMMENTED reviews describing a "3-Agent
+  Ensemble" with three hashed reviewer IDs, all "APPROVED". The summary described unrelated work ("Audit Remediation",
+  "Pre-Commit Security & Hygiene Guard") from the hard-coded fallback title in `flow.py` (~1671). `role_dispatcher.sh`
+  dispatches a `review-loop` role, but `entrypoint/review_loop.py` never calls an agent runner. Raised to critical:
+  every unattended flow now publishes a fabricated approval. The harness `pr-review-loop` skill remains the Stage 4 path
+  until this lands.
 
 - Workaround in use: pass the execution branch (`I-.../P-.../E-.../_`) as the target.
 - Run through the Holon flow on `holon-agentic-coder`.

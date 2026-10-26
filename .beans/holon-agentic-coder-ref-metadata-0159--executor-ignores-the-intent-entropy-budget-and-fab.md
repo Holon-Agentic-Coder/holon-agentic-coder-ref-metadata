@@ -13,7 +13,7 @@ tags:
 blocking:
   - holon-agentic-coder-ref-metadata-0151
 created_at: 2026-10-26T04:31:31Z
-updated_at: 2026-10-26T05:26:38Z
+updated_at: 2026-10-26T09:42:56Z
 ---
 
 ## Problem
@@ -63,6 +63,21 @@ Artifacts left on `origin` (audited provenance, do not rewrite):
   collecting at the first line containing "Sub-Intents" (line 52) and turned an unrelated step bullet into a sub-intent.
   The parser must match only a real heading line. Run 2's intent forbids the literal token in the plan as a bootstrap
   workaround.
+
+- **Flow run 2 (2026-10-26):** intent `I-1792992678-entropy-budget-handoff-and-no-human-halt-in-execute/_`, plan
+  `P-1792992691-claude-agent-claude-opus-5-5` (EV 53.25), execution `E-1792992902` (16 paths, Stage 3 17.4 min). Stage 4
+  first failed on the Bean 0158 ledger reorder, then burned 25 iterations polling pending CI (Bean 0160), then on resume
+  posted a fabricated "3-Agent Ensemble" approval to PR #97 with no reviewer run (Bean 0144). Stage 5 calibrated the
+  head (`a66ad46`), but that report was not Prettier-clean (Bean 0162).
+- **Real review via the harness `pr-review-loop` skill (maintainer instruction 2026-10-26):** worktree
+  `apps/holon-agentic-coder/pr97-entropy-budget-no-human-halt`, loop state in
+  `.subagent/holon-agentic-coder_pr97_{state.json,coordination.json,loop_history.md}`. Iterations 1-8 applied 2
+  ledger/design findings (F1 ledger reorder in the PR diff, F2 decomposed children have no path to `main`: part (a)
+  applied, part (b) deferred to Bean 0161), the calibration Prettier fix, the child PR link source, documentation fixes,
+  missing tests, and a sub-intent list parser that needed a convergence ruling (`PARSER-CONVERGENCE-ITER7`, one 35+ case
+  regression corpus). Ensembles: iteration 3 changes requested, iteration 5 3/3 approved with 2 open Nits, iteration 6
+  changes requested. Head `c479dd4` (iteration 9): dry run clean, 2271 tests pass, CI pending. Next: 3/3 ensemble on the
+  converged head, post the consensus review, re-run Stage 5 on the final head and include it in the PR.
 
 - Run through the Holon flow on holon-agentic-coder. It overlaps Bean 0151 on `entrypoint/planner.py`, so run it first
   and re-plan 0151 on the new `main`.
