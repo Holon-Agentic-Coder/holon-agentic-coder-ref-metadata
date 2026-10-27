@@ -1,5 +1,5 @@
 ---
-# holon-agentic-coder-ref-metadata-0164
+# holon-agentic-coder-ref-metadata-0167
 title: "Turn supervisor test relies on a real 50 ms reader-join timeout and flakes on slow CI runners"
 status: todo
 type: bug
@@ -10,7 +10,7 @@ tags:
   - ci
   - holon-agentic-coder
 created_at: 2026-10-27T01:44:38Z
-updated_at: 2026-10-27T01:44:38Z
+updated_at: 2026-10-27T11:09:29Z
 ---
 
 ## Problem
@@ -38,5 +38,12 @@ escalates to SIGKILL and the assertion fails. 2329 other tests passed, and ubunt
   claims.
 
 ## Notes
+
+- **Global git config dependence (found 2026-10-27, PR #97 iteration 30):**
+  `tests/test_workspace_survival_stress.py::...preserves_workspace_and_history` (stress-marked) fails when the
+  developer's global git config sets `core.hooksPath`. PR #97 fixed the same dependence in its own executor tests: the
+  test origin pins its own hooks directory, and client git commands set `core.hooksPath` to an empty directory. Apply
+  that pattern here, and audit every test that creates repositories or hooks so none reads the developer's global git
+  config. One option is a session-wide `GIT_CONFIG_GLOBAL=/dev/null` in the test environment.
 
 - Run through the Holon flow on holon-agentic-coder. Related: Bean 0154 (another CI flake), Bean 0163 (CI timing gate).

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0151
 title: "Planner estimates the files a change will touch, and overlapping flows are blocked from running concurrently"
-status: in-progress
+status: todo
 type: feature
 priority: critical
 tags:
@@ -11,7 +11,7 @@ tags:
   - token-cost
   - holon-agentic-coder
 created_at: 2026-10-25T07:34:25Z
-updated_at: 2026-10-26T09:42:56Z
+updated_at: 2026-10-27T12:11:10Z
 ---
 
 ## Problem

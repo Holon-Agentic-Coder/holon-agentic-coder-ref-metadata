@@ -10,7 +10,7 @@ tags:
   - permissions
   - flow-bootstrap
 created_at: 2026-10-23T14:40:00Z
-updated_at: 2026-10-26T09:42:56Z
+updated_at: 2026-10-27T12:11:10Z
 ---
 
 ## Problem
@@ -54,6 +54,10 @@ write is still denied until `--permission-mode bypassPermissions` is also passed
   `uv run task test` 2181 passed, lint clean. The installed `holon` (uv tool, editable) points at this worktree, and
   `holon/agent-claude:latest` was rebuilt from it (role containers run the baked `/home/holon/src` code, not the host
   install). Every claude-agent flow on 2026-10-26 (Beans 0151, 0159) ran on this build. Still no PR.
+
+- **2026-10-27:** every claude-agent flow so far (Beans 0151 and 0159) ran on this branch's build: the global `holon`
+  tool install and `holon/agent-claude:latest`. After PR #97 merged, `main` has moved again, so rebase this branch and
+  rebuild before the next claude-agent flow, or land the PR. It still has no PR.
 
 ## Resolution
 

@@ -9,7 +9,7 @@ tags:
   - decomposition
   - holon-agentic-coder
 created_at: 2026-10-26T07:16:04Z
-updated_at: 2026-10-26T07:16:04Z
+updated_at: 2026-10-27T12:11:10Z
 ---
 
 ## Problem
@@ -36,6 +36,15 @@ Once Bean 0159 runs decomposed sub-intents autonomously (`_run_decomposed_plan` 
 - Tests with fixtures only.
 
 ## Notes
+
+- **2026-10-27, PR #97 (Bean 0159) delivered part of the groundwork:**
+  - children run sequentially under a depth cap;
+  - child branches are named `{parent}--{n}-{slug}`, and are reused only when the recorded goal and description match;
+  - a sub-intent's checkpoint is keyed by its intent branch;
+  - the flow summary lists child and grandchild PRs and the pending parent-to-target step.
+
+  Still open: chaining children so each builds on the previous one, raising the parent PR automatically, and full resume
+  safety of the decomposed Stage 3.
 
 - Run through the Holon flow on holon-agentic-coder after Bean 0159 merges. It overlaps `flow.py`, so run it
   sequentially.
