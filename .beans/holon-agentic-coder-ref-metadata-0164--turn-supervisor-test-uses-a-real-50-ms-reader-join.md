@@ -1,0 +1,42 @@
+---
+# holon-agentic-coder-ref-metadata-0164
+title: "Turn supervisor test relies on a real 50 ms reader-join timeout and flakes on slow CI runners"
+status: todo
+type: bug
+priority: high
+tags:
+  - tests
+  - flaky
+  - ci
+  - holon-agentic-coder
+created_at: 2026-10-27T01:44:38Z
+updated_at: 2026-10-27T01:44:38Z
+---
+
+## Problem
+
+`unit (macos-latest)` failed on holon-agentic-coder PR #97 head `837cb02` (2026-10-27), where the change does not touch
+the code under test:
+
+```text
+FAILED tests/test_turn_supervisor.py::TestRunTurn::test_lingering_pipe_holder_group_is_terminated_after_exit
+AssertionError: Lists differ: [(4242, SIGTERM), (4242, SIGKILL)] != [(4242, SIGTERM)]
+```
+
+The test (from #94, on `main`) drives `run_turn` with a fake clock and sleeper. It also patches
+`turns.READER_JOIN_TIMEOUT_SECONDS` to **0.05 s of real time**. After SIGTERM, `killpg` closes the fake stream, and the
+reader thread must notice and join within 50 ms. On a loaded macOS runner it doesn't, so the supervisor correctly
+escalates to SIGKILL and the assertion fails. 2329 other tests passed, and ubuntu unit passed on the same head.
+
+## Scope
+
+- Make the reader join deterministic in tests: inject the join timeout or the thread-join primitive the same way the
+  clock and sleeper are injected, or have the fake stream signal an event that the test waits on. The test must not
+  depend on wall-clock scheduling.
+- Audit `test_turn_supervisor.py` (and other tests that patch real timeouts to tiny values) for the same pattern.
+- Verify by running the affected tests repeatedly under CPU load. A stress loop is enough; no synthetic performance
+  claims.
+
+## Notes
+
+- Run through the Holon flow on holon-agentic-coder. Related: Bean 0154 (another CI flake), Bean 0163 (CI timing gate).

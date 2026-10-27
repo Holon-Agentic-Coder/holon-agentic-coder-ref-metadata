@@ -10,7 +10,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-24T01:41:18Z
-updated_at: 2026-10-24T01:41:18Z
+updated_at: 2026-10-27T05:14:49Z
 ---
 
 ## Problem
@@ -42,3 +42,11 @@ of scope unless it references harness paths.
 
 - Run through the Holon flow, once per target repository.
 - Found by: PR #92 resolver iteration 3, PR #95 dry-run iteration 1, PR #27 dry-run iteration 5.
+
+- **Bean ids in target code and docs (found 2026-10-27 during PR #97 review):** `main` also carries harness bean
+  references in holon-agentic-coder source, CLI help and docs, for example `README.md:850,865` ("Bean 0034"),
+  `apps/sandbox-executor/docs/hermetic_testing.md:7` ("Bean 0019"), `sandbox_executor/budgets.py:1` ("Bean 0139"), and
+  `sandbox_executor/cli.py:1346,1402,1479,1547,2080,2084` (Beans 0139, 0049, 0092, 0140, 0118, the last one in
+  user-visible `--help` text). Replace each with a plain description of the behaviour. Add a hygiene check that fails on
+  `Bean [0-9]{4}` and on review-loop finding ids in target files. During PR #97, its review loop had already removed
+  about 120 review-loop finding ids from lines the PR added.
