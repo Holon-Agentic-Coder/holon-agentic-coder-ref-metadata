@@ -577,9 +577,9 @@ Execute the resolution pass in a clean, isolated subagent context.
   >    finding: each Nit is either `applied` or `rejected` with a one-line reason. Silently skipping a Nit is not
   >    allowed.
   > 4. Verify fast-first before committing (see `pr-review-resolver` Step 4a). Run the cheap static checks first: lint,
-  >    Prettier `--check` on changed markdown, and YAML lint if workflows changed. Then run the targeted tests for the
-  >    files you touched. Run the full test suite last. Fix any failure before starting the next, slower step, so a
-  >    formatting or lint slip never costs a full suite run.
+  >    Prettier `--check` on changed markdown, and YAML lint if workflows changed. Next, run the **affected test
+  >    subset**: changed and added test files, plus every test file that imports a changed source module. Run the full
+  >    test suite only after the subset passes. Fix any failure before starting the next, slower step.
   > 5. Commit applied changes with message: `fix: apply validated PR review suggestions (Iteration <iteration>)`, with a
   >    provenance trailer block so the action can be attributed (Bean 0077): `Action-Origin: pr_review`,
   >    `Review-Severity: critical|important|nit` (one commit per severity where practical, otherwise the highest
