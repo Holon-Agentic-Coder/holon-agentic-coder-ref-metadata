@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0168
 title: "Unit suite runs about 1.7x slower on macOS than Linux; parallelise it and cut per-test subprocess cost"
-status: in-progress
+status: completed
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - tests
   - holon-agentic-coder
 created_at: 2026-10-27T10:26:52Z
-updated_at: 2026-10-27T12:17:15Z
+updated_at: 2026-10-28T11:59:54Z
 ---
 
 ## Problem
@@ -78,3 +78,8 @@ awaits the maintainer's merge.
 - Real CI, job total / pytest time, main `fbd3b35` → `8925e19`: unit macOS 404 / 382.4 s → 178 / 153.1 s; unit ubuntu
   251 / 241.8 s → 136 / 123.4 s; Workspace survival 430 / 417.0 s → 273 / 257.7 s.
 - Follow-ups logged: Bean 0176 (pytest only), Bean 0177 (architecture research).
+
+## Resolution (2026-10-28)
+
+Merged by the maintainer via PR #99 (`0e54457`, 2026-10-28T09:59:25Z) after an 8-iteration review loop, 3/3 ensemble
+approval and Stage 5 calibration.

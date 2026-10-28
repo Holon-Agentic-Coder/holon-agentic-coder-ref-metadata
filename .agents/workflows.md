@@ -71,7 +71,8 @@ branch and ledger record the next one consumes (see invariant 8 in [rules.md](ru
 
 - **Intent**: Write the intent JSON (`description`, `goal`, `slug`, optional `target_branch`) and run
   `./holon intent <file>` to open the `I-.../_` branch and append to `holon-knowledge/ledger/intents.jsonl`. Encode the
-  sandbox constraints the executor must respect inside `goal`.
+  sandbox constraints the executor must respect inside `goal`. Request repeated test runs only when the change must
+  measure performance, with an explicit N, each run under pytest-xdist (invariant 19 in [rules.md](rules.md)).
 - **Plan**: Run `./holon plan <intent_branch> --agent <agent> --model <model>`; review the generated `plans/P-*.md` and
   the predicted metrics recorded in `plans.jsonl` before proceeding.
 - **Execute**: Run `./holon execute <plan_branch> --agent <agent> --model <model>`. Verify the pushed `E-...` branch is

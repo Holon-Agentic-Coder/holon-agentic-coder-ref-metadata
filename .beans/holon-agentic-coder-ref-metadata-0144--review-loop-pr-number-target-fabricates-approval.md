@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0144
 title: "holon review-loop <PR number> clones a nonexistent branch and still reports consensus APPROVED"
-status: todo
+status: in-progress
 type: bug
 priority: critical
 tags:
@@ -9,7 +9,7 @@ tags:
   - provenance
   - flow
 created_at: 2026-10-23T15:05:00Z
-updated_at: 2026-10-26T09:42:56Z
+updated_at: 2026-10-28T11:59:49Z
 ---
 
 ## Problem

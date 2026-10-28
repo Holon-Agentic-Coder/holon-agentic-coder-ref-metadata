@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0167
 title: "Turn supervisor test relies on a real 50 ms reader-join timeout and flakes on slow CI runners"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - ci
   - holon-agentic-coder
 created_at: 2026-10-27T01:44:38Z
-updated_at: 2026-10-28T10:04:33Z
+updated_at: 2026-10-28T11:59:54Z
 ---
 
 ## Problem
@@ -54,3 +54,8 @@ Fixed inside PR #99 (Bean 0168, intent item 4): the lingering-pipe-holder test n
 `killpg` after an end-of-stream sentinel (no real-time 50 ms dependency), and the stress suite passes with a hostile
 global `core.hooksPath` because tests now use a hermetic test-only git config. 50/50 runs under load passed. Mark
 `completed` when PR #99 merges.
+
+## Resolution (2026-10-28)
+
+Merged by the maintainer via PR #99 (`0e54457`, 2026-10-28T09:59:25Z) after an 8-iteration review loop, 3/3 ensemble
+approval and Stage 5 calibration.
