@@ -10,7 +10,7 @@ tags:
   - ci
   - holon-agentic-coder
 created_at: 2026-10-27T01:44:38Z
-updated_at: 2026-10-27T11:09:29Z
+updated_at: 2026-10-28T10:04:33Z
 ---
 
 ## Problem
@@ -47,3 +47,10 @@ escalates to SIGKILL and the assertion fails. 2329 other tests passed, and ubunt
   config. One option is a session-wide `GIT_CONFIG_GLOBAL=/dev/null` in the test environment.
 
 - Run through the Holon flow on holon-agentic-coder. Related: Bean 0154 (another CI flake), Bean 0163 (CI timing gate).
+
+## Status (2026-10-28)
+
+Fixed inside PR #99 (Bean 0168, intent item 4): the lingering-pipe-holder test now joins its readers inside the fake
+`killpg` after an end-of-stream sentinel (no real-time 50 ms dependency), and the stress suite passes with a hostile
+global `core.hooksPath` because tests now use a hermetic test-only git config. 50/50 runs under load passed. Mark
+`completed` when PR #99 merges.

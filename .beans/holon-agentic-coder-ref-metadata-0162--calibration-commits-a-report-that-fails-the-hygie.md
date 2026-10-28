@@ -10,7 +10,7 @@ tags:
   - holon-flow
   - holon-agentic-coder
 created_at: 2026-10-26T07:28:28Z
-updated_at: 2026-10-26T07:28:28Z
+updated_at: 2026-10-28T10:04:33Z
 ---
 
 ## Problem
@@ -31,3 +31,9 @@ calibration, and the review loop then reads a failure the change did not cause.
 ## Notes
 
 - Run through the Holon flow on holon-agentic-coder.
+
+## Recurrence (2026-10-28)
+
+Recurred on PR #99 (Bean 0168): `holon calibrate` reported "Prettier converged" yet the committed
+`plans/P-1793104256-claude-agent-claude-opus-5-5_calibration.md` failed `uv run task lint-docs`. Fixed by a follow-up
+commit (`6e9df1d`) formatting the report with the repository's `.prettierrc.json` (3 lines changed).

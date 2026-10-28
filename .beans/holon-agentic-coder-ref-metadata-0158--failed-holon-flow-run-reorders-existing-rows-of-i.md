@@ -9,7 +9,7 @@ tags:
   - holon-flow
   - holon-agentic-coder
 created_at: 2026-10-26T04:23:42Z
-updated_at: 2026-10-26T04:23:42Z
+updated_at: 2026-10-28T10:04:33Z
 ---
 
 ## Problem
@@ -39,3 +39,9 @@ example ordering by timestamp, or the union step used when resolving ledger appe
   `--checkpoint ... --from-stage review`.
 
 - Run through the Holon flow on holon-agentic-coder.
+
+## Recurrence (2026-10-28)
+
+Recurred on PR #99 (Bean 0168): the Stage 1 intent commit reordered existing `intents.jsonl` rows, so main's file was no
+longer a byte prefix (divergence at byte 101,845). The review loop restored main's exact bytes plus the one new row in a
+follow-up commit.

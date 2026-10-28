@@ -63,3 +63,18 @@ Likely causes, ranked. None has yet been measured per test.
 - Related: Bean 0163 (CI timing regression gate), Bean 0166 (pipeline duration dashboard: collect per-test timings
   there), Bean 0167 (turn-supervisor timing flake; must be deterministic before xdist), Bean 0154 (temp-name fuzz flake;
   per-worker temp dirs help), Bean 0152 (smaller modules).
+
+## Progress (2026-10-28)
+
+PR #99 (https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/99) completed the review loop and Stage 5, and
+awaits the maintainer's merge.
+
+- Review loop: 8 iterations. Every finding was applied (none rejected): the cwd-dependent git-config test that failed
+  CI, the reordered `intents.jsonl` row, environment-injected git config, the wall-clock latency benchmark that failed
+  under xdist (now thread CPU time with the 50 ms limit kept), spelling, the `unittest` wording, and PR body and
+  execution-note accuracy. 3/3 ensemble approval at `de66397`, posted as review 5680741325 (COMMENT, own PR).
+- Stage 5: `holon calibrate` predicted EV 28.44, actual 53.42 (ΔEV +24.98). `/calibrated` pushed, fast-forwarded into
+  the PR head, then `6e9df1d` formatted the generated report (Bean 0162 defect recurred). All 10 checks pass.
+- Real CI, job total / pytest time, main `fbd3b35` → `8925e19`: unit macOS 404 / 382.4 s → 178 / 153.1 s; unit ubuntu
+  251 / 241.8 s → 136 / 123.4 s; Workspace survival 430 / 417.0 s → 273 / 257.7 s.
+- Follow-ups logged: Bean 0176 (pytest only), Bean 0177 (architecture research).
