@@ -145,55 +145,52 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "Sequential lane, holon-agentic-coder (flow blockers first):",
     "",
     (
-        "1. **Bean 0162**: every one of the eight parallel flows on 2026-10-29 hit it (calibration report fails "
-        "Prettier) and needed a manual fix. Small. Its companion Bean 0158 (`intents.jsonl` reordered) merged as "
-        "PR #111."
+        "1. **Bean 0162** (calibration report fails Prettier; small, calibration code) together with **Beans 0185 and "
+        "0186** (ruff complexity gates with an inline baseline; lint configuration only). The three are disjoint. "
+        "Bean 0158 is done (PR #111), so flows from `main` no longer reorder `intents.jsonl`."
     ),
     (
-        "2. **Bean 0179**: route Stage 4 reviewer turns through the `review-loop` role container so `holon flow` "
-        "reviews and posts on its own. Three PRs (#108, coherence #29 and #30) merged before their consensus review "
-        "or calibration; a flow that reviews itself closes that gap. Adopt the Bean 0170 convergence rules there."
+        "2. **Bean 0187** (split `flow.py` into a `flow/` package, move only), then **Bean 0188** (split `cli.py` "
+        "into self-registering command modules). Bean 0177 measured `flow.py` in 7 of the 16 flow PRs #94-#109; "
+        "landing the move-only splits before the next `flow.py` features stops those features colliding."
+    ),
+    "3. **Bean 0189**: launcher module for container launch; breaks the `flow`-`cli` import cycle.",
+    (
+        "4. **Bean 0179** (Stage 4 reviewers in the role container), then **Bean 0183** (every stage and engine "
+        "bookkeeping step sandboxed), on the new layout. Three PRs merged before their review or calibration; 0179 "
+        "lets `holon flow` review and post on its own."
+    ),
+    "5. **Bean 0175**: check GitHub token scopes before Stage 3 starts when the plan touches workflow files.",
+    (
+        "6. **Bean 0149**, then **Bean 0151**: unique IDs across concurrently planned intents (parallel batches "
+        "still rely on staggered starts), then touch-set admission."
     ),
     (
-        "3. **Bean 0183**: every flow stage and engine bookkeeping step (checkpoint, empty-diff guard, mergeability, "
-        "Stage 5 calibration) runs in its own sandboxed clone, so parallel flows need no host checkouts."
+        "7. **Decomposition lanes from Bean 0177** once the splits land, in parallel where their packages differ "
+        "(umbrella Bean 0152): 0190 (checkpoint and ledger), 0191 then 0192 (GitHub adapter, `ReviewLoop`), 0193, "
+        "0194, 0195 then 0196, 0197, 0198, 0199, 0201. Bean 0153 runs per package after each split."
     ),
-    "4. **Bean 0175**: check GitHub token scopes before Stage 3 starts when the plan touches workflow files.",
+    "8. **Bean 0181**: `/_` only on branch refs, ids bare (ledger field migration; readers accept both shapes).",
+    "9. **Bean 0160**, then **Bean 0157**: the remaining flow-integrity blockers.",
     (
-        "5. **Bean 0149**, then **Bean 0151**: unique IDs across concurrently planned intents (the parallel batch "
-        "relied on 90 s staggered starts), then touch-set admission."
-    ),
-    "6. **Bean 0181**: `/_` only on branch refs, ids bare (ledger field migration; readers accept both shapes).",
-    "7. **Bean 0160**, then **Bean 0157**: the remaining flow-integrity blockers (both touch `flow.py`).",
-    (
-        "8. **Bean 0161**: nested sub-intent branches per the maintainer's 2026-10-29 rulings (merge into the "
-        "deciding plan or execution branch, nested PRs automatic), chaining and resume safety."
+        "10. **Bean 0161**: nested sub-intent branches per the maintainer's rulings (now documented by PRs #103 and "
+        "#110), chaining and resume safety."
     ),
     (
-        "9. **The `holon-agentic-coder` half of Bean 0147** (task-id references in `flow.py`, `cli.py` and docs), "
-        "unless Bean 0156 folds it into the beads move."
+        "11. **The `holon-agentic-coder` half of Bean 0147**, **Bean 0155** then **Bean 0148** (redaction), **Beans "
+        "0172, 0173, 0174** (budgets and `.env`), **Bean 0146**, **Bean 0200** (holon-coherence owns token "
+        "reduction; after 0189)."
     ),
-    "10. **Bean 0155**, then **Bean 0148**: credential-redaction gaps (both touch `cli.py`).",
-    (
-        "11. **Bean 0172**, **Bean 0173**, then **Bean 0174**: unlimited budgets, layered `.env`, then the env-var "
-        "reference."
-    ),
-    "12. **Bean 0146**: calibration reads the correct predicted metrics.",
-    "13. **Bean 0176**: pytest-only conversion of every test file (touches most test files, so it runs alone).",
-    (
-        "14. **holon-agentic-coder Beans 0185 and 0187-0202** in the Bean 0177 migration order (umbrella Bean "
-        "0152 tracks 0185-0200; 0201 and 0202 sit outside it): lint gate 0185, move-only splits 0187 and 0188, "
-        "then 0189, 0190, 0191 and 0195, then the decomposition lanes, then 0200 and 0201. Bean 0202 (CI "
-        "composite action) is workflow-only and can run any time. Bean 0153 runs per package after each split."
-    ),
+    "12. **Bean 0176**: pytest-only conversion of every test file (touches most test files, so it runs alone).",
     "",
     "Parallel lane (disjoint files):",
     "",
     (
-        "- **Merged, beans to close:** holon-agentic-coder PR #110 (Bean 0180 docs, `85ef122`) and PR #111 (Bean "
-        "0158 pure-append ledgers, `8c9ff4d`), both reviewed and calibrated through the flow; holon-coherence PR "
-        "#31 (post-merge follow-up for #29, `b52c7e1`). Bean 0190 can now move the ledger code."
+        "- **Bean 0210** (five holon-agentic-coder docs still on the old sub-intent rules; documentation only, "
+        "disjoint from code), **Bean 0202** (timing-gate composite action; workflows only) and **Bean 0211** (two "
+        "holon-coherence A/B recipe doc fixes left open by PR #31)."
     ),
+    ("- **Harness:** PR #56 (`docs/harness-updates-0261027`) in its review loop."),
     (
         "- **Harness branch awaiting the maintainer:** `feat/0182-0170-event-watcher-and-loop-convergence` (Beans "
         "0182 and 0170 implemented and tested)."

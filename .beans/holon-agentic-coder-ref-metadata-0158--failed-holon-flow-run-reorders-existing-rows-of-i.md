@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0158
 title: "A failed holon flow run reorders existing rows of the append-only intents.jsonl"
-status: in-progress
+status: completed
 type: bug
 priority: critical
 tags:
@@ -9,7 +9,7 @@ tags:
   - holon-flow
   - holon-agentic-coder
 created_at: 2026-10-26T04:23:42Z
-updated_at: 2026-10-29T23:29:00Z
+updated_at: 2026-10-30T02:00:00Z
 ---
 
 ## Problem
@@ -56,3 +56,13 @@ follow-up commit.
 - PR #111 reviewed (consensus COMMENT review), calibrated
   (`plans/P-1793275622-claude-agent-claude-opus-5-5_calibration.md` in the PR) and merged by the maintainer as `8c9ff4d`
   (2026-10-29T23:24:24Z). Ready to close.
+
+## Summary of Changes (2026-10-30)
+
+Completed through the Holon flow: PR #111 merged as `8c9ff4d`. Root cause: `check_and_resolve_stage_conflicts` treated
+the `|||||||` inside an existing `intents.jsonl` row as a conflict marker on every Stage 1 and handed the file to
+`reconcile_ledger_rows`, which sorted rows by `created_at`, removed duplicates and rewrote it; the executor's pre-push
+sync also re-reconciled clean ledgers. Both paths are gone; every ledger write is a pure append guarded by a prefix
+check that fails closed (16 of 24 new tests fail with the fix reverted). Review: 4 iterations, 3/3 at `b8dde77` (review
+5699949693), calibrated (`b5a286c`, EV 53.91 predicted / 71.69 actual). Residual: conflict resolution rewrites in place
+under `LedgerLock`, not atomically. Flows from `main` no longer need the manual `intents.jsonl` restore.

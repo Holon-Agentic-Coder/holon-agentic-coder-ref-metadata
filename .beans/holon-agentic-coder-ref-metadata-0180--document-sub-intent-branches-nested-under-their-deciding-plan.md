@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0180
 title: "Document sub-intent branches nested under the plan that decided the split"
-status: in-progress
+status: completed
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - documentation
   - holon-agentic-coder
 created_at: 2026-10-29T00:38:39Z
-updated_at: 2026-10-29T23:29:00Z
+updated_at: 2026-10-30T02:00:00Z
 ---
 
 ## Problem
@@ -115,3 +115,10 @@ intent branch, question 4 is left open, and collisions are a question. Decisions
   (`plans/P-1793275710-claude-agent-claude-opus-5-5_calibration.md` in the PR) and merged by the maintainer as `85ef122`
   (2026-10-29T14:37:07Z). Ready to close. Its review loop found five more documents on the old rules; Bean 0210 carries
   them.
+
+## Summary of Changes (2026-10-30)
+
+PR #103 (nested sub-intent branches) and PR #110 (the five maintainer rulings: merge into the deciding plan or execution
+branch, nested PRs automatic, sibling slugs distinct, keep `deciding_branch`, review-decided splits under plan or
+execution) are both merged (`e187393`, `85ef122`). PR #110: 8 review iterations, 3/3 at `7ed151c` (review 5698216018),
+calibrated (`9117677`, EV 43.92 / 60.51). Five docs outside its touch set still state the old rules: Bean 0210.
