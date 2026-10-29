@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-10-29 23:44:40 UTC
+**Last Updated:** 2026-10-29 23:49:59 UTC
 
 ## Executive Summary
 
@@ -307,8 +307,9 @@ through the harness `pr-review-loop` skill, and format the calibration report be
 Sequential lane, holon-agentic-coder (flow blockers first):
 
 1. **Bean 0162** (calibration report fails Prettier; small, calibration code) together with **Beans 0185 and 0186**
-   (ruff complexity gates with an inline baseline; lint configuration only). The three are disjoint. Bean 0158 is done
-   (PR #111), so flows from `main` no longer reorder `intents.jsonl`.
+   (ruff complexity gates with an inline baseline; lint configuration only; 0186 is the holon-coherence twin and opens
+   the coherence lane below). The three are disjoint. Bean 0158 is done (PR #111), so flows from `main` no longer
+   reorder `intents.jsonl`.
 2. **Bean 0187** (split `flow.py` into a `flow/` package, move only), then **Bean 0188** (split `cli.py` into
    self-registering command modules). Bean 0177 measured `flow.py` in 7 of the 16 flow PRs #94-#109; landing the
    move-only splits before the next `flow.py` features stops those features colliding.
@@ -319,9 +320,10 @@ Sequential lane, holon-agentic-coder (flow blockers first):
 5. **Bean 0175**: check GitHub token scopes before Stage 3 starts when the plan touches workflow files.
 6. **Bean 0149**, then **Bean 0151**: unique IDs across concurrently planned intents (parallel batches still rely on
    staggered starts), then touch-set admission.
-7. **Decomposition lanes from Bean 0177** once the splits land, in parallel where their packages differ (umbrella Bean
-   0152): 0190 (checkpoint and ledger), 0191 then 0192 (GitHub adapter, `ReviewLoop`), 0193, 0194, 0195 then 0196, 0197,
-   0198, 0199, 0201. Bean 0153 runs per package after each split.
+7. **Decomposition lanes from Bean 0177** once the splits land, in parallel where their packages differ: 0190
+   (checkpoint and ledger), 0191 then 0192 (GitHub adapter, `ReviewLoop`), 0193, 0194, 0195 then 0196, 0197, 0198 and
+   0199 (all tracked by umbrella Bean 0152), and 0201 (outside the umbrella). Bean 0153 runs per package after each
+   split.
 8. **Bean 0181**: `/_` only on branch refs, ids bare (ledger field migration; readers accept both shapes).
 9. **Bean 0160**, then **Bean 0157**: the remaining flow-integrity blockers.
 10. **Bean 0161**: nested sub-intent branches per the maintainer's rulings (now documented by PRs #103 and #110),
@@ -338,8 +340,8 @@ Parallel lane (disjoint files):
 - **Harness:** PR #56 (`docs/harness-updates-0261027`) in its review loop.
 - **Harness branch awaiting the maintainer:** `feat/0182-0170-event-watcher-and-loop-convergence` (`f14c2f0`, no PR yet;
   Beans 0182 and 0170 implemented and tested there, not yet on `main`).
-- **holon-coherence decomposition lane** (Bean 0177 order, disjoint from holon-agentic-coder): lint gate 0186, then 0203
-  and 0204 in parallel, then 0205-0208. Bean 0209 (CI composite action) is workflow-only.
+- **holon-coherence decomposition lane** (Bean 0177 order, disjoint from holon-agentic-coder): after lint gate 0186
+  (scheduled in item 1), 0203 and 0204 in parallel, then 0205-0208. Bean 0209 (CI composite action) is workflow-only.
 - **Bean 0170** (review-loop convergence rules, harness-only): implemented on the harness branch above; review and land
   it before the next long review loop.
 - **Bean 0182** (GitHub event watcher, harness-only): replaces per-task polling loops; implemented on the harness branch

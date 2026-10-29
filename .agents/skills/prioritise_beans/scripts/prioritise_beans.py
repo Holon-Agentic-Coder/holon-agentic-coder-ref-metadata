@@ -146,7 +146,8 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "",
     (
         "1. **Bean 0162** (calibration report fails Prettier; small, calibration code) together with **Beans 0185 and "
-        "0186** (ruff complexity gates with an inline baseline; lint configuration only). The three are disjoint. "
+        "0186** (ruff complexity gates with an inline baseline; lint configuration only; 0186 is the holon-coherence "
+        "twin and opens the coherence lane below). The three are disjoint. "
         "Bean 0158 is done (PR #111), so flows from `main` no longer reorder `intents.jsonl`."
     ),
     (
@@ -166,9 +167,10 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "still rely on staggered starts), then touch-set admission."
     ),
     (
-        "7. **Decomposition lanes from Bean 0177** once the splits land, in parallel where their packages differ "
-        "(umbrella Bean 0152): 0190 (checkpoint and ledger), 0191 then 0192 (GitHub adapter, `ReviewLoop`), 0193, "
-        "0194, 0195 then 0196, 0197, 0198, 0199, 0201. Bean 0153 runs per package after each split."
+        "7. **Decomposition lanes from Bean 0177** once the splits land, in parallel where their packages differ: "
+        "0190 (checkpoint and ledger), 0191 then 0192 (GitHub adapter, `ReviewLoop`), 0193, 0194, 0195 then 0196, "
+        "0197, 0198 and 0199 (all tracked by umbrella Bean 0152), and 0201 (outside the umbrella). Bean 0153 runs "
+        "per package after each split."
     ),
     "8. **Bean 0181**: `/_` only on branch refs, ids bare (ledger field migration; readers accept both shapes).",
     "9. **Bean 0160**, then **Bean 0157**: the remaining flow-integrity blockers.",
@@ -196,8 +198,9 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "(`f14c2f0`, no PR yet; Beans 0182 and 0170 implemented and tested there, not yet on `main`)."
     ),
     (
-        "- **holon-coherence decomposition lane** (Bean 0177 order, disjoint from holon-agentic-coder): lint gate "
-        "0186, then 0203 and 0204 in parallel, then 0205-0208. Bean 0209 (CI composite action) is workflow-only."
+        "- **holon-coherence decomposition lane** (Bean 0177 order, disjoint from holon-agentic-coder): after lint "
+        "gate 0186 (scheduled in item 1), 0203 and 0204 in parallel, then 0205-0208. Bean 0209 (CI composite "
+        "action) is workflow-only."
     ),
     (
         "- **Bean 0170** (review-loop convergence rules, harness-only): implemented on the harness branch above; "
@@ -245,17 +248,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "notes": (
             "Stages 1-3 already clone in-container; move checkpoint, engine git checks and Stage 5 calibration into "
             "sandboxed clones so concurrent flows never share or require a host worktree. Pairs with 0179, 0149, 0151."
-        ),
-    },
-    "0158": {
-        "title": "A flow run reorders existing rows of the append-only `intents.jsonl`",
-        "priority": "**P0**",
-        "impact": "High",
-        "sizing": "S",
-        "domain": "Ledger / Holon Flow",
-        "notes": (
-            "PR #111 merged (`8c9ff4d`) after review and calibration; close the bean. Until `holon` is reinstalled "
-            "from `main`, restore `intents.jsonl` to main's rows plus the new one."
         ),
     },
     "0160": {
@@ -406,17 +398,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "Zero-token waits: watcher container plus event log; merges trigger cleanup and installs, CI failures the "
             "next review iteration. Guardrails: no new spending, no merges. Implemented on harness branch "
             "`feat/0182-0170-event-watcher-and-loop-convergence` (`f14c2f0`); review and land it."
-        ),
-    },
-    "0180": {
-        "title": "Document sub-intent branches nested under the node that decided the split",
-        "priority": "**P1**",
-        "impact": "Medium",
-        "sizing": "S",
-        "domain": "Docs / Holon Flow",
-        "notes": (
-            "PR #103 merged (`e187393`). Follow-up docs for the five rulings through the flow: PR #110 reviewed, "
-            "calibrated and merged (`85ef122`); close the bean. Remaining five documents: Bean 0210."
         ),
     },
     "0170": {
