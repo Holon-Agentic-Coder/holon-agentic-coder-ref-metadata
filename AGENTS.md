@@ -72,6 +72,21 @@ usage docs still outstanding on it, while the pipeline engine itself (Bean 0039)
   therefore prohibited.
 - Skipping a stage is not permitted. If a stage cannot run (missing image, failed agent, unreachable remote), the change
   is **blocked**: report the blocker instead of hand-applying the diff as a workaround.
+- **Automatic Model & Runner Fallback on Credit / Quota Exhaustion**: If a stage or subagent fails due to model credit
+  exhaustion, session quota limits, or rate-limit caps (e.g. `You've hit your session limit`, `insufficient_quota`,
+  `RESOURCE_EXHAUSTED`, or HTTP 429/quota errors), **do not stop or block** as long as a lower-tier model or alternate
+  configured runner still has available credit. Automatically step down the fallback ladder and **continue the flow from
+  the current stage/checkpoint** (reusing any already-pushed `I-.../_`, `P-.../_`, or `E-.../_` branch):
+  - **Claude (`claude-agent`) fallback ladder**: `claude-opus-5-5` (or `opus`) $\rightarrow$ `claude-sonnet-4-6` (or
+    `sonnet`) $\rightarrow$ `claude-haiku-4-5` (or `haiku`).
+  - **Antigravity (`antigravity-agent` in `holon` CLI) fallback ladder**: `gemini-3.8-pro-high` (or `gemini-3.8-pro`)
+    $\rightarrow$ `gemini-3.8-flash-medium` $\rightarrow$ `gemini-3.8-flash`.
+  - **Antigravity (`invoke_subagent` in AGY runtime) fallback ladder**: `Model: "inherit"` / `"pro"` $\rightarrow$
+    `"flash"` $\rightarrow$ `"flash_lite"`.
+  - **Cross-Runner Fallback**: If all model tiers on the active runner (`claude-agent` or `antigravity-agent`) share an
+    exhausted account-wide session limit, automatically switch `--agent` to the other runner (`antigravity-agent` or
+    `claude-agent`) at its highest available tier with credit and continue the remaining flow stages on the existing
+    flow branch.
 - The only permitted exception is an explicit, unambiguous user instruction to make a specific edit outside the flow,
   and that exception must be named in the commit message and in the bean summary.
 
@@ -226,7 +241,12 @@ Subagent delegation in this ecosystem is primarily targeted towards the **Antigr
 - **Subagent Type**: Specify `TypeName: "self"` to inherit the full suite of parent capabilities, tools (file viewing,
   editing, command execution), instructions, and credentials. Use `TypeName: "research"` for read-only exploratory
   research.
-- **Model Selection**: Set `Model: "inherit"` to inherit the parent agent's active model configuration.
+- **Model Selection & Automatic Credit Fallback**: Set `Model: "inherit"` by default to inherit the parent agent's
+  active model configuration. If credit or quota runs out on the higher-level model (`"inherit"` / `"pro"`),
+  automatically fall back to `"flash"` and then `"flash_lite"` (and similarly step down `claude-opus-5-5` $\rightarrow$
+  `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` or `gemini-3.8-pro-high` $\rightarrow$ `gemini-3.8-flash-medium`
+  $\rightarrow$ `gemini-3.8-flash` in `holon` CLI invocations) and continue the flow or review loop from the current
+  stage without discarding completed work.
 - **Reactive Wakeup (Zero Polling)**: The AGY runtime automatically wakes up the parent agent upon subagent completion
   or message delivery. Never poll or loop on subagent status.
 - **Generic Coding Agent Compatibility**: Skill workflows (such as `pr-review-loop`) define generic subagent task

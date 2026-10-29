@@ -64,6 +64,20 @@ system safety, and clean documentation. Follow these core guidelines in every se
   - Use `invoke_subagent` with `TypeName: "self"` so child agents inherit full tools (view, edit, bash execution) and
     environment settings. Use `TypeName: "research"` for read-only research.
   - Set `Model: "inherit"` to match the parent agent's configuration.
+  - **Automatic Model Tier Fallback on Credit/Quota Exhaustion**: Applies to both **Claude** and **Antigravity**. When a
+    higher-level model runs out of credit, session quota, or rate-limit allowance, automatically fall back to the next
+    lower model tier that has credit and continue the flow or review loop from the current stage/branch without
+    restarting completed stages:
+    - **Claude (`claude-agent` / Claude Code)**: `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6` $\rightarrow$
+      `claude-haiku-4-5`.
+    - **Antigravity (`antigravity-agent` in `holon` CLI)**: `gemini-3.8-pro-high` $\rightarrow$
+      `gemini-3.8-flash-medium` $\rightarrow$ `gemini-3.8-flash`.
+    - **Antigravity (`invoke_subagent` in AGY runtime)**: `Model: "inherit"` / `"pro"` $\rightarrow$ `"flash"`
+      $\rightarrow$ `"flash_lite"`.
+    - **Cross-Runner Continuation**: If an entire runner's session quota is exhausted across all its model tiers (e.g.
+      Claude OAuth session limit), switch `--agent` to the alternate runner (`antigravity-agent` or `claude-agent`) and
+      continue the flow from the current stage (`holon plan <intent_branch>`, `holon execute <plan_branch>`,
+      `holon review <execution_branch>`, or `holon calibrate <execution_branch>`).
   - Never poll or sleep in a loop; AGY wakes the parent agent automatically when child tasks finish.
 - Generic coding agents (such as Claude Code, Codex, Pi, OpenCodeInterpreter) can execute child tasks using their native
   subagent or child process delegation mechanisms following the same prompt contracts.

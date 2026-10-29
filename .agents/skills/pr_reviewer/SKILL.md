@@ -54,6 +54,24 @@ gh pr diff <pr_url_or_number>
 > merges); the harness outlives every run, so it is the only place a successor will think to look. Record the absolute
 > path as `artifacts_dir` in `<repo>_pr<N>_state.json`.
 
+### Step 2a: Determine the Review Scope (Full vs Increment-Scoped Mode)
+
+Under `pr-review-loop`, the scope is set by [principle 12](../pr_review_loop/SKILL.md#12-convergence-rules-bean-0170)
+(Bean 0170):
+
+- **Full mode** (no `voted_head` in `<repo>_pr<N>_state.json`, or a standalone review): review the whole PR.
+- **Increment-Scoped Mode** (a `voted_head` exists, the head of the last complete 3-reviewer ensemble): each reviewer
+  receives `git diff <voted_head>..HEAD` and the files it touches, in addition to the full PR diff.
+  - **Critical and Important** defects are reported **anywhere** in the PR.
+  - **Nits** and **mutation testing** are confined to lines the increment changed. Before mutating, read
+    `mutation_sweeps` in `_state.json`: an area already swept is mutated only where the increment changed it, and a
+    first sweep of a new area is recorded there (area, iteration, head, mutants, survivors).
+  - A Nit or surviving mutant a reviewer still notices on unchanged code is listed under a separate
+    `Out of increment (deferral candidates)` heading, does not count toward the `NIT` trailer total, and is handed to
+    the resolver to record as `rejected: deferred: unchanged code -> <bean id>`. Items already in `deferred_findings` of
+    `<repo>_pr<N>_coordination.json` are not re-raised.
+  - State the scope (`full` or `increment <voted_head>..<head>`) at the top of every report.
+
 ### Step 3: Run Multi-Agent Ensemble Review (3 Independent Passes)
 
 To eliminate single-pass LLM variance, flakiness, and missed edge cases, execute **3 independent review passes** (via
@@ -122,7 +140,8 @@ Once all 3 reviewer subagents complete their evaluations, synthesize a single **
 > the resolver can record a per-finding disposition. When invoked by `pr-review-loop`, Nits are **actioned, not waved
 > through**: the loop will not post an approval while an open actionable Nit remains. Nits the resolver previously
 > `rejected` with a reason are passed in as already adjudicated -- do not re-raise them unless the diff changed under
-> them.
+> them. Under Increment-Scoped Mode (Step 2a), a Nit on code the increment did not change does not block approval; it is
+> recorded as a deferral candidate, and the resolver still records its disposition.
 
 1. **If ANY Reviewer Subagent identified Critical (🔴) or Important (🟡) issues, OR if any subagent failed/timed out
    (`FAILED` / `TIMEOUT` status)**:

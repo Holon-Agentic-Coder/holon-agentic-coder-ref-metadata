@@ -44,6 +44,12 @@ scratchpad files across the Holon Agentic Coder ecosystem.
    - **Closed / Abandoned PR**: The branch is associated with a `CLOSED` PR with no active work, or corresponds to a
      `completed` or `scrapped` bean in `.beans/` with all necessary code integrated.
    - **Remote Ref Gone**: Tracking ref deleted upstream on `origin` (`[gone]` in `git branch -vv`).
+   - **Post-merge trigger (Bean 0182)**: when this skill runs as a recorded post-merge step, the merge confirmation is a
+     `pr_merged` event in `.subagent/events.jsonl` or exit 0 of
+     `uv run python .agents/scripts/wait_for.py merged <owner/repo> <N>`, never a hand-written polling loop. That
+     confirmation replaces waiting for the human to say the merge is done; it relaxes none of the protections here (kept
+     audit branches stay, unmerged work is saved as patches first, `apps/*/main` is never touched). See
+     [`.agents/watcher/README.md`](../../watcher/README.md).
 
 4. **Safe Worktree Teardown Sequence**: Git forbids deleting a local branch that is currently checked out in an active
    worktree. The teardown sequence is:

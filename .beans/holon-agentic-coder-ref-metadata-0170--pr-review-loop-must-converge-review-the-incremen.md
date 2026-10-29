@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0170
 title: "pr-review-loop must converge: review the increment, defer Nits on unchanged code, bound mutation work"
-status: todo
+status: completed
 type: task
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - skills
   - token-cost
 created_at: 2026-10-27T12:10:02Z
-updated_at: 2026-10-27T12:10:02Z
+updated_at: 2026-10-29T12:30:00Z
 ---
 
 ## Problem
@@ -71,3 +71,37 @@ directly) so the loop converges:
   adopt the same convergence rules).
 - Harness change only. Note that the harness is being deprecated (Bean 0156): carry the rules into whatever review loop
   replaces it in the target repositories.
+
+## Summary of Changes (2026-10-29)
+
+Harness skill change, edited directly. `pr_review_loop/SKILL.md` gains principle 12, "Convergence Rules (Bean 0170)",
+wired into the ensemble prompt, the resolver prompt, Phase D and the final summary; `pr_reviewer/SKILL.md` gains Step 2a
+(Full vs Increment-Scoped Mode).
+
+1. **Increment-scoped review**: the first complete ensemble reviews the whole PR and sets `voted_head` in `_state.json`;
+   later dry runs and ensembles review `git diff <voted_head>..HEAD` and still report Critical and Important defects
+   anywhere. A new Nit on code the increment did not change does not block approval.
+2. **Bounded mutation work**: one sweep per area, recorded in `mutation_sweeps` (area, iteration, head, mutants,
+   survivors); later rounds mutate only the increment; a survivor in unchanged, swept code is deferred.
+3. **Scope freeze**: resolvers fix only the findings handed to them; the orchestrator adds no scope without the
+   maintainer.
+4. **Single source for behaviour docs**: one authoritative section, other copies become references.
+5. **Convergence report**: `convergence.original` and `convergence.ensembles` (diff size and Nit count per ensemble).
+   When both rise at three ensembles running, the loop writes `<repo>_pr<N>_convergence_report.md` with the three
+   options (increment-only review, split the PR, merge with deferrals), posts nothing to GitHub, reports to the
+   maintainer and stops. Principle 3 lists this as the third terminal exit; it is a report, not a pause.
+6. **Integrity rules kept**: Nit policy inside the increment, unanimous votes at one head, any push voids votes, no
+   fabricated approvals.
+
+## Decision: "Defer" Is a Recorded Disposition, Not a Wave-Through
+
+The maintainer ruling that every Nit (surviving mutants included) is applied or rejected with a reason still holds. A
+deferred Nit or mutant still goes to the resolver, which dispositions it `rejected` with reason
+`deferred: unchanged code -> <bean id>`, appends it to `deferred_findings` in `<repo>_pr<N>_coordination.json` and to
+`residual_risks`, and lists it in one follow-up bean per loop (`deferral_bean` in `_state.json`, created on the first
+deferral). Recording a deferral touches only the harness ledger and bean, so it does not move the PR head or void votes.
+
+## Not Done Here
+
+- Bean 0144's sandboxed review loop and the replacement for the deprecated harness loop (Bean 0156) still need to carry
+  these rules; that happens through the Holon flow in the target repositories.
