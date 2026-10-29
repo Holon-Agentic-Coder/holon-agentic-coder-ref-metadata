@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:35:41Z
-updated_at: 2026-10-25T07:35:41Z
+updated_at: 2026-10-29T12:20:00Z
 ---
 
 ## Problem
@@ -95,3 +95,8 @@ Tests mirror this: `test_flow.py` 3952 lines, `test_token_reduction.py` 3725, `t
   lines) should be committed with the lint gate in step 3, inside the target repository.
 - Related: Bean 0151 (planner touch sets with a hard block on overlapping concurrent flows). Decomposition makes touch
   sets finer-grained, so more flows can run in parallel.
+- **2026-10-29 (Bean 0177 research):** proposed re-scope to an umbrella tracking the flow-sized children 0185-0200 and
+  0203-0208 (step 3 is 0185/0186, step 4 is 0200). The research recommends reversing step order: a move-only split
+  (0187, 0188, 0204), verified by AST comparison, removes the shared files first; decomposition then runs per module in
+  parallel. Re-measured on `993b686`: `flow.py` 5,157 lines, `cli.main` 1,097 lines (CC 114), `executor.main` 798 lines
+  (CC 178).

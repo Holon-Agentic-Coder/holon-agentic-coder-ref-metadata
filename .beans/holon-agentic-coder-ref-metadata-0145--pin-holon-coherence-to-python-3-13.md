@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0145
 title: "Pin holon-coherence to Python 3.13 to match holon-agentic-coder"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - python
   - tooling
 created_at: 2026-10-23T15:30:00Z
-updated_at: 2026-10-29T06:40:00Z
+updated_at: 2026-10-29T12:20:00Z
 ---
 
 ## Problem
@@ -41,5 +41,5 @@ Python 3.14.8, so coherence is developed and tested on a different interpreter t
   `P-1793246658-claude-agent-claude-opus-5-5` → `E-1793246775-claude-agent-claude-opus-5-5`.
 - **PR #28** (https://github.com/Holon-Agentic-Coder/holon-coherence/pull/28): converged in 4 review-loop iterations
   (3/3 ensemble approval at `5dd6181`, review `5692867047`, 7/7 CI green), Stage 5 calibrated (`dadf1dd`, EV 0.19
-  predicted / 0.07 actual, `/calibrated` pushed and fast-forwarded into PR head `dadf1dd`). Awaiting the maintainer's
-  merge.
+  predicted / 0.07 actual, `/calibrated` pushed and fast-forwarded into PR head `dadf1dd`). Ledger conflicts after PR
+  #30 merged resolved as `e04510a` (7/7 CI green); merged by the maintainer as `0547eb4` (2026-10-29T11:48:22Z).

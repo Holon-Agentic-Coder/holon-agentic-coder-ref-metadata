@@ -84,9 +84,19 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "(PR #109, `993b686`: CI timing regression gate on every workflow job). On `holon-coherence`, three flows "
         "ran in parallel: **Bean 0145** (PR #28: pin Python 3.13, 3/3 ensemble approved and calibrated at `dadf1dd`, "
         "awaiting merge), the coherence half of **Bean 0147** (PR #29: remove harness path/task-id leaks, in Stage 4 "
-        "review at iteration 6), and the coherence half of **Bean 0163** (PR #30: CI timing gate, in Stage 4 review "
-        "at iteration 5). New: **Bean 0182** (persistent GitHub event watcher) and **Bean 0183** (every flow stage "
+        "review: iteration-6 fix and calibration pushed, consensus review still to post), and the coherence half of "
+        "**Bean 0163** (PR #30: CI timing gate, calibrated and merged as `6d9dae7` with one Important and two Nit "
+        "findings still open, carried by Bean 0184). PR #108 merged before its consensus review and calibration. "
+        "New: **Bean 0182** (persistent GitHub event watcher) and **Bean 0183** (every flow stage "
         "and engine bookkeeping step runs in its own sandboxed clone with no host checkout)."
+    ),
+    "",
+    (
+        "**Bean 0177 (architecture research) completed:** measured `flow.py` 5,157 lines (7 of the 16 flow PRs "
+        "#94-#109 touched it), `cli.main` 1,097 lines (CC 114), `executor.main` 798 lines (CC 178), and 56 + 38 "
+        "functions over CC 10. It spawned Beans 0185-0209: lint gates first (0185, 0186), then move-only splits that "
+        "remove the shared files (0187, 0188, 0203, 0204), then per-module decomposition lanes that can run in "
+        "parallel. The maintainer ruled that holon-coherence owns token reduction (Bean 0200)."
     ),
 ]
 
@@ -126,42 +136,55 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "Sequential lane, holon-agentic-coder (flow blockers first):",
     "",
     (
-        "1. **Bean 0179**: route Stage 4 reviewer turns through the `review-loop` role container so `holon flow` "
-        "reviews on its own. Adopt the Bean 0170 convergence rules there."
+        "1. **Bean 0158**, then **Bean 0162**: every one of the eight parallel flows on 2026-10-29 hit both "
+        "(`intents.jsonl` reordered; calibration report fails Prettier) and needed a manual fix. Both are small."
     ),
     (
-        "2. **Bean 0183**: every flow stage and engine bookkeeping step (checkpoint, empty-diff guard, mergeability, "
-        "Stage 5 calibration) runs in its own sandboxed clone so `holon flow` needs no host checkout."
+        "2. **Bean 0179**: route Stage 4 reviewer turns through the `review-loop` role container so `holon flow` "
+        "reviews and posts on its own. Three PRs (#108, coherence #29 and #30) merged before their consensus review "
+        "or calibration; a flow that reviews itself closes that gap. Adopt the Bean 0170 convergence rules there."
     ),
-    "3. **Bean 0175**: check GitHub token scopes before Stage 3 starts when the plan touches workflow files.",
-    "4. **Bean 0181**: `/_` only on branch refs, ids bare (ledger field migration; readers accept both shapes).",
     (
-        "5. **Bean 0158**, **Bean 0160**, **Bean 0162**, **Bean 0157**: the remaining flow-integrity blockers, one "
-        "at a time (all touch `flow.py`). 0158 and 0162 both recurred on #105–#109."
+        "3. **Bean 0183**: every flow stage and engine bookkeeping step (checkpoint, empty-diff guard, mergeability, "
+        "Stage 5 calibration) runs in its own sandboxed clone, so parallel flows need no host checkouts."
     ),
-    "6. **Bean 0149**, then **Bean 0151**: unique IDs, then touch-set admission (re-plan 0151 on the new `main`).",
+    "4. **Bean 0175**: check GitHub token scopes before Stage 3 starts when the plan touches workflow files.",
     (
-        "7. **Bean 0161**: nested sub-intent branches per the maintainer's 2026-10-29 rulings (merge into the "
+        "5. **Bean 0149**, then **Bean 0151**: unique IDs across concurrently planned intents (the parallel batch "
+        "relied on 90 s staggered starts), then touch-set admission."
+    ),
+    "6. **Bean 0181**: `/_` only on branch refs, ids bare (ledger field migration; readers accept both shapes).",
+    "7. **Bean 0160**, then **Bean 0157**: the remaining flow-integrity blockers (both touch `flow.py`).",
+    (
+        "8. **Bean 0161**: nested sub-intent branches per the maintainer's 2026-10-29 rulings (merge into the "
         "deciding plan or execution branch, nested PRs automatic), chaining and resume safety."
     ),
-    "8. **Bean 0155**, then **Bean 0148**: credential-redaction gaps (both touch `cli.py`).",
     (
-        "9. **Bean 0172**, **Bean 0173**, then **Bean 0174**: unlimited budgets, layered `.env`, then the env-var "
+        "9. **The `holon-agentic-coder` half of Bean 0147** (task-id references in `flow.py`, `cli.py` and docs), "
+        "unless Bean 0156 folds it into the beads move."
+    ),
+    "10. **Bean 0155**, then **Bean 0148**: credential-redaction gaps (both touch `cli.py`).",
+    (
+        "11. **Bean 0172**, **Bean 0173**, then **Bean 0174**: unlimited budgets, layered `.env`, then the env-var "
         "reference."
     ),
-    "10. **Bean 0146**: calibration reads the correct predicted metrics.",
-    ("11. **Bean 0176**: pytest-only conversion of every test file (touches most test files, so it runs alone)."),
+    "12. **Bean 0146**: calibration reads the correct predicted metrics.",
+    "13. **Bean 0176**: pytest-only conversion of every test file (touches most test files, so it runs alone).",
     (
-        "12. **Bean 0152**, then **Bean 0153**: decomposition and module split, then self-documenting code, shaped by "
-        "the action beans that Bean 0177 spawns."
+        "14. **Bean 0152**, then **Bean 0153**: decomposition and module split, then self-documenting code, shaped "
+        "by the action beans that Bean 0177 spawns."
     ),
     "",
     "Parallel lane (disjoint files):",
     "",
     (
-        "- **In-flight `holon-coherence` PRs**: merge **PR #28** (Bean 0145, approved 3/3 and calibrated at "
-        "`dadf1dd`), and finish Stage 4 review + Stage 5 calibration on **PR #29** (Bean 0147 coherence half) and "
-        "**PR #30** (Bean 0163 coherence half)."
+        "- **Bean 0184** (`holon-coherence` CI timing gate leftovers from PR #30, one Important: the label lookup "
+        "needs `issues: read`). Small, `scripts/ci_timing_gate.py` and its test; also check the "
+        "`holon-agentic-coder` gate from #109."
+    ),
+    (
+        "- **Post-merge review of coherence PR #29** (in progress): any findings become a follow-up flow, not hand "
+        "edits."
     ),
     (
         "- **Bean 0177** (architecture and code-principles research, no target code). Start now; its spawned action "
@@ -462,7 +485,8 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "S",
         "domain": "Hygiene",
         "notes": (
-            "`holon-coherence` half in Stage 4 review (PR #29, iter 6 at `e1139ac`). `holon-agentic-coder` half "
+            "`holon-coherence` half: PR #29 iteration-6 fix `e1139ac` and calibration `e8e0833` pushed; ensemble "
+            "re-review and posting outstanding. `holon-agentic-coder` half "
             "pending (fold into 0156 if beads lands first)."
         ),
     },
@@ -473,6 +497,17 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "S",
         "domain": "Tests",
         "notes": "Unblocked.",
+    },
+    "0184": {
+        "title": "holon-coherence CI timing gate: fix the residual review findings merged with PR #30",
+        "priority": "**P1**",
+        "impact": "Medium",
+        "sizing": "S",
+        "domain": "CI / holon-coherence",
+        "notes": (
+            "Important: label lookup uses the Issues API and needs `issues: read` (403 today). Nits: empty "
+            "`--pr-number`, non-positive `--baseline-count`. Check the holon-agentic-coder gate (#109) too."
+        ),
     },
     "0145": {
         "title": "Pin holon-coherence to Python 3.13",

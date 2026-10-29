@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0163
 title: "CI timing regression gate: fail any build whose duration regresses beyond a tolerance"
-status: in-progress
+status: completed
 type: feature
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-26T10:04:41Z
-updated_at: 2026-10-29T06:40:00Z
+updated_at: 2026-10-29T12:00:00Z
 ---
 
 ## Problem
@@ -75,8 +75,10 @@ integration, stress, hygiene, image builds (Buildx Bake) and any other job.
     (3/3 ensemble approval at `74113db`, review `5693019917`, 10/10 CI green), Stage 5 calibrated (`147ea4f`, EV 41.40
     predicted / 67.00 actual, Prettier-formatted in `cd2ab9b`), ledger conflicts resolved in `0b9e858`, and merged by
     the maintainer as `993b686` (2026-10-29T05:57:21Z).
-- **`holon-coherence` half — IN PROGRESS (PR #30):**
+- **`holon-coherence` half — MERGED (PR #30):**
   - Flow: `I-1793246826-coherence-ci-timing-regression-gate` → `P-1793246842-claude-agent-claude-opus-5-5` →
-    `E-1793247065-claude-agent-claude-opus-5-5` (worktree `apps/holon-coherence/flow-0163-ci-timing-gate`).
-  - PR #30 (https://github.com/Holon-Agentic-Coder/holon-coherence/pull/30): in Stage 4 review loop (iteration 5 at head
-    `f6a2a7e`, 7/7 CI green, dry run `APPROVED`, ensemble in flight).
+    `E-1793247065-claude-agent-claude-opus-5-5`.
+  - PR #30 (https://github.com/Holon-Agentic-Coder/holon-coherence/pull/30): calibration report included (`6dea412`),
+    merged by the maintainer as `6d9dae7` (2026-10-29T11:40:26Z) while the harness review loop was paused at
+    iteration 5. The only posted review is holon's native Stage 4 report (5694137530, `FAILED`). The open Important
+    finding (label query needs `issues: read`) and two Nits are carried by Bean 0184.
