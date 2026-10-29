@@ -171,9 +171,10 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "12. **Bean 0146**: calibration reads the correct predicted metrics.",
     "13. **Bean 0176**: pytest-only conversion of every test file (touches most test files, so it runs alone).",
     (
-        "14. **Beans 0185-0201** in the Bean 0177 migration order (umbrella Bean 0152): lint gate 0185, move-only "
-        "splits 0187 and 0188, then 0189, 0190, 0191 and 0195, then the decomposition lanes. Bean 0153 runs per "
-        "package after each split."
+        "14. **holon-agentic-coder Beans 0185 and 0187-0202** in the Bean 0177 migration order (umbrella Bean "
+        "0152): lint gate 0185, move-only splits 0187 and 0188, then 0189, 0190, 0191 and 0195, then the "
+        "decomposition lanes, then 0200 and 0201. Bean 0202 (CI composite action) is workflow-only and can run "
+        "any time. Bean 0153 runs per package after each split."
     ),
     "",
     "Parallel lane (disjoint files):",
@@ -189,8 +190,7 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     (
         "- **holon-coherence decomposition lane** (Bean 0177 order, disjoint from holon-agentic-coder): lint gate "
-        "0186, then 0203 and 0204 in parallel, then 0205-0208. Beans 0202 and 0209 (CI composite actions) are "
-        "workflow-only."
+        "0186, then 0203 and 0204 in parallel, then 0205-0208. Bean 0209 (CI composite action) is workflow-only."
     ),
     "- **Bean 0170** (review-loop convergence rules, harness-only). Do it before the next long review loop.",
     "- **Bean 0180**: the follow-up docs PR applying the five rulings (documentation only; PR #103 is merged).",
@@ -496,7 +496,10 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "High",
         "sizing": "M",
         "domain": "Refactor / Architecture",
-        "notes": "After 0187 and 0188. 0183 follows it; unblocks 0200.",
+        "notes": (
+            "After 0187 and 0188; unblocks 0200. Bean 0177 proposes 0183 after 0189 and 0190 (not applied; 0183 "
+            "stays at step 3)."
+        ),
     },
     "0190": {
         "title": "`FlowCheckpoint` and ledger reconciliation own their behaviour; entrypoints stop importing flow",

@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-10-29 12:38:51 UTC
+**Last Updated:** 2026-10-29 12:43:33 UTC
 
 ## Executive Summary
 
@@ -250,7 +250,7 @@ token reduction (Bean 0200).
 | **P1**   | todo        |  High  |   L    | 0188   | Split `cli.py` into a `cli/` package of self-registering command modules                         | Refactor / CLI            | After 0185; can pair with 0187 (disjoint files). `cli.main` 1,097 lines, CC 114.                                                                                                                                    |
 | **P1**   | todo        |  High  |   M    | 0203   | holon-coherence: command modules register their own parsers; drop the `sys.modules` locator      | CLI / holon-coherence     | After 0186; parallel with 0204. Unblocks 0207 and 0208.                                                                                                                                                             |
 | **P1**   | todo        |  High  |   L    | 0204   | holon-coherence: split `mitm_addon.py` into a `proxy/` package by concern (move only)            | Proxy / holon-coherence   | After 0186; parallel with 0203. 2,348 lines, AST-verified move only. Unblocks 0205 and 0206.                                                                                                                        |
-| **P1**   | todo        |  High  |   M    | 0189   | Launcher module owns container launch and role dispatch; break the `flow` -> `cli` cycle         | Refactor / Architecture   | After 0187 and 0188. 0183 follows it; unblocks 0200.                                                                                                                                                                |
+| **P1**   | todo        |  High  |   M    | 0189   | Launcher module owns container launch and role dispatch; break the `flow` -> `cli` cycle         | Refactor / Architecture   | After 0187 and 0188; unblocks 0200. Bean 0177 proposes 0183 after 0189 and 0190 (not applied; 0183 stays at step 3).                                                                                                |
 | **P1**   | todo        |  High  |   M    | 0190   | `FlowCheckpoint` and ledger reconciliation own their behaviour; entrypoints stop importing flow  | Ledger / Holon Flow       | After 0187; land 0158 (PR #111) first, since this moves the same code. Unblocks 0196, 0199.                                                                                                                         |
 | **P1**   | todo        |  High  |   M    | 0191   | One GitHub adapter owns every `gh` call (PR, CI probe, mergeability, review posting)             | GitHub / Architecture     | After 0187. Unblocks 0192.                                                                                                                                                                                          |
 | **P1**   | todo        |  High  |   M    | 0195   | Executor entrypoint's raw `git` subprocess calls go through a `GitRepository` adapter            | Executor / Git            | After 0185. 81 raw `git` calls. With 0190, unblocks 0196.                                                                                                                                                           |
@@ -321,8 +321,10 @@ Sequential lane, holon-agentic-coder (flow blockers first):
 11. **Bean 0172**, **Bean 0173**, then **Bean 0174**: unlimited budgets, layered `.env`, then the env-var reference.
 12. **Bean 0146**: calibration reads the correct predicted metrics.
 13. **Bean 0176**: pytest-only conversion of every test file (touches most test files, so it runs alone).
-14. **Beans 0185-0201** in the Bean 0177 migration order (umbrella Bean 0152): lint gate 0185, move-only splits 0187 and
-    0188, then 0189, 0190, 0191 and 0195, then the decomposition lanes. Bean 0153 runs per package after each split.
+14. **holon-agentic-coder Beans 0185 and 0187-0202** in the Bean 0177 migration order (umbrella Bean 0152): lint gate
+    0185, move-only splits 0187 and 0188, then 0189, 0190, 0191 and 0195, then the decomposition lanes, then 0200
+    and 0201. Bean 0202 (CI composite action) is workflow-only and can run any time. Bean 0153 runs per package after
+    each split.
 
 Parallel lane (disjoint files):
 
@@ -332,7 +334,7 @@ Parallel lane (disjoint files):
 - **Harness branch awaiting the maintainer:** `feat/0182-0170-event-watcher-and-loop-convergence` (Beans 0182 and 0170
   implemented and tested).
 - **holon-coherence decomposition lane** (Bean 0177 order, disjoint from holon-agentic-coder): lint gate 0186, then 0203
-  and 0204 in parallel, then 0205-0208. Beans 0202 and 0209 (CI composite actions) are workflow-only.
+  and 0204 in parallel, then 0205-0208. Bean 0209 (CI composite action) is workflow-only.
 - **Bean 0170** (review-loop convergence rules, harness-only). Do it before the next long review loop.
 - **Bean 0180**: the follow-up docs PR applying the five rulings (documentation only; PR #103 is merged).
 - **Bean 0182** (GitHub event watcher, harness-only): replaces per-task polling loops; do it before the next long review
