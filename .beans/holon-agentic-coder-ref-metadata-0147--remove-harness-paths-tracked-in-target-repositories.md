@@ -10,7 +10,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-24T01:41:18Z
-updated_at: 2026-10-29T12:31:00Z
+updated_at: 2026-10-29T23:29:00Z
 ---
 
 ## Problem
@@ -56,9 +56,9 @@ of scope unless it references harness paths.
 - **`holon-coherence` half — MERGED (PR #29):**
   - Flow: `I-1793246735-coherence-remove-harness-path-and-task-id-leaks` → `P-1793246750-claude-agent-claude-opus-5-5` →
     `E-1793246939-claude-agent-claude-opus-5-5` (worktree `apps/holon-coherence/flow-0147-remove-harness-path-leaks`).
-  - PR #29 (https://github.com/Holon-Agentic-Coder/holon-coherence/pull/29): in Stage 4 review loop: iteration 6
-    resolver pushed `e1139ac`, and a calibration commit `e8e0833` followed. No consensus review is posted yet: the
-    ensemble must re-review the new head before posting.
+  - PR #29 (https://github.com/Holon-Agentic-Coder/holon-coherence/pull/29): was in the Stage 4 review loop when it
+    merged (superseded by the next bullet): iteration 6 resolver pushed `e1139ac`, and a calibration commit `e8e0833`
+    followed, but no consensus review was posted.
 - PR #29: ledger conflicts after PRs #28 and #30 resolved as `d83af38` (851 tests, 7/7 CI green); merged by the
   maintainer as squash `68fdf67` (2026-10-29T11:51:44Z) before its consensus review was posted. A post-merge review loop
   runs in `apps/holon-coherence/review-pr29-harness-leak-removal-post-merge`; findings route to a follow-up flow.
@@ -66,4 +66,5 @@ of scope unless it references harness paths.
 
 - **Post-merge review follow-up (2026-10-29):** holon-coherence PR #31
   (https://github.com/Holon-Agentic-Coder/holon-coherence/pull/31), hand-authored at the maintainer's explicit
-  instruction, in review iteration 10 at `add885c` (ensemble running).
+  instruction, in review iteration 10 at `add885c` (ensemble running). Merged by the maintainer as `b52c7e1`
+  (2026-10-29T23:24:46Z).

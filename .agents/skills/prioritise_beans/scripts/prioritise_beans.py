@@ -82,13 +82,21 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "leak check ignores random temp paths), **Bean 0171** (PR #108, `c7dfd5e`: Stage 3 failure salvage commits "
         "partial code and resumes from `failed_partial_head`), and the `holon-agentic-coder` half of **Bean 0163** "
         "(PR #109, `993b686`: CI timing regression gate on every workflow job). On `holon-coherence`, three flows "
-        "ran in parallel: **Bean 0145** (PR #28: pin Python 3.13, 3/3 ensemble approved and calibrated at `dadf1dd`, "
-        "awaiting merge), the coherence half of **Bean 0147** (PR #29: remove harness path/task-id leaks, in Stage 4 "
-        "review: iteration-6 fix and calibration pushed, consensus review still to post), and the coherence half of "
+        "ran in parallel: **Bean 0145** (PR #28: pin Python 3.13, 3/3 ensemble approved, calibrated and merged as "
+        "`0547eb4`), the coherence half of **Bean 0147** (PR #29: remove harness path/task-id leaks, merged as "
+        "`68fdf67` before its consensus review was posted; post-merge follow-up PR #31 merged as `b52c7e1`), and the "
+        "coherence half of "
         "**Bean 0163** (PR #30: CI timing gate, calibrated and merged as `6d9dae7` with one Important and two Nit "
         "findings still open, carried by Bean 0184). PR #108 merged before its consensus review and calibration. "
         "New: **Bean 0182** (persistent GitHub event watcher) and **Bean 0183** (every flow stage "
         "and engine bookkeeping step runs in its own sandboxed clone with no host checkout)."
+    ),
+    "",
+    (
+        "Also through the flow on 2026-10-29, both reviewed and calibrated: PR #110 (Bean 0180 follow-up docs for "
+        "the five sub-intent rulings, merged as `85ef122`) and PR #111 (Bean 0158 pure-append ledger writes, merged "
+        "as `8c9ff4d`). Both beans await closure. New: **Bean 0210** (five documents PR #110 left on the old "
+        "sub-intent rules)."
     ),
     "",
     (
@@ -127,8 +135,9 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "**Tooling (2026-10-29):** `main` (`993b686`) now includes Beans 0143 (#104), 0178 (#105), 0164 (#106), "
         "0154 (#107), 0171 (#108) and the `holon-agentic-coder` half of 0163 (#109). Reinstall `holon` and rebuild "
         "the agent images from `main` via `install-holon` so Stage 3 partial-code salvage (#108) and the updated "
-        "prompt templates (#105) are active in the containers. Until 0157, 0158, 0160, 0162 and 0179 land, run flows "
-        "with `HOLON_TOKEN_REDUCE=0`, restore `intents.jsonl` before Stage 4, run Stage 4 through the harness "
+        "prompt templates (#105) are active in the containers. `main` (`8c9ff4d`) now also includes Bean 0158 (#111, "
+        "pure-append ledger writes); reinstall so flows stop reordering `intents.jsonl`. Until 0157, 0160, 0162 and "
+        "0179 land, run flows with `HOLON_TOKEN_REDUCE=0`, run Stage 4 through the harness "
         "`pr-review-loop` skill, and format the calibration report before pushing. Set "
         "`HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` for Stage 3 until Bean 0172 adds an explicit unlimited value."
     ),
@@ -136,8 +145,9 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "Sequential lane, holon-agentic-coder (flow blockers first):",
     "",
     (
-        "1. **Bean 0158**, then **Bean 0162**: every one of the eight parallel flows on 2026-10-29 hit both "
-        "(`intents.jsonl` reordered; calibration report fails Prettier) and needed a manual fix. Both are small."
+        "1. **Bean 0162**: every one of the eight parallel flows on 2026-10-29 hit it (calibration report fails "
+        "Prettier) and needed a manual fix. Small. Its companion Bean 0158 (`intents.jsonl` reordered) merged as "
+        "PR #111."
     ),
     (
         "2. **Bean 0179**: route Stage 4 reviewer turns through the `review-loop` role container so `holon flow` "
@@ -172,17 +182,17 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "13. **Bean 0176**: pytest-only conversion of every test file (touches most test files, so it runs alone).",
     (
         "14. **holon-agentic-coder Beans 0185 and 0187-0202** in the Bean 0177 migration order (umbrella Bean "
-        "0152): lint gate 0185, move-only splits 0187 and 0188, then 0189, 0190, 0191 and 0195, then the "
-        "decomposition lanes, then 0200 and 0201. Bean 0202 (CI composite action) is workflow-only and can run "
-        "any time. Bean 0153 runs per package after each split."
+        "0152 tracks 0185-0200; 0201 and 0202 sit outside it): lint gate 0185, move-only splits 0187 and 0188, "
+        "then 0189, 0190, 0191 and 0195, then the decomposition lanes, then 0200 and 0201. Bean 0202 (CI "
+        "composite action) is workflow-only and can run any time. Bean 0153 runs per package after each split."
     ),
     "",
     "Parallel lane (disjoint files):",
     "",
     (
-        "- **In review now:** holon-agentic-coder PR #110 (Bean 0180 docs) and PR #111 (Bean 0158 pure-append "
-        "ledgers) through the flow; holon-coherence PR #31 (post-merge follow-up for #29). Merge #111 before Bean "
-        "0190, which moves the same ledger code."
+        "- **Merged, beans to close:** holon-agentic-coder PR #110 (Bean 0180 docs, `85ef122`) and PR #111 (Bean "
+        "0158 pure-append ledgers, `8c9ff4d`), both reviewed and calibrated through the flow; holon-coherence PR "
+        "#31 (post-merge follow-up for #29, `b52c7e1`). Bean 0190 can now move the ledger code."
     ),
     (
         "- **Harness branch awaiting the maintainer:** `feat/0182-0170-event-watcher-and-loop-convergence` (Beans "
@@ -193,7 +203,10 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "0186, then 0203 and 0204 in parallel, then 0205-0208. Bean 0209 (CI composite action) is workflow-only."
     ),
     "- **Bean 0170** (review-loop convergence rules, harness-only). Do it before the next long review loop.",
-    "- **Bean 0180**: the follow-up docs PR applying the five rulings (documentation only; PR #103 is merged).",
+    (
+        "- **Bean 0210**: apply the five sub-intent rulings to the five documents PR #110 left on the old rules "
+        "(documentation only, through the flow; PR #110 is merged)."
+    ),
     (
         "- **Bean 0182** (GitHub event watcher, harness-only): replaces per-task polling loops; do it before the next "
         "long review loop, alongside 0170."
@@ -245,8 +258,8 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "S",
         "domain": "Ledger / Holon Flow",
         "notes": (
-            "In flight: PR #111 (Stage 4 review). Hit all eight parallel flows; until it merges, restore "
-            "`intents.jsonl` to main's rows plus the new one."
+            "PR #111 merged (`8c9ff4d`) after review and calibration; close the bean. Until `holon` is reinstalled "
+            "from `main`, restore `intents.jsonl` to main's rows plus the new one."
         ),
     },
     "0160": {
@@ -304,7 +317,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "notes": (
             "Deferred from #97. Implement the 2026-10-29 rulings: nest under the deciding node, merge into the "
             "deciding plan/execution branch, nested PRs automatic, sibling slugs distinct. "
-            "Docs: PR #103 (merged) and PR #110."
+            "Docs: PRs #103 and #110 (merged); Bean 0210 aligns five more documents."
         ),
     },
     "0149": {
@@ -402,8 +415,8 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "S",
         "domain": "Docs / Holon Flow",
         "notes": (
-            "PR #103 merged (`e187393`). Follow-up docs for the five rulings through the flow: PR #110 in Stage 4 "
-            "review."
+            "PR #103 merged (`e187393`). Follow-up docs for the five rulings through the flow: PR #110 reviewed, "
+            "calibrated and merged (`85ef122`); close the bean. Remaining five documents: Bean 0210."
         ),
     },
     "0170": {
@@ -507,7 +520,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "High",
         "sizing": "M",
         "domain": "Ledger / Holon Flow",
-        "notes": "After 0187; land 0158 (PR #111) first, since this moves the same code. Unblocks 0196, 0199.",
+        "notes": "After 0187; 0158 (PR #111, same code) has merged. Unblocks 0196, 0199.",
     },
     "0191": {
         "title": "One GitHub adapter owns every `gh` call (PR, CI probe, mergeability, review posting)",
@@ -574,9 +587,19 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "S",
         "domain": "Hygiene",
         "notes": (
-            "`holon-coherence` half: PR #29 iteration-6 fix `e1139ac` and calibration `e8e0833` pushed; ensemble "
-            "re-review and posting outstanding. `holon-agentic-coder` half "
-            "pending (fold into 0156 if beads lands first)."
+            "`holon-coherence` half merged (PR #29, `68fdf67`) before its consensus review; post-merge follow-up PR "
+            "#31 merged (`b52c7e1`). `holon-agentic-coder` half pending (fold into 0156 if beads lands first)."
+        ),
+    },
+    "0210": {
+        "title": "Align the remaining holon-agentic-coder docs with the sub-intent merge rulings",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "S",
+        "domain": "Docs / Holon Flow",
+        "notes": (
+            "Five documents PR #110 (Bean 0180, merged `85ef122`) left on the old rules. Documentation only, "
+            "through the flow; unblocked."
         ),
     },
     "0150": {

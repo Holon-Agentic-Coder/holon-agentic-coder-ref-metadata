@@ -2,7 +2,7 @@
 # holon-agentic-coder-ref-metadata-0165
 title: "Restore PR #88's unpushed Stage-4 review ledger entries to executions.jsonl"
 status: completed
-type: chore
+type: task
 priority: normal
 tags:
   - ledger

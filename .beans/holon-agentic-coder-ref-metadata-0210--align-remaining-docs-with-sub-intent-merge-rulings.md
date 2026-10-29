@@ -32,7 +32,8 @@ merges into the parent intent branch; whether a nested parent's PR stops for a h
   and merged automatically by the agent, only the root PR to `main` stops for a human; sibling slugs always differ; keep
   `deciding_branch`), consistent with the wording PR #110 established.
 - Sweep the whole `docs/` tree once more for any other statement of the old rules.
-- Documentation only; run through the Holon flow on holon-agentic-coder after PR #110 merges.
+- Documentation only; run through the Holon flow on holon-agentic-coder. Unblocked: PR #110 merged as `85ef122`
+  (2026-10-29T14:37:07Z).
 
 ## Notes
 

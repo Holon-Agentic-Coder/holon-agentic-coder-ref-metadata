@@ -10,7 +10,7 @@ tags:
   - documentation
   - holon-agentic-coder
 created_at: 2026-10-29T00:38:39Z
-updated_at: 2026-10-29T12:31:00Z
+updated_at: 2026-10-29T23:29:00Z
 ---
 
 ## Problem
@@ -111,3 +111,7 @@ intent branch, question 4 is left open, and collisions are a question. Decisions
   `E-1793275898-claude-agent-claude-opus-5-5`; PR #110
   (https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/110) in Stage 4 review (iteration 3 at `06ff902`).
   Close this bean when it merges.
+- PR #110 reviewed (consensus COMMENT review), calibrated
+  (`plans/P-1793275710-claude-agent-claude-opus-5-5_calibration.md` in the PR) and merged by the maintainer as `85ef122`
+  (2026-10-29T14:37:07Z). Ready to close. Its review loop found five more documents on the old rules; Bean 0210 carries
+  them.
