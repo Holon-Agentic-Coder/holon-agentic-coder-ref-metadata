@@ -9,7 +9,7 @@ tags:
   - decomposition
   - holon-agentic-coder
 created_at: 2026-10-26T07:16:04Z
-updated_at: 2026-10-29T03:00:00Z
+updated_at: 2026-10-29T12:39:00Z
 ---
 
 ## Problem
@@ -60,4 +60,5 @@ Once Bean 0159 runs decomposed sub-intents autonomously (`_run_decomposed_plan` 
 - Nested PRs need no human: the agent raises each sub-intent's PR and merges it automatically into the deciding
   plan/execution branch. Only the root intent's PR to `main` stops for a human.
 - Sibling sub-intents under one deciding node always have different slugs, so ids cannot collide; no sequence suffix.
-- Documented in PR #103 (approved, awaiting merge) plus a follow-up docs PR for the merge-target and human-stop rulings.
+- Documented in PR #103 (merged, `e187393`) plus follow-up docs PR #110 (in review) for the merge-target and human-stop
+  rulings.

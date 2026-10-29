@@ -100,7 +100,7 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0178)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0184)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
@@ -171,8 +171,9 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "12. **Bean 0146**: calibration reads the correct predicted metrics.",
     "13. **Bean 0176**: pytest-only conversion of every test file (touches most test files, so it runs alone).",
     (
-        "14. **Bean 0152**, then **Bean 0153**: decomposition and module split, then self-documenting code, shaped "
-        "by the action beans that Bean 0177 spawns."
+        "14. **Beans 0185-0201** in the Bean 0177 migration order (umbrella Bean 0152): lint gate 0185, move-only "
+        "splits 0187 and 0188, then 0189, 0190, 0191 and 0195, then the decomposition lanes. Bean 0153 runs per "
+        "package after each split."
     ),
     "",
     "Parallel lane (disjoint files):",
@@ -187,8 +188,9 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "0182 and 0170 implemented and tested)."
     ),
     (
-        "- **Bean 0177** (architecture and code-principles research, no target code). Start now; its spawned action "
-        "beans re-plan 0152/0153 and set the file layout that keeps parallel agents off the same files."
+        "- **holon-coherence decomposition lane** (Bean 0177 order, disjoint from holon-agentic-coder): lint gate "
+        "0186, then 0203 and 0204 in parallel, then 0205-0208. Beans 0202 and 0209 (CI composite actions) are "
+        "workflow-only."
     ),
     "- **Bean 0170** (review-loop convergence rules, harness-only). Do it before the next long review loop.",
     "- **Bean 0180**: the follow-up docs PR applying the five rulings (documentation only; PR #103 is merged).",
@@ -301,7 +303,8 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "domain": "Holon Flow",
         "notes": (
             "Deferred from #97. Implement the 2026-10-29 rulings: nest under the deciding node, merge into the "
-            "deciding plan/execution branch, nested PRs automatic, sibling slugs distinct. Docs: PR #103 + follow-up."
+            "deciding plan/execution branch, nested PRs automatic, sibling slugs distinct. "
+            "Docs: PR #103 (merged) and PR #110."
         ),
     },
     "0149": {
@@ -346,17 +349,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "Investigation only, no target code. Can run in parallel with any flow. Precedes deprecating the harness."
         ),
     },
-    "0163": {
-        "title": "CI timing regression gate: fail builds whose duration regresses beyond a tolerance",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "M",
-        "domain": "CI / Performance",
-        "notes": (
-            "`holon-agentic-coder` half merged (PR #109, `993b686`). `holon-coherence` half in Stage 4 review "
-            "(PR #30, iteration 5 at `f6a2a7e`, 7/7 CI green)."
-        ),
-    },
     "0172": {
         "title": "Stage and turn budgets accept an explicit 'unlimited' value, distinct from unset (default)",
         "priority": "**P1**",
@@ -390,17 +382,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "notes": (
             "Unblocked by 0168 (#99 merged). 59 `TestCase` classes and about 60 `unittest.mock` imports in 29 files. "
             "Runs alone: it touches most test files."
-        ),
-    },
-    "0177": {
-        "title": "Research the architecture and software principles for the target repos, then spawn action beans",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "L",
-        "domain": "Architecture / Research",
-        "notes": (
-            "Research only, parallel lane. Cohesion, intention-revealing names, low complexity, parallel-agent "
-            "friendly layout. Spawns one flow-sized bean per change; reshapes 0152/0153."
         ),
     },
     "0182": {
@@ -450,7 +431,112 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "High",
         "sizing": "XL",
         "domain": "Refactor / Concurrency",
-        "notes": "`cli.main` is 1062 lines; `flow.py` is 4400+. Run only while no other flow touches those files.",
+        "notes": (
+            "Umbrella for the Bean 0177 action beans 0185-0200 and 0203-0208 (proposed); its audit stays the "
+            "baseline. Measured: `flow.py` 5,157 lines, `cli.main` 1,097 lines."
+        ),
+    },
+    "0185": {
+        "title": "holon-agentic-coder: ruff complexity gate (C901, PLR0911-PLR0915) with an inline `noqa` baseline",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "S",
+        "domain": "Lint / Code Quality",
+        "notes": (
+            "Gate first (0177 order step 1): ratchet-down baseline of 56 C901 offenders. Unblocks 0187, "
+            "0188, 0195, 0198, 0201."
+        ),
+    },
+    "0186": {
+        "title": "holon-coherence: ruff complexity gate (C901, PLR0911-PLR0915) with an inline `noqa` baseline",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "S",
+        "domain": "Lint / holon-coherence",
+        "notes": "Gate first (0177 order step 1), disjoint from 0185. Unblocks 0203 and 0204.",
+    },
+    "0187": {
+        "title": "Split `flow.py` into a `flow/` package, one module per stage and concern (move only)",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "L",
+        "domain": "Refactor / Architecture",
+        "notes": (
+            "After 0185. 5,157 lines touched by 7 of 16 flow PRs; AST-verified move only. Runs alone; "
+            "unblocks 0190, 0191, 0193, 0194, 0197 and, with 0188, 0189."
+        ),
+    },
+    "0188": {
+        "title": "Split `cli.py` into a `cli/` package of self-registering command modules",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "L",
+        "domain": "Refactor / CLI",
+        "notes": "After 0185; can pair with 0187 (disjoint files). `cli.main` 1,097 lines, CC 114.",
+    },
+    "0203": {
+        "title": "holon-coherence: command modules register their own parsers; drop the `sys.modules` locator",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "CLI / holon-coherence",
+        "notes": "After 0186; parallel with 0204. Unblocks 0207 and 0208.",
+    },
+    "0204": {
+        "title": "holon-coherence: split `mitm_addon.py` into a `proxy/` package by concern (move only)",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "L",
+        "domain": "Proxy / holon-coherence",
+        "notes": "After 0186; parallel with 0203. 2,348 lines, AST-verified move only. Unblocks 0205 and 0206.",
+    },
+    "0189": {
+        "title": "Launcher module owns container launch and role dispatch; break the `flow` -> `cli` cycle",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Refactor / Architecture",
+        "notes": "After 0187 and 0188. 0183 follows it; unblocks 0200.",
+    },
+    "0190": {
+        "title": "`FlowCheckpoint` and ledger reconciliation own their behaviour; entrypoints stop importing flow",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Ledger / Holon Flow",
+        "notes": "After 0187; land 0158 (PR #111) first, since this moves the same code. Unblocks 0196, 0199.",
+    },
+    "0191": {
+        "title": "One GitHub adapter owns every `gh` call (PR, CI probe, mergeability, review posting)",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "GitHub / Architecture",
+        "notes": "After 0187. Unblocks 0192.",
+    },
+    "0195": {
+        "title": "Executor entrypoint's raw `git` subprocess calls go through a `GitRepository` adapter",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Executor / Git",
+        "notes": "After 0185. 81 raw `git` calls. With 0190, unblocks 0196.",
+    },
+    "0192": {
+        "title": "`run_review_loop` and `run_review_stage` become a `ReviewLoop` object with named steps",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "L",
+        "domain": "Review Loop / Refactor",
+        "notes": "After 0191. 528 lines, CC 131. Sequence with 0160 and 0179 (same touch set).",
+    },
+    "0196": {
+        "title": "Executor entrypoint `main` becomes an `ExecutionRun` with named steps; module becomes a package",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "L",
+        "domain": "Executor / Refactor",
+        "notes": "After 0195 and 0190. 798 lines, CC 178 (worst in the repository).",
     },
     "0181": {
         "title": "Use the `/_` leaf only when referencing a git branch, never on ids",
@@ -476,7 +562,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "Medium",
         "sizing": "XL",
         "domain": "Readability",
-        "notes": "Runs with or after 0152.",
+        "notes": "Per package, after each split lands (0187, 0188, 0204), not as one repository-wide flow.",
     },
     "0147": {
         "title": "Remove harness paths tracked in the target repositories",
@@ -498,24 +584,109 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "domain": "Tests",
         "notes": "Unblocked.",
     },
-    "0184": {
-        "title": "holon-coherence CI timing gate: fix the residual review findings merged with PR #30",
-        "priority": "**P1**",
+    "0193": {
+        "title": "Decompose the intent and plan stage modules",
+        "priority": "**P2**",
         "impact": "Medium",
-        "sizing": "S",
-        "domain": "CI / holon-coherence",
-        "notes": (
-            "Important: label lookup uses the Issues API and needs `issues: read` (403 today). Nits: empty "
-            "`--pr-number`, non-positive `--baseline-count`. Check the holon-agentic-coder gate (#109) too."
-        ),
+        "sizing": "M",
+        "domain": "Holon Flow / Refactor",
+        "notes": "After 0187; parallel decomposition lane.",
     },
-    "0145": {
-        "title": "Pin holon-coherence to Python 3.13",
+    "0194": {
+        "title": "`run_execute_stage` becomes an `ExecuteStage` with named steps",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Holon Flow / Refactor",
+        "notes": "After 0187; parallel decomposition lane. 306 lines, CC 40.",
+    },
+    "0197": {
+        "title": "Split `calibration.py` into a package; decompose metrics parsing and report generation",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Calibration / Refactor",
+        "notes": "After 0187; parallel lane. Check overlap with 0146 and 0162.",
+    },
+    "0198": {
+        "title": "Agent runner registry: one `RunnerSpec` module per agent",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Runners / Refactor",
+        "notes": "After 0185; parallel lane.",
+    },
+    "0201": {
+        "title": "Planner, executor and reviewer prompts carry the module-layout, complexity and naming rules",
         "priority": "**P2**",
         "impact": "Medium",
         "sizing": "S",
-        "domain": "Build / coherence",
-        "notes": "PR #28 approved 3/3 (review 5692867047) and Stage 5 calibrated at `dadf1dd`; awaiting merge.",
+        "domain": "Prompts / Standards",
+        "notes": "After 0185. Plans declare touch sets at module granularity (feeds 0151).",
+    },
+    "0200": {
+        "title": "Remove holon-agentic-coder's diverged `token_reduction` copy; holon-coherence is the owner",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Token Reduction",
+        "notes": "After 0189. Ownership already ruled: holon-coherence owns token reduction.",
+    },
+    "0199": {
+        "title": "Decompose ledger query and the knowledge index",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Ledger / Knowledge",
+        "notes": "After 0190; parallel lane. Low bean priority.",
+    },
+    "0205": {
+        "title": "holon-coherence: `MitmproxyAddon.request` and `response` become named pipeline steps",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Proxy / holon-coherence",
+        "notes": "After 0204; parallel with 0206.",
+    },
+    "0206": {
+        "title": "holon-coherence: one provider module per wire format (Anthropic, OpenAI, Gemini)",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Proxy / holon-coherence",
+        "notes": "After 0204; parallel with 0205.",
+    },
+    "0207": {
+        "title": "holon-coherence: A/B evaluation and metrics aggregation move out of the command handlers",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Metrics / holon-coherence",
+        "notes": "After 0203; parallel with 0208.",
+    },
+    "0208": {
+        "title": "holon-coherence: a `ProxyLifecycle` class owns proxy start-up, readiness and teardown",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Proxy / holon-coherence",
+        "notes": "After 0203; parallel with 0207.",
+    },
+    "0202": {
+        "title": "holon-agentic-coder: the pasted CI timing-gate steps become one composite action",
+        "priority": "**P2**",
+        "impact": "Low",
+        "sizing": "S",
+        "domain": "CI",
+        "notes": "Unblocked (0184 completed). Workflows only.",
+    },
+    "0209": {
+        "title": "holon-coherence: the pasted CI timing-gate steps become one composite action",
+        "priority": "**P2**",
+        "impact": "Low",
+        "sizing": "S",
+        "domain": "CI / holon-coherence",
+        "notes": "Unblocked (0184 completed, PR #32). Workflows only.",
     },
     "0142": {
         "title": "Real-workload benchmark: Qwen3.8-27B dense vs Flash-Next MoE",
@@ -1070,6 +1241,21 @@ def generate_triage_document(
                 "    - `0163` (`holon-agentic-coder` half, #109, `993b686`): added the CI timing regression gate "
                 "across all workflow jobs (rolling-median baseline, per-test offender reporting, hard ceiling, and "
                 "auditable override)."
+            ),
+            ("19. **holon-coherence flows and the architecture research (Beans 0145, 0163, 0184, 0177, 2026-10-29)**:"),
+            "    - `0145` (holon-coherence #28, `0547eb4`): pinned holon-coherence to Python 3.13.",
+            (
+                "    - `0163` (`holon-coherence` half, #30, `6d9dae7`): CI timing regression gate on every "
+                "holon-coherence workflow; with #109 this closes Bean 0163."
+            ),
+            (
+                "    - `0184` (holon-coherence #32, `cefebe3`): fixed the residual #30 review findings (blank "
+                "`--pr-number`, range-checked `--baseline-count` and `--test-limit`); the claimed `issues: read` "
+                "Important was refuted with evidence."
+            ),
+            (
+                "    - `0177` (research, no target code): measured the hot spots in both targets and spawned Beans "
+                "0185-0209 with a migration order: lint gates, move-only splits, then parallel decomposition lanes."
             ),
             "",
             "---",

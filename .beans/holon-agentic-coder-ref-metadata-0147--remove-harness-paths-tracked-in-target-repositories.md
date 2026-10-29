@@ -10,7 +10,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-24T01:41:18Z
-updated_at: 2026-10-29T13:10:00Z
+updated_at: 2026-10-29T12:31:00Z
 ---
 
 ## Problem
