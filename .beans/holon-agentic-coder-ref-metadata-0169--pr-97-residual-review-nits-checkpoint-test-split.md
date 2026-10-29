@@ -41,3 +41,8 @@ new `main`.
   check for overlap with other open flows.
 - Other #97 deferrals already have beans: decomposed-child chaining, the parent PR and resume safety (Bean 0161); the
   stress test's `core.hooksPath` dependence (Bean 0167); pre-existing bean ids on `main` (Bean 0147).
+
+- 2026-10-29 cleanup: the PR #97 worktree held an uncommitted iteration-33 edit (moves the non-existent-checkpoint
+  assertion in `test_flow.py`, plus a `git_flow.md` 1.5 line that PR #103 has since rewritten). Saved as
+  `.subagent/holon-agentic-coder_pr97_archive/holon-agentic-coder_pr97_concurrent_iter_33_b65ac56.patch` before the
+  worktree was removed.

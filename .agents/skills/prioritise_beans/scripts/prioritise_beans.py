@@ -66,10 +66,17 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "**2026-10-29:** Bean 0144 was delivered as three sequential flows (PRs #100, #101 and #102, all merged): "
         "Stage 4 now fails closed and is decided only by a real reviewer ensemble. Bean 0179 routes those reviewer "
         "turns through the role container. PR #103 (Bean 0180, documentation only) nests sub-intent branches under "
-        "the node that decided the split; it is approved after 11 review iterations and awaits merge. The maintainer "
+        "the node that decided the split; it was merged (`e187393`) after 11 review iterations. The maintainer "
         "settled its five open questions (merge into the deciding plan or execution branch, nested PRs automatic), "
         "which a follow-up docs PR and Bean 0161 implement. New: Bean 0178 (repeated test runs only for performance "
         "work), Bean 0179 and Bean 0181 (`/_` only on branch refs)."
+    ),
+    "",
+    (
+        "Later on 2026-10-29, Bean 0143 went through the full flow from `main`, with a bootstrap build of the fix "
+        "branch for the flow's own claude agents. PR #104 is approved after 3 review iterations, calibrated and "
+        "awaiting merge; `holon` and `holon-coherence` are reinstalled from `main` once it merges. New: Bean 0182, a "
+        "long-running GitHub event watcher whose CI and merge events drive harness actions at zero token cost."
     ),
 ]
 
@@ -97,9 +104,8 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Tooling (2026-10-26):** the installed `holon` and `holon/agent-claude:latest` are built from "
-        "`fix/0143-claude-runner-skip-permissions` (rebased on `main` `fbd3b35`), not from `main`. Once 0143 is "
-        "merged, reinstall `holon` and rebuild every image from `main`. Until 0157, 0158, 0160, 0162 and 0179 "
+        "**Tooling (2026-10-29):** the installed `holon`, `holon-coherence` and every image are built from `main` "
+        "(`cc4bf1b`, which includes Bean 0143). Until 0157, 0158, 0160, 0162 and 0179 "
         "land, run flows with `HOLON_TOKEN_REDUCE=0`, restore `intents.jsonl` before Stage 4, run Stage 4 through "
         "the harness `pr-review-loop` skill, and format the calibration report before pushing. Set "
         "`HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` for Stage 3 until Bean 0172 adds an explicit unlimited value."
@@ -108,8 +114,8 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "Sequential lane, holon-agentic-coder (flow blockers first):",
     "",
     (
-        "1. **Bean 0143**: the maintainer raises and merges the PR (rebase it on the new `main` first). Then "
-        "reinstall `holon` and rebuild the images from `main`. Until then, flows run on the fix-branch build."
+        "1. **Bean 0143** is done (PR #104 merged, `cc4bf1b`): `holon`, `holon-coherence` and every image now come "
+        "from `main`, so claude-agent flows no longer need a fix-branch build."
     ),
     (
         "2. **Bean 0171** and **Bean 0175**: Stage 3 must never lose the executor's code (budget breach, rejected "
@@ -151,7 +157,11 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "beans re-plan 0152/0153 and set the file layout that keeps parallel agents off the same files."
     ),
     "- **Bean 0170** (review-loop convergence rules, harness-only). Do it before the next long review loop.",
-    ("- **Bean 0180**: after PR #103 merges, the follow-up docs PR applying the five rulings (documentation only)."),
+    "- **Bean 0180**: the follow-up docs PR applying the five rulings (documentation only; PR #103 is merged).",
+    (
+        "- **Bean 0182** (GitHub event watcher, harness-only): replaces per-task polling loops; do it before the next "
+        "long review loop, alongside 0170."
+    ),
     "- **Bean 0178** (planner and executor prompt rule for repeated test runs; prompts only).",
     "- **Bean 0163** and **Bean 0166** (CI timing gate and duration dashboard; workflows and observability only).",
     (
@@ -240,8 +250,8 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "S",
         "domain": "Agent Runner",
         "notes": (
-            "Rebased (`e7149a9`), pushed, no PR yet. All claude-agent flows currently run on this build. "
-            "Maintainer's PR and merge."
+            "Through the flow: PR #104 approved 3/3, CI green, calibrated (head `9bc1ed5`); awaiting merge. Then "
+            "reinstall from `main` and retire `fix/0143`. Flows run on the bootstrap build until then."
         ),
     },
     "0175": {
@@ -381,6 +391,17 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "friendly layout. Spawns one flow-sized bean per change; reshapes 0152/0153."
         ),
     },
+    "0182": {
+        "title": "Persistent GitHub event watcher that emits PR and CI events and drives harness actions",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Harness / Automation",
+        "notes": (
+            "Zero-token waits: watcher container plus event log; merges trigger cleanup and installs, CI failures the "
+            "next review iteration. Guardrails: no new spending, no merges."
+        ),
+    },
     "0180": {
         "title": "Document sub-intent branches nested under the node that decided the split",
         "priority": "**P1**",
@@ -388,8 +409,8 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "S",
         "domain": "Docs / Holon Flow",
         "notes": (
-            "PR #103 approved 3/3, CI green at `2652b8e` (11 iterations); awaiting merge. Then a follow-up docs PR for "
-            "the five rulings. Hand-authored, documentation only."
+            "PR #103 merged (`e187393`). Remaining: the follow-up docs PR for the five rulings (hand-authored, "
+            "documentation only)."
         ),
     },
     "0181": {

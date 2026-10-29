@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0143
 title: "Claude runner must pass the permission bypass as CLI parameters so sandboxed stages can write files"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - permissions
   - flow-bootstrap
 created_at: 2026-10-23T14:40:00Z
-updated_at: 2026-10-27T12:11:10Z
+updated_at: 2026-10-29T04:00:00Z
 ---
 
 ## Problem
@@ -61,4 +61,14 @@ write is still denied until `--permission-mode bypassPermissions` is also passed
 
 ## Resolution
 
-Pending: PR (maintainer), merge, then reinstall `holon` from `origin/main` via the `install-holon` skill.
+Completed through the Holon flow: PR #104 merged as `cc4bf1b` (2026-10-29). `main` worktrees fast-forwarded; `holon` and
+`holon-coherence` reinstalled (editable) from `main` and every image rebuilt via the `install-holon` skill;
+`holon/agent-claude` carries the bypass. The hand-authored `fix/0143` branch (last tip `19a6032`) and both `0143`
+worktrees are retired, superseded by the flow PR.
+
+- **2026-10-29 — through the Holon flow:** bootstrap build from `fix/0143` (rebased onto `e187393` as `19a6032`, 2680
+  passed) installed as host `holon` and baked into every image. Flow `I-1793241043` → `P-1793241058` → `E-1793241233`
+  (claude-agent, 7 min) produced the fix from `main`; PR #104. Review loop 3 iterations (2 Nits applied), 3/3 approval
+  and 9/9 CI at `1a51ff7` (review 5692289790), calibrated (`c3afba2`, EV 59.79 predicted, 79.26 actual), folded into the
+  PR head `9bc1ed5`. After merge: install `holon` and `holon-coherence` from `main`, then retire the `fix/0143` worktree
+  and branch (superseded by the flow PR).

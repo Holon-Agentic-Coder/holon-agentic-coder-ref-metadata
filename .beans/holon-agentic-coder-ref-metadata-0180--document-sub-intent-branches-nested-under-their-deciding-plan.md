@@ -103,3 +103,5 @@ intent branch, question 4 is left open, and collisions are a question. Decisions
 - PR #103 review loop: 11 iterations, every finding applied (one rejected: iter-1 N3, maintainer ruling). 3/3 ensemble
   approval with zero findings and all 9 CI jobs green at `2652b8e`; consensus posted as COMMENT review 5691992073.
   Awaiting the maintainer's merge. Close this bean after the merge and the follow-up docs PR.
+- PR #103 merged by the maintainer at 2026-10-29T02:11:22Z as `e187393`. Worktree and local branch removed. Remaining:
+  the follow-up docs PR applying the five rulings.
