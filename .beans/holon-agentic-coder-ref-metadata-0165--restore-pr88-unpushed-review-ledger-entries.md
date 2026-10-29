@@ -9,7 +9,7 @@ tags:
   - provenance
   - holon-agentic-coder
 created_at: 2026-10-27T12:10:00Z
-updated_at: 2026-10-27T12:25:00Z
+updated_at: 2026-10-29T23:34:36Z
 ---
 
 ## Problem
@@ -30,7 +30,8 @@ Restored the 37 entries into `holon-knowledge/ledger/executions.jsonl` at their 
 preserving the canonical 3-ledger architecture and chronological interleaving. All 376 lines of the updated ledger
 validate as JSON; the diff is insert-only (37 insertions). Branch `fix/0165-restore-pr88-review-ledger-entries`
 (worktree `apps/holon-agentic-coder/fix-0165-restore-pr88-review-ledger-entries`), commit `0f229b7`, raised as
-[PR #98](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/98) for human review and merge.
+[PR #98](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/98) for human review and merge. Merged by the
+maintainer as `e0dfd24` (2026-10-27T07:40:10Z).
 
 This is a hand-authored edit to the target repository made outside the 5-stage Holon flow, under the AGENTS.md exception
 for an explicit, unambiguous user instruction ("create a worktree for pr88 uncommitted pushes and make a pr for it").

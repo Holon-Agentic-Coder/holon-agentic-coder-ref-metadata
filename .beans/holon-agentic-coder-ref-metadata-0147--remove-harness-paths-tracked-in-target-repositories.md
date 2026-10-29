@@ -10,7 +10,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-24T01:41:18Z
-updated_at: 2026-10-29T23:29:00Z
+updated_at: 2026-10-29T23:34:36Z
 ---
 
 ## Problem
@@ -61,10 +61,11 @@ of scope unless it references harness paths.
     followed, but no consensus review was posted.
 - PR #29: ledger conflicts after PRs #28 and #30 resolved as `d83af38` (851 tests, 7/7 CI green); merged by the
   maintainer as squash `68fdf67` (2026-10-29T11:51:44Z) before its consensus review was posted. A post-merge review loop
-  runs in `apps/holon-coherence/review-pr29-harness-leak-removal-post-merge`; findings route to a follow-up flow.
+  ran in `apps/holon-coherence/review-pr29-harness-leak-removal-post-merge`; its findings went to the hand-authored PR
+  #31 (next bullet) rather than the follow-up flow first planned.
 - **`holon-agentic-coder` half — TODO:** pending its own Holon flow run.
 
 - **Post-merge review follow-up (2026-10-29):** holon-coherence PR #31
   (https://github.com/Holon-Agentic-Coder/holon-coherence/pull/31), hand-authored at the maintainer's explicit
-  instruction, in review iteration 10 at `add885c` (ensemble running). Merged by the maintainer as `b52c7e1`
-  (2026-10-29T23:24:46Z).
+  instruction, was in review iteration 10 at `add885c` (ensemble running) when first logged. The loop continued to
+  iteration 18 (`52a843b`), and the maintainer squash-merged the PR as `b52c7e1` (2026-10-29T23:24:46Z).

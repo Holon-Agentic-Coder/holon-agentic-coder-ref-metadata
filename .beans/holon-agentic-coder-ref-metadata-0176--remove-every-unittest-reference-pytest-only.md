@@ -11,7 +11,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0168
 created_at: 2026-10-28T09:38:48Z
-updated_at: 2026-10-28T09:38:48Z
+updated_at: 2026-10-29T23:34:36Z
 ---
 
 ## Problem
@@ -28,7 +28,8 @@ The maintainer's rule (2026-10-28): "we rely solely on `pytest` not `unittest`" 
 ## Goal
 
 Run through the Holon flow (intent, plan, execute, review, calibrate) after PR #99 (Bean 0168) merges, because it
-touches the same test files (sequential overlapping flows).
+touches the same test files (sequential overlapping flows). PR #99 merged as `0e54457` (2026-10-28T09:59:25Z), so the
+flow can start.
 
 1. Convert every `unittest.TestCase` class to plain pytest classes or functions: `setUp`/`tearDown` to fixtures,
    `self.assert*` to bare `assert` / `pytest.raises` / `pytest.approx`, `subTest` to `pytest.mark.parametrize` or

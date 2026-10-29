@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0144
 created_at: 2026-10-28T22:05:13Z
-updated_at: 2026-10-28T22:05:13Z
+updated_at: 2026-10-29T23:34:36Z
 ---
 
 ## Problem
@@ -28,7 +28,7 @@ self-sufficient.
 
 ## Goal
 
-Through the Holon flow on `holon-agentic-coder`, after PR #102 merges:
+Through the Holon flow on `holon-agentic-coder`, after PR #102 merges (it merged as `f09ca5e`, 2026-10-28T23:08:50Z):
 
 1. Dispatch Stage 4 reviewer work through the existing `_dispatch_role()` into the `review-loop` role container, which
    runs `run_ensemble()` / `decide_consensus()` on the PR's real diff inside the sandbox.
