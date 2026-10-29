@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0184
 title: "holon-coherence CI timing gate: fix the residual review findings that merged with PR #30"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - ci
   - review-loop
 created_at: 2026-10-29T12:00:00Z
-updated_at: 2026-10-29T12:30:00Z
+updated_at: 2026-10-29T13:10:00Z
 ---
 
 ## Problem
@@ -53,3 +53,10 @@ out at its 300 s budget). Open findings, all in `scripts/ci_timing_gate.py`:
 - D6-2 applied: tests for the 403 fallback, the redirect without `Authorization`, and a re-raised 404.
 - holon-agentic-coder gate (#109): not affected (reads labels from the event payload).
 - Close this bean when PR #32 merges.
+
+## Summary of Changes (2026-10-29)
+
+Resolved by holon-coherence PR #32, merged by the maintainer as `cefebe3`: blank `--pr-number` tolerated,
+`--baseline-count` and `--test-limit` range-checked, and the 403 fallback and download redirect tested. The claimed
+Important (label lookup needing `issues: read`) was refuted with evidence. Hand-authored at the maintainer's explicit
+instruction as the post-merge follow-up to PR #30.

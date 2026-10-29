@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0158
 title: "A failed holon flow run reorders existing rows of the append-only intents.jsonl"
-status: todo
+status: in-progress
 type: bug
 priority: critical
 tags:
@@ -9,7 +9,7 @@ tags:
   - holon-flow
   - holon-agentic-coder
 created_at: 2026-10-26T04:23:42Z
-updated_at: 2026-10-28T10:04:33Z
+updated_at: 2026-10-29T13:10:00Z
 ---
 
 ## Problem
@@ -45,3 +45,11 @@ example ordering by timestamp, or the union step used when resolving ledger appe
 Recurred on PR #99 (Bean 0168): the Stage 1 intent commit reordered existing `intents.jsonl` rows, so main's file was no
 longer a byte prefix (divergence at byte 101,845). The review loop restored main's exact bytes plus the one new row in a
 follow-up commit.
+
+## Progress (2026-10-29, through the Holon flow)
+
+- Flow `I-1793275605-ledger-writes-are-pure-appends-never-reorder-intents` → `P-1793275622-claude-agent-claude-opus-5-5`
+  → `E-1793275792-claude-agent-claude-opus-5-5` (worktree
+  `apps/holon-agentic-coder/flow-0158-ledger-writes-pure-append`).
+- PR #111 (https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/111) open at `9e87525`; Stage 4 review loop
+  starting.

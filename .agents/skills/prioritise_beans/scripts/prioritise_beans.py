@@ -178,13 +178,13 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "Parallel lane (disjoint files):",
     "",
     (
-        "- **Bean 0184** (`holon-coherence` CI timing gate leftovers from PR #30, one Important: the label lookup "
-        "needs `issues: read`). Small, `scripts/ci_timing_gate.py` and its test; also check the "
-        "`holon-agentic-coder` gate from #109."
+        "- **In review now:** holon-agentic-coder PR #110 (Bean 0180 docs) and PR #111 (Bean 0158 pure-append "
+        "ledgers) through the flow; holon-coherence PR #31 (post-merge follow-up for #29). Merge #111 before Bean "
+        "0190, which moves the same ledger code."
     ),
     (
-        "- **Post-merge review of coherence PR #29** (in progress): any findings become a follow-up flow, not hand "
-        "edits."
+        "- **Harness branch awaiting the maintainer:** `feat/0182-0170-event-watcher-and-loop-convergence` (Beans "
+        "0182 and 0170 implemented and tested)."
     ),
     (
         "- **Bean 0177** (architecture and code-principles research, no target code). Start now; its spawned action "
@@ -243,8 +243,8 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "S",
         "domain": "Ledger / Holon Flow",
         "notes": (
-            "Breaks Stage 4 checkout on every unattended run (recurred on #105–#109). Workaround: `git restore` the "
-            "file, then `--from-stage review`."
+            "In flight: PR #111 (Stage 4 review). Hit all eight parallel flows; until it merges, restore "
+            "`intents.jsonl` to main's rows plus the new one."
         ),
     },
     "0160": {
@@ -421,8 +421,8 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "S",
         "domain": "Docs / Holon Flow",
         "notes": (
-            "PR #103 merged (`e187393`). Remaining: the follow-up docs PR for the five rulings (hand-authored, "
-            "documentation only)."
+            "PR #103 merged (`e187393`). Follow-up docs for the five rulings through the flow: PR #110 in Stage 4 "
+            "review."
         ),
     },
     "0170": {

@@ -10,7 +10,7 @@ tags:
   - documentation
   - holon-agentic-coder
 created_at: 2026-10-29T00:38:39Z
-updated_at: 2026-10-29T03:00:00Z
+updated_at: 2026-10-29T13:10:00Z
 ---
 
 ## Problem
@@ -105,3 +105,9 @@ intent branch, question 4 is left open, and collisions are a question. Decisions
   Awaiting the maintainer's merge. Close this bean after the merge and the follow-up docs PR.
 - PR #103 merged by the maintainer at 2026-10-29T02:11:22Z as `e187393`. Worktree and local branch removed. Remaining:
   the follow-up docs PR applying the five rulings.
+
+- **Follow-up docs through the Holon flow (2026-10-29):** flow
+  `I-1793275695-docs-sub-intent-merge-target-and-automatic-nested-prs` → `P-1793275710-claude-agent-claude-opus-5-5` →
+  `E-1793275898-claude-agent-claude-opus-5-5`; PR #110
+  (https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/110) in Stage 4 review (iteration 3 at `06ff902`).
+  Close this bean when it merges.
