@@ -9,7 +9,7 @@ tags:
   - decomposition
   - holon-agentic-coder
 created_at: 2026-10-26T07:16:04Z
-updated_at: 2026-10-27T12:11:10Z
+updated_at: 2026-10-29T03:00:00Z
 ---
 
 ## Problem
@@ -48,3 +48,16 @@ Once Bean 0159 runs decomposed sub-intents autonomously (`_run_decomposed_plan` 
 
 - Run through the Holon flow on holon-agentic-coder after Bean 0159 merges. It overlaps `flow.py`, so run it
   sequentially.
+
+## Maintainer decisions to implement (2026-10-29, from Bean 0180)
+
+- Sub-intent branches nest under the node that decided the split (`I-…/P-…/I-…/_`, no `child` or index segment); in
+  practice the plan decides. Record `deciding_branch` (name kept), `parent_intent_id`, `parent_plan_id` and, for an
+  execution- or review-decided split, `parent_execution_id`.
+- A review-decided split may nest under the reviewed plan or the reviewed execution.
+- Merge target is the deciding node's branch: a plan-decided sub-intent merges into the plan branch, an
+  execution-decided one into the execution branch (not the parent intent branch).
+- Nested PRs need no human: the agent raises each sub-intent's PR and merges it automatically into the deciding
+  plan/execution branch. Only the root intent's PR to `main` stops for a human.
+- Sibling sub-intents under one deciding node always have different slugs, so ids cannot collide; no sequence suffix.
+- Documented in PR #103 (approved, awaiting merge) plus a follow-up docs PR for the merge-target and human-stop rulings.

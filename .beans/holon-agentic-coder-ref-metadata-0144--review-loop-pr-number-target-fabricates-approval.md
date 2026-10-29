@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0144
 title: "holon review-loop <PR number> clones a nonexistent branch and still reports consensus APPROVED"
-status: in-progress
+status: completed
 type: bug
 priority: critical
 tags:
@@ -9,7 +9,7 @@ tags:
   - provenance
   - flow
 created_at: 2026-10-23T15:05:00Z
-updated_at: 2026-10-28T11:59:49Z
+updated_at: 2026-10-29T03:00:00Z
 ---
 
 ## Problem
@@ -79,3 +79,49 @@ as decided by the maintainer on 2026-10-24.
   guard (fail-closed refusal on `empty_diff` / `diff_unverified`) runs only when `--auto-pr` is set (`flow.py:~3297`),
   and it does not run at all for a PR-number target. Both gaps belong with this bean's PR-number-target fix: run the
   guard whatever the PR-creation mode, so a review can never approve a diff it couldn't verify.
+
+## Decomposed first run — branches kept for audit (2026-10-28)
+
+The first `holon flow` run (intent `I-1793188814-native-review-loop-real-ensemble-no-fabricated-approval`) planned a
+SPLIT into three ordered sub-intents (plan `P-1793188831`, EV 25.45). It was stopped during child 1's Stage 3 because
+child 3 depends on children 1 and 2, which the decomposed-child path cannot yet deliver (Bean 0161). The maintainer
+chose three sequential root flows instead (first: `review-loop-fail-closed-target-and-guards`).
+
+**Do not delete these remote branches**: the maintainer is auditing how the sub-intent was created. Every cleanup pass
+(`clean-branches`, `clean-workspace`, manual pruning) must skip them until the maintainer says otherwise:
+
+- `I-1793188814-native-review-loop-real-ensemble-no-fabricated-approval/_`
+- `I-1793188814-native-review-loop-real-ensemble-no-fabricated-approval/P-1793188831-claude-agent-claude-opus-5-5/_`
+- `I-1793188814-native-review-loop-real-ensemble-no-fabricated-approval/P-1793188831-claude-agent-claude-opus-5-5/E-1793189086-claude-agent-claude-opus-5-5/_`
+- `I-1793188814-native-review-loop-real-ensemble-no-fabricated-approval--1-harden-the-native-stage-4-review-loop-to-fail-cl/_`
+- `I-1793188814-native-review-loop-real-ensemble-no-fabricated-approval--1-harden-the-native-stage-4-review-loop-to-fail-cl/P-1793189108-claude-agent-claude-opus-5-5/_`
+
+Flow log: `todo/logs/0144-flow.log`.
+
+## Progress (2026-10-28)
+
+- **Flow 1 of 3 — merged:** PR #100 (`acb5dc0`, 2026-10-28T15:15:52Z), `review-loop-fail-closed-target-and-guards`. PR
+  number or URL resolved to the head branch and SHA before cloning; resolution, clone, fetch, checkout, diff
+  verification, git timeouts and posting all fail closed (exit 1, never approved); empty-diff guard on every target
+  against the PR's own base, with heads and bases fetched from `origin`; the 21-minute host spin was `_find_git_root()`
+  never advancing. Review loop 5 iterations (all findings applied), 3/3 ensemble approval at `575030b`, calibrated (EV
+  45.60 predicted, 69.16 actual).
+- **Flow 2 of 3 — merged:** PR #101 (`b1b5a1b`, 2026-10-28T21:41:04Z), `review-ensemble-module`. New
+  `review_ensemble.py`: N independent reviewer turns (three by default), strict JSON trailer (repeated keys, oversized
+  or deep input rejected), any-turn budget breach or unparseable report fails that reviewer only, unanimity consensus,
+  scratch root contained to `.holon/review/`. Review loop 10 iterations (all findings applied), 3/3 approval at
+  `b6be885`, calibrated (EV 52.70 predicted, 73.08 actual); head `58ad02a`.
+- **Flow 3 of 3 — merged:** PR #102 (`f09ca5e`, `review-loop-wire-real-ensemble`, head `45debd1`). Stage 4 is decided
+  only by the real ensemble plus mergeable and green CI; the fabricated report is gone (`review_report.py`);
+  ACT-REV/ACT-FIND rows; host reviewer turns refused (routing into the role container is Bean 0179). Review loop 5
+  iterations (all findings applied), 3/3 approval at `d2acda6`, calibrated (EV 41.32 predicted, 73.82 actual). Original
+  scope note: wire the ensemble into `run_review_loop()` and Stage 4, rebuild the consensus report from real results,
+  docs.
+
+## Summary of Changes (2026-10-29)
+
+Completed through three sequential Holon flows, all merged by the maintainer: PR #100 (`acb5dc0`, fail-closed target
+resolution and guards), PR #101 (`b1b5a1b`, `review_ensemble.py`) and PR #102 (`f09ca5e`, Stage 4 decided by the real
+ensemble, fabricated report removed). Each was reviewed with the harness pr-review-loop to 3/3 approval and calibrated.
+Host-side reviewer turns are refused (fail closed); routing them through the `review-loop` role container is Bean 0179.
+The decomposed first run's five audit branches and every flow branch stay on `origin` at the maintainer's request.

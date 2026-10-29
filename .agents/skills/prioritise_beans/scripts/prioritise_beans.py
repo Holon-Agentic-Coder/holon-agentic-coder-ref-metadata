@@ -57,13 +57,23 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "**2026-10-28:** Bean 0168 (PR #99) cut CI test time through the full flow: pytest-xdist, "
         "hermetic test git and per-worker template repositories. Real CI pytest time fell 2.5x on macOS "
         "(382 s to 153 s), 2.0x on ubuntu (242 s to 123 s) and 1.6x for Workspace survival (417 s to 258 s). "
-        "It converged in 8 review iterations and is approved, calibrated and awaiting merge. New: Bean 0175 "
+        "It converged in 8 review iterations and was merged (`0e54457`). New: Bean 0175 "
         "(token-scope pre-flight), Bean 0176 (pytest only) and Bean 0177 (architecture and code-principles "
         "research that spawns action beans)."
     ),
+    "",
+    (
+        "**2026-10-29:** Bean 0144 was delivered as three sequential flows (PRs #100, #101 and #102, all merged): "
+        "Stage 4 now fails closed and is decided only by a real reviewer ensemble. Bean 0179 routes those reviewer "
+        "turns through the role container. PR #103 (Bean 0180, documentation only) nests sub-intent branches under "
+        "the node that decided the split; it is approved after 11 review iterations and awaits merge. The maintainer "
+        "settled its five open questions (merge into the deciding plan or execution branch, nested PRs automatic), "
+        "which a follow-up docs PR and Bean 0161 implement. New: Bean 0178 (repeated test runs only for performance "
+        "work), Bean 0179 and Bean 0181 (`/_` only on branch refs)."
+    ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0140)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0168)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
@@ -89,7 +99,7 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     (
         "**Tooling (2026-10-26):** the installed `holon` and `holon/agent-claude:latest` are built from "
         "`fix/0143-claude-runner-skip-permissions` (rebased on `main` `fbd3b35`), not from `main`. Once 0143 is "
-        "merged, reinstall `holon` and rebuild every image from `main`. Until 0157, 0158, 0160, 0162 and 0144 "
+        "merged, reinstall `holon` and rebuild every image from `main`. Until 0157, 0158, 0160, 0162 and 0179 "
         "land, run flows with `HOLON_TOKEN_REDUCE=0`, restore `intents.jsonl` before Stage 4, run Stage 4 through "
         "the harness `pr-review-loop` skill, and format the calibration report before pushing. Set "
         "`HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` for Stage 3 until Bean 0172 adds an explicit unlimited value."
@@ -98,24 +108,27 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "Sequential lane, holon-agentic-coder (flow blockers first):",
     "",
     (
-        "1. **Bean 0168** (PR #99): approved and calibrated; the maintainer merges. That also closes **Bean 0167** "
-        "(deterministic turn-supervisor test and hostile `core.hooksPath`), which #99 fixed."
-    ),
-    (
-        "2. **Bean 0143**: the maintainer raises and merges the PR (rebase it on the new `main` first). Then "
+        "1. **Bean 0143**: the maintainer raises and merges the PR (rebase it on the new `main` first). Then "
         "reinstall `holon` and rebuild the images from `main`. Until then, flows run on the fix-branch build."
     ),
     (
-        "3. **Bean 0171** and **Bean 0175**: Stage 3 must never lose the executor's code (budget breach, rejected "
+        "2. **Bean 0171** and **Bean 0175**: Stage 3 must never lose the executor's code (budget breach, rejected "
         "push), and token scopes are checked before Stage 3 starts."
     ),
-    "4. **Bean 0144**: real reviewer containers for Stage 4. Adopt the Bean 0170 convergence rules there.",
+    (
+        "3. **Bean 0179**: route Stage 4 reviewer turns through the `review-loop` role container so `holon flow` "
+        "reviews on its own. Adopt the Bean 0170 convergence rules there."
+    ),
+    "4. **Bean 0181**: `/_` only on branch refs, ids bare (ledger field migration; readers accept both shapes).",
     (
         "5. **Bean 0158**, **Bean 0160**, **Bean 0162**, **Bean 0157**: the remaining flow-integrity blockers, one "
         "at a time (all touch `flow.py`). 0158 and 0162 both recurred on #99."
     ),
     "6. **Bean 0149**, then **Bean 0151**: unique IDs, then touch-set admission (re-plan 0151 on the new `main`).",
-    "7. **Bean 0161**: decomposed-child chaining, the parent PR and resume safety (builds on #97).",
+    (
+        "7. **Bean 0161**: nested sub-intent branches per the maintainer's 2026-10-29 rulings (merge into the "
+        "deciding plan or execution branch, nested PRs automatic), chaining and resume safety."
+    ),
     "8. **Bean 0155**, then **Bean 0148**: credential-redaction gaps (both touch `cli.py`).",
     (
         "9. **Bean 0172**, **Bean 0173**, then **Bean 0174**: unlimited budgets, layered `.env`, then the env-var "
@@ -138,6 +151,8 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "beans re-plan 0152/0153 and set the file layout that keeps parallel agents off the same files."
     ),
     "- **Bean 0170** (review-loop convergence rules, harness-only). Do it before the next long review loop.",
+    ("- **Bean 0180**: after PR #103 merges, the follow-up docs PR applying the five rulings (documentation only)."),
+    "- **Bean 0178** (planner and executor prompt rule for repeated test runs; prompts only).",
     "- **Bean 0163** and **Bean 0166** (CI timing gate and duration dashboard; workflows and observability only).",
     (
         "- **Bean 0169** (PR #97 residual Nits; small, `test_flow.py` and `git_flow.md`). Check overlap with the "
@@ -158,15 +173,15 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
 # judgement rather than a truncated first paragraph. Insertion order is the
 # matrix row order (priority blocks, hand-curated within each block).
 OVERRIDES: dict[str, dict[str, str]] = {
-    "0144": {
-        "title": "Review loop runs no reviewer and posts a fabricated ensemble approval",
+    "0179": {
+        "title": "Route Stage 4 reviewer turns through the `review-loop` role container",
         "priority": "**P0**",
         "impact": "High",
-        "sizing": "L",
+        "sizing": "M",
         "domain": "Review Loop",
         "notes": (
-            "Reached GitHub on #97. Real reviewer containers needed. Until then Stage 4 runs through the harness "
-            "`pr-review-loop` skill."
+            "Follow-up to 0144 (PR #102 refuses host reviewer turns, fail closed). Until it lands, Stage 4 runs "
+            "through the harness `pr-review-loop` skill."
         ),
     },
     "0158": {
@@ -262,7 +277,10 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "High",
         "sizing": "M",
         "domain": "Holon Flow",
-        "notes": "Deferred from #97 (F2(b) plus resume safety F4). After 0159.",
+        "notes": (
+            "Deferred from #97. Implement the 2026-10-29 rulings: nest under the deciding node, merge into the "
+            "deciding plan/execution branch, nested PRs automatic, sibling slugs distinct. Docs: PR #103 + follow-up."
+        ),
     },
     "0149": {
         "title": "Plan and execution IDs collide across concurrently planned intents",
@@ -362,6 +380,35 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "Research only, parallel lane. Cohesion, intention-revealing names, low complexity, parallel-agent "
             "friendly layout. Spawns one flow-sized bean per change; reshapes 0152/0153."
         ),
+    },
+    "0180": {
+        "title": "Document sub-intent branches nested under the node that decided the split",
+        "priority": "**P1**",
+        "impact": "Medium",
+        "sizing": "S",
+        "domain": "Docs / Holon Flow",
+        "notes": (
+            "PR #103 approved 3/3, CI green at `2652b8e` (11 iterations); awaiting merge. Then a follow-up docs PR for "
+            "the five rulings. Hand-authored, documentation only."
+        ),
+    },
+    "0181": {
+        "title": "Use the `/_` leaf only when referencing a git branch, never on ids",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Holon Flow / Ledger",
+        "notes": (
+            "`intents.jsonl` `branch` and `parent_intent_id` hold refs; migrate with readers accepting both shapes."
+        ),
+    },
+    "0178": {
+        "title": "Prompts request repeated test runs only for performance work, N runs each under xdist",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "S",
+        "domain": "Prompts",
+        "notes": "Rule 19 is in the harness; the planner and executor templates still need it.",
     },
     "0170": {
         "title": "pr-review-loop must converge: review the increment, defer Nits on unchanged code",
@@ -968,6 +1015,23 @@ def generate_triage_document(
                 "work is in Beans 0169 (Nits) and 0170 (loop convergence)."
             ),
             "    - Also merged: PR #98 (Bean 0165, restoring PR #88's unpushed review ledger rows).",
+            "16. **Faster CI tests via the full flow (Bean 0168 / PR #99, 2026-10-28)**:",
+            (
+                "    - pytest-xdist, hermetic test git and per-worker template repositories: CI pytest time 2.5x "
+                "faster on macOS, 2.0x on ubuntu and 1.6x for Workspace survival. Also closed Bean 0167 (deterministic "
+                "turn-supervisor test, hostile `core.hooksPath`)."
+            ),
+            "17. **Real, fail-closed Stage 4 review (Bean 0144 / PRs #100, #101, #102, 2026-10-28)**:",
+            (
+                "    - PR-number targets resolve to the head branch and SHA; clone, diff and post failures never "
+                "approve. `review_ensemble.py` runs N independent reviewers with strict trailers and unanimity. "
+                "Stage 4 is decided only by that ensemble plus mergeable and green CI; the fabricated report is gone."
+            ),
+            (
+                "    - The planner's first attempt split the intent into three dependent sub-intents that could not "
+                "build on each other (Bean 0161). It was re-run as three sequential root flows; the split run's "
+                "branches stay on `origin` for audit."
+            ),
             "",
             "---",
             "",
