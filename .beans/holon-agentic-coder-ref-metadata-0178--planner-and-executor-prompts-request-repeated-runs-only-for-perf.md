@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0178
 title: "Planner and executor prompts request repeated test runs only for performance work, N runs each under xdist"
-status: todo
+status: completed
 type: task
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - token-cost
   - holon-agentic-coder
 created_at: 2026-10-28T12:07:13Z
-updated_at: 2026-10-28T12:07:13Z
+updated_at: 2026-10-29T06:40:00Z
 ---
 
 ## Problem
@@ -45,3 +45,16 @@ Through the Holon flow on `holon-agentic-coder`:
 - Prompt and docs change only; disjoint from `flow.py`/`cli.py`, so it can run in the parallel lane. Check its touch set
   against Bean 0144, which extends `holon-config/prompts/review_loop.template.md`.
 - Related: Bean 0168 (origin), harness invariant 19.
+
+## Resolution
+
+Completed through the 5-stage Holon flow on `holon-agentic-coder`:
+
+- **Flow**: `I-1793246276-prompts-repeat-test-runs-only-for-performance-under-xdist` →
+  `P-1793246292-claude-agent-claude-opus-5-5` → `E-1793246422-claude-agent-claude-opus-5-5`.
+- **PR #105** (https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/105): updated
+  `holon-config/prompts/planner.template.md`, `holon-config/prompts/executor.template.md` (including step-by-step
+  executor commit guidance), `docs/testing/testing_guide.md`, and `tests/test_prompt_templates.py`. Converged in 2
+  review-loop iterations (3/3 ensemble approval at `98d3bc5`, review `5692781712`, 10/10 CI green), Stage 5 calibrated
+  (`8fd40d4`, EV 54.59 predicted / 64.57 actual, Prettier-formatted in `e41bcd0`), and merged by the maintainer as
+  `c9825b8` (2026-10-29T04:56:20Z).

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0154
 title: "Fix flaky URL fuzz leak check that can match random temp-file names"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - redaction
   - holon-agentic-coder
 created_at: 2026-10-25T08:01:22Z
-updated_at: 2026-10-26T09:48:11Z
+updated_at: 2026-10-29T06:40:00Z
 ---
 
 ## Problem
@@ -42,3 +42,14 @@ happens to share a 4-character run with the fake password, the check reports a l
 
 - Run through the Holon flow on holon-agentic-coder.
 - Found by the PR #94 iteration-15 sync resolver (merge of #95).
+
+## Resolution
+
+Completed through the 5-stage Holon flow on `holon-agentic-coder`:
+
+- **Flow**: `I-1793246367-url-fuzz-leak-check-ignores-random-temp-paths` → `P-1793246383-claude-agent-claude-opus-5-5` →
+  `E-1793246576-claude-agent-claude-opus-5-5`.
+- **PR #107** (https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/107): resolved in 2 review-loop
+  iterations (3/3 ensemble approval at `d017043`, review `5692855217`, 10/10 CI green), Stage 5 calibrated (`c7cd0e2`,
+  EV 50.34 predicted / 62.89 actual, Prettier-formatted in `e306256`), ledger conflicts resolved in `7635240`, and
+  merged by the maintainer as `81a12ee` (2026-10-29T05:48:44Z).

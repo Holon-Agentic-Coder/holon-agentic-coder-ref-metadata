@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0171
 title: "Stage 3 budget breach commits the notes and ledger but discards the executor's code changes"
-status: todo
+status: completed
 type: bug
 priority: critical
 tags:
@@ -10,7 +10,7 @@ tags:
   - holon-flow
   - holon-agentic-coder
 created_at: 2026-10-27T13:20:33Z
-updated_at: 2026-10-27T13:20:33Z
+updated_at: 2026-10-29T06:40:00Z
 ---
 
 ## Problem
@@ -45,3 +45,17 @@ work itself was discarded.
 - Run through the Holon flow on holon-agentic-coder. It touches the executor entrypoint and `flow.py`, so run it
   sequentially.
 - Workaround used for Bean 0168: re-run Stage 3 with `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=120`.
+
+## Resolution
+
+Completed through the Holon flow on `holon-agentic-coder`:
+
+- **Flow**: `I-1793246184-execute-failure-keeps-partial-code-and-resumes-from-it` →
+  `P-1793246201-claude-agent-claude-opus-5-5` → `E-1793246527-claude-agent-claude-opus-5-5`.
+- **PR #108** (https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/108): Stage 3 failure and budget-breach
+  salvage now stages and commits working-tree changes as a partial head, emits a redacted format-patch on a refused push
+  (with size caps and private-key / credential / env-file exclusions), and resumes Stage 3 from `failed_partial_head`
+  (`failure` or `failed` ledger rows). Five resolver iterations (`406ef34`..`b1fa45f`), iteration 6 dry-run `APPROVED`
+  with 10/10 CI green (including CodeQL), ledger conflicts resolved in `55a11e0`, and merged by the maintainer as
+  `c7dfd5e` (2026-10-29T05:52:18Z, before Stage 5 calibration ran). Step-by-step executor commit guidance also landed in
+  PR #105 (Bean 0178).

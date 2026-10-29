@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0147
 title: "Remove harness paths (todo/, .subagent/) tracked in the target repositories"
-status: todo
+status: in-progress
 type: bug
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-24T01:41:18Z
-updated_at: 2026-10-27T05:14:49Z
+updated_at: 2026-10-29T06:40:00Z
 ---
 
 ## Problem
@@ -50,3 +50,12 @@ of scope unless it references harness paths.
   user-visible `--help` text). Replace each with a plain description of the behaviour. Add a hygiene check that fails on
   `Bean [0-9]{4}` and on review-loop finding ids in target files. During PR #97, its review loop had already removed
   about 120 review-loop finding ids from lines the PR added.
+
+## Progress (2026-10-29)
+
+- **`holon-coherence` half — IN PROGRESS (PR #29):**
+  - Flow: `I-1793246735-coherence-remove-harness-path-and-task-id-leaks` → `P-1793246750-claude-agent-claude-opus-5-5` →
+    `E-1793246939-claude-agent-claude-opus-5-5` (worktree `apps/holon-coherence/flow-0147-remove-harness-path-leaks`).
+  - PR #29 (https://github.com/Holon-Agentic-Coder/holon-coherence/pull/29): in Stage 4 review loop (iteration 6
+    resolver pushed `e1139ac`).
+- **`holon-agentic-coder` half — TODO:** pending its own Holon flow run.

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0163
 title: "CI timing regression gate: fail any build whose duration regresses beyond a tolerance"
-status: todo
+status: in-progress
 type: feature
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-26T10:04:41Z
-updated_at: 2026-10-26T10:04:41Z
+updated_at: 2026-10-29T06:40:00Z
 ---
 
 ## Problem
@@ -65,3 +65,18 @@ integration, stress, hygiene, image builds (Buildx Bake) and any other job.
   gate fails every build on arrival.
 - Related: Bean 0154 (the flaky fuzz test turns CI red), Bean 0160 (the review loop waits on CI), Bean 0152 (smaller
   modules and faster tests).
+
+## Progress (2026-10-29)
+
+- **`holon-agentic-coder` half — COMPLETED & MERGED (PR #109):**
+  - Flow: `I-1793246551-ci-timing-regression-gate` → `P-1793246567-claude-agent-claude-opus-5-5` →
+    `E-1793246853-claude-agent-claude-opus-5-5`.
+  - PR #109 (https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/109): converged in 5 review-loop iterations
+    (3/3 ensemble approval at `74113db`, review `5693019917`, 10/10 CI green), Stage 5 calibrated (`147ea4f`, EV 41.40
+    predicted / 67.00 actual, Prettier-formatted in `cd2ab9b`), ledger conflicts resolved in `0b9e858`, and merged by
+    the maintainer as `993b686` (2026-10-29T05:57:21Z).
+- **`holon-coherence` half — IN PROGRESS (PR #30):**
+  - Flow: `I-1793246826-coherence-ci-timing-regression-gate` → `P-1793246842-claude-agent-claude-opus-5-5` →
+    `E-1793247065-claude-agent-claude-opus-5-5` (worktree `apps/holon-coherence/flow-0163-ci-timing-gate`).
+  - PR #30 (https://github.com/Holon-Agentic-Coder/holon-coherence/pull/30): in Stage 4 review loop (iteration 5 at head
+    `f6a2a7e`, 7/7 CI green, dry run `APPROVED`, ensemble in flight).
