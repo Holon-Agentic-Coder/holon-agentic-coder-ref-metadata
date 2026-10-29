@@ -60,8 +60,8 @@ Implementing the model stays in Bean 0161; until it lands, the code still uses t
 
 ## Progress (2026-10-29)
 
-- Docs change committed as `c27879b` on `docs/0180-nested-sub-intent-branches` and pushed (no PR; the maintainer runs
-  the review loop). PR #103 (https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/103). Four files:
+- Docs change committed as `c27879b` on `docs/0180-nested-sub-intent-branches` and pushed, then raised as PR #103
+  (https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/103), which went through the review loop. Four files:
   `docs/git_flow.md`, `README.md`, `docs/examples.md`, `docs/ledger_schema.md`. The commit message names the
   outside-the-flow exception; `uv run task lint-docs` passes.
 - Open design questions for the maintainer:

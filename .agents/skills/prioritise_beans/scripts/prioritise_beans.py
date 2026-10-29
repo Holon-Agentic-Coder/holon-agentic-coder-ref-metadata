@@ -95,7 +95,7 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     (
         "Also through the flow on 2026-10-29, both reviewed and calibrated: PR #110 (Bean 0180 follow-up docs for "
         "the five sub-intent rulings, merged as `85ef122`) and PR #111 (Bean 0158 pure-append ledger writes, merged "
-        "as `8c9ff4d`). Both beans await closure. New: **Bean 0210** (five documents PR #110 left on the old "
+        "as `8c9ff4d`). Both beans are now closed. New: **Bean 0210** (five documents PR #110 left on the old "
         "sub-intent rules)."
     ),
     "",
@@ -192,21 +192,20 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     ("- **Harness:** PR #56 (`docs/harness-updates-0261027`) in its review loop."),
     (
-        "- **Harness branch awaiting the maintainer:** `feat/0182-0170-event-watcher-and-loop-convergence` (Beans "
-        "0182 and 0170 implemented and tested)."
+        "- **Harness branch awaiting the maintainer:** `feat/0182-0170-event-watcher-and-loop-convergence` "
+        "(`f14c2f0`, no PR yet; Beans 0182 and 0170 implemented and tested there, not yet on `main`)."
     ),
     (
         "- **holon-coherence decomposition lane** (Bean 0177 order, disjoint from holon-agentic-coder): lint gate "
         "0186, then 0203 and 0204 in parallel, then 0205-0208. Bean 0209 (CI composite action) is workflow-only."
     ),
-    "- **Bean 0170** (review-loop convergence rules, harness-only). Do it before the next long review loop.",
     (
-        "- **Bean 0210**: apply the five sub-intent rulings to the five documents PR #110 left on the old rules "
-        "(documentation only, through the flow; PR #110 is merged)."
+        "- **Bean 0170** (review-loop convergence rules, harness-only): implemented on the harness branch above; "
+        "review and land it before the next long review loop."
     ),
     (
-        "- **Bean 0182** (GitHub event watcher, harness-only): replaces per-task polling loops; do it before the next "
-        "long review loop, alongside 0170."
+        "- **Bean 0182** (GitHub event watcher, harness-only): replaces per-task polling loops; implemented on the "
+        "harness branch above; review and land it before the next long review loop, alongside 0170."
     ),
     "- **Bean 0166** (CI pipeline duration dashboard; workflows and observability only, pairs with 0163).",
     (
@@ -295,7 +294,10 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "High",
         "sizing": "S",
         "domain": "Calibration / CI",
-        "notes": "Turns every flow PR red after calibration (recurred on #105, #106, #107, #109).",
+        "notes": (
+            "Turns a calibrated holon-agentic-coder flow PR red (recurred on #105, #106, #107 and #109; #108 was "
+            "never calibrated)."
+        ),
     },
     "0157": {
         "title": "`holon flow` auto-enables the mitmproxy sidecar; role containers cannot reach it",
@@ -402,7 +404,8 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "domain": "Harness / Automation",
         "notes": (
             "Zero-token waits: watcher container plus event log; merges trigger cleanup and installs, CI failures the "
-            "next review iteration. Guardrails: no new spending, no merges."
+            "next review iteration. Guardrails: no new spending, no merges. Implemented on harness branch "
+            "`feat/0182-0170-event-watcher-and-loop-convergence` (`f14c2f0`); review and land it."
         ),
     },
     "0180": {
@@ -423,7 +426,8 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "M",
         "domain": "Review Loop / Skills",
         "notes": (
-            "From PR #97 (33 iterations, diff ~3x, Nits never zero). Harness-only skill change. Do before the next "
+            "From PR #97 (33 iterations, diff ~3x, Nits never zero). Harness-only skill change, implemented on "
+            "`feat/0182-0170-event-watcher-and-loop-convergence` (`f14c2f0`); review and land it before the next "
             "long review loop."
         ),
     },
@@ -597,6 +601,17 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "notes": (
             "Five documents PR #110 (Bean 0180, merged `85ef122`) left on the old rules. Documentation only, "
             "through the flow; unblocked."
+        ),
+    },
+    "0211": {
+        "title": "holon-coherence A/B recipe: run `mitmdump` in the background; keep both passes' metrics",
+        "priority": "**P2**",
+        "impact": "Low",
+        "sizing": "S",
+        "domain": "Docs / holon-coherence",
+        "notes": (
+            "Two documentation Nits (C19-1, C19-2) left open when PR #31 merged (`b52c7e1`). Documentation only, "
+            "through the flow; parallel lane."
         ),
     },
     "0150": {
