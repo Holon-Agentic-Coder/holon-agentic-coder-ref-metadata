@@ -145,9 +145,9 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "Sequential lane, holon-agentic-coder (flow blockers first):",
     "",
     (
-        "1. **Bean 0162** (calibration report fails Prettier; small, calibration code) together with **Beans 0185 and "
-        "0186** (ruff complexity gates with an inline baseline; lint configuration only; 0186 is the holon-coherence "
-        "twin and opens the coherence lane below). The three are disjoint. "
+        "1. **Bean 0162** (calibration report fails Prettier; small, calibration code; in flight as PR #112) "
+        "together with **Beans 0185 and 0186** (ruff complexity gates with an inline baseline; lint configuration "
+        "only; 0186 is the holon-coherence twin and opens the coherence lane below). The three are disjoint. "
         "Bean 0158 is done (PR #111), so flows from `main` no longer reorder `intents.jsonl`."
     ),
     (
@@ -189,8 +189,12 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "",
     (
         "- **Bean 0210** (five holon-agentic-coder docs still on the old sub-intent rules; documentation only, "
-        "disjoint from code), **Bean 0202** (timing-gate composite action; workflows only) and **Bean 0211** (two "
-        "holon-coherence A/B recipe doc fixes left open by PR #31)."
+        "disjoint from code; in flight as PR #113), **Bean 0202** (timing-gate composite action; workflows only) "
+        "and **Bean 0211** (two holon-coherence A/B recipe doc fixes left open by PR #31)."
+    ),
+    (
+        "- **In flight, holon-agentic-coder:** flow PRs #112 (Bean 0162) and #113 (Bean 0210), both opened "
+        "2026-10-30; Stage 4 consensus and Stage 5 calibration pending."
     ),
     ("- **Harness:** PR #56 (`docs/harness-updates-0261027`) in its review loop."),
     (
@@ -288,7 +292,8 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "domain": "Calibration / CI",
         "notes": (
             "Turns a calibrated holon-agentic-coder flow PR red: every calibrated flow PR from #99 to #111 needed a "
-            "follow-up Prettier commit for its report (#103 was hand-authored; #108 was never calibrated)."
+            "follow-up Prettier commit for its report (#103 was hand-authored; #108 was never calibrated). Flow PR "
+            "#112 open (2026-10-30); review and calibration pending."
         ),
     },
     "0157": {
@@ -580,8 +585,8 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "S",
         "domain": "Docs / Holon Flow",
         "notes": (
-            "Five documents PR #110 (Bean 0180, merged `85ef122`) left on the old rules. Documentation only, "
-            "through the flow; unblocked."
+            "Five documents PR #110 (Bean 0180, merged `85ef122`) left on the old rules. Documentation only; flow "
+            "PR #113 open (2026-10-30); review and calibration pending."
         ),
     },
     "0211": {

@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-10-30 00:18:57 UTC
+**Last Updated:** 2026-10-30 00:36:54 UTC
 
 ## Executive Summary
 
@@ -17,7 +17,7 @@ overlapping flows now run one after another.
 - **Total Tracked Beans**: 211 (excluding template)
 - **Completed**: 154 (73.0%)
 - **Scrapped / Superseded**: 2 (0.9%)
-- **Active**: 55 (26.1%), of which 1 are in progress and 54 are todo
+- **Active**: 55 (26.1%), of which 3 are in progress and 52 are todo
 
 **2026-10-26:** the first full claude-agent `holon flow` runs (Beans 0151, 0159) exposed seven defects in the flow
 itself. They are logged as Beans 0157-0162, and Bean 0144 was raised to critical after its fabricated approval reached
@@ -238,7 +238,7 @@ token reduction (Bean 0200).
 | **P0**   | todo        |  High  |   S    | 0160   | Review loop burns its iteration budget polling pending CI, then reports test failures            | Review Loop / CI          | Every unattended Stage 4 runs out of iterations before review. Workaround: wait for CI, then resume.                                                                                                                                                                                       |
 | **P0**   | todo        |  High  |   L    | 0151   | Planner estimates the touch set; overlapping concurrent flows are blocked                        | Holon Flow / Concurrency  | Unblocked by 0159 (#97 merged). Re-plan on the new `main`; land 0149 first. Must handle `{parent}--{n}-{slug}` child branches.                                                                                                                                                             |
 | **P1**   | todo        |  High  |   S    | 0175   | Check GitHub token scopes before Stage 3 when the plan touches workflow files                    | Holon Flow / GitHub       | A 55-minute Stage 3 for Bean 0168 was lost to a push rejected for the missing `workflow` scope. Complements 0171 (#108 merged, refused-push patch salvage).                                                                                                                                |
-| **P1**   | todo        |  High  |   S    | 0162   | Stage 5 calibration commits a report that fails the `hygiene` Prettier check                     | Calibration / CI          | Turns a calibrated holon-agentic-coder flow PR red: every calibrated flow PR from #99 to #111 needed a follow-up Prettier commit for its report (#103 was hand-authored; #108 was never calibrated).                                                                                       |
+| **P1**   | in-progress |  High  |   S    | 0162   | Stage 5 calibration commits a report that fails the `hygiene` Prettier check                     | Calibration / CI          | Turns a calibrated holon-agentic-coder flow PR red: every calibrated flow PR from #99 to #111 needed a follow-up Prettier commit for its report (#103 was hand-authored; #108 was never calibrated). Flow PR #112 open (2026-10-30); review and calibration pending.                       |
 | **P1**   | todo        |  High  |   S    | 0157   | `holon flow` auto-enables the mitmproxy sidecar; role containers cannot reach it                 | Holon Flow / Proxy        | Workaround: `HOLON_TOKEN_REDUCE=0`. Related to 0130.                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |   M    | 0161   | Decomposed sub-intents have no flow path to `main` and do not build on each other                | Holon Flow                | Deferred from #97. Implement the 2026-10-29 rulings: nest under the deciding node, merge into the deciding plan/execution branch, nested PRs automatic, sibling slugs distinct. Docs: PRs #103 and #110 (merged); Bean 0210 aligns five more documents.                                    |
 | **P1**   | todo        |  High  |   M    | 0149   | Plan and execution IDs collide across concurrently planned intents                               | Provenance / Planner      | #91 and #92 shared `P-1792765112`. Prerequisite for 0151.                                                                                                                                                                                                                                  |
@@ -270,7 +270,7 @@ token reduction (Bean 0200).
 | **P2**   | todo        | Medium |   S    | 0169   | PR #97 residual Nits: split the pasted checkpoint test; complete git_flow §1.5 list              | Tests / Docs              | Small; touches `test_flow.py` and `git_flow.md`.                                                                                                                                                                                                                                           |
 | **P2**   | todo        | Medium |   XL   | 0153   | Remove comments and docstrings from all code; make it self-documenting                           | Readability               | Per package, after each split lands (0187, 0188, 0204), not as one repository-wide flow.                                                                                                                                                                                                   |
 | **P2**   | in-progress | Medium |   S    | 0147   | Remove harness paths tracked in the target repositories                                          | Hygiene                   | `holon-coherence` half merged (PR #29, `68fdf67`) before its consensus review; post-merge follow-up PR #31 merged (`b52c7e1`). `holon-agentic-coder` half pending (fold into 0156 if beads lands first).                                                                                   |
-| **P2**   | todo        | Medium |   S    | 0210   | Align the remaining holon-agentic-coder docs with the sub-intent merge rulings                   | Docs / Holon Flow         | Five documents PR #110 (Bean 0180, merged `85ef122`) left on the old rules. Documentation only, through the flow; unblocked.                                                                                                                                                               |
+| **P2**   | in-progress | Medium |   S    | 0210   | Align the remaining holon-agentic-coder docs with the sub-intent merge rulings                   | Docs / Holon Flow         | Five documents PR #110 (Bean 0180, merged `85ef122`) left on the old rules. Documentation only; flow PR #113 open (2026-10-30); review and calibration pending.                                                                                                                            |
 | **P2**   | todo        |  Low   |   S    | 0211   | holon-coherence A/B recipe: run `mitmdump` in the background; keep both passes' metrics          | Docs / holon-coherence    | Two documentation Nits (C19-1, C19-2) left open when PR #31 merged (`b52c7e1`). Documentation only, through the flow; parallel lane.                                                                                                                                                       |
 | **P2**   | todo        |  Low   |   S    | 0150   | Flow tests write the real checkout's `action_index.db`                                           | Tests                     | Unblocked.                                                                                                                                                                                                                                                                                 |
 | **P2**   | todo        | Medium |   M    | 0193   | Decompose the intent and plan stage modules                                                      | Holon Flow / Refactor     | After 0187; parallel decomposition lane.                                                                                                                                                                                                                                                   |
@@ -314,10 +314,10 @@ through the harness `pr-review-loop` skill, and format the calibration report be
 
 Sequential lane, holon-agentic-coder (flow blockers first):
 
-1. **Bean 0162** (calibration report fails Prettier; small, calibration code) together with **Beans 0185 and 0186**
-   (ruff complexity gates with an inline baseline; lint configuration only; 0186 is the holon-coherence twin and opens
-   the coherence lane below). The three are disjoint. Bean 0158 is done (PR #111), so flows from `main` no longer
-   reorder `intents.jsonl`.
+1. **Bean 0162** (calibration report fails Prettier; small, calibration code; in flight as PR #112) together with
+   **Beans 0185 and 0186** (ruff complexity gates with an inline baseline; lint configuration only; 0186 is the
+   holon-coherence twin and opens the coherence lane below). The three are disjoint. Bean 0158 is done (PR #111), so
+   flows from `main` no longer reorder `intents.jsonl`.
 2. **Bean 0187** (split `flow.py` into a `flow/` package, move only), then **Bean 0188** (split `cli.py` into
    self-registering command modules). Bean 0177 measured `flow.py` in 7 of the 14 flow PRs #94-#109; landing the
    move-only splits before the next `flow.py` features stops those features colliding.
@@ -343,8 +343,10 @@ Sequential lane, holon-agentic-coder (flow blockers first):
 Parallel lane (disjoint files):
 
 - **Bean 0210** (five holon-agentic-coder docs still on the old sub-intent rules; documentation only, disjoint from
-  code), **Bean 0202** (timing-gate composite action; workflows only) and **Bean 0211** (two holon-coherence A/B recipe
-  doc fixes left open by PR #31).
+  code; in flight as PR #113), **Bean 0202** (timing-gate composite action; workflows only) and **Bean 0211** (two
+  holon-coherence A/B recipe doc fixes left open by PR #31).
+- **In flight, holon-agentic-coder:** flow PRs #112 (Bean 0162) and #113 (Bean 0210), both opened 2026-10-30; Stage 4
+  consensus and Stage 5 calibration pending.
 - **Harness:** PR #56 (`docs/harness-updates-0261027`) in its review loop.
 - **Harness branch awaiting the maintainer:** `feat/0182-0170-event-watcher-and-loop-convergence` (`f14c2f0`, no PR yet;
   Beans 0182 and 0170 implemented and tested there, not yet on `main`).

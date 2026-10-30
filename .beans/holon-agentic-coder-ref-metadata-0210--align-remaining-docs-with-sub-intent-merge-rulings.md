@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0210
 title: "Align the remaining holon-agentic-coder docs with the sub-intent merge rulings"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - sub-intents
   - holon-agentic-coder
 created_at: 2026-10-30T00:10:00Z
-updated_at: 2026-10-30T00:10:00Z
+updated_at: 2026-10-30T00:36:17Z
 ---
 
 ## Problem
@@ -38,3 +38,10 @@ merges into the parent intent branch; whether a nested parent's PR stops for a h
 ## Notes
 
 - Related: Bean 0180 (PR #110), Bean 0161 (implementation of the rulings).
+
+## Progress (2026-10-30)
+
+- Holon flow running: holon-agentic-coder PR #113
+  (`I-1793319507-remaining-docs-follow-sub-intent-merge-rulings/P-1793319521-claude-agent-claude-opus-5-5/E-1793319691-claude-agent-claude-opus-5-5/_`),
+  opened 2026-10-30T00:26:21Z, OPEN (no review posted yet; Stage 4 consensus and Stage 5 calibration pending before
+  merge).
