@@ -226,11 +226,12 @@ When you are spawned or begin a new session, follow these steps sequentially:
       into the PR execution branch, resolve the conflicts (interleaving ledger entries chronologically), commit, and
       push to origin**. Never post an approved review, never calibrate, and never report a PR as ready to merge while it
       is in a conflicting state against the target branch.
-15. **Modular File Sizing & Max 200-Line Limit (Anti-Monolith Invariant)**: Source files exceeding **200 lines** MUST be
+15. **Modular File Sizing & 200-Line Sizing Guideline**: Source files exceeding **200 lines** should generally be
     decomposed into modular packages and focused single-responsibility modules (e.g. `flow/`, `cli/commands/`, `proxy/`,
-    `executor/`, `calibration/`). Monolithic files create cross-agent merge conflicts, serialization bottlenecks, and
-    bloated review passes. Keep functions focused and split collaborators, handlers, dispatchers, options, and models
-    into dedicated files.
+    `executor/`, `calibration/`). This is a recommended guideline and best practice rather than a rigid hard rule,
+    intended to minimise cross-agent merge conflicts, serialization bottlenecks, and bloated review passes. Keep
+    functions focused and prefer splitting collaborators, handlers, dispatchers, options, and models into dedicated
+    files where sensible.
 
 ---
 

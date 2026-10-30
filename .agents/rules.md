@@ -17,12 +17,13 @@ code in this repository.
 5. **Documentation**:
    - Update docstrings, READMEs, and inline comments to reflect any changes you make.
    - Maintain the integrity of existing comments that are unrelated to your changes.
-6. **Modular File Sizing & Max 200-Line Limit (Anti-Monolith Invariant)**:
-   - As a general rule, source files exceeding **200 lines** must be decomposed into modular packages and smaller,
-     single-responsibility modules (e.g. splitting monolithic modules into dedicated subpackages such as `flow/`,
-     `cli/commands/`, `proxy/`, `executor/`, `calibration/`).
+6. **Modular File Sizing & 200-Line Sizing Guideline**:
+   - As a general guideline (a recommended best practice, not a rigid hard rule), source files exceeding **200 lines**
+     should be decomposed into modular packages and focused, single-responsibility modules (e.g. splitting monolithic
+     modules into dedicated subpackages such as `flow/`, `cli/commands/`, `proxy/`, `executor/`, `calibration/`).
    - Monolithic files create cross-agent merge conflicts, serialization bottlenecks, and bloated review passes. Keep
-     functions focused and split collaborators, handlers, dispatchers, options, and models into dedicated files.
+     functions focused and split collaborators, handlers, dispatchers, options, and models into dedicated files where
+     sensible.
 
 ---
 
