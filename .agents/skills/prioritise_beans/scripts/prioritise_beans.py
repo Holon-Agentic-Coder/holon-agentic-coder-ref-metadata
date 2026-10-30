@@ -100,7 +100,7 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     ),
     "",
     (
-        "**Bean 0177 (architecture research) completed:** measured `flow.py` 5,157 lines (7 of the 16 flow PRs "
+        "**Bean 0177 (architecture research) completed:** measured `flow.py` 5,157 lines (7 of the 14 flow PRs "
         "#94-#109 touched it), `cli.main` 1,097 lines (CC 114), `executor.main` 798 lines (CC 178), and 56 + 38 "
         "functions over CC 10. It spawned Beans 0185-0209: lint gates first (0185, 0186), then move-only splits that "
         "remove the shared files (0187, 0188, 0203, 0204), then per-module decomposition lanes that can run in "
@@ -152,7 +152,7 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     (
         "2. **Bean 0187** (split `flow.py` into a `flow/` package, move only), then **Bean 0188** (split `cli.py` "
-        "into self-registering command modules). Bean 0177 measured `flow.py` in 7 of the 16 flow PRs #94-#109; "
+        "into self-registering command modules). Bean 0177 measured `flow.py` in 7 of the 14 flow PRs #94-#109; "
         "landing the move-only splits before the next `flow.py` features stops those features colliding."
     ),
     "3. **Bean 0189**: launcher module for container launch; breaks the `flow`-`cli` import cycle.",
@@ -457,7 +457,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "L",
         "domain": "Refactor / Architecture",
         "notes": (
-            "After 0185. 5,157 lines touched by 7 of 16 flow PRs; AST-verified move only. Runs alone among "
+            "After 0185. 5,157 lines touched by 7 of 14 flow PRs; AST-verified move only. Runs alone among "
             "`flow.py` PRs (parallel-safe with 0188); unblocks 0190, 0191, 0193, 0194, 0197 and, with 0188, 0189."
         ),
     },
@@ -1275,6 +1275,21 @@ def generate_triage_document(
             (
                 "    - `0177` (research, no target code): measured the hot spots in both targets and spawned Beans "
                 "0185-0209 with a migration order: lint gates, move-only splits, then parallel decomposition lanes."
+            ),
+            (
+                "20. **Nested sub-intent docs and pure-append ledgers (Beans 0180, 0158 / PRs #103, #110, #111, "
+                "2026-10-29)**:"
+            ),
+            (
+                "    - `0180` (#103, `e187393`, hand-authored docs): sub-intent branches nest under their deciding "
+                "plan. Flow PR #110 (`85ef122`) then documented the five maintainer rulings: merge into the deciding "
+                "plan or execution branch, automatic nested PRs, distinct sibling slugs, keep `deciding_branch`, and "
+                "review-decided splits under the plan or execution. Five docs it left on the old rules: Bean 0210."
+            ),
+            (
+                "    - `0158` (#111, `8c9ff4d`): every ledger write is a pure append guarded by a fail-closed prefix "
+                "check; conflict detection no longer mistakes the `|||||||` inside an `intents.jsonl` row for a "
+                "conflict marker, so flows stop reordering `intents.jsonl` (resolving milestone 14's defect)."
             ),
             "",
             "---",

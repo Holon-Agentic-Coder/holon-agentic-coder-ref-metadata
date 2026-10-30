@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-10-30 00:01:22 UTC
+**Last Updated:** 2026-10-30 00:18:57 UTC
 
 ## Executive Summary
 
@@ -56,7 +56,7 @@ Also through the flow on 2026-10-29, both reviewed and calibrated: PR #110 (Bean
 sub-intent rulings, merged as `85ef122`) and PR #111 (Bean 0158 pure-append ledger writes, merged as `8c9ff4d`). Both
 beans are now closed. New: **Bean 0210** (five documents PR #110 left on the old sub-intent rules).
 
-**Bean 0177 (architecture research) completed:** measured `flow.py` 5,157 lines (7 of the 16 flow PRs #94-#109 touched
+**Bean 0177 (architecture research) completed:** measured `flow.py` 5,157 lines (7 of the 14 flow PRs #94-#109 touched
 it), `cli.main` 1,097 lines (CC 114), `executor.main` 798 lines (CC 178), and 56 + 38 functions over CC 10. It spawned
 Beans 0185-0209: lint gates first (0185, 0186), then move-only splits that remove the shared files (0187, 0188, 0203,
 0204), then per-module decomposition lanes that can run in parallel. The maintainer ruled that holon-coherence owns
@@ -218,6 +218,14 @@ token reduction (Bean 0200).
       evidence.
     - `0177` (research, no target code): measured the hot spots in both targets and spawned Beans 0185-0209 with a
       migration order: lint gates, move-only splits, then parallel decomposition lanes.
+20. **Nested sub-intent docs and pure-append ledgers (Beans 0180, 0158 / PRs #103, #110, #111, 2026-10-29)**:
+    - `0180` (#103, `e187393`, hand-authored docs): sub-intent branches nest under their deciding plan. Flow PR #110
+      (`85ef122`) then documented the five maintainer rulings: merge into the deciding plan or execution branch,
+      automatic nested PRs, distinct sibling slugs, keep `deciding_branch`, and review-decided splits under the plan or
+      execution. Five docs it left on the old rules: Bean 0210.
+    - `0158` (#111, `8c9ff4d`): every ledger write is a pure append guarded by a fail-closed prefix check; conflict
+      detection no longer mistakes the `|||||||` inside an `intents.jsonl` row for a conflict marker, so flows stop
+      reordering `intents.jsonl` (resolving milestone 14's defect).
 
 ---
 
@@ -248,7 +256,7 @@ token reduction (Bean 0200).
 | **P1**   | todo        |  High  |   XL   | 0152   | Audit long files; decompose oversized functions (flow.py, cli.py first)                          | Refactor / Concurrency    | Umbrella for the Bean 0177 action beans 0185-0200 and 0203-0208 (proposed); its audit stays the baseline. Measured: `flow.py` 5,157 lines, `cli.main` 1,097 lines.                                                                                                                         |
 | **P1**   | todo        |  High  |   S    | 0185   | holon-agentic-coder: ruff complexity gate (C901, PLR0911-PLR0915) with an inline `noqa` baseline | Lint / Code Quality       | Gate first (0177 order step 1): ratchet-down baseline of 56 C901 offenders. Unblocks 0187, 0188, 0195, 0198, 0201.                                                                                                                                                                         |
 | **P1**   | todo        |  High  |   S    | 0186   | holon-coherence: ruff complexity gate (C901, PLR0911-PLR0915) with an inline `noqa` baseline     | Lint / holon-coherence    | Gate first (0177 order step 1), disjoint from 0185. Unblocks 0203 and 0204.                                                                                                                                                                                                                |
-| **P1**   | todo        |  High  |   L    | 0187   | Split `flow.py` into a `flow/` package, one module per stage and concern (move only)             | Refactor / Architecture   | After 0185. 5,157 lines touched by 7 of 16 flow PRs; AST-verified move only. Runs alone among `flow.py` PRs (parallel-safe with 0188); unblocks 0190, 0191, 0193, 0194, 0197 and, with 0188, 0189.                                                                                         |
+| **P1**   | todo        |  High  |   L    | 0187   | Split `flow.py` into a `flow/` package, one module per stage and concern (move only)             | Refactor / Architecture   | After 0185. 5,157 lines touched by 7 of 14 flow PRs; AST-verified move only. Runs alone among `flow.py` PRs (parallel-safe with 0188); unblocks 0190, 0191, 0193, 0194, 0197 and, with 0188, 0189.                                                                                         |
 | **P1**   | todo        |  High  |   L    | 0188   | Split `cli.py` into a `cli/` package of self-registering command modules                         | Refactor / CLI            | After 0185; can pair with 0187 (disjoint files). `cli.main` 1,097 lines, CC 114.                                                                                                                                                                                                           |
 | **P1**   | todo        |  High  |   M    | 0203   | holon-coherence: command modules register their own parsers; drop the `sys.modules` locator      | CLI / holon-coherence     | After 0186; parallel with 0204. Unblocks 0207 and 0208.                                                                                                                                                                                                                                    |
 | **P1**   | todo        |  High  |   L    | 0204   | holon-coherence: split `mitm_addon.py` into a `proxy/` package by concern (move only)            | Proxy / holon-coherence   | After 0186; parallel with 0203. 2,348 lines, AST-verified move only. Unblocks 0205 and 0206.                                                                                                                                                                                               |
@@ -311,7 +319,7 @@ Sequential lane, holon-agentic-coder (flow blockers first):
    the coherence lane below). The three are disjoint. Bean 0158 is done (PR #111), so flows from `main` no longer
    reorder `intents.jsonl`.
 2. **Bean 0187** (split `flow.py` into a `flow/` package, move only), then **Bean 0188** (split `cli.py` into
-   self-registering command modules). Bean 0177 measured `flow.py` in 7 of the 16 flow PRs #94-#109; landing the
+   self-registering command modules). Bean 0177 measured `flow.py` in 7 of the 14 flow PRs #94-#109; landing the
    move-only splits before the next `flow.py` features stops those features colliding.
 3. **Bean 0189**: launcher module for container launch; breaks the `flow`-`cli` import cycle.
 4. **Bean 0179** (Stage 4 reviewers in the role container), then **Bean 0183** (every stage and engine bookkeeping step

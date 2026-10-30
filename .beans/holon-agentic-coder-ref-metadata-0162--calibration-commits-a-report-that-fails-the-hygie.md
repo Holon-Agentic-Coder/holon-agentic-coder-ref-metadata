@@ -38,9 +38,10 @@ Recurred on PR #99 (Bean 0168): `holon calibrate` reported "Prettier converged" 
 `plans/P-1793104256-claude-agent-claude-opus-5-5_calibration.md` failed `uv run task lint-docs`. Fixed by a follow-up
 commit (`6e9df1d`) formatting the report with the repository's `.prettierrc.json` (3 lines changed).
 
-## Recurrence (2026-10-29)
+## Recurrences on PRs #99-#111 (checked 2026-10-29)
 
-Every calibrated holon-agentic-coder flow PR from #99 to #111 needed the same follow-up commit,
+The PR #99 case above was not isolated (commits dated 2026-10-28 for #99-#102, 2026-10-29 from #104). Every calibrated
+holon-agentic-coder flow PR from #99 to #111 needed the same follow-up commit,
 `docs: format the calibration report with the repository Prettier configuration`, after its `chore(calibration)` commit
 (calibration then format commit, from `gh pr view --json commits`): #99 `8d1d913`/`6e9df1d`, #100 `728cff2`/`40333d9`,
 #101 `0a69e9c`/`58ad02a`, #102 `45266d6`/`45debd1`, #104 `c3afba2`/`9bc1ed5`, #105 `8fd40d4`/`e41bcd0`, #106

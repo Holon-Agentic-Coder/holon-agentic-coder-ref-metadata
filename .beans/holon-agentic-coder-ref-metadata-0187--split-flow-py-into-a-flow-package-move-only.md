@@ -18,7 +18,7 @@ updated_at: 2026-10-29T12:20:00Z
 ## Problem
 
 Spawned by Bean 0177. `sandbox_executor/flow.py` (`993b686`) is 5,157 lines with 94 free functions and 7 classes. It was
-changed by 7 of the 16 flow PRs #94-#109 (#94 #95 #96 #97 #100 #102 #108) and by 26 commits since 2026-10-01;
+changed by 7 of the 14 flow PRs #94-#109 (#94 #95 #96 #97 #100 #102 #108) and by 26 commits since 2026-10-01;
 `tests/test_flow.py` (5,798 lines) by 8. The PRs collided inside the same functions (`run_review_stage` and
 `run_review_loop` in 4 PRs each, `run_execute_stage` and `FlowContext.to_dict/from_dict` in 3), which forced the sync
 and re-review rounds Bean 0151 counts (141 passes). The function inventory already falls into nine clusters: checkpoint,
