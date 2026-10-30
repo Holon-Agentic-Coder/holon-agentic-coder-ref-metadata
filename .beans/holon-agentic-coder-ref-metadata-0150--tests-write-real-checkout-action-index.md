@@ -9,7 +9,7 @@ tags:
   - hermeticity
   - holon-agentic-coder
 created_at: 2026-10-24T09:00:00Z
-updated_at: 2026-10-24T09:00:00Z
+updated_at: 2026-10-30T00:59:03Z
 ---
 
 ## Problem
@@ -32,3 +32,6 @@ index and can interfere with concurrent runs in the same worktree. PR #95 alread
 ## Notes
 
 - PR #95 has merged, so this can now run through the Holon flow on holon-agentic-coder.
+- 2026-10-30: both tests are in `apps/sandbox-executor/tests/test_flow.py`, which open flow PR #112 edits, Bean 0187
+  splits and Bean 0169 edits. Run it only when none of those is in flight: after #112 merges and before 0187 starts, or
+  after 0187 on the split `tests/flow/` layout.

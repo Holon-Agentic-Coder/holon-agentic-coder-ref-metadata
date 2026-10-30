@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0164
 title: "Plain-language documentation for entropy, Expected Value, and how they relate"
-status: todo
+status: completed
 type: task
 priority: normal
 tags:
@@ -11,7 +11,7 @@ tags:
   - expected-value
   - holon-agentic-coder
 created_at: 2026-10-26T13:08:18Z
-updated_at: 2026-10-26T13:08:18Z
+updated_at: 2026-10-29T06:40:00Z
 ---
 
 ## Problem
@@ -66,3 +66,15 @@ must split the build into smaller boxes) — but every analogy must be followed 
   lane, so it can run in the parallel lane alongside code flows.
 - Related: Bean 0041 (first-principles flow lifecycle reference, where EV/entropy documentation gaps were first noted),
   Beans 0065/0083/0146 (calibration reads of predicted vs observed entropy), Bean 0159 (entropy budget gate).
+
+## Resolution
+
+Completed through the 5-stage Holon flow on `holon-agentic-coder`:
+
+- **Flow**: `I-1793246459-plain-language-entropy-and-expected-value-explainer` →
+  `P-1793246475-claude-agent-claude-opus-5-5` → `E-1793246639-claude-agent-claude-opus-5-5`.
+- **PR #106** (https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/106): added `docs/metrics-explained.md`
+  and linked it from `docs/metrics.md`. Converged in 6 review-loop iterations (3/3 ensemble approval at `90ee0ba`,
+  review `5692923254`, 10/10 CI green), Stage 5 calibrated (`86e6031`, EV 45.32 predicted / 54.07 actual,
+  Prettier-formatted in `553fe43`), synced with `main` in `38f1e30`, and merged by the maintainer as `956b4fd`
+  (2026-10-29T05:45:58Z).

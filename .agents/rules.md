@@ -266,3 +266,17 @@ code in this repository.
       late calibration reconciliations) MUST be written exclusively to `executions.jsonl` under `LedgerLock` using
       `append_action_record()` or `append_action_event(ledger_path=executions_file)`.
     - Creating auxiliary ledgers fragments provenance, breaks downstream ledger queries, and causes split-brain state.
+
+19. **Proportionate Repeated Test Runs Invariant (N runs under xdist, only when performance must be measured)**:
+    - Intents, plans and executions ask for repeated test runs **only when the change is absolutely required to measure
+      performance or timing behaviour** (test-suite speed, timing-sensitive or flaky tests, a stated performance
+      target). Every other change proves itself with the affected tests first, then one full `uv run task test`.
+    - When repetition is required, the intent states **N explicitly** and the reason for it (for example N = 5 full runs
+      for a stability proof, N = 3 for a timing median). Never ask for open-ended or "many" runs.
+    - Each of the N runs uses pytest-xdist (`-n auto --dist worksteal`), including runs under artificial CPU load. Never
+      run the repetitions serially (`-n 0`, `-p no:xdist`) unless the measurement is specifically of serial behaviour,
+      such as a serial before/after baseline, and then run that baseline once.
+    - Report every run (pass/fail count and the pytest-reported time) and the median, from real runs only (invariant
+      10). Do not repeat a measurement that is already recorded for the same commit.
+    - Origin: Bean 0168's Stage 3 spent about 55 of its 75 minutes in test runs, 27 minutes of it on 50 serial loaded
+      repetitions that `-n auto` would have roughly halved.

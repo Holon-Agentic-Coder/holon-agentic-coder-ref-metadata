@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0143
 title: "Claude runner must pass the permission bypass as CLI parameters so sandboxed stages can write files"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - permissions
   - flow-bootstrap
 created_at: 2026-10-23T14:40:00Z
-updated_at: 2026-10-26T09:42:56Z
+updated_at: 2026-10-29T04:00:00Z
 ---
 
 ## Problem
@@ -55,6 +55,20 @@ write is still denied until `--permission-mode bypassPermissions` is also passed
   `holon/agent-claude:latest` was rebuilt from it (role containers run the baked `/home/holon/src` code, not the host
   install). Every claude-agent flow on 2026-10-26 (Beans 0151, 0159) ran on this build. Still no PR.
 
+- **2026-10-27:** every claude-agent flow so far (Beans 0151 and 0159) ran on this branch's build: the global `holon`
+  tool install and `holon/agent-claude:latest`. After PR #97 merged, `main` has moved again, so rebase this branch and
+  rebuild before the next claude-agent flow, or land the PR. It still has no PR.
+
 ## Resolution
 
-Pending: PR (maintainer), merge, then reinstall `holon` from `origin/main` via the `install-holon` skill.
+Completed through the Holon flow: PR #104 merged as `cc4bf1b` (2026-10-29). `main` worktrees fast-forwarded; `holon` and
+`holon-coherence` reinstalled (editable) from `main` and every image rebuilt via the `install-holon` skill;
+`holon/agent-claude` carries the bypass. The hand-authored `fix/0143` branch (last tip `19a6032`) and both `0143`
+worktrees are retired, superseded by the flow PR.
+
+- **2026-10-29 — through the Holon flow:** bootstrap build from `fix/0143` (rebased onto `e187393` as `19a6032`, 2680
+  passed) installed as host `holon` and baked into every image. Flow `I-1793241043` → `P-1793241058` → `E-1793241233`
+  (claude-agent, 7 min) produced the fix from `main`; PR #104. Review loop 3 iterations (2 Nits applied), 3/3 approval
+  and 9/9 CI at `1a51ff7` (review 5692289790), calibrated (`c3afba2`, EV 59.79 predicted, 79.26 actual), folded into the
+  PR head `9bc1ed5`. After merge: install `holon` and `holon-coherence` from `main`, then retire the `fix/0143` worktree
+  and branch (superseded by the flow PR).

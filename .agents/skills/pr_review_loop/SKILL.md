@@ -576,17 +576,21 @@ Execute the resolution pass in a clean, isolated subagent context.
   > 3. Apply changes to resolve **all Critical (🔴) and Important (🟡) issues**, and **action every Nit/Optional (🟢)**
   >    finding: each Nit is either `applied` or `rejected` with a one-line reason. Silently skipping a Nit is not
   >    allowed.
-  > 4. Commit applied changes with message: `fix: apply validated PR review suggestions (Iteration <iteration>)`, with a
+  > 4. Verify fast-first before committing (see `pr-review-resolver` Step 4a). Run the cheap static checks first: lint,
+  >    Prettier `--check` on changed markdown, and YAML lint if workflows changed. Next, run the **affected test
+  >    subset**: changed and added test files, plus every test file that imports a changed source module. Run the full
+  >    test suite only after the subset passes. Fix any failure before starting the next, slower step.
+  > 5. Commit applied changes with message: `fix: apply validated PR review suggestions (Iteration <iteration>)`, with a
   >    provenance trailer block so the action can be attributed (Bean 0077): `Action-Origin: pr_review`,
   >    `Review-Severity: critical|important|nit` (one commit per severity where practical, otherwise the highest
   >    severity applied), `Review-Iteration: <iteration>`, `Review-Finding-Ids: <ids>`.
-  > 5. Push local commits to remote feature branch (`git push origin <branch_name>`) so GitHub PR diff updates for the
+  > 6. Push local commits to remote feature branch (`git push origin <branch_name>`) so GitHub PR diff updates for the
   >    next review pass. If the push is rejected as non-fast-forward, run `git pull --rebase origin <branch_name>`, keep
   >    both intents, format changed markdown files only using the target repository's configuration or `--no-config`
   >    (never run un-scoped repo-wide Prettier from inside a nested worktree, which can resolve the harness's
   >    `.prettierrc.json`), verify `git diff --stat` touches no unintended files, and push again -- never resolve drift
   >    with `--force`, `--force-with-lease`, or by dropping the other author's commits.
-  > 6. Return a summary of applied fixes and skipped comments **including a per-finding disposition table
+  > 7. Return a summary of applied fixes and skipped comments **including a per-finding disposition table
   >    (`id | severity | applied/rejected | reason`)**, saved to
   >    `.subagent/<repo>_pr<N>_resolver_iter_<iteration>_{short_git_commit}.md`; every scratch file (commit message,
   >    gate output capture) follows the same `<repo>_pr<N>_<purpose>...` naming rule.

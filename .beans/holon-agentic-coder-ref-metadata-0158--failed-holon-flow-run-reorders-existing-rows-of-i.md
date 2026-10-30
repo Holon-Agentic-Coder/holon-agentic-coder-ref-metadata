@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0158
 title: "A failed holon flow run reorders existing rows of the append-only intents.jsonl"
-status: todo
+status: completed
 type: bug
 priority: critical
 tags:
@@ -9,7 +9,7 @@ tags:
   - holon-flow
   - holon-agentic-coder
 created_at: 2026-10-26T04:23:42Z
-updated_at: 2026-10-26T04:23:42Z
+updated_at: 2026-10-30T02:00:00Z
 ---
 
 ## Problem
@@ -39,3 +39,30 @@ example ordering by timestamp, or the union step used when resolving ledger appe
   `--checkpoint ... --from-stage review`.
 
 - Run through the Holon flow on holon-agentic-coder.
+
+## Recurrence (2026-10-28)
+
+Recurred on PR #99 (Bean 0168): the Stage 1 intent commit reordered existing `intents.jsonl` rows, so main's file was no
+longer a byte prefix (divergence at byte 101,845). The review loop restored main's exact bytes plus the one new row in a
+follow-up commit.
+
+## Progress (2026-10-29, through the Holon flow)
+
+- Flow `I-1793275605-ledger-writes-are-pure-appends-never-reorder-intents` → `P-1793275622-claude-agent-claude-opus-5-5`
+  → `E-1793275792-claude-agent-claude-opus-5-5` (worktree
+  `apps/holon-agentic-coder/flow-0158-ledger-writes-pure-append`).
+- PR #111 (https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/111) open at `9e87525`; Stage 4 review loop
+  starting.
+- PR #111 reviewed (consensus COMMENT review), calibrated
+  (`plans/P-1793275622-claude-agent-claude-opus-5-5_calibration.md` in the PR) and merged by the maintainer as `8c9ff4d`
+  (2026-10-29T23:24:24Z). Ready to close.
+
+## Summary of Changes (2026-10-30)
+
+Completed through the Holon flow: PR #111 merged as `8c9ff4d`. Root cause: `check_and_resolve_stage_conflicts` treated
+the `|||||||` inside an existing `intents.jsonl` row as a conflict marker on every Stage 1 and handed the file to
+`reconcile_ledger_rows`, which sorted rows by `created_at`, removed duplicates and rewrote it; the executor's pre-push
+sync also re-reconciled clean ledgers. Both paths are gone; every ledger write is a pure append guarded by a prefix
+check that fails closed (16 of 24 new tests fail with the fix reverted). Review: 4 iterations, 3/3 at `b8dde77` (review
+5699949693), calibrated (`b5a286c`, EV 53.91 predicted / 71.69 actual). Residual: conflict resolution rewrites in place
+under `LedgerLock`, not atomically. Flows from `main` no longer need the manual `intents.jsonl` restore.

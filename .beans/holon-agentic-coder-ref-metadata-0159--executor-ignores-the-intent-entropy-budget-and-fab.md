@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0159
 title: "Executor ignores the intent's entropy budget and fabricates placeholder sub-intents"
-status: in-progress
+status: completed
 type: bug
 priority: critical
 tags:
@@ -13,7 +13,7 @@ tags:
 blocking:
   - holon-agentic-coder-ref-metadata-0151
 created_at: 2026-10-26T04:31:31Z
-updated_at: 2026-10-26T09:42:56Z
+updated_at: 2026-10-27T12:11:10Z
 ---
 
 ## Problem
@@ -81,3 +81,45 @@ Artifacts left on `origin` (audited provenance, do not rewrite):
 
 - Run through the Holon flow on holon-agentic-coder. It overlaps Bean 0151 on `entrypoint/planner.py`, so run it first
   and re-plan 0151 on the new `main`.
+
+## Resolution
+
+Merged by the maintainer as holon-agentic-coder **PR #97** at head `b65ac56` (2026-10-27T12:10:13Z). It was produced
+through the Holon flow on claude-agent (intent `I-1792992678-entropy-budget-handoff-and-no-human-halt-in-execute`, plan
+`P-1792992691`, execution `E-1792992902`). Stage 4 ran through the harness `pr-review-loop` skill, because the native
+review stage runs no reviewer (Bean 0144).
+
+What the PR delivers:
+
+- **Budget handoff:** the intent's `entropy_budget` is stored on the plan row and enforced by the executor, with one
+  shared default.
+- **No fabrication:** sub-intents are never invented. The sub-intent list parser follows recorded convergence rules and
+  has a regression corpus.
+- **No human halt in Stage 3:**
+  - Decomposed children run autonomously and sequentially, under a depth cap.
+  - Child branches are named `{parent}--{n}-{slug}`, so names no longer depend on the clock.
+  - An over-budget plan re-plans a bounded number of times, then fails with documented exit codes (0, 3 or 1).
+- **Merge boundary:** the review-stage halt before merge is unchanged.
+- **CI runtime:** the suite-rerunning hermetic canary moved to the Workspace survival job, bringing macOS unit back
+  under 10 minutes.
+
+The review loop:
+
+- **Length:** 33 iterations. The maintainer raised the cap from 25 to 35, then merged without a consensus approval.
+- **Final review:** COMMENT, `5666810041`, posted on the merged PR. It also voids the two fabricated "3-Agent Ensemble"
+  reviews.
+- **State at merge:**
+  - CI 10/10 green at `b65ac56`.
+  - No open Critical or Important finding.
+  - 2463 tests passing.
+  - The mutation sweeps left 0 surviving mutants (125/127 + 2 proven equivalent; 355 re-run; 46/46 on exit paths).
+- **Stage 5:** calibration was not re-run on the final head; the report in the PR evaluates `ca22157`.
+- **Loop records:**
+  `.subagent/holon-agentic-coder_pr97_{state.json,coordination.json,loop_history.md,posted_review.md}`.
+
+Deferred:
+
+- Bean 0169: the two open Nits.
+- Bean 0161: chaining decomposed children, the parent PR, resume safety.
+- Bean 0167: the stress test's `core.hooksPath` dependence.
+- Bean 0170: the loop's convergence problem.

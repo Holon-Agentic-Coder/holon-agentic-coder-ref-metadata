@@ -105,6 +105,24 @@ or the target repository worktree under `apps/holon-agentic-coder` or `apps/holo
 > Optional (🟢) finding must be `applied` or `rejected` with a recorded reason. Only adjudicated-rejected Nits may
 > remain on approval.
 
+### Step 4a: Verify Fast-First
+
+Run the cheapest checks first, and do not start a slower step while a faster one is failing:
+
+1. **Static checks (seconds):** the repository's lint task (for example `uv run task lint`), `npx prettier --check` on
+   the markdown files you changed (using the target repository's configuration), and YAML lint (for example
+   `make lint-yaml`) if a workflow or YAML file changed.
+2. **Affected subset (seconds to a minute):** run only the tests the change can affect, before any full-suite run.
+   Derive the subset from the diff: every changed or added test file, plus every test file that imports or references a
+   changed source module. For example, list the changed paths with `git diff --name-only <base>...HEAD`, then grep the
+   test directory for each changed module's import name. Run them together from the repository root, for example
+   `uv run pytest <subset> -q`. Fix any failure here before going on.
+3. **Full suite (minutes):** only once the static checks and the affected subset pass, run the repository's full test
+   task (for example `uv run task test`).
+
+Fix every failure before moving on to the next step. A Prettier or lint failure found after a full suite run wastes that
+run, and so does one found by CI after the push.
+
 ### Step 5: Commit the Applied Changes
 
 Once all valid changes have been applied, stage and commit them to the current branch:

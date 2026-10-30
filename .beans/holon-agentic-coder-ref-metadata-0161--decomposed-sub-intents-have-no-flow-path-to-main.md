@@ -9,7 +9,7 @@ tags:
   - decomposition
   - holon-agentic-coder
 created_at: 2026-10-26T07:16:04Z
-updated_at: 2026-10-26T07:16:04Z
+updated_at: 2026-10-30T01:01:41Z
 ---
 
 ## Problem
@@ -37,5 +37,30 @@ Once Bean 0159 runs decomposed sub-intents autonomously (`_run_decomposed_plan` 
 
 ## Notes
 
+- **2026-10-27, PR #97 (Bean 0159) delivered part of the groundwork:**
+  - children run sequentially under a depth cap;
+  - child branches are named `{parent}--{n}-{slug}`, and are reused only when the recorded goal and description match;
+  - a sub-intent's checkpoint is keyed by its intent branch;
+  - the flow summary lists child and grandchild PRs and the pending parent-to-target step.
+
+  Still open: chaining children so each builds on the previous one, raising the parent PR automatically, and full resume
+  safety of the decomposed Stage 3.
+
 - Run through the Holon flow on holon-agentic-coder after Bean 0159 merges. It overlaps `flow.py`, so run it
   sequentially.
+- 2026-10-30: the 0159 prerequisite is satisfied. Bean 0159 is completed (holon-agentic-coder PR #97, merged as
+  `fbd3b35`); the `flow.py` overlap still makes it sequential (see Bean 0187).
+
+## Maintainer decisions to implement (2026-10-29, from Bean 0180)
+
+- Sub-intent branches nest under the node that decided the split (`I-…/P-…/I-…/_`, no `child` or index segment); in
+  practice the plan decides. Record `deciding_branch` (name kept), `parent_intent_id`, `parent_plan_id` and, for an
+  execution- or review-decided split, `parent_execution_id`.
+- A review-decided split may nest under the reviewed plan or the reviewed execution.
+- Merge target is the deciding node's branch: a plan-decided sub-intent merges into the plan branch, an
+  execution-decided one into the execution branch (not the parent intent branch).
+- Nested PRs need no human: the agent raises each sub-intent's PR and merges it automatically into the deciding
+  plan/execution branch. Only the root intent's PR to `main` stops for a human.
+- Sibling sub-intents under one deciding node always have different slugs, so ids cannot collide; no sequence suffix.
+- Documented in PR #103 (merged, `e187393`) plus follow-up docs PR #110 (in review at the time; merged by the maintainer
+  as `85ef122`, 2026-10-29T14:37:07Z) for the merge-target and human-stop rulings.
