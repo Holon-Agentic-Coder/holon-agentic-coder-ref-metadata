@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0179
 title: "Route Stage 4 reviewer turns through the review-loop role container so holon flow can review on its own"
-status: todo
+status: in-progress
 type: feature
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0144
 created_at: 2026-10-28T22:05:13Z
-updated_at: 2026-10-29T23:34:36Z
+updated_at: 2026-10-30T08:31:00Z
 ---
 
 ## Problem
