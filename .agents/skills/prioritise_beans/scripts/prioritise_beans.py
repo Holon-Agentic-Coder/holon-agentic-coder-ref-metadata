@@ -118,7 +118,12 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "**Bean 0185** then completed the lint-gate pair: HAC PR #115 merged as `0e71262` (frozen 91-entry inline "
         "noqa identity baseline, `PGH004` guard against bare `# noqa`, swap-rejection test; 2 review iterations, EV "
         "72.07 predicted / 77.27 actual, and the first calibration report to pass Prettier with no follow-up commit). "
-        "**Bean 0203** (Coherence PR #36, commands register their own parsers) is in its Stage 4 review loop."
+        "**Bean 0203** (Coherence PR #36, commands register their own parsers) passed 3/3 unanimous ensemble consensus "
+        "review in 4 iterations, completed Stage 5 calibration (`3af551d`), and is awaiting maintainer merge. "
+        "**Bean 0156 (beads investigation) completed:** recommended target-native beads (`bd`) issue tracking with "
+        "`hac-` and `hcoh-` prefixes, offline `refs/dolt/data` sync, migrating only open beans (~47), and archiving "
+        "the harness read-only; spawned action beans 0214-0218. Harness PR driver brief codified in "
+        "`FLOW_PR_DRIVER.md`."
     ),
     "",
     (
@@ -130,7 +135,7 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0213)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0218)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
@@ -173,9 +178,9 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "lint gates now guard new code."
     ),
     (
-        "2. **Bean 0203** (holon-coherence: commands register their own parsers; PR #36 in its Stage 4 review loop), "
-        "then **Bean 0204** (holon-coherence: split `mitm_addon.py` into a `proxy/` package) once #36 merges — both "
-        "touch the command/CLI seam, so they run one after the other."
+        "2. **Bean 0203** (holon-coherence: commands register their own parsers; PR #36 calibrated, awaiting "
+        "maintainer merge), then **Bean 0204** (holon-coherence: split `mitm_addon.py` into a `proxy/` package) "
+        "once #36 merges — both touch the command/CLI seam, so they run one after the other."
     ),
     (
         "3. **Bean 0213** (reflect review-loop skill rules into native Review Loop Holon Agent) to bring containerised "
@@ -246,8 +251,10 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "edits a target repository's workflow files, it does not run beside 0202 or 0209 (both already merged)."
     ),
     (
-        "- **Bean 0156** (beads investigation, no target code). Its outcome decides how the `holon-agentic-coder` "
-        "half of 0147 and the harness retirement proceed."
+        "- **Beads adoption lane (from Bean 0156):** **Bean 0214** (pilot beads in holon-agentic-coder, folding in "
+        "the 0147 hac half) and **Bean 0215** (deterministic beans-to-beads JSONL converter and real-data dry run, "
+        "harness work) in parallel, followed by **Bean 0216** (flow integration), **Bean 0217** (adopt in coherence), "
+        "and **Bean 0218** (port harness skills to `bd` and archive harness)."
     ),
     "- **Beans 0142 and 0141** (benchmarking and tuning, no code flow).",
 ]
@@ -373,14 +380,26 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "domain": "Calibration / Ledger",
         "notes": "Every calibration last cycle needed a manual annotation (7 PRs). Runs before 0197 (same parser).",
     },
-    "0156": {
-        "title": "Investigate moving issue tracking from harness beans to beads inside each target",
+    "0214": {
+        "title": "Pilot beads (bd) issue tracking inside holon-agentic-coder",
         "priority": "**P1**",
         "impact": "High",
-        "sizing": "L",
-        "domain": "Issue Tracking",
+        "sizing": "M",
+        "domain": "Issue Tracking / Pilot",
         "notes": (
-            "Investigation only, no target code. Can run in parallel with any flow. Precedes deprecating the harness."
+            "Holon flow against holon-agentic-coder. `bd init` prefix `hac-`, offline config, pin `bd` in image, "
+            "import open beans, fold in 0147 hac half. Precursor to 0215-0218."
+        ),
+    },
+    "0215": {
+        "title": "Deterministic beans-to-beads JSONL converter and real-data dry run",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "S",
+        "domain": "Issue Tracking / Migration",
+        "notes": (
+            "Harness work. Converts bean frontmatter + body to beads JSONL for `bd import`; verified on all ~47 open "
+            "beans per rule 10. Unblocks 0217."
         ),
     },
     "0172": {
@@ -730,6 +749,39 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "M",
         "domain": "Proxy / holon-coherence",
         "notes": "After 0203; parallel with 0207.",
+    },
+    "0216": {
+        "title": "Holon flow references and drives beads work items (claim on intent, close on merge)",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Holon Flow / Beads",
+        "notes": (
+            "Holon flow against holon-agentic-coder. Intent `work_item` field, `holon intent` claims issue, "
+            "calibration/merge closes with PR URL. Sequence after 0214."
+        ),
+    },
+    "0217": {
+        "title": "Adopt beads (bd) issue tracking inside holon-coherence",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "S",
+        "domain": "Issue Tracking / Coherence",
+        "notes": (
+            "Holon flow against holon-coherence. `bd init` prefix `hcoh-`, import open coherence beans from 0215 "
+            "converter. Sequence after 0214 and 0215."
+        ),
+    },
+    "0218": {
+        "title": "Port harness skills and guidance to bd and sequence the harness retirement",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Harness Deprecation",
+        "notes": (
+            "Harness work. Retire triage matrix / `prioritise-beans` for `bd ready --json`; port guidance; archive "
+            "harness read-only after pilots succeed."
+        ),
     },
     "0202": {
         "title": "holon-agentic-coder: the pasted CI timing-gate steps become one composite action",
@@ -1354,6 +1406,27 @@ def generate_triage_document(
             (
                 "    - `0186` (Coherence #35, `f7e4aa6`): enforced Ruff complexity gates (C901, PLR0911-PLR0915) "
                 "with an inline `# noqa` baseline and monotonic ratchet pytest, unblocking 0203, 0204, 0207, and 0208."
+            ),
+            (
+                "22. **HAC Complexity Gate, Coherence Command Self-Registration, and Beads Adoption Design "
+                "(Beans 0185, 0203, 0156 / HAC PR #115 & Coherence PR #36, 2026-10-30)**:"
+            ),
+            (
+                "    - `0185` (HAC #115, `0e71262`): enforced Ruff complexity gates (C901, PLR0911-PLR0915) on "
+                "holon-agentic-coder with frozen 91-entry inline noqa baseline, PGH004 guard against bare `# noqa`, "
+                "and swap-rejection test; first calibration report to pass Prettier with no follow-up commit."
+            ),
+            (
+                "    - `0203` (Coherence #36, `3af551d`): refactored command modules to self-register parsers and "
+                "handlers, removed `_dispatch.py` `sys.modules` locator in favor of explicit `*_fn` dependency "
+                "injection, split `test_cli.py` (327 tests), passed 3/3 ensemble consensus review, "
+                "and completed Stage 5 calibration."
+            ),
+            (
+                "    - `0156` (research): evaluated beads (`bd`, v1.3.2, Dolt-backed) for target-native issue "
+                "tracking. Mapped 213 existing beans, recommended per-target trackers (`hac-` and `hcoh-`), offline "
+                "`refs/dolt/data` sync, migrating ~47 open beans, and freezing closed history in the read-only "
+                "harness. Spawned Beans 0214-0218 and codified `FLOW_PR_DRIVER.md`."
             ),
             "",
             "---",
