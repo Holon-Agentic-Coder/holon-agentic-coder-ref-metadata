@@ -82,3 +82,9 @@ integration, stress, hygiene, image builds (Buildx Bake) and any other job.
     merged by the maintainer as `6d9dae7` (2026-10-29T11:40:26Z) while the harness review loop was paused at
     iteration 5. The only posted review is holon's native Stage 4 report (5694137530, `FAILED`). The open Important
     finding (label query needs `issues: read`) and two Nits are carried by Bean 0184.
+
+## Resolution
+
+Both halves have merged, so the bean is closed: holon-agentic-coder PR #109 (`993b686`) and holon-coherence PR #30
+(`6d9dae7`). The findings PR #30 merged with went to Bean 0184, which closed with holon-coherence PR #32 (`cefebe3`).
+That PR fixed the two Nits and refuted the Important finding (`issues: read` for the label query) with evidence.
