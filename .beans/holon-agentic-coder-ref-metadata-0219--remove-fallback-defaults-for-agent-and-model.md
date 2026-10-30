@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0219
 title: "Remove fallback defaults for agent runner and model resolution"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - safety
   - holon-agentic-coder
 created_at: 2026-10-30T08:59:32Z
-updated_at: 2026-10-30T09:03:00Z
+updated_at: 2026-10-30T21:17:00Z
 ---
 
 ## Problem

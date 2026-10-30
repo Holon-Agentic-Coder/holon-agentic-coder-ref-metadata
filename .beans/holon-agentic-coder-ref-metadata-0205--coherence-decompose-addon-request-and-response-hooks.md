@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0205
 title: "holon-coherence: decompose MitmproxyAddon.request and response into named pipeline steps"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0204
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-10-30T21:17:00Z
 ---
 
 ## Problem

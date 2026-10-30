@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0188
 title: "Split cli.py into a cli/ package with one self-registering module per subcommand; main becomes a dispatcher"
-status: in-progress
+status: completed
 type: task
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0185
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-30T08:40:00Z
+updated_at: 2026-10-30T21:17:00Z
 ---
 
 ## Problem
@@ -42,6 +42,15 @@ entry point in `apps/sandbox-executor/pyproject.toml` if its target path changes
 ## Dependencies
 
 Blocked by 0185. Parallel-safe with 0187. Sequence with 0155, 0173 and 0175 (they edit `cli.py`).
+
+## Resolution
+
+Completed through the Holon flow on `holon-agentic-coder`:
+
+- Pull Request: [#117](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/117)
+- Review: 3/3 unanimous approval with zero findings.
+- Calibration: Stage 5 completed and merged into PR head (`1424a26`).
+- Merged into `main` at commit `76fe3ea`.
 
 ## Notes
 
