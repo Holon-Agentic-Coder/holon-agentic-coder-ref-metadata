@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0204
 title: "holon-coherence: split mitm_addon.py into a proxy package by concern (move only, AST-verified)"
-status: in-progress
+status: completed
 type: task
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0186
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-30T08:40:00Z
+updated_at: 2026-10-30T21:05:00Z
 ---
 
 ## Problem
@@ -39,6 +39,15 @@ translation, the dashboard and the `MitmproxyAddon` hooks. 12 commits touched it
 ## Dependencies
 
 Blocked by 0186. Blocks 0205 and 0206. Parallel-safe with 0203.
+
+## Resolution
+
+Completed through the Holon flow on `holon-coherence`:
+
+- Pull Request: [#37](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/37)
+- Review: 3/3 unanimous approval with zero findings.
+- Calibration: Stage 5 completed and merged into PR head.
+- Merged into `main` at commit `9b001c3d4c8d8345a9095ef59adce5a738da9760`.
 
 ## Notes
 

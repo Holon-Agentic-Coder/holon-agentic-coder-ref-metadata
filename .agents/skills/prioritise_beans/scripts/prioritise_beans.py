@@ -119,11 +119,22 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "noqa identity baseline, `PGH004` guard against bare `# noqa`, swap-rejection test; 2 review iterations, EV "
         "72.07 predicted / 77.27 actual, and the first calibration report to pass Prettier with no follow-up commit). "
         "**Bean 0203** (Coherence PR #36, commands register their own parsers) passed 3/3 unanimous ensemble consensus "
-        "review in 4 iterations, completed Stage 5 calibration (`3af551d`), and is awaiting maintainer merge. "
+        "review in 4 iterations, completed Stage 5 calibration (`3af551d`), and merged as `72c8d36`. "
         "**Bean 0156 (beads investigation) completed:** recommended target-native beads (`bd`) issue tracking with "
         "`hac-` and `hcoh-` prefixes, offline `refs/dolt/data` sync, migrating only open beans (~47), and archiving "
         "the harness read-only; spawned action beans 0214-0218. Harness PR driver brief codified in "
         "`FLOW_PR_DRIVER.md`."
+    ),
+    "",
+    (
+        "**Beans 0179 and 0204 merged:** HAC PR #116 (`b746408`, Bean 0179) routed Stage 4 reviewer turns through "
+        "the `review-loop` role container via `_dispatch_role()`, eliminating host-side agent execution while preserving "
+        "append-only ledger provenance; passed 3/3 unanimous ensemble consensus review and completed Stage 5 calibration "
+        "(`4f119cd`, EV predicted 68.62 / actual 78.04, $\\Delta\\text{EV} = +9.42$). Coherence PR #37 (`9b001c3`, "
+        "Bean 0204) split `mitm_addon.py` (2,348 lines) into a modular `proxy/` package by concern, unblocking the "
+        "concurrent decomposition lanes (Beans 0205-0208). New beans logged: **Bean 0219** (mandatory `--agent` and "
+        "`--model`, no fallback defaults), **Bean 0220** (remove PR references across flow), and **Bean 0221** "
+        "(standardise Review Loop agent output with skill consensus template)."
     ),
     "",
     (
@@ -135,7 +146,7 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0218)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0221)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
@@ -172,26 +183,20 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "Sequential lane, holon-agentic-coder (flow blockers first):",
     "",
     (
-        "1. **Bean 0150** (flow tests write `.index/action_index.db`) and **Bean 0169** (PR #97 residual Nits, plus "
-        "`git_flow.md`), one after the other: both edit `test_flow.py`, which 0187 splits. Whichever misses that "
-        "window runs after 0187 on the split `tests/flow/` layout. Bean 0185 is done (PR #115, `0e71262`), so both "
-        "lint gates now guard new code."
+        "1. **Bean 0188** (split `cli.py` into self-registering command modules; HAC PR #117 in review and "
+        "calibration). Once #117 merges, the split unblocks CLI options and flag work."
     ),
     (
-        "2. **Bean 0203** (holon-coherence: commands register their own parsers; PR #36 calibrated, awaiting "
-        "maintainer merge), then **Bean 0204** (holon-coherence: split `mitm_addon.py` into a `proxy/` package) "
-        "once #36 merges — both touch the command/CLI seam, so they run one after the other."
+        "2. **Bean 0219** (make `--agent` and `--model` mandatory CLI options, removing fallback defaults) and "
+        "**Bean 0220** (remove PR terminology across flow CLI and documentation)."
     ),
     (
-        "3. **Bean 0213** (reflect review-loop skill rules into native Review Loop Holon Agent) to bring containerised "
-        "review-loop prompts and conflict gates into parity with the harness."
+        "3. **Bean 0221** (standardise Review Loop agent output and consensus report generator with skill consensus "
+        "template) building on **Bean 0213** prompt template reflection."
     ),
     (
-        "4. **Bean 0187** (split `flow.py` into a `flow/` package, move only) and, in parallel, **Bean 0188** "
-        "(split `cli.py` into self-registering command modules). Their files are disjoint: 0188 touches `cli.py`, "
-        "`test_cli.py` and the entry point, none of the `flow.py` and `test_flow.py` files 0187 holds alone. Bean 0177 "
-        "measured `flow.py` in 7 of the 14 flow PRs #94-#109; "
-        "landing the move-only splits before the next `flow.py` features stops those features colliding."
+        "4. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split before the "
+        "next `flow.py` features stops those features colliding."
     ),
     (
         "5. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean "
@@ -199,9 +204,8 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "0183 (item 6), as in Bean 0177's migration step 3."
     ),
     (
-        "6. **Bean 0179** (Stage 4 reviewers in the role container), then **Bean 0183** (every stage and engine "
-        "bookkeeping step sandboxed), on the new layout. Three PRs merged before their review or calibration; 0179 "
-        "lets `holon flow` review and post on its own."
+        "6. **Bean 0183** (every stage and engine bookkeeping step sandboxed). Bean 0179 is merged (`b746408`), so "
+        "Stage 4 container dispatch is active."
     ),
     (
         "7. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), "
@@ -241,10 +245,11 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "green CI checks, awaiting maintainer review/merge."
     ),
     (
-        "- **holon-coherence decomposition lane** (Bean 0177 order, disjoint from holon-agentic-coder): after lint "
-        "gate 0186 (PR #35 merged), 0203 and 0204 in parallel, then 0205-0208. 0206 starts with or after Bean "
-        "0200 (item 13), as Bean 0206 asks, so the duplicate is not refactored twice. Bean 0209 (CI composite "
-        "action) is merged via PR #33."
+        "- **holon-coherence decomposition lane** (Bean 0177 order, disjoint from holon-agentic-coder): unblocked "
+        "by PR #36 (Bean 0203) and PR #37 (Bean 0204) merged into `main`. Next concurrent lanes: **Bean 0205** "
+        "(`MitmproxyAddon.request` and `response` become named pipeline steps), **Bean 0206** (one provider module "
+        "per wire format under `proxy/providers/`), **Bean 0207** (metrics aggregation out of command handlers into "
+        "`metrics/`), and **Bean 0208** (`ProxyLifecycle` class owns proxy start-up, readiness, and teardown)."
     ),
     (
         "- **Bean 0166** (CI pipeline duration dashboard; workflows and observability only, pairs with 0163). If it "
@@ -264,17 +269,6 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
 # judgement rather than a truncated first paragraph. Insertion order is the
 # matrix row order (priority blocks, hand-curated within each block).
 OVERRIDES: dict[str, dict[str, str]] = {
-    "0179": {
-        "title": "Route Stage 4 reviewer turns through the `review-loop` role container",
-        "priority": "**P0**",
-        "impact": "High",
-        "sizing": "M",
-        "domain": "Review Loop",
-        "notes": (
-            "Follow-up to 0144 (PR #102 refuses host reviewer turns, fail closed). Until it lands, Stage 4 runs "
-            "through the harness `pr-review-loop` skill."
-        ),
-    },
     "0183": {
         "title": "Every flow stage works in its own sandboxed clone; `holon flow` needs no host checkout",
         "priority": "**P0**",
@@ -528,14 +522,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "baseline. Measured: `flow.py` 5,157 lines, `cli.main` 1,097 lines."
         ),
     },
-    "0186": {
-        "title": "holon-coherence: ruff complexity gate (C901, PLR0911-PLR0915) with an inline `noqa` baseline",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "S",
-        "domain": "Lint / holon-coherence",
-        "notes": "Gate first (0177 order step 1), disjoint from 0185. Unblocks 0203 and 0204.",
-    },
     "0187": {
         "title": "Split `flow.py` into a `flow/` package, one module per stage and concern (move only)",
         "priority": "**P1**",
@@ -554,22 +540,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "L",
         "domain": "Refactor / CLI",
         "notes": "After 0185; can pair with 0187 (disjoint files). `cli.main` 1,097 lines, CC 114.",
-    },
-    "0203": {
-        "title": "holon-coherence: command modules register their own parsers; drop the `sys.modules` locator",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "M",
-        "domain": "CLI / holon-coherence",
-        "notes": "After 0186; parallel with 0204. Unblocks 0207 and 0208.",
-    },
-    "0204": {
-        "title": "holon-coherence: split `mitm_addon.py` into a `proxy/` package by concern (move only)",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "L",
-        "domain": "Proxy / holon-coherence",
-        "notes": "After 0186; parallel with 0203. 2,348 lines, AST-verified move only. Unblocks 0205 and 0206.",
     },
     "0189": {
         "title": "Launcher module owns container launch and role dispatch; break the `flow` -> `cli` cycle",
@@ -1454,13 +1424,30 @@ def generate_triage_document(
                 "    - `0203` (Coherence #36, `3af551d`): refactored command modules to self-register parsers and "
                 "handlers, removed `_dispatch.py` `sys.modules` locator in favor of explicit `*_fn` dependency "
                 "injection, split `test_cli.py` (327 tests), passed 3/3 ensemble consensus review, "
-                "and completed Stage 5 calibration."
+                "completed Stage 5 calibration, and merged as `72c8d36`."
             ),
             (
                 "    - `0156` (research): evaluated beads (`bd`, v1.3.2, Dolt-backed) for target-native issue "
                 "tracking. Mapped 213 existing beans, recommended per-target trackers (`hac-` and `hcoh-`), offline "
                 "`refs/dolt/data` sync, migrating ~47 open beans, and freezing closed history in the read-only "
                 "harness. Spawned Beans 0214-0218 and codified `FLOW_PR_DRIVER.md`."
+            ),
+            (
+                "23. **Stage 4 Role Container Review Dispatch, and Coherence Proxy Package Decomposition "
+                "(Beans 0179, 0204 / HAC PR #116 & Coherence PR #37, 2026-10-30)**:"
+            ),
+            (
+                "    - `0179` (HAC #116, `b746408`): routed Stage 4 reviewer turns through the `review-loop` role "
+                "container via `_dispatch_role()`, eliminating host-side agent execution while preserving append-only "
+                "ledger provenance; passed 3/3 unanimous ensemble consensus review and completed Stage 5 calibration "
+                "(`4f119cd`, EV predicted 68.62 / actual 78.04, $\\Delta\\text{EV} = +9.42$)."
+            ),
+            (
+                "    - `0204` (Coherence #37, `9b001c3`): decomposed monolithic `mitm_addon.py` (2,348 lines) into "
+                "modular `proxy/` package by concern (`scrubbing.py`, `wire_log.py`, `timing.py`, `metrics.py`, "
+                "`routing.py`, `dashboard.py`, `normalise/anthropic.py`, `translation/gemini_openai.py`, and "
+                "`addon.py`), preserving backwards-compatibility re-exports; passed 3/3 unanimous ensemble consensus "
+                "review and completed Stage 5 calibration."
             ),
             "",
             "---",

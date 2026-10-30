@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0203
 title: "holon-coherence: each command module registers its own parser; drop the sys.modules dispatch locator"
-status: in-progress
+status: completed
 type: task
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0186
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-10-30T21:05:00Z
 ---
 
 ## Problem
@@ -40,6 +40,15 @@ test to the one CLI module.
 ## Dependencies
 
 Blocked by 0186. Blocks 0207 and 0208 (same command modules). Parallel-safe with 0204.
+
+## Resolution
+
+Completed through the Holon flow on `holon-coherence`:
+
+- Pull Request: [#36](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/36)
+- Review: 3/3 unanimous approval with zero findings.
+- Calibration: Stage 5 completed and merged into PR head.
+- Merged into `main` at commit `72c8d36c39c07a8bc35a73b8741b3f6bbbafb13d`.
 
 ## Notes
 

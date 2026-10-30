@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0179
 title: "Route Stage 4 reviewer turns through the review-loop role container so holon flow can review on its own"
-status: in-progress
+status: completed
 type: feature
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0144
 created_at: 2026-10-28T22:05:13Z
-updated_at: 2026-10-30T08:31:00Z
+updated_at: 2026-10-30T21:05:00Z
 ---
 
 ## Problem
@@ -40,6 +40,17 @@ Through the Holon flow on `holon-agentic-coder`, after PR #102 merges (it merged
 5. Tests with fakes at the dispatcher and container seams; an end-to-end dry run of `holon flow` reaching a real
    consensus decision.
 6. Then retire the "Stage 4 runs through the harness `pr-review-loop` skill" workaround in the harness docs.
+
+## Resolution
+
+Completed through the Holon flow on `holon-agentic-coder`:
+
+- Intent: `I-1793339088-route-stage-4-reviewer-turns-through-the-review-loop-role-container`
+- Pull Request: [#116](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/116)
+- Review: 3/3 unanimous approval with zero findings.
+- Calibration: Stage 5 completed and merged into PR head (`4f119cd`, EV predicted 68.62, actual 78.04, $\Delta\text{EV}
+  = +9.42$).
+- Merged into `main` at commit `b746408565c1f71d29bc9411b03a0f17e8759d41`.
 
 ## Notes
 
