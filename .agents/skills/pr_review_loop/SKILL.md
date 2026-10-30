@@ -2,9 +2,9 @@
 name: pr-review-loop
 description:
   Automates the iterative PR review and resolution process by running `pr-reviewer` and `pr-review-resolver` in fresh
-  subagent contexts until the PR is approved or the maximum iteration cap (default 25) is reached. Activate this skill
-  whenever the user asks to run an autonomous review loop, auto-fix PR issues continuously, or execute
-  `/pr-review-loop`.
+  subagent contexts until the PR is approved, the maximum iteration cap (default 25) is reached, or a divergence report
+  is due. Activate this skill whenever the user asks to run an autonomous review loop, auto-fix PR issues continuously,
+  or execute `/pr-review-loop`.
 ---
 
 # Autonomous PR Review & Resolve Loop Skill
@@ -24,7 +24,8 @@ resolution step is executed in a dedicated, fresh subagent**.
    **If the consensus agent reviewers flag any Critical, Important or open actionable Nit issues, the review results
    MUST NOT be posted to the PR on GitHub.** The loop must resolve the issues, push the fixes, and run the review again.
    Review results are **strictly posted to GitHub only when there is nothing left to action** (or when the max iteration
-   cap is reached).
+   cap is reached). The divergence report of [principle 12](#12-convergence-rules-bean-0170) also ends the loop, and
+   posts nothing to GitHub.
    - **Nit policy (Nits are actioned, not waved through)**: every Nit / Optional 🟢 finding is adjudicated by the
      resolver exactly like a Critical or Important one and ends in one of two dispositions: `applied` (fixed and pushed)
      or `rejected` (with a one-line reason: not diff-grounded, inaccurate, out of scope, or conflicts with a
@@ -47,9 +48,11 @@ resolution step is executed in a dedicated, fresh subagent**.
      pass produces no new actionable finding. A loop that ends with "no head ever held three clean votes" has not
      converged, and must say so plainly rather than reporting an aggregate verdict across mismatched heads.
 3. **Deterministic Convergence (Never Pause)**: The loop has **no pause state and never asks for guidance mid-flight**.
-   The only exits are a clean consensus approval posted to the PR, or the **max iteration cap** with a final review
-   posted. If the exact same issue is flagged across 3 consecutive iterations with no diff change, or if reviewers
-   oscillate between conflicting recommendations, the loop climbs the **Convergence Escalation Ladder** in
+   The only exits are a clean consensus approval posted to the PR, the **max iteration cap** with a final review posted,
+   or the **divergence report** of [principle 12](#12-convergence-rules-bean-0170) (diff size and Nit count both rising
+   for three ensembles running), which is a terminal report to the maintainer, not a pause awaiting a reply. If the
+   exact same issue is flagged across 3 consecutive iterations with no diff change, or if reviewers oscillate between
+   conflicting recommendations, the loop climbs the **Convergence Escalation Ladder** in
    [Phase B](#phase-b-evaluate-exit-conditions--post-final-review) instead of stopping: re-sync, re-adjudicate the
    finding against primary sources, apply the union of the competing recommendations, rule false findings out in writing
    in `.subagent/<repo>_pr<N>_coordination.json`, or defer an out-of-scope finding to a new bean. Iterations are spent
@@ -64,6 +67,15 @@ resolution step is executed in a dedicated, fresh subagent**.
      That CI run is about to be superseded, so waiting on it only burns wall-clock time. A CI watcher may run in the
      background throughout. Its result is consulted only at the ensemble and posting gate (Phase B), and only for the
      head under review.
+
+   - **Waiting uses the shared primitives, never a hand-written loop** (Bean 0182, rules in
+     [`.agents/watcher/README.md`](../../watcher/README.md)). The CI watcher is
+     `uv run python .agents/scripts/wait_for.py ci <owner/repo> <N> --sha <head>`, started in the background with the
+     session's background or monitor tooling: exit 0 green, 1 failed, 2 timeout, 3 head superseded (discard the result
+     and retarget), 4 `gh` error (retry; never a verdict). When the event watcher is running, tailing
+     `.subagent/events.jsonl` for this repo and PR (`ci_passed` / `ci_failed` / `head_moved` at the current head) is
+     equivalent and costs nothing while idle. Never type a `while` / `sleep` polling loop into a shell, and never spend
+     a subagent on waiting.
 4. **Drift Self-Healing (Out-Of-Sync State Is Work, Not A Blocker)**: Divergence between what the loop expects and what
    the repository and PR actually contain -- a new commit pushed by someone else, a parallel agent session editing the
    same worktree, an unexpectedly dirty tree, a stale cached diff, a rejected push, CI that moved from `pending` to
@@ -119,6 +131,7 @@ resolution step is executed in a dedicated, fresh subagent**.
    | Adjudication ledger                                 | `<repo>_pr<N>_coordination.json`                                      |
    | Resume state (canonical handoff)                    | `<repo>_pr<N>_state.json`                                             |
    | Posted review body, kept permanently                | `<repo>_pr<N>_posted_review.md`                                       |
+   | Divergence report (principle 12, rule 5)            | `<repo>_pr<N>_convergence_report.md`                                  |
    | Anything else (commit message, gate logs, captures) | `<repo>_pr<N>_<purpose>_iter_<iteration>_{sha}.<ext>`                 |
 
    **Legacy fallback (a union, never an either/or):** read the namespaced path and, when the unscoped legacy names
@@ -170,7 +183,9 @@ resolution step is executed in a dedicated, fresh subagent**.
    - **review increments once a complete report exists** -- when a report from an earlier head of the **same loop** is
      on disk AND closes with that trailer block, review `git diff <prior-head>..HEAD` plus the touched files and
      re-verify only the findings still open; previously cleared items stay cleared unless the increment disturbs them. A
-     report without the footer is a stub, and a stub is never a baseline: complete it with a full-file review;
+     report without the footer is a stub, and a stub is never a baseline: complete it with a full-file review. After the
+     first complete ensemble, the ensemble itself is increment-scoped too
+     ([principle 12](#12-convergence-rules-bean-0170));
    - **be salvaged on death** -- re-run the step in salvage mode: find the partial report, re-verify what it
      established, review only what is missing or moved, finish. Relaunch it **on its own**, never as a second child
      alongside a still-running sibling (principle 11). Reduce the thinking level or split the scope if the failure
@@ -225,6 +240,17 @@ resolution step is executed in a dedicated, fresh subagent**.
         "body_file": ".subagent/<repo>_pr<N>_posted_review.md"
       },
       "residual_risks": ["<open nit / deferred finding / out-of-scope item and where it was deferred to>"],
+      "voted_head": "<sha of the last head a complete 3-reviewer ensemble voted on, or null before the first>",
+      "deferral_bean": "<bean id collecting this loop's deferred Nits and mutants, or null>",
+      "mutation_sweeps": [
+        { "area": "<module or doc area>", "iteration": 3, "head": "<sha>", "mutants": 12, "survivors": 1 }
+      ],
+      "convergence": {
+        "original": { "files": 16, "additions": 1192, "deletions": 204 },
+        "ensembles": [{ "iteration": 4, "head": "<sha>", "files": 18, "additions": 1400, "deletions": 210, "nits": 4 }],
+        "diverging": false
+      },
+      "post_merge": ["<step to run when pr_merged arrives, e.g. install-holon from main, clean-workspace, close bean>"],
       "next_action": "<one sentence: exactly what the next agent should do first>",
       "updated": "<iso8601>"
     }
@@ -268,11 +294,98 @@ resolution step is executed in a dedicated, fresh subagent**.
     - **Timeouts are infrastructure, not verdicts.** Read the child's report file before deciding whether it voted;
       recover with a bounded finish-only resume; never run a replacement beside a live sibling.
 
+12. **Convergence Rules (Bean 0170)**: The loop on holon-agentic-coder PR #97 ran 33 iterations without converging: the
+    diff tripled under review (16 files, +1192/-204 to 33 files, +4015/-423), Critical findings stopped after iteration
+    2 (only two Important ones followed), and Nit totals spiked from fresh mutation batches over code earlier rounds had
+    added. These rules make the review surface shrink instead of grow. They narrow **where** findings may block; they
+    never relax **how** a finding is handled — every finding the reviewers raise still reaches the resolver and ends
+    `applied` or `rejected` with a reason, and "deferred" is a recorded rejection reason, never a silent skip.
+    1. **Increment-scoped review after the first full ensemble.** The first complete 3-reviewer ensemble reviews the
+       whole PR, and its head becomes `voted_head` in `_state.json`. Every later dry run and ensemble reviews
+       `git diff <voted_head>..HEAD` (plus the files it touches), and still reports any **Critical or Important** defect
+       anywhere in the PR. A **new Nit on code the increment did not change** does not block approval: the resolver
+       dispositions it `rejected` with reason `deferred: unchanged code -> <bean id>`, appends it to `deferred_findings`
+       in `<repo>_pr<N>_coordination.json` (finding id, file:line, text, iteration, head) and to `residual_risks`, and
+       adds it to the loop's single follow-up bean (`deferral_bean`; created on the first deferral, next sequential id,
+       listing every deferred item). A Nit inside the increment blocks exactly as before. Recording a deferral touches
+       only the harness ledger and bean, never the PR branch, so it does not move the head or void the votes cast at it.
+       `voted_head` moves forward each time a complete ensemble votes.
+    2. **Bounded mutation work.** One systematic mutation sweep per area (module, script or doc set) is allowed, and it
+       is recorded in `mutation_sweeps` in `_state.json` (area, iteration, head, mutants, survivors). Later rounds
+       mutate only code the increment changed. A surviving mutant in unchanged, already-swept code is deferred like a
+       Nit on unchanged code (rule 1: resolver disposition `rejected: deferred: unchanged code -> <bean id>`, recorded
+       in the coordination ledger); a surviving mutant in the increment is a finding like any other.
+    3. **Scope freeze.** Resolvers fix only the findings handed to them and add no unrelated tests, docs or behaviour. A
+       test a fix needs is part of the fix; a test "while I am here" is not. The orchestrator adds no scope mid-loop (no
+       CI-runtime fix, `main` sync or full sweep beyond rule 2) without the maintainer's say-so; real out-of-scope work
+       goes to a new bean (Convergence Escalation Ladder rung 5).
+    4. **Single source for behaviour docs.** When a resolver finds one behaviour described in several docs, it makes one
+       authoritative section and turns the others into one-line references to it, instead of editing every copy.
+    5. **Convergence report.** After every complete ensemble, append the PR's diff size
+       (`gh pr view <N> --json files,additions,deletions`) and that ensemble's Nit count to `convergence.ensembles`;
+       `convergence.original` is the size of the PR before the first resolver push. When **both** the diff size
+       (additions + deletions) and the Nit count have risen at each of the last three ensembles, set
+       `convergence.diverging: true`, post nothing to GitHub, write `.subagent/<repo>_pr<N>_convergence_report.md` (the
+       table, the open findings, and the three options: **increment-only review**, **split the PR**, or **merge with
+       deferrals**), report it to the maintainer, and stop iterating. Do not just keep iterating.
+    6. **Integrity rules unchanged.** The Nit policy holds inside the increment; approval still needs three unanimous
+       clean votes at one head with CI green at that head; any push still voids earlier votes; no approval is ever
+       fabricated or aggregated across heads.
+13. **Background Orchestrator Delegation (Bean 0212)**: When `/pr-review-loop <PR_URL_OR_NUMBER>` is invoked in the main
+    interactive session, the main agent MUST NOT execute the loop inline. Running the multi-iteration loop directly in
+    the main interactive thread hijacks the user's conversation across dozens of subagent wakeups. Instead, the main
+    agent immediately delegates the entire loop lifecycle to a dedicated background **PR Review Loop Orchestrator**
+    subagent (`invoke_subagent` with `TypeName: "self"`, `Model: "inherit"`,
+    `Role: "PR Review Loop Orchestrator (<repo> PR #<N>)"`) and immediately returns control to the user (see
+    [Step 0](#step-0-entrypoint-delegation--spawn-the-background-loop-orchestrator-subagent) and
+    [`.agents/coordination.md`](../../coordination.md)).
+
 ---
 
 ## 🛠️ Step-by-Step Execution Guide
 
 Follow these steps when executing the `pr-review-loop` skill:
+
+### Step 0: Entrypoint Delegation — Spawn the Background Loop Orchestrator Subagent
+
+Before executing any loop setup or iteration steps, evaluate the **Re-Entrancy Guard**:
+
+- **Re-Entrancy Guard**: If the currently executing agent is _already_ the spawned
+  `PR Review Loop Orchestrator (<repo> PR #<N>)` subagent (or a background flow orchestrator subagent executing Stage 4
+  of the Holon flow), **DO NOT spawn another nested loop orchestrator**. Proceed directly to
+  [Step 1: Parse Parameters](#step-1-parse-parameters).
+- **Main Interactive Agent Delegation**: When the user (or a parent interactive session) invokes
+  `/pr-review-loop <PR_URL_OR_NUMBER>`, the main interactive agent **MUST NOT execute the loop inline**. Instead:
+  1. Resolve `<repo>`, PR number `<N>`, the target worktree path, and `<max_iterations>` (default `25`).
+  2. Immediately spawn a single background **PR Review Loop Orchestrator** subagent via `invoke_subagent` and return
+     control to the user in the same turn so the main agent remains responsive for concurrent work across other PRs or
+     tasks:
+
+     ```json
+     {
+       "TypeName": "self",
+       "Role": "PR Review Loop Orchestrator (<repo> PR #<N>)",
+       "Model": "inherit",
+       "Prompt": "You are the background PR Review Loop Orchestrator (<repo> PR #<N>). Execute `.agents/skills/pr_review_loop/SKILL.md` for `<pr_url_or_number>` (worktree: `<worktree_path>`, max_iterations: `<max_iterations>`). Because you are already the spawned PR Review Loop Orchestrator subagent, pass the Step 0 re-entrancy guard and proceed directly to Step 1. Own the entire loop lifecycle (state tracking in `.subagent/`, Phase A dry-run review, Phase B 3-agent `pr-reviewer` ensemble consensus review, CI check verification, Phase C `pr-review-resolver` when `CHANGES_REQUESTED`, posting the final consensus review to GitHub upon `APPROVED`, and running Stage 5 `holon calibrate` for Holon flow PRs). Do NOT message the parent agent on intermediate iterations; call `send_message` to the parent agent ONLY ONCE upon terminal completion (`APPROVED` + calibrated) or an unresolvable terminal stop (`MAX_ITERATIONS_REACHED` / `DIVERGING`)."
+     }
+     ```
+
+  3. The spawned `PR Review Loop Orchestrator (<repo> PR #<N>)` subagent owns the entire loop lifecycle across all
+     phases and iterations:
+     - Maintaining `.subagent/<repo>_pr<N>_state.json`, `<repo>_pr<N>_coordination.json`, and
+       `<repo>_pr<N>_loop_history.md` in the harness `.subagent/` directory.
+     - Spawning the per-iteration dry-run reviewer and the 3 `pr-reviewer` ensemble subagents, and synthesising the
+       consensus report.
+     - Spawning the `pr-review-resolver` subagent when `CHANGES_REQUESTED` (or actionable Nits remain).
+     - Verifying GitHub Actions CI checks via the shared wait primitive (`wait_for.py ci`).
+     - Posting the final consensus review to GitHub upon unanimous 3/3 `APPROVED` at the current `HEAD` SHA with green
+       CI.
+     - Running Stage 5 (`holon calibrate <execution_branch>`) and fast-forwarding/merging the calibration commit into
+       the PR branch when the PR was produced by the Holon flow.
+     - Notifying the main interactive agent via `send_message` **only on terminal completion** (`APPROVED` + calibrated)
+       or a terminal non-approval stop (`MAX_ITERATIONS_REACHED` or `DIVERGING`).
+
+---
 
 ### Step 1: Parse Parameters
 
@@ -341,8 +454,21 @@ reality, so reviewers never evaluate a diff that no longer exists. Nothing here 
    `git pull --rebase origin <branch_name>`, keep both intents when rebasing documentation, re-run Prettier on changed
    markdown files only (using the target repository's configuration or `--no-config`, never formatting repo-wide), and
    continue. A rejected push is a rebase, never a `--force`.
-4. **Re-query volatile state**: CI status, review threads, and PR `mergeable` are re-read for the current head; results
-   captured for an older head are never reused.
+4. **Re-query volatile state and resolve target conflicts**: CI status, review threads, and PR `mergeable` are re-read
+   for the current head; results captured for an older head are never reused.
+   - **Target-Branch Conflict Resolution**: If `mergeable == "CONFLICTING"` or `mergeStateStatus == "DIRTY"` when
+     querying `gh pr view <pr_url_or_number> --json mergeable,mergeStateStatus`:
+     - The PR branch has encountered merge conflicts against the target base branch (`origin/main`).
+     - Run `git fetch origin main` and `git merge origin/main`.
+     - Resolve the conflicts immediately:
+       - **Ledger-Only Conflicts**: If conflicts are strictly confined to ledgers (`holon-knowledge/ledger/*.jsonl`),
+         follow the **Ledger-Only Conflict Resolution** procedure: interleave or append the JSON lines chronologically
+         by `created_at`, verify valid JSON syntax, and skip running test suites.
+       - **Code/Doc Conflicts**: If conflicts involve non-ledger files, resolve them cleanly, format with Prettier, run
+         tests (`uv run pytest`), and commit.
+     - Push the resolved merge commit to `origin <branch_name>`.
+     - Verify `gh pr view <pr_url_or_number> --json mergeable,mergeStateStatus` reports `mergeable: "MERGEABLE"` before
+       proceeding to the reviewer passes.
 5. **Log the reconciliation**: append a row to the loop history (drift detected, action taken, head after sync) so the
    final report shows exactly what was consolidated.
 
@@ -361,7 +487,11 @@ Execute the review pass in a clean, isolated subagent context.
   vote**. The pass is recorded `DEAD` in `passes[]` of `_state.json`, excluded from the vote, and re-cast on a
   write-capable child. In AGY, always use `TypeName: "self"` (inherits write tools); never use read-only types such as
   `TypeName: "research"`.
-- **Model**: Inherit the parent agent's model (`inherit`).
+- **Model**: Inherit the parent agent's model (`inherit`). If credit or quota runs out on `"inherit"` / `"pro"`,
+  automatically fall back along `Model: "inherit"` / `"pro"` $\rightarrow$ `"flash"` $\rightarrow$ `"flash_lite"` (and
+  similarly step down `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` or
+  `gemini-3.8-pro-high` $\rightarrow$ `gemini-3.8-flash-medium` $\rightarrow$ `gemini-3.8-flash`) and continue the loop
+  from the current iteration without losing completed work.
 - **Prompt Instructions**:
   > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` in **Dry-Run Mode (`--dry-run`)** with
   > **Single-Agent Mode** enabled.
@@ -419,9 +549,11 @@ Wait for the subagent to complete and inspect its report.
         every Nit / Optional 🟢 finding is dispositioned `applied` or `rejected`** -- no open actionable Nits).
      2. **ALL GitHub Actions CI checks (`gh pr checks <pr>`) pass cleanly** with no failing jobs, for the **same head**
         the dry run approved. This is the only point in the loop that waits for CI (principle 3, "CI is a gate, not a
-        waiting room"). If CI is still running, wait for the watcher here. If a check fails, treat the failure as a
-        finding for the resolver: a genuine failure, or a flake recorded with evidence in the coordination ledger and
-        re-run. Do not start the ensemble early.
+        waiting room"). If CI is still running, wait for the background `wait_for.py ci <owner/repo> <N> --sha <head>`
+        (or the watcher's `ci_passed` / `ci_failed` event for that head) here; exit 3 or a `head_moved` event means the
+        head was superseded, so return to Phase A0.5. If a check fails, treat the failure as a finding for the resolver:
+        a genuine failure, or a flake recorded with evidence in the coordination ledger and re-run. Do not start the
+        ensemble early.
    - **Execute 3-Agent Ensemble Consensus Review**: Spin off a consensus review in an isolated child context with
      **Ensemble Consensus Mode** enabled. Dispatch the three reviewer passes **concurrently on a hosted model runtime,
      or strictly one-at-a-time on a local model runtime** (principle 11); independence, fresh context and blind voting
@@ -437,6 +569,13 @@ Wait for the subagent to complete and inspect its report.
          > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` using the **3-Agent Ensemble Consensus
          > Model**. Spawn 3 independent subagents, merge their consensus findings into a consolidated report, and
          > evaluate issue counts.
+         >
+         > **Review scope** ([principle 12](#12-convergence-rules-bean-0170)): when `_state.json` records a
+         > `voted_head`, run in **Increment-Scoped Mode** (`pr-reviewer` Step 2a): reviewers review
+         > `git diff <voted_head>..HEAD`, report Critical and Important defects anywhere in the PR, raise Nits and
+         > mutants only on lines the increment changed, and consult `mutation_sweeps` before mutating. With no
+         > `voted_head`, review the whole PR. Read `deferred_findings` from the coordination ledger and do not re-raise
+         > them.
          >
          > **Posting Gate**:
          >
@@ -473,6 +612,21 @@ Wait for the subagent to complete and inspect its report.
      - **Case 1: Clean Consensus Pass (0 Critical, 0 Important, 0 open actionable Nits remaining)**:
        - The PR has received unanimous ensemble consensus approval with zero blocking, important or open Nit issues left
          to action.
+       - **Pre-Posting & Pre-Calibration Conflict Resolution Gate (Mandatory)**: Before posting the official approved
+         review to GitHub and before running Stage 5 calibration, the orchestrator MUST verify
+         `gh pr view <pr> --json mergeable,mergeStateStatus`. If `mergeable == "CONFLICTING"` or
+         `mergeStateStatus == "DIRTY"`, the PR branch has encountered merge conflicts against the target base branch
+         (`origin/main`). The orchestrator MUST:
+         1. Run `git fetch origin main` and `git merge origin/main`.
+         2. Resolve the conflicts immediately:
+            - **Ledger-Only Conflicts**: If conflicts are strictly confined to ledgers
+              (`holon-knowledge/ledger/*.jsonl`), follow the **Ledger-Only Conflict Resolution** procedure: interleave
+              or append the JSON lines chronologically by `created_at`, verify valid JSON syntax, and skip running test
+              suites.
+            - **Code/Doc Conflicts**: If conflicts involve non-ledger files, resolve them cleanly, format with Prettier,
+              run tests (`uv run pytest`), and commit.
+         3. Push the resolved merge commit to `origin <branch_name>`.
+         4. Confirm `gh pr view <pr> --json mergeable,mergeStateStatus` returns `mergeable: "MERGEABLE"`.
        - Official review has been posted to GitHub.
        - **STOP THE LOOP.**
        - **Run stage 5 (Calibration) yourself before any merge is requested, not after**: when the change reached the PR
@@ -492,7 +646,12 @@ Wait for the subagent to complete and inspect its report.
          > you are ready; merging before stage 5 (`holon calibrate`) has run destroys the `E-...` branch that
          > calibration reads.
        - Branch and worktree cleanup must only be performed after the human confirms the merge has completed, or when
-         the user explicitly requests cleanup.
+         the user explicitly requests cleanup. Record the PR's post-merge steps (install from `main` when the PR changed
+         `holon` or `holon-coherence`, the `clean-workspace` skill, closing the bean) in `post_merge` in `_state.json`.
+         A `pr_merged` event from the watcher, or exit 0 of
+         `uv run python .agents/scripts/wait_for.py merged <owner/repo> <N>`, is that confirmation; it runs exactly the
+         recorded steps under the existing cleanup protections and nothing else (rules table in
+         [`.agents/watcher/README.md`](../../watcher/README.md)).
      - **Case 2: Critical, Important or Open Actionable Nit Issues Flagged by Consensus Reviewers**:
        - **DO NOT POST TO GITHUB**. Ensure no intermediate review comment was posted to the GitHub PR thread.
        - If `iteration >= max_iterations`:
@@ -564,7 +723,11 @@ Execute the resolution pass in a clean, isolated subagent context.
   or child process to keep parent context clean and apply code fixes safely.
 - **Capabilities**: Child agent MUST possess file-writing and command execution tools (`write_to_file`,
   `replace_file_content`, `run_command`, or child equivalent). In AGY, always use `TypeName: "self"`.
-- **Model**: Inherit the parent agent's model (`inherit`).
+- **Model**: Inherit the parent agent's model (`inherit`). If credit or quota runs out on `"inherit"` / `"pro"`,
+  automatically fall back along `Model: "inherit"` / `"pro"` $\rightarrow$ `"flash"` $\rightarrow$ `"flash_lite"` (and
+  similarly step down `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` or
+  `gemini-3.8-pro-high` $\rightarrow$ `gemini-3.8-flash-medium` $\rightarrow$ `gemini-3.8-flash`) and continue the loop
+  from the current iteration without losing completed work.
 - **Target Worktree**: Locate the target repository worktree under `apps/holon-agentic-coder/{branch}`,
   `apps/holon-coherence/{branch}`, or repository root.
 - **Prompt Instructions**:
@@ -575,7 +738,13 @@ Execute the resolution pass in a clean, isolated subagent context.
   >    Nit/Optional 🟢)** for diff grounding, technical accuracy, actionability, and scope relevance.
   > 3. Apply changes to resolve **all Critical (🔴) and Important (🟡) issues**, and **action every Nit/Optional (🟢)**
   >    finding: each Nit is either `applied` or `rejected` with a one-line reason. Silently skipping a Nit is not
-  >    allowed.
+  >    allowed. A Nit or surviving mutant on code outside the increment since `voted_head` (principle 12, rules 1-2) is
+  >    dispositioned `rejected` with reason `deferred: unchanged code -> <bean id>`, appended to `deferred_findings` in
+  >    `.subagent/<repo>_pr<N>_coordination.json` and to `residual_risks`, and listed in the loop's follow-up bean
+  >    (create it on the first deferral, next sequential id, and record it as `deferral_bean`). **Scope freeze**
+  >    (principle 12, rule 3): change only what the handed findings require. Add no unrelated tests, docs or behaviour.
+  >    When the same behaviour is described in several docs, make one authoritative section and turn the others into
+  >    references to it (rule 4) rather than editing every copy.
   > 4. Verify fast-first before committing (see `pr-review-resolver` Step 4a). Run the cheap static checks first: lint,
   >    Prettier `--check` on changed markdown, and YAML lint if workflows changed. Next, run the **affected test
   >    subset**: changed and added test files, plus every test file that imports a changed source module. Run the full
@@ -622,7 +791,11 @@ Wait for the subagent to complete and inspect its report.
 
 Increment `iteration = iteration + 1` and proceed to the next cycle in Step 2 **immediately** after the resolver pushes.
 Do not wait for CI on the new head before the next dry run (principle 3, "CI is a gate, not a waiting room"). Start or
-retarget a background CI watcher on the new head so that its result is ready when Phase B needs it.
+retarget a background CI watcher on the new head so that its result is ready when Phase B needs it:
+`uv run python .agents/scripts/wait_for.py ci <owner/repo> <N> --sha <new_head>` in the background (any watcher for the
+old head will exit 3, superseded), or follow the event log as described in
+[`.agents/watcher/README.md`](../../watcher/README.md). After a complete ensemble, update `voted_head` and append to
+`convergence.ensembles`, then apply the divergence check of principle 12, rule 5, before starting the next iteration.
 
 ---
 
@@ -635,8 +808,10 @@ Once the loop terminates, format all findings into a clean summary table for the
 
 - **PR Target**: `<pr_url_or_number>`
 - **Total Iterations Completed**: `<total_iterations>` / `<max_iterations>`
-- **Final PR Status**: `APPROVED` / `CHANGES_REQUESTED` (Cap Reached). There is no `PAUSED` status: the loop self-heals
-  drift and escalates non-convergent findings instead of stopping.
+- **Final PR Status**: `APPROVED` / `CHANGES_REQUESTED` (Cap Reached) / `DIVERGING` (convergence report delivered,
+  principle 12). There is no `PAUSED` status: the loop self-heals drift and escalates non-convergent findings instead of
+  stopping.
+- **Deferred to follow-up bean**: `<bean id and count of deferred Nits / mutants, or none>`
 - **Drift Consolidated During Loop**: `<none | list of adopted/rebased commits and patches>`
 
 #### Cycle History:

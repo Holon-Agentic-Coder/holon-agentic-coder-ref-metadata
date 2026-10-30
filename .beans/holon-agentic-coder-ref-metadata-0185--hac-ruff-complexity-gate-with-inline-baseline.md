@@ -10,7 +10,7 @@ tags:
   - complexity
   - holon-agentic-coder
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-30T01:01:41Z
+updated_at: 2026-10-30T01:41:00Z
 ---
 
 ## Problem
@@ -47,8 +47,8 @@ file, `docs/architecture.md`.
 
 No bean blockers. Must land before 0187, 0188, 0195 and 0198, which move or edit the baselined lines.
 
-- 2026-10-30: sequenced after holon-agentic-coder flow PRs #112 (edits `flow.py` and `calibration.py`, which carry
-  baselined offenders) and #113 (edits `docs/architecture.md`) merge, because their files overlap this touch set.
+- 2026-10-30: PR #113 (`docs/architecture.md`) has merged as `760ee87` (2026-10-30T01:27:16Z); sequenced after
+  holon-agentic-coder flow PR #112 (edits `flow.py` and `calibration.py`, which carry baselined offenders) merges.
 
 ## Notes
 

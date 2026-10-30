@@ -72,12 +72,31 @@ usage docs still outstanding on it, while the pipeline engine itself (Bean 0039)
   therefore prohibited.
 - Skipping a stage is not permitted. If a stage cannot run (missing image, failed agent, unreachable remote), the change
   is **blocked**: report the blocker instead of hand-applying the diff as a workaround.
+- **Automatic Model & Runner Fallback on Credit / Quota Exhaustion**: If a stage or subagent fails due to model credit
+  exhaustion, session quota limits, or rate-limit caps (e.g. `You've hit your session limit`, `insufficient_quota`,
+  `RESOURCE_EXHAUSTED`, or HTTP 429/quota errors), **do not stop or block** as long as a lower-tier model or alternate
+  configured runner still has available credit. Automatically step down the fallback ladder and **continue the flow from
+  the current stage/checkpoint** (reusing any already-pushed `I-.../_`, `P-.../_`, or `E-.../_` branch):
+  - **Claude (`claude-agent`) fallback ladder**: `claude-opus-5-5` (or `opus`) $\rightarrow$ `claude-sonnet-4-6` (or
+    `sonnet`) $\rightarrow$ `claude-haiku-4-5` (or `haiku`).
+  - **Antigravity (`antigravity-agent` in `holon` CLI) fallback ladder**: `gemini-3.8-pro-high` (or `gemini-3.8-pro`)
+    $\rightarrow$ `gemini-3.8-flash-medium` $\rightarrow$ `gemini-3.8-flash`.
+  - **Antigravity (`invoke_subagent` in AGY runtime) fallback ladder**: `Model: "inherit"` / `"pro"` $\rightarrow$
+    `"flash"` $\rightarrow$ `"flash_lite"`.
+  - **Cross-Runner Fallback**: If all model tiers on the active runner (`claude-agent` or `antigravity-agent`) share an
+    exhausted account-wide session limit, automatically switch `--agent` to the other runner (`antigravity-agent` or
+    `claude-agent`) at its highest available tier with credit and continue the remaining flow stages on the existing
+    flow branch.
 - The only permitted exception is an explicit, unambiguous user instruction to make a specific edit outside the flow,
   and that exception must be named in the commit message and in the bean summary.
 
-**Harness exception (control plane only).** The `holon-agentic-coder-ref-metadata` control plane itself (`.beans/`,
-`.agents/`, `AGENTS.md`) is the coordination harness rather than a flow-managed target repository. Those harness files
-stay directly editable.
+**Harness exception & operational branches (control plane only).** The `holon-agentic-coder-ref-metadata` control plane
+itself (`.beans/`, `.agents/`, `AGENTS.md`) is the coordination harness rather than a flow-managed target repository.
+Those harness files stay directly editable. Furthermore, **harness branches (such as `docs/harness-YYYYMMDD` or task
+tracking branches) exist for day-to-day operations and do not need to be merged into `main` frequently**. They serve as
+the continuous operational record and living logbook of work done across sessions (tracking bean states, updating triage
+matrices, refining agent guidelines, and logging task history). Agents must not feel pressured to raise PRs or request
+merges for regular harness updates; merging harness branches into `main` is an infrequent maintainer checkpoint.
 
 ---
 
@@ -155,11 +174,12 @@ When you are spawned or begin a new session, follow these steps sequentially:
    - Never push to `main` (or any branch you do not own), never force-push a shared branch, and never push from a `main`
      worktree.
    - For hand-authored or non-flow work, Pull Request _creation_ stays with the human maintainer unless the user
-     instructs otherwise. **When executing the Holon flow, Pull Request creation is fully autonomous**: once Stage 3
-     (Execute) pushes the execution branch, the agent autonomously raises the Pull Request via `gh pr create` targeting
-     the base branch so Stage 4 (PR review loop) can proceed seamlessly without manual interruption. **PR merging
-     remains exclusively the human maintainer's responsibility — agents MUST NEVER merge a PR (see "🔒 PR Merging —
-     Human-Only" below).**
+     instructs otherwise. Harness branches in this repository exist for day-to-day operations and logging work done, so
+     they do not need to be merged to `main` often. **When executing the Holon flow, Pull Request creation is fully
+     autonomous**: once Stage 3 (Execute) pushes the execution branch, the agent autonomously raises the Pull Request
+     via `gh pr create` targeting the base branch so Stage 4 (PR review loop) can proceed seamlessly without manual
+     interruption. **PR merging remains exclusively the human maintainer's responsibility — agents MUST NEVER merge a PR
+     (see "🔒 PR Merging — Human-Only" below).**
 8. **Report and Document**: Summarise changes cleanly and concisely. Point both the user and successor agents to updated
    files or artifacts.
 9. **Route Every Change Through the Flow**: Produce all `holon-agentic-coder` and `holon-coherence` changes via the
@@ -194,6 +214,18 @@ When you are spawned or begin a new session, follow these steps sequentially:
     `ACT-POST`, tool operations) and lifecycle summaries (`entry_type: "summary"`, such as `E-...`, `REV-...`) MUST be
     interleaved chronologically inside `executions.jsonl` under `LedgerLock`. Auxiliary ledgers fragment the provenance
     trail, break downstream query engines, and are strictly prohibited.
+    - **Ledger-Only Conflict Resolution (No Tests Required)**: When syncing or merging `origin/main` into a flow branch
+      results in conflicts strictly confined to ledger files (`holon-knowledge/ledger/*.jsonl`), **do NOT run the test
+      suites**. Simply interleave or append the JSONL records chronologically by their `created_at` timestamp, verify
+      that all lines parse cleanly as valid JSON, commit the resolved merge, and push.
+    - **Mandatory Target-Branch Conflict Resolution Before Review & Calibration**: Prior to posting an approved
+      consensus review to GitHub or executing Stage 5 calibration, agents and loop orchestrators **MUST** verify that
+      the PR is clean and mergeable against the target branch (`gh pr view <pr> --json mergeable,mergeStateStatus`). If
+      `mergeable == "CONFLICTING"` or `mergeStateStatus == "DIRTY"` (which frequently occurs when concurrent PRs merge
+      new entries into `holon-knowledge/ledger/`), the agent **MUST immediately fetch `origin/main`, merge `origin/main`
+      into the PR execution branch, resolve the conflicts (interleaving ledger entries chronologically), commit, and
+      push to origin**. Never post an approved review, never calibrate, and never report a PR as ready to merge while it
+      is in a conflicting state against the target branch.
 
 ---
 
@@ -226,7 +258,12 @@ Subagent delegation in this ecosystem is primarily targeted towards the **Antigr
 - **Subagent Type**: Specify `TypeName: "self"` to inherit the full suite of parent capabilities, tools (file viewing,
   editing, command execution), instructions, and credentials. Use `TypeName: "research"` for read-only exploratory
   research.
-- **Model Selection**: Set `Model: "inherit"` to inherit the parent agent's active model configuration.
+- **Model Selection & Automatic Credit Fallback**: Set `Model: "inherit"` by default to inherit the parent agent's
+  active model configuration. If credit or quota runs out on the higher-level model (`"inherit"` / `"pro"`),
+  automatically fall back to `"flash"` and then `"flash_lite"` (and similarly step down `claude-opus-5-5` $\rightarrow$
+  `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` or `gemini-3.8-pro-high` $\rightarrow$ `gemini-3.8-flash-medium`
+  $\rightarrow$ `gemini-3.8-flash` in `holon` CLI invocations) and continue the flow or review loop from the current
+  stage without discarding completed work.
 - **Reactive Wakeup (Zero Polling)**: The AGY runtime automatically wakes up the parent agent upon subagent completion
   or message delivery. Never poll or loop on subagent status.
 - **Generic Coding Agent Compatibility**: Skill workflows (such as `pr-review-loop`) define generic subagent task
