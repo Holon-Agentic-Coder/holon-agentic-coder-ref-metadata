@@ -62,3 +62,6 @@ below was learned the hard way across PRs #99–#115 and holon-coherence #28–#
   via a normal merge commit — never a rebase of the flow branch.
 - **Quota/credit exhaustion is not a stop**: follow AGENTS.md's fallback ladder (model tier down, then the other runner)
   and resume from the checkpoint/saved state.
+- **Tier your subagents**: mechanical passes (CI gating, ledger verification, report collation, finish-only salvage) run
+  at a lower model tier; keep the top tier for blind reviewers and resolvers, stepping down only when the ladder demands
+  it.
