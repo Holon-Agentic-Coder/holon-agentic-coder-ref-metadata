@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0205
 title: "holon-coherence: decompose MitmproxyAddon.request and response into named pipeline steps"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -46,5 +46,6 @@ Blocked by 0204. Parallel-safe with 0206 once their step and provider modules ar
 - Taken over from the interrupted session: intent `I-1793355582-coherence-decompose-addon-hooks/_` pushed, plan
   `P-1793363635-claude-agent-claude-opus-5-5` created and Stage 3 execution completed
   (`E-1793363925-claude-agent-claude-opus-5-5`), pushed to `origin`.
-- Pull Request [#38](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/38) opened on GitHub. In Stage 4 review
-  loop awaiting consensus approval and Stage 5 calibration.
+- Pull Request [#38](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/38) opened on GitHub. Passed 3/3
+  unanimous consensus review, Stage 5 calibration completed (`6a6ec15`). Merged into `main` by maintainer as PR
+  [#38](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/38) (`e3dcc1a`). Completed.

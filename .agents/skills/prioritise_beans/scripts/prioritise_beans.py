@@ -145,6 +145,16 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     ),
     "",
     (
+        "**Beans 0150 and 0205 merged:** HAC PR #118 (`e8e9a5d`, Bean 0150) eliminated hermeticity leaks where flow "
+        "tests mutated the real checkout index and guarded `.git` from sandbox mutations; passed 3/3 unanimous "
+        "approval and completed Stage 5 calibration (`09ba249`). Coherence PR #38 (`e3dcc1a`, Bean 0205) decomposed "
+        "`MitmproxyAddon.request` and `response` hooks into an ordered step pipeline under `proxy/steps/`; passed 3/3 "
+        "unanimous approval and completed Stage 5 calibration (`6a6ec15`). Bean 0219 (make `--agent` and `--model` "
+        "mandatory; HAC PR #119) is in Stage 4 review loop with origin/main conflicts resolved, Prettier formatting "
+        "fixed, and all CI checks green."
+    ),
+    "",
+    (
         "**Bean 0177 (architecture research) completed:** measured `flow.py` 5,157 lines (7 of the 14 flow PRs "
         "#94-#109 touched it), `cli.main` 1,097 lines (CC 114), `executor.main` 798 lines (CC 178), and 56 + 38 "
         "functions over CC 10. It spawned Beans 0185-0209: lint gates first (0185, 0186), then move-only splits that "
@@ -190,17 +200,17 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "Sequential lane, holon-agentic-coder (flow blockers first):",
     "",
     (
-        "1. **Bean 0188** merged (HAC PR #117, `76fe3ea`), splitting `cli.py` into self-registering command modules "
-        "and unblocking CLI options and flag work."
+        "1. **Bean 0188** (HAC PR #117, `76fe3ea`) and **Bean 0150** (HAC PR #118, `e8e9a5d`) merged, splitting "
+        "`cli.py` into self-registering command modules and eliminating checkout index hermeticity leaks."
     ),
     (
         "2. **Bean 0219** (make `--agent` and `--model` mandatory CLI options; HAC PR #119 open, in Stage 4 review "
-        "loop), **Bean 0150** (hermetic index tests; HAC PR #118 open, in Stage 4 review loop), and **Bean 0220** "
-        "(remove PR terminology across flow CLI and documentation)."
+        "loop with origin/main merged, Prettier formatting fixed, and all CI checks green)."
     ),
     (
-        "3. **Bean 0221** (standardise Review Loop agent output and consensus report generator with skill consensus "
-        "template) building on **Bean 0213** prompt template reflection."
+        "3. **Bean 0220** (remove PR terminology across flow CLI and documentation) and **Bean 0221** (standardise "
+        "Review Loop agent output and consensus report generator with skill consensus template) building on "
+        "**Bean 0213** prompt template reflection."
     ),
     (
         "4. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split before the "
@@ -254,10 +264,10 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     (
         "- **holon-coherence decomposition lane** (Bean 0177 order, disjoint from holon-agentic-coder): unblocked "
-        "by PR #36 (Bean 0203) and PR #37 (Bean 0204) merged into `main`. Next concurrent lanes: **Bean 0205** "
-        "(`MitmproxyAddon.request` and `response` become named pipeline steps), **Bean 0206** (one provider module "
-        "per wire format under `proxy/providers/`), **Bean 0207** (metrics aggregation out of command handlers into "
-        "`metrics/`), and **Bean 0208** (`ProxyLifecycle` class owns proxy start-up, readiness, and teardown)."
+        "by PR #36 (Bean 0203), PR #37 (Bean 0204), and PR #38 (Bean 0205, `e3dcc1a`) merged into `main`. Next "
+        "concurrent lanes: **Bean 0206** (one provider module per wire format under `proxy/providers/`), **Bean 0207** "
+        "(metrics aggregation out of command handlers into `metrics/`), and **Bean 0208** (`ProxyLifecycle` class "
+        "owns proxy start-up, readiness, and teardown)."
     ),
     (
         "- **Bean 0166** (CI pipeline duration dashboard; workflows and observability only, pairs with 0163). If it "
@@ -1456,6 +1466,29 @@ def generate_triage_document(
                 "`routing.py`, `dashboard.py`, `normalise/anthropic.py`, `translation/gemini_openai.py`, and "
                 "`addon.py`), preserving backwards-compatibility re-exports; passed 3/3 unanimous ensemble consensus "
                 "review and completed Stage 5 calibration."
+            ),
+            ("24. **HAC CLI Modular Package Decomposition (Bean 0188 / HAC PR #117, 2026-10-30)**:"),
+            (
+                "    - `0188` (HAC #117, `76fe3ea`): split monolithic `cli.py` (2,185 lines) into a modular `cli/` "
+                "package of self-registering command modules under `sandbox_executor/cli/commands/`, unblocking "
+                "concurrent CLI maintenance and option refactoring; passed 3/3 unanimous approval and completed "
+                "Stage 5 calibration (`1424a26`)."
+            ),
+            (
+                "25. **Hermetic Index Test Guard and Coherence Addon Hook Pipeline Decomposition "
+                "(Beans 0150, 0205 / HAC PR #118 & Coherence PR #38, 2026-10-30)**:"
+            ),
+            (
+                "    - `0150` (HAC #118, `e8e9a5d`): eliminated hermeticity leaks where flow tests mutated the real "
+                "checkout index (`holon-knowledge/.index/action_index.db`) and guarded `.git` from sandbox mutations; "
+                "passed 3/3 unanimous consensus review, completed Stage 5 calibration (`09ba249`), and merged "
+                "into `main`."
+            ),
+            (
+                "    - `0205` (Coherence #38, `e3dcc1a`): decomposed `MitmproxyAddon.request` (209 lines, CC 65) and "
+                "`response` (187 lines, CC 43) hooks into an ordered step pipeline under `proxy/steps/`; passed 3/3 "
+                "unanimous ensemble consensus review, completed Stage 5 calibration (`6a6ec15`), and merged "
+                "into `main`."
             ),
             "",
             "---",

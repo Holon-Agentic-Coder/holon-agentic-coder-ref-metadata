@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0150
 title: "Flow tests write the real checkout's holon-knowledge/.index/action_index.db"
-status: in-progress
+status: completed
 type: bug
 priority: low
 tags:
@@ -44,5 +44,6 @@ index and can interfere with concurrent runs in the same worktree. PR #95 alread
   `apps/holon-agentic-coder/flow-0150-hermetic-index-tests`, repaired after a mis-registered path).
 - Stage 3 completed (`E-1793363206`). Pull Request
   [#118](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/118) opened on GitHub.
-- Stage 4 review loop: Iteration 1 review suggestions applied (`af60071`), `origin/main` merged (`4e58644`). In review
-  loop awaiting consensus approval and Stage 5 calibration.
+- Stage 4 review loop: Iteration 1 review suggestions applied (`af60071`), `origin/main` merged (`4e58644`). Unanimous
+  consensus approval achieved, Stage 5 calibration report completed (`09ba249`). Merged into `main` by maintainer as PR
+  [#118](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/118) (`e8e9a5d`). Completed.
