@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0185
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-10-30T01:01:41Z
 ---
 
 ## Problem
@@ -50,6 +50,10 @@ Blocked by 0185. Unblocks 0189, 0190, 0191, 0193, 0194 and 0197, which can then 
 
 - Run through the Holon flow on holon-agentic-coder, **alone**: no other flow PR touching `flow.py` or `test_flow.py`
   may be open (sequential overlapping flows). Sequence with 0158, 0160, 0161, 0179 and 0183, whichever starts first.
+- 2026-10-30: 0158 has left that sequence. Bean 0158 is completed (holon-agentic-coder PR #111, pure-append ledger
+  writes, merged as `8c9ff4d`), so sequence with 0160, 0161, 0179 and 0183. Beans 0150 and 0169 also edit
+  `test_flow.py`: they run before 0187 starts (once #112 has merged) or after it on the split `tests/flow/` layout,
+  never while it is open (triage sequence item 2).
 - Can run in parallel with 0188 (`cli.py`), because the re-exports keep `cli`'s imports valid.
 - Reverses Bean 0152's "decompose before splitting": a move-only diff is mechanically reviewable and is what removes the
   shared file.

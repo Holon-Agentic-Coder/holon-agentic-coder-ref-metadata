@@ -9,7 +9,7 @@ tags:
   - decomposition
   - holon-agentic-coder
 created_at: 2026-10-26T07:16:04Z
-updated_at: 2026-10-29T23:34:36Z
+updated_at: 2026-10-30T01:01:41Z
 ---
 
 ## Problem
@@ -48,6 +48,8 @@ Once Bean 0159 runs decomposed sub-intents autonomously (`_run_decomposed_plan` 
 
 - Run through the Holon flow on holon-agentic-coder after Bean 0159 merges. It overlaps `flow.py`, so run it
   sequentially.
+- 2026-10-30: the 0159 prerequisite is satisfied. Bean 0159 is completed (holon-agentic-coder PR #97, merged as
+  `fbd3b35`); the `flow.py` overlap still makes it sequential (see Bean 0187).
 
 ## Maintainer decisions to implement (2026-10-29, from Bean 0180)
 
