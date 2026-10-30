@@ -304,6 +304,18 @@ execution branch (`.../_`) so the calibration report is included in the PR diff,
 Branch and worktree cleanup (removal of feature branch worktrees, pruning tracking refs) must only be performed
 **after** the human confirms the merge has completed, or when the user explicitly requests cleanup.
 
+**Post-Merge Protocol (runs on every detected merge).** When an agent detects that a PR it drove or tracked has been
+merged (the human says so, a merge watcher or `pr_merged` event fires, or `gh pr view` shows `MERGED`), it MUST, without
+waiting for a further instruction:
+
+1. **Update the beans**: set the bean(s) the PR delivered to `completed` with a summary (PR number, merge commit, review
+   id, calibration commit and EV predicted vs actual), and refresh any related beans the merge unblocks or supersedes.
+2. **Refresh the triage**: update the `prioritise-beans` generator data (statistics, milestones, overrides, the
+   Recommended Next Execution Sequence) and regenerate `.beans/bean-triage-prioritisation.md`.
+3. **Recommend the next concurrent set**: from the refreshed triage, report to the maintainer the next set of beans that
+   can run concurrently (pairwise-disjoint touch sets, at most one bean touching a shared hotspot such as `flow.py` or
+   `cli.py` per repository, honouring each bean's recorded dependencies), so the next batch can start immediately.
+
 ---
 
 ## 📦 The Beans Task System

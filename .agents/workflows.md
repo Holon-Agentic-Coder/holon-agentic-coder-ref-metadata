@@ -86,6 +86,9 @@ branch and ledger record the next one consumes (see invariant 8 in [rules.md](ru
   the calibration report is included in the PR diff and lands on `main` when merged.
 - **Document**: Add notes inside the task file explaining how the task was resolved, including the intent, plan, and
   execution branch names.
+- **Post-merge** (on detecting the human's merge): close the delivered bean(s) with a summary, refresh the triage
+  generator and regenerate the matrix, and recommend the next set of concurrently runnable beans (disjoint touch sets,
+  dependencies honoured) to the maintainer. See the Post-Merge Protocol in [AGENTS.md](../AGENTS.md).
 
 Invoke these stages individually or drive them with `holon flow <intent.json>`, which already exists on `main` with a
 reduced flag set (Bean 0040 tracks the flags and usage docs still outstanding; the Bean 0039 pipeline engine is
