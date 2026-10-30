@@ -60,7 +60,7 @@ which keeps forwarded values off the docker argv. Nothing persists a user's or a
    documented secret mappings. Reject anything else with a warning that names the key and never the value.
 3. **Secrets out of the shared file.** Store credentials only in the user-level secrets location (today
    `~/.holon/secrets/`, 0600), referenced by name, for example
-   `HOLON_AGENT_OAUTH_TOKEN_FILE=~/.holon/secrets/claude- oauth-token`. Add a first-class mapping from
+   `HOLON_AGENT_OAUTH_TOKEN_FILE=~/.holon/secrets/claude-oauth-token`. Add a first-class mapping from
    `HOLON_AGENT_OAUTH_TOKEN` to `CLAUDE_CODE_OAUTH_TOKEN` in the role dispatcher, replacing the `HOLON_AGENT_SETTINGS`
    and `HOLON_ECHO_PAD` workaround. If the project `.env` holds secrets, it must be git-ignored. Warn, or refuse, when
    it is tracked by git, and warn on group- or world-readable files at any layer.

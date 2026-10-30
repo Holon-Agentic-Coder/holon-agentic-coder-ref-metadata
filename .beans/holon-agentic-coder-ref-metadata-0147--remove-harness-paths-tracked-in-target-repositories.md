@@ -71,5 +71,12 @@ of scope unless it references harness paths.
   iteration 18 (`52a843b`), and the maintainer squash-merged the PR as `b52c7e1` (2026-10-29T23:24:46Z).
 
 - **`holon-coherence` half done (2026-10-30):** PR #29 (`68fdf67`) plus the post-merge follow-up PR #31, merged as
-  `b52c7e1` after 19 review iterations (all CI green; merged during the last ensemble, so no consensus review was
-  posted). Two documentation Nits left open are Bean 0211. The `holon-agentic-coder` half is still to do.
+  `b52c7e1` after 19 review iterations (all CI green). Two documentation Nits left open are Bean 0211. The
+  `holon-agentic-coder` half is still to do.
+  - **Correction (2026-10-30, checked against GitHub):** this bullet first said PR #31 was "merged during the last
+    ensemble, so no consensus review was posted". That is superseded. The iteration-19 consensus review `5699924689`
+    (state `COMMENTED`, submitted 2026-10-29T15:00:52Z, head `52a843b`) was posted before the merge and reports a
+    unanimous 3/3 `APPROVED` with 0 Critical, 0 Important and 0 open Nits. The iteration-19 ensemble was then resumed
+    after an API session limit; its consensus closed after the merge (2026-10-29T23:24:46Z, same head `52a843b`) with
+    the two documentation Nits C19-1 and C19-2, which were never posted. The posted approval therefore does not reflect
+    them; Bean 0211 carries them.

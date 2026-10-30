@@ -287,8 +287,8 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "S",
         "domain": "Calibration / CI",
         "notes": (
-            "Turns a calibrated holon-agentic-coder flow PR red (recurred on #105, #106, #107 and #109; #108 was "
-            "never calibrated)."
+            "Turns a calibrated holon-agentic-coder flow PR red: every calibrated flow PR from #99 to #111 needed a "
+            "follow-up Prettier commit for its report (#103 was hand-authored; #108 was never calibrated)."
         ),
     },
     "0157": {
@@ -457,8 +457,8 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "L",
         "domain": "Refactor / Architecture",
         "notes": (
-            "After 0185. 5,157 lines touched by 7 of 16 flow PRs; AST-verified move only. Runs alone; "
-            "unblocks 0190, 0191, 0193, 0194, 0197 and, with 0188, 0189."
+            "After 0185. 5,157 lines touched by 7 of 16 flow PRs; AST-verified move only. Runs alone among "
+            "`flow.py` PRs (parallel-safe with 0188); unblocks 0190, 0191, 0193, 0194, 0197 and, with 0188, 0189."
         ),
     },
     "0188": {
@@ -492,8 +492,8 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "M",
         "domain": "Refactor / Architecture",
         "notes": (
-            "After 0187 and 0188; unblocks 0200. Bean 0177 proposes 0183 after 0189 and 0190 (not applied; 0183 "
-            "stays at step 3)."
+            "After 0187 and 0188; unblocks 0200. Bean 0177 proposes 0183 after 0189 and 0190; the sequence runs "
+            "0183 after 0189 (item 4) but before 0190 (item 7)."
         ),
     },
     "0190": {

@@ -70,5 +70,5 @@ During the October flow runs this cost real time. Behaviour-changing settings we
   Also related: Beans 0172 (`unlimited` budgets), 0155 (forwarding on the docker argv) and 0157 (`HOLON_TOKEN_REDUCE`
   default).
 - Inventory command used, for reproduction: grep for
-  `(HOLON|GITHUB|GH|CLAUDE|ANTHROPIC|OPENAI|GEMINI|PI|CODEX| OPENCODE|AGY|HTTP|HTTPS|NO|GIT)_[A-Z0-9_]+` across those
+  `(HOLON|GITHUB|GH|CLAUDE|ANTHROPIC|OPENAI|GEMINI|PI|CODEX|OPENCODE|AGY|HTTP|HTTPS|NO|GIT)_[A-Z0-9_]+` across those
   paths, and compare against the `HOLON_*` names in `docs/`, `README.md` and `apps/sandbox-executor/docs`.
