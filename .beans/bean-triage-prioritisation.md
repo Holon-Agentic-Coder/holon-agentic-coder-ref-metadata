@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-10-30 12:28:24 UTC
+**Last Updated:** 2026-10-30 13:41:05 UTC
 
 ## Executive Summary
 
@@ -86,6 +86,11 @@ predicted 68.62 / actual 78.04, $\Delta\text{EV} = +9.42$). Coherence PR #37 (`9
 (Beans 0205-0208). New beans logged: **Bean 0219** (mandatory `--agent` and `--model`, no fallback defaults), **Bean
 0220** (remove PR references across flow), and **Bean 0221** (standardise Review Loop agent output with skill consensus
 template).
+
+**Bean 0188 merged:** HAC PR #117 (`76fe3ea`, Bean 0188) split `cli.py` (2,185 lines) into a modular `cli/` package of
+self-registering command modules (`_role`, `init`, `flow`, `review`, `calibrate`, etc.) under
+`sandbox_executor/cli/commands/`, unblocking concurrent CLI maintenance; passed 3/3 unanimous approval and completed
+Stage 5 calibration (`1424a26`).
 
 **Bean 0177 (architecture research) completed:** measured `flow.py` 5,157 lines (7 of the 14 flow PRs #94-#109 touched
 it), `cli.main` 1,097 lines (CC 114), `executor.main` 798 lines (CC 178), and 56 + 38 functions over CC 10. It spawned
@@ -340,7 +345,7 @@ token reduction (Bean 0200).
 | **P2**   | todo        | Medium |   S    | 0201   | Planner, executor and reviewer prompts carry the module-layout, complexity and naming rules     | Prompts / Standards        | After 0185. Plans declare touch sets at module granularity (feeds 0151).                                                                                                                                                                                                              |
 | **P2**   | todo        | Medium |   M    | 0200   | Remove holon-agentic-coder's diverged `token_reduction` copy; holon-coherence is the owner      | Token Reduction            | After 0189. Ownership already ruled: holon-coherence owns token reduction.                                                                                                                                                                                                            |
 | **P2**   | todo        | Medium |   M    | 0199   | Decompose ledger query and the knowledge index                                                  | Ledger / Knowledge         | After 0190; parallel lane. Low bean priority.                                                                                                                                                                                                                                         |
-| **P2**   | in-progress | Medium |   M    | 0205   | holon-coherence: `MitmproxyAddon.request` and `response` become named pipeline steps            | Proxy / holon-coherence    | After 0204; parallel with 0206.                                                                                                                                                                                                                                                       |
+| **P2**   | in-progress | Medium |   M    | 0205   | holon-coherence: `MitmproxyAddon.request` and `response` become named pipeline steps            | Proxy / holon-coherence    | Unblocked by 0204 merge; Stage 3 execution complete, PR in Stage 4 review loop; parallel with 0206.                                                                                                                                                                                   |
 | **P2**   | todo        | Medium |   M    | 0206   | holon-coherence: one provider module per wire format (Anthropic, OpenAI, Gemini)                | Proxy / holon-coherence    | After 0204; parallel with 0205. With or after 0200 (holon-agentic-coder's copy goes first).                                                                                                                                                                                           |
 | **P2**   | todo        | Medium |   M    | 0207   | holon-coherence: A/B evaluation and metrics aggregation move out of the command handlers        | Metrics / holon-coherence  | After 0203; parallel with 0208.                                                                                                                                                                                                                                                       |
 | **P2**   | todo        | Medium |   M    | 0208   | holon-coherence: a `ProxyLifecycle` class owns proxy start-up, readiness and teardown           | Proxy / holon-coherence    | After 0203; parallel with 0207.                                                                                                                                                                                                                                                       |
@@ -375,10 +380,11 @@ through the harness `pr-review-loop` skill, and format the calibration report be
 
 Sequential lane, holon-agentic-coder (flow blockers first):
 
-1. **Bean 0188** (split `cli.py` into self-registering command modules; HAC PR #117 in review and calibration). Once
-   #117 merges, the split unblocks CLI options and flag work.
-2. **Bean 0219** (make `--agent` and `--model` mandatory CLI options, removing fallback defaults) and **Bean 0220**
-   (remove PR terminology across flow CLI and documentation).
+1. **Bean 0188** merged (HAC PR #117, `76fe3ea`), splitting `cli.py` into self-registering command modules and
+   unblocking CLI options and flag work.
+2. **Bean 0219** (make `--agent` and `--model` mandatory CLI options; HAC PR #119 open, in Stage 4 review loop), **Bean
+   0150** (hermetic index tests; HAC PR #118 open, in Stage 4 review loop), and **Bean 0220** (remove PR terminology
+   across flow CLI and documentation).
 3. **Bean 0221** (standardise Review Loop agent output and consensus report generator with skill consensus template)
    building on **Bean 0213** prompt template reflection.
 4. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split before the next

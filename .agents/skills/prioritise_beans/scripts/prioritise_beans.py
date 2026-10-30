@@ -127,14 +127,21 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     ),
     "",
     (
-        "**Beans 0179 and 0204 merged:** HAC PR #116 (`b746408`, Bean 0179) routed Stage 4 reviewer turns through "
-        "the `review-loop` role container via `_dispatch_role()`, eliminating host-side agent execution while preserving "
-        "append-only ledger provenance; passed 3/3 unanimous ensemble consensus review and completed Stage 5 calibration "
-        "(`4f119cd`, EV predicted 68.62 / actual 78.04, $\\Delta\\text{EV} = +9.42$). Coherence PR #37 (`9b001c3`, "
-        "Bean 0204) split `mitm_addon.py` (2,348 lines) into a modular `proxy/` package by concern, unblocking the "
-        "concurrent decomposition lanes (Beans 0205-0208). New beans logged: **Bean 0219** (mandatory `--agent` and "
-        "`--model`, no fallback defaults), **Bean 0220** (remove PR references across flow), and **Bean 0221** "
-        "(standardise Review Loop agent output with skill consensus template)."
+        "**Beans 0179 and 0204 merged:** HAC PR #116 (`b746408`, Bean 0179) routed Stage 4 reviewer turns through the "
+        "`review-loop` role container via `_dispatch_role()`, eliminating host-side agent execution while "
+        "preserving append-only ledger provenance; passed 3/3 unanimous ensemble consensus review and completed "
+        "Stage 5 calibration (`4f119cd`, EV predicted 68.62 / actual 78.04, $\\Delta\\text{EV} = +9.42$). Coherence "
+        "PR #37 (`9b001c3`, Bean 0204) split `mitm_addon.py` (2,348 lines) into a modular `proxy/` package by concern, "
+        "unblocking the concurrent decomposition lanes (Beans 0205-0208). New beans logged: **Bean 0219** (mandatory "
+        "`--agent` and `--model`, no fallback defaults), **Bean 0220** (remove PR references across flow), and "
+        "**Bean 0221** (standardise Review Loop agent output with skill consensus template)."
+    ),
+    "",
+    (
+        "**Bean 0188 merged:** HAC PR #117 (`76fe3ea`, Bean 0188) split `cli.py` (2,185 lines) into a modular `cli/` "
+        "package of self-registering command modules (`_role`, `init`, `flow`, `review`, `calibrate`, etc.) under "
+        "`sandbox_executor/cli/commands/`, unblocking concurrent CLI maintenance; passed 3/3 unanimous approval and "
+        "completed Stage 5 calibration (`1424a26`)."
     ),
     "",
     (
@@ -183,12 +190,13 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "Sequential lane, holon-agentic-coder (flow blockers first):",
     "",
     (
-        "1. **Bean 0188** (split `cli.py` into self-registering command modules; HAC PR #117 in review and "
-        "calibration). Once #117 merges, the split unblocks CLI options and flag work."
+        "1. **Bean 0188** merged (HAC PR #117, `76fe3ea`), splitting `cli.py` into self-registering command modules "
+        "and unblocking CLI options and flag work."
     ),
     (
-        "2. **Bean 0219** (make `--agent` and `--model` mandatory CLI options, removing fallback defaults) and "
-        "**Bean 0220** (remove PR terminology across flow CLI and documentation)."
+        "2. **Bean 0219** (make `--agent` and `--model` mandatory CLI options; HAC PR #119 open, in Stage 4 review "
+        "loop), **Bean 0150** (hermetic index tests; HAC PR #118 open, in Stage 4 review loop), and **Bean 0220** "
+        "(remove PR terminology across flow CLI and documentation)."
     ),
     (
         "3. **Bean 0221** (standardise Review Loop agent output and consensus report generator with skill consensus "
@@ -728,7 +736,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "Medium",
         "sizing": "M",
         "domain": "Proxy / holon-coherence",
-        "notes": "After 0204; parallel with 0206.",
+        "notes": "Unblocked by 0204 merge; Stage 3 execution complete, PR in Stage 4 review loop; parallel with 0206.",
     },
     "0206": {
         "title": "holon-coherence: one provider module per wire format (Anthropic, OpenAI, Gemini)",

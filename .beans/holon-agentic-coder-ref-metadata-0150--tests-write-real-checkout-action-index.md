@@ -42,3 +42,7 @@ index and can interfere with concurrent runs in the same worktree. PR #95 alread
   quota-exhaustion signature. Resumed per the fallback ladder from the checkpoint with
   `holon flow --checkpoint … --from-stage execute` at `claude-sonnet-4-6` (worktree
   `apps/holon-agentic-coder/flow-0150-hermetic-index-tests`, repaired after a mis-registered path).
+- Stage 3 completed (`E-1793363206`). Pull Request
+  [#118](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/118) opened on GitHub.
+- Stage 4 review loop: Iteration 1 review suggestions applied (`af60071`), `origin/main` merged (`4e58644`). In review
+  loop awaiting consensus approval and Stage 5 calibration.

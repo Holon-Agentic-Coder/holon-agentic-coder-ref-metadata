@@ -82,5 +82,8 @@ These fallback defaults are unsafe and must be removed:
 
 - Taken over from the interrupted session: intent `I-1793355604` and plan `P-1793355620` pushed; the execution branch
   `E-1793355656` holds only ledger and plan rows (Stage 3 produced no code). Resumed with
-  `holon flow --checkpoint … --from-stage execute` (antigravity-agent / gemini-3.8-flash-medium, worktree
+  `holon flow --checkpoint … --from-stage execute` at `claude-sonnet-4-6` (worktree
   `apps/holon-agentic-coder/flow-0219-remove-fallback-defaults`).
+- Stage 3 completed (`E-1793363504`), all 2,876 tests passing. Pull Request
+  [#119](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/119) opened on GitHub.
+- In Stage 4 review loop awaiting consensus approval and Stage 5 calibration.
