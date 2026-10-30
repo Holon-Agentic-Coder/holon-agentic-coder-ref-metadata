@@ -115,6 +115,13 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     ),
     "",
     (
+        "**Bean 0185** then completed the lint-gate pair: HAC PR #115 merged as `0e71262` (frozen 91-entry inline "
+        "noqa identity baseline, `PGH004` guard against bare `# noqa`, swap-rejection test; 2 review iterations, EV "
+        "72.07 predicted / 77.27 actual, and the first calibration report to pass Prettier with no follow-up commit). "
+        "**Bean 0203** (Coherence PR #36, commands register their own parsers) is in its Stage 4 review loop."
+    ),
+    "",
+    (
         "**Bean 0177 (architecture research) completed:** measured `flow.py` 5,157 lines (7 of the 14 flow PRs "
         "#94-#109 touched it), `cli.main` 1,097 lines (CC 114), `executor.main` 798 lines (CC 178), and 56 + 38 "
         "functions over CC 10. It spawned Beans 0185-0209: lint gates first (0185, 0186), then move-only splits that "
@@ -160,16 +167,15 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "Sequential lane, holon-agentic-coder (flow blockers first):",
     "",
     (
-        "1. **Bean 0185** (holon-agentic-coder ruff complexity gate: lint configuration plus one-line `noqa` edits "
-        "on the offender `def` lines across `src`, and a thresholds section in `docs/architecture.md`) is now fully "
-        "unblocked by PR #112 merging into `main`. It lands before 0187 and 0188. Beside it, before 0187 starts, "
-        "**Bean 0150** (flow tests write `.index/action_index.db`) and **Bean 0169** (PR #97 residual Nits, plus "
-        "`git_flow.md`) run one after the other: both edit `test_flow.py`, which 0187 splits. Whichever misses that "
-        "window runs after 0187 on the split `tests/flow/` layout."
+        "1. **Bean 0150** (flow tests write `.index/action_index.db`) and **Bean 0169** (PR #97 residual Nits, plus "
+        "`git_flow.md`), one after the other: both edit `test_flow.py`, which 0187 splits. Whichever misses that "
+        "window runs after 0187 on the split `tests/flow/` layout. Bean 0185 is done (PR #115, `0e71262`), so both "
+        "lint gates now guard new code."
     ),
     (
-        "2. **Bean 0203** (holon-coherence: commands register their own parsers) and **Bean 0204** (holon-coherence: "
-        "split `mitm_addon.py` into a `proxy/` package) are now unblocked by Bean 0186 (PR #35 merged)."
+        "2. **Bean 0203** (holon-coherence: commands register their own parsers; PR #36 in its Stage 4 review loop), "
+        "then **Bean 0204** (holon-coherence: split `mitm_addon.py` into a `proxy/` package) once #36 merges — both "
+        "touch the command/CLI seam, so they run one after the other."
     ),
     (
         "3. **Bean 0213** (reflect review-loop skill rules into native Review Loop Holon Agent) to bring containerised "
@@ -478,17 +484,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "notes": (
             "Umbrella for the Bean 0177 action beans 0185-0200 and 0203-0208 (proposed); its audit stays the "
             "baseline. Measured: `flow.py` 5,157 lines, `cli.main` 1,097 lines."
-        ),
-    },
-    "0185": {
-        "title": "holon-agentic-coder: ruff complexity gate (C901, PLR0911-PLR0915) with an inline `noqa` baseline",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "S",
-        "domain": "Lint / Code Quality",
-        "notes": (
-            "Gate first (0177 order step 1), after flow PR #112 merges (overlapping files; PR #113 merged `760ee87`): "
-            "ratchet-down baseline of 56 C901 offenders. Unblocks 0187, 0188, 0195, 0198, 0201."
         ),
     },
     "0186": {
