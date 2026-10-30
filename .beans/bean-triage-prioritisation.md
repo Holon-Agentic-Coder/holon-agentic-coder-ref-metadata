@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-10-30 09:04:18 UTC
+**Last Updated:** 2026-10-30 09:06:52 UTC
 
 ## Executive Summary
 
@@ -14,10 +14,10 @@ Concurrent flows on overlapping files (#94, #95 and #96 all changed `flow.py` an
 re-reviews: 141 review-loop passes from the first sync onward, about 10M+ tokens. Beans 0151 and 0152 address that, and
 overlapping flows now run one after another.
 
-- **Total Tracked Beans**: 219 (excluding template)
-- **Completed**: 165 (75.3%)
+- **Total Tracked Beans**: 220 (excluding template)
+- **Completed**: 165 (75.0%)
 - **Scrapped / Superseded**: 2 (0.9%)
-- **Active**: 52 (23.7%), of which 6 are in progress and 46 are todo
+- **Active**: 53 (24.1%), of which 6 are in progress and 47 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -311,6 +311,7 @@ token reduction (Bean 0200).
 | **P1**   | todo        |  High  |   M    | 0195   | Executor entrypoint's raw `git` subprocess calls go through a `GitRepository` adapter           | Executor / Git             | After 0185. 81 raw `git` calls. With 0190, unblocks 0196.                                                                                                                                                                   |
 | **P1**   | todo        |  High  |   L    | 0192   | `run_review_loop` and `run_review_stage` become a `ReviewLoop` object with named steps          | Review Loop / Refactor     | After 0191. 528 lines, CC 131. Sequence with 0160 and 0179 (same touch set).                                                                                                                                                |
 | **P1**   | todo        |  High  |   L    | 0196   | Executor entrypoint `main` becomes an `ExecutionRun` with named steps; module becomes a package | Executor / Refactor        | After 0195 and 0190. 798 lines, CC 178 (worst in the repository).                                                                                                                                                           |
+| **P2**   | todo        | Medium |   S    | 0220   | Remove GitHub-specific PR wording; standardize on Review Loop and Change Diff                   | Flow / Terminology         | Replace 'PR review loop' with 'review loop' in CLI help (--skip-review), flow logs, and prompt scaffolding. Decouple core engine from platform-specific PR terms.                                                           |
 | **P2**   | todo        | Medium |   M    | 0181   | Use the `/_` leaf only when referencing a git branch, never on ids                              | Holon Flow / Ledger        | `intents.jsonl` `branch` and `parent_intent_id` hold refs; migrate with readers accepting both shapes. After 0161 and 0179 (both overlap `flow.py`).                                                                        |
 | **P2**   | todo        | Medium |   S    | 0169   | PR #97 residual Nits: split the pasted checkpoint test; complete git_flow §1.5 list             | Tests / Docs               | Small; touches `test_flow.py` and `git_flow.md`. Not beside #112, 0187 or 0150 (all edit `test_flow.py`); see sequence item 2.                                                                                              |
 | **P2**   | todo        | Medium |   XL   | 0153   | Remove comments and docstrings from all code; make it self-documenting                          | Readability                | Per package, with or right after that package's decomposition (which follows its split: 0187, 0188, 0204), not as one repository-wide flow.                                                                                 |

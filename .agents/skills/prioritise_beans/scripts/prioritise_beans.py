@@ -610,6 +610,17 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "domain": "Executor / Refactor",
         "notes": "After 0195 and 0190. 798 lines, CC 178 (worst in the repository).",
     },
+    "0220": {
+        "title": "Remove GitHub-specific PR wording; standardize on Review Loop and Change Diff",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "S",
+        "domain": "Flow / Terminology",
+        "notes": (
+            "Replace 'PR review loop' with 'review loop' in CLI help (--skip-review), flow logs, and prompt "
+            "scaffolding. Decouple core engine from platform-specific PR terms."
+        ),
+    },
     "0181": {
         "title": "Use the `/_` leaf only when referencing a git branch, never on ids",
         "priority": "**P2**",
