@@ -403,7 +403,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         ),
     },
     "0219": {
-        "title": "Make --agent and --model mandatory in holon flow; eliminate silent fallbacks",
+        "title": "Remove fallback defaults for agent runner and model resolution",
         "priority": "**P1**",
         "impact": "High",
         "sizing": "S",
