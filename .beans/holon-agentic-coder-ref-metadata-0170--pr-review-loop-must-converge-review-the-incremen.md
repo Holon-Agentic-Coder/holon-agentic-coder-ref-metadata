@@ -64,6 +64,9 @@ directly) so the loop converges:
 
 ## Notes
 
+- 2026-10-30: implemented on harness branch `feat/0182-0170-event-watcher-and-loop-convergence` (`f14c2f0`, no PR yet),
+  which also adds this bean's summary of changes and closes it on that branch. Here it stays `todo` until that branch
+  lands; the status change is the maintainer's step.
 - Related: Bean 0160 (CI polling wasted iterations) and Bean 0144 (a sandboxed review loop with real reviewers should
   adopt the same convergence rules).
 - Harness change only. Note that the harness is being deprecated (Bean 0156): carry the rules into whatever review loop

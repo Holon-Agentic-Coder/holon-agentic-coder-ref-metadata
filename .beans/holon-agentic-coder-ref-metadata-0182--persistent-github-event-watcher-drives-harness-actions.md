@@ -72,6 +72,10 @@ A continuously running watcher sends events to the harness whenever something ch
 ## Notes
 
 - Supersedes the two smaller ideas discussed on 2026-10-29: a harness `wait_for` script and a CI-watcher role image.
+- 2026-10-30: implemented on harness branch `feat/0182-0170-event-watcher-and-loop-convergence` (`f14c2f0`, no PR yet),
+  which also adds this bean's summary of changes, answers the open questions below (token from `gh auth token` passed
+  only as `GH_TOKEN`, `.subagent/events.jsonl` with size rotation, a seq-based consumer cursor) and closes it on that
+  branch. Here it stays `todo` until that branch lands; the status change is the maintainer's step.
 - Related: Bean 0170 (review-loop convergence), Bean 0179 (Stage 4 reviewers in the role container), the
   `clean_workspace` and `install_holon` skills.
 - Open questions: where the watcher's token comes from and its scopes; event log location and rotation; whether the

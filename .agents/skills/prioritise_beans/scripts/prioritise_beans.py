@@ -46,6 +46,8 @@ EXECUTIVE_SUMMARY_NARRATIVE: list[str] = [
 
 # Closing paragraph(s) of the Executive Summary (after the statistics bullets).
 EXECUTIVE_SUMMARY_UPDATE: list[str] = [
+    "Dates below are UTC, as in `gh`, the bean timestamps and the milestones.",
+    "",
     (
         "**2026-10-26:** the first full claude-agent `holon flow` runs (Beans 0151, 0159) exposed seven defects in "
         "the flow itself. They are logged as Beans 0157-0162, and Bean 0144 was raised to critical after its "
@@ -57,19 +59,19 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "**2026-10-28:** Bean 0168 (PR #99) cut CI test time through the full flow: pytest-xdist, "
         "hermetic test git and per-worker template repositories. Real CI pytest time fell 2.5x on macOS "
         "(382 s to 153 s), 2.0x on ubuntu (242 s to 123 s) and 1.6x for Workspace survival (417 s to 258 s). "
-        "It converged in 8 review iterations and was merged (`0e54457`). New: Bean 0175 "
-        "(token-scope pre-flight), Bean 0176 (pytest only), Bean 0177 (architecture and code-principles "
-        "research that spawns action beans) and Bean 0178 (repeated test runs only for performance work)."
+        "It converged in 8 review iterations and was merged (`0e54457`). Bean 0144 was then delivered as three "
+        "sequential flows (PRs #100, #101 and #102, all merged): Stage 4 now fails closed and is decided only by a "
+        "real reviewer ensemble. New: Bean 0175 (token-scope pre-flight, logged on 2026-10-27), Bean 0176 (pytest "
+        "only), Bean 0177 (architecture and code-principles research that spawns action beans), Bean 0178 "
+        "(repeated test runs only for performance work) and Bean 0179 (routes the Stage 4 reviewer turns through "
+        "the role container)."
     ),
     "",
     (
-        "**2026-10-29:** Bean 0144 was delivered as three sequential flows (PRs #100, #101 and #102, all merged): "
-        "Stage 4 now fails closed and is decided only by a real reviewer ensemble. Bean 0179 routes those reviewer "
-        "turns through the role container. PR #103 (Bean 0180, documentation only) nests sub-intent branches under "
-        "the node that decided the split; it was merged (`e187393`) after 11 review iterations. The maintainer "
-        "settled its five open questions (merge into the deciding plan or execution branch, nested PRs automatic), "
-        "which a follow-up docs PR and Bean 0161 implement. New: Bean 0179 and Bean 0181 (`/_` only on branch "
-        "refs)."
+        "**2026-10-29:** PR #103 (Bean 0180, documentation only) nests sub-intent branches under the node that "
+        "decided the split; it was merged (`e187393`) after 11 review iterations. The maintainer settled its five "
+        "open questions (merge into the deciding plan or execution branch, nested PRs automatic), which a follow-up "
+        "docs PR and Bean 0161 implement. New: Bean 0181 (`/_` only on branch refs)."
     ),
     "",
     (
@@ -95,8 +97,9 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     (
         "Also through the flow on 2026-10-29, both reviewed and calibrated: PR #110 (Bean 0180 follow-up docs for "
         "the five sub-intent rulings, merged as `85ef122`) and PR #111 (Bean 0158 pure-append ledger writes, merged "
-        "as `8c9ff4d`). Both beans are now closed. New on 2026-10-30: **Bean 0210** (five documents PR #110 left on "
-        "the old sub-intent rules) and **Bean 0211** (two holon-coherence A/B recipe doc fixes PR #31 left open)."
+        "as `8c9ff4d`). Both beans are now closed. New on 2026-10-29: **Bean 0211** (two holon-coherence A/B recipe "
+        "doc fixes PR #31 left open). New on 2026-10-30: **Bean 0210** (five documents PR #110 left on the old "
+        "sub-intent rules)."
     ),
     "",
     (
@@ -161,37 +164,50 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "after 0187 on the split `tests/flow/` layout."
     ),
     (
-        "3. **Bean 0187** (split `flow.py` into a `flow/` package, move only), then **Bean 0188** (split `cli.py` "
-        "into self-registering command modules). Bean 0177 measured `flow.py` in 7 of the 14 flow PRs #94-#109; "
+        "3. **Bean 0187** (split `flow.py` into a `flow/` package, move only) and, in parallel, **Bean 0188** "
+        "(split `cli.py` into self-registering command modules). Their files are disjoint: 0188 touches `cli.py`, "
+        "`test_cli.py` and the entry point, none of the `flow.py` and `test_flow.py` files 0187 holds alone. Bean 0177 "
+        "measured `flow.py` in 7 of the 14 flow PRs #94-#109; "
         "landing the move-only splits before the next `flow.py` features stops those features colliding."
     ),
-    "4. **Bean 0189**: launcher module for container launch; breaks the `flow`-`cli` import cycle.",
+    (
+        "4. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean "
+        "0190** (checkpoint and ledger reconciliation; entrypoints stop importing flow). Both beans ask to precede "
+        "0183 (item 5), as in Bean 0177's migration step 3."
+    ),
     (
         "5. **Bean 0179** (Stage 4 reviewers in the role container), then **Bean 0183** (every stage and engine "
         "bookkeeping step sandboxed), on the new layout. Three PRs merged before their review or calibration; 0179 "
         "lets `holon flow` review and post on its own."
     ),
-    "6. **Bean 0175**: check GitHub token scopes before Stage 3 starts when the plan touches workflow files.",
+    (
+        "6. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), "
+        "then **Bean 0146** (plans-ledger correction rows; calibration picks the right predicted metrics). Bean 0197 "
+        "(item 8) follows 0146 because both edit the predicted-metrics parser."
+    ),
     (
         "7. **Bean 0149**, then **Bean 0151**: unique IDs across concurrently planned intents (parallel batches "
         "still rely on staggered starts), then touch-set admission."
     ),
     (
         "8. **Decomposition lanes from Bean 0177** once the splits land, in parallel where their packages differ: "
-        "0190 (checkpoint and ledger), 0191 then 0192 (GitHub adapter, `ReviewLoop`), 0193, 0194, 0195 then 0196, "
-        "0197, 0198 and 0199 (all tracked by umbrella Bean 0152), and 0201 (outside the umbrella). Bean 0153 runs "
-        "per package after each split."
+        "0191 then 0192 (GitHub adapter, `ReviewLoop`), 0193, 0194, 0195 then 0196, 0197 (after 0146 and 0162, as "
+        "Bean 0197 asks), 0198 and 0199 (all tracked by umbrella Bean 0152, with 0190 from item 4), and 0201 "
+        "(outside the umbrella). Bean 0153 runs per package with, or right after, that package's decomposition."
     ),
-    "9. **Bean 0181**: `/_` only on branch refs, ids bare (ledger field migration; readers accept both shapes).",
-    "10. **Bean 0160**, then **Bean 0157**: the remaining flow-integrity blockers.",
+    "9. **Bean 0160**, then **Bean 0157**: the remaining flow-integrity blockers.",
     (
-        "11. **Bean 0161**: nested sub-intent branches per the maintainer's rulings (now documented by PRs #103 and "
+        "10. **Bean 0161**: nested sub-intent branches per the maintainer's rulings (now documented by PRs #103 and "
         "#110), chaining and resume safety."
     ),
     (
+        "11. **Bean 0181**: `/_` only on branch refs, ids bare (ledger field migration; readers accept both shapes). "
+        "After 0161 and 0179, which overlap `flow.py`, as Bean 0181 asks."
+    ),
+    (
         "12. **The `holon-agentic-coder` half of Bean 0147**, **Bean 0155** then **Bean 0148** (redaction), **Beans "
-        "0172, 0173, 0174** (budgets and `.env`), **Bean 0146**, **Bean 0200** (holon-coherence owns token "
-        "reduction; after 0189)."
+        "0172, 0174, 0173** (budgets, the environment-variable reference, then the layered `.env` that needs the "
+        "reference's allow-list and secret flags), **Bean 0200** (holon-coherence owns token reduction; after 0189)."
     ),
     "13. **Bean 0176**: pytest-only conversion of every test file (touches most test files, so it runs alone).",
     "",
@@ -213,7 +229,8 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     (
         "- **holon-coherence decomposition lane** (Bean 0177 order, disjoint from holon-agentic-coder): after lint "
-        "gate 0186 (scheduled in item 1), 0203 and 0204 in parallel, then 0205-0208. Bean 0209 (CI composite "
+        "gate 0186 (scheduled in item 1), 0203 and 0204 in parallel, then 0205-0208. 0206 starts with or after Bean "
+        "0200 (item 12), as Bean 0206 asks, so the duplicate is not refactored twice. Bean 0209 (CI composite "
         "action) is workflow-only."
     ),
     (
@@ -355,7 +372,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "Medium",
         "sizing": "M",
         "domain": "Calibration / Ledger",
-        "notes": "Every calibration last cycle needed a manual annotation (7 PRs).",
+        "notes": "Every calibration last cycle needed a manual annotation (7 PRs). Runs before 0197 (same parser).",
     },
     "0156": {
         "title": "Investigate moving issue tracking from harness beans to beads inside each target",
@@ -381,7 +398,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "High",
         "sizing": "M",
         "domain": "Holon Flow / Config",
-        "notes": "Project `.env` overrides the broader `.env`. Touches `cli.py`; sequence after 0155/0148.",
+        "notes": "Project `.env` overrides the broader `.env`. Touches `cli.py`; sequence after 0155/0148 and 0174.",
     },
     "0174": {
         "title": "Document every environment variable holon reads, in one generated and CI-checked reference",
@@ -389,7 +406,9 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "Medium",
         "sizing": "M",
         "domain": "Documentation / Config",
-        "notes": "After 0172 and 0173, so the reference includes their variables.",
+        "notes": (
+            "After 0172; precursor to 0173, whose layered `.env` needs this reference's allow-list and secret flags."
+        ),
     },
     "0176": {
         "title": "Remove every unittest reference from holon-agentic-coder; the suite is pytest only",
@@ -506,8 +525,8 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "M",
         "domain": "Refactor / Architecture",
         "notes": (
-            "After 0187 and 0188; unblocks 0200. Bean 0177 proposes 0183 after 0189 and 0190; the sequence runs "
-            "0183 after 0189 (item 5) but before 0190 (item 8)."
+            "After 0187 and 0188; unblocks 0200. With 0190 (both item 4), precedes 0183 (item 5), as Bean 0177 "
+            "proposes."
         ),
     },
     "0190": {
@@ -516,7 +535,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "High",
         "sizing": "M",
         "domain": "Ledger / Holon Flow",
-        "notes": "After 0187; 0158 (PR #111, same code) has merged. Unblocks 0196, 0199.",
+        "notes": "After 0187; 0158 (PR #111, same code) has merged. Precedes 0183. Unblocks 0196, 0199.",
     },
     "0191": {
         "title": "One GitHub adapter owns every `gh` call (PR, CI probe, mergeability, review posting)",
@@ -557,7 +576,8 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "M",
         "domain": "Holon Flow / Ledger",
         "notes": (
-            "`intents.jsonl` `branch` and `parent_intent_id` hold refs; migrate with readers accepting both shapes."
+            "`intents.jsonl` `branch` and `parent_intent_id` hold refs; migrate with readers accepting both shapes. "
+            "After 0161 and 0179 (both overlap `flow.py`)."
         ),
     },
     "0169": {
@@ -577,7 +597,10 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "Medium",
         "sizing": "XL",
         "domain": "Readability",
-        "notes": "Per package, after each split lands (0187, 0188, 0204), not as one repository-wide flow.",
+        "notes": (
+            "Per package, with or right after that package's decomposition (which follows its split: 0187, 0188, "
+            "0204), not as one repository-wide flow."
+        ),
     },
     "0147": {
         "title": "Remove harness paths tracked in the target repositories",
@@ -642,7 +665,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "Medium",
         "sizing": "M",
         "domain": "Calibration / Refactor",
-        "notes": "After 0187; parallel lane. Check overlap with 0146 and 0162.",
+        "notes": "After 0187, 0146 and 0162 (same predicted-metrics parser); parallel lane otherwise.",
     },
     "0198": {
         "title": "Agent runner registry: one `RunnerSpec` module per agent",
@@ -690,7 +713,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "Medium",
         "sizing": "M",
         "domain": "Proxy / holon-coherence",
-        "notes": "After 0204; parallel with 0205.",
+        "notes": "After 0204; parallel with 0205. With or after 0200 (holon-agentic-coder's copy goes first).",
     },
     "0207": {
         "title": "holon-coherence: A/B evaluation and metrics aggregation move out of the command handlers",
