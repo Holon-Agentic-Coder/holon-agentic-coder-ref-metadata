@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0204
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-30T21:17:00Z
+updated_at: 2026-10-30T12:40:00Z
 ---
 
 ## Problem
@@ -40,3 +40,9 @@ Blocked by 0204. Parallel-safe with 0206 once their step and provider modules ar
 ## Notes
 
 - Run through the Holon flow on holon-coherence.
+
+## Progress (2026-10-30)
+
+- Taken over from the interrupted session: intent `I-1793355582-coherence-decompose-addon-hooks/_` pushed, checkpoint
+  shows only Stage 1 complete. Resumed with `holon flow --checkpoint … --from-stage plan` (antigravity-agent /
+  gemini-3.8-flash-medium, worktree `apps/holon-coherence/flow-0205-decompose-addon-hooks`).

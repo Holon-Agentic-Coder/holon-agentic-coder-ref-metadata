@@ -9,7 +9,7 @@ tags:
   - hermeticity
   - holon-agentic-coder
 created_at: 2026-10-24T09:00:00Z
-updated_at: 2026-10-30T08:26:00Z
+updated_at: 2026-10-30T12:40:00Z
 ---
 
 ## Problem
@@ -35,3 +35,10 @@ index and can interfere with concurrent runs in the same worktree. PR #95 alread
 - 2026-10-30: both tests are in `apps/sandbox-executor/tests/test_flow.py`, which open flow PR #112 edits, Bean 0187
   splits and Bean 0169 edits. Run it only when none of those is in flight: after #112 merges and before 0187 starts, or
   after 0187 on the split `tests/flow/` layout.
+
+## Progress (2026-10-30)
+
+- First flow run (intent `I-1793339935`, plan pushed) failed Stage 3 with the empty-diff guard after 1.8 min — the
+  quota-exhaustion signature. Resumed per the fallback ladder from the checkpoint with
+  `holon flow --checkpoint … --from-stage execute` at `claude-sonnet-4-6` (worktree
+  `apps/holon-agentic-coder/flow-0150-hermetic-index-tests`, repaired after a mis-registered path).

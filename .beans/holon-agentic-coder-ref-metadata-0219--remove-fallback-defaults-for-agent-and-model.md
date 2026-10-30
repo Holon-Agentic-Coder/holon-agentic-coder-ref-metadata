@@ -11,7 +11,7 @@ tags:
   - safety
   - holon-agentic-coder
 created_at: 2026-10-30T08:59:32Z
-updated_at: 2026-10-30T21:17:00Z
+updated_at: 2026-10-30T12:40:00Z
 ---
 
 ## Problem
@@ -77,3 +77,10 @@ These fallback defaults are unsafe and must be removed:
    model when options are omitted.
 4. No implicit fallback to `antigravity-agent` or `gemini-3.8-flash-medium` occurs anywhere in the codebase.
 5. All test suites pass cleanly under `uv run pytest`.
+
+## Progress (2026-10-30)
+
+- Taken over from the interrupted session: intent `I-1793355604` and plan `P-1793355620` pushed; the execution branch
+  `E-1793355656` holds only ledger and plan rows (Stage 3 produced no code). Resumed with
+  `holon flow --checkpoint … --from-stage execute` (antigravity-agent / gemini-3.8-flash-medium, worktree
+  `apps/holon-agentic-coder/flow-0219-remove-fallback-defaults`).
