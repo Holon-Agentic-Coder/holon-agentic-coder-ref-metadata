@@ -11,7 +11,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0184
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-10-30T00:48:53Z
 ---
 
 ## Problem
@@ -32,6 +32,9 @@ plus the README, so any two CI changes conflict.
 ## Dependencies
 
 Blocked by 0184 (residual gate findings edit the same steps). Same shape as 0202 on holon-agentic-coder.
+
+- 2026-10-30: satisfied. Bean 0184 is completed (holon-coherence PR #32, merged as `cefebe3`), so the gate steps are
+  stable.
 
 ## Notes
 

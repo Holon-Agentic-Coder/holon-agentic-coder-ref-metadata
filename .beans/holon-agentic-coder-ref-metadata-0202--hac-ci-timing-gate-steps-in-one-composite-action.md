@@ -9,7 +9,7 @@ tags:
   - duplication
   - holon-agentic-coder
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-10-30T00:48:53Z
 ---
 
 ## Problem
@@ -34,6 +34,10 @@ already exists (`.github/actions/docker-pull`) but no workflow `uses: ./...` it.
 
 After Bean 0184's holon-agentic-coder check (0184 notes the #109 gate may share the issues-permission defect). Needs a
 token with the `workflow` scope (Bean 0175).
+
+- 2026-10-30: the Bean 0184 check is satisfied. Bean 0184 is completed (holon-coherence PR #32, merged as `cefebe3`) and
+  found the #109 gate unaffected: it reads the override label from the event payload, not the Issues API. The `workflow`
+  token scope (Bean 0175) still applies.
 
 ## Notes
 

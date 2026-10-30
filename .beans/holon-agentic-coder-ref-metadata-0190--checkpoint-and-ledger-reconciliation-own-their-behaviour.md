@@ -13,7 +13,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0187
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-10-30T00:48:53Z
 ---
 
 ## Problem
@@ -46,6 +46,9 @@ ledger reconciliation is seven free functions (`extract_valid_ledger_rows`, `rec
 
 Blocked by 0187. Land **0158** (reconciliation reorders `intents.jsonl` rows) first or carry its fix unchanged. Should
 precede 0183 (checkpoint storage) and 0196, 0199.
+
+- 2026-10-30: the 0158 prerequisite is satisfied. Bean 0158 is completed (holon-agentic-coder PR #111, pure-append
+  ledger writes, merged as `8c9ff4d`); carry that behaviour unchanged. Still blocked by 0187.
 
 ## Notes
 
