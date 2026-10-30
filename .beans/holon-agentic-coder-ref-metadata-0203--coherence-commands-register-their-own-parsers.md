@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0203
 title: "holon-coherence: each command module registers its own parser; drop the sys.modules dispatch locator"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:

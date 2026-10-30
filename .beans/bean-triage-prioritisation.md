@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-10-30 04:17:46 UTC
+**Last Updated:** 2026-10-30 04:33:38 UTC
 
 ## Executive Summary
 
@@ -17,7 +17,7 @@ overlapping flows now run one after another.
 - **Total Tracked Beans**: 213 (excluding template)
 - **Completed**: 163 (76.5%)
 - **Scrapped / Superseded**: 2 (0.9%)
-- **Active**: 48 (22.5%), of which 1 are in progress and 47 are todo
+- **Active**: 48 (22.5%), of which 3 are in progress and 45 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -278,10 +278,10 @@ token reduction (Bean 0200).
 | **P1**   | todo        |  High  |   M    | 0213   | Reflect review-loop skill rules into native Review Loop Holon Agent                              | Review Loop / Prompts     | Target: `holon-agentic-coder`. Reflects mandatory target-branch conflict checks, ledger-only fast resolution, incremental reviews, and model fallback into `review_loop.template.md` and `sandbox_executor`.                |
 | **P1**   | todo        |  High  |   M    | 0166   | Pipeline duration dashboard for CI builds                                                        | CI / Observability        | Check org Actions performance metrics first. Shares data and baseline with 0163 (#109, #30).                                                                                                                                |
 | **P1**   | todo        |  High  |   XL   | 0152   | Audit long files; decompose oversized functions (flow.py, cli.py first)                          | Refactor / Concurrency    | Umbrella for the Bean 0177 action beans 0185-0200 and 0203-0208 (proposed); its audit stays the baseline. Measured: `flow.py` 5,157 lines, `cli.main` 1,097 lines.                                                          |
-| **P1**   | todo        |  High  |   S    | 0185   | holon-agentic-coder: ruff complexity gate (C901, PLR0911-PLR0915) with an inline `noqa` baseline | Lint / Code Quality       | Gate first (0177 order step 1), after flow PR #112 merges (overlapping files; PR #113 merged `760ee87`): ratchet-down baseline of 56 C901 offenders. Unblocks 0187, 0188, 0195, 0198, 0201.                                 |
+| **P1**   | in-progress |  High  |   S    | 0185   | holon-agentic-coder: ruff complexity gate (C901, PLR0911-PLR0915) with an inline `noqa` baseline | Lint / Code Quality       | Gate first (0177 order step 1), after flow PR #112 merges (overlapping files; PR #113 merged `760ee87`): ratchet-down baseline of 56 C901 offenders. Unblocks 0187, 0188, 0195, 0198, 0201.                                 |
 | **P1**   | todo        |  High  |   L    | 0187   | Split `flow.py` into a `flow/` package, one module per stage and concern (move only)             | Refactor / Architecture   | After 0185. 5,157 lines touched by 7 of 14 flow PRs; AST-verified move only. Runs alone among `flow.py` PRs (parallel-safe with 0188); unblocks 0190, 0191, 0193, 0194, 0197 and, with 0188, 0189.                          |
 | **P1**   | todo        |  High  |   L    | 0188   | Split `cli.py` into a `cli/` package of self-registering command modules                         | Refactor / CLI            | After 0185; can pair with 0187 (disjoint files). `cli.main` 1,097 lines, CC 114.                                                                                                                                            |
-| **P1**   | todo        |  High  |   M    | 0203   | holon-coherence: command modules register their own parsers; drop the `sys.modules` locator      | CLI / holon-coherence     | After 0186; parallel with 0204. Unblocks 0207 and 0208.                                                                                                                                                                     |
+| **P1**   | in-progress |  High  |   M    | 0203   | holon-coherence: command modules register their own parsers; drop the `sys.modules` locator      | CLI / holon-coherence     | After 0186; parallel with 0204. Unblocks 0207 and 0208.                                                                                                                                                                     |
 | **P1**   | todo        |  High  |   L    | 0204   | holon-coherence: split `mitm_addon.py` into a `proxy/` package by concern (move only)            | Proxy / holon-coherence   | After 0186; parallel with 0203. 2,348 lines, AST-verified move only. Unblocks 0205 and 0206.                                                                                                                                |
 | **P1**   | todo        |  High  |   M    | 0189   | Launcher module owns container launch and role dispatch; break the `flow` -> `cli` cycle         | Refactor / Architecture   | After 0187 and 0188; unblocks 0200. With 0190 (both item 4), precedes 0183 (item 5), as Bean 0177 proposes.                                                                                                                 |
 | **P1**   | todo        |  High  |   M    | 0190   | `FlowCheckpoint` and ledger reconciliation own their behaviour; entrypoints stop importing flow  | Ledger / Holon Flow       | After 0187; 0158 (PR #111, same code) has merged. Precedes 0183. Unblocks 0196, 0199.                                                                                                                                       |

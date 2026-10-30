@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0185
 title: "holon-agentic-coder: adopt ruff complexity rules (C901, PLR0911-PLR0915) with an inline noqa baseline"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
