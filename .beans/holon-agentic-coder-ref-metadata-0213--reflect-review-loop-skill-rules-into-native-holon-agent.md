@@ -51,9 +51,24 @@ However, the native containerised Review Loop Holon Agent in `holon-agentic-code
    - Verify prompt template unit tests in `apps/sandbox-executor/tests/test_prompt_templates.py` and review loop tests
      in `apps/sandbox-executor/tests/test_review_loop.py`.
 
-## Notes
+## Progress & Resolution
 
-- Target repository: `holon-agentic-coder`.
-- Must be executed via the 5-stage Holon flow (`holon intent` -> `plan` -> `execute` -> `review` -> `calibrate`).
-- Target repository isolation (Rule 12): Prompt and code changes in `holon-agentic-coder` must not reference harness
-  paths (`.beans/`, `todo/`, `.agents/`) or bean IDs.
+- **Explicit User Instruction (2026-10-30)**: "the review loop agent doesn't have the output the skill has ... copy the
+  skill prompt template into the review loop agent".
+- Updated `holon-config/prompts/review_loop.template.md` on branch `task/0213-reflect-review-loop-skill-template`
+  (commit `c6ffe46`):
+  - Standard Review Output Schema updated to match the verified skill consensus template:
+    - Consensus Approval format (`## ✅ Ensemble Consensus Review — APPROVED ({ensemble_size}/{ensemble_size})` with
+      bulleted verification points for architecture, backward compatibility, test suite, quality gates, complexity
+      ratchet, and 3-ledger provenance).
+    - Changes Requested format (`## ❌ Ensemble Consensus Review — CHANGES REQUESTED (Iteration {iteration})` with
+      findings table).
+    - Closing notice: "Stage 5 calibration will be added to this PR before merge. Merging remains with the human
+      maintainer."
+  - Added core loop principles: Mandatory Target-Branch Conflict Gate, Fast Ledger-Only Conflict Resolution,
+    Increment-Scoped Reviews (Bean 0170), and Stage 5 Pre-Merge Calibration.
+  - Formatted cleanly with Prettier; verified all 8 tests pass in
+    `apps/sandbox-executor/tests/test_prompt_templates.py`, and `uv run task lint` / `uv run task lint-docs` pass
+    cleanly.
+- Pushed branch `origin/task/0213-reflect-review-loop-skill-template`. Remaining entrypoint / flow wiring will follow
+  once PR #116 merges.
