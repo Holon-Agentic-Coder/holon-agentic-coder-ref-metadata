@@ -9,7 +9,7 @@ tags:
   - docs
   - holon-agentic-coder
 created_at: 2026-10-27T12:10:02Z
-updated_at: 2026-10-27T12:10:02Z
+updated_at: 2026-10-30T00:59:03Z
 ---
 
 ## Problem
@@ -39,6 +39,9 @@ new `main`.
 
 - Run through the Holon flow on holon-agentic-coder. It is small and touches only `test_flow.py` and `git_flow.md`, so
   check for overlap with other open flows.
+- 2026-10-30: the overlap is certain: open flow PR #112 edits `test_flow.py`, Bean 0187 splits it and Bean 0150 edits
+  it. Run this only when none of those is in flight: after #112 merges and before 0187 starts, or after 0187 on the
+  split `tests/flow/` layout.
 - Other #97 deferrals already have beans: decomposed-child chaining, the parent PR and resume safety (Bean 0161); the
   stress test's `core.hooksPath` dependence (Bean 0167); pre-existing bean ids on `main` (Bean 0147).
 

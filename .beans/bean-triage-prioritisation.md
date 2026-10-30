@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-10-30 00:49:03 UTC
+**Last Updated:** 2026-10-30 00:59:13 UTC
 
 ## Executive Summary
 
@@ -54,7 +54,8 @@ and **Bean 0183** (every flow stage and engine bookkeeping step runs in its own 
 
 Also through the flow on 2026-10-29, both reviewed and calibrated: PR #110 (Bean 0180 follow-up docs for the five
 sub-intent rulings, merged as `85ef122`) and PR #111 (Bean 0158 pure-append ledger writes, merged as `8c9ff4d`). Both
-beans are now closed. New on 2026-10-30: **Bean 0210** (five documents PR #110 left on the old sub-intent rules).
+beans are now closed. New on 2026-10-30: **Bean 0210** (five documents PR #110 left on the old sub-intent rules) and
+**Bean 0211** (two holon-coherence A/B recipe doc fixes PR #31 left open).
 
 **Bean 0177 (architecture research) completed:** measured `flow.py` 5,157 lines (7 of the 14 flow PRs #94-#109 touched
 it), `cli.main` 1,097 lines (CC 114), `executor.main` 798 lines (CC 178), and 56 + 38 functions over CC 10. It spawned
@@ -267,12 +268,12 @@ token reduction (Bean 0200).
 | **P1**   | todo        |  High  |   L    | 0192   | `run_review_loop` and `run_review_stage` become a `ReviewLoop` object with named steps           | Review Loop / Refactor    | After 0191. 528 lines, CC 131. Sequence with 0160 and 0179 (same touch set).                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   L    | 0196   | Executor entrypoint `main` becomes an `ExecutionRun` with named steps; module becomes a package  | Executor / Refactor       | After 0195 and 0190. 798 lines, CC 178 (worst in the repository).                                                                                                                                                                                                                          |
 | **P2**   | todo        | Medium |   M    | 0181   | Use the `/_` leaf only when referencing a git branch, never on ids                               | Holon Flow / Ledger       | `intents.jsonl` `branch` and `parent_intent_id` hold refs; migrate with readers accepting both shapes.                                                                                                                                                                                     |
-| **P2**   | todo        | Medium |   S    | 0169   | PR #97 residual Nits: split the pasted checkpoint test; complete git_flow §1.5 list              | Tests / Docs              | Small; touches `test_flow.py` and `git_flow.md`.                                                                                                                                                                                                                                           |
+| **P2**   | todo        | Medium |   S    | 0169   | PR #97 residual Nits: split the pasted checkpoint test; complete git_flow §1.5 list              | Tests / Docs              | Small; touches `test_flow.py` and `git_flow.md`. Not beside #112, 0187 or 0150 (all edit `test_flow.py`); see sequence item 2.                                                                                                                                                             |
 | **P2**   | todo        | Medium |   XL   | 0153   | Remove comments and docstrings from all code; make it self-documenting                           | Readability               | Per package, after each split lands (0187, 0188, 0204), not as one repository-wide flow.                                                                                                                                                                                                   |
 | **P2**   | in-progress | Medium |   S    | 0147   | Remove harness paths tracked in the target repositories                                          | Hygiene                   | `holon-coherence` half merged (PR #29, `68fdf67`) before its consensus review; post-merge follow-up PR #31 merged (`b52c7e1`). `holon-agentic-coder` half pending (fold into 0156 if beads lands first).                                                                                   |
 | **P2**   | in-progress | Medium |   S    | 0210   | Align the remaining holon-agentic-coder docs with the sub-intent merge rulings                   | Docs / Holon Flow         | Five documents PR #110 (Bean 0180, merged `85ef122`) left on the old rules. Documentation only; flow PR #113 open (2026-10-30); review and calibration pending.                                                                                                                            |
 | **P2**   | todo        |  Low   |   S    | 0211   | holon-coherence A/B recipe: run `mitmdump` in the background; keep both passes' metrics          | Docs / holon-coherence    | Two documentation Nits (C19-1, C19-2) left open when PR #31 merged (`b52c7e1`). Documentation only, through the flow; parallel lane.                                                                                                                                                       |
-| **P2**   | todo        |  Low   |   S    | 0150   | Flow tests write the real checkout's `action_index.db`                                           | Tests                     | Unblocked.                                                                                                                                                                                                                                                                                 |
+| **P2**   | todo        |  Low   |   S    | 0150   | Flow tests write the real checkout's `action_index.db`                                           | Tests                     | Unblocked; tests are in `test_flow.py`, so not beside #112, 0187 or 0169; see sequence item 2.                                                                                                                                                                                             |
 | **P2**   | todo        | Medium |   M    | 0193   | Decompose the intent and plan stage modules                                                      | Holon Flow / Refactor     | After 0187; parallel decomposition lane.                                                                                                                                                                                                                                                   |
 | **P2**   | todo        | Medium |   M    | 0194   | `run_execute_stage` becomes an `ExecuteStage` with named steps                                   | Holon Flow / Refactor     | After 0187; parallel decomposition lane. 306 lines, CC 40.                                                                                                                                                                                                                                 |
 | **P2**   | todo        | Medium |   M    | 0197   | Split `calibration.py` into a package; decompose metrics parsing and report generation           | Calibration / Refactor    | After 0187; parallel lane. Check overlap with 0146 and 0162.                                                                                                                                                                                                                               |
@@ -320,7 +321,10 @@ Sequential lane, holon-agentic-coder (flow blockers first):
 2. **Bean 0185** (holon-agentic-coder ruff complexity gate: lint configuration plus one-line `noqa` edits on the
    offender `def` lines across `src`, and a thresholds section in `docs/architecture.md`) once PRs #112 and #113 have
    merged: #112 edits `flow.py` and `calibration.py`, which carry baselined offenders, and #113 edits
-   `docs/architecture.md`. It lands before 0187 and 0188.
+   `docs/architecture.md`. It lands before 0187 and 0188. Beside it, once #112 has merged and before 0187 starts, **Bean
+   0150** (flow tests write `.index/action_index.db`) and **Bean 0169** (PR #97 residual Nits, plus `git_flow.md`) run
+   one after the other: both edit `test_flow.py`, which #112 also edits and 0187 splits, so neither runs beside #112,
+   0187 or each other. Whichever misses that window runs after 0187 on the split `tests/flow/` layout.
 3. **Bean 0187** (split `flow.py` into a `flow/` package, move only), then **Bean 0188** (split `cli.py` into
    self-registering command modules). Bean 0177 measured `flow.py` in 7 of the 14 flow PRs #94-#109; landing the
    move-only splits before the next `flow.py` features stops those features colliding.
@@ -359,9 +363,9 @@ Parallel lane (disjoint files):
   it before the next long review loop.
 - **Bean 0182** (GitHub event watcher, harness-only): replaces per-task polling loops; implemented on the harness branch
   above; review and land it before the next long review loop, alongside 0170.
-- **Bean 0166** (CI pipeline duration dashboard; workflows and observability only, pairs with 0163).
-- **Bean 0169** (PR #97 residual Nits; small, `test_flow.py` and `git_flow.md`). Check overlap with the lane above.
+- **Bean 0166** (CI pipeline duration dashboard; workflows and observability only, pairs with 0163). If it edits a
+  target repository's workflow files, it does not run beside 0202 or 0209, which rewrite every workflow file in their
+  repository.
 - **Bean 0156** (beads investigation, no target code). Its outcome decides how the `holon-agentic-coder` half of 0147
   and the harness retirement proceed.
-- **Bean 0150** (flow tests write `.index/action_index.db`; tests only).
 - **Beans 0142 and 0141** (benchmarking and tuning, no code flow).

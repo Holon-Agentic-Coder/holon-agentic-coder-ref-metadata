@@ -96,7 +96,7 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "Also through the flow on 2026-10-29, both reviewed and calibrated: PR #110 (Bean 0180 follow-up docs for "
         "the five sub-intent rulings, merged as `85ef122`) and PR #111 (Bean 0158 pure-append ledger writes, merged "
         "as `8c9ff4d`). Both beans are now closed. New on 2026-10-30: **Bean 0210** (five documents PR #110 left on "
-        "the old sub-intent rules)."
+        "the old sub-intent rules) and **Bean 0211** (two holon-coherence A/B recipe doc fixes PR #31 left open)."
     ),
     "",
     (
@@ -154,7 +154,11 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "2. **Bean 0185** (holon-agentic-coder ruff complexity gate: lint configuration plus one-line `noqa` edits "
         "on the offender `def` lines across `src`, and a thresholds section in `docs/architecture.md`) once PRs "
         "#112 and #113 have merged: #112 edits `flow.py` and `calibration.py`, which carry baselined offenders, and "
-        "#113 edits `docs/architecture.md`. It lands before 0187 and 0188."
+        "#113 edits `docs/architecture.md`. It lands before 0187 and 0188. Beside it, once #112 has merged and "
+        "before 0187 starts, **Bean 0150** (flow tests write `.index/action_index.db`) and **Bean 0169** (PR #97 "
+        "residual Nits, plus `git_flow.md`) run one after the other: both edit `test_flow.py`, which #112 also "
+        "edits and 0187 splits, so neither runs beside #112, 0187 or each other. Whichever misses that window runs "
+        "after 0187 on the split `tests/flow/` layout."
     ),
     (
         "3. **Bean 0187** (split `flow.py` into a `flow/` package, move only), then **Bean 0188** (split `cli.py` "
@@ -220,16 +224,15 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "- **Bean 0182** (GitHub event watcher, harness-only): replaces per-task polling loops; implemented on the "
         "harness branch above; review and land it before the next long review loop, alongside 0170."
     ),
-    "- **Bean 0166** (CI pipeline duration dashboard; workflows and observability only, pairs with 0163).",
     (
-        "- **Bean 0169** (PR #97 residual Nits; small, `test_flow.py` and `git_flow.md`). Check overlap with the "
-        "lane above."
+        "- **Bean 0166** (CI pipeline duration dashboard; workflows and observability only, pairs with 0163). If it "
+        "edits a target repository's workflow files, it does not run beside 0202 or 0209, which rewrite every "
+        "workflow file in their repository."
     ),
     (
         "- **Bean 0156** (beads investigation, no target code). Its outcome decides how the `holon-agentic-coder` "
         "half of 0147 and the harness retirement proceed."
     ),
-    "- **Bean 0150** (flow tests write `.index/action_index.db`; tests only).",
     "- **Beans 0142 and 0141** (benchmarking and tuning, no code flow).",
 ]
 
@@ -563,7 +566,10 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "Medium",
         "sizing": "S",
         "domain": "Tests / Docs",
-        "notes": "Small; touches `test_flow.py` and `git_flow.md`.",
+        "notes": (
+            "Small; touches `test_flow.py` and `git_flow.md`. Not beside #112, 0187 or 0150 (all edit "
+            "`test_flow.py`); see sequence item 2."
+        ),
     },
     "0153": {
         "title": "Remove comments and docstrings from all code; make it self-documenting",
@@ -612,7 +618,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "Low",
         "sizing": "S",
         "domain": "Tests",
-        "notes": "Unblocked.",
+        "notes": "Unblocked; tests are in `test_flow.py`, so not beside #112, 0187 or 0169; see sequence item 2.",
     },
     "0193": {
         "title": "Decompose the intent and plan stage modules",
