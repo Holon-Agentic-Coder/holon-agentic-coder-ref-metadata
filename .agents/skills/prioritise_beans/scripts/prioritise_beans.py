@@ -497,6 +497,18 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "`sandbox_executor`."
         ),
     },
+    "0221": {
+        "title": "Standardise Review Loop Agent output with skill consensus template",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Review Loop / Output",
+        "notes": (
+            "Update native Review Loop Agent prompt template (`review_loop.template.md`) and report generator "
+            "(`review_report.py`) to render the skill's consensus review template (`APPROVED (3/3)` with verified "
+            "points, and `CHANGES_REQUESTED` findings table). Sequence after PR #116 merges."
+        ),
+    },
     "0166": {
         "title": "Pipeline duration dashboard for CI builds",
         "priority": "**P1**",
