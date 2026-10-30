@@ -4,5 +4,7 @@ apps/
 
 todo
 .subagent
+.holon
+holon-knowledge
 __pycache__/
 *.pyc

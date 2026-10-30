@@ -91,9 +91,10 @@ branch and ledger record the next one consumes (see invariant 8 in [rules.md](ru
   concurrently runnable beans (disjoint touch sets, dependencies honoured) to the maintainer. See the Post-Merge
   Protocol in [AGENTS.md](../AGENTS.md).
 
-Invoke these stages individually or drive them with `holon flow <intent.json>`, which already exists on `main` with a
-reduced flag set (Bean 0040 tracks the flags and usage docs still outstanding; the Bean 0039 pipeline engine is
-completed). Both modes satisfy the same requirement.
+**Always drive changes with `holon flow <intent.json>` directly.** `holon flow` is the mandatory orchestrator for the
+entire 5-stage lifecycle. Never use ad-hoc wrapper scripts (such as `holon-stage.sh`) or disconnected manual stage
+commands when executing tasks. When resuming an in-flight pipeline after fixing a blocker, turn timeout, or falling back
+across model tiers, use `holon flow <intent.json> --from-stage <stage>` or `--checkpoint <checkpoint.json>`.
 
 - **Automatic Model & Runner Fallback on Credit / Quota Exhaustion**: If any stage (`plan`, `execute`, `review`, or
   `calibrate`) or AGY subagent fails because credit or session quota ran out on the higher-level model (for both

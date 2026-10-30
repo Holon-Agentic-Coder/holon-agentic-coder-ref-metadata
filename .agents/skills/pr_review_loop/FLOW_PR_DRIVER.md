@@ -38,11 +38,10 @@ below was learned the hard way across PRs #99–#115 and holon-coherence #28–#
    record `posted_review`. Wait for CI only at the ensemble/posting gate, via the shared helper
    `.agents/scripts/wait_for.py ci <owner/repo> <pr> [--sha <head>]` (exit 0 green / 1 failed / 2 timeout / 3 head moved
    / 4 gh error — 4 is infrastructure, never a CI verdict) run as a background command.
-7. **Stage 5**:
-   `HOLON_SKIP_PREFLIGHT=1 HOLON_TOKEN_REDUCE=0 todo/holon-stage.sh <bean>-calibrate calibrate --repo-dir <wt> "<E>/_"`.
-   Push `<E>/calibrated` unchanged, `git merge --ff-only` it into `<E>/_`, run the repository Prettier `--check` on the
-   report (since PR #112 it normally passes; add the formatting commit only if not), push, confirm the report is in
-   `gh pr diff --name-only`.
+7. **Stage 5**: `HOLON_SKIP_PREFLIGHT=1 HOLON_TOKEN_REDUCE=0 holon calibrate --repo-dir <wt> "<E>/_"`. (Never use
+   `holon-stage.sh` or wrapper scripts; invoke `holon` directly). Push `<E>/calibrated` unchanged, `git merge --ff-only`
+   it into `<E>/_`, run the repository Prettier `--check` on the report (since PR #112 it normally passes; add the
+   formatting commit only if not), push, confirm the report is in `gh pr diff --name-only`.
 8. **Record and report**: calibration commit, EV predicted vs actual, final head, `next_action: "await human merge"` in
    `_state.json`. Report with the AGENTS.md-prescribed "PR #N is approved" message. The merge, and the Post-Merge
    Protocol that follows it, belong to the orchestrator/maintainer.

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0204
 title: "holon-coherence: split mitm_addon.py into a proxy package by concern (move only, AST-verified)"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0186
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-10-30T08:40:00Z
 ---
 
 ## Problem

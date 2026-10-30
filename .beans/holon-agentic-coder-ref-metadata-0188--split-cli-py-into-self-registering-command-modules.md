@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0188
 title: "Split cli.py into a cli/ package with one self-registering module per subcommand; main becomes a dispatcher"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0185
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-10-30T08:40:00Z
 ---
 
 ## Problem

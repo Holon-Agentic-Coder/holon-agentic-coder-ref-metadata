@@ -56,11 +56,12 @@ into the PR head execution branch `.../_` and pushing to `origin`) so that the c
 and is preserved in `main` history when merged. Merging itself stays human-only (see "🔒 PR Merging — Human-Only"
 below).
 
-**Whether the pipeline is driven by hand or by automation is irrelevant -- only that all five stages are executed.**
-Running the stages one at a time with the individual commands is exactly as compliant as the unified runner. That runner
-(`holon flow <intent.json>`) already exists on `main` with a reduced flag set; Bean 0040 tracks the five flags and the
-usage docs still outstanding on it, while the pipeline engine itself (Bean 0039) is completed. Neither form changes what
-"through the flow" means.
+**Always use `holon flow` to drive changes.** Changes to target codebases MUST always be executed using the unified
+`holon flow <intent.json>` runner. Never use ad-hoc wrapper scripts (such as `holon-stage.sh`), and do not execute
+disconnected manual stage commands when authoring or driving tasks. `holon flow` is the canonical, self-contained
+orchestrator for the entire 5-stage lifecycle. When resuming an in-flight pipeline after fixing a blocker, timeout, or
+stepping down model tiers, always resume through `holon flow <intent.json> --from-stage <stage>` or
+`holon flow --checkpoint <path-to-checkpoint.json>`.
 
 **Consequences for agents:**
 
@@ -182,11 +183,11 @@ When you are spawned or begin a new session, follow these steps sequentially:
      (see "🔒 PR Merging — Human-Only" below).**
 8. **Report and Document**: Summarise changes cleanly and concisely. Point both the user and successor agents to updated
    files or artifacts.
-9. **Route Every Change Through the Flow**: Produce all `holon-agentic-coder` and `holon-coherence` changes via the
-   five-stage Holon flow (intent -> plan -> execute -> PR review loop -> calibration) rather than hand-authored
-   host-side edits, and calibrate before requesting the merge. Manual stage-by-stage invocation is fully compliant;
-   automating it with the `holon flow` runner that already exists on `main` is optional (Bean 0040 tracks its remaining
-   flags and usage docs; the Bean 0039 engine is completed). See
+9. **Route Every Change Through the Flow & Always Use `holon flow`**: Produce all `holon-agentic-coder` and
+   `holon-coherence` changes via the five-stage Holon flow (intent -> plan -> execute -> PR review loop -> calibration)
+   rather than hand-authored host-side edits, and calibrate before requesting the merge. **Always use the unified
+   `holon flow <intent.json>` runner directly** (or `--from-stage` / `--checkpoint` when resuming); never use ad-hoc
+   wrapper scripts like `holon-stage.sh` or manual disconnected stage commands. See
    [🔒 Sole Change Path: The Holon Flow](#-sole-change-path-the-holon-flow).
 10. **Zero Synthetic Data for Benchmarking**: Absolutely never use synthetic or mock data to measure efficacy or
     benchmark token reduction. Official evaluations and scorecards must derive exclusively from authentic real data

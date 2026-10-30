@@ -154,11 +154,11 @@ code in this repository.
      Calibration. Stage 5 (Calibration) is a **pre-merge** stage: calibrate, then request the human merge.
    - Running `holon` inside either target repository's worktree dynamically resolves `remote.origin.url` via
      `resolve_target_repo_url()`, driving that repository's `holon-knowledge/ledger/` provenance pipeline.
-   - Manual stage-by-stage execution (`holon intent`, `holon plan`, `holon execute`, `pr-review-loop`,
-     `holon calibrate`) is fully compliant and as compliant as the unified `holon flow <intent.json>` runner, which
-     already exists on `main` with a reduced flag set (Bean 0040 tracks the flags and usage docs still outstanding; the
-     Bean 0039 pipeline engine is completed). Automation is an optimisation of the flow, never a substitute for any of
-     its five stages.
+   - **Always Use `holon flow` Directly**: The unified `holon flow <intent.json>` command is the mandatory orchestrator
+     for driving changes through the flow lifecycle. Never use ad-hoc wrapper scripts (such as `holon-stage.sh`), and do
+     not drive tasks via disconnected manual stage invocations; always use `holon flow` (using `--from-stage <stage>` or
+     `--checkpoint <path>` when resuming an in-flight execution). `holon flow` is self-contained and handles stage
+     sequencing, secret redaction, and checkpoint persistence natively.
    - **Global CLI Invariant (`holon`)**: Always invoke `holon` directly as an installed CLI tool on `PATH`
      (`holon <subcommand>`), never via relative paths (`./holon`) or repository worktree paths
      (`apps/holon-agentic-coder/.../holon`).

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0150
 title: "Flow tests write the real checkout's holon-knowledge/.index/action_index.db"
-status: todo
+status: in-progress
 type: bug
 priority: low
 tags:
@@ -9,7 +9,7 @@ tags:
   - hermeticity
   - holon-agentic-coder
 created_at: 2026-10-24T09:00:00Z
-updated_at: 2026-10-30T00:59:03Z
+updated_at: 2026-10-30T08:26:00Z
 ---
 
 ## Problem

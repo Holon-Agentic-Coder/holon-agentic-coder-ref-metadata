@@ -50,8 +50,10 @@ system safety, and clean documentation. Follow these core guidelines in every se
 - **All `holon-agentic-coder` and `holon-coherence` code modifications must be produced by the 5-stage Holon flow**
   (intent -> plan -> execute -> PR review loop -> calibration) as sandbox-authored commits on `I-.../P-.../E-...`
   branches. Running `holon` inside either target repository worktree dynamically resolves `remote.origin.url` via
-  `resolve_target_repo_url()`. Manual stage-by-stage commands are as compliant as `holon flow`; skipping any stage is
-  not. See the Sole Change Path rule in `AGENTS.md` and invariant 8 in `.agents/rules.md`.
+  `resolve_target_repo_url()`. **Always use `holon flow <intent.json>` directly** (with `--from-stage` or `--checkpoint`
+  when resuming); never use ad-hoc wrapper scripts (like `holon-stage.sh`) or manual disconnected stage commands.
+  Skipping any stage is strictly prohibited. See the Sole Change Path rule in `AGENTS.md` and invariant 8 in
+  `.agents/rules.md`.
 - Repository worktrees (e.g. `apps/holon-agentic-coder/{branch}` or `apps/holon-coherence/{branch}`) are for building
   images, reading code, running verification, and operating the harness -- never for hand-authoring target codebase
   source changes outside the flow.
