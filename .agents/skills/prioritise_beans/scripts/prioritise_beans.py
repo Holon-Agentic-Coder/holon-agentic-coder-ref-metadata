@@ -402,6 +402,17 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "beans per rule 10. Unblocks 0217."
         ),
     },
+    "0219": {
+        "title": "Make --agent and --model mandatory in holon flow; eliminate silent fallbacks",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "S",
+        "domain": "CLI / Safety",
+        "notes": (
+            "Remove FALLBACK_AGENT and table default model resolution; fail closed if --agent and --model are not "
+            "explicitly specified (preserve checkpoint resumption values)."
+        ),
+    },
     "0172": {
         "title": "Stage and turn budgets accept an explicit 'unlimited' value, distinct from unset (default)",
         "priority": "**P1**",
