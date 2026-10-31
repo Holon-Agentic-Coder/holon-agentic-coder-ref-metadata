@@ -163,6 +163,17 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     ),
     "",
     (
+        "Later on **2026-10-31:** **Beans 0220 and 0207 traversed the full flow, passed 3/3 unanimous consensus "
+        "review, and were calibrated:** HAC PR #120 (Bean 0220, `8d5e57d`: remove GitHub PR terminology across "
+        "flow CLI, report, and prompts) passed 3/3 ensemble review in 1 iteration, green on 11/11 CI checks, with "
+        "Stage 5 calibration (`8d5e57d`, predicted EV 62.24 / actual 67.46, $\\Delta\\text{EV} = +5.22$). Coherence "
+        "PR #40 (Bean 0207, `ffd6c9e`: decompose A/B test and metrics commands into dedicated domain packages "
+        "`ab_testing/` and `metrics/`) passed 3/3 ensemble review in 2 iterations, green on all 7 CI checks, with "
+        "Stage 5 calibration (`ffd6c9e`, predicted EV 7.94 / actual 8.41, $\\Delta\\text{EV} = +0.47$). Both PRs await "
+        "manual human merge."
+    ),
+    "",
+    (
         "**Bean 0177 (architecture research) completed:** measured `flow.py` 5,157 lines (7 of the 14 flow PRs "
         "#94-#109 touched it), `cli.main` 1,097 lines (CC 114), `executor.main` 798 lines (CC 178), and 56 + 38 "
         "functions over CC 10. It spawned Beans 0185-0209: lint gates first (0185, 0186), then move-only splits that "
@@ -208,14 +219,13 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "Sequential lane, holon-agentic-coder (flow blockers first):",
     "",
     (
-        "1. **Beans 0188, 0150, 0219 (HAC) and Beans 0203, 0204, 0205, 0206 (Coherence) merged.** CLI commands, "
-        "hermetic index isolation, mandatory runner options, and provider format decoupling are in `main` across "
-        "both targets."
+        "1. **Beans 0220 (HAC PR #120) and 0207 (Coherence PR #40) approved & calibrated.** Both PRs traversed all 5 "
+        "stages with unanimous 3/3 consensus approval, green CI checks, and calibration reports in the PR diff, "
+        "awaiting human maintainer merge."
     ),
     (
-        "2. **Bean 0220** (remove PR terminology across flow CLI and documentation) and **Bean 0221** (standardise "
-        "Review Loop agent output and consensus report generator with skill consensus template) building on "
-        "**Bean 0213** prompt template reflection."
+        "2. **Bean 0221** (standardise Review Loop agent output and consensus report generator with skill consensus "
+        "template) building on **Bean 0213** prompt template reflection."
     ),
     (
         "3. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split before the "
@@ -269,9 +279,9 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     (
         "- **holon-coherence decomposition lane** (Bean 0177 order, disjoint from holon-agentic-coder): unblocked "
-        "by PR #36 (Bean 0203), PR #37 (Bean 0204), PR #38 (Bean 0205), and PR #39 (Bean 0206, `ca43eb9`) merged "
-        "into `main`. Next concurrent lanes: **Bean 0207** (metrics aggregation out of command handlers into "
-        "`metrics/`), and **Bean 0208** (`ProxyLifecycle` class owns proxy start-up, readiness, and teardown)."
+        "by PR #36 (Bean 0203), PR #37 (Bean 0204), PR #38 (Bean 0205), PR #39 (Bean 0206), and PR #40 (Bean 0207, "
+        "approved & calibrated). Next concurrent lane: **Bean 0208** (`ProxyLifecycle` class owns proxy start-up, "
+        "readiness, and teardown)."
     ),
     (
         "- **Bean 0166** (CI pipeline duration dashboard; workflows and observability only, pairs with 0163). If it "
@@ -609,10 +619,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "Medium",
         "sizing": "S",
         "domain": "Flow / Terminology",
-        "notes": (
-            "Replace 'PR review loop' with 'review loop' in CLI help (--skip-review), flow logs, and prompt "
-            "scaffolding. Decouple core engine from platform-specific PR terms."
-        ),
+        "notes": "HAC PR #120 approved (3/3), calibrated (8d5e57d), awaiting human merge.",
     },
     "0181": {
         "title": "Use the `/_` leaf only when referencing a git branch, never on ids",
@@ -739,7 +746,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "Medium",
         "sizing": "M",
         "domain": "Metrics / holon-coherence",
-        "notes": "After 0203 and 0206; parallel with 0208.",
+        "notes": "Coherence PR #40 approved (3/3), calibrated (ffd6c9e), awaiting human merge.",
     },
     "0208": {
         "title": "holon-coherence: a `ProxyLifecycle` class owns proxy start-up, readiness and teardown",

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0220
 title: "Remove GitHub-specific PR wording; standardize on Review Loop and Change Diff"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -11,7 +11,7 @@ tags:
   - terminology
   - holon-agentic-coder
 created_at: 2026-10-30T09:05:09Z
-updated_at: 2026-10-30T09:05:09Z
+updated_at: 2026-10-31T06:34:00Z
 ---
 
 ## Problem
@@ -82,3 +82,24 @@ language.
 4. GitHub CLI interactions (e.g. `gh pr view`, `gh pr review`) remain functional as the remote transport adapter, but
    the core engine vocabulary is platform-agnostic.
 5. All test suites pass cleanly under `uv run pytest`.
+
+## Progress (2026-10-31)
+
+- Created dedicated worktree `apps/holon-agentic-coder/flow-0220-remove-pr-terminology` from `origin/main` (`0bb1615`).
+- Prepared intent file `todo/intent-0220-remove-github-pr-terminology.json`.
+- Executed `holon flow`:
+  - Stage 1 completed: intent branch `I-1793425536-remove-github-pr-terminology-across-holon-flow/_` created and pushed.
+  - Stage 2 completed: planner produced `plans/P-1793425551-antigravity-agent-gemini-3.8-flash-medium.md` (predicted EV
+    62.24).
+  - Stage 3 completed: executor produced `E-1793425952-antigravity-agent-gemini-3.8-flash-medium` updating 12 paths
+    across CLI commands, engine logging, review consensus report builders, and prompt templates, with all tests passing.
+- Opened Pull Request [#120](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/120) on
+  `holon-agentic-coder`.
+- Stage 4 PR Review Loop:
+  - All 11 GitHub Actions CI checks confirmed passing green.
+  - 3-agent ensemble reached unanimous `APPROVED (3/3)` consensus with 0 findings in iteration 1.
+  - Posted official consensus review to GitHub and recorded `ACT-REV` and `ACT-POST` in `executions.jsonl` under
+    `db908f8`.
+- Stage 5 Calibration completed (`8d5e57d`, Predicted EV: 62.24, Actual EV: 67.46, $\Delta\text{EV} = +5.22$) and pushed
+  to `/calibrated` and PR #120 head.
+- PR #120 is fully approved and calibrated; awaiting manual human merge.

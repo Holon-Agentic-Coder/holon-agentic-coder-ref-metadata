@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0207
 title: "holon-coherence: move A/B evaluation and metrics aggregation out of the command handlers and decompose them"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -11,7 +11,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0203
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-10-31T06:33:00Z
 ---
 
 ## Problem
@@ -41,3 +41,25 @@ Blocked by 0203. Parallel-safe with 0208.
 ## Notes
 
 - Run through the Holon flow on holon-coherence.
+
+## Progress (2026-10-31)
+
+- Created dedicated worktree `apps/holon-coherence/flow-0207-decompose-ab-and-metrics` from `origin/main` (`ca43eb9`).
+- Prepared intent file `todo/intent-0207-coherence-decompose-ab-test-and-metrics-commands.json`.
+- Executed `holon flow`:
+  - Stage 1 completed: intent branch `I-1793425546-coherence-decompose-ab-test-and-metrics-commands/_` created and
+    pushed.
+  - Stage 2 completed: planner produced `plans/P-1793425560-antigravity-agent-gemini-3.8-flash-medium.md` (predicted EV
+    7.94).
+  - Stage 3 completed: executor produced `E-1793425877-antigravity-agent-gemini-3.8-flash-medium` decomposing
+    `commands/ab_test.py` and `commands/metrics.py` into `ab_testing/` and `metrics/` domain modules, adding 13 new unit
+    tests.
+- Opened Pull Request [#40](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/40) on `holon-coherence`.
+- Stage 4 PR Review Loop:
+  - Iteration 1: dry run caught unused imports in `tests/test_ab_testing_domain.py`; resolver fixed in `bb4cef2` with
+    all tests and lint passing.
+  - Iteration 2: 3-agent ensemble reached unanimous `APPROVED (3/3)` consensus with 0 findings; consensus review posted
+    to GitHub. Recorded `ACT-REV` and `ACT-POST` in `executions.jsonl` under `88ed127`.
+- Stage 5 Calibration completed (`ffd6c9e`, Predicted EV: 7.94, Actual EV: 8.41, $\Delta\text{EV} = +0.47$) and pushed
+  to `/calibrated` and PR #40 head.
+- PR #40 is fully approved and calibrated; awaiting manual human merge.
