@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-10-30 16:36:02 UTC
+**Last Updated:** 2026-10-31 05:38:11 UTC
 
 ## Executive Summary
 
@@ -15,9 +15,9 @@ re-reviews: 141 review-loop passes from the first sync onward, about 10M+ tokens
 overlapping flows now run one after another.
 
 - **Total Tracked Beans**: 221 (excluding template)
-- **Completed**: 171 (77.4%)
+- **Completed**: 173 (78.3%)
 - **Scrapped / Superseded**: 2 (0.9%)
-- **Active**: 48 (21.7%), of which 2 are in progress and 46 are todo
+- **Active**: 46 (20.8%), of which 1 are in progress and 45 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -96,8 +96,14 @@ Stage 5 calibration (`1424a26`).
 the real checkout index and guarded `.git` from sandbox mutations; passed 3/3 unanimous approval and completed Stage 5
 calibration (`09ba249`). Coherence PR #38 (`e3dcc1a`, Bean 0205) decomposed `MitmproxyAddon.request` and `response`
 hooks into an ordered step pipeline under `proxy/steps/`; passed 3/3 unanimous approval and completed Stage 5
-calibration (`6a6ec15`). Bean 0219 (make `--agent` and `--model` mandatory; HAC PR #119) is in Stage 4 review loop with
-origin/main conflicts resolved, Prettier formatting fixed, and all CI checks green.
+calibration (`6a6ec15`).
+
+**2026-10-31:** **Beans 0219 and 0206 merged:** HAC PR #119 (`0bb1615`, Bean 0219) made `--agent` and `--model`
+mandatory CLI options across all `holon` commands, removing silent fallback defaults; passed 3/3 unanimous consensus
+review and completed Stage 5 calibration (`4f20f01`). Coherence PR #39 (`ca43eb9`, Bean 0206) decomposed wire format
+handling into dedicated provider modules under `proxy/providers/` conforming to `ProviderFormat` protocol; passed 3/3
+unanimous consensus review and completed Stage 5 calibration (`45ff23d`). Both repositories were synchronized to
+origin/main and reinstalled locally via `install-holon`.
 
 **Bean 0177 (architecture research) completed:** measured `flow.py` 5,157 lines (7 of the 14 flow PRs #94-#109 touched
 it), `cli.main` 1,097 lines (CC 114), `executor.main` 798 lines (CC 178), and 56 + 38 functions over CC 10. It spawned
@@ -316,6 +322,16 @@ token reduction (Bean 0200).
     - `0205` (Coherence #38, `e3dcc1a`): decomposed `MitmproxyAddon.request` (209 lines, CC 65) and `response` (187
       lines, CC 43) hooks into an ordered step pipeline under `proxy/steps/`; passed 3/3 unanimous ensemble consensus
       review, completed Stage 5 calibration (`6a6ec15`), and merged into `main`.
+26. **Mandatory CLI Agent & Model Options and Coherence Dedicated Provider Modules (Beans 0219, 0206 / HAC PR #119 &
+    Coherence PR #39, 2026-10-31)**:
+    - `0219` (HAC #119, `0bb1615`): made `--agent` and `--model` mandatory CLI options across all `holon` commands
+      (`flow`, `intent`, `plan`, `execute`, `review`, `calibrate`), eliminating silent fallback defaults to deprecated
+      or unavailable model tiers; passed 3/3 unanimous ensemble consensus review, completed Stage 5 calibration
+      (`4f20f01`), and merged into `main`.
+    - `0206` (Coherence #39, `ca43eb9`): decomposed wire format handling into dedicated provider modules under
+      `proxy/providers/` (`base.py`, `anthropic.py`, `openai.py`, `gemini.py`, `translation.py`) conforming to
+      `ProviderFormat` protocol; passed 3/3 unanimous ensemble consensus review, completed Stage 5 calibration
+      (`45ff23d`), and merged into `main`.
 
 ---
 
@@ -335,7 +351,6 @@ token reduction (Bean 0200).
 | **P1**   | todo        | Medium |   M    | 0146   | Plans-ledger correction rows; calibration picks the right predicted metrics                     | Calibration / Ledger       | Every calibration last cycle needed a manual annotation (7 PRs). Runs before 0197 (same parser).                                                                                                                                                                                      |
 | **P1**   | todo        |  High  |   M    | 0214   | Pilot beads (bd) issue tracking inside holon-agentic-coder                                      | Issue Tracking / Pilot     | Holon flow against holon-agentic-coder. `bd init` prefix `hac-`, offline config, pin `bd` in image, import open beans, fold in 0147 hac half. Precursor to 0215-0218.                                                                                                                 |
 | **P1**   | todo        |  High  |   S    | 0215   | Deterministic beans-to-beads JSONL converter and real-data dry run                              | Issue Tracking / Migration | Harness work. Converts bean frontmatter + body to beads JSONL for `bd import`; verified on all ~47 open beans per rule 10. Unblocks 0217.                                                                                                                                             |
-| **P1**   | in-progress |  High  |   S    | 0219   | Remove fallback defaults for agent runner and model resolution                                  | CLI / Safety               | Remove FALLBACK_AGENT and table default model resolution; fail closed if --agent and --model are not explicitly specified (preserve checkpoint resumption values).                                                                                                                    |
 | **P1**   | todo        | Medium |   S    | 0172   | Stage and turn budgets accept an explicit 'unlimited' value, distinct from unset (default)      | Holon Flow / Config        | Workaround today: `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` (the 7-day maximum).                                                                                                                                                                                                     |
 | **P1**   | todo        |  High  |   M    | 0173   | holon loads layered .env files (specific overrides broad) that every sandbox stage inherits     | Holon Flow / Config        | Project `.env` overrides the broader `.env`. Touches `cli.py`; sequence after 0155/0148 and 0174.                                                                                                                                                                                     |
 | **P1**   | todo        | Medium |   M    | 0174   | Document every environment variable holon reads, in one generated and CI-checked reference      | Documentation / Config     | After 0172; precursor to 0173, whose layered `.env` needs this reference's allow-list and secret flags.                                                                                                                                                                               |
@@ -363,8 +378,7 @@ token reduction (Bean 0200).
 | **P2**   | todo        | Medium |   S    | 0201   | Planner, executor and reviewer prompts carry the module-layout, complexity and naming rules     | Prompts / Standards        | After 0185. Plans declare touch sets at module granularity (feeds 0151).                                                                                                                                                                                                              |
 | **P2**   | todo        | Medium |   M    | 0200   | Remove holon-agentic-coder's diverged `token_reduction` copy; holon-coherence is the owner      | Token Reduction            | After 0189. Ownership already ruled: holon-coherence owns token reduction.                                                                                                                                                                                                            |
 | **P2**   | todo        | Medium |   M    | 0199   | Decompose ledger query and the knowledge index                                                  | Ledger / Knowledge         | After 0190; parallel lane. Low bean priority.                                                                                                                                                                                                                                         |
-| **P2**   | todo        | Medium |   M    | 0206   | holon-coherence: one provider module per wire format (Anthropic, OpenAI, Gemini)                | Proxy / holon-coherence    | After 0204; parallel with 0205. With or after 0200 (holon-agentic-coder's copy goes first).                                                                                                                                                                                           |
-| **P2**   | todo        | Medium |   M    | 0207   | holon-coherence: A/B evaluation and metrics aggregation move out of the command handlers        | Metrics / holon-coherence  | After 0203; parallel with 0208.                                                                                                                                                                                                                                                       |
+| **P2**   | todo        | Medium |   M    | 0207   | holon-coherence: A/B evaluation and metrics aggregation move out of the command handlers        | Metrics / holon-coherence  | After 0203 and 0206; parallel with 0208.                                                                                                                                                                                                                                              |
 | **P2**   | todo        | Medium |   M    | 0208   | holon-coherence: a `ProxyLifecycle` class owns proxy start-up, readiness and teardown           | Proxy / holon-coherence    | After 0203; parallel with 0207.                                                                                                                                                                                                                                                       |
 | **P2**   | todo        | Medium |   M    | 0216   | Holon flow references and drives beads work items (claim on intent, close on merge)             | Holon Flow / Beads         | Holon flow against holon-agentic-coder. Intent `work_item` field, `holon intent` claims issue, calibration/merge closes with PR URL. Sequence after 0214.                                                                                                                             |
 | **P2**   | todo        | Medium |   S    | 0217   | Adopt beads (bd) issue tracking inside holon-coherence                                          | Issue Tracking / Coherence | Holon flow against holon-coherence. `bd init` prefix `hcoh-`, import open coherence beans from 0215 converter. Sequence after 0214 and 0215.                                                                                                                                          |
@@ -397,47 +411,45 @@ through the harness `pr-review-loop` skill, and format the calibration report be
 
 Sequential lane, holon-agentic-coder (flow blockers first):
 
-1. **Bean 0188** (HAC PR #117, `76fe3ea`) and **Bean 0150** (HAC PR #118, `e8e9a5d`) merged, splitting `cli.py` into
-   self-registering command modules and eliminating checkout index hermeticity leaks.
-2. **Bean 0219** (make `--agent` and `--model` mandatory CLI options; HAC PR #119 open, in Stage 4 review loop with
-   origin/main merged, Prettier formatting fixed, and all CI checks green).
-3. **Bean 0220** (remove PR terminology across flow CLI and documentation) and **Bean 0221** (standardise Review Loop
+1. **Beans 0188, 0150, 0219 (HAC) and Beans 0203, 0204, 0205, 0206 (Coherence) merged.** CLI commands, hermetic index
+   isolation, mandatory runner options, and provider format decoupling are in `main` across both targets.
+2. **Bean 0220** (remove PR terminology across flow CLI and documentation) and **Bean 0221** (standardise Review Loop
    agent output and consensus report generator with skill consensus template) building on **Bean 0213** prompt template
    reflection.
-4. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split before the next
+3. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split before the next
    `flow.py` features stops those features colliding.
-5. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean 0190**
-   (checkpoint and ledger reconciliation; entrypoints stop importing flow). Both beans ask to precede 0183 (item 6), as
+4. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean 0190**
+   (checkpoint and ledger reconciliation; entrypoints stop importing flow). Both beans ask to precede 0183 (item 5), as
    in Bean 0177's migration step 3.
-6. **Bean 0183** (every stage and engine bookkeeping step sandboxed). Bean 0179 is merged (`b746408`), so Stage 4
+5. **Bean 0183** (every stage and engine bookkeeping step sandboxed). Bean 0179 is merged (`b746408`), so Stage 4
    container dispatch is active.
-7. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), then **Bean
-   0146** (plans-ledger correction rows; calibration picks the right predicted metrics). Bean 0197 (item 9) follows 0146
+6. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), then **Bean
+   0146** (plans-ledger correction rows; calibration picks the right predicted metrics). Bean 0197 (item 8) follows 0146
    because both edit the predicted-metrics parser.
-8. **Bean 0149**, then **Bean 0151**: unique IDs across concurrently planned intents (parallel batches still rely on
+7. **Bean 0149**, then **Bean 0151**: unique IDs across concurrently planned intents (parallel batches still rely on
    staggered starts), then touch-set admission.
-9. **Decomposition lanes from Bean 0177** once the splits land, in parallel where their packages differ: 0191 then 0192
+8. **Decomposition lanes from Bean 0177** once the splits land, in parallel where their packages differ: 0191 then 0192
    (GitHub adapter, `ReviewLoop`), 0193, 0194, 0195 then 0196, 0197 (after 0146 and 0162, as Bean 0197 asks), 0198 and
-   0199 (all tracked by umbrella Bean 0152, with 0190 from item 5), and 0201 (outside the umbrella). Bean 0153 runs per
+   0199 (all tracked by umbrella Bean 0152, with 0190 from item 4), and 0201 (outside the umbrella). Bean 0153 runs per
    package with, or right after, that package's decomposition.
-10. **Bean 0160**, then **Bean 0157**: the remaining flow-integrity blockers.
-11. **Bean 0161**: nested sub-intent branches per the maintainer's rulings (now documented by PRs #103, #110 and #113),
+9. **Bean 0160**, then **Bean 0157**: the remaining flow-integrity blockers.
+10. **Bean 0161**: nested sub-intent branches per the maintainer's rulings (now documented by PRs #103, #110 and #113),
     chaining and resume safety.
-12. **Bean 0181**: `/_` only on branch refs, ids bare (ledger field migration; readers accept both shapes). After 0161
+11. **Bean 0181**: `/_` only on branch refs, ids bare (ledger field migration; readers accept both shapes). After 0161
     and 0179, which overlap `flow.py`, as Bean 0181 asks.
-13. **The `holon-agentic-coder` half of Bean 0147**, **Bean 0155** then **Bean 0148** (redaction), **Beans 0172, 0174,
+12. **The `holon-agentic-coder` half of Bean 0147**, **Bean 0155** then **Bean 0148** (redaction), **Beans 0172, 0174,
     0173** (budgets, the environment-variable reference, then the layered `.env` that needs the reference's allow-list
     and secret flags), **Bean 0200** (holon-coherence owns token reduction; after 0189).
-14. **Bean 0176**: pytest-only conversion of every test file (touches most test files, so it runs alone).
+13. **Bean 0176**: pytest-only conversion of every test file (touches most test files, so it runs alone).
 
 Parallel lane (disjoint files):
 
 - **Harness PR #58 (`docs/harness-20261030`):** consolidates Beans 0170, 0182, 0210, 0212, and 0213, with green CI
   checks, awaiting maintainer review/merge.
 - **holon-coherence decomposition lane** (Bean 0177 order, disjoint from holon-agentic-coder): unblocked by PR #36 (Bean
-  0203), PR #37 (Bean 0204), and PR #38 (Bean 0205, `e3dcc1a`) merged into `main`. Next concurrent lanes: **Bean 0206**
-  (one provider module per wire format under `proxy/providers/`), **Bean 0207** (metrics aggregation out of command
-  handlers into `metrics/`), and **Bean 0208** (`ProxyLifecycle` class owns proxy start-up, readiness, and teardown).
+  0203), PR #37 (Bean 0204), PR #38 (Bean 0205), and PR #39 (Bean 0206, `ca43eb9`) merged into `main`. Next concurrent
+  lanes: **Bean 0207** (metrics aggregation out of command handlers into `metrics/`), and **Bean 0208**
+  (`ProxyLifecycle` class owns proxy start-up, readiness, and teardown).
 - **Bean 0166** (CI pipeline duration dashboard; workflows and observability only, pairs with 0163). If it edits a
   target repository's workflow files, it does not run beside 0202 or 0209 (both already merged).
 - **Beads adoption lane (from Bean 0156):** **Bean 0214** (pilot beads in holon-agentic-coder, folding in the 0147 hac

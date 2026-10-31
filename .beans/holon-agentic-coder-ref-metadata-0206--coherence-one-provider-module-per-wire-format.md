@@ -2,7 +2,7 @@
 # holon-agentic-coder-ref-metadata-0206
 title:
   "holon-coherence: one provider module per wire format (Anthropic, OpenAI, Gemini) for cleaning, parsing and cache keys"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -74,4 +74,4 @@ twice.
   GitHub.
 - Stage 5 Calibration completed (`a3c01c6`, Predicted EV: 7.98, Actual EV: 8.52, $\Delta\text{EV} = +0.54$) and pushed
   to PR #39 head and `/calibrated` branch.
-- PR #39 is approved and fully calibrated; awaiting manual human merge.
+- Merged into `main` by maintainer as `ca43eb9fb134451cea5685ae8d527599d9f4600b` (`ca43eb9`) at 2026-10-31T05:30:23Z.
