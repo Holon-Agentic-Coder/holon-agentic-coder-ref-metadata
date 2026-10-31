@@ -163,14 +163,13 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     ),
     "",
     (
-        "Later on **2026-10-31:** **Beans 0220 and 0207 traversed the full flow, passed 3/3 unanimous consensus "
-        "review, and were calibrated:** HAC PR #120 (Bean 0220, `8d5e57d`: remove GitHub PR terminology across "
-        "flow CLI, report, and prompts) passed 3/3 ensemble review in 1 iteration, green on 11/11 CI checks, with "
-        "Stage 5 calibration (`8d5e57d`, predicted EV 62.24 / actual 67.46, $\\Delta\\text{EV} = +5.22$). Coherence "
-        "PR #40 (Bean 0207, `ffd6c9e`: decompose A/B test and metrics commands into dedicated domain packages "
-        "`ab_testing/` and `metrics/`) passed 3/3 ensemble review in 2 iterations, green on all 7 CI checks, with "
-        "Stage 5 calibration (`ffd6c9e`, predicted EV 7.94 / actual 8.41, $\\Delta\\text{EV} = +0.47$). Both PRs await "
-        "manual human merge."
+        "Later on **2026-10-31:** **Beans 0220 and 0207 merged:** HAC PR #120 (`922289f`, Bean 0220) removed GitHub "
+        "PR terminology across flow CLI, report, and prompts, standardizing on platform-agnostic terms; passed 3/3 "
+        "ensemble review and completed Stage 5 calibration (`8d5e57d`, predicted EV 62.24 / actual 67.46, "
+        "$\\Delta\\text{EV} = +5.22$). Coherence PR #40 (`d6f1655`, Bean 0207) decomposed A/B test and metrics "
+        "commands into dedicated domain packages `ab_testing/` and `metrics/`; passed 3/3 ensemble review and "
+        "completed Stage 5 calibration (`ffd6c9e`, predicted EV 7.94 / actual 8.41, $\\Delta\\text{EV} = +0.47$). "
+        "Both targets were synchronized to `origin/main` and reinstalled locally via `install-holon`."
     ),
     "",
     (
@@ -219,57 +218,52 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "Sequential lane, holon-agentic-coder (flow blockers first):",
     "",
     (
-        "1. **Beans 0220 (HAC PR #120) and 0207 (Coherence PR #40) approved & calibrated.** Both PRs traversed all 5 "
-        "stages with unanimous 3/3 consensus approval, green CI checks, and calibration reports in the PR diff, "
-        "awaiting human maintainer merge."
-    ),
-    (
-        "2. **Bean 0221** (standardise Review Loop agent output and consensus report generator with skill consensus "
+        "1. **Bean 0221** (standardise Review Loop agent output and consensus report generator with skill consensus "
         "template) building on **Bean 0213** prompt template reflection."
     ),
     (
-        "3. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split before the "
+        "2. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split before the "
         "next `flow.py` features stops those features colliding."
     ),
     (
-        "4. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean "
+        "3. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean "
         "0190** (checkpoint and ledger reconciliation; entrypoints stop importing flow). Both beans ask to precede "
-        "0183 (item 5), as in Bean 0177's migration step 3."
+        "0183 (item 4), as in Bean 0177's migration step 3."
     ),
     (
-        "5. **Bean 0183** (every stage and engine bookkeeping step sandboxed). Bean 0179 is merged (`b746408`), so "
+        "4. **Bean 0183** (every stage and engine bookkeeping step sandboxed). Bean 0179 is merged (`b746408`), so "
         "Stage 4 container dispatch is active."
     ),
     (
-        "6. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), "
+        "5. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), "
         "then **Bean 0146** (plans-ledger correction rows; calibration picks the right predicted metrics). Bean 0197 "
-        "(item 8) follows 0146 because both edit the predicted-metrics parser."
+        "(item 7) follows 0146 because both edit the predicted-metrics parser."
     ),
     (
-        "7. **Bean 0149**, then **Bean 0151**: unique IDs across concurrently planned intents (parallel batches "
+        "6. **Bean 0149**, then **Bean 0151**: unique IDs across concurrently planned intents (parallel batches "
         "still rely on staggered starts), then touch-set admission."
     ),
     (
-        "8. **Decomposition lanes from Bean 0177** once the splits land, in parallel where their packages differ: "
+        "7. **Decomposition lanes from Bean 0177** once the splits land, in parallel where their packages differ: "
         "0191 then 0192 (GitHub adapter, `ReviewLoop`), 0193, 0194, 0195 then 0196, 0197 (after 0146 and 0162, as "
-        "Bean 0197 asks), 0198 and 0199 (all tracked by umbrella Bean 0152, with 0190 from item 4), and 0201 "
+        "Bean 0197 asks), 0198 and 0199 (all tracked by umbrella Bean 0152, with 0190 from item 3), and 0201 "
         "(outside the umbrella). Bean 0153 runs per package with, or right after, that package's decomposition."
     ),
-    "9. **Bean 0160**, then **Bean 0157**: the remaining flow-integrity blockers.",
+    "8. **Bean 0160**, then **Bean 0157**: the remaining flow-integrity blockers.",
     (
-        "10. **Bean 0161**: nested sub-intent branches per the maintainer's rulings (now documented by PRs #103, "
+        "9. **Bean 0161**: nested sub-intent branches per the maintainer's rulings (now documented by PRs #103, "
         "#110 and #113), chaining and resume safety."
     ),
     (
-        "11. **Bean 0181**: `/_` only on branch refs, ids bare (ledger field migration; readers accept both shapes). "
+        "10. **Bean 0181**: `/_` only on branch refs, ids bare (ledger field migration; readers accept both shapes). "
         "After 0161 and 0179, which overlap `flow.py`, as Bean 0181 asks."
     ),
     (
-        "12. **The `holon-agentic-coder` half of Bean 0147**, **Bean 0155** then **Bean 0148** (redaction), **Beans "
+        "11. **The `holon-agentic-coder` half of Bean 0147**, **Bean 0155** then **Bean 0148** (redaction), **Beans "
         "0172, 0174, 0173** (budgets, the environment-variable reference, then the layered `.env` that needs the "
         "reference's allow-list and secret flags), **Bean 0200** (holon-coherence owns token reduction; after 0189)."
     ),
-    "13. **Bean 0176**: pytest-only conversion of every test file (touches most test files, so it runs alone).",
+    "12. **Bean 0176**: pytest-only conversion of every test file (touches most test files, so it runs alone).",
     "",
     "Parallel lane (disjoint files):",
     "",
@@ -280,8 +274,8 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     (
         "- **holon-coherence decomposition lane** (Bean 0177 order, disjoint from holon-agentic-coder): unblocked "
         "by PR #36 (Bean 0203), PR #37 (Bean 0204), PR #38 (Bean 0205), PR #39 (Bean 0206), and PR #40 (Bean 0207, "
-        "approved & calibrated). Next concurrent lane: **Bean 0208** (`ProxyLifecycle` class owns proxy start-up, "
-        "readiness, and teardown)."
+        "`d6f1655`) merged into `main`. Next concurrent lane: **Bean 0208** (`ProxyLifecycle` class owns proxy "
+        "start-up, readiness, and teardown)."
     ),
     (
         "- **Bean 0166** (CI pipeline duration dashboard; workflows and observability only, pairs with 0163). If it "
@@ -613,14 +607,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "domain": "Executor / Refactor",
         "notes": "After 0195 and 0190. 798 lines, CC 178 (worst in the repository).",
     },
-    "0220": {
-        "title": "Remove GitHub-specific PR wording; standardize on Review Loop and Change Diff",
-        "priority": "**P2**",
-        "impact": "Medium",
-        "sizing": "S",
-        "domain": "Flow / Terminology",
-        "notes": "HAC PR #120 approved (3/3), calibrated (8d5e57d), awaiting human merge.",
-    },
     "0181": {
         "title": "Use the `/_` leaf only when referencing a git branch, never on ids",
         "priority": "**P2**",
@@ -740,21 +726,13 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "domain": "Ledger / Knowledge",
         "notes": "After 0190; parallel lane. Low bean priority.",
     },
-    "0207": {
-        "title": "holon-coherence: A/B evaluation and metrics aggregation move out of the command handlers",
-        "priority": "**P2**",
-        "impact": "Medium",
-        "sizing": "M",
-        "domain": "Metrics / holon-coherence",
-        "notes": "Coherence PR #40 approved (3/3), calibrated (ffd6c9e), awaiting human merge.",
-    },
     "0208": {
         "title": "holon-coherence: a `ProxyLifecycle` class owns proxy start-up, readiness and teardown",
         "priority": "**P2**",
         "impact": "Medium",
         "sizing": "M",
         "domain": "Proxy / holon-coherence",
-        "notes": "After 0203; parallel with 0207.",
+        "notes": "After 0203 and 0207; parallel lane.",
     },
     "0216": {
         "title": "Holon flow references and drives beads work items (claim on intent, close on merge)",
@@ -1489,6 +1467,22 @@ def generate_triage_document(
                 "modules under `proxy/providers/` (`base.py`, `anthropic.py`, `openai.py`, `gemini.py`, "
                 "`translation.py`) conforming to `ProviderFormat` protocol; passed 3/3 unanimous ensemble consensus "
                 "review, completed Stage 5 calibration (`45ff23d`), and merged into `main`."
+            ),
+            (
+                "27. **Platform-Agnostic Review Terminology and Coherence A/B & Metrics Domain Decomposition "
+                "(Beans 0220, 0207 / HAC PR #120 & Coherence PR #40, 2026-10-31)**:"
+            ),
+            (
+                "    - `0220` (HAC #120, `922289f`): removed GitHub-specific PR wording across CLI help, engine "
+                "logging, consensus report generator, and prompt templates, standardizing on platform-agnostic terms "
+                "like 'Review Loop' and 'Change Diff'; passed 3/3 unanimous ensemble consensus review, completed "
+                "Stage 5 calibration (`8d5e57d`), and merged into `main`."
+            ),
+            (
+                "    - `0207` (Coherence #40, `d6f1655`): moved A/B evaluation and offline metrics aggregation domain "
+                "logic out of CLI command handlers into dedicated domain packages `ab_testing/` and `metrics/`; "
+                "passed 3/3 unanimous ensemble consensus review, completed Stage 5 calibration (`ffd6c9e`), and "
+                "merged into `main`."
             ),
             "",
             "---",

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0207
 title: "holon-coherence: move A/B evaluation and metrics aggregation out of the command handlers and decompose them"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -11,7 +11,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0203
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-31T06:33:00Z
+updated_at: 2026-10-31T09:12:00Z
 ---
 
 ## Problem
@@ -62,4 +62,4 @@ Blocked by 0203. Parallel-safe with 0208.
     to GitHub. Recorded `ACT-REV` and `ACT-POST` in `executions.jsonl` under `88ed127`.
 - Stage 5 Calibration completed (`ffd6c9e`, Predicted EV: 7.94, Actual EV: 8.41, $\Delta\text{EV} = +0.47$) and pushed
   to `/calibrated` and PR #40 head.
-- PR #40 is fully approved and calibrated; awaiting manual human merge.
+- Merged into `main` by maintainer as `d6f1655a09b00189b60bab11ec4b6cb0ad793522` (`d6f1655`) at 2026-10-31T09:10:59Z.

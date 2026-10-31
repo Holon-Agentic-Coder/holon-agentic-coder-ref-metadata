@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0220
 title: "Remove GitHub-specific PR wording; standardize on Review Loop and Change Diff"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -11,7 +11,7 @@ tags:
   - terminology
   - holon-agentic-coder
 created_at: 2026-10-30T09:05:09Z
-updated_at: 2026-10-31T06:34:00Z
+updated_at: 2026-10-31T09:12:00Z
 ---
 
 ## Problem
@@ -102,4 +102,4 @@ language.
     `db908f8`.
 - Stage 5 Calibration completed (`8d5e57d`, Predicted EV: 62.24, Actual EV: 67.46, $\Delta\text{EV} = +5.22$) and pushed
   to `/calibrated` and PR #120 head.
-- PR #120 is fully approved and calibrated; awaiting manual human merge.
+- Merged into `main` by maintainer as `922289fb7ce84c70ecacdfab573c2eba64b33221` (`922289f`) at 2026-10-31T09:11:53Z.
