@@ -87,4 +87,8 @@ These fallback defaults are unsafe and must be removed:
 - Stage 3 completed (`E-1793363504`), all 2,876 tests passing. Pull Request
   [#119](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/119) opened on GitHub.
 - Origin main merged into PR #119 branch (`52f25b3`), resolving ledger conflict in `executions.jsonl` and fixing
-  markdown formatting on execution notes with Prettier. CI checks passing and merge state clean. In Stage 4 review loop.
+  markdown formatting on execution notes with Prettier.
+- Stage 4 PR Review Loop: 3-agent ensemble reached unanimous `APPROVED` (3/3) at iteration 2.
+- Stage 5 Calibration completed (`131291c`, Predicted EV: 75.66, Actual EV: 82.51, $\Delta\text{EV} = +6.85$) and pushed
+  to PR #119 head and `/calibrated` branch.
+- PR #119 is approved and fully calibrated; awaiting manual human merge.
