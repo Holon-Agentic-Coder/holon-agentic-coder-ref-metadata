@@ -86,10 +86,39 @@ branch and ledger record the next one consumes (see invariant 8 in [rules.md](ru
   the calibration report is included in the PR diff and lands on `main` when merged.
 - **Document**: Add notes inside the task file explaining how the task was resolved, including the intent, plan, and
   execution branch names.
+- **Post-merge** (on detecting the human's merge of a target repository PR; harness PRs are exempt): close the delivered
+  bean(s) with a summary, refresh the triage generator and regenerate the matrix, and recommend the next set of
+  concurrently runnable beans (disjoint touch sets, dependencies honoured) to the maintainer. See the Post-Merge
+  Protocol in [AGENTS.md](../AGENTS.md).
 
-Invoke these stages individually or drive them with `holon flow <intent.json>`, which already exists on `main` with a
-reduced flag set (Bean 0040 tracks the flags and usage docs still outstanding; the Bean 0039 pipeline engine is
-completed). Both modes satisfy the same requirement.
+**Always drive changes with `holon flow <intent.json>` directly.** `holon flow` is the mandatory orchestrator for the
+entire 5-stage lifecycle. Never use ad-hoc wrapper scripts (such as `holon-stage.sh`) or disconnected manual stage
+commands when executing tasks. When resuming an in-flight pipeline after fixing a blocker, turn timeout, or falling back
+across model tiers, use `holon flow <intent.json> --from-stage <stage>` or `--checkpoint <checkpoint.json>`.
+
+- **Automatic Model & Runner Fallback on Credit / Quota Exhaustion**: If any stage (`plan`, `execute`, `review`, or
+  `calibrate`) or AGY subagent fails because credit or session quota ran out on the higher-level model (for both
+  **Claude** and **Antigravity**), automatically fall back to the next lower model tier that still has credit and
+  **continue the flow from the current stage** (reusing the already-created `I-.../_`, `P-.../_`, or `E-.../_` branch
+  rather than starting over):
+  - **Claude (`claude-agent`)**: `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5`.
+  - **Antigravity (`antigravity-agent` CLI)**: `gemini-3.8-pro-high` $\rightarrow$ `gemini-3.8-flash-medium`
+    $\rightarrow$ `gemini-3.8-flash`.
+  - **Antigravity (`invoke_subagent`)**: `Model: "inherit"` / `"pro"` $\rightarrow$ `"flash"` $\rightarrow$
+    `"flash_lite"`.
+  - **Cross-Runner Continuation**: If all model tiers under the current runner share an exhausted account/session quota,
+    switch `--agent` to the alternate runner (`antigravity-agent` or `claude-agent`) and resume from the failed stage
+    (e.g. `holon plan <intent_branch> --agent antigravity-agent --model gemini-3.8-flash-medium`, followed by
+    `holon execute <plan_branch>`, `holon review <execution_branch>`, and `holon calibrate <execution_branch>`).
+- **Ledger-Only Conflicts Do Not Require Test Runs**: When merging or rebasing `origin/main` into a Holon flow branch
+  and the conflict is confined entirely to `holon-knowledge/ledger/*.jsonl`, running test suites is not required.
+  Resolve the conflict by interleaving records chronologically by timestamp (`created_at`), verify all lines parse as
+  valid JSON, commit, and push directly.
+- **Mandatory Target-Branch Conflict Resolution Before Review Approval & Calibration**: Before posting an `APPROVED`
+  consensus review to GitHub or running `holon calibrate`, always check
+  `gh pr view <pr> --json mergeable,mergeStateStatus`. If the PR is `CONFLICTING` or `DIRTY` against `origin/main`,
+  immediately fetch `origin/main`, merge it into the execution branch, resolve the conflicts (interleaving ledger
+  entries chronologically), commit, and push to `origin`. Never post approval or calibrate while a PR is conflicting.
 
 ### 3. Task Completion
 
@@ -275,6 +304,11 @@ To maintain clean repository history, follow this Git workflow:
      (`gh pr create`) against the base branch so that Stage 4 (PR review loop) can proceed seamlessly without manual
      handoff. For non-flow work (such as standalone harness branches or hand-authored worktrees), raising a Pull Request
      still requires explicit instruction from the human maintainer.
+   - **Harness Branches Are Operational Workspaces (No Frequent Merging Needed)**: Branches in this metadata repository
+     (`holon-agentic-coder-ref-metadata`) serve as day-to-day operational branches and persistent records of work
+     completed (task tracking in `.beans/`, triage updates, rules refinement, and tooling). They do not need to be
+     merged into `main` frequently. Raising a Pull Request or merging to `main` is an infrequent maintainer checkpoint,
+     not a daily requirement.
 
 > [!CAUTION] **Agents MUST NEVER merge a Pull Request.** Merging is exclusively the human maintainer's responsibility.
 > The following actions are **strictly forbidden** with no exceptions:

@@ -50,13 +50,17 @@ system safety, and clean documentation. Follow these core guidelines in every se
 - **All `holon-agentic-coder` and `holon-coherence` code modifications must be produced by the 5-stage Holon flow**
   (intent -> plan -> execute -> PR review loop -> calibration) as sandbox-authored commits on `I-.../P-.../E-...`
   branches. Running `holon` inside either target repository worktree dynamically resolves `remote.origin.url` via
-  `resolve_target_repo_url()`. Manual stage-by-stage commands are as compliant as `holon flow`; skipping any stage is
-  not. See the Sole Change Path rule in `AGENTS.md` and invariant 8 in `.agents/rules.md`.
+  `resolve_target_repo_url()`. **Always use `holon flow <intent.json>` directly** (with `--from-stage` or `--checkpoint`
+  when resuming); never use ad-hoc wrapper scripts (like `holon-stage.sh`) or manual disconnected stage commands.
+  Skipping any stage is strictly prohibited. See the Sole Change Path rule in `AGENTS.md` and invariant 8 in
+  `.agents/rules.md`.
 - Repository worktrees (e.g. `apps/holon-agentic-coder/{branch}` or `apps/holon-coherence/{branch}`) are for building
   images, reading code, running verification, and operating the harness -- never for hand-authoring target codebase
   source changes outside the flow.
 - The repository root is strictly for control plane coordination, task tracking (`.beans/`), and agent guidance; those
-  harness files are edited directly, since the flow does not target this metadata repository.
+  harness files are edited directly, since the flow does not target this metadata repository. Harness branches (e.g.
+  `docs/harness-YYYYMMDD`) are operational branches that maintain the ongoing audit record of work performed across
+  sessions; they do not need to be merged into `main` frequently or turned into PRs for routine operational tracking.
 
 ### 5. Subagent Delegation (AGY & Generic Coding Agents)
 
@@ -64,6 +68,20 @@ system safety, and clean documentation. Follow these core guidelines in every se
   - Use `invoke_subagent` with `TypeName: "self"` so child agents inherit full tools (view, edit, bash execution) and
     environment settings. Use `TypeName: "research"` for read-only research.
   - Set `Model: "inherit"` to match the parent agent's configuration.
+  - **Automatic Model Tier Fallback on Credit/Quota Exhaustion**: Applies to both **Claude** and **Antigravity**. When a
+    higher-level model runs out of credit, session quota, or rate-limit allowance, automatically fall back to the next
+    lower model tier that has credit and continue the flow or review loop from the current stage/branch without
+    restarting completed stages:
+    - **Claude (`claude-agent` / Claude Code)**: `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6` $\rightarrow$
+      `claude-haiku-4-5`.
+    - **Antigravity (`antigravity-agent` in `holon` CLI)**: `gemini-3.8-pro-high` $\rightarrow$
+      `gemini-3.8-flash-medium` $\rightarrow$ `gemini-3.8-flash`.
+    - **Antigravity (`invoke_subagent` in AGY runtime)**: `Model: "inherit"` / `"pro"` $\rightarrow$ `"flash"`
+      $\rightarrow$ `"flash_lite"`.
+    - **Cross-Runner Continuation**: If an entire runner's session quota is exhausted across all its model tiers (e.g.
+      Claude OAuth session limit), switch `--agent` to the alternate runner (`antigravity-agent` or `claude-agent`) and
+      continue the flow from the current stage (`holon plan <intent_branch>`, `holon execute <plan_branch>`,
+      `holon review <execution_branch>`, or `holon calibrate <execution_branch>`).
   - Never poll or sleep in a loop; AGY wakes the parent agent automatically when child tasks finish.
 - Generic coding agents (such as Claude Code, Codex, Pi, OpenCodeInterpreter) can execute child tasks using their native
   subagent or child process delegation mechanisms following the same prompt contracts.
@@ -114,3 +132,12 @@ system safety, and clean documentation. Follow these core guidelines in every se
 - **Interleaved Actions**: All discrete action records (`entry_type: "action"`) and lifecycle summaries
   (`entry_type: "summary"`) must be appended exclusively to `executions.jsonl` under advisory file locking
   (`LedgerLock`).
+- **Ledger-Only Conflict Resolution (No Tests Required)**: When resolving merge conflicts between a flow branch and
+  `origin/main` where only files under `holon-knowledge/ledger/` conflict, do NOT run the test suite. Simply sort and
+  interleave the JSONL records chronologically by `created_at` timestamp, ensure all lines are valid JSON, commit, and
+  push.
+- **Mandatory Target-Branch Conflict Resolution**: Prior to posting an approved consensus review to GitHub or running
+  Stage 5 calibration, agents and orchestrators MUST check `gh pr view <pr> --json mergeable,mergeStateStatus`. If
+  `mergeable == "CONFLICTING"` or `mergeStateStatus == "DIRTY"`, the agent must immediately merge `origin/main` into the
+  PR branch, resolve the conflicts (interleaving ledger entries chronologically), and push to `origin`. Never leave
+  merge conflicts for the human maintainer.

@@ -1,14 +1,14 @@
 ---
 # holon-agentic-coder-ref-metadata-0211
 title: "holon-coherence docs: A/B test recipe runs mitmdump in the foreground; metrics after a restart show one pass"
-status: todo
+status: completed
 type: bug
 priority: low
 tags:
   - holon-coherence
   - documentation
 created_at: 2026-10-29T23:43:35Z
-updated_at: 2026-10-30T00:59:03Z
+updated_at: 2026-10-30T03:10:00Z
 ---
 
 ## Problem
@@ -35,3 +35,14 @@ the same head `52a843b`, found two documentation Nits that were never posted:
 - **Correction (2026-10-30, checked against GitHub):** the Problem section first said PR #31 merged "while its
   iteration-19 ensemble (at `52a843b`) still had two documentation Nits open", without recording that review
   `5699924689` had already posted a 3/3 approval. That wording is superseded by the Problem section above.
+
+## Completion Summary
+
+- Executed through all 5 stages of the Holon flow on `holon-coherence`:
+  1. Intent: `I-1793325153-coherence-ab-test-docs-background-proxy-and-metrics/_`
+  2. Plan: `P-1793325373-antigravity-agent-gemini-3.8-flash-medium`
+  3. Execution: `E-1793325649-antigravity-agent-gemini-3.8-flash-medium`
+  4. Review Loop: PR #33 passed unanimous 3/3 ensemble review across all 7 CI checks.
+  5. Calibration: Calibrated report generated and included in PR diff
+     (`P-1793325373-antigravity-agent-gemini-3.8-flash-medium_calibration.md`).
+- Merged into `main` via PR #33 (`e475e6d`).
