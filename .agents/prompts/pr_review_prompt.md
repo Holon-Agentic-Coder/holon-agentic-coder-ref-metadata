@@ -96,6 +96,13 @@ Three independent blind review passes evaluated this PR at head `<head-sha>` and
 Critical, zero Important and zero open Nit findings. All CI checks are green and the PR is mergeable and clean against
 `<base>`.
 
+**Role reviews:**
+
+| Role (activated)   | Verdict | Review                                                     |
+| :----------------- | :------ | :--------------------------------------------------------- |
+| QA & Test Engineer | `PASS`  | [one line - what this role checked, and what it concluded] |
+| Security Architect | `PASS`  | [one line]                                                 |
+
 **Verified:**
 
 - [Something a reviewer actually checked in this diff, naming the file, module or test that shows it]
@@ -119,6 +126,13 @@ Findings replace the `**Verified:**` block when the verdict is not a clean appro
 
 Three independent blind review passes evaluated this PR at head `<head-sha>` and flag <n> finding(s) below.
 
+**Role reviews:**
+
+| Role (activated)   | Verdict   | Review                                                            |
+| :----------------- | :-------- | :---------------------------------------------------------------- |
+| Principal Engineer | `CHANGES` | 1 critical (`F-1`) - the new dispatcher re-implements retry logic |
+| QA & Test Engineer | `PASS`    | clean; the two nits were rejected in iteration 2                  |
+
 | ID    | Severity   | File:Line     | Reviewer   | Finding         | Recommendation        |
 | :---- | :--------- | :------------ | :--------- | :-------------- | :-------------------- |
 | `F-1` | `critical` | `src/x.py:42` | Reviewer 1 | [what is wrong] | [what to do about it] |
@@ -138,8 +152,13 @@ Three independent blind review passes evaluated this PR at head `<head-sha>` and
   Finding cell when several reviewers raised it, and a `Recommendation` the resolver can act on.
 - Every `**Verified:**` bullet must name something a reviewer verified in this diff. No inherited boiler-plate, and no
   claim about compatibility, test counts or quality gates that nobody ran or read.
-- One heading line, one evaluation paragraph, one checks line, one footer. No persona matrix, no severity legend, no
-  restated PR description - that detail stays in the on-disk reports.
+- **One row per activated role, and every activated role gets a row.** Activated means Step 1 triggered it from a
+  changed file; roles the diff never touched are omitted, never listed as `PASS`. The Review cell is one short line
+  (roughly twenty words), not a paragraph. In an approval it says what the role checked and what it concluded; otherwise
+  it carries that role's finding ids, so the findings table can be read without re-deriving attribution.
+- One heading line, one evaluation paragraph, one role table, one checks line, one footer. Never reproduce the 16-role
+  activation matrix in the comment: rows are the activated roles only. The matrix, the per-finding detail and the
+  severity legend stay in the on-disk reports, together with any restatement of the PR description.
 - `APPROVED` requires 3/3 with zero Critical, zero Important, zero open actionable Nits, green CI and a clean
   mergeability probe. Any unmeasured probe is reported as unmeasured, never as clean. Whether a body is posted at all is
   Phase B's decision, not this template's.

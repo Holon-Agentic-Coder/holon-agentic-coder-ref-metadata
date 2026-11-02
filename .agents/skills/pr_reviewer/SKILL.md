@@ -129,7 +129,9 @@ Once all 3 reviewer subagents complete their evaluations, synthesize a single **
    - Union all unique findings across all severity levels (🔴 **CRITICAL / BLOCKER**, 🟡 **IMPORTANT / IMPROVEMENT**, 🟢
      **NIT / OPTIONAL**, and ✅ **APPROVED / PASS**) from all 3 passes.
 2. **Consolidated Dynamic Role Matrix**:
-   - Aggregate role activations across all 3 review passes to form a single master Dynamic Role Activation Matrix.
+   - Aggregate role activations across all 3 review passes to form a single master Dynamic Role Activation Matrix. The
+     full matrix stays in the on-disk consensus report; the posted comment carries the activated roles only, as one row
+     and one short line each (step 3a of `pr_review_prompt.md`).
 
 ### Step 3.2: Consensus Verdict & Deferred CI Verification
 
@@ -220,7 +222,8 @@ Check if **Dry-Run Mode** is enabled (e.g. via `--dry-run` parameter or loop ins
     - whole, even for a clean `APPROVED` with zero findings. A summary paragraph, a verdict-and-counts one-liner, or the
       footer alone is **not** a valid posted review. Build the body from the ensemble reviewer reports, never from
       trailer counts, and expand a synthesiser output that came back condensed. Never post the machine-readable trailer
-      block. The persona-level detail stays in the on-disk reviewer reports, which is what the resolver actions.
+      block. The activation matrix and the per-finding detail stay in the on-disk reviewer reports, which is what the
+      resolver actions; the comment itself carries the compact role table.
   - Write your review output to a temporary file (`.subagent/<repo>_pr<N>_review_body.md`) to prevent shell character
     escaping issues.
   - Submit the review to GitHub using the flag matching your overall ensemble verdict:

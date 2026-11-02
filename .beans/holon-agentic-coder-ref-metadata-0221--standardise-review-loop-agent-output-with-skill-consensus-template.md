@@ -151,9 +151,11 @@ receipt.
 > mergeability gates were left alone: they are procedure, not template. **Part B is what remains.**
 
 **Part B - target work, flow only.** Once Part A has landed, `holon-config/prompts/review_loop.template.md`,
-`scaffold.REVIEW_LOOP_TEMPLATE` and `build_pr_review_consensus_report()` render **that** block, plus the seven fixes
-below, and a test asserts the rendered report matches the template written in the skill - not a fixture written to match
-the code. The deployed prompt ends up shorter than the 288 lines PR #121 shipped.
+`scaffold.REVIEW_LOOP_TEMPLATE` and `build_pr_review_consensus_report()` render **that** block - including its compact
+`| Role (activated) | Verdict | Review |` table, one row per activated role with one concise line each (maintainer
+requirement 2026-11-02) - plus the seven fixes below, and a test asserts the rendered report matches the template
+written in the skill - not a fixture written to match the code. The deployed prompt ends up shorter than the 288 lines
+PR #121 shipped.
 
 **Prohibited in this bean:** a new schema, persona registry, role-activation matrix, severity legend or fixed
 `Verified:` assertions authored in the target diff; a target template that predates the skill change; and tests that pin
