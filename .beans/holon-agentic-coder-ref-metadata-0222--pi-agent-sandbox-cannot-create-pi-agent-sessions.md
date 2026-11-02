@@ -84,8 +84,8 @@ Even with a writable `sessions/` directory, a flow cannot inherit this session's
 credential path for it: `~/.pi/agent/auth.json` is deliberately never mounted, and pi has no `HOLON_AGENT_KEY`-style
 injection (antigravity supports one). The fix must state how a session-inherited model authenticates inside the sandbox,
 or the pre-flight gate must say so distinctly instead of reporting `UNKNOWN`. Host-local model mode is the designed
-route for a local/vmlx model, but `vmlx` is not installed on this host and `holon` does not self-provision it - that is
-Bean 0143.
+route for a local/vmlx model, but `vmlx` is not installed on this host and nothing provisions it, so that route is
+unavailable here today.
 
 ## Acceptance criteria
 
