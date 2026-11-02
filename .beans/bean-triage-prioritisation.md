@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-02 04:16:56 UTC
+**Last Updated:** 2026-11-02 04:23:32 UTC
 
 ## Executive Summary
 
@@ -417,7 +417,7 @@ other flow is running on either target.
 | **P2**   | todo        | Medium |   M    | 0218   | Port harness skills and guidance to bd and sequence the harness retirement                      | Harness Deprecation        | Harness work. Retire triage matrix / `prioritise-beans` for `bd ready --json`; port guidance; archive harness read-only after pilots succeed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | **P2**   | todo        |  High  |   L    | 0142   | Real-workload benchmark: Qwen3.8-27B dense vs Flash-Next MoE                                    | Model Selection            | Real data only (AGENTS.md item 10).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | **P3**   | todo        | Medium |   M    | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                             | vmlx / Performance         | Pairs with 0142.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| **P1**   | todo        |  High  |   M    | 0222   | pi-agent sandbox cannot create ~/.pi/agent/sessions, so pi-runner flows die at pre-flight       | Ledger / Observability     | Discovered 2026-11-02 while starting the `render-review-consensus-comment-from-reviewer-data` flow with the harness                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| **P1**   | todo        |  High  |   M    | 0222   | pi-agent sandbox cannot create ~/.pi/agent/sessions, so pi-runner flows die at pre-flight       | Flow / Architecture        | Found 2026-11-02 launching the `render-review-consensus-comment-from-reviewer-data` intent with this harness session's                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
 ---
 
@@ -457,9 +457,9 @@ Sequential lane, holon-agentic-coder (flow blockers first):
    `pr_review_prompt.md` step 3a - and part B is now its own intent,
    `render-review-consensus-comment-from-reviewer-data`, because a resume can carry neither the corrected intent text
    nor a working execution. Blocked while the flow inherits this harness session's runner by newly filed `0222` (P1):
-   the `holon/agent-pi` image ships no `~/.pi` and its `$HOME` is `0700`, so the pre-flight gate dies with `EACCES`
-   creating `~/.pi/agent/sessions`; running part B on an explicitly named alternative runner is the maintainer's
-   decision, not a silent fallback.
+   mounting only `~/.pi/agent/models.json` for pi makes Docker pre-create root-owned `/home/holon/.pi` parents, so
+   pre-flight dies with `EACCES` creating `~/.pi/agent/sessions`. Running part B on an explicitly named alternative
+   runner is the maintainer's decision, not a silent fallback.
 2. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split before the next
    `flow.py` features stops those features colliding.
 3. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean 0190**

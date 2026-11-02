@@ -216,9 +216,10 @@ Part B was first attempted as a resume of this intent (`holon flow --checkpoint 
 ### Launch blocker (2026-11-02)
 
 The fresh intent was launched with this harness session's own runner and model (`--agent pi-agent --model` the
-`PI_MODEL` value), as instructed. It died in the pre-flight gate: the `holon/agent-pi` image has no `~/.pi` and its
-`$HOME` is `0700`, so pi's `getDefaultSessionDir` hits `EACCES` creating `~/.pi/agent/sessions/--home-holon--`. Nothing
-was created - no branch, no checkpoint row, no ledger entry. Filed as
+`PI_MODEL` value), as instructed. It died in the pre-flight gate: `get_agent_session_mounts` mounts only
+`~/.pi/agent/models.json` for pi, so Docker pre-creates `/home/holon/.pi{,/agent}` as root and pi (uid 1000) hits
+`EACCES` in `getDefaultSessionDir` creating `~/.pi/agent/sessions/--home-holon--`. Nothing was created - no branch, no
+checkpoint row, no ledger entry. Filed as
 [[holon-agentic-coder-ref-metadata-0222--pi-agent-sandbox-cannot-create-pi-agent-sessions]] (P1, blocks this bean while
 the flow inherits the session runner). Running part B on an explicitly named alternative runner is the maintainer's
 call, not a silent fallback.
