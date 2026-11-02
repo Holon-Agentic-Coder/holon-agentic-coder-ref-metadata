@@ -64,12 +64,28 @@ with writable overlays (`--tmpfs /home/holon/.gemini/config:uid=1000,gid=1000` a
 525-527 and 545-547). Pi has no equivalent. Same defect family as #0112 (Codex `$HOME/.tmp`), #0114, #0168 and #0194 -
 sandbox home state that the tool must write but was never given somewhere writable to write.
 
+The distinction that fixes it is **file bind vs directory bind** - a directory bind at the same path is writable and
+creates no root-owned parents:
+
+```
+$ docker run --rm -v /tmp/pi-agent-probe:/home/holon/.pi/agent:rw --entrypoint sh holon/agent-pi \
+      -lc 'mkdir -p /home/holon/.pi/agent/sessions/x && echo OK'
+drwxr-xr-x 3 root   root   4096 /home/holon/.pi
+drwxr-xr-x 2 holon holon     64 /home/holon/.pi/agent
+OK
+```
+
+Which is also why host-local model mode avoids this bug: it stops mounting host config (`cli/__init__.py:581`) and binds
+generated agent directories instead (`local_llm.pi_agent_dirs`, `local_llm.prepare_agent_dir`).
+
 ## Second gap this exposed
 
 Even with a writable `sessions/` directory, a flow cannot inherit this session's model, because the sandbox has no
 credential path for it: `~/.pi/agent/auth.json` is deliberately never mounted, and pi has no `HOLON_AGENT_KEY`-style
 injection (antigravity supports one). The fix must state how a session-inherited model authenticates inside the sandbox,
-or the pre-flight gate must say so distinctly instead of reporting `UNKNOWN`.
+or the pre-flight gate must say so distinctly instead of reporting `UNKNOWN`. Host-local model mode is the designed
+route for a local/vmlx model, but `vmlx` is not installed on this host and `holon` does not self-provision it - that is
+Bean 0143.
 
 ## Acceptance criteria
 
