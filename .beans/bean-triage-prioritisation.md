@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-02 01:12:29 UTC
+**Last Updated:** 2026-11-02 03:44:44 UTC
 
 ## Executive Summary
 
@@ -129,11 +129,13 @@ is the only source of truth - and that chain documents a persona-sectioned body 
 `Ensemble Consensus Review (n/n)` comment no harness file defines, so PR #121 had nothing to copy. Part A writes that
 consensus template into the skills, condensed; part B mirrors it in the target through the flow. Part A landed the same
 day: `pr_review_prompt.md` 181 to 157 lines with a new canonical Step 3a consensus comment, `pr_reviewer` 288 to 263
-with the footer and trailer defined once, and `pr_review_loop` pointing at that block at all three posting points.
-**Bean 0208** is still in flight on `holon-coherence` (PR #41, `2f30d6e`): Stage 3 pushed the `ProxyLifecycle`
-extraction, but both unit jobs are red - 9 failures across `tests/commands/test_start.py`,
-`tests/commands/test_web_token.py` and `tests/test_cli.py` (`SystemExit: 1` on the in-container `start` path,
-`stop_proxy_container` never called) - so Stage 4 has not started. No other flow is running on either target.
+with the footer and trailer defined once, and `pr_review_loop` pointing at that block at all three posting points. The
+part B resume then died in Stage 3 - it planned in 8.7 minutes and the executor produced no source changes at all - so
+part B is re-cut as its own intent, `render-review-consensus-comment-from-reviewer-data`. **Bean 0208** is still in
+flight on `holon-coherence` (PR #41, `2f30d6e`): Stage 3 pushed the `ProxyLifecycle` extraction, but both unit jobs are
+red - 9 failures across `tests/commands/test_start.py`, `tests/commands/test_web_token.py` and `tests/test_cli.py`
+(`SystemExit: 1` on the in-container `start` path, `stop_proxy_container` never called) - so Stage 4 has not started. No
+other flow is running on either target.
 
 ---
 
@@ -449,9 +451,11 @@ Sequential lane, holon-agentic-coder (flow blockers first):
 1. **Bean 0221** (reopened): mirror the harness `pr-review-loop` skill template - do not author a competing schema - add
    the ensemble-to-report synthesis seam, make the approved report render only what the ensemble really checked, restore
    the `ID` and `Recommendation` columns and the closing notice, and condense both templates. Resume on the existing
-   `I-1793438366-...` branch (`holon flow <intent.json> --from-stage plan`) so PR #121 carries the corrected work. Part
-   A landed 2026-11-02 - the canonical consensus comment now exists in `pr_review_prompt.md` step 3a - so part B has
-   something to mirror.
+   `I-1793438366-...` branch (`holon flow <intent.json> --from-stage plan`) so a re-plan forks a second plan and
+   execution branch rather than updating #121. Part A landed 2026-11-02 - the canonical consensus comment now lives in
+   `pr_review_prompt.md` step 3a - and part B is now its own intent,
+   `render-review-consensus-comment-from-reviewer-data`, because a resume can carry neither the corrected intent text
+   nor a working execution.
 2. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split before the next
    `flow.py` features stops those features colliding.
 3. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean 0190**

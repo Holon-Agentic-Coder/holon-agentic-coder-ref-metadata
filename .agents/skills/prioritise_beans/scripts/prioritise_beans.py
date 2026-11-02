@@ -194,7 +194,9 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "consensus template into the skills, condensed; part B mirrors it in the target through the flow. Part A "
         "landed the same day: `pr_review_prompt.md` 181 to 157 lines with a new canonical Step 3a consensus comment, "
         "`pr_reviewer` 288 to 263 with the footer and trailer defined once, and `pr_review_loop` pointing at that "
-        "block at all three posting points. "
+        "block at all three posting points. The part B resume then died in Stage 3 - it planned in 8.7 minutes and "
+        "the executor produced no source changes at all - so part B is re-cut as its own intent, "
+        "`render-review-consensus-comment-from-reviewer-data`. "
         "**Bean 0208** "
         "is still in flight on `holon-coherence` (PR #41, `2f30d6e`): Stage 3 pushed the `ProxyLifecycle` "
         "extraction, but both unit jobs are red - 9 failures across `tests/commands/test_start.py`, "
@@ -251,8 +253,10 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "schema - add the ensemble-to-report synthesis seam, make the approved report render only what the ensemble "
         "really checked, restore the `ID` and `Recommendation` columns and the closing notice, and condense both "
         "templates. Resume on the existing `I-1793438366-...` branch (`holon flow <intent.json> --from-stage plan`) "
-        "so PR #121 carries the corrected work. Part A landed 2026-11-02 - the canonical consensus comment now "
-        "exists in `pr_review_prompt.md` step 3a - so part B has something to mirror."
+        "so a re-plan forks a second plan and execution branch rather than updating #121. Part A landed 2026-11-02 - "
+        "the canonical consensus comment now lives in `pr_review_prompt.md` step 3a - and part B is now its own "
+        "intent, `render-review-consensus-comment-from-reviewer-data`, because a resume can carry neither the "
+        "corrected intent text nor a working execution."
     ),
     (
         "2. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split before the "

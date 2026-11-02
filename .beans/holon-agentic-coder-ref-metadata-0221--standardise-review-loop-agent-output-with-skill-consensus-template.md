@@ -196,6 +196,21 @@ The Stage 4 ensemble approved this diff at iteration 1 and Stage 5 calibrated it
 that misses the bean's own acceptance criteria. That is a review-loop signal worth reporting to the maintainer, not a
 reason to close the bean.
 
+## Decision (2026-11-02): re-cut as a fresh intent
+
+Part B was first attempted as a resume of this intent (`holon flow --checkpoint … --from-stage plan`). Result:
+
+- Stage 2 planned in 8.7 min on a new plan branch `P-1793588860-…`, fed by transient `HOLON_REPLAN_FEEDBACK` because the
+  planner reads the immutable `intents.jsonl` row and the CLI discards the intent file on a checkpoint resume.
+- Stage 3 dispatched, exited 1.1 min later with **no changes outside** `holon-knowledge/ledger/`, `plans/` and
+  `executions/`, so the flow failed closed and raised no PR. Plan and execution branches for that attempt
+  (`P-1793588860-…/_` and `…/E-1793589381-…/_`) sit on `origin` with no pull request; they are cleanup candidates.
+- A resume can therefore carry neither the corrected intent text nor a working execution. **Decision: re-cut Part B as
+  its own intent**, `render-review-consensus-comment-from-reviewer-data`
+  (`todo/intent-0221b-render-review-consensus-comment.json`), and run all five stages against it. The intent states the
+  posted shape verbatim so planner, executor and reviewer ensemble share one written contract, and it is written
+  target-natively - no harness paths, no bean ids.
+
 ## Next (Part A harness, Part B flow)
 
 - **Part A first** (harness, direct edit): add the canonical consensus-comment block to
