@@ -109,25 +109,48 @@ architectural requirements must be satisfied:
 - Target repository isolation (Rule 12): No references to harness paths (`.beans/`, `todo/`, `.agents/`) or bean IDs in
   target code or commits.
 
-## Source of Truth (added 2026-11-02, maintainer ruling)
+## Source of Truth (maintainer ruling 2026-11-02, anchors corrected)
 
-The format this bean must produce is **the harness `pr-review-loop` skill's consensus review template, and nothing
-else**:
+The output this bean must produce is the **`pr-review-loop` skill's** template and nothing else. Read these before
+writing anything:
 
-- Canonical source: `## 📤 Standard Review Output Schema` (the posted consensus comment) plus Steps 3.3 and 3.4
-  (`### 🗳️ Ensemble Review Breakdown` footer and the machine-readable trailer block) in
-  `.agents/skills/pr_review_loop/SKILL.md`, and the reviewer-turn shape in `.agents/skills/pr_reviewer/SKILL.md`. Read
-  them before writing; they define the headings, field order, footer and trailer.
-- **Do not invent a competing schema.** A new `Standard Review Output Schema`, persona registry, activation matrix,
-  severity legend or `Verified:` boiler-plate authored inside this bean's own diff is out of scope and is a review
-  finding, not a feature. Anything the skill does not say does not belong in the target template.
-- **Both templates get shorter.** The skill template and `holon-config/prompts/review_loop.template.md` (and its in-code
-  twin `scaffold.REVIEW_LOOP_TEMPLATE`) must be condensed: state the consensus invariants (unanimous n/n, zero Critical
-  / Important / open Nit, CI green, mergeable), the output shape, the ledger-append seam, the human-merge boundary and
-  the trailer block, then stop. Prose that restates another section, filler tables and duplicated severity lists are
-  deleted, not reworded. No behavioural invariant may be lost by the condensation.
-- Any wording change to the skill template lands **before** the target-repo change, so the target mirrors a template
-  that already exists.
+| What                                                                                | Where                                                                                                              |
+| :---------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------- |
+| Loop-level exit conditions and final-review posting                                 | `.agents/skills/pr_review_loop/SKILL.md` - "Phase B: Evaluate Exit Conditions & Post Final Review" (lines 544-711) |
+| Reviewer pass contract: dedup, verdict + CI gate, ensemble footer, trailer, posting | `.agents/skills/pr_reviewer/SKILL.md` - Steps 3.1, 3.2, 3.3, 3.4 and Step 4 (lines 122-275)                        |
+| The report body structure both skills defer to                                      | `.agents/prompts/pr_review_prompt.md` - "📤 Step 3: Output Format" (lines 124-170)                                 |
+
+My first cut of this section pointed at `## 📤 Standard Review Output Schema` in `pr_review_loop/SKILL.md`. That heading
+**does not exist in the harness** - it is the heading PR #121 invented inside `scaffold.py`. Correcting it exposes the
+root cause, which the bean never stated either:
+
+> **The skill chain does not document the comment the loop actually posts.** `pr_review_prompt.md` § Step 3 documents a
+> persona-sectioned body (`📊 PR Metadata & Role Activation` → `🔍 Persona Reviews` → `🏆 Overall Verdict`) and
+> `pr_reviewer` Step 4 requires exactly that body, yet no harness file contains the
+> `## ✅ Ensemble Consensus Review — APPROVED (n/n)` heading or the `**Verified:**` list that real consensus comments
+> use
+>
+> - including the sample quoted under _Problem_ above and the one posted on PR #121. Stage 3 therefore had no written
+>   template to copy and improvised a third one. Until the shape is written into the skills, "align with the skill" is
+>   not a checkable requirement, so this bean is two parts.
+
+**Part A - harness work, no flow required.** Write the consensus-comment template into the skill chain, once, and keep
+it short: verdict heading with `n/n` and the head SHA, the one-paragraph evaluation sentence, the findings table with
+stable finding ids and a `Recommendation` column, the mergeability + CI line, the `🖳️ Ensemble Review Breakdown` footer
+and - on disk only - the trailer block. Put the canonical block in `pr_review_prompt.md` § Step 3 and have `pr_reviewer`
+and `pr_review_loop` reference it instead of restating it. Condense the surrounding prose in the same pass: delete
+duplication rather than rewording it, and lose no invariant - unanimity, zero open Nit, the CI-green gate, fail-closed
+on a missing or trailer-less report, human-only merging, artifact naming, the state file, dual-posting and the posted
+receipt.
+
+**Part B - target work, flow only.** Once Part A has landed, `holon-config/prompts/review_loop.template.md`,
+`scaffold.REVIEW_LOOP_TEMPLATE` and `build_pr_review_consensus_report()` render **that** block, plus the seven fixes
+below, and a test asserts the rendered report matches the template written in the skill - not a fixture written to match
+the code. The deployed prompt ends up shorter than the 288 lines PR #121 shipped.
+
+**Prohibited in this bean:** a new schema, persona registry, role-activation matrix, severity legend or fixed
+`Verified:` assertions authored in the target diff; a target template that predates the skill change; and tests that pin
+the code's own output instead of the skill's template.
 
 ## Verification (2026-11-02): NOT complete, bean reopened
 
@@ -164,13 +187,16 @@ The Stage 4 ensemble approved this diff at iteration 1 and Stage 5 calibrated it
 that misses the bean's own acceptance criteria. That is a review-loop signal worth reporting to the maintainer, not a
 reason to close the bean.
 
-## Next (flow only)
+## Next (Part A harness, Part B flow)
 
-- Condense the harness skill template first (harness work, no flow required), then resume this intent through the flow:
-  `holon flow <intent.json> --from-stage plan` on the existing `I-1793438366-...` branch so PR #121 carries the
-  corrected work. Do not hand-edit `holon-config/prompts/review_loop.template.md` or `scaffold.py` on the host.
-- PR #121 is **held, not ready to merge**: it must be updated by the resumed flow run, or closed by the maintainer if
-  the run is re-cut as a fresh intent.
+- **Part A first** (harness, direct edit): add the canonical consensus-comment block to
+  `.agents/prompts/pr_review_prompt.md` § Step 3, point `pr_reviewer` Step 4 and `pr_review_loop` Phase B at it, and
+  condense both skill docs; reference this bean in the commit message.
+- **Part B** through the flow only: `holon flow <intent.json> --from-stage plan` on the existing `I-1793438366-...`
+  branch so PR #121 carries the corrected work. Never hand-edit `holon-config/prompts/review_loop.template.md` or
+  `scaffold.py` on the host.
+- PR #121 stays **held, not ready to merge**: it must be updated by that run, or closed by the maintainer if the work is
+  re-cut as a fresh intent.
 
 ## Progress (2026-10-31)
 

@@ -188,8 +188,11 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "flag can promote a non-verdict to an `APPROVED` heading, the findings table lost the `ID` and "
         "`Recommendation` columns, the closing notice is unchanged, and `scaffold.py` (+320) invented a 16-role "
         "persona registry and its own output schema instead of mirroring the skill's - growing the prompt to 288 "
-        "lines where the ruling is to shorten it. Maintainer ruling: the harness `pr-review-loop` skill template is "
-        "the only source of truth, it gets condensed first, and the target mirrors the condensed form. **Bean 0208** "
+        "lines where the ruling is to shorten it. Maintainer ruling: the `pr-review-loop` skill chain is the only "
+        "source of truth - and that chain documents a persona-sectioned body while the loop posts an `Ensemble "
+        "Consensus Review (n/n)` comment no harness file defines, so PR #121 had nothing to copy. Part A writes that "
+        "consensus template into the skills, condensed; part B mirrors it in the target through the flow. "
+        "**Bean 0208** "
         "is still in flight on `holon-coherence` (PR #41, `2f30d6e`): Stage 3 pushed the `ProxyLifecycle` "
         "extraction, but both unit jobs are red - 9 failures across `tests/commands/test_start.py`, "
         "`tests/commands/test_web_token.py` and `tests/test_cli.py` (`SystemExit: 1` on the in-container `start` "
@@ -245,7 +248,8 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "schema - add the ensemble-to-report synthesis seam, make the approved report render only what the ensemble "
         "really checked, restore the `ID` and `Recommendation` columns and the closing notice, and condense both "
         "templates. Resume on the existing `I-1793438366-...` branch (`holon flow <intent.json> --from-stage plan`) "
-        "so PR #121 carries the corrected work; the skill-template condensation lands first as harness work."
+        "so PR #121 carries the corrected work. Part A lands the consensus template in the skill chain first "
+        "(harness work, condensed); part B mirrors it in the target."
     ),
     (
         "2. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split before the "
