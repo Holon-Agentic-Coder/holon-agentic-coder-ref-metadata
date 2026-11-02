@@ -191,7 +191,10 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "lines where the ruling is to shorten it. Maintainer ruling: the `pr-review-loop` skill chain is the only "
         "source of truth - and that chain documents a persona-sectioned body while the loop posts an `Ensemble "
         "Consensus Review (n/n)` comment no harness file defines, so PR #121 had nothing to copy. Part A writes that "
-        "consensus template into the skills, condensed; part B mirrors it in the target through the flow. "
+        "consensus template into the skills, condensed; part B mirrors it in the target through the flow. Part A "
+        "landed the same day: `pr_review_prompt.md` 181 to 157 lines with a new canonical Step 3a consensus comment, "
+        "`pr_reviewer` 288 to 263 with the footer and trailer defined once, and `pr_review_loop` pointing at that "
+        "block at all three posting points. "
         "**Bean 0208** "
         "is still in flight on `holon-coherence` (PR #41, `2f30d6e`): Stage 3 pushed the `ProxyLifecycle` "
         "extraction, but both unit jobs are red - 9 failures across `tests/commands/test_start.py`, "
@@ -248,8 +251,8 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "schema - add the ensemble-to-report synthesis seam, make the approved report render only what the ensemble "
         "really checked, restore the `ID` and `Recommendation` columns and the closing notice, and condense both "
         "templates. Resume on the existing `I-1793438366-...` branch (`holon flow <intent.json> --from-stage plan`) "
-        "so PR #121 carries the corrected work. Part A lands the consensus template in the skill chain first "
-        "(harness work, condensed); part B mirrors it in the target."
+        "so PR #121 carries the corrected work. Part A landed 2026-11-02 - the canonical consensus comment now "
+        "exists in `pr_review_prompt.md` step 3a - so part B has something to mirror."
     ),
     (
         "2. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split before the "
@@ -552,7 +555,9 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "assertions on approval, an `approved` flag can force the APPROVED heading, the findings table lost `ID` "
             "and `Recommendation`, the closing notice is unchanged, and `scaffold.py` grew a self-invented 16-role "
             "registry (prompt now 288 lines). The `pr-review-loop` skill template is the only source of truth, and "
-            "both templates get shorter. PR #121 is held, not merge-ready."
+            "both templates get shorter. Part A landed 2026-11-02 (canonical Step 3a consensus comment in "
+            "`pr_review_prompt.md`, both skills condensed to reference it); Part B is the target half. PR #121 is "
+            "held, not merge-ready."
         ),
     },
     "0166": {

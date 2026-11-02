@@ -118,7 +118,7 @@ writing anything:
 | :---------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------- |
 | Loop-level exit conditions and final-review posting                                 | `.agents/skills/pr_review_loop/SKILL.md` - "Phase B: Evaluate Exit Conditions & Post Final Review" (lines 544-711) |
 | Reviewer pass contract: dedup, verdict + CI gate, ensemble footer, trailer, posting | `.agents/skills/pr_reviewer/SKILL.md` - Steps 3.1, 3.2, 3.3, 3.4 and Step 4 (lines 122-275)                        |
-| The report body structure both skills defer to                                      | `.agents/prompts/pr_review_prompt.md` - "📤 Step 3: Output Format" (lines 124-170)                                 |
+| The report body structure both skills defer to                                      | `.agents/prompts/pr_review_prompt.md` - "📤 Step 3: Reviewer Report" + "📤 Step 3a: Consensus Comment"             |
 
 My first cut of this section pointed at `## 📤 Standard Review Output Schema` in `pr_review_loop/SKILL.md`. That heading
 **does not exist in the harness** - it is the heading PR #121 invented inside `scaffold.py`. Correcting it exposes the
@@ -142,6 +142,13 @@ and `pr_review_loop` reference it instead of restating it. Condense the surround
 duplication rather than rewording it, and lose no invariant - unanimity, zero open Nit, the CI-green gate, fail-closed
 on a missing or trailer-less report, human-only merging, artifact naming, the state file, dual-posting and the posted
 receipt.
+
+> **Part A landed 2026-11-02** on `docs/harness-20261030`: `pr_review_prompt.md` 181 -> 157 lines (the 16-row activation
+> table and duplicated severity prose are gone) with the canonical consensus comment added as Step 3a;
+> `pr_reviewer/SKILL.md` 288 -> 263 (footer and trailer defined once, Step 4 posts the canonical comment, persona detail
+> stays in the on-disk report the resolver actions); `pr_review_loop/SKILL.md` now points at the canonical comment at
+> its three posting points instead of re-describing a body. The loop's principles, convergence ladder, CI and
+> mergeability gates were left alone: they are procedure, not template. **Part B is what remains.**
 
 **Part B - target work, flow only.** Once Part A has landed, `holon-config/prompts/review_loop.template.md`,
 `scaffold.REVIEW_LOOP_TEMPLATE` and `build_pr_review_consensus_report()` render **that** block, plus the seven fixes

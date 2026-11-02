@@ -586,7 +586,9 @@ Wait for the subagent to complete and inspect its report.
          >     `.subagent/<repo>_pr<N>_consensus_review_iter_<iteration>_{short_git_commit}.md`.
          > - If and ONLY IF zero Critical (🔴), zero Important (🟡) and zero open actionable Nit (🟢) findings remain
          >   (previously `rejected` Nits may be listed as residual) AND all GitHub Actions CI checks pass cleanly:
-         >   - Write the review body to `.subagent/<repo>_pr<N>_review_body.md`.
+         >   - Write the review body to `.subagent/<repo>_pr<N>_review_body.md`: the canonical consensus comment (step
+         >     3a of [`pr_review_prompt.md`](../../prompts/pr_review_prompt.md)), built from the ensemble reviewer
+         >     reports.
          >   - Post the official review to GitHub via
          >     `gh pr review <pr_url_or_number> --approve -F .subagent/<repo>_pr<N>_review_body.md` (falling back to
          >     `--comment` if PR author is the authenticated user).
@@ -656,7 +658,9 @@ Wait for the subagent to complete and inspect its report.
        - **DO NOT POST TO GITHUB**. Ensure no intermediate review comment was posted to the GitHub PR thread.
        - If `iteration >= max_iterations`:
          - Spawn a final `pr_reviewer` subagent to post the final review comment detailing remaining issues to GitHub PR
-           via `gh pr review`.
+           via `gh pr review`, in the changes-requested form of the canonical consensus comment (step 3a of
+           [`pr_review_prompt.md`](../../prompts/pr_review_prompt.md)): every unresolved finding with its id and
+           recommendation.
          - **STOP THE LOOP**.
          - Output warning:
            `Reached maximum iteration cap (<max_iterations>). Posted final review comment to GitHub. Stopping loop.`
@@ -702,7 +706,9 @@ Wait for the subagent to complete and inspect its report.
      were the configured one (see
      [LOCAL_RUNTIME.md §3](LOCAL_RUNTIME.md#3-compaction-is-expected-the-cap-is-not-your-lever)).
    - If `iteration >= max_iterations` and unresolved Critical or Important issues remain after Phase C:
-     - Post a single final review comment to GitHub PR via `gh pr review` summarizing remaining issues.
+     - Post a single final review comment to GitHub PR via `gh pr review` listing every remaining finding with its id
+       and recommendation, in the changes-requested form of the canonical consensus comment (step 3a of
+       [`pr_review_prompt.md`](../../prompts/pr_review_prompt.md)).
      - **STOP THE LOOP**.
      - Output a warning:
        `Reached maximum iteration cap (<max_iterations>). Posted final review comment to GitHub. Stopping loop.`
