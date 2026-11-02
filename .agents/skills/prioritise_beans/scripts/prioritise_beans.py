@@ -256,7 +256,11 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "so a re-plan forks a second plan and execution branch rather than updating #121. Part A landed 2026-11-02 - "
         "the canonical consensus comment now lives in `pr_review_prompt.md` step 3a - and part B is now its own "
         "intent, `render-review-consensus-comment-from-reviewer-data`, because a resume can carry neither the "
-        "corrected intent text nor a working execution."
+        "corrected intent text nor a working execution. Blocked while the flow inherits this harness "
+        "session's runner by newly filed `0222` (P1): the `holon/agent-pi` image ships no `~/.pi` and its "
+        "`$HOME` is `0700`, so the pre-flight gate dies with `EACCES` creating `~/.pi/agent/sessions`; "
+        "running part B on an explicitly named alternative runner is the maintainer's decision, not a "
+        "silent fallback."
     ),
     (
         "2. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split before the "

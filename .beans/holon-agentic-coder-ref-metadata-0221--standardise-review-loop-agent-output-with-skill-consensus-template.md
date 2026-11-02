@@ -213,6 +213,16 @@ Part B was first attempted as a resume of this intent (`holon flow --checkpoint 
 
 ## Next (Part A harness, Part B flow)
 
+### Launch blocker (2026-11-02)
+
+The fresh intent was launched with this harness session's own runner and model (`--agent pi-agent --model` the
+`PI_MODEL` value), as instructed. It died in the pre-flight gate: the `holon/agent-pi` image has no `~/.pi` and its
+`$HOME` is `0700`, so pi's `getDefaultSessionDir` hits `EACCES` creating `~/.pi/agent/sessions/--home-holon--`. Nothing
+was created - no branch, no checkpoint row, no ledger entry. Filed as
+[[holon-agentic-coder-ref-metadata-0222--pi-agent-sandbox-cannot-create-pi-agent-sessions]] (P1, blocks this bean while
+the flow inherits the session runner). Running part B on an explicitly named alternative runner is the maintainer's
+call, not a silent fallback.
+
 - **Part A first** (harness, direct edit): add the canonical consensus-comment block to
   `.agents/prompts/pr_review_prompt.md` § Step 3, point `pr_reviewer` Step 4 and `pr_review_loop` Phase B at it, and
   condense both skill docs; reference this bean in the commit message.
