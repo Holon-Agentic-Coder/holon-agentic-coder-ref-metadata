@@ -181,20 +181,24 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     ),
     "",
     (
-        "**2026-11-01:** **Bean 0221** carried the harness `pr-review-loop` consensus template into the flow itself: "
-        "`holon-config/prompts/review_loop.template.md` and `build_pr_review_consensus_report()` now render the same "
-        "APPROVED (3/3) shape with the blind-review summary, the `Verified:` bullet list and the human-merge notice, "
-        "or the CHANGES_REQUESTED findings table. HAC PR #121 reached unanimous 3/3 consensus at iteration 1 and "
-        "completed Stage 5 calibration (`1d84c35`, predicted EV 73.21 / actual 78.35, $\\Delta\\text{EV} = +5.14$), "
-        "and awaits the human merge. **Bean 0208** is in flight on `holon-coherence` (PR #41, `2f30d6e`): Stage 3 "
-        "pushed the `ProxyLifecycle` extraction, but both unit jobs are red — 9 failures across "
-        "`tests/commands/test_start.py`, `tests/commands/test_web_token.py` and `tests/test_cli.py` "
-        "(`SystemExit: 1` on the in-container `start` path, `stop_proxy_container` never called) — so Stage 4 has "
-        "not started. No other flow is in progress on either target."
+        "**2026-11-02:** **Bean 0221 is reopened.** HAC PR #121 (`1d84c35`) is green, `MERGEABLE/CLEAN`, unanimous "
+        "3/3 at iteration 1 and calibrated (predicted EV 73.21 / actual 78.35), but verification against the bean's "
+        "own acceptance criteria found seven gaps: the synthesis seam in `entrypoint/review_loop.py` and `flow.py` "
+        "was never built, the approved report prints five hard-coded `**Verified:**` assertions on every approval, a "
+        "flag can promote a non-verdict to an `APPROVED` heading, the findings table lost the `ID` and "
+        "`Recommendation` columns, the closing notice is unchanged, and `scaffold.py` (+320) invented a 16-role "
+        "persona registry and its own output schema instead of mirroring the skill's - growing the prompt to 288 "
+        "lines where the ruling is to shorten it. Maintainer ruling: the harness `pr-review-loop` skill template is "
+        "the only source of truth, it gets condensed first, and the target mirrors the condensed form. **Bean 0208** "
+        "is still in flight on `holon-coherence` (PR #41, `2f30d6e`): Stage 3 pushed the `ProxyLifecycle` "
+        "extraction, but both unit jobs are red - 9 failures across `tests/commands/test_start.py`, "
+        "`tests/commands/test_web_token.py` and `tests/test_cli.py` (`SystemExit: 1` on the in-container `start` "
+        "path, `stop_proxy_container` never called) - so Stage 4 has not started. No other flow is running on "
+        "either target."
     ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0221)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0220)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
@@ -228,57 +232,65 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Awaiting the maintainer's merge (2026-11-01):** HAC PR #121 (Bean 0221, unanimous 3/3 at iteration 1, "
-        "calibrated `1d84c35`) and harness PR #58 (Beans 0170, 0182, 0210, 0212, 0213; clean and green). Coherence "
-        "PR #41 (Bean 0208) is not in that set: its unit jobs are red and it needs work, not a merge."
+        "**Merge state (2026-11-02):** only harness PR #58 (Beans 0170, 0182, 0210, 0212, 0213) is ready for the "
+        "maintainer - green and clean. HAC PR #121 (Bean 0221) is **held**: GitHub-green and calibrated, but it "
+        "fails the bean's acceptance criteria (see the bean's verification section) and must be updated by a resumed "
+        "flow run or closed. Coherence PR #41 (Bean 0208) needs work, not a merge: its unit jobs are red."
     ),
     "",
     "Sequential lane, holon-agentic-coder (flow blockers first):",
     "",
     (
-        "1. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split before the "
+        "1. **Bean 0221** (reopened): mirror the harness `pr-review-loop` skill template - do not author a competing "
+        "schema - add the ensemble-to-report synthesis seam, make the approved report render only what the ensemble "
+        "really checked, restore the `ID` and `Recommendation` columns and the closing notice, and condense both "
+        "templates. Resume on the existing `I-1793438366-...` branch (`holon flow <intent.json> --from-stage plan`) "
+        "so PR #121 carries the corrected work; the skill-template condensation lands first as harness work."
+    ),
+    (
+        "2. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split before the "
         "next `flow.py` features stops those features colliding."
     ),
     (
-        "2. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean "
+        "3. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean "
         "0190** (checkpoint and ledger reconciliation; entrypoints stop importing flow). Both beans ask to precede "
-        "0183 (item 3), as in Bean 0177's migration step 3."
+        "0183 (item 4), as in Bean 0177's migration step 3."
     ),
     (
-        "3. **Bean 0183** (every stage and engine bookkeeping step sandboxed). Bean 0179 is merged (`b746408`), so "
+        "4. **Bean 0183** (every stage and engine bookkeeping step sandboxed). Bean 0179 is merged (`b746408`), so "
         "Stage 4 container dispatch is active."
     ),
     (
-        "4. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), "
+        "5. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), "
         "then **Bean 0146** (plans-ledger correction rows; calibration picks the right predicted metrics). Bean 0197 "
-        "(item 6) follows 0146 because both edit the predicted-metrics parser."
+        "(item 7) follows 0146 because both edit the predicted-metrics parser."
     ),
     (
-        "5. **Bean 0149**, then **Bean 0151**: unique IDs across concurrently planned intents (parallel batches "
+        "6. **Bean 0149**, then **Bean 0151**: unique IDs across concurrently planned intents (parallel batches "
         "still rely on staggered starts), then touch-set admission."
     ),
     (
-        "6. **Decomposition lanes from Bean 0177** once the splits land, in parallel where their packages differ: "
+        "7. **Decomposition lanes from Bean 0177** once the splits land, in parallel where their packages differ: "
         "0191 then 0192 (GitHub adapter, `ReviewLoop`), 0193, 0194, 0195 then 0196, 0197 (after 0146 and 0162, as "
-        "Bean 0197 asks), 0198 and 0199 (all tracked by umbrella Bean 0152, with 0190 from item 2), and 0201 "
+        "Bean 0197 asks), 0198 and 0199 (all tracked by umbrella Bean 0152, with 0190 from item 3), and 0201 "
         "(outside the umbrella). Bean 0153 runs per package with, or right after, that package's decomposition. "
-        "Bean 0213 (review-loop skill rules in the native agent) rides the #121 template work and is sequenced here."
+        "Bean 0213 waits for 0221's corrected template rather than the one PR #121 shipped."
     ),
-    "7. **Bean 0160**, then **Bean 0157**: the remaining flow-integrity blockers.",
+    "8. **Bean 0160**, then **Bean 0157**: the remaining flow-integrity blockers.",
     (
-        "8. **Bean 0161**: nested sub-intent branches per the maintainer's rulings (now documented by PRs #103, "
+        "9. **Bean 0161**: nested sub-intent branches per the maintainer's rulings (now documented by PRs #103, "
         "#110 and #113), chaining and resume safety."
     ),
     (
-        "9. **Bean 0181**: `/_` only on branch refs, ids bare (ledger field migration; readers accept both shapes). "
+        "10. **Bean 0181**: `/_` only on branch refs, ids bare (ledger field migration; readers accept both shapes). "
         "After 0161 and 0179, which overlap `flow.py`, as Bean 0181 asks."
     ),
     (
-        "10. **The `holon-agentic-coder` half of Bean 0147**, **Bean 0155** then **Bean 0148** (redaction), **Beans "
+        "11. **The `holon-agentic-coder` half of Bean 0147**, **Bean 0155** then **Bean 0148** (redaction), **Beans "
         "0172, 0174, 0173** (budgets, the environment-variable reference, then the layered `.env` that needs the "
         "reference's allow-list and secret flags), **Bean 0200** (holon-coherence owns token reduction; after 0189)."
     ),
-    "11. **Bean 0176**: pytest-only conversion of every test file (touches most test files, so it runs alone).",
+    "12. **Bean 0176**: pytest-only conversion of every test file (touches most test files, so it runs alone).",
     "",
     "Parallel lane (disjoint files):",
     "",
@@ -531,9 +543,12 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "M",
         "domain": "Review Loop / Output",
         "notes": (
-            "Update native Review Loop Agent prompt template (`review_loop.template.md`) and report generator "
-            "(`review_report.py`) to render the skill's consensus review template (`APPROVED (3/3)` with verified "
-            "points, and `CHANGES_REQUESTED` findings table). Sequence after PR #116 merges."
+            "**Reopened 2026-11-02.** PR #121 is green, 3/3-approved and calibrated but misses this bean: no "
+            "ensemble-to-report seam in `entrypoint/review_loop.py`/`flow.py`, five hard-coded `Verified:` "
+            "assertions on approval, an `approved` flag can force the APPROVED heading, the findings table lost `ID` "
+            "and `Recommendation`, the closing notice is unchanged, and `scaffold.py` grew a self-invented 16-role "
+            "registry (prompt now 288 lines). The `pr-review-loop` skill template is the only source of truth, and "
+            "both templates get shorter. PR #121 is held, not merge-ready."
         ),
     },
     "0166": {
@@ -1502,20 +1517,6 @@ def generate_triage_document(
                 "logic out of CLI command handlers into dedicated domain packages `ab_testing/` and `metrics/`; "
                 "passed 3/3 unanimous ensemble consensus review, completed Stage 5 calibration (`ffd6c9e`), and "
                 "merged into `main`."
-            ),
-            (
-                "28. **Review Loop output matches the harness consensus template (Bean 0221 / HAC PR #121, "
-                "2026-11-01)**:"
-            ),
-            (
-                "    - `0221` (HAC #121): `holon-config/prompts/review_loop.template.md` and "
-                "`sandbox_executor.review_report.build_pr_review_consensus_report()` now emit the shape the harness "
-                "`pr-review-loop` skill established - an APPROVED (n/n) heading with the blind-review summary, a "
-                "`Verified:` bullet list and the human-merge notice, or CHANGES_REQUESTED with the findings table - "
-                "replacing the mechanical `Holon PR Review: <title> (iteration <n>)` report and the obsolete persona "
-                "table. 23 targeted tests pass, Stage 4 was unanimous 3/3 at iteration 1, and Stage 5 calibration "
-                "(`1d84c35`, predicted EV 73.21 / actual 78.35) is carried in the PR diff. Approved and awaiting the "
-                "human merge; Bean 0213 reflects the same skill rules into the agent prompt."
             ),
             "",
             "---",

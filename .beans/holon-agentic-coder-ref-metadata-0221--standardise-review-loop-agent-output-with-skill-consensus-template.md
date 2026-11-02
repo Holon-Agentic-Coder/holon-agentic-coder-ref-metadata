@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0221
 title: "Standardise Review Loop Agent output with skill consensus template"
-status: completed
+status: in-progress
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - consensus-report
   - holon-agentic-coder
 created_at: 2026-10-30T09:55:00Z
-updated_at: 2026-10-31T10:08:00Z
+updated_at: 2026-11-02T00:38:00Z
 ---
 
 ## Problem
@@ -109,13 +109,78 @@ architectural requirements must be satisfied:
 - Target repository isolation (Rule 12): No references to harness paths (`.beans/`, `todo/`, `.agents/`) or bean IDs in
   target code or commits.
 
+## Source of Truth (added 2026-11-02, maintainer ruling)
+
+The format this bean must produce is **the harness `pr-review-loop` skill's consensus review template, and nothing
+else**:
+
+- Canonical source: `## 📤 Standard Review Output Schema` (the posted consensus comment) plus Steps 3.3 and 3.4
+  (`### 🗳️ Ensemble Review Breakdown` footer and the machine-readable trailer block) in
+  `.agents/skills/pr_review_loop/SKILL.md`, and the reviewer-turn shape in `.agents/skills/pr_reviewer/SKILL.md`. Read
+  them before writing; they define the headings, field order, footer and trailer.
+- **Do not invent a competing schema.** A new `Standard Review Output Schema`, persona registry, activation matrix,
+  severity legend or `Verified:` boiler-plate authored inside this bean's own diff is out of scope and is a review
+  finding, not a feature. Anything the skill does not say does not belong in the target template.
+- **Both templates get shorter.** The skill template and `holon-config/prompts/review_loop.template.md` (and its in-code
+  twin `scaffold.REVIEW_LOOP_TEMPLATE`) must be condensed: state the consensus invariants (unanimous n/n, zero Critical
+  / Important / open Nit, CI green, mergeable), the output shape, the ledger-append seam, the human-merge boundary and
+  the trailer block, then stop. Prose that restates another section, filler tables and duplicated severity lists are
+  deleted, not reworded. No behavioural invariant may be lost by the condensation.
+- Any wording change to the skill template lands **before** the target-repo change, so the target mirrors a template
+  that already exists.
+
+## Verification (2026-11-02): NOT complete, bean reopened
+
+PR #121 (`1d84c35`) is green, `MERGEABLE/CLEAN`, and carries its calibration report - but it does not satisfy this bean.
+Verified against the PR diff:
+
+1. **Requirement 3 (synthesis seam) is unimplemented.** The PR touches only `review_report.py`, `scaffold.py`,
+   `test_review_report.py` and the ledgers/docs. Neither `entrypoint/review_loop.py` nor `flow.py` changed, so nothing
+   carries the ensemble's real findings and evaluation highlights into the report.
+2. **The approved report asserts things it did not check.** `build_pr_review_consensus_report()` emits five hard-coded
+   `**Verified:**` lines ("Backward compatibility and API surface stability maintained", "Test execution counts and
+   passing assertions verified", "Quality gates and complexity baselines fully satisfied", ...) on every approval,
+   whatever the reviewers actually verified. That contradicts this module's own invariant ("Nothing is derived from a
+   constant ... no boiler-plate findings") and is the same failure class Bean 0144 was raised for. The required
+   `Three independent blind review passes evaluated this PR at head {head}...` paragraph is absent from the Python
+   generator.
+3. **A verdict can be labelled `APPROVED` from a flag.**
+   `if consensus_data.get("approved") and verdict != "CHANGES_REQUESTED": verdict = "APPROVED"` promotes an
+   unknown/pending ensemble verdict to a green heading.
+4. **The findings table is not the specified one.** It renders `Severity | Location | Reviewer | Summary`; section 2
+   requires `ID`, `Severity`, `File:Line`, `Description`, `Recommendation`. No recommendation column means the resolver
+   has nothing to act on.
+5. **The closing notice was not changed.** The report still ends with the pre-existing Bean 0034 text; the required
+   `Stage 5 calibration will be added to this PR before merge. Merging remains with the human maintainer.` notice is
+   missing.
+6. **The template grew instead of shrinking.** `scaffold.py` (+320) adds a 16-role "Comprehensive Dynamic Persona
+   Registry", a role-activation matrix, a severity legend and a self-authored output schema; the deployed prompt
+   `holon-config/prompts/review_loop.template.md` is now 288 lines. This is the opposite of the Source of Truth rule
+   above and of the conciseness requirement.
+7. **Requirement 4 (tests) is partial.** `test_prompt_templates.py`, `test_review_loop.py` and `test_flow.py` were not
+   touched, so nothing pins placeholder hygiene or the transport seam.
+
+The Stage 4 ensemble approved this diff at iteration 1 and Stage 5 calibrated it, so both stages re-validated a diff
+that misses the bean's own acceptance criteria. That is a review-loop signal worth reporting to the maintainer, not a
+reason to close the bean.
+
+## Next (flow only)
+
+- Condense the harness skill template first (harness work, no flow required), then resume this intent through the flow:
+  `holon flow <intent.json> --from-stage plan` on the existing `I-1793438366-...` branch so PR #121 carries the
+  corrected work. Do not hand-edit `holon-config/prompts/review_loop.template.md` or `scaffold.py` on the host.
+- PR #121 is **held, not ready to merge**: it must be updated by the resumed flow run, or closed by the maintainer if
+  the run is re-cut as a fresh intent.
+
 ## Progress (2026-10-31)
 
 - Intent `I-1793438366-standardise-review-loop-agent-output-with-skill-consensus-template/_` and plan
   `P-1793438381-antigravity-agent-gemini-3.8-flash-medium` generated and pushed.
 - Stage 3 completed (`E-1793438692-antigravity-agent-gemini-3.8-flash-medium`), all 23 targeted review report tests
   passing. Pull Request [#121](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/121) opened on GitHub.
-- Stage 4 PR Review Loop: 3-agent ensemble reached unanimous `APPROVED` (3/3) at iteration 1.
+- Stage 4 PR Review Loop: 3-agent ensemble reached unanimous `APPROVED` (3/3) at iteration 1 - see **Verification
+  (2026-11-02)** above for why that approval does not close the bean.
 - Stage 5 Calibration completed (`1d84c35`, Predicted EV: 73.21, Actual EV: 78.35, $\Delta\text{EV} = +5.14$) and pushed
   to PR #121 head and `/calibrated` branch.
-- PR #121 is approved and fully calibrated; awaiting manual human merge.
+- PR #121 is calibrated and GitHub-green, but **held against the seven gaps above**; it is not to be merged as it
+  stands.
