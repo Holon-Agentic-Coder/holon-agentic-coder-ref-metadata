@@ -10,7 +10,7 @@ tags:
   - holon-flow
   - holon-agentic-coder
 created_at: 2026-11-04T04:30:00Z
-updated_at: 2026-11-04T04:45:00Z
+updated_at: 2026-11-04T05:10:00Z
 ---
 
 ## Problem
@@ -39,14 +39,23 @@ worktrees and orphan `I-…/P-…/E-…` branches behind for manual cleanup pass
 3. Invocation: a dedicated task (for example `uv run task test-e2e`), explicitly NOT part of the default
    `uv run task test` suite or the CI pipelines — it spends real model tokens and pushes real branches. Operators run it
    before releases or after flow-engine changes.
-4. Open design point for the plan stage: which runner/model the disposable intent uses (cheapest viable tier).
+4. The disposable intent runs on the local model (see Credentials below), so no cloud tier choice is needed.
 
-## Credential dependency (deferred decision)
+## Credentials: the e2e runs on a LOCAL model (maintainer, 2026-11-04)
 
-The keychain-only credential design (see the keychain bean) assumes an operator machine. An e2e environment without an
-OS keychain cannot authenticate the claude runner — the maintainer has deferred solving that to THIS bean: when the e2e
-test is built, decide the credential route for keychain-less environments here (and only here), rather than adding
-fallbacks to the production credential path.
+The e2e needs no cloud LLM credential at all: it drives the flow on a host-local model through the existing
+`local_llm.py` envelope (`HOLON_LOCAL_BASE_URL` / `HOLON_LOCAL_PROVIDER` / `HOLON_LOCAL_MODELS`, with the
+`HOLON_HOST_LOCAL_HOSTS` allow-list) pointing at an OpenAI-compatible endpoint such as Ollama, LM Studio or mlx. That
+dissolves the keychain problem for the e2e entirely — the keychain-only production credential path stays untouched.
+
+- The disposable intent must be trivial enough for a small local model (for example: append one line to one file); the
+  e2e proves the FLOW MACHINERY — stages, branches, ledgers, checkpoints, gates, teardown — never model quality.
+- The only secret the run still needs is a git push credential, and in GitHub Actions that is the workflow's own
+  ephemeral `GITHUB_TOKEN` — nothing stored.
+- Where it runs: the operator's machine, or a self-hosted runner with the local model installed. GitHub-hosted runners
+  are too weak to serve a capable local model; the task stays out of the hosted CI pipelines either way.
+- Open point for the plan stage: which local runtime and model id the task documents as the reference setup, and the
+  timeout envelope for local inference speeds.
 
 ## Notes
 
