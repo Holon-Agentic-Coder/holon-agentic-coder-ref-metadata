@@ -12,7 +12,7 @@ tags:
   - flow
   - holon-agentic-coder
 created_at: 2026-11-04T08:10:00Z
-updated_at: 2026-11-04T08:10:00Z
+updated_at: 2026-11-04T09:30:00Z
 ---
 
 ## Problem
@@ -42,3 +42,11 @@ listeners.
 - Hand-authored fix in a local worktree under the explicit maintainer instruction of 2026-11-04 ("if there's any issues
   I want you to fix it directly without using the holon and with local worktree") — the named exception to the flow-only
   rule; it is recorded in the commit message.
+
+## Resolution (2026-11-04)
+
+Fixed hand-authored on branch `fix/0227-proxy-readiness-http-probe` (commit `36c9765`), pushed to origin.
+`_wait_for_proxy` now sends a proxy-style request for `holon-proxy-readiness.invalid` and declares readiness only on
+`HTTP/` response bytes; accept-then-silent-close (docker-proxy with no backend yet) retries until the existing 15 s
+deadline. Three real-socket unit tests cover silent-close, immediate-502 and boot-then-answer. Full sandbox-executor
+suite green (2900 passed, 1 skipped). Awaiting maintainer decision on PR creation/merge.
