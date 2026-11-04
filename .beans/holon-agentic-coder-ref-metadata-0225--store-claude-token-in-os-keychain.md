@@ -1,6 +1,6 @@
 ---
 # holon-agentic-coder-ref-metadata-0225
-title: "Store the Claude OAuth token in the OS keychain (macOS Keychain / Linux Secret Service), file as fallback"
+title: "Claude token lives only in the OS keychain; retire ~/.holon/secrets/claude-oauth-token entirely"
 status: todo
 type: feature
 priority: normal
@@ -10,7 +10,7 @@ tags:
   - security
   - holon-agentic-coder
 created_at: 2026-11-04T03:20:00Z
-updated_at: 2026-11-04T03:40:00Z
+updated_at: 2026-11-04T04:00:00Z
 ---
 
 ## Problem
@@ -19,28 +19,32 @@ The Claude subscription token persists as plaintext in `~/.holon/secrets/claude-
 auto-discovery work keeps that file as the discovery source, which leaves a long-lived secret in the clear on disk. The
 at-rest fix is the operating system's secret store, with the file kept only as a fallback for hosts without one.
 
+## Decision (maintainer, 2026-11-04)
+
+The plaintext file is retired entirely, not kept as a fallback. After this change the claude credential lives only in
+the operating system's secret store; the file's sole remaining role is as one-time migration input.
+
 ## Scope
 
-1. **Read side (credential discovery order)**, extending the discovery seam: explicit `HOLON_AGENT_KEY` > OS keychain >
-   `~/.holon/secrets/claude-oauth-token` (fallback, with a one-line warning that the keychain is preferred) > pre-flight
-   failure with a hint naming all three routes.
-   - macOS: `security find-generic-password -s holon -a claude-oauth-token -w` (the `security` CLI; no new Python
-     dependency).
-   - Linux: the freedesktop Secret Service API via `secret-tool lookup service holon account claude-oauth-token`
-     (libsecret; backed by GNOME Keyring or KWallet). Headless hosts without a Secret Service daemon fall through to the
-     file with the warning; `systemd-creds` may be documented as the headless alternative but is not implemented in this
-     change.
-2. **Write side**: document the one-liners for storing the token (`security add-generic-password -U …` on macOS,
-   `secret-tool store …` on Linux) in `docs/executor/agent_credentials_requirements.md`; no new CLI subcommand and no
-   new environment variables.
-3. **One-time migration**: when the plaintext file exists and the platform keychain is writable, import the token into
-   the keychain and remove the plaintext file, printing exactly what was done. If the keychain is unavailable, leave the
-   file untouched.
-4. The token value is never echoed, logged or passed on a command line as an argument (the keychain CLIs read/write via
-   stdin/stdout where supported); redaction tests cover the new paths.
-5. Tests (pytest only; no real keychain, Docker, gh, git remotes or LLM calls — fake the `security`/`secret-tool`
-   seams): discovery order incl. both platforms and the headless fall-through; migration happy path, keychain-missing
-   path and failed-write path (file kept); warning emitted on file fallback; no secret in any echo or log.
+1. **Read side (credential discovery)**: OS keychain only — macOS
+   `security find-generic-password -s holon -a claude-oauth-token -w`; Linux Secret Service via
+   `secret-tool lookup service holon account claude-oauth-token` (libsecret; GNOME Keyring or KWallet). No
+   `HOLON_AGENT_KEY` for claude, no file fallback. When no keychain entry (or no secret service at all) exists,
+   pre-flight fails closed with a hint giving the store one-liner for this platform and `claude setup-token`; for
+   headless hosts the hint names `systemd-creds` as the supported path (a follow-up change wires it in — until then
+   headless hosts cannot run the claude runner, by design).
+2. **Write side**: document the store one-liners (`security add-generic-password -U …`, `secret-tool store …`) in
+   `docs/executor/agent_credentials_requirements.md`; the token is piped via stdin, never an argv argument; no new CLI
+   subcommand and no new environment variables.
+3. **One-time migration**: when `~/.holon/secrets/claude-oauth-token` exists and the platform keychain is writable,
+   import the token into the keychain and delete the plaintext file, printing exactly what was done. If the keychain
+   write fails, the file is left untouched and pre-flight says so. This retires the interim file-discovery route from
+   the preceding credential bean.
+4. The token value is never echoed, logged or passed as a command-line argument; redaction tests cover the new paths.
+5. Tests (pytest only; fake the `security`/`secret-tool` seams; no real keychain, Docker, gh, git remotes or LLM calls):
+   keychain discovery on both platforms; no-entry and no-secret-service failures produce the platform hint; migration
+   happy path, failed-write path (file kept) and already-migrated path (no file, no action); no secret in any echo or
+   log.
 
 ## Dependencies
 
