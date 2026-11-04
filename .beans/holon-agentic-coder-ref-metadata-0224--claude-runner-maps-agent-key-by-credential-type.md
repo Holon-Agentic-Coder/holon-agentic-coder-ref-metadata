@@ -12,7 +12,7 @@ tags:
   - credentials
   - holon-agentic-coder
 created_at: 2026-11-04T01:30:00Z
-updated_at: 2026-11-04T03:40:00Z
+updated_at: 2026-11-04T08:30:00Z
 ---
 
 ## Problem
@@ -56,6 +56,11 @@ the secrets file directly.
   is set and leaves it in place; explicit `HOLON_AGENT_KEY` wins over the file; a missing or empty file fails pre-flight
   with a hint naming the file path and `claude setup-token`; oat-prefixed values map to `CLAUDE_CODE_OAUTH_TOKEN`;
   api-prefixed values map to `ANTHROPIC_API_KEY`; neither value appears in any echoed command or log.
+
+- **Redact `--settings` in command echoes (maintainer, 2026-11-04)**: the runner currently echoes the full
+  `claude … --settings {json}` command, which is why the `HOLON_ECHO_PAD` hack exists (padding pushes the embedded token
+  past the echo truncation). Regardless of the new discovery route, the command echo must replace the entire
+  `--settings` value with `<redacted>` — no secret-bearing JSON ever appears in logs, and the pad dies with it.
 
 ## Notes
 
