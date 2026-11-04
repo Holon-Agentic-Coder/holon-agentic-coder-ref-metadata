@@ -10,7 +10,7 @@ tags:
   - security
   - holon-agentic-coder
 created_at: 2026-11-04T03:20:00Z
-updated_at: 2026-11-04T04:00:00Z
+updated_at: 2026-11-04T04:15:00Z
 ---
 
 ## Problem
@@ -30,9 +30,9 @@ the operating system's secret store; the file's sole remaining role is as one-ti
    `security find-generic-password -s holon -a claude-oauth-token -w`; Linux Secret Service via
    `secret-tool lookup service holon account claude-oauth-token` (libsecret; GNOME Keyring or KWallet). No
    `HOLON_AGENT_KEY` for claude, no file fallback. When no keychain entry (or no secret service at all) exists,
-   pre-flight fails closed with a hint giving the store one-liner for this platform and `claude setup-token`; for
-   headless hosts the hint names `systemd-creds` as the supported path (a follow-up change wires it in — until then
-   headless hosts cannot run the claude runner, by design).
+   pre-flight fails closed with a hint giving the store one-liner for this platform and `claude setup-token`. No
+   headless path is needed: CI pipelines never invoke `holon flow` — flows run on operator machines, which have a
+   keychain (maintainer, 2026-11-04).
 2. **Write side**: document the store one-liners (`security add-generic-password -U …`, `secret-tool store …`) in
    `docs/executor/agent_credentials_requirements.md`; the token is piped via stdin, never an argv argument; no new CLI
    subcommand and no new environment variables.
