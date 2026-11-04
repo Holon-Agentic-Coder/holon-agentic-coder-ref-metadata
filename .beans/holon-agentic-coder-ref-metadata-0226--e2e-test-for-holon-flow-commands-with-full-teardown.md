@@ -10,7 +10,7 @@ tags:
   - holon-flow
   - holon-agentic-coder
 created_at: 2026-11-04T04:30:00Z
-updated_at: 2026-11-04T05:10:00Z
+updated_at: 2026-11-04T05:30:00Z
 ---
 
 ## Problem
@@ -54,8 +54,14 @@ dissolves the keychain problem for the e2e entirely — the keychain-only produc
   ephemeral `GITHUB_TOKEN` — nothing stored.
 - Where it runs: the operator's machine, or a self-hosted runner with the local model installed. GitHub-hosted runners
   are too weak to serve a capable local model; the task stays out of the hosted CI pipelines either way.
-- Open point for the plan stage: which local runtime and model id the task documents as the reference setup, and the
-  timeout envelope for local inference speeds.
+- **Model choice (maintainer, 2026-11-04): as small as possible — sub-1B, ideally the ~300M class.** Candidates,
+  smallest first: Gemma 3 270M, SmolLM2-360M-Instruct, Qwen3-0.6B / Qwen2.5-Coder-0.5B. The constraint to respect: the
+  planner must emit structured markdown the stage parsers accept and the executor must follow the coding-agent CLI's
+  instructions, so the build includes a one-off calibration step — run the happy path on each candidate from smallest up
+  and document the smallest model that passes as the reference setup (expected floor around 0.5-0.6B; if the 270M class
+  passes, use it). The chosen model id, runtime (for example Ollama with a q4 quantisation) and a timeout envelope sized
+  for local inference are recorded in the task's docs; a model failing the e2e's happy path is a selection outcome, not
+  a flow defect.
 
 ## Notes
 
