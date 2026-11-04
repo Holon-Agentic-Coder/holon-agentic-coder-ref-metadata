@@ -1,6 +1,8 @@
 ---
 # holon-agentic-coder-ref-metadata-0224
-title: "Claude runner maps HOLON_AGENT_KEY by credential type: OAuth tokens become CLAUDE_CODE_OAUTH_TOKEN"
+title:
+  "Claude credentials just work: auto-discover ~/.holon/secrets/claude-oauth-token and map HOLON_AGENT_KEY by credential
+  type"
 status: todo
 type: bug
 priority: high
@@ -10,7 +12,7 @@ tags:
   - credentials
   - holon-agentic-coder
 created_at: 2026-11-04T01:30:00Z
-updated_at: 2026-11-04T01:30:00Z
+updated_at: 2026-11-04T02:00:00Z
 ---
 
 ## Problem
@@ -27,18 +29,30 @@ a workaround: tunnelling `CLAUDE_CODE_OAUTH_TOKEN` through the `--settings` JSON
 command echoes cannot truncate into the secret. The pre-flight failure hint compounds it by recommending
 `HOLON_AGENT_KEY` first — the route that cannot work for a subscription token.
 
+## Decision (maintainer, 2026-11-04)
+
+The operator should not have to assemble any env blob at all. Holon already auto-discovers GitHub credentials and host
+SSH agent sockets and mounts them safely into containers; the Claude credential gets the same treatment: read it from
+the secrets file directly.
+
 ## Scope
 
-- In the claude runner, inspect the `HOLON_AGENT_KEY` value's format: `sk-ant-oat…` is exported into the container as
-  `CLAUDE_CODE_OAUTH_TOKEN`; any other value keeps the existing `ANTHROPIC_API_KEY` mapping. Never log or echo the value
-  either way.
-- The pre-flight probe and its NOT_LOGGED_IN hint name both credential types and which env route each takes; the hint no
-  longer recommends a route that rejects subscription tokens.
+- **Auto-discovery (the primary route)**: when the claude runner needs a credential and no explicit one is set, read
+  `~/.holon/secrets/claude-oauth-token` (trimmed; 0600 expected, warn on looser permissions) and inject it into the
+  container by its detected type, exactly as the GitHub credential discovery already behaves. Precedence: explicit
+  `HOLON_AGENT_KEY` > secrets file > fail pre-flight with a hint naming the file path and `claude setup-token`.
+- **Type mapping (both routes)**: inspect the credential value's format wherever it came from: `sk-ant-oat…` is exported
+  into the container as `CLAUDE_CODE_OAUTH_TOKEN`; any other value keeps the existing `ANTHROPIC_API_KEY` mapping. Never
+  log or echo the value either way; the token travels as a container env value, never on an echoed command line, so the
+  echo pad becomes unnecessary for authentication (keep redaction tests proving it).
+- The pre-flight probe and its NOT_LOGGED_IN hint name the secrets-file path first, then both env routes and which
+  credential type each takes; the hint no longer recommends a route that rejects subscription tokens.
 - Update `docs/executor/agent_credentials_requirements.md` accordingly; the `HOLON_AGENT_SETTINGS` tunnel keeps working
   (settings may carry other configuration) but is no longer required for authentication.
-- Tests (pytest only; no real Docker, gh, git remotes or LLM calls): oat-prefixed key maps to `CLAUDE_CODE_OAUTH_TOKEN`;
-  api-prefixed key maps to `ANTHROPIC_API_KEY`; neither value appears in any echoed command or log; the pre-flight hint
-  text covers both routes.
+- Tests (pytest only; no real Docker, gh, git remotes or LLM calls): auto-discovery reads the file when no explicit key
+  is set; explicit `HOLON_AGENT_KEY` wins over the file; a missing or empty file fails pre-flight with the file-path
+  hint; oat-prefixed values map to `CLAUDE_CODE_OAUTH_TOKEN`; api-prefixed values map to `ANTHROPIC_API_KEY`; neither
+  value appears in any echoed command or log.
 
 ## Notes
 
