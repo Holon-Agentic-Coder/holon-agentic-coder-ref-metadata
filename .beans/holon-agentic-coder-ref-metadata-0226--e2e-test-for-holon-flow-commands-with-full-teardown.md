@@ -10,7 +10,7 @@ tags:
   - holon-flow
   - holon-agentic-coder
 created_at: 2026-11-04T04:30:00Z
-updated_at: 2026-11-04T05:30:00Z
+updated_at: 2026-11-04T05:50:00Z
 ---
 
 ## Problem
@@ -62,6 +62,24 @@ dissolves the keychain problem for the e2e entirely — the keychain-only produc
   passes, use it). The chosen model id, runtime (for example Ollama with a q4 quantisation) and a timeout envelope sized
   for local inference are recorded in the task's docs; a model failing the e2e's happy path is a selection outcome, not
   a flow defect.
+
+## Nondeterminism and retries (maintainer, 2026-11-04)
+
+LLMs are probabilistic, so identical runs will not produce identical output — and a tiny model flakes more, not less.
+The e2e handles that in three layers:
+
+1. **Pin determinism as far as the runtime allows**: temperature 0 (greedy decoding), a fixed seed where the local
+   runtime supports one, a pinned model file/quantisation and pinned prompts. This narrows variance; it cannot eliminate
+   it.
+2. **Assert invariants, never exact model text**: branch shapes and existence, ledger append-only behaviour,
+   checkpoint/resume, gates failing closed, zero PRs, clean teardown — all model-output-independent. The only
+   model-dependent assertions are structural ("a parseable `plans/P-*.md` exists", "the diff contains the one expected
+   change"), never string-equality on generated prose.
+3. **Bounded whole-run retries for the model-dependent part**: when a run fails on a model-output assertion (not on a
+   machinery assertion), tear everything down and retry the whole run, up to N attempts (default 3). A machinery
+   assertion failing is NEVER retried — that is the defect the e2e exists to catch. Persistent model-output failure
+   across all N attempts fails the test and is a model-selection signal (step up to the next candidate size). Each
+   attempt's teardown runs regardless, so retries never accumulate branches or worktrees.
 
 ## Notes
 
