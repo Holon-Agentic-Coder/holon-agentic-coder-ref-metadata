@@ -12,7 +12,7 @@ tags:
   - credentials
   - holon-agentic-coder
 created_at: 2026-11-04T01:30:00Z
-updated_at: 2026-11-04T03:00:00Z
+updated_at: 2026-11-04T03:40:00Z
 ---
 
 ## Problem
@@ -39,8 +39,11 @@ the secrets file directly.
 
 - **Auto-discovery (the primary route)**: when the claude runner needs a credential and no explicit one is set, read
   `~/.holon/secrets/claude-oauth-token` (trimmed; 0600 expected, warn on looser permissions) and inject it into the
-  container by its detected type, exactly as the GitHub credential discovery already behaves. Precedence: explicit
-  `HOLON_AGENT_KEY` > secrets file > fail pre-flight with a hint naming the file path and `claude setup-token`.
+  container by its detected type, exactly as the GitHub credential discovery already behaves.
+- **No `HOLON_AGENT_KEY` for claude (maintainer, 2026-11-04)**: the claude runner stops consulting `HOLON_AGENT_KEY`
+  altogether — discovery is the secrets store only (file now; keychain when the follow-up bean lands), and the value's
+  format decides the in-container variable. `HOLON_AGENT_KEY` remains the required channel for the other runners (pi,
+  codex, …) only. Drop it from `required_keys` for claude and from the claude paths of the pre-flight hint.
 - **Type mapping (both routes)**: inspect the credential value's format wherever it came from: `sk-ant-oat…` is exported
   into the container as `CLAUDE_CODE_OAUTH_TOKEN`; any other value keeps the existing `ANTHROPIC_API_KEY` mapping. Never
   log or echo the value either way; the token travels as a container env value, never on an echoed command line, so the
