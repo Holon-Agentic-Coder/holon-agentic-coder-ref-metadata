@@ -10,7 +10,7 @@ tags:
   - holon-flow
   - holon-agentic-coder
 created_at: 2026-11-04T04:30:00Z
-updated_at: 2026-11-04T04:30:00Z
+updated_at: 2026-11-04T04:45:00Z
 ---
 
 ## Problem
@@ -26,17 +26,20 @@ worktrees and orphan `I-…/P-…/E-…` branches behind for manual cleanup pass
 1. An end-to-end test that invokes the REAL commands (`holon flow <intent.json>`, plus `--from-stage` / `--checkpoint`
    resume paths) against a disposable, trivially small intent, asserting per stage: the intent, plan and execution
    branches exist with the expected shapes; the three ledgers only ever append; the checkpoint is written and a resume
-   continues from it; the empty-diff and pre-flight gates fail closed when provoked.
+   continues from it; the empty-diff and pre-flight gates fail closed when provoked. **The run must never open a pull
+   request** (maintainer, 2026-11-04 — otherwise every e2e run proliferates PRs): the test invokes the flow in a mode
+   that stops before PR creation (`--skip-review --skip-calibrate`, or the no-auto-PR path), and asserts afterwards that
+   zero pull requests reference the run's branches — a PR appearing is itself a test failure (the teardown then closes
+   it and the test still fails). Stage 4/5 therefore run only to the extent possible without a PR; their PR-dependent
+   behaviour stays covered by the existing unit and integration tests.
 2. **Full teardown, unconditionally** (on success AND on failure, e.g. a pytest fixture finaliser or trap): remove the
-   test worktree, delete the local branches, delete every remote branch the run created (the whole `I-…` tree), and
-   close any pull request the run opened — leaving the repository exactly as before the test. The teardown must
-   enumerate what it deleted so a reviewer can audit it, and must refuse to touch anything outside the test run's own
-   intent prefix.
+   test worktree, delete the local branches, and delete every remote branch the run created (the whole `I-…` tree) —
+   leaving the repository exactly as before the test. The teardown must enumerate what it deleted so a reviewer can
+   audit it, and must refuse to touch anything outside the test run's own intent prefix.
 3. Invocation: a dedicated task (for example `uv run task test-e2e`), explicitly NOT part of the default
    `uv run task test` suite or the CI pipelines — it spends real model tokens and pushes real branches. Operators run it
    before releases or after flow-engine changes.
-4. Open design points for the plan stage: which runner/model the disposable intent uses (cheapest viable tier); and
-   whether Stage 4/5 run fully or the test stops after proving stage transitions (cost versus coverage).
+4. Open design point for the plan stage: which runner/model the disposable intent uses (cheapest viable tier).
 
 ## Credential dependency (deferred decision)
 
