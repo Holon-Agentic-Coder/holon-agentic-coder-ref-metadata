@@ -1,6 +1,8 @@
 ---
 # holon-agentic-coder-ref-metadata-0221
-title: "Standardise Review Loop Agent output with skill consensus template"
+title:
+  "Standardise the engine's Stage 4 review loop with the pr-review-loop skill: same template, instructions, output and
+  loop logic"
 status: in-progress
 type: task
 priority: high
@@ -10,7 +12,7 @@ tags:
   - consensus-report
   - holon-agentic-coder
 created_at: 2026-10-30T09:55:00Z
-updated_at: 2026-11-02T00:38:00Z
+updated_at: 2026-11-05T01:40:00Z
 ---
 
 ## Problem
@@ -245,3 +247,34 @@ call, not a silent fallback.
   to PR #121 head and `/calibrated` branch.
 - PR #121 is calibrated and GitHub-green, but **held against the seven gaps above**; it is not to be merged as it
   stands.
+
+## Expanded contract (maintainer, 2026-11-05): full engine/skill standardisation
+
+"The whole point of bean 0221 is to standardise the engine's review loop with the skill." The bean's target is not just
+the posted comment — it is behavioural parity between the flow engine's native Stage 4 and the harness `pr-review-loop`
+skill, on five axes:
+
+1. **Same template** — one consensus-comment shape (the skill's canonical Step 3a block), rendered identically by the
+   skill and by `review_report.py` / `review_loop.template.md` / `scaffold.REVIEW_LOOP_TEMPLATE`.
+2. **Same instructions** — the engine's reviewer prompt carries the same review rubric the skill's reviewers get
+   (severities, diff-grounding, finding ids with recommendations, trailer discipline), written target-natively (no
+   harness paths or ids), so a reviewer behaves the same whichever side dispatches it.
+3. **Same output for the PR comment** — what Stage 4 dual-posts to GitHub is byte-shape-identical to what the skill
+   posts: approval and changes-requested forms, role-review table, findings table with ids and recommendations,
+   calibration-before-merge close, human-only merge notice.
+4. **Same logic** — the engine's loop follows the skill's phase structure: single-reviewer dry-run pass first, resolver
+   on findings, then the 3-blind-reviewer ensemble consensus gate; CI is a gate not a waiting room; any push voids
+   earlier votes; approval is unanimous 3/3 at one head with green CI; every finding (nits included) ends `applied` or
+   `rejected` with a reason; no human pause mid-loop.
+5. **Same single → resolve → consensus iteration** — review and resolve iterate inside Stage 4 until convergence or the
+   engine's iteration budget, exactly like the skill's Phase A → C → B cycle.
+
+Delivery map:
+
+- Axes 1-3 (template, instructions, output): the re-cut intent `render-review-consensus-comment-from-reviewer-data` — PR
+  #122, currently in its review loop.
+- Axis 4-5 (loop logic): [[holon-agentic-coder-ref-metadata-0228--engine-owns-the-review-loop-container-is-single-shot]]
+  (one engine-owned loop, single-shot review containers) and
+  [[holon-agentic-coder-ref-metadata-0229--native-stage-4-resolver-review-loop-converges]] (resolver inside the loop,
+  dispositions, convergence guards). This bean is the umbrella: it closes only when the engine's Stage 4 and the skill
+  are interchangeable on all five axes.
