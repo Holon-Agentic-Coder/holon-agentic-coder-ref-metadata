@@ -78,8 +78,10 @@ stepping down model tiers, always resume through `holon flow <intent.json> --fro
   `RESOURCE_EXHAUSTED`, or HTTP 429/quota errors), **do not stop or block** as long as a lower-tier model or alternate
   configured runner still has available credit. Automatically step down the fallback ladder and **continue the flow from
   the current stage/checkpoint** (reusing any already-pushed `I-.../_`, `P-.../_`, or `E-.../_` branch):
-  - **Claude (`claude-agent`) fallback ladder**: `claude-opus-5-5` (or `opus`) $\rightarrow$ `claude-sonnet-4-6` (or
-    `sonnet`) $\rightarrow$ `claude-haiku-4-5` (or `haiku`).
+  - **Claude (`claude-agent`) fallback ladder**: `claude-fable-5` (or `fable`) $\rightarrow$ `claude-opus-5-5` (or
+    `opus`) $\rightarrow$ `claude-sonnet-4-6` (or `sonnet`) $\rightarrow$ `claude-haiku-4-5` (or `haiku`). Fable is the
+    preferred top tier for flow stages (maintainer, 2026-11-05); `holon` passes `--model` through to the runner
+    verbatim, so no engine change is needed.
   - **Antigravity (`antigravity-agent` in `holon` CLI) fallback ladder**: `gemini-3.8-pro-high` (or `gemini-3.8-pro`)
     $\rightarrow$ `gemini-3.8-flash-medium` $\rightarrow$ `gemini-3.8-flash`.
   - **Antigravity (`invoke_subagent` in AGY runtime) fallback ladder**: `Model: "inherit"` / `"pro"` $\rightarrow$
@@ -267,10 +269,10 @@ Subagent delegation in this ecosystem is primarily targeted towards the **Antigr
   research.
 - **Model Selection & Automatic Credit Fallback**: Set `Model: "inherit"` by default to inherit the parent agent's
   active model configuration. If credit or quota runs out on the higher-level model (`"inherit"` / `"pro"`),
-  automatically fall back to `"flash"` and then `"flash_lite"` (and similarly step down `claude-opus-5-5` $\rightarrow$
-  `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` or `gemini-3.8-pro-high` $\rightarrow$ `gemini-3.8-flash-medium`
-  $\rightarrow$ `gemini-3.8-flash` in `holon` CLI invocations) and continue the flow or review loop from the current
-  stage without discarding completed work.
+  automatically fall back to `"flash"` and then `"flash_lite"` (and similarly step down `claude-fable-5` $\rightarrow$
+  `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` or `gemini-3.8-pro-high`
+  $\rightarrow$ `gemini-3.8-flash-medium` $\rightarrow$ `gemini-3.8-flash` in `holon` CLI invocations) and continue the
+  flow or review loop from the current stage without discarding completed work.
 - **Reactive Wakeup (Zero Polling)**: The AGY runtime automatically wakes up the parent agent upon subagent completion
   or message delivery. Never poll or loop on subagent status.
 - **Generic Coding Agent Compatibility**: Skill workflows (such as `pr-review-loop`) define generic subagent task
