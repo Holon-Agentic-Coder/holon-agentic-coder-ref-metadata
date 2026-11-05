@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0228
 title: "Stage 4 loop ownership: the flow engine owns max iterations; the review container is single-shot"
-status: todo
+status: completed
 type: refactor
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - stage-4
   - holon-agentic-coder
 created_at: 2026-11-05T00:30:00Z
-updated_at: 2026-11-05T00:30:00Z
+updated_at: 2026-11-05T08:30:00Z
 ---
 
 ## Problem
@@ -48,3 +48,14 @@ container is a single-shot worker.
 - Related: the native Stage 4 has no automatic resolver (findings stop the stage by design today), so engine
   iterations > 1 only occur via resume after external resolution; the resolver is decided and specified in the follow-up
   resolver bean (engine iterations become review+resolve).
+
+## Completed (2026-11-05)
+
+Delivered via the Holon flow on claude-agent / claude-opus-5-5: intent
+`I-1793856341-engine-owned-review-loop-single-shot-container`, PR #124, merged as `bfecf0f4`. Native Stage 4 halted at
+iteration 1 (expected — no resolver yet); the harness pr-review-loop converged in 4 iterations (resolver commits
+`3e256a1`, `1ea593d`, `13a4c99`, `5e23608`; unanimous 3/3 at `5e23608`; posted review 5780954285). Stage 5 calibrated
+(`9be1724`, EV predicted 42.64 vs actual 60.32, ΔEV +17.68), report merged into the PR head (`82baea7`). Engine now
+dispatches single-shot review containers with a separate `--iteration` label; `--max-iterations` defaults to 25 at the
+engine, entrypoint and standalone CLI, matching the harness skill's cap. One cosmetic deferral:
+[[holon-agentic-coder-ref-metadata-0231--pr124-deferred-nit-raw-count-in-exhausted-budget-error-string]].
