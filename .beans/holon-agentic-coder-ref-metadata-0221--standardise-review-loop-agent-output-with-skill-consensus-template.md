@@ -12,7 +12,7 @@ tags:
   - consensus-report
   - holon-agentic-coder
 created_at: 2026-10-30T09:55:00Z
-updated_at: 2026-11-05T01:40:00Z
+updated_at: 2026-11-05T02:30:00Z
 ---
 
 ## Problem
@@ -278,3 +278,14 @@ Delivery map:
   [[holon-agentic-coder-ref-metadata-0229--native-stage-4-resolver-review-loop-converges]] (resolver inside the loop,
   dispositions, convergence guards). This bean is the umbrella: it closes only when the engine's Stage 4 and the skill
   are interchangeable on all five axes.
+
+## Reset (maintainer, 2026-11-05)
+
+PRs #121 and #122 closed as deprecated by the expanded contract above. All their flow branches deleted from origin and
+locally (the whole `I-1793438366-…` and `I-1793778409-…` trees, including the PR #121 `/calibrated` branch and the
+orphan re-plan `P-1793588860-…`/`E-1793589381-…`), worktrees `pr121-standardise-review-output`,
+`pr122-render-review-consensus-comment` and `flow-0221b-render-review-consensus-comment` removed. Fresh repo-dir
+worktree `apps/holon-agentic-coder/flow-0221-standardise-review-loop` cut from `origin/main` (`922289f`). The maintainer
+re-runs the flow manually with `todo/intent-0221b-render-review-consensus-comment.json`; native Stage 4 is expected to
+halt at iteration 1 (no resolver yet — see the loop-logic beans), after which the maintainer kicks off the harness
+pr-review-loop skill manually.
