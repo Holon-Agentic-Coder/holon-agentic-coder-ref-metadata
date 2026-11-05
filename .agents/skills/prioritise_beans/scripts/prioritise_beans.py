@@ -204,9 +204,25 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "path, `stop_proxy_container` never called) - so Stage 4 has not started. No other flow is running on "
         "either target."
     ),
+    "",
+    (
+        "**2026-11-04/05:** **Bean 0221 axes 1-3 delivered and Bean 0228 completed through back-to-back manual "
+        "end-to-end flow runs.** The maintainer drove `holon flow` by hand, which surfaced and fixed a train of "
+        "defects: the sidecar readiness probe false positive (Bean 0227, hand-authored fix on "
+        "`fix/0227-proxy-readiness-http-probe` under the explicit-instruction exception), credential-design beans "
+        "0223 (flag/env audit), 0224 (claude credential auto-discovery, no `HOLON_AGENT_KEY`), 0225 (OS-keychain "
+        "only), and 0226 (PR-less e2e test on a sub-1B local model with full teardown). PRs #121/#122 were closed as "
+        "deprecated and their flow trees deleted when the maintainer expanded Bean 0221 into the five-axis "
+        "engine/skill standardisation contract. HAC PR #123 (`43f990a`) then delivered axes 1-3 (one consensus "
+        "template, instructions and posted output; harness loop converged in 3 iterations, calibration ΔEV +34.21), "
+        "and HAC PR #124 (`bfecf0f`, Bean 0228) delivered the engine-owned single-shot review loop with the "
+        "`--iteration` label split from `--max-iterations` (4 iterations, calibration ΔEV +17.68). Deferrals logged "
+        "as Beans 0230 and 0231. AGENTS.md now tops the claude flow ladder with `claude-fable-5`. Bean 0229 (the "
+        "native Stage 4 resolver) is next in the `flow.py` lane; its intent is written and Fable-ready."
+    ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0220)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0228)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
@@ -552,21 +568,98 @@ OVERRIDES: dict[str, dict[str, str]] = {
         ),
     },
     "0221": {
-        "title": "Standardise Review Loop Agent output with skill consensus template",
+        "title": "Standardise the engine's Stage 4 review loop with the pr-review-loop skill (five axes)",
         "priority": "**P1**",
         "impact": "High",
         "sizing": "M",
         "domain": "Review Loop / Output",
         "notes": (
-            "**Reopened 2026-11-02.** PR #121 is green, 3/3-approved and calibrated but misses this bean: no "
-            "ensemble-to-report seam in `entrypoint/review_loop.py`/`flow.py`, five hard-coded `Verified:` "
-            "assertions on approval, an `approved` flag can force the APPROVED heading, the findings table lost `ID` "
-            "and `Recommendation`, the closing notice is unchanged, and `scaffold.py` grew a self-invented 16-role "
-            "registry (prompt now 288 lines). The `pr-review-loop` skill template is the only source of truth, and "
-            "both templates get shorter. Part A landed 2026-11-02 (canonical Step 3a consensus comment in "
-            "`pr_review_prompt.md`, both skills condensed to reference it); Part B is the target half. PR #121 is "
-            "held, not merge-ready."
+            "**Expanded 2026-11-05 into the five-axis engine/skill standardisation contract** (same template, "
+            "instructions, posted output, loop logic, single->resolve->consensus iteration). Axes 1-3 delivered by "
+            "PR #123 (`43f990a`, merged 2026-11-05); axis 4-5 delivery: 0228 done (PR #124), 0229 remains. Closes "
+            "when engine Stage 4 and the skill are interchangeable."
         ),
+    },
+    "0229": {
+        "title": "Native Stage 4 resolver: the review loop resolves findings and converges",
+        "priority": "**P0**",
+        "impact": "High",
+        "sizing": "L",
+        "domain": "Review Loop / Flow Engine",
+        "notes": (
+            "Next in the `flow.py` lane (after Bean 0228, PR #124 merged). Review AND resolve per engine iteration; "
+            "every finding dispositioned applied/rejected into the existing ledger fields; 3-iteration "
+            "no-convergence guard; posting only at exits. Intent written (`todo/`), Fable-ready."
+        ),
+    },
+    "0224": {
+        "title": "Claude credentials just work: auto-discover the secrets file, map by type, no HOLON_AGENT_KEY",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Agent Runner / Credentials",
+        "notes": (
+            "Touches `agent_runner.py`/pre-flight only - concurrent-safe with 0229. Kills the "
+            "`HOLON_AGENT_SETTINGS` echo-pad tunnel; `--settings` value redacted in command echoes. Before 0225."
+        ),
+    },
+    "0225": {
+        "title": "Claude token lives only in the OS keychain; retire the plaintext secrets file",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Agent Runner / Credentials",
+        "notes": "After 0224 (extends its discovery seam). Keychain-only; one-time migration deletes the file.",
+    },
+    "0223": {
+        "title": "Audit CLI flags vs HOLON_* env vars: four-kind decision rule, flag>env precedence",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "L",
+        "domain": "CLI / Config",
+        "notes": (
+            "Exhaustive inventory of every add_argument and os.getenv; boundary-crossing=both, "
+            "per-invocation=flag, ambient=env-primary, secrets=env-only."
+        ),
+    },
+    "0226": {
+        "title": "End-to-end test for the holon flow commands with full teardown",
+        "priority": "**P2**",
+        "impact": "High",
+        "sizing": "L",
+        "domain": "Testing / E2E",
+        "notes": (
+            "Runs on a sub-1B local model via the `local_llm` envelope (no cloud secrets); never opens a PR; "
+            "unconditional teardown of worktrees and remote `I-…` trees; invariant assertions + bounded whole-run "
+            "retries. Operator-run `test-e2e` task, excluded from CI."
+        ),
+    },
+    "0227": {
+        "title": "Sidecar readiness probe false positive (docker-proxy accepts before mitmproxy binds)",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "S",
+        "domain": "Token Reduce / Proxy",
+        "notes": (
+            "Fix complete on `fix/0227-proxy-readiness-http-probe` (`36c9765`), suite green; hand-authored under "
+            "the explicit-instruction exception. Awaiting maintainer call on PR creation."
+        ),
+    },
+    "0230": {
+        "title": "Purge residual harness bean ids from target sources",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "S",
+        "domain": "Hygiene / Rule 12",
+        "notes": "PR #123 loop deferral (out-of-increment). Touches `flow.py` - run after 0229 clears the lane.",
+    },
+    "0231": {
+        "title": "Exhausted-budget error string interpolates raw count while payload reports clamped 0",
+        "priority": "**P3**",
+        "impact": "Low",
+        "sizing": "XS",
+        "domain": "Flow Engine / Cosmetic",
+        "notes": "PR #124 loop deferral (cosmetic, out-of-increment). Touches `flow.py` - bundle with 0230 after 0229.",
     },
     "0166": {
         "title": "Pipeline duration dashboard for CI builds",
