@@ -12,7 +12,7 @@ tags:
   - consensus-report
   - holon-agentic-coder
 created_at: 2026-10-30T09:55:00Z
-updated_at: 2026-11-05T02:30:00Z
+updated_at: 2026-11-05T04:30:00Z
 ---
 
 ## Problem
@@ -289,3 +289,18 @@ worktree `apps/holon-agentic-coder/flow-0221-standardise-review-loop` cut from `
 re-runs the flow manually with `todo/intent-0221b-render-review-consensus-comment.json`; native Stage 4 is expected to
 halt at iteration 1 (no resolver yet — see the loop-logic beans), after which the maintainer kicks off the harness
 pr-review-loop skill manually.
+
+## Delivered: axes 1-3 via PR #123 (merged 2026-11-05)
+
+Intent `I-1793840798-render-review-consensus-comment-from-reviewer-data` ran all five stages with claude-agent /
+claude-opus-5-5. Native Stage 4 halted at iteration 1 as expected (no engine resolver yet); the harness pr-review-loop
+converged in 3 iterations (resolver commits `8f24f9d`, `6d09c3d`, `2c12b92`; unanimous 3/3 at `2c12b92`; posted review
+5778850248), fixing along the way: dedup key includes summaries, CHANGES reviewer's text kept, 4-backtick fences in both
+byte-identical template twins, consensus trailer now fails closed, unique finding ids, "(Bean 0034)" leak removed. Stage
+5 calibrated (`c680406`, EV predicted 31.63 vs actual 65.84, ΔEV +34.21), merged into the PR head as `cb0de8b`. One
+out-of-increment finding deferred to
+[[holon-agentic-coder-ref-metadata-0230--purge-residual-harness-bean-ids-from-target-sources]].
+
+Remaining for this bean: axes 4-5 (loop logic parity) via
+[[holon-agentic-coder-ref-metadata-0228--engine-owns-the-review-loop-container-is-single-shot]] and
+[[holon-agentic-coder-ref-metadata-0229--native-stage-4-resolver-review-loop-converges]].
