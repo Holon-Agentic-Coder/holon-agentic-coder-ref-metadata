@@ -46,4 +46,5 @@ container is a single-shot worker.
 
 - Run through the Holon flow on holon-agentic-coder.
 - Related: the native Stage 4 has no automatic resolver (findings stop the stage by design today), so engine
-  iterations > 1 only occur via resume after external resolution; that resolver is a separate feature decision.
+  iterations > 1 only occur via resume after external resolution; the resolver is decided and specified in the follow-up
+  resolver bean (engine iterations become review+resolve).
