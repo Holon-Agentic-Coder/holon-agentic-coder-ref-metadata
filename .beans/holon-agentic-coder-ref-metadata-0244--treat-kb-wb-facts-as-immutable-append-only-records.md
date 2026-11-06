@@ -49,7 +49,12 @@ file must never be overwritten, touched, or re-serialized.
 4. **Zero False Git Churn**:
    - When no new facts qualify for promotion, `promote_pending_candidates()` produces 0 disk writes, ensuring
      `_commit_stage5_promoted_artifacts()` performs a clean no-op with 0 files staged or committed.
-5. **Hermetic Unit Tests**:
-   - Add unit tests in `apps/sandbox-executor/tests/` asserting that running `promote_pending_candidates()` repeatedly
-     against an existing database and pre-existing fact files produces zero file modifications, zero timestamp churn,
-     and leaves existing files untouched.
+5. **Dedicated Hermetic Unit Tests (Verify Facts Never Touched)**:
+   - Add hermetic unit tests in `apps/sandbox-executor/tests/test_wisdom.py` asserting that pre-existing fact files on
+     disk are **strictly never touched**:
+     - Pre-populate a fact file (`KB-failure-*.json`, `KB-pattern-*.json`, `WB-heuristic-*.json`), record its SHA-256
+       hash and exact nanosecond modification time (`os.stat(path).st_mtime_ns`).
+     - Execute `promote_pending_candidates()` and `persist_kb_fact()` repeatedly against matching signatures.
+     - Assert that `st_mtime_ns` and file contents remain 100% identical and that zero writes occur to existing files.
+   - Add test coverage in `apps/sandbox-executor/tests/test_flow.py` asserting that Stage 5 calibration leaves existing
+     fact files untouched and `_commit_stage5_promoted_artifacts()` results in a clean no-op when no new facts qualify.
