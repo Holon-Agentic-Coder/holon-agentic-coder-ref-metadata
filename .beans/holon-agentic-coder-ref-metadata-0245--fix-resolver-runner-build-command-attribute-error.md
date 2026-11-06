@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0245
 title: "Fix resolver runner build_command AttributeError across agent runner classes"
-status: todo
+status: completed
 type: bug
 priority: critical
 tags:
@@ -13,7 +13,7 @@ tags:
   - testing
   - minimise-mocking
 created_at: 2026-11-06T12:37:00Z
-updated_at: 2026-11-06T22:15:00Z
+updated_at: 2026-11-06T23:07:00Z
 ---
 
 ## Problem
@@ -110,3 +110,19 @@ Unit and integration tests must strictly **minimise the use of mocks**:
 
 4. **Zero Lint / Hygiene Regressions**: Ensure all target repository tests pass cleanly via `uv run pytest` and
    formatting passes via `uv run ruff check .` and `uv run ruff format --check .`.
+
+## Resolution
+
+Delivered via [PR #134](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/134) and merged into `main`
+(`4113f0d`):
+
+- **Implemented `build_command` on Base `AgentRunner`**: Added
+  `build_command(self, prompt: str, model_name: str) -> list[str]` to `AgentRunner` in
+  `apps/sandbox-executor/src/sandbox_executor/agent_runner.py`, delegating to `self.compose_cmd(model_name, prompt)`.
+  All runner subclasses (`StandardAgentRunner`, `AntigravityAgentRunner`, etc.) inherit and provide the method.
+- **Robustness in Review Loop Resolver**: In `apps/sandbox-executor/src/sandbox_executor/entrypoint/review_loop.py`,
+  ensured `_run_resolver_agent()` invokes `runner.build_command()` cleanly or falls back to `runner.compose_cmd()`.
+- **Minimised Mocking in Tests**: In `apps/sandbox-executor/tests/test_agent_runner.py` and `test_review_loop.py`,
+  eliminated free-form mock runners in favour of real `AgentRunner` and `AntigravityAgentRunner` instances, verifying
+  genuine command construction and contract fidelity.
+- Traversed all 5 stages of the Holon flow, passed 3/3 ensemble review approval, calibrated, and merged into `main`.
