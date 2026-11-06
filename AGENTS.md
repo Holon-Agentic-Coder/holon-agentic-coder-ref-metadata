@@ -118,6 +118,16 @@ When you are spawned or begin a new session, follow these steps sequentially:
    transition tasks from `todo` to `in-progress` and finally `completed`.
 5. **Per-Agent Worktrees (Autonomous Branches Are Allowed)**: Every agent gets **its own worktree per project** and
    works **exclusively** inside it. Creating that branch and worktree is autonomous -- no user instruction required:
+   - **Sole Change Path — Holon Flow is the Only Option**: `holon flow <intent.json>` is not merely a preferred option;
+     it is the **sole and exclusive option** for all development across `holon-agentic-coder` and `holon-coherence`.
+     Every change MUST be produced by traversing the containerised 5-stage lifecycle. Because all stages (Intent, Plan,
+     Execute, and Stage 4 Review Loop & Resolver) run inside Docker containers using the globally installed `holon` CLI
+     (`~/.local/bin/holon`), the worktree serves purely as a Git anchor to resolve repository URLs and Git state—running
+     `uv sync --group dev` on the host is not required for flow execution.
+   - **Legacy Worktree & Hand-Authoring Fallback**: Hand-authoring changes directly in a worktree is strictly a fallback
+     for when `holon flow` itself is broken or blocked and we must hand-author PRs to fix the bootstrap harness, or when
+     performing local container image builds, harness coordination, or manual host-side verification suites. In those
+     exceptional cases only, follow the legacy worktree instructions below:
    - For `apps/holon-agentic-coder/`, all development and feature work must be based off the `origin/main` branch.
    - For `apps/holon-coherence/`, all development and feature work must be based off the `origin/main` branch.
    - Name the worktree and branch after you or your bean (for example `apps/holon-coherence/pr25-coherence-make-tasks`
@@ -127,9 +137,9 @@ When you are spawned or begin a new session, follow these steps sequentially:
        the worktree **must carry the PR number and a slug** -- `apps/<project>/pr<N>-<slug>`, for example
        `apps/holon-agentic-coder/pr61-agent-output-capture`. Keep the flow ref itself exactly as the flow created it
        (never rename or re-cut an audited provenance branch); the `pr<N>-<slug>` marker lives on the **directory**.
-     - **No Holon flow branch involved** (hand-authored harness work): the **bean number goes in the name** -- directory
-       `apps/<project>/<type>-<bean-id>-<slug>` for branch `<type>/<bean-id>-<slug>`. Work that has neither a PR nor a
-       bean yet needs the bean logged first.
+     - **No Holon flow branch involved** (hand-authored harness work or fallback): the **bean number goes in the name**
+       -- directory `apps/<project>/<type>-<bean-id>-<slug>` for branch `<type>/<bean-id>-<slug>`. Work that has neither
+       a PR nor a bean yet needs the bean logged first.
    - **A worktree created for temporary use MUST be named descriptively enough to still read as its purpose months
      later**: `<purpose>-<subject>-<qualifier>`, for example
      `apps/holon-agentic-coder/verify-pr61-agent-output-redaction` or
@@ -142,8 +152,9 @@ When you are spawned or begin a new session, follow these steps sequentially:
    - Create it from the bare repository directory with
      `git worktree add --no-track -b {branch} ../{branch} origin/main`. Note that `../` resolves relative to
      `<project>/.git`, which is what places the checkout at `<project>/{branch}`.
-   - Each worktree needs its own environment: virtualenvs are per-directory and cannot be shared, so run
-     `uv sync --group dev` inside the new worktree and never point at another worktree's `.venv/`.
+   - Each worktree needs its own environment when authoring by hand or running host verification: virtualenvs are
+     per-directory and cannot be shared, so run `uv sync --group dev` inside the new worktree (legacy/manual authoring
+     and verification path only) and never point at another worktree's `.venv/`.
    - Inside your own worktree you have full latitude to edit, commit, squash, test, rebuild images and push -- **for
      harness work, image builds, verification runs, and handling branches the flow produced**. That squash latitude
      **never extends to a branch the Holon flow or a review loop drives** (item 7 below; rule 4 in
@@ -254,7 +265,8 @@ strictly for coordination, task tracking (`.beans/`), and agent guidance.
 > agent or bean id, and works exclusively inside it -- never in `main` (the user's playground) and never in another
 > agent's worktree. Run the feature-branch command from the bare repository directory (for example
 > `apps/holon-coherence/.git`): `../` resolves relative to that directory, which is what places the checkout at
-> `apps/holon-coherence/{branch}`. Each worktree also owns its own virtualenv (`uv sync --group dev`).
+> `apps/holon-coherence/{branch}`. Each worktree also owns its own virtualenv (`uv sync --group dev` when hand-authoring
+> or running host verification).
 
 ---
 

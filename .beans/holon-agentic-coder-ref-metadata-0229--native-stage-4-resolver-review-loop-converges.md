@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0229
 title: "Native Stage 4 resolver: the review loop resolves findings and converges, it does not just review once"
-status: todo
+status: completed
 type: feature
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - resolver
   - holon-agentic-coder
 created_at: 2026-11-05T00:50:00Z
-updated_at: 2026-11-05T00:50:00Z
+updated_at: 2026-11-05T15:40:00Z
 ---
 
 ## Problem
@@ -54,3 +54,15 @@ recorded). No human pause mid-loop.
 - Depends on 0228 (engine-owned single loop; the resolver is a step inside the engine's iteration, the container stays
   single-shot). Mirrors the harness pr-review-loop doctrine: Nits are actioned, not waved through; the loop never pauses
   for guidance mid-flight; merging stays human-only.
+
+## Completed (2026-11-06)
+
+Delivered via the Holon flow on `antigravity-agent` / `gemini-4-argon`: intent
+`I-1793869839-stage-4-resolver-review-loop-converges`, plan `P-1793869856-antigravity-agent-gemini-4-argon`, PR #125,
+merged as `baf3f8c`. Native Stage 3 implemented the in-container resolver loop (`bd320bb`). Stage 4 review iteration 1
+halted at findings (expected during bootstrap — native resolver feature in-flight on the PR itself); the harness
+`pr-review-loop` converged in 3 iterations (resolver commits `8b3cf3a`, `6f0a7c0`, and `342dfc1`), adding hermetic unit
+test coverage for the resolver dispatch, disposition logging, 3-iteration `no-convergence` guard, and single exit
+posting, with 2971 unit tests passing. Unanimous 3/3 consensus `APPROVED` achieved at `342dfc1` and posted to PR #125.
+Stage 5 calibrated (`eb3302f`, EV predicted 64.91 vs actual -8.92, ΔEV -73.83), `/calibrated` branch pushed to origin,
+and calibration report (`plans/P-1793869856-antigravity-agent-gemini-4-argon_calibration.md`) merged into the PR head.

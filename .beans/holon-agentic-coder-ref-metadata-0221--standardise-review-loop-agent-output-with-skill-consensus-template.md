@@ -3,7 +3,7 @@
 title:
   "Standardise the engine's Stage 4 review loop with the pr-review-loop skill: same template, instructions, output and
   loop logic"
-status: in-progress
+status: completed
 type: task
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
   - consensus-report
   - holon-agentic-coder
 created_at: 2026-10-30T09:55:00Z
-updated_at: 2026-11-05T04:30:00Z
+updated_at: 2026-11-06T09:15:00Z
 ---
 
 ## Problem
@@ -304,3 +304,15 @@ out-of-increment finding deferred to
 Remaining for this bean: axes 4-5 (loop logic parity) via
 [[holon-agentic-coder-ref-metadata-0228--engine-owns-the-review-loop-container-is-single-shot]] and
 [[holon-agentic-coder-ref-metadata-0229--native-stage-4-resolver-review-loop-converges]].
+
+## Completed: axes 4-5 via PR #124 and PR #125 (merged 2026-11-05 / 2026-11-06)
+
+- **Axis 4** ([[holon-agentic-coder-ref-metadata-0228--engine-owns-the-review-loop-container-is-single-shot]]):
+  Delivered via PR #124 (`bfecf0f`, merged 2026-11-05; calibrated `9be1724`, ΔEV +17.68). The flow engine owns the
+  25-iteration loop and checkpointed counter, dispatching single-shot review containers with a separate `--iteration`
+  label.
+- **Axis 5** ([[holon-agentic-coder-ref-metadata-0229--native-stage-4-resolver-review-loop-converges]]): Delivered via
+  PR #125 (`baf3f8c`, merged 2026-11-06; calibrated `eb3302f`, ΔEV -73.83). Stage 4 now executes both review and
+  resolver passes per iteration inside the flow, recording `applied`/`rejected` dispositions in `executions.jsonl`,
+  enforcing the 3-iteration `no-convergence` guard, and posting consensus only at loop exit. All five standardisation
+  axes are complete.

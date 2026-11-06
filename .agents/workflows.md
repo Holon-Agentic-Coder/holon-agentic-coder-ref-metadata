@@ -233,14 +233,17 @@ To maintain clean repository history, follow this Git workflow:
      surface for authoring changes: every `holon-agentic-coder` source change is produced by the Holon flow (invariant 8
      in [rules.md](rules.md) and the Sole Change Path in [AGENTS.md](../AGENTS.md)), so hand-authoring or
      hand-committing that repository's source from a worktree stays prohibited.
-   - For all code changes in `apps/holon-coherence/`, work must happen in a dedicated Git worktree (e.g.
-     `apps/holon-coherence/feat-<name>` branched off `origin/main`). The flow resolves exactly one remote per run and
-     cannot reach this repository, so coherence changes are worktree-authored.
-   - If work has already landed in a `main` worktree, move it into a dedicated worktree and restore `main` to a pristine
-     checkout.
-   - Each worktree owns its environment: run `uv sync --group dev` inside it. Virtualenvs are directory-bound and their
-     console-script shebangs are absolute, so never reuse another worktree's `.venv/` or reuse one after moving the
-     repository (recreate it instead).
+   - **Sole Change Path — Holon Flow is the Only Option**: `holon flow <intent.json>` is not merely a preferred option;
+     it is the **sole and exclusive option** for all development across `holon-agentic-coder` and `holon-coherence`.
+     Every change MUST be produced by traversing the containerised 5-stage lifecycle. Because all stages run inside
+     Docker containers using the globally installed `holon` CLI, the worktree serves purely as a Git anchor to resolve
+     repository URLs—running `uv sync --group dev` on the host is not required for flow execution.
+   - **Legacy Worktree & Hand-Authoring Fallback**: Hand-authoring changes directly in a worktree is strictly a fallback
+     for when `holon flow` itself is broken or blocked and we must hand-author PRs to fix the harness, or when
+     performing local container image builds, harness coordination, or manual host-side verification suites. In those
+     exceptional cases only, each worktree owns its environment: run `uv sync --group dev` inside it. Virtualenvs are
+     directory-bound and their console-script shebangs are absolute, so never reuse another worktree's `.venv/` or reuse
+     one after moving the repository (recreate it instead).
    - In this metadata repository (`holon-agentic-coder-ref-metadata`), work on the active checked-out branch.
    - Branch naming convention:
      `git worktree add --no-track -b <type>/<bean-id>-<short-description> ../<branch-dir> origin/main` (e.g.,

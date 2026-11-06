@@ -206,23 +206,35 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     ),
     "",
     (
-        "**2026-11-04/05:** **Bean 0221 axes 1-3 delivered and Bean 0228 completed through back-to-back manual "
-        "end-to-end flow runs.** The maintainer drove `holon flow` by hand, which surfaced and fixed a train of "
-        "defects: the sidecar readiness probe false positive (Bean 0227, hand-authored fix on "
+        "**2026-11-04 to 2026-11-06:** **Bean 0221 (all 5 axes), Bean 0228, Bean 0229, Bean 0232, and Bean 0237 "
+        "completed through end-to-end flow runs.** The maintainer drove `holon flow` by hand, which surfaced and fixed "
+        "a train of defects: the sidecar readiness probe false positive (Bean 0227, hand-authored fix on "
         "`fix/0227-proxy-readiness-http-probe` under the explicit-instruction exception), credential-design beans "
         "0223 (flag/env audit), 0224 (claude credential auto-discovery, no `HOLON_AGENT_KEY`), 0225 (OS-keychain "
         "only), and 0226 (PR-less e2e test on a sub-1B local model with full teardown). PRs #121/#122 were closed as "
         "deprecated and their flow trees deleted when the maintainer expanded Bean 0221 into the five-axis "
-        "engine/skill standardisation contract. HAC PR #123 (`43f990a`) then delivered axes 1-3 (one consensus "
+        "engine/skill standardisation contract. HAC PR #123 (`43f990a`) delivered axes 1-3 (one consensus "
         "template, instructions and posted output; harness loop converged in 3 iterations, calibration ΔEV +34.21), "
-        "and HAC PR #124 (`bfecf0f`, Bean 0228) delivered the engine-owned single-shot review loop with the "
-        "`--iteration` label split from `--max-iterations` (4 iterations, calibration ΔEV +17.68). Deferrals logged "
-        "as Beans 0230 and 0231. AGENTS.md now tops the claude flow ladder with `claude-fable-5`. Bean 0229 (the "
-        "native Stage 4 resolver) is next in the `flow.py` lane; its intent is written and Fable-ready."
+        "HAC PR #124 (`bfecf0f`, Bean 0228) delivered axis 4 (engine-owned single-shot review loop with `--iteration` "
+        "label split from `--max-iterations`; 4 iterations, calibration ΔEV +17.68), and HAC PR #125 (`baf3f8c`, "
+        "Bean 0229) delivered axis 5 (native Stage 4 resolver inside the review loop with `applied`/`rejected` "
+        "dispositions in `executions.jsonl`, 3-iteration `no-convergence` guard, and single exit posting; 3 "
+        "iterations, calibrated `eb3302f`), closing umbrella **Bean 0221**. **Bean 0232** (HAC PR #126, `0f80271`: "
+        "bump default per-turn timeout `DEFAULT_TURN_SECONDS` from 300 s to 3600 s; calibration ΔEV +4.64) and "
+        "**Bean 0237** (HAC PR #127, `6b9264c`: increase default `review_iteration` stage budget from 15 min to "
+        "120 min; calibration ΔEV +3.80) then traversed all 5 stages hands-free and merged. **Bean 0235** (HAC PR "
+        "#128, `f8220eb`: Stage 4 CI is a post-review gate: launch reviewers immediately without waiting for pending "
+        "CI; calibration ΔEV +10.93) and **Bean 0238** (HAC PR #129, `ecec262`: Stage 4 resolver fixes CI and test "
+        "failures by synthesising first-class FindingRow for FIND-CI; calibration ΔEV +11.52) both followed and "
+        "merged into `main`. New beans logged: **Bean 0239** (Stage 5 calibration commits and pushes promoted "
+        "knowledge and wisdom artifacts to /calibrated and PR), **Bean 0236** (post consensus review once per PR exit "
+        "instead of duplicating via both `gh pr comment` and `gh pr review`), **Bean 0233** (validate fail-fast that "
+        "`--repo-dir` is an attached Git worktree), and **Bean 0234** (event-driven CI check progress reporting "
+        "during Stage 4 review)."
     ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0228)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0237)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
@@ -246,101 +258,93 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Tooling (2026-11-01):** `holon-agentic-coder` `main` (`922289f`) and `holon-coherence` `main` (`d6f1655`) "
-        "are installed editable and the agent images were rebuilt via `install-holon`, so Stage 3 partial-code "
+        "**Tooling (2026-11-06):** `holon-agentic-coder` `main` (`ecec262`) and `holon-coherence` `main` (`d6f1655`) "
+        "are installed editable and all agent images were rebuilt via `install-holon`, so Stage 3 partial-code "
         "salvage (#108), pure-append ledgers (#111), the calibration-report Prettier fix (#112), Stage 4 in the "
-        "`review-loop` container (#116), the modular `cli/` package (#117) and mandatory `--agent` / `--model` "
-        "(#119) are all live. `HOLON_TOKEN_REDUCE=0` stays the workaround until Bean 0157 fixes the unreachable "
-        "sidecar, and Stage 4 still burns iterations polling pending CI until Bean 0160 lands. Set "
-        "`HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` for Stage 3 until Bean 0172 adds an explicit unlimited value."
+        "`review-loop` container (#116), the modular `cli/` package (#117), mandatory `--agent` / `--model` "
+        "(#119), the standardised consensus review template (#123), the engine-owned single-shot review loop (#124), "
+        "the native Stage 4 resolver (#125), the 3600 s default per-turn timeout (#126), the 120-minute default "
+        "`review_iteration` stage budget (#127), post-review CI gating (#128), and resolver CI failure repair "
+        "(#129) are all live. `HOLON_TOKEN_REDUCE=0` stays the workaround until Beans 0227 and 0157 land. Set "
+        "`HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172 lands."
     ),
     "",
     (
-        "**Merge state (2026-11-02):** only harness PR #58 (Beans 0170, 0182, 0210, 0212, 0213) is ready for the "
-        "maintainer - green and clean. HAC PR #121 (Bean 0221) is **held**: GitHub-green and calibrated, but it "
-        "fails the bean's acceptance criteria (see the bean's verification section) and must be updated by a resumed "
-        "flow run or closed. Coherence PR #41 (Bean 0208) needs work, not a merge: its unit jobs are red."
+        "**Merge / In-Flight State (2026-11-06):** No open PRs on `holon-agentic-coder` (PRs #123–#129 all merged). "
+        "Harness PR #58 (Beans 0170, 0182, 0210, 0212, 0213) is green and ready for maintainer review/merge. "
+        "`fix/0227-proxy-readiness-http-probe` (`36c9765`, Bean 0227) has a green test suite and awaits the "
+        "maintainer's call on PR creation. Coherence PR #41 (Bean 0208, `2f30d6e`) needs its 9 unit test failures "
+        "resolved on its execution branch before Stage 4 review and Stage 5 calibration."
     ),
     "",
-    "Sequential lane, holon-agentic-coder (flow blockers first):",
+    "Sequential lane, holon-agentic-coder (fast UX/reliability wins first, then `flow.py` split):",
     "",
     (
-        "1. **Bean 0221** (reopened): mirror the harness `pr-review-loop` skill template - do not author a competing "
-        "schema - add the ensemble-to-report synthesis seam, make the approved report render only what the ensemble "
-        "really checked, restore the `ID` and `Recommendation` columns and the closing notice, and condense both "
-        "templates. Resume on the existing `I-1793438366-...` branch (`holon flow <intent.json> --from-stage plan`) "
-        "so a re-plan forks a second plan and execution branch rather than updating #121. Part A landed 2026-11-02 - "
-        "the canonical consensus comment now lives in `pr_review_prompt.md` step 3a - and part B is now its own "
-        "intent, `render-review-consensus-comment-from-reviewer-data`, because a resume can carry neither the "
-        "corrected intent text nor a working execution. Blocked while the flow inherits this harness "
-        "session's runner by newly filed `0222` (P1): mounting only `~/.pi/agent/models.json` for pi makes "
-        "Docker pre-create root-owned `/home/holon/.pi` parents, so pre-flight dies with `EACCES` creating "
-        "`~/.pi/agent/sessions`. Running part B on an explicitly named alternative runner is the "
-        "maintainer's decision, not a silent fallback."
+        "1. **Bean 0239** (Stage 5 calibration commits and pushes promoted knowledge and wisdom artifacts to "
+        "`/calibrated` and PR head; intent ready in `todo/intent-0239-stage-5-commits-promoted-knowledge-wisdom.json`)."
     ),
     (
-        "2. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split before the "
-        "next `flow.py` features stops those features colliding."
+        "2. **Bean 0236** (post consensus review once per PR exit via `gh pr review`, never duplicate with `gh pr "
+        "comment`; intent ready in `todo/intent-0236-post-consensus-review-once.json`)."
     ),
     (
-        "3. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean "
-        "0190** (checkpoint and ledger reconciliation; entrypoints stop importing flow). Both beans ask to precede "
-        "0183 (item 4), as in Bean 0177's migration step 3."
+        "3. **Bean 0233** (validate fail-fast that `--repo-dir` is an attached Git worktree before Stage 1 or resume; "
+        "intent ready in `todo/intent-0233-validate-repo-dir-is-git-worktree.json`). Prevents non-worktree directories "
+        "from running Stages 1-3 in containers only to fail at Stage 4/5 host checkout."
     ),
     (
-        "4. **Bean 0183** (every stage and engine bookkeeping step sandboxed). Bean 0179 is merged (`b746408`), so "
-        "Stage 4 container dispatch is active."
+        "5. **Bean 0234** + **Bean 0160** (event-driven CI check progress reporting during Stage 4 review — log total "
+        "pipelines once at start and emit a line only as each check completes, with separate CI wait timeout / "
+        "pending-vs-failed error reporting; intent ready in `todo/intent-0234-event-driven-ci-check-progress.json`)."
     ),
     (
-        "5. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), "
+        "5. **Beans 0230 and 0231** (small `flow.py` deferrals from PRs #123 and #124: purge residual harness bean IDs "
+        "from target sources, and align exhausted-budget error string with clamped count)."
+    ),
+    (
+        "6. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split right after "
+        "the small `flow.py` fixes above removes the 5,500-line single-file serialization bottleneck."
+    ),
+    (
+        "7. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean "
+        "0190** (checkpoint and ledger reconciliation; entrypoints stop importing flow). Both precede **Bean 0183** "
+        "(every stage and engine bookkeeping step sandboxed in its own clone)."
+    ),
+    (
+        "8. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), "
         "then **Bean 0146** (plans-ledger correction rows; calibration picks the right predicted metrics). Bean 0197 "
-        "(item 7) follows 0146 because both edit the predicted-metrics parser."
+        "follows 0146 because both edit the predicted-metrics parser."
+    ),
+    ("9. **Bean 0149**, then **Bean 0151**: unique IDs across concurrently planned intents, then touch-set admission."),
+    (
+        "10. **Decomposition lanes from Bean 0177** once `0187` lands, in parallel where packages differ: "
+        "0191 then 0192 (GitHub adapter, `ReviewLoop`), 0193, 0194, 0195 then 0196, 0197 (after 0146), 0198 and "
+        "0199 (all tracked by umbrella Bean 0152), and 0201. Bean 0153 runs per package with or right after that "
+        "package's decomposition. **Bean 0213** (reflect remaining skill rules into native review-loop agent) is "
+        "unblocked now that 0221 is complete."
     ),
     (
-        "6. **Bean 0149**, then **Bean 0151**: unique IDs across concurrently planned intents (parallel batches "
-        "still rely on staggered starts), then touch-set admission."
+        "11. **Bean 0157** (mitmproxy sidecar reachability, alongside **Bean 0227**), **Bean 0161** (nested sub-intent "
+        "branches), **Bean 0181** (`/_` only on branch refs), **Bean 0155** then **Bean 0148** (redaction), **Beans "
+        "0172, 0174, 0173, 0223** (budgets, env-var reference, layered `.env`, CLI flag vs env audit), **Bean 0200** "
+        "(holon-coherence owns token reduction; after 0189), and **Bean 0176** (pytest-only conversion of every test "
+        "file; runs alone)."
     ),
-    (
-        "7. **Decomposition lanes from Bean 0177** once the splits land, in parallel where their packages differ: "
-        "0191 then 0192 (GitHub adapter, `ReviewLoop`), 0193, 0194, 0195 then 0196, 0197 (after 0146 and 0162, as "
-        "Bean 0197 asks), 0198 and 0199 (all tracked by umbrella Bean 0152, with 0190 from item 3), and 0201 "
-        "(outside the umbrella). Bean 0153 runs per package with, or right after, that package's decomposition. "
-        "Bean 0213 waits for 0221's corrected template rather than the one PR #121 shipped."
-    ),
-    "8. **Bean 0160**, then **Bean 0157**: the remaining flow-integrity blockers.",
-    (
-        "9. **Bean 0161**: nested sub-intent branches per the maintainer's rulings (now documented by PRs #103, "
-        "#110 and #113), chaining and resume safety."
-    ),
-    (
-        "10. **Bean 0181**: `/_` only on branch refs, ids bare (ledger field migration; readers accept both shapes). "
-        "After 0161 and 0179, which overlap `flow.py`, as Bean 0181 asks."
-    ),
-    (
-        "11. **The `holon-agentic-coder` half of Bean 0147**, **Bean 0155** then **Bean 0148** (redaction), **Beans "
-        "0172, 0174, 0173** (budgets, the environment-variable reference, then the layered `.env` that needs the "
-        "reference's allow-list and secret flags), **Bean 0200** (holon-coherence owns token reduction; after 0189)."
-    ),
-    "12. **Bean 0176**: pytest-only conversion of every test file (touches most test files, so it runs alone).",
     "",
-    "Parallel lane (disjoint files):",
+    "Parallel lanes (disjoint files / repositories):",
     "",
     (
-        "- **Harness PR #58 (`docs/harness-20261030`):** consolidates Beans 0170, 0182, 0210, 0212, and 0213, with "
-        "green CI checks, awaiting maintainer review/merge."
+        "- **Agent Runner / Credentials lane (`holon-agentic-coder`, disjoint from `flow.py`):** **Bean 0224** "
+        "(auto-discover `~/.holon/secrets/claude-oauth-token`, map by credential type, kill `HOLON_AGENT_KEY` and "
+        "the echo-pad tunnel; touches `agent_runner.py`/pre-flight only), followed by **Bean 0225** (OS keychain "
+        "storage) and **Bean 0222** (writable `~/.pi/agent` tmpfs mount so `pi-agent` flows pass pre-flight)."
     ),
     (
-        "- **holon-coherence decomposition lane** (Bean 0177 order, disjoint from holon-agentic-coder): PRs #36 "
-        "(Bean 0203), #37 (Bean 0204), #38 (Bean 0205), #39 (Bean 0206) and #40 (Bean 0207, `d6f1655`) are merged. "
-        "**Bean 0208** (`ProxyLifecycle`) is in progress as PR #41 (`2f30d6e`) and must go green first: 9 unit tests "
-        "fail on ubuntu and macOS because the in-container `start` path raises `SystemExit: 1` and the new `stop` "
-        "dispatch never reaches `stop_proxy_container` under the existing mocks. Resume on the existing "
-        "`E-1793439253-...` branch rather than re-running Stage 3. Once it merges, the coherence lane is empty "
-        "except Bean 0217 (beads adoption), which waits on 0214 and 0215."
-    ),
-    (
-        "- **Bean 0166** (CI pipeline duration dashboard; workflows and observability only, pairs with 0163). If it "
-        "edits a target repository's workflow files, it does not run beside 0202 or 0209 (both already merged)."
+        "- **holon-coherence decomposition lane** (disjoint repository): PRs #36 (Bean 0203), #37 (Bean 0204), #38 "
+        "(Bean 0205), #39 (Bean 0206) and #40 (Bean 0207, `d6f1655`) are merged. **Bean 0208** (`ProxyLifecycle`) is "
+        "in progress as PR #41 (`2f30d6e`): fix the 9 unit test failures on the existing `E-1793439253-...` branch, "
+        "then run Stage 4 review and Stage 5 calibration. Once PR #41 merges, the coherence refactoring lane is "
+        "complete."
     ),
     (
         "- **Beads adoption lane (from Bean 0156):** **Bean 0214** (pilot beads in holon-agentic-coder, folding in "
@@ -348,7 +352,11 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "harness work) in parallel, followed by **Bean 0216** (flow integration), **Bean 0217** (adopt in coherence), "
         "and **Bean 0218** (port harness skills to `bd` and archive harness)."
     ),
-    "- **Beans 0142 and 0141** (benchmarking and tuning, no code flow).",
+    (
+        "- **E2E testing, CI observability, and local model benchmarking:** **Bean 0226** (`test-e2e` on a sub-1B "
+        "local model with full teardown), **Bean 0166** (CI pipeline duration dashboard), and **Beans 0142 / 0141** "
+        "(Qwen3.8 benchmarking and vmlx tuning)."
+    ),
 ]
 
 # Manual triage overrides for every active bean: display title, priority,
@@ -373,7 +381,10 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "High",
         "sizing": "S",
         "domain": "Review Loop / CI",
-        "notes": "Every unattended Stage 4 runs out of iterations before review. Workaround: wait for CI, then resume.",
+        "notes": (
+            "PR #101 added bounded CI waiting within the iteration budget; remaining: separate "
+            "`HOLON_REVIEW_CI_WAIT_SECONDS` budget and pending-vs-failed error reporting. Pair with 0234."
+        ),
     },
     "0151": {
         "title": "Planner estimates the touch set; overlapping concurrent flows are blocked",
@@ -386,6 +397,150 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "`{parent}--{n}-{slug}` child branches."
         ),
     },
+    "0239": {
+        "title": (
+            "Stage 5 calibration commits and pushes promoted knowledge and wisdom artifacts to /calibrated and PR"
+        ),
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "S",
+        "domain": "Stage 5 / Calibration",
+        "notes": (
+            "Stage and commit `holon-knowledge/kb/` and `holon-knowledge/wisdom/` in `run_calibration_stage()` so "
+            "promoted failure modes, patterns, and heuristics are included on `/calibrated` and in the PR. Intent "
+            "in `todo/`."
+        ),
+    },
+    "0236": {
+        "title": (
+            "Post consensus review once per PR exit instead of duplicating via both gh pr comment and gh pr review"
+        ),
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "S",
+        "domain": "Review Loop / GitHub",
+        "notes": (
+            "`post_pr_review_consensus()` currently calls both `gh pr comment` and `gh pr review` (which falls back "
+            "to `gh pr review --comment` on HTTP 422), producing 2 identical posts on PR #126. Submit once via `gh "
+            "pr review`. Intent in `todo/`."
+        ),
+    },
+    "0233": {
+        "title": "Validate that `--repo-dir` is an attached git worktree",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "S",
+        "domain": "CLI / Flow Validation",
+        "notes": (
+            "Fail fast before Stage 1 or checkpoint resume if `--repo-dir` is a bare repo or non-worktree directory "
+            "(`git rev-parse --is-inside-work-tree`), preventing hours-in Stage 4/5 host checkout crashes. Intent in "
+            "`todo/`."
+        ),
+    },
+    "0234": {
+        "title": "Event-driven CI check progress reporting during Stage 4 review",
+        "priority": "**P1**",
+        "impact": "Medium",
+        "sizing": "S",
+        "domain": "Review Loop / Logging",
+        "notes": (
+            "Log total CI pipelines once at start (`Tracking N GitHub CI check(s)...`) and emit a log line only "
+            "when a check completes or changes state, suppressing 15 s polling noise. Intent in `todo/`; pair with "
+            "0160."
+        ),
+    },
+    "0224": {
+        "title": "Claude credentials just work: auto-discover the secrets file, map by type, no HOLON_AGENT_KEY",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Agent Runner / Credentials",
+        "notes": (
+            "Touches `agent_runner.py`/pre-flight only - disjoint from `flow.py`. Kills the "
+            "`HOLON_AGENT_SETTINGS` echo-pad tunnel; `--settings` value redacted in command echoes. Before 0225."
+        ),
+    },
+    "0227": {
+        "title": "Sidecar readiness probe false positive (docker-proxy accepts before mitmproxy binds)",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "S",
+        "domain": "Token Reduce / Proxy",
+        "notes": (
+            "Fix complete on `fix/0227-proxy-readiness-http-probe` (`36c9765`), suite green; hand-authored under "
+            "the explicit-instruction exception. Awaiting maintainer call on PR creation."
+        ),
+    },
+    "0222": {
+        "title": "pi-agent sandbox cannot create `~/.pi/agent/sessions`, so pi-runner flows die at pre-flight",
+        "priority": "**P1**",
+        "impact": "Medium",
+        "sizing": "S",
+        "domain": "Agent Runner / Sandbox",
+        "notes": (
+            "Mounting only `~/.pi/agent/models.json` makes Docker pre-create `/home/holon/.pi/agent` as root (EACCES "
+            "for uid 1000). Add a writable tmpfs overlay for pi sessions/state in `get_agent_session_mounts`."
+        ),
+    },
+    "0187": {
+        "title": "Split `flow.py` into a `flow/` package, one module per stage and concern (move only)",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "L",
+        "domain": "Refactor / Architecture",
+        "notes": (
+            "After 0185 (#115 merged) and 0188 (#117 merged). >5,500 lines; AST-verified move only. Runs alone among "
+            "`flow.py` PRs; unblocks 0189, 0190, 0191, 0193, 0194, 0197."
+        ),
+    },
+    "0189": {
+        "title": "Launcher module owns container launch and role dispatch; break the `flow` -> `cli` cycle",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Refactor / Architecture",
+        "notes": "After 0187 (0188 is merged as #117); unblocks 0200. Runs with 0190 and precedes 0183.",
+    },
+    "0190": {
+        "title": "`FlowCheckpoint` and ledger reconciliation own their behaviour; entrypoints stop importing flow",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Ledger / Holon Flow",
+        "notes": "After 0187; 0158 (PR #111, same code) has merged. Precedes 0183. Unblocks 0196, 0199.",
+    },
+    "0191": {
+        "title": "One GitHub adapter owns every `gh` call (PR, CI probe, mergeability, review posting)",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "GitHub / Architecture",
+        "notes": "After 0187. Unblocks 0192.",
+    },
+    "0195": {
+        "title": "Executor entrypoint's raw `git` subprocess calls go through a `GitRepository` adapter",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Executor / Git",
+        "notes": "After 0185 (#115 merged). 81 raw `git` calls; disjoint from `flow.py`. With 0190, unblocks 0196.",
+    },
+    "0192": {
+        "title": "`run_review_loop` and `run_review_stage` become a `ReviewLoop` object with named steps",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "L",
+        "domain": "Review Loop / Refactor",
+        "notes": "After 0191. 528 lines, CC 131. Sequence after 0160/0234 (same touch set).",
+    },
+    "0196": {
+        "title": "Executor entrypoint `main` becomes an `ExecutionRun` with named steps; module becomes a package",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "L",
+        "domain": "Executor / Refactor",
+        "notes": "After 0195 and 0190. 798 lines, CC 178 (worst in the repository).",
+    },
     "0175": {
         "title": "Check GitHub token scopes before Stage 3 when the plan touches workflow files",
         "priority": "**P1**",
@@ -397,25 +552,13 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "Complements 0171 (#108 merged, refused-push patch salvage)."
         ),
     },
-    "0162": {
-        "title": "Stage 5 calibration commits a report that fails the `hygiene` Prettier check",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "S",
-        "domain": "Calibration / CI",
-        "notes": (
-            "Turns a calibrated holon-agentic-coder flow PR red: every calibrated flow PR from #99 to #113 needed a "
-            "follow-up Prettier commit for its report (#103 was hand-authored; #108 was never calibrated). Flow PR "
-            "#112 open (2026-10-30); review and calibration in progress."
-        ),
-    },
     "0157": {
         "title": "`holon flow` auto-enables the mitmproxy sidecar; role containers cannot reach it",
         "priority": "**P1**",
         "impact": "High",
         "sizing": "S",
         "domain": "Holon Flow / Proxy",
-        "notes": "Workaround: `HOLON_TOKEN_REDUCE=0`. Related to 0130.",
+        "notes": "Workaround: `HOLON_TOKEN_REDUCE=0`. Pairs with 0227 (`fix/0227-proxy-readiness-http-probe`).",
     },
     "0161": {
         "title": "Decomposed sub-intents have no flow path to `main` and do not build on each other",
@@ -459,7 +602,20 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "Medium",
         "sizing": "M",
         "domain": "Calibration / Ledger",
-        "notes": "Every calibration last cycle needed a manual annotation (7 PRs). Runs before 0197 (same parser).",
+        "notes": (
+            "Every calibration in the 2026-10-26 batch needed a manual annotation. Runs before 0197 (same parser)."
+        ),
+    },
+    "0213": {
+        "title": "Reflect review-loop skill rules into native Review Loop Holon Agent",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Review Loop / Prompts",
+        "notes": (
+            "Target: `holon-agentic-coder`. Unblocked now that 0221/0228/0229 are merged: reflects target-branch "
+            "conflict checks, ledger-only fast resolution, and model fallback into `review_loop.template.md`."
+        ),
     },
     "0214": {
         "title": "Pilot beads (bd) issue tracking inside holon-agentic-coder",
@@ -479,7 +635,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "S",
         "domain": "Issue Tracking / Migration",
         "notes": (
-            "Harness work. Converts bean frontmatter + body to beads JSONL for `bd import`; verified on all ~47 open "
+            "Harness work. Converts bean frontmatter + body to beads JSONL for `bd import`; verified on all open "
             "beans per rule 10. Unblocks 0217."
         ),
     },
@@ -489,7 +645,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "Medium",
         "sizing": "S",
         "domain": "Holon Flow / Config",
-        "notes": "Workaround today: `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` (the 7-day maximum).",
+        "notes": "Workaround today: `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080`. Pair with or follow 0232.",
     },
     "0173": {
         "title": "holon loads layered .env files (specific overrides broad) that every sandbox stage inherits",
@@ -497,7 +653,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "High",
         "sizing": "M",
         "domain": "Holon Flow / Config",
-        "notes": "Project `.env` overrides the broader `.env`. Touches `cli.py`; sequence after 0155/0148 and 0174.",
+        "notes": "Project `.env` overrides the broader `.env`. Touches `cli/`; sequence after 0155/0148 and 0174.",
     },
     "0174": {
         "title": "Document every environment variable holon reads, in one generated and CI-checked reference",
@@ -520,87 +676,35 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "Runs alone: it touches most test files."
         ),
     },
-    "0182": {
-        "title": "Persistent GitHub event watcher that emits PR and CI events and drives harness actions",
+    "0166": {
+        "title": "Pipeline duration dashboard for CI builds",
         "priority": "**P1**",
         "impact": "High",
         "sizing": "M",
-        "domain": "Harness / Automation",
-        "notes": (
-            "Zero-token waits: watcher container plus event log; merges trigger cleanup and installs, CI failures the "
-            "next review iteration. Guardrails: no new spending, no merges. Implemented on harness branch "
-            "`feat/0182-0170-event-watcher-and-loop-convergence` (`f14c2f0`); review and land it."
-        ),
+        "domain": "CI / Observability",
+        "notes": "Check org Actions performance metrics first. Shares data and baseline with 0163 (#109, #30).",
     },
-    "0170": {
-        "title": "pr-review-loop must converge: review the increment, defer Nits on unchanged code",
+    "0152": {
+        "title": "Audit long files; decompose oversized functions (flow.py, cli.py first)",
         "priority": "**P1**",
         "impact": "High",
+        "sizing": "XL",
+        "domain": "Refactor / Concurrency",
+        "notes": (
+            "Umbrella for the Bean 0177 action beans 0185-0200 and 0203-0208; 0185, 0186, 0188, and 0203-0207 are "
+            "merged. Remaining: `flow.py` split (0187) and per-module lanes."
+        ),
+    },
+    "0208": {
+        "title": "holon-coherence: a `ProxyLifecycle` class owns proxy start-up, readiness and teardown",
+        "priority": "**P2**",
+        "impact": "Medium",
         "sizing": "M",
-        "domain": "Review Loop / Skills",
+        "domain": "Proxy / holon-coherence",
         "notes": (
-            "From PR #97 (33 iterations, diff ~3x, Nits never zero). Harness-only skill change, implemented on "
-            "`feat/0182-0170-event-watcher-and-loop-convergence` (`f14c2f0`); review and land it before the next "
-            "long review loop."
-        ),
-    },
-    "0212": {
-        "title": "pr-review-loop delegates loop orchestration to a background subagent so the main agent stays free",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "S",
-        "domain": "Review Loop / Subagents",
-        "notes": (
-            "Harness-only skill and coordination update: invoking `/pr-review-loop` in the main session immediately "
-            "spawns a background `PR Review Loop Orchestrator` subagent and returns control to the user."
-        ),
-    },
-    "0213": {
-        "title": "Reflect review-loop skill rules into native Review Loop Holon Agent",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "M",
-        "domain": "Review Loop / Prompts",
-        "notes": (
-            "Target: `holon-agentic-coder`. Reflects mandatory target-branch conflict checks, ledger-only fast "
-            "resolution, incremental reviews, and model fallback into `review_loop.template.md` and "
-            "`sandbox_executor`."
-        ),
-    },
-    "0221": {
-        "title": "Standardise the engine's Stage 4 review loop with the pr-review-loop skill (five axes)",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "M",
-        "domain": "Review Loop / Output",
-        "notes": (
-            "**Expanded 2026-11-05 into the five-axis engine/skill standardisation contract** (same template, "
-            "instructions, posted output, loop logic, single->resolve->consensus iteration). Axes 1-3 delivered by "
-            "PR #123 (`43f990a`, merged 2026-11-05); axis 4-5 delivery: 0228 done (PR #124), 0229 remains. Closes "
-            "when engine Stage 4 and the skill are interchangeable."
-        ),
-    },
-    "0229": {
-        "title": "Native Stage 4 resolver: the review loop resolves findings and converges",
-        "priority": "**P0**",
-        "impact": "High",
-        "sizing": "L",
-        "domain": "Review Loop / Flow Engine",
-        "notes": (
-            "Next in the `flow.py` lane (after Bean 0228, PR #124 merged). Review AND resolve per engine iteration; "
-            "every finding dispositioned applied/rejected into the existing ledger fields; 3-iteration "
-            "no-convergence guard; posting only at exits. Intent written (`todo/`), Fable-ready."
-        ),
-    },
-    "0224": {
-        "title": "Claude credentials just work: auto-discover the secrets file, map by type, no HOLON_AGENT_KEY",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "M",
-        "domain": "Agent Runner / Credentials",
-        "notes": (
-            "Touches `agent_runner.py`/pre-flight only - concurrent-safe with 0229. Kills the "
-            "`HOLON_AGENT_SETTINGS` echo-pad tunnel; `--settings` value redacted in command echoes. Before 0225."
+            "In progress as coherence PR #41 (`2f30d6e`): Stage 3 pushed, but both unit jobs are red (9 failures in "
+            "`test_start.py`, `test_web_token.py`, `test_cli.py`), so Stage 4 has not started. Resume from the "
+            "existing execution branch; 0203-0207 are merged."
         ),
     },
     "0225": {
@@ -634,118 +738,13 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "retries. Operator-run `test-e2e` task, excluded from CI."
         ),
     },
-    "0227": {
-        "title": "Sidecar readiness probe false positive (docker-proxy accepts before mitmproxy binds)",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "S",
-        "domain": "Token Reduce / Proxy",
-        "notes": (
-            "Fix complete on `fix/0227-proxy-readiness-http-probe` (`36c9765`), suite green; hand-authored under "
-            "the explicit-instruction exception. Awaiting maintainer call on PR creation."
-        ),
-    },
     "0230": {
         "title": "Purge residual harness bean ids from target sources",
         "priority": "**P2**",
         "impact": "Medium",
         "sizing": "S",
         "domain": "Hygiene / Rule 12",
-        "notes": "PR #123 loop deferral (out-of-increment). Touches `flow.py` - run after 0229 clears the lane.",
-    },
-    "0231": {
-        "title": "Exhausted-budget error string interpolates raw count while payload reports clamped 0",
-        "priority": "**P3**",
-        "impact": "Low",
-        "sizing": "XS",
-        "domain": "Flow Engine / Cosmetic",
-        "notes": "PR #124 loop deferral (cosmetic, out-of-increment). Touches `flow.py` - bundle with 0230 after 0229.",
-    },
-    "0166": {
-        "title": "Pipeline duration dashboard for CI builds",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "M",
-        "domain": "CI / Observability",
-        "notes": "Check org Actions performance metrics first. Shares data and baseline with 0163 (#109, #30).",
-    },
-    "0152": {
-        "title": "Audit long files; decompose oversized functions (flow.py, cli.py first)",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "XL",
-        "domain": "Refactor / Concurrency",
-        "notes": (
-            "Umbrella for the Bean 0177 action beans 0185-0200 and 0203-0208 (proposed); its audit stays the "
-            "baseline. Measured: `flow.py` 5,157 lines, `cli.main` 1,097 lines."
-        ),
-    },
-    "0187": {
-        "title": "Split `flow.py` into a `flow/` package, one module per stage and concern (move only)",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "L",
-        "domain": "Refactor / Architecture",
-        "notes": (
-            "After 0185. 5,157 lines touched by 7 of 14 flow PRs; AST-verified move only. Runs alone among "
-            "`flow.py` PRs (parallel-safe with 0188); unblocks 0190, 0191, 0193, 0194, 0197 and, with 0188, 0189."
-        ),
-    },
-    "0188": {
-        "title": "Split `cli.py` into a `cli/` package of self-registering command modules",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "L",
-        "domain": "Refactor / CLI",
-        "notes": "After 0185; can pair with 0187 (disjoint files). `cli.main` 1,097 lines, CC 114.",
-    },
-    "0189": {
-        "title": "Launcher module owns container launch and role dispatch; break the `flow` -> `cli` cycle",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "M",
-        "domain": "Refactor / Architecture",
-        "notes": ("After 0187 and 0188; unblocks 0200. Runs with 0190 and precedes 0183, as Bean 0177 proposes."),
-    },
-    "0190": {
-        "title": "`FlowCheckpoint` and ledger reconciliation own their behaviour; entrypoints stop importing flow",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "M",
-        "domain": "Ledger / Holon Flow",
-        "notes": "After 0187; 0158 (PR #111, same code) has merged. Precedes 0183. Unblocks 0196, 0199.",
-    },
-    "0191": {
-        "title": "One GitHub adapter owns every `gh` call (PR, CI probe, mergeability, review posting)",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "M",
-        "domain": "GitHub / Architecture",
-        "notes": "After 0187. Unblocks 0192.",
-    },
-    "0195": {
-        "title": "Executor entrypoint's raw `git` subprocess calls go through a `GitRepository` adapter",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "M",
-        "domain": "Executor / Git",
-        "notes": "After 0185. 81 raw `git` calls. With 0190, unblocks 0196.",
-    },
-    "0192": {
-        "title": "`run_review_loop` and `run_review_stage` become a `ReviewLoop` object with named steps",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "L",
-        "domain": "Review Loop / Refactor",
-        "notes": "After 0191. 528 lines, CC 131. Sequence with 0160 and 0179 (same touch set).",
-    },
-    "0196": {
-        "title": "Executor entrypoint `main` becomes an `ExecutionRun` with named steps; module becomes a package",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "L",
-        "domain": "Executor / Refactor",
-        "notes": "After 0195 and 0190. 798 lines, CC 178 (worst in the repository).",
+        "notes": "PR #123 loop deferral (out-of-increment). Touches `flow.py` - unblocked now that 0229 is merged.",
     },
     "0181": {
         "title": "Use the `/_` leaf only when referencing a git branch, never on ids",
@@ -755,7 +754,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "domain": "Holon Flow / Ledger",
         "notes": (
             "`intents.jsonl` `branch` and `parent_intent_id` hold refs; migrate with readers accepting both shapes. "
-            "After 0161 and 0179 (both overlap `flow.py`)."
+            "After 0161 (overlaps `flow.py`; 0179 is merged)."
         ),
     },
     "0169": {
@@ -764,10 +763,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "Medium",
         "sizing": "S",
         "domain": "Tests / Docs",
-        "notes": (
-            "Small; touches `test_flow.py` and `git_flow.md`. Not beside #112, 0187 or 0150 (all edit "
-            "`test_flow.py`); see sequence item 2."
-        ),
+        "notes": "Small; touches `test_flow.py` and `git_flow.md`. Not beside 0187 (both edit `test_flow.py`).",
     },
     "0153": {
         "title": "Remove comments and docstrings from all code; make it self-documenting",
@@ -787,28 +783,9 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "S",
         "domain": "Hygiene",
         "notes": (
-            "`holon-coherence` half merged (PR #29, `68fdf67`) before its consensus review; post-merge follow-up PR "
-            "#31 merged (`b52c7e1`). `holon-agentic-coder` half pending (fold into 0156 if beads lands first)."
+            "`holon-coherence` half merged (PR #29, `68fdf67`; follow-up PR #31, `b52c7e1`). `holon-agentic-coder` "
+            "half pending (fold into 0214 when beads lands)."
         ),
-    },
-    "0211": {
-        "title": "holon-coherence A/B recipe: run `mitmdump` in the background; keep both passes' metrics",
-        "priority": "**P2**",
-        "impact": "Low",
-        "sizing": "S",
-        "domain": "Docs / holon-coherence",
-        "notes": (
-            "Two documentation Nits (C19-1, C19-2) left open when PR #31 merged (`b52c7e1`). Documentation only, "
-            "through the flow; parallel lane."
-        ),
-    },
-    "0150": {
-        "title": "Flow tests write the real checkout's `action_index.db`",
-        "priority": "**P2**",
-        "impact": "Low",
-        "sizing": "S",
-        "domain": "Tests",
-        "notes": "Unblocked; tests are in `test_flow.py`, so not beside #112, 0187 or 0169; see sequence item 2.",
     },
     "0193": {
         "title": "Decompose the intent and plan stage modules",
@@ -832,7 +809,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "Medium",
         "sizing": "M",
         "domain": "Calibration / Refactor",
-        "notes": "After 0187, 0146 and 0162 (same predicted-metrics parser); parallel lane otherwise.",
+        "notes": "After 0187 and 0146 (0162 is merged as #112); parallel lane otherwise.",
     },
     "0198": {
         "title": "Agent runner registry: one `RunnerSpec` module per agent",
@@ -840,7 +817,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "Medium",
         "sizing": "M",
         "domain": "Runners / Refactor",
-        "notes": "After 0185; parallel lane.",
+        "notes": "After 0185 (#115 merged); parallel lane.",
     },
     "0201": {
         "title": "Planner, executor and reviewer prompts carry the module-layout, complexity and naming rules",
@@ -848,7 +825,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "Medium",
         "sizing": "S",
         "domain": "Prompts / Standards",
-        "notes": "After 0185. Plans declare touch sets at module granularity (feeds 0151).",
+        "notes": "After 0185 (#115 merged). Plans declare touch sets at module granularity (feeds 0151).",
     },
     "0200": {
         "title": "Remove holon-agentic-coder's diverged `token_reduction` copy; holon-coherence is the owner",
@@ -865,18 +842,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "M",
         "domain": "Ledger / Knowledge",
         "notes": "After 0190; parallel lane. Low bean priority.",
-    },
-    "0208": {
-        "title": "holon-coherence: a `ProxyLifecycle` class owns proxy start-up, readiness and teardown",
-        "priority": "**P2**",
-        "impact": "Medium",
-        "sizing": "M",
-        "domain": "Proxy / holon-coherence",
-        "notes": (
-            "In progress as coherence PR #41 (`2f30d6e`): Stage 3 pushed, but both unit jobs are red (9 failures in "
-            "`test_start.py`, `test_web_token.py`, `test_cli.py`), so Stage 4 has not started. Resume from the "
-            "existing execution branch; 0203 and 0207 are merged."
-        ),
     },
     "0216": {
         "title": "Holon flow references and drives beads work items (claim on intent, close on merge)",
@@ -911,22 +876,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "harness read-only after pilots succeed."
         ),
     },
-    "0202": {
-        "title": "holon-agentic-coder: the pasted CI timing-gate steps become one composite action",
-        "priority": "**P2**",
-        "impact": "Low",
-        "sizing": "S",
-        "domain": "CI",
-        "notes": "Unblocked (0184 completed). Workflows only.",
-    },
-    "0209": {
-        "title": "holon-coherence: the pasted CI timing-gate steps become one composite action",
-        "priority": "**P2**",
-        "impact": "Low",
-        "sizing": "S",
-        "domain": "CI / holon-coherence",
-        "notes": "Unblocked (0184 completed, PR #32). Workflows only.",
-    },
     "0142": {
         "title": "Real-workload benchmark: Qwen3.8-27B dense vs Flash-Next MoE",
         "priority": "**P2**",
@@ -934,6 +883,14 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "L",
         "domain": "Model Selection",
         "notes": "Real data only (AGENTS.md item 10).",
+    },
+    "0231": {
+        "title": "Exhausted-budget error string interpolates raw count while payload reports clamped 0",
+        "priority": "**P3**",
+        "impact": "Low",
+        "sizing": "XS",
+        "domain": "Flow Engine / Cosmetic",
+        "notes": "PR #124 loop deferral (cosmetic, out-of-increment). Touches `flow.py` - bundle with 0230.",
     },
     "0141": {
         "title": "Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe",
@@ -1627,6 +1584,52 @@ def generate_triage_document(
                 "logic out of CLI command handlers into dedicated domain packages `ab_testing/` and `metrics/`; "
                 "passed 3/3 unanimous ensemble consensus review, completed Stage 5 calibration (`ffd6c9e`), and "
                 "merged into `main`."
+            ),
+            (
+                "28. **Engine/Skill Review-Loop Standardisation, Engine-Owned Single-Shot Loop, Native Stage 4 "
+                "Resolver, 1-Hour Default Turn Timeout, 2-Hour Review Iteration Budget, Post-Review CI Gating, and "
+                "Resolver CI Repair (Beans 0221, 0228, 0229, 0232, 0237, 0235, 0238 / HAC PRs #123–#129, "
+                "2026-11-05 to 2026-11-06)**:"
+            ),
+            (
+                "    - `0221` axes 1-3 (HAC #123, `43f990a`): unified the consensus review comment template across "
+                "the harness `pr-review-loop` skill and `sandbox_executor.review_report`, `review_loop.template.md`, "
+                "and `scaffold.py`; passed 3/3 consensus review, calibrated (`c680406`, $\\Delta\\text{EV} = +34.21$), "
+                "and merged into `main`."
+            ),
+            (
+                "    - `0228` (HAC #124, `bfecf0f`): made the flow engine the sole owner of the 25-iteration review "
+                "budget and checkpointed counter, dispatching single-shot review containers with a separate "
+                "`--iteration` label; passed 3/3 consensus review, calibrated (`9be1724`, "
+                "$\\Delta\\text{EV} = +17.68$), and merged into `main`."
+            ),
+            (
+                "    - `0229` (HAC #125, `baf3f8c`): implemented the native Stage 4 resolver inside the review loop "
+                "(review and resolve per engine iteration, `applied`/`rejected` dispositions in `executions.jsonl`, "
+                "3-iteration `no-convergence` guard, single exit posting), closing all five standardisation axes of "
+                "`0221`; passed 3/3 consensus review, calibrated (`eb3302f`), and merged into `main`."
+            ),
+            (
+                "    - `0232` (HAC #126, `0f80271`): bumped `DEFAULT_TURN_SECONDS` from 300.0 s to 3600.0 s (1 hour) "
+                "in `sandbox_executor.budgets` alongside unit/CLI tests and documentation; traversed all 5 stages "
+                "hands-free (1 review iteration, calibrated $\\Delta\\text{EV} = +4.64$) and merged into `main`."
+            ),
+            (
+                "    - `0237` (HAC #127, `6b9264c`): increased `StageBudgets.review_iteration` from 900.0 s (15 min) "
+                "to 7200.0 s (120 min) in `sandbox_executor.budgets` alongside unit and flow tests; traversed all "
+                "5 stages hands-free (calibrated $\\Delta\\text{EV} = +3.80$) and merged into `main`."
+            ),
+            (
+                "    - `0235` (HAC #128, `f8220eb`): made Stage 4 GitHub CI a post-review gate in "
+                "`sandbox_executor.flow`, launching the reviewer ensemble immediately while CI runs in parallel and "
+                "bypassing pending CI waits when reviewers object; traversed all 5 stages (calibrated "
+                "$\\Delta\\text{EV} = +10.93$) and merged into `main`."
+            ),
+            (
+                "    - `0238` (HAC #129, `ecec262`): synthesised first-class `FindingRow` for `FIND-CI` in "
+                "`sandbox_executor.flow` and updated `entrypoint/review_loop.py` so the resolver automatically repairs "
+                "CI and test failures even when code reviewers approve; traversed all 5 stages (calibrated "
+                "$\\Delta\\text{EV} = +11.52$) and merged into `main`."
             ),
             "",
             "---",
