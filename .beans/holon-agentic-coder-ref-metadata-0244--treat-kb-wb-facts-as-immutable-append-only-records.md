@@ -58,3 +58,12 @@ file must never be overwritten, touched, or re-serialized.
      - Assert that `st_mtime_ns` and file contents remain 100% identical and that zero writes occur to existing files.
    - Add test coverage in `apps/sandbox-executor/tests/test_flow.py` asserting that Stage 5 calibration leaves existing
      fact files untouched and `_commit_stage5_promoted_artifacts()` results in a clean no-op when no new facts qualify.
+
+## Review & Calibration Status
+
+- PR: [#133](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/133)
+- Execution Branch:
+  `I-1793960332-treat-kb-wb-facts-as-immutable-append-only-records/P-1793960347-antigravity-agent-gemini-3.8-flash-medium/E-1793960623-antigravity-agent-gemini-3.8-flash-medium/_`
+- Status: Stage 4 (PR Review Loop) consensus APPROVED (3/3 ensemble), Stage 5 (Calibration) completed and pushed to
+  `/calibrated` and fast-forwarded into PR head. All 11 CI checks pass green.
+- Awaiting human merge.
