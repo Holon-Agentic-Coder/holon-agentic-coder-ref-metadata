@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0244
 title: "Treat knowledge and wisdom facts as immutable append-only records"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
   - calibration
   - holon-agentic-coder
 created_at: 2026-11-06T10:05:00Z
-updated_at: 2026-11-06T10:05:00Z
+updated_at: 2026-11-06T10:19:00Z
 ---
 
 ## Problem

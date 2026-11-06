@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-06 10:12:59 UTC
+**Last Updated:** 2026-11-06 10:19:47 UTC
 
 ## Executive Summary
 
@@ -17,7 +17,7 @@ overlapping flows now run one after another.
 - **Total Tracked Beans**: 244 (excluding template)
 - **Completed**: 185 (75.8%)
 - **Scrapped / Superseded**: 3 (1.2%)
-- **Active**: 56 (23.0%), of which 3 are in progress and 53 are todo
+- **Active**: 56 (23.0%), of which 4 are in progress and 52 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -487,7 +487,7 @@ and **Bean 0234** (event-driven CI check progress reporting during Stage 4 revie
 | **P2**   | todo        |  High  |   L    | 0142   | Real-workload benchmark: Qwen3.8-27B dense vs Flash-Next MoE                                          | Model Selection            | Real data only (AGENTS.md item 10).                                                                                                                                                                                                                           |
 | **P3**   | todo        |  Low   |   XS   | 0231   | Exhausted-budget error string interpolates raw count while payload reports clamped 0                  | Flow Engine / Cosmetic     | PR #124 loop deferral (cosmetic, out-of-increment). Touches `flow.py` - bundle with 0230.                                                                                                                                                                     |
 | **P3**   | todo        | Medium |   M    | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                                   | vmlx / Performance         | Pairs with 0142.                                                                                                                                                                                                                                              |
-| **P1**   | todo        |  High  |   M    | 0244   | Treat knowledge and wisdom facts as immutable append-only records                                     | Flow / Architecture        |                                                                                                                                                                                                                                                               |
+| **P1**   | in-progress |  High  |   M    | 0244   | Treat knowledge and wisdom facts as immutable append-only records                                     | Flow / Architecture        |                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   M    | 0243   | Purge all harness bean references and BEAN SAFETY HALT strings from holon-agentic-coder code and docs | Flow / Architecture        |                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   M    | 0241   | Persist review loop sandbox across iterations to eliminate repeated clone and teardown overhead       | Ledger / Observability     |                                                                                                                                                                                                                                                               |
 
