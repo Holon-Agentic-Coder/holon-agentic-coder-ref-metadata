@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0247
 title: "holon flow automatically creates dedicated git worktree if target worktree does not exist"
-status: todo
+status: in-progress
 type: feature
 priority: high
 tags:
