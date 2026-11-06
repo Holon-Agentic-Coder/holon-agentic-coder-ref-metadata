@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-06 08:20:35 UTC
+**Last Updated:** 2026-11-06 08:59:49 UTC
 
 ## Executive Summary
 
@@ -15,9 +15,9 @@ re-reviews: 141 review-loop passes from the first sync onward, about 10M+ tokens
 overlapping flows now run one after another.
 
 - **Total Tracked Beans**: 242 (excluding template)
-- **Completed**: 183 (75.6%)
+- **Completed**: 184 (76.0%)
 - **Scrapped / Superseded**: 2 (0.8%)
-- **Active**: 57 (23.6%), of which 3 are in progress and 54 are todo
+- **Active**: 56 (23.1%), of which 3 are in progress and 53 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -156,10 +156,10 @@ budget from 15 min to 120 min; calibration ΔEV +3.80) then traversed all 5 stag
 calibration ΔEV +10.93) and **Bean 0238** (HAC PR #129, `ecec262`: Stage 4 resolver fixes CI and test failures by
 synthesising first-class FindingRow for FIND-CI; calibration ΔEV +11.52) both followed and merged into `main`. **Bean
 0239** (HAC PR #130, `1619cec`: Stage 5 calibration commits and pushes promoted knowledge and wisdom artifacts to
-/calibrated and PR) completed the continuous learning loop and merged into `main`. New beans logged: **Bean 0240** (fix
-resolver `run_turn()` argument signature and fail-closed verification defaults), **Bean 0241** (persist review loop
-sandbox across iterations to eliminate repeated clone/teardown overhead), **Bean 0242** (suppress Docker Desktop CLI
-hints / Gordon suggestions), **Bean 0236** (post consensus review once per PR exit instead of duplicating via both
+/calibrated and PR) and **Bean 0240** (HAC PR #131, `3c752e6`: fix resolver `run_turn()` argument signature and enforce
+fail-closed verification defaults) both followed and merged into `main`. New beans logged: **Bean 0241** (persist review
+loop sandbox across iterations to eliminate repeated clone/teardown overhead), **Bean 0242** (suppress Docker Desktop
+CLI hints / Gordon suggestions), **Bean 0236** (post consensus review once per PR exit instead of duplicating via both
 `gh pr comment` and `gh pr review`), **Bean 0233** (validate fail-fast that `--repo-dir` is an attached Git worktree),
 and **Bean 0234** (event-driven CI check progress reporting during Stage 4 review).
 
@@ -393,9 +393,9 @@ and **Bean 0234** (event-driven CI check progress reporting during Stage 4 revie
       command handlers into dedicated domain packages `ab_testing/` and `metrics/`; passed 3/3 unanimous ensemble
       consensus review, completed Stage 5 calibration (`ffd6c9e`), and merged into `main`.
 28. **Engine/Skill Review-Loop Standardisation, Engine-Owned Single-Shot Loop, Native Stage 4 Resolver, 1-Hour Default
-    Turn Timeout, 2-Hour Review Iteration Budget, Post-Review CI Gating, Resolver CI Repair, and Stage 5 Continuous
-    Learning Commits (Beans 0221, 0228, 0229, 0232, 0237, 0235, 0238, 0239 / HAC PRs #123–#130, 2026-11-05 to
-    2026-11-06)**:
+    Turn Timeout, 2-Hour Review Iteration Budget, Post-Review CI Gating, Resolver CI Repair, Continuous Learning
+    Commits, and Resolver Execution / Fail-Closed Verification (Beans 0221, 0228, 0229, 0232, 0237, 0235, 0238, 0239,
+    0240 / HAC PRs #123–#131, 2026-11-05 to 2026-11-06)**:
     - `0221` axes 1-3 (HAC #123, `43f990a`): unified the consensus review comment template across the harness
       `pr-review-loop` skill and `sandbox_executor.review_report`, `review_loop.template.md`, and `scaffold.py`; passed
       3/3 consensus review, calibrated (`c680406`, $\Delta\text{EV} = +34.21$), and merged into `main`.
@@ -421,6 +421,10 @@ and **Bean 0234** (event-driven CI check progress reporting during Stage 4 revie
     - `0239` (HAC #130, `1619cec`): added `_commit_stage5_promoted_artifacts()` in `flow.py` to stage and commit
       promoted `holon-knowledge/kb/` and `holon-knowledge/wisdom/` files to `/calibrated` and fast-forward into the PR
       head branch and diff; traversed all 5 stages hands-free and merged into `main`.
+    - `0240` (HAC #131, `3c752e6`): constructed runner CLI command list via `runner.build_command()` before invoking
+      `run_turn(cmd, cwd=repo_dir)` in `entrypoint/review_loop.py` to fix `TypeError`, and enforced fail-closed
+      verification defaults (`lint_passed`/`tests_passed` default to `False`); traversed all 5 stages and merged into
+      `main`.
 
 ---
 
@@ -482,7 +486,6 @@ and **Bean 0234** (event-driven CI check progress reporting during Stage 4 revie
 | **P2**   | todo        |  High  |   L    | 0142   | Real-workload benchmark: Qwen3.8-27B dense vs Flash-Next MoE                                          | Model Selection            | Real data only (AGENTS.md item 10).                                                                                                                                                                                                                           |
 | **P3**   | todo        |  Low   |   XS   | 0231   | Exhausted-budget error string interpolates raw count while payload reports clamped 0                  | Flow Engine / Cosmetic     | PR #124 loop deferral (cosmetic, out-of-increment). Touches `flow.py` - bundle with 0230.                                                                                                                                                                     |
 | **P3**   | todo        | Medium |   M    | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                                   | vmlx / Performance         | Pairs with 0142.                                                                                                                                                                                                                                              |
-| **P0**   | todo        |  High  |   M    | 0240   | Fix resolver run_turn argument signature by building agent CLI command line via runner.build_command  | Flow / Architecture        |                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   M    | 0242   | Suppress Docker Desktop CLI hints and Gordon suggestions via DOCKER_CLI_HINTS=false                   | Flow / Architecture        |                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   M    | 0241   | Persist review loop sandbox across iterations to eliminate repeated clone and teardown overhead       | Ledger / Observability     |                                                                                                                                                                                                                                                               |
 
@@ -501,17 +504,17 @@ consensus review and Stage 5 calibration.
 **Rule (2026-10-28):** the target suites rely solely on pytest. No new code or documentation names any other test runner
 (Bean 0176 removes the existing references).
 
-**Tooling (2026-11-06):** `holon-agentic-coder` `main` (`1619cec`) and `holon-coherence` `main` (`d6f1655`) are
+**Tooling (2026-11-06):** `holon-agentic-coder` `main` (`3c752e6`) and `holon-coherence` `main` (`d6f1655`) are
 installed editable and all agent images were rebuilt via `install-holon`, so Stage 3 partial-code salvage (#108),
 pure-append ledgers (#111), the calibration-report Prettier fix (#112), Stage 4 in the `review-loop` container (#116),
 the modular `cli/` package (#117), mandatory `--agent` / `--model` (#119), the standardised consensus review template
 (#123), the engine-owned single-shot review loop (#124), the native Stage 4 resolver (#125), the 3600 s default per-turn
 timeout (#126), the 120-minute default `review_iteration` stage budget (#127), post-review CI gating (#128), resolver CI
-failure repair (#129), and Stage 5 calibration knowledge/wisdom artifact commits (#130) are all live.
-`HOLON_TOKEN_REDUCE=0` stays the workaround until Beans 0227 and 0157 land. Set
-`HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172 lands.
+failure repair (#129), Stage 5 calibration knowledge/wisdom artifact commits (#130), and resolver command execution &
+fail-closed verification defaults (#131) are all live. `HOLON_TOKEN_REDUCE=0` stays the workaround until Beans 0227 and
+0157 land. Set `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172 lands.
 
-**Merge / In-Flight State (2026-11-06):** No open PRs on `holon-agentic-coder` (PRs #123–#130 all merged). Harness PR
+**Merge / In-Flight State (2026-11-06):** No open PRs on `holon-agentic-coder` (PRs #123–#131 all merged). Harness PR
 #58 merged into `main` and operational tracking PR #59 is open on `docs/harness-20261106`.
 `fix/0227-proxy-readiness-http-probe` (`36c9765`, Bean 0227) has a green test suite and awaits the maintainer's call on
 PR creation. Coherence PR #41 (Bean 0208, `2f30d6e`) needs its 9 unit test failures resolved on its execution branch
@@ -519,35 +522,33 @@ before Stage 4 review and Stage 5 calibration.
 
 Sequential lane, holon-agentic-coder (fast UX/reliability wins first, then `flow.py` split):
 
-1. **Bean 0240** (fix resolver `run_turn()` argument signature and fail-closed verification defaults in
-   `entrypoint/review_loop.py`; intent ready in `todo/intent-0240-fix-resolver-run-turn-signature.json`).
-2. **Bean 0242** (suppress Docker Desktop CLI hints / Gordon suggestions via `DOCKER_CLI_HINTS=false` across subprocess
-   environments).
-3. **Bean 0241** (persist review loop sandbox across iterations to eliminate repeated clone and teardown overhead).
-4. **Bean 0236** (post consensus review once per PR exit via `gh pr review`, never duplicate with `gh pr comment`;
+1. **Bean 0242** (suppress Docker Desktop CLI hints / Gordon suggestions via `DOCKER_CLI_HINTS=false` across subprocess
+   environments; intent ready in `todo/intent-0242-suppress-docker-desktop-cli-hints.json`).
+2. **Bean 0241** (persist review loop sandbox across iterations to eliminate repeated clone and teardown overhead).
+3. **Bean 0236** (post consensus review once per PR exit via `gh pr review`, never duplicate with `gh pr comment`;
    intent ready in `todo/intent-0236-post-consensus-review-once.json`).
-5. **Bean 0233** (validate fail-fast that `--repo-dir` is an attached Git worktree before Stage 1 or resume; intent
+4. **Bean 0233** (validate fail-fast that `--repo-dir` is an attached Git worktree before Stage 1 or resume; intent
    ready in `todo/intent-0233-validate-repo-dir-is-git-worktree.json`). Prevents non-worktree directories from running
    Stages 1-3 in containers only to fail at Stage 4/5 host checkout.
-6. **Bean 0234** + **Bean 0160** (event-driven CI check progress reporting during Stage 4 review — log total pipelines
+5. **Bean 0234** + **Bean 0160** (event-driven CI check progress reporting during Stage 4 review — log total pipelines
    once at start and emit a line only as each check completes, with separate CI wait timeout / pending-vs-failed error
    reporting; intent ready in `todo/intent-0234-event-driven-ci-check-progress.json`).
-7. **Beans 0230 and 0231** (small `flow.py` deferrals from PRs #123 and #124: purge residual harness bean IDs from
+6. **Beans 0230 and 0231** (small `flow.py` deferrals from PRs #123 and #124: purge residual harness bean IDs from
    target sources, and align exhausted-budget error string with clamped count).
-8. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split right after the small
+7. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split right after the small
    `flow.py` fixes above removes the 5,500-line single-file serialization bottleneck.
-9. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean 0190**
+8. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean 0190**
    (checkpoint and ledger reconciliation; entrypoints stop importing flow). Both precede **Bean 0183** (every stage and
    engine bookkeeping step sandboxed in its own clone).
-10. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), then **Bean
-    0146** (plans-ledger correction rows; calibration picks the right predicted metrics). Bean 0197 follows 0146 because
-    both edit the predicted-metrics parser.
-11. **Bean 0149**, then **Bean 0151**: unique IDs across concurrently planned intents, then touch-set admission.
-12. **Decomposition lanes from Bean 0177** once `0187` lands, in parallel where packages differ: 0191 then 0192 (GitHub
+9. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), then **Bean
+   0146** (plans-ledger correction rows; calibration picks the right predicted metrics). Bean 0197 follows 0146 because
+   both edit the predicted-metrics parser.
+10. **Bean 0149**, then **Bean 0151**: unique IDs across concurrently planned intents, then touch-set admission.
+11. **Decomposition lanes from Bean 0177** once `0187` lands, in parallel where packages differ: 0191 then 0192 (GitHub
     adapter, `ReviewLoop`), 0193, 0194, 0195 then 0196, 0197 (after 0146), 0198 and 0199 (all tracked by umbrella Bean
     0152), and 0201. Bean 0153 runs per package with or right after that package's decomposition. **Bean 0213** (reflect
     remaining skill rules into native review-loop agent) is unblocked now that 0221 is complete.
-13. **Bean 0157** (mitmproxy sidecar reachability, alongside **Bean 0227**), **Bean 0161** (nested sub-intent branches),
+12. **Bean 0157** (mitmproxy sidecar reachability, alongside **Bean 0227**), **Bean 0161** (nested sub-intent branches),
     **Bean 0181** (`/_` only on branch refs), **Bean 0155** then **Bean 0148** (redaction), **Beans 0172, 0174, 0173,
     0223** (budgets, env-var reference, layered `.env`, CLI flag vs env audit), **Bean 0200** (holon-coherence owns
     token reduction; after 0189), and **Bean 0176** (pytest-only conversion of every test file; runs alone).
