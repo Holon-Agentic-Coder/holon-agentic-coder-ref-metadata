@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0242
 title: "Suppress Docker Desktop CLI hints and Gordon suggestions via DOCKER_CLI_HINTS=false"
-status: todo
+status: completed
 type: bug
 priority: normal
 tags:
@@ -11,7 +11,8 @@ tags:
   - ux
   - holon-agentic-coder
 created_at: 2026-11-06T06:01:17Z
-updated_at: 2026-11-06T06:01:17Z
+updated_at: 2026-11-06T10:10:24Z
+completed_at: 2026-11-06T10:10:24Z
 ---
 
 ## Problem
@@ -39,3 +40,12 @@ In automated flows and CI/orchestration pipelines, these promotional CLI hints:
    spawned child processes.
 3. **Tests**: Add unit tests verifying that subprocess execution commands pass `DOCKER_CLI_HINTS="false"` in their
    environment mapping.
+
+## Resolution
+
+Delivered via 5-stage Holon flow on branch `I-1793955677-suppress-docker-desktop-cli-hints/...` and merged in
+[PR #132](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/132)
+(`d932d48c936aa2acc8e586179db1fd49cd34bb91`). `DOCKER_CLI_HINTS=false` is exported across CLI entrypoints, runner
+environments, container parameters, and subprocess helpers with hermetic unit tests in
+`apps/sandbox-executor/tests/test_turns.py`. Passed 3/3 unanimous consensus review and completed Stage 5 calibration
+(`plans/P-1793955693-antigravity-agent-gemini-3.8-flash-medium_calibration.md`).

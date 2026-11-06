@@ -229,11 +229,13 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "merged into `main`. **Bean 0239** (HAC PR #130, `1619cec`: Stage 5 calibration commits and pushes promoted "
         "knowledge and wisdom artifacts to /calibrated and PR) and **Bean 0240** (HAC PR #131, `3c752e6`: fix resolver "
         "`run_turn()` argument signature and enforce fail-closed verification defaults) both followed and merged into "
-        "`main`. New beans logged: **Bean 0241** (persist review loop sandbox across iterations to eliminate repeated "
-        "clone/teardown overhead), **Bean 0242** (suppress Docker Desktop CLI hints / Gordon suggestions), **Bean "
-        "0236** (post consensus review once per PR exit instead of duplicating via both `gh pr comment` and `gh pr "
-        "review`), **Bean 0233** (validate fail-fast that `--repo-dir` is an attached Git worktree), and **Bean 0234** "
-        "(event-driven CI check progress reporting during Stage 4 review)."
+        "`main`. **Bean 0242** (HAC PR #132, `d932d48`: suppress Docker Desktop CLI hints and Gordon suggestions via "
+        "`DOCKER_CLI_HINTS=false`) followed and merged into `main`. New beans logged: **Bean 0244** (treat knowledge "
+        "and wisdom facts as immutable append-only records), **Bean 0243** (purge all harness bean references from code "
+        "and docs), **Bean 0241** (persist review loop sandbox across iterations to eliminate repeated clone/teardown "
+        "overhead), **Bean 0236** (post consensus review once per PR exit instead of duplicating via both "
+        "`gh pr comment` and `gh pr review`), **Bean 0233** (validate fail-fast that `--repo-dir` is an attached Git "
+        "worktree), and **Bean 0234** (event-driven CI check progress reporting during Stage 4 review)."
     ),
 ]
 
@@ -293,53 +295,49 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "`holon-agentic-coder` code and docs; intent ready in `todo/intent-0243-purge-harness-bean-references.json`)."
     ),
     (
-        "3. **Bean 0242** (suppress Docker Desktop CLI hints / Gordon suggestions via `DOCKER_CLI_HINTS=false` across "
-        "subprocess environments; PR #132 open, consensus approved, and calibrated)."
+        "3. **Bean 0241** (persist review loop sandbox across iterations to eliminate repeated clone and teardown overhead)."
     ),
     (
-        "4. **Bean 0241** (persist review loop sandbox across iterations to eliminate repeated clone and teardown overhead)."
-    ),
-    (
-        "5. **Bean 0236** (post consensus review once per PR exit via `gh pr review`, never duplicate with `gh pr "
+        "4. **Bean 0236** (post consensus review once per PR exit via `gh pr review`, never duplicate with `gh pr "
         "comment`; intent ready in `todo/intent-0236-post-consensus-review-once.json`)."
     ),
     (
-        "6. **Bean 0233** (validate fail-fast that `--repo-dir` is an attached Git worktree before Stage 1 or resume; "
+        "5. **Bean 0233** (validate fail-fast that `--repo-dir` is an attached Git worktree before Stage 1 or resume; "
         "intent ready in `todo/intent-0233-validate-repo-dir-is-git-worktree.json`). Prevents non-worktree directories "
         "from running Stages 1-3 in containers only to fail at Stage 4/5 host checkout."
     ),
     (
-        "7. **Bean 0234** + **Bean 0160** (event-driven CI check progress reporting during Stage 4 review — log total "
+        "6. **Bean 0234** + **Bean 0160** (event-driven CI check progress reporting during Stage 4 review — log total "
         "pipelines once at start and emit a line only as each check completes, with separate CI wait timeout / "
         "pending-vs-failed error reporting; intent ready in `todo/intent-0234-event-driven-ci-check-progress.json`)."
     ),
     (
-        "8. **Bean 0231** (exhausted-budget error string interpolates raw count while payload reports clamped 0)."
+        "7. **Bean 0231** (exhausted-budget error string interpolates raw count while payload reports clamped 0)."
     ),
     (
-        "9. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split right after "
+        "8. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split right after "
         "the small `flow.py` fixes above removes the 5,500-line single-file serialization bottleneck."
     ),
     (
-        "10. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean "
+        "9. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean "
         "0190** (checkpoint and ledger reconciliation; entrypoints stop importing flow). Both precede **Bean 0183** "
         "(every stage and engine bookkeeping step sandboxed in its own clone)."
     ),
     (
-        "11. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), "
+        "10. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), "
         "then **Bean 0146** (plans-ledger correction rows; calibration picks the right predicted metrics). Bean 0197 "
         "follows 0146 because both edit the predicted-metrics parser."
     ),
-    ("12. **Bean 0149**, then **Bean 0151**: unique IDs across concurrently planned intents, then touch-set admission."),
+    ("11. **Bean 0149**, then **Bean 0151**: unique IDs across concurrently planned intents, then touch-set admission."),
     (
-        "13. **Decomposition lanes from Bean 0177** once `0187` lands, in parallel where packages differ: "
+        "12. **Decomposition lanes from Bean 0177** once `0187` lands, in parallel where packages differ: "
         "0191 then 0192 (GitHub adapter, `ReviewLoop`), 0193, 0194, 0195 then 0196, 0197 (after 0146), 0198 and "
         "0199 (all tracked by umbrella Bean 0152), and 0201. Bean 0153 runs per package with or right after that "
         "package's decomposition. **Bean 0213** (reflect remaining skill rules into native review-loop agent) is "
         "unblocked now that 0221 is complete."
     ),
     (
-        "14. **Bean 0157** (mitmproxy sidecar reachability, alongside **Bean 0227**), **Bean 0161** (nested sub-intent "
+        "13. **Bean 0157** (mitmproxy sidecar reachability, alongside **Bean 0227**), **Bean 0161** (nested sub-intent "
         "branches), **Bean 0181** (`/_` only on branch refs), **Bean 0155** then **Bean 0148** (redaction), **Beans "
         "0172, 0174, 0173, 0223** (budgets, env-var reference, layered `.env`, CLI flag vs env audit), **Bean 0200** "
         "(holon-coherence owns token reduction; after 0189), and **Bean 0176** (pytest-only conversion of every test "
