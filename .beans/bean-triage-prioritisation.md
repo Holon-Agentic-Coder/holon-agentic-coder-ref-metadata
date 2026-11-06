@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-06 08:59:49 UTC
+**Last Updated:** 2026-11-06 09:02:48 UTC
 
 ## Executive Summary
 
@@ -14,10 +14,10 @@ Concurrent flows on overlapping files (#94, #95 and #96 all changed `flow.py` an
 re-reviews: 141 review-loop passes from the first sync onward, about 10M+ tokens. Beans 0151 and 0152 address that, and
 overlapping flows now run one after another.
 
-- **Total Tracked Beans**: 242 (excluding template)
-- **Completed**: 184 (76.0%)
-- **Scrapped / Superseded**: 2 (0.8%)
-- **Active**: 56 (23.1%), of which 3 are in progress and 53 are todo
+- **Total Tracked Beans**: 243 (excluding template)
+- **Completed**: 184 (75.7%)
+- **Scrapped / Superseded**: 3 (1.2%)
+- **Active**: 56 (23.0%), of which 3 are in progress and 53 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -468,7 +468,6 @@ and **Bean 0234** (event-driven CI check progress reporting during Stage 4 revie
 | **P2**   | todo        | Medium |   M    | 0225   | Claude token lives only in the OS keychain; retire the plaintext secrets file                         | Agent Runner / Credentials | After 0224 (extends its discovery seam). Keychain-only; one-time migration deletes the file.                                                                                                                                                                  |
 | **P2**   | todo        | Medium |   L    | 0223   | Audit CLI flags vs HOLON_* env vars: four-kind decision rule, flag>env precedence                     | CLI / Config               | Exhaustive inventory of every add_argument and os.getenv; boundary-crossing=both, per-invocation=flag, ambient=env-primary, secrets=env-only.                                                                                                                 |
 | **P2**   | todo        |  High  |   L    | 0226   | End-to-end test for the holon flow commands with full teardown                                        | Testing / E2E              | Runs on a sub-1B local model via the `local_llm` envelope (no cloud secrets); never opens a PR; unconditional teardown of worktrees and remote `I-…` trees; invariant assertions + bounded whole-run retries. Operator-run `test-e2e` task, excluded from CI. |
-| **P2**   | todo        | Medium |   S    | 0230   | Purge residual harness bean ids from target sources                                                   | Hygiene / Rule 12          | PR #123 loop deferral (out-of-increment). Touches `flow.py` - unblocked now that 0229 is merged.                                                                                                                                                              |
 | **P2**   | todo        | Medium |   M    | 0181   | Use the `/_` leaf only when referencing a git branch, never on ids                                    | Holon Flow / Ledger        | `intents.jsonl` `branch` and `parent_intent_id` hold refs; migrate with readers accepting both shapes. After 0161 (overlaps `flow.py`; 0179 is merged).                                                                                                       |
 | **P2**   | todo        | Medium |   S    | 0169   | PR #97 residual Nits: split the pasted checkpoint test; complete git_flow §1.5 list                   | Tests / Docs               | Small; touches `test_flow.py` and `git_flow.md`. Not beside 0187 (both edit `test_flow.py`).                                                                                                                                                                  |
 | **P2**   | todo        | Medium |   XL   | 0153   | Remove comments and docstrings from all code; make it self-documenting                                | Readability                | Per package, with or right after that package's decomposition (which follows its split: 0187, 0188, 0204), not as one repository-wide flow.                                                                                                                   |
@@ -486,6 +485,7 @@ and **Bean 0234** (event-driven CI check progress reporting during Stage 4 revie
 | **P2**   | todo        |  High  |   L    | 0142   | Real-workload benchmark: Qwen3.8-27B dense vs Flash-Next MoE                                          | Model Selection            | Real data only (AGENTS.md item 10).                                                                                                                                                                                                                           |
 | **P3**   | todo        |  Low   |   XS   | 0231   | Exhausted-budget error string interpolates raw count while payload reports clamped 0                  | Flow Engine / Cosmetic     | PR #124 loop deferral (cosmetic, out-of-increment). Touches `flow.py` - bundle with 0230.                                                                                                                                                                     |
 | **P3**   | todo        | Medium |   M    | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                                   | vmlx / Performance         | Pairs with 0142.                                                                                                                                                                                                                                              |
+| **P1**   | todo        |  High  |   M    | 0243   | Purge all harness bean references and BEAN SAFETY HALT strings from holon-agentic-coder code and docs | Flow / Architecture        |                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   M    | 0242   | Suppress Docker Desktop CLI hints and Gordon suggestions via DOCKER_CLI_HINTS=false                   | Flow / Architecture        |                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   M    | 0241   | Persist review loop sandbox across iterations to eliminate repeated clone and teardown overhead       | Ledger / Observability     |                                                                                                                                                                                                                                                               |
 
