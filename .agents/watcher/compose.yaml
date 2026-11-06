@@ -1,0 +1,29 @@
+# Start (token read from the operator's gh login, passed through the environment only):
+#   GH_TOKEN="$(gh auth token)" docker compose -f .agents/watcher/compose.yaml up -d --build
+# Stop:
+#   docker compose -f .agents/watcher/compose.yaml down
+name: holon-event-watcher
+services:
+  watcher:
+    build:
+      context: ..
+      dockerfile: watcher/Dockerfile
+    image: holon/event-watcher:local
+    restart: unless-stopped
+    environment:
+      # Value taken from the invoking shell; never written into this file or the image.
+      - GH_TOKEN
+    volumes:
+      - ../../.subagent:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "1m"
+        max-file: "3"

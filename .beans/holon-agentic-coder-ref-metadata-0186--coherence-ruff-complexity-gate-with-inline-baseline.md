@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0186
 title: "holon-coherence: adopt ruff complexity rules (C901, PLR0911-PLR0915) with an inline noqa baseline"
-status: todo
+status: completed
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - complexity
   - holon-coherence
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-10-30T03:10:00Z
 ---
 
 ## Problem
@@ -38,3 +38,13 @@ None. Must land before 0203, 0204, 0207 and 0208.
 
 - Run through the Holon flow on holon-coherence.
 - pytest only; no harness paths or bean ids in the target.
+
+## Completion Summary
+
+- Traversing the complete 5-stage Holon flow:
+  1. Intent: `I-1793325100-coherence-ruff-complexity-gate-with-inline-baseline/_`
+  2. Plan: `P-1793325355-antigravity-agent-gemini-3.8-flash-medium`
+  3. Execution: `E-1793325932-antigravity-agent-gemini-3.8-flash-medium`
+  4. Review Loop: PR #35 raised; iterative reviews converged to 3/3 unanimous approval across 7/7 CI checks.
+  5. Calibration: Calibrated branch `.../calibrated` and fast-forwarded into PR head with ΔEV +0.45.
+- Merged to `main` via PR #35 (`f7e4aa6`).

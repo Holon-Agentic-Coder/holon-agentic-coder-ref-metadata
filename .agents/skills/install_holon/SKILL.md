@@ -35,6 +35,11 @@ Docker Buildx Bake and installing or updating the host-side `holon` and `holon-c
    - All Docker images use Docker Buildx Bake targets to exploit layer caching and cache mounts for fast incremental
      rebuilds.
 
+4. **Post-Merge Trigger (Bean 0182)**: When a reinstall is a recorded post-merge step for a PR that changed `holon` or
+   `holon-coherence`, wait for the merge with `uv run python .agents/scripts/wait_for.py merged <owner/repo> <N>` (exit
+   0 merged, 1 closed, 2 timeout) or act on the watcher's `pr_merged` event (see
+   [`.agents/watcher/README.md`](../../watcher/README.md)). Never type a polling loop by hand.
+
 ---
 
 ## 🚀 Execution Phases

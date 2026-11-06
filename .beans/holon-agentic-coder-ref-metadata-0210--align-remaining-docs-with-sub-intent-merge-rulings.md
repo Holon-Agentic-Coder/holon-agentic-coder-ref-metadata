@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0210
 title: "Align the remaining holon-agentic-coder docs with the sub-intent merge rulings"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - sub-intents
   - holon-agentic-coder
 created_at: 2026-10-30T00:10:00Z
-updated_at: 2026-10-30T00:36:17Z
+updated_at: 2026-10-30T01:41:00Z
 ---
 
 ## Problem
@@ -39,9 +39,12 @@ merges into the parent intent branch; whether a nested parent's PR stops for a h
 
 - Related: Bean 0180 (PR #110), Bean 0161 (implementation of the rulings).
 
-## Progress (2026-10-30)
+## Resolution (2026-10-30)
 
-- Holon flow running: holon-agentic-coder PR #113
-  (`I-1793319507-remaining-docs-follow-sub-intent-merge-rulings/P-1793319521-claude-agent-claude-opus-5-5/E-1793319691-claude-agent-claude-opus-5-5/_`),
-  opened 2026-10-30T00:26:21Z, OPEN (no review posted yet; Stage 4 consensus and Stage 5 calibration pending before
-  merge).
+- Delivered through the full 5-stage Holon flow on `holon-agentic-coder` via PR #113
+  (`I-1793319507-remaining-docs-follow-sub-intent-merge-rulings/P-1793319521-claude-agent-claude-opus-5-5/E-1793319691-claude-agent-claude-opus-5-5/_`).
+- Updated `docs/agent_design.md`, `docs/architecture.md`, `docs/faq.md`, `docs/safety.md`,
+  `docs/planner/planning_architecture_specification.md`, and `docs/planning_and_evaluation.md` to align with the five
+  sub-intent rulings established in PR #110 (`85ef122`).
+- Passed 3/3 ensemble consensus review in 5 iterations at head `cb4457f` (posted 2026-10-30T01:14:02Z), completed Stage
+  5 calibration (`9dc6e92`, Prettier-formatted `450b445`), and merged into `main` as `760ee87` (2026-10-30T01:27:16Z).

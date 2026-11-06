@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0185
 title: "holon-agentic-coder: adopt ruff complexity rules (C901, PLR0911-PLR0915) with an inline noqa baseline"
-status: todo
+status: completed
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - complexity
   - holon-agentic-coder
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-30T01:01:41Z
+updated_at: 2026-10-30T06:10:00Z
 ---
 
 ## Problem
@@ -47,8 +47,8 @@ file, `docs/architecture.md`.
 
 No bean blockers. Must land before 0187, 0188, 0195 and 0198, which move or edit the baselined lines.
 
-- 2026-10-30: sequenced after holon-agentic-coder flow PRs #112 (edits `flow.py` and `calibration.py`, which carry
-  baselined offenders) and #113 (edits `docs/architecture.md`) merge, because their files overlap this touch set.
+- 2026-10-30: PR #113 (`docs/architecture.md`) has merged as `760ee87` (2026-10-30T01:27:16Z); sequenced after
+  holon-agentic-coder flow PR #112 (edits `flow.py` and `calibration.py`, which carry baselined offenders) merges.
 
 ## Notes
 
@@ -56,3 +56,12 @@ No bean blockers. Must land before 0187, 0188, 0195 and 0198, which move or edit
 - Do not run concurrently with any flow touching `flow.py`, `cli.py` or `entrypoint/executor.py` (one-line edits there
   still conflict).
 - Tests are pytest only (`uv run pytest`). The target must not mention harness paths or bean ids.
+
+## Summary of Changes (2026-10-30)
+
+Completed through the Holon flow (intent I-1793334797 → plan P-1793334817 → execution E-1793335550, antigravity-agent /
+gemini-3.8-flash-medium): PR #115 merged as `0e71262`. Ruff complexity gates (C901 and friends) with a frozen 91-entry
+inline-`noqa` identity baseline; `PGH004` added so a bare `# noqa` cannot evade the ratchet; one-in-one-out baseline
+swaps rejected by test. Review: 2 iterations, 1 Important + 4 Nits all applied (`ef8964e`), 3/3 ensemble approval
+(review 5708515282), CI 11/11 green. Calibrated `33c9807` (EV 72.07 predicted / 77.27 actual); the calibration report
+passed Prettier with no follow-up commit — the first PR to benefit from the Stage 5 formatting fix.

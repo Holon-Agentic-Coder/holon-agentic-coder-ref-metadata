@@ -1,0 +1,318 @@
+---
+# holon-agentic-coder-ref-metadata-0221
+title:
+  "Standardise the engine's Stage 4 review loop with the pr-review-loop skill: same template, instructions, output and
+  loop logic"
+status: completed
+type: task
+priority: high
+tags:
+  - review-loop
+  - prompts
+  - consensus-report
+  - holon-agentic-coder
+created_at: 2026-10-30T09:55:00Z
+updated_at: 2026-11-06T09:15:00Z
+---
+
+## Problem
+
+The native containerised Review Loop Agent and report generator in `holon-agentic-coder` produce an output format that
+diverges from the production consensus review template established by the harness `pr-review-loop` skill.
+
+The `pr-review-loop` skill consistently posts clean, structured, and informative reviews:
+
+```markdown
+## ✅ Ensemble Consensus Review — APPROVED (3/3)
+
+Three independent blind review passes evaluated this PR at head `920e4d9` and unanimously approve it with zero Critical,
+zero Important, and zero open Nit findings. All CI checks are green and the PR is mergeable/clean against `main`.
+
+**Verified:**
+
+- Decomposed monolithic src/holon_coherence/mitm_addon.py (2,348 lines) into modular components under
+  src/holon_coherence/proxy/ by concern: scrubbing.py, wire_log.py, timing.py, metrics.py, routing.py, dashboard.py,
+  normalise/anthropic.py, translation/gemini_openai.py, and addon.py.
+- Preserved backward compatibility: src/holon_coherence/mitm_addon.py re-exports all 21 public API symbols and addons =
+  [MitmproxyAddon()], along with dynamic compatibility dispatch for legacy monkeypatch targets (in_container,
+  resolve_gateway_address, ctx, log_telemetry, _proxy_own_ports).
+- Added modular unit tests under tests/proxy/ for all newly extracted proxy submodules while keeping legacy test suites
+  100% passing.
+- Quality gates: uv run task lint clean, npx prettier --no-config --check clean, uv run task test 1,037 passed with zero
+  failures.
+- Complexity baseline ratchet ceiling and repository hygiene verified.
+- Canonical 3-ledger provenance integrity strictly maintained.
+
+Stage 5 calibration will be added to this PR before merge. Merging remains with the human maintainer.
+```
+
+In contrast, `sandbox_executor.review_report.build_pr_review_consensus_report()` in `holon-agentic-coder` produces a
+mechanical report (`## Holon PR Review: <title> (iteration <n>)` with unformatted reviewer lists and checks sections),
+and the older `holon-config/prompts/review_loop.template.md` contained an obsolete persona table schema.
+
+## Analysis: Requirements to Produce the Review Loop Template
+
+To enable the native Review Loop Agent and Stage 4 orchestrator to consistently produce this review template, four
+architectural requirements must be satisfied:
+
+### 1. Prompt Template Alignment (`holon-config/prompts/review_loop.template.md`)
+
+- Define the standard schema for both `APPROVED` (unanimous 3/3, 0 Critical, 0 Important, 0 open Nits, green CI) and
+  `CHANGES_REQUESTED` (findings table).
+- Provide explicit instructions for synthesizing the `**Verified:**` section from:
+  - Key architectural refactorings and module extractions identified in the PR diff.
+  - Backward compatibility preservation (re-exports, dispatch compatibility, CLI flags).
+  - Test suite coverage and execution pass counts (`uv run task test`).
+  - Lint and formatting quality gates (`uv run task lint`, `prettier`).
+  - Complexity baseline ratchet ceiling and repository hygiene.
+  - Canonical 3-ledger provenance integrity (`intents.jsonl`, `plans.jsonl`, `executions.jsonl`).
+- Include standard closing notice:
+  `Stage 5 calibration will be added to this PR before merge. Merging remains with the human maintainer.`
+
+### 2. Python Report Generator Alignment (`sandbox_executor/review_report.py`)
+
+- Update `build_pr_review_consensus_report()`:
+  - When approved: render `## ✅ Ensemble Consensus Review — APPROVED ({configured}/{configured})`, the evaluation
+    summary paragraph (`Three independent blind review passes evaluated this PR at head {head}...`), the bulleted
+    `**Verified:**` list, and the human merge notice.
+  - When changes requested: render `## ❌ Ensemble Consensus Review — CHANGES REQUESTED (Iteration {iteration})`
+    followed by the structured findings table (`ID`, `Severity`, `File:Line`, `Description`, `Recommendation`).
+- Ensure all text passed into the template continues to be strictly sanitized and bounded via `_inline()`.
+
+### 3. Synthesis & Transport Seam (`entrypoint/review_loop.py` & `flow.py`)
+
+- Wire verified findings and evaluation highlights produced by the containerised reviewer ensemble through the result
+  transport back into `build_pr_review_consensus_report()`.
+- Ensure dual-posting (`post_pr_review_consensus()`) formats and submits this markdown body for official PR review and
+  discussion comments.
+
+### 4. Hermetic Test Verification
+
+- Update `apps/sandbox-executor/tests/test_review_report.py` to assert the new headers, `**Verified:**` section, and
+  closing boundary notice.
+- Update `apps/sandbox-executor/tests/test_prompt_templates.py` to ensure placeholder hygiene.
+- Update `apps/sandbox-executor/tests/test_review_loop.py` and `test_flow.py` to verify mock consensus report assertions
+  pass cleanly.
+
+## Scope
+
+1. **Prompt Template**: Align `holon-config/prompts/review_loop.template.md` with the skill consensus schema.
+2. **Report Generator**: Update `apps/sandbox-executor/src/sandbox_executor/review_report.py` to render the skill
+   consensus format.
+3. **Tests**: Update test suites across `test_review_report.py`, `test_prompt_templates.py`, and `test_flow.py`.
+4. **Formatting & Hygiene**: Run Prettier and `uv run task lint` across changed files.
+
+## Notes
+
+- Target repository: `holon-agentic-coder`.
+- Must be executed via the 5-stage Holon flow (`holon flow <intent.json>`).
+- Depends on Bean 0179 (PR #116) for container review routing; sequence after PR #116 merges to prevent merge conflicts
+  on `flow.py` and `entrypoint/review_loop.py`.
+- Target repository isolation (Rule 12): No references to harness paths (`.beans/`, `todo/`, `.agents/`) or bean IDs in
+  target code or commits.
+
+## Source of Truth (maintainer ruling 2026-11-02, anchors corrected)
+
+The output this bean must produce is the **`pr-review-loop` skill's** template and nothing else. Read these before
+writing anything:
+
+| What                                                                                | Where                                                                                                              |
+| :---------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------- |
+| Loop-level exit conditions and final-review posting                                 | `.agents/skills/pr_review_loop/SKILL.md` - "Phase B: Evaluate Exit Conditions & Post Final Review" (lines 544-711) |
+| Reviewer pass contract: dedup, verdict + CI gate, ensemble footer, trailer, posting | `.agents/skills/pr_reviewer/SKILL.md` - Steps 3.1, 3.2, 3.3, 3.4 and Step 4 (lines 122-275)                        |
+| The report body structure both skills defer to                                      | `.agents/prompts/pr_review_prompt.md` - "📤 Step 3: Reviewer Report" + "📤 Step 3a: Consensus Comment"             |
+
+My first cut of this section pointed at `## 📤 Standard Review Output Schema` in `pr_review_loop/SKILL.md`. That heading
+**does not exist in the harness** - it is the heading PR #121 invented inside `scaffold.py`. Correcting it exposes the
+root cause, which the bean never stated either:
+
+> **The skill chain does not document the comment the loop actually posts.** `pr_review_prompt.md` § Step 3 documents a
+> persona-sectioned body (`📊 PR Metadata & Role Activation` → `🔍 Persona Reviews` → `🏆 Overall Verdict`) and
+> `pr_reviewer` Step 4 requires exactly that body, yet no harness file contains the
+> `## ✅ Ensemble Consensus Review — APPROVED (n/n)` heading or the `**Verified:**` list that real consensus comments
+> use
+>
+> - including the sample quoted under _Problem_ above and the one posted on PR #121. Stage 3 therefore had no written
+>   template to copy and improvised a third one. Until the shape is written into the skills, "align with the skill" is
+>   not a checkable requirement, so this bean is two parts.
+
+**Part A - harness work, no flow required.** Write the consensus-comment template into the skill chain, once, and keep
+it short: verdict heading with `n/n` and the head SHA, the one-paragraph evaluation sentence, the findings table with
+stable finding ids and a `Recommendation` column, the mergeability + CI line, the `🖳️ Ensemble Review Breakdown` footer
+and - on disk only - the trailer block. Put the canonical block in `pr_review_prompt.md` § Step 3 and have `pr_reviewer`
+and `pr_review_loop` reference it instead of restating it. Condense the surrounding prose in the same pass: delete
+duplication rather than rewording it, and lose no invariant - unanimity, zero open Nit, the CI-green gate, fail-closed
+on a missing or trailer-less report, human-only merging, artifact naming, the state file, dual-posting and the posted
+receipt.
+
+> **Part A landed 2026-11-02** on `docs/harness-20261030`: `pr_review_prompt.md` 181 -> 157 lines (the 16-row activation
+> table and duplicated severity prose are gone) with the canonical consensus comment added as Step 3a;
+> `pr_reviewer/SKILL.md` 288 -> 263 (footer and trailer defined once, Step 4 posts the canonical comment, persona detail
+> stays in the on-disk report the resolver actions); `pr_review_loop/SKILL.md` now points at the canonical comment at
+> its three posting points instead of re-describing a body. The loop's principles, convergence ladder, CI and
+> mergeability gates were left alone: they are procedure, not template. **Part B is what remains.**
+
+**Part B - target work, flow only.** Once Part A has landed, `holon-config/prompts/review_loop.template.md`,
+`scaffold.REVIEW_LOOP_TEMPLATE` and `build_pr_review_consensus_report()` render **that** block - including its compact
+`| Role (activated) | Verdict | Review |` table, one row per activated role with one concise line each (maintainer
+requirement 2026-11-02) - plus the seven fixes below, and a test asserts the rendered report matches the template
+written in the skill - not a fixture written to match the code. The deployed prompt ends up shorter than the 288 lines
+PR #121 shipped.
+
+**Prohibited in this bean:** a new schema, persona registry, role-activation matrix, severity legend or fixed
+`Verified:` assertions authored in the target diff; a target template that predates the skill change; and tests that pin
+the code's own output instead of the skill's template.
+
+## Verification (2026-11-02): NOT complete, bean reopened
+
+PR #121 (`1d84c35`) is green, `MERGEABLE/CLEAN`, and carries its calibration report - but it does not satisfy this bean.
+Verified against the PR diff:
+
+1. **Requirement 3 (synthesis seam) is unimplemented.** The PR touches only `review_report.py`, `scaffold.py`,
+   `test_review_report.py` and the ledgers/docs. Neither `entrypoint/review_loop.py` nor `flow.py` changed, so nothing
+   carries the ensemble's real findings and evaluation highlights into the report.
+2. **The approved report asserts things it did not check.** `build_pr_review_consensus_report()` emits five hard-coded
+   `**Verified:**` lines ("Backward compatibility and API surface stability maintained", "Test execution counts and
+   passing assertions verified", "Quality gates and complexity baselines fully satisfied", ...) on every approval,
+   whatever the reviewers actually verified. That contradicts this module's own invariant ("Nothing is derived from a
+   constant ... no boiler-plate findings") and is the same failure class Bean 0144 was raised for. The required
+   `Three independent blind review passes evaluated this PR at head {head}...` paragraph is absent from the Python
+   generator.
+3. **A verdict can be labelled `APPROVED` from a flag.**
+   `if consensus_data.get("approved") and verdict != "CHANGES_REQUESTED": verdict = "APPROVED"` promotes an
+   unknown/pending ensemble verdict to a green heading.
+4. **The findings table is not the specified one.** It renders `Severity | Location | Reviewer | Summary`; section 2
+   requires `ID`, `Severity`, `File:Line`, `Description`, `Recommendation`. No recommendation column means the resolver
+   has nothing to act on.
+5. **The closing notice was not changed.** The report still ends with the pre-existing Bean 0034 text; the required
+   `Stage 5 calibration will be added to this PR before merge. Merging remains with the human maintainer.` notice is
+   missing.
+6. **The template grew instead of shrinking.** `scaffold.py` (+320) adds a 16-role "Comprehensive Dynamic Persona
+   Registry", a role-activation matrix, a severity legend and a self-authored output schema; the deployed prompt
+   `holon-config/prompts/review_loop.template.md` is now 288 lines. This is the opposite of the Source of Truth rule
+   above and of the conciseness requirement.
+7. **Requirement 4 (tests) is partial.** `test_prompt_templates.py`, `test_review_loop.py` and `test_flow.py` were not
+   touched, so nothing pins placeholder hygiene or the transport seam.
+
+The Stage 4 ensemble approved this diff at iteration 1 and Stage 5 calibrated it, so both stages re-validated a diff
+that misses the bean's own acceptance criteria. That is a review-loop signal worth reporting to the maintainer, not a
+reason to close the bean.
+
+## Decision (2026-11-02): re-cut as a fresh intent
+
+Part B was first attempted as a resume of this intent (`holon flow --checkpoint … --from-stage plan`). Result:
+
+- Stage 2 planned in 8.7 min on a new plan branch `P-1793588860-…`, fed by transient `HOLON_REPLAN_FEEDBACK` because the
+  planner reads the immutable `intents.jsonl` row and the CLI discards the intent file on a checkpoint resume.
+- Stage 3 dispatched, exited 1.1 min later with **no changes outside** `holon-knowledge/ledger/`, `plans/` and
+  `executions/`, so the flow failed closed and raised no PR. Plan and execution branches for that attempt
+  (`P-1793588860-…/_` and `…/E-1793589381-…/_`) sit on `origin` with no pull request; they are cleanup candidates.
+- A resume can therefore carry neither the corrected intent text nor a working execution. **Decision: re-cut Part B as
+  its own intent**, `render-review-consensus-comment-from-reviewer-data`
+  (`todo/intent-0221b-render-review-consensus-comment.json`), and run all five stages against it. The intent states the
+  posted shape verbatim so planner, executor and reviewer ensemble share one written contract, and it is written
+  target-natively - no harness paths, no bean ids.
+
+## Next (Part A harness, Part B flow)
+
+### Launch blocker (2026-11-02)
+
+The fresh intent was launched with this harness session's own runner and model (`--agent pi-agent --model` the
+`PI_MODEL` value), as instructed. It died in the pre-flight gate: `get_agent_session_mounts` mounts only
+`~/.pi/agent/models.json` for pi, so Docker pre-creates `/home/holon/.pi{,/agent}` as root and pi (uid 1000) hits
+`EACCES` in `getDefaultSessionDir` creating `~/.pi/agent/sessions/--home-holon--`. Nothing was created - no branch, no
+checkpoint row, no ledger entry. Filed as
+[[holon-agentic-coder-ref-metadata-0222--pi-agent-sandbox-cannot-create-pi-agent-sessions]] (P1, blocks this bean while
+the flow inherits the session runner). Running part B on an explicitly named alternative runner is the maintainer's
+call, not a silent fallback.
+
+- **Part A first** (harness, direct edit): add the canonical consensus-comment block to
+  `.agents/prompts/pr_review_prompt.md` § Step 3, point `pr_reviewer` Step 4 and `pr_review_loop` Phase B at it, and
+  condense both skill docs; reference this bean in the commit message.
+- **Part B** through the flow only: `holon flow <intent.json> --from-stage plan` on the existing `I-1793438366-...`
+  branch so PR #121 carries the corrected work. Never hand-edit `holon-config/prompts/review_loop.template.md` or
+  `scaffold.py` on the host.
+- PR #121 stays **held, not ready to merge**: it must be updated by that run, or closed by the maintainer if the work is
+  re-cut as a fresh intent.
+
+## Progress (2026-10-31)
+
+- Intent `I-1793438366-standardise-review-loop-agent-output-with-skill-consensus-template/_` and plan
+  `P-1793438381-antigravity-agent-gemini-3.8-flash-medium` generated and pushed.
+- Stage 3 completed (`E-1793438692-antigravity-agent-gemini-3.8-flash-medium`), all 23 targeted review report tests
+  passing. Pull Request [#121](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/121) opened on GitHub.
+- Stage 4 PR Review Loop: 3-agent ensemble reached unanimous `APPROVED` (3/3) at iteration 1 - see **Verification
+  (2026-11-02)** above for why that approval does not close the bean.
+- Stage 5 Calibration completed (`1d84c35`, Predicted EV: 73.21, Actual EV: 78.35, $\Delta\text{EV} = +5.14$) and pushed
+  to PR #121 head and `/calibrated` branch.
+- PR #121 is calibrated and GitHub-green, but **held against the seven gaps above**; it is not to be merged as it
+  stands.
+
+## Expanded contract (maintainer, 2026-11-05): full engine/skill standardisation
+
+"The whole point of bean 0221 is to standardise the engine's review loop with the skill." The bean's target is not just
+the posted comment — it is behavioural parity between the flow engine's native Stage 4 and the harness `pr-review-loop`
+skill, on five axes:
+
+1. **Same template** — one consensus-comment shape (the skill's canonical Step 3a block), rendered identically by the
+   skill and by `review_report.py` / `review_loop.template.md` / `scaffold.REVIEW_LOOP_TEMPLATE`.
+2. **Same instructions** — the engine's reviewer prompt carries the same review rubric the skill's reviewers get
+   (severities, diff-grounding, finding ids with recommendations, trailer discipline), written target-natively (no
+   harness paths or ids), so a reviewer behaves the same whichever side dispatches it.
+3. **Same output for the PR comment** — what Stage 4 dual-posts to GitHub is byte-shape-identical to what the skill
+   posts: approval and changes-requested forms, role-review table, findings table with ids and recommendations,
+   calibration-before-merge close, human-only merge notice.
+4. **Same logic** — the engine's loop follows the skill's phase structure: single-reviewer dry-run pass first, resolver
+   on findings, then the 3-blind-reviewer ensemble consensus gate; CI is a gate not a waiting room; any push voids
+   earlier votes; approval is unanimous 3/3 at one head with green CI; every finding (nits included) ends `applied` or
+   `rejected` with a reason; no human pause mid-loop.
+5. **Same single → resolve → consensus iteration** — review and resolve iterate inside Stage 4 until convergence or the
+   engine's iteration budget, exactly like the skill's Phase A → C → B cycle.
+
+Delivery map:
+
+- Axes 1-3 (template, instructions, output): the re-cut intent `render-review-consensus-comment-from-reviewer-data` — PR
+  #122, currently in its review loop.
+- Axis 4-5 (loop logic): [[holon-agentic-coder-ref-metadata-0228--engine-owns-the-review-loop-container-is-single-shot]]
+  (one engine-owned loop, single-shot review containers) and
+  [[holon-agentic-coder-ref-metadata-0229--native-stage-4-resolver-review-loop-converges]] (resolver inside the loop,
+  dispositions, convergence guards). This bean is the umbrella: it closes only when the engine's Stage 4 and the skill
+  are interchangeable on all five axes.
+
+## Reset (maintainer, 2026-11-05)
+
+PRs #121 and #122 closed as deprecated by the expanded contract above. All their flow branches deleted from origin and
+locally (the whole `I-1793438366-…` and `I-1793778409-…` trees, including the PR #121 `/calibrated` branch and the
+orphan re-plan `P-1793588860-…`/`E-1793589381-…`), worktrees `pr121-standardise-review-output`,
+`pr122-render-review-consensus-comment` and `flow-0221b-render-review-consensus-comment` removed. Fresh repo-dir
+worktree `apps/holon-agentic-coder/flow-0221-standardise-review-loop` cut from `origin/main` (`922289f`). The maintainer
+re-runs the flow manually with `todo/intent-0221b-render-review-consensus-comment.json`; native Stage 4 is expected to
+halt at iteration 1 (no resolver yet — see the loop-logic beans), after which the maintainer kicks off the harness
+pr-review-loop skill manually.
+
+## Delivered: axes 1-3 via PR #123 (merged 2026-11-05)
+
+Intent `I-1793840798-render-review-consensus-comment-from-reviewer-data` ran all five stages with claude-agent /
+claude-opus-5-5. Native Stage 4 halted at iteration 1 as expected (no engine resolver yet); the harness pr-review-loop
+converged in 3 iterations (resolver commits `8f24f9d`, `6d09c3d`, `2c12b92`; unanimous 3/3 at `2c12b92`; posted review
+5778850248), fixing along the way: dedup key includes summaries, CHANGES reviewer's text kept, 4-backtick fences in both
+byte-identical template twins, consensus trailer now fails closed, unique finding ids, "(Bean 0034)" leak removed. Stage
+5 calibrated (`c680406`, EV predicted 31.63 vs actual 65.84, ΔEV +34.21), merged into the PR head as `cb0de8b`. One
+out-of-increment finding deferred to
+[[holon-agentic-coder-ref-metadata-0230--purge-residual-harness-bean-ids-from-target-sources]].
+
+Remaining for this bean: axes 4-5 (loop logic parity) via
+[[holon-agentic-coder-ref-metadata-0228--engine-owns-the-review-loop-container-is-single-shot]] and
+[[holon-agentic-coder-ref-metadata-0229--native-stage-4-resolver-review-loop-converges]].
+
+## Completed: axes 4-5 via PR #124 and PR #125 (merged 2026-11-05 / 2026-11-06)
+
+- **Axis 4** ([[holon-agentic-coder-ref-metadata-0228--engine-owns-the-review-loop-container-is-single-shot]]):
+  Delivered via PR #124 (`bfecf0f`, merged 2026-11-05; calibrated `9be1724`, ΔEV +17.68). The flow engine owns the
+  25-iteration loop and checkpointed counter, dispatching single-shot review containers with a separate `--iteration`
+  label.
+- **Axis 5** ([[holon-agentic-coder-ref-metadata-0229--native-stage-4-resolver-review-loop-converges]]): Delivered via
+  PR #125 (`baf3f8c`, merged 2026-11-06; calibrated `eb3302f`, ΔEV -73.83). Stage 4 now executes both review and
+  resolver passes per iteration inside the flow, recording `applied`/`rejected` dispositions in `executions.jsonl`,
+  enforcing the 3-iteration `no-convergence` guard, and posting consensus only at loop exit. All five standardisation
+  axes are complete.

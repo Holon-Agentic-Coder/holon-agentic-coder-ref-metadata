@@ -54,6 +54,24 @@ gh pr diff <pr_url_or_number>
 > merges); the harness outlives every run, so it is the only place a successor will think to look. Record the absolute
 > path as `artifacts_dir` in `<repo>_pr<N>_state.json`.
 
+### Step 2a: Determine the Review Scope (Full vs Increment-Scoped Mode)
+
+Under `pr-review-loop`, the scope is set by [principle 12](../pr_review_loop/SKILL.md#12-convergence-rules-bean-0170)
+(Bean 0170):
+
+- **Full mode** (no `voted_head` in `<repo>_pr<N>_state.json`, or a standalone review): review the whole PR.
+- **Increment-Scoped Mode** (a `voted_head` exists, the head of the last complete 3-reviewer ensemble): each reviewer
+  receives `git diff <voted_head>..HEAD` and the files it touches, in addition to the full PR diff.
+  - **Critical and Important** defects are reported **anywhere** in the PR.
+  - **Nits** and **mutation testing** are confined to lines the increment changed. Before mutating, read
+    `mutation_sweeps` in `_state.json`: an area already swept is mutated only where the increment changed it, and a
+    first sweep of a new area is recorded there (area, iteration, head, mutants, survivors).
+  - A Nit or surviving mutant a reviewer still notices on unchanged code is listed under a separate
+    `Out of increment (deferral candidates)` heading, does not count toward the `NIT` trailer total, and is handed to
+    the resolver to record as `rejected: deferred: unchanged code -> <bean id>`. Items already in `deferred_findings` of
+    `<repo>_pr<N>_coordination.json` are not re-raised.
+  - State the scope (`full` or `increment <voted_head>..<head>`) at the top of every report.
+
 ### Step 3: Run Multi-Agent Ensemble Review (3 Independent Passes)
 
 To eliminate single-pass LLM variance, flakiness, and missed edge cases, execute **3 independent review passes** (via
@@ -111,7 +129,9 @@ Once all 3 reviewer subagents complete their evaluations, synthesize a single **
    - Union all unique findings across all severity levels (🔴 **CRITICAL / BLOCKER**, 🟡 **IMPORTANT / IMPROVEMENT**, 🟢
      **NIT / OPTIONAL**, and ✅ **APPROVED / PASS**) from all 3 passes.
 2. **Consolidated Dynamic Role Matrix**:
-   - Aggregate role activations across all 3 review passes to form a single master Dynamic Role Activation Matrix.
+   - Aggregate role activations across all 3 review passes to form a single master Dynamic Role Activation Matrix. The
+     full matrix stays in the on-disk consensus report; the posted comment carries the activated roles only, as one row
+     and one short line each (step 3a of `pr_review_prompt.md`).
 
 ### Step 3.2: Consensus Verdict & Deferred CI Verification
 
@@ -122,7 +142,8 @@ Once all 3 reviewer subagents complete their evaluations, synthesize a single **
 > the resolver can record a per-finding disposition. When invoked by `pr-review-loop`, Nits are **actioned, not waved
 > through**: the loop will not post an approval while an open actionable Nit remains. Nits the resolver previously
 > `rejected` with a reason are passed in as already adjudicated -- do not re-raise them unless the diff changed under
-> them.
+> them. Under Increment-Scoped Mode (Step 2a), a Nit on code the increment did not change does not block approval; it is
+> recorded as a deferral candidate, and the resolver still records its disposition.
 
 1. **If ANY Reviewer Subagent identified Critical (🔴) or Important (🟡) issues, OR if any subagent failed/timed out
    (`FAILED` / `TIMEOUT` status)**:
@@ -144,32 +165,16 @@ Once all 3 reviewer subagents complete their evaluations, synthesize a single **
      3. Set the review verdict to **`CHANGES_REQUESTED`**. The PR CANNOT receive an `APPROVED` verdict until all CI
         checks pass cleanly.
 
-### Step 3.3: Append Agent, Model & Ensemble Voting Breakdown Footer
+### Step 3.3: Append the Ensemble Review Breakdown Footer
 
-Before writing the review to the temp file, append a footer that details the ensemble voting breakdown, agent identity,
-and LLM model:
+The footer's shape is defined once, in step 3a of
+[`pr_review_prompt.md`](../../prompts/pr_review_prompt.md#-step-3a-consensus-comment-the-only-body-posted-to-github).
+Append it and fill in three values:
 
-```markdown
----
-
-### 🗳️ Ensemble Review Breakdown
-
-- **Reviewer 1** (`<subagent-id-1>`): `<APPROVED | CHANGES_REQUESTED | COMMENT | FAILED | TIMEOUT>`
-- **Reviewer 2** (`<subagent-id-2>`): `<APPROVED | CHANGES_REQUESTED | COMMENT | FAILED | TIMEOUT>`
-- **Reviewer 3** (`<subagent-id-3>`): `<APPROVED | CHANGES_REQUESTED | COMMENT | FAILED | TIMEOUT>`
-- **Ensemble Consensus Verdict**: `<APPROVED | CHANGES_REQUESTED | COMMENT>`
-
-> 🤖 **Reviewed by**: `<agent-name>` (3-Agent Ensemble) · **Model**: `<llm-model>`
-```
-
-- **`<subagent-id-N>`**: The unique subagent conversation ID or instance identifier for reviewer pass N (e.g.
-  `subagent-1`, `conv-abc-123`).
-- **`<agent-name>`**: The primary agent executing the ensemble review (e.g. `antigravity-agent`, `pi-agent`,
-  `claude-agent`). Determine this from the `HOLON_ROLE` or `AGENT_NAME` environment variable if available, otherwise use
-  the agent's self-identified name from your system context.
-- **`<llm-model>`**: The LLM model identifier used for the review passes (e.g. `gemini-3.5-flash`, `claude-sonnet-4-5`).
-  Determine this from the `MODEL_NAME` environment variable if set, otherwise use the model name you know yourself to be
-  running as.
+- `<subagent-id-N>`: the reviewer pass's subagent conversation or instance id (`subagent-1`, `conv-abc-123`).
+- `<agent-name>`: the agent running the ensemble, from `HOLON_ROLE` or `AGENT_NAME` when set, otherwise your own
+  identity.
+- `<llm-model>`: the model used for the passes, from `MODEL_NAME` when set, otherwise the model you are running as.
 
 ### Step 3.4: Append the Machine-Readable Trailer Block
 
@@ -186,19 +191,15 @@ NIT: <int>
 FINDINGS: <int>
 ```
 
-- `CRITICAL`, `IMPORTANT`, and `NIT` are the totals recorded in the report body; `FINDINGS` is their sum.
-- Two `FINDINGS` spellings exist and each has its place: the on-disk report carries the **integer sum** above, while a
-  pass's short final reply may carry the **semicolon-separated ids of its open findings**, which is what a resolver
-  actions by name. Only the report file's block is machine-parsed as the completeness signal, so never put the id list
-  there.
-- The block sits after the Step 3.3 breakdown footer, as the file's final lines.
-- It belongs to the on-disk report only. The body posted to GitHub in real mode ends with the Step 3.3 footer and
-  carries no trailers.
-- Write the block into the stub before the prose and rewrite it after each appended finding. It is seven lines, so
-  keeping it current costs far less than the review it protects, and it survives an aborted final message.
-- The block is the completeness signal the loop depends on: `pr-review-loop` Principle 9 only lets a pass shrink its
-  work to `git diff <prior-head>..HEAD` when the prior report closes with this footer, and treats a report without it as
-  a stub that must be completed by a full-file review.
+- `CRITICAL`, `IMPORTANT` and `NIT` are the totals recorded in the report body; `FINDINGS` is their sum. A pass's short
+  final reply may instead carry the semicolon-separated ids of its open findings, which is what a resolver actions by
+  name - but only the file's block is machine-parsed as the completeness signal, so never put ids there.
+- The block is the file's last lines, after the Step 3.3 footer, and belongs to the on-disk report only; a body posted
+  to GitHub carries no trailers.
+- Write it into the stub before the prose and rewrite it after each appended finding, so it survives an aborted turn.
+- It is the completeness signal the loop depends on: `pr-review-loop` principle 9 lets a pass review only
+  `git diff <prior-head>..HEAD` when the prior report closes with this footer, and treats a report without it as a stub
+  that must be completed by a full-file review.
 
 ### Step 4: Post the Review Back to GitHub (Real Mode vs Dry-Run Mode)
 
@@ -216,14 +217,13 @@ Check if **Dry-Run Mode** is enabled (e.g. via `--dry-run` parameter or loop ins
     whoever picks the work up next.
 
 - **If Real Mode is ON (Default / Final Pass)**:
-  - **Always post the full comment template -- even for a clean `APPROVED` with zero findings.** The body MUST contain,
-    in order: `📊 PR Metadata & Role Activation` (the consolidated Dynamic Role Activation Matrix), `🔍 Persona Reviews`
-    (one section per active persona, including `✅ [PASS]` entries), `🏆 Overall Verdict`, and the
-    `🗳️ Ensemble Review Breakdown` footer (Step 3.3), exactly as defined in
-    [`pr_review_prompt.md`](../../prompts/pr_review_prompt.md#-step-3-output-format). A short summary paragraph, a
-    verdict-and-counts one-liner, or the footer alone is **not** a valid posted review. Build the body from the ensemble
-    reviewer reports, not from the trailer counts; if a synthesiser returned a condensed body, expand it before posting.
-    Never post the machine-readable trailer block.
+  - **Post the canonical consensus comment** - step 3a of
+    [`pr_review_prompt.md`](../../prompts/pr_review_prompt.md#-step-3a-consensus-comment-the-only-body-posted-to-github)
+    - whole, even for a clean `APPROVED` with zero findings. A summary paragraph, a verdict-and-counts one-liner, or the
+      footer alone is **not** a valid posted review. Build the body from the ensemble reviewer reports, never from
+      trailer counts, and expand a synthesiser output that came back condensed. Never post the machine-readable trailer
+      block. The activation matrix and the per-finding detail stay in the on-disk reviewer reports, which is what the
+      resolver actions; the comment itself carries the compact role table.
   - Write your review output to a temporary file (`.subagent/<repo>_pr<N>_review_body.md`) to prevent shell character
     escaping issues.
   - Submit the review to GitHub using the flag matching your overall ensemble verdict:
@@ -256,14 +256,11 @@ _Note: GitHub disallows users from approving or requesting changes on their own 
 
 ### Step 5: Keep the Artifacts (Nothing Is Deleted)
 
-Earlier versions of this skill ended by removing `.subagent/<repo>_pr<N>_review_body.md`. **That rule is withdrawn.**
-The body is the only local record of what was actually submitted, and its absence on PR #61 forced a later session to
-reconstruct a verdict from the GitHub thread -- which does not record the head that review was written against (Bean
-0063).
-
-- Keep `<repo>_pr<N>_review_body.md`, and keep the permanent copy of the submitted text in
-  `<repo>_pr<N>_posted_review.md` with its GitHub receipt (`url`, `submitted_at`, accepted kind, head SHA) mirrored in
-  `<repo>_pr<N>_state.json`.
-- If the artifacts directory genuinely must be tidied, **move** this repo+PR's completed intermediates into
+- Never delete `<repo>_pr<N>_review_body.md`: it is the only local record of what was submitted. Its absence on PR #61
+  forced a later session to reconstruct a verdict from the GitHub thread, which cannot say what head that review was
+  written against (Bean 0063).
+- Keep the verbatim submitted text in `<repo>_pr<N>_posted_review.md` with its GitHub receipt (`url`, `submitted_at`,
+  the kind GitHub actually accepted, head SHA), mirrored in `<repo>_pr<N>_state.json`.
+- If the directory genuinely must be tidied, **move** this repo+PR's completed intermediates into
   `.subagent/<repo>_pr<N>_archive/`. Never `rm`, never a wildcard that could reach another PR's work, and never another
   repository's files.
