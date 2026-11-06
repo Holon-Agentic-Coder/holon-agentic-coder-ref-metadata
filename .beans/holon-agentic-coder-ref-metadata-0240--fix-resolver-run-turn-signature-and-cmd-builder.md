@@ -50,6 +50,18 @@ Because `_run_resolver_agent()` passes `(runner, prompt, model_name)` directly t
 the command line via `runner.build_command(prompt, model_name)`, every Stage 4 resolver pass crashes before spawning the
 LLM agent.
 
+Furthermore, in `_run_resolver_mode()`:
+
+```python
+lint_ok = True
+tests_ok = True
+```
+
+Verification defaults are optimistic by default. When the resolver crashes or fails before `_verify_before_push()` can
+execute, the JSON outcome payload records `lint_passed: true` and `tests_passed: true` without ever running linters or
+tests. This violates the fail-closed zero-trust principle: everything must be assumed broken until proven to be working
+by verified execution.
+
 ## Goal
 
 1. **Build Runner Command Line**: In `sandbox_executor.entrypoint.review_loop._run_resolver_agent()`, obtain the command
@@ -59,7 +71,11 @@ LLM agent.
    cmd = runner.build_command(prompt, model_name)
    outcome = run_turn(cmd, cwd=repo_dir)
    ```
-2. **Propagate Turn Budgets / Timeouts**: Pass appropriate turn budgets or timeout parameters if configured in the
+2. **Fail-Closed Verification Defaults**: In `_run_resolver_mode()`, initialize `lint_ok = False` and
+   `tests_ok = False`. Never report `lint_passed: true` or `tests_passed: true` unless `_verify_before_push()` actually
+   executed `uv run task lint` and `uv run task test` and both returned exit code 0.
+3. **Propagate Turn Budgets / Timeouts**: Pass appropriate turn budgets or timeout parameters if configured in the
    environment.
-3. **Hermetic Unit Tests**: Add test cases in `apps/sandbox-executor/tests/test_review_loop.py` verifying that
-   `_run_resolver_agent()` correctly invokes `runner.build_command()` and forwards `cmd` to `run_turn()`.
+4. **Hermetic Unit Tests**: Add test cases in `apps/sandbox-executor/tests/test_review_loop.py` verifying that:
+   - `_run_resolver_agent()` correctly invokes `runner.build_command()` and forwards `cmd` to `run_turn()`.
+   - When resolver execution fails or is skipped, `lint_passed` and `tests_passed` fail closed as `False`.
