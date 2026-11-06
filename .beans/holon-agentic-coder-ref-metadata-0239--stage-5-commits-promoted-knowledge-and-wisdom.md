@@ -2,7 +2,7 @@
 # holon-agentic-coder-ref-metadata-0239
 title:
   "Stage 5 calibration commits and pushes promoted knowledge and wisdom artifacts to the `/calibrated` branch and PR"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -13,7 +13,7 @@ tags:
   - wisdom
   - holon-agentic-coder
 created_at: 2026-11-06T04:22:00Z
-updated_at: 2026-11-06T04:22:00Z
+updated_at: 2026-11-06T08:16:00Z
 ---
 
 ## Problem
@@ -78,3 +78,17 @@ Commit and push promoted knowledge base and wisdom artifacts to the `/calibrated
 1. `apps/sandbox-executor/src/sandbox_executor/flow.py`: Stage and commit `holon-knowledge/kb/` and
    `holon-knowledge/wisdom/` in `run_calibration_stage()`.
 2. `apps/sandbox-executor/tests/test_flow.py`: Hermetic tests for Stage 5 knowledge/wisdom artifact committing.
+
+## Resolution
+
+Delivered via [PR #130](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/130) and merged into `main`
+(`1619cec`):
+
+- Added `_commit_stage5_promoted_artifacts()` helper in `flow.py` called immediately following
+  `promote_pending_candidates()`.
+- Automatically stages and commits any generated or updated files in `holon-knowledge/kb/` and `holon-knowledge/wisdom/`
+  to the `/calibrated` branch.
+- Fast-forwards the `/calibrated` commit into the PR head execution branch and pushes to `origin`, preserving all
+  promoted heuristics and failure patterns in the PR diff and `main` branch history.
+- Added comprehensive unit tests in `test_flow.py` asserting clean staging and committing when candidates qualify.
+- Traversed all 5 stages of the Holon flow, passed 3/3 ensemble consensus review, and calibrated before merging.
