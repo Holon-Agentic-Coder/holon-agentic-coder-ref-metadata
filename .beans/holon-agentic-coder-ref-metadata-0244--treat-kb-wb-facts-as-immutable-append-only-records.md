@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0244
 title: "Treat knowledge and wisdom facts as immutable append-only records"
-status: in-progress
+status: completed
 type: task
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
   - calibration
   - holon-agentic-coder
 created_at: 2026-11-06T10:05:00Z
-updated_at: 2026-11-06T10:19:00Z
+updated_at: 2026-11-06T14:55:00Z
 ---
 
 ## Problem
@@ -59,11 +59,21 @@ file must never be overwritten, touched, or re-serialized.
    - Add test coverage in `apps/sandbox-executor/tests/test_flow.py` asserting that Stage 5 calibration leaves existing
      fact files untouched and `_commit_stage5_promoted_artifacts()` results in a clean no-op when no new facts qualify.
 
-## Review & Calibration Status
+## Resolution
 
-- PR: [#133](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/133)
-- Execution Branch:
-  `I-1793960332-treat-kb-wb-facts-as-immutable-append-only-records/P-1793960347-antigravity-agent-gemini-3.8-flash-medium/E-1793960623-antigravity-agent-gemini-3.8-flash-medium/_`
-- Status: Stage 4 (PR Review Loop) consensus APPROVED (3/3 ensemble), Stage 5 (Calibration) completed and pushed to
-  `/calibrated` and fast-forwarded into PR head. All 11 CI checks pass green.
-- Awaiting human merge.
+Delivered via [PR #133](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/133) and merged into `main`
+(`2a56a89`):
+
+- **Immutable Fact Persistence**: In `apps/sandbox-executor/src/sandbox_executor/knowledge/wisdom.py`, treated fact
+  files in `holon-knowledge/kb/` and `holon-knowledge/wisdom/` as immutable append-only records. When an entry already
+  exists on disk, persistence is skipped without touching timestamps or file metadata.
+- **Decomposed Candidate Promotion**: Decomposed `promote_pending_candidates()` into `_promote_failure_candidate()` and
+  `_promote_success_candidate()` helpers, satisfying Ruff C901 cyclomatic complexity ($\le 6$).
+- **Idempotent Directory Indices**: Guarded `_update_directory_index()` so index files are not re-serialized or touched
+  unless entries change.
+- **Hermetic Immutability Tests**: Added test suites in `apps/sandbox-executor/tests/test_wisdom.py` asserting that
+  pre-existing fact files on disk maintain bit-for-bit identical SHA-256 digests and exact nanosecond `st_mtime_ns`
+  across repeated promotion and persistence runs.
+- **Zero-Churn Calibration Verification**: Added coverage in `test_flow.py` confirming
+  `_commit_stage5_promoted_artifacts()` no-ops cleanly when no new facts qualify.
+- Traversed all 5 stages of the Holon flow, passed 3/3 ensemble review approval, calibrated, and merged into `main`.
