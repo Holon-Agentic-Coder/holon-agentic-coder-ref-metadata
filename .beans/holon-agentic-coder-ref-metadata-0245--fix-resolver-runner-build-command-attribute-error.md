@@ -10,8 +10,10 @@ tags:
   - resolver
   - stage-4
   - holon-agentic-coder
+  - testing
+  - minimise-mocking
 created_at: 2026-11-06T12:37:00Z
-updated_at: 2026-11-06T12:37:00Z
+updated_at: 2026-11-06T22:15:00Z
 ---
 
 ## Problem
@@ -52,15 +54,30 @@ def compose_cmd(self, model_name: str, full_prompt: str) -> list[str]:
     ...
 ```
 
-The unit tests in `apps/sandbox-executor/tests/test_review_loop.py` passed because `mock_runner` was a mock object on
-which `mock_runner.build_command` was dynamically assigned:
+### Root Cause: Over-Mocking Masked Real Contract Violations
+
+The unit tests in `apps/sandbox-executor/tests/test_review_loop.py` passed because `mock_runner` was a free-form
+`MagicMock` on which `mock_runner.build_command` was dynamically assigned:
 
 ```python
 mock_runner.build_command.return_value = ["my-agent", "-p", "prompt", "--model", "test-model"]
 ```
 
-Because no test invoked `build_command` on a real `AgentRunner` subclass, the missing method escaped detection in CI and
-broke real Docker container runs.
+**Mocking hides calls to real implementations.** Because the test mocked the runner object completely without
+specification, it validated an invented fantasy contract rather than the actual `AgentRunner` interface. The missing
+method was completely invisible in CI and only broke once running against real code in the Docker container.
+
+## Architectural Rule: Minimise Mocking
+
+Unit and integration tests must strictly **minimise the use of mocks**:
+
+1. **Never mock data structures or internal collaborators that can be instantiated cheaply.** Use real `AgentRunner`,
+   `StandardAgentRunner`, and `AntigravityAgentRunner` instances.
+2. **Never use free-form `MagicMock()` on classes.** When process execution or network I/O must be stubbed (e.g.,
+   `run_turn`), use real runner objects or pass `autospec=True` / `spec=AgentRunner` so any call to a non-existent
+   method raises an `AttributeError` during test execution.
+3. **Assert against real contracts**: Tests must verify the actual outputs of real objects (e.g. verifying that
+   `runner.build_command()` produces genuine argv arrays matching `runner.compose_cmd()`).
 
 ## Goal
 
@@ -81,12 +98,15 @@ broke real Docker container runs.
    command using `runner.build_command(prompt, model_name)` or fallback cleanly to
    `runner.compose_cmd(model_name, prompt)`.
 
-3. **Hermetic Unit Tests with Real Runner Instances**: In `apps/sandbox-executor/tests/test_agent_runner.py`, add test
-   cases iterating across all real registered runners in `runners` dictionary:
+3. **Hermetic Unit Tests with Real Runner Instances (Zero Free-Form Mocks)**: In
+   `apps/sandbox-executor/tests/test_agent_runner.py`, add test cases iterating across all real registered runners in
+   `runners` dictionary:
+   - Instantiate and test real runner instances directly without mocks.
    - Assert `runner.build_command("prompt", "model")` is callable and returns a valid argv list matching
      `runner.compose_cmd("model", "prompt")`.
    - Assert `AntigravityAgentRunner` specifically produces the correct argv.
-   - In `test_review_loop.py`, verify `_run_resolver_agent` works with real runner instances.
+   - In `test_review_loop.py`, replace free-form mock runners with real `AgentRunner` / `AntigravityAgentRunner`
+     instances (or `create_autospec(AgentRunner)`) so calling an unmapped method fails immediately.
 
 4. **Zero Lint / Hygiene Regressions**: Ensure all target repository tests pass cleanly via `uv run pytest` and
    formatting passes via `uv run ruff check .` and `uv run ruff format --check .`.
