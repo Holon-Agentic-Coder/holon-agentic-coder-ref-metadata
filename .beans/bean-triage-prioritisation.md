@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-06 05:19:10 UTC
+**Last Updated:** 2026-11-06 06:02:41 UTC
 
 ## Executive Summary
 
@@ -14,10 +14,10 @@ Concurrent flows on overlapping files (#94, #95 and #96 all changed `flow.py` an
 re-reviews: 141 review-loop passes from the first sync onward, about 10M+ tokens. Beans 0151 and 0152 address that, and
 overlapping flows now run one after another.
 
-- **Total Tracked Beans**: 239 (excluding template)
-- **Completed**: 182 (76.2%)
+- **Total Tracked Beans**: 242 (excluding template)
+- **Completed**: 182 (75.2%)
 - **Scrapped / Superseded**: 2 (0.8%)
-- **Active**: 55 (23.0%), of which 3 are in progress and 52 are todo
+- **Active**: 58 (24.0%), of which 3 are in progress and 55 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -476,6 +476,9 @@ PR), **Bean 0236** (post consensus review once per PR exit instead of duplicatin
 | **P2**   | todo        |  High  |   L    | 0142   | Real-workload benchmark: Qwen3.8-27B dense vs Flash-Next MoE                                          | Model Selection            | Real data only (AGENTS.md item 10).                                                                                                                                                                                                                           |
 | **P3**   | todo        |  Low   |   XS   | 0231   | Exhausted-budget error string interpolates raw count while payload reports clamped 0                  | Flow Engine / Cosmetic     | PR #124 loop deferral (cosmetic, out-of-increment). Touches `flow.py` - bundle with 0230.                                                                                                                                                                     |
 | **P3**   | todo        | Medium |   M    | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                                   | vmlx / Performance         | Pairs with 0142.                                                                                                                                                                                                                                              |
+| **P0**   | todo        |  High  |   M    | 0240   | Fix resolver run_turn argument signature by building agent CLI command line via runner.build_command  | Flow / Architecture        |                                                                                                                                                                                                                                                               |
+| **P1**   | todo        |  High  |   M    | 0242   | Suppress Docker Desktop CLI hints and Gordon suggestions via DOCKER_CLI_HINTS=false                   | Flow / Architecture        |                                                                                                                                                                                                                                                               |
+| **P1**   | todo        |  High  |   M    | 0241   | Persist review loop sandbox across iterations to eliminate repeated clone and teardown overhead       | Ledger / Observability     |                                                                                                                                                                                                                                                               |
 
 ---
 
