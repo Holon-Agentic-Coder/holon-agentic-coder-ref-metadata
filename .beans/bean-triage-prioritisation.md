@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-06 23:09:05 UTC
+**Last Updated:** 2026-11-07 02:35:21 UTC
 
 ## Executive Summary
 
@@ -14,10 +14,10 @@ Concurrent flows on overlapping files (#94, #95 and #96 all changed `flow.py` an
 re-reviews: 141 review-loop passes from the first sync onward, about 10M+ tokens. Beans 0151 and 0152 address that, and
 overlapping flows now run one after another.
 
-- **Total Tracked Beans**: 247 (excluding template)
-- **Completed**: 187 (75.7%)
+- **Total Tracked Beans**: 248 (excluding template)
+- **Completed**: 187 (75.4%)
 - **Scrapped / Superseded**: 3 (1.2%)
-- **Active**: 57 (23.1%), of which 3 are in progress and 54 are todo
+- **Active**: 58 (23.4%), of which 4 are in progress and 54 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -487,7 +487,8 @@ and **Bean 0234** (event-driven CI check progress reporting during Stage 4 revie
 | **P2**   | todo        |  High  |   L    | 0142   | Real-workload benchmark: Qwen3.8-27B dense vs Flash-Next MoE                                                | Model Selection            | Real data only (AGENTS.md item 10).                                                                                                                                                                                                                           |
 | **P3**   | todo        |  Low   |   XS   | 0231   | Exhausted-budget error string interpolates raw count while payload reports clamped 0                        | Flow Engine / Cosmetic     | PR #124 loop deferral (cosmetic, out-of-increment). Touches `flow.py` - bundle with 0230.                                                                                                                                                                     |
 | **P3**   | todo        | Medium |   M    | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                                         | vmlx / Performance         | Pairs with 0142.                                                                                                                                                                                                                                              |
-| **P1**   | todo        | Medium |   M    | 0247   | holon flow automatically creates dedicated git worktree if target worktree does not exist                   | General                    |                                                                                                                                                                                                                                                               |
+| **P1**   | todo        |  High  |   M    | 0248   | Add holon models command to list supported models across agent runners                                      | Flow / Architecture        |                                                                                                                                                                                                                                                               |
+| **P1**   | in-progress | Medium |   M    | 0247   | holon flow automatically creates dedicated git worktree if target worktree does not exist                   | General                    |                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   M    | 0246   | Fix pr-review-loop skill to strictly post consensus review once and prohibit dual-posting via gh pr comment | Flow / Architecture        |                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   M    | 0243   | Purge all harness bean references and BEAN SAFETY HALT strings from holon-agentic-coder code and docs       | Flow / Architecture        |                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   M    | 0241   | Persist review loop sandbox across iterations to eliminate repeated clone and teardown overhead             | Ledger / Observability     |                                                                                                                                                                                                                                                               |
