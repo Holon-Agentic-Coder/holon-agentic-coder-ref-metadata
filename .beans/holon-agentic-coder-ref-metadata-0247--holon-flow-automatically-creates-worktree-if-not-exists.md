@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0247
 title: "holon flow automatically creates dedicated git worktree if target worktree does not exist"
-status: in-progress
+status: completed
 type: feature
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
   - holon-agentic-coder
   - automation
 created_at: 2026-11-06T22:25:00Z
-updated_at: 2026-11-06T22:25:00Z
+updated_at: 2026-11-07T03:02:00Z
 ---
 
 ## Problem
@@ -79,3 +79,28 @@ This manual prerequisite introduces significant friction, failure modes, and fra
        branch without error.
      - Test that subsequent runs against an existing worktree reuse it idempotently.
      - Strictly avoid mocking Git commands; test against actual real Git operations on disk.
+
+## Resolution
+
+Delivered and verified through the 5-stage Holon flow via
+[PR #135](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/135) and merged into `main` at commit
+`fe17e191de55f09239939aad2182317c4b83d2f2`.
+
+Key technical deliveries:
+
+1. **Automatic Worktree Resolution & Provisioning (`sandbox_executor.git_flow`)**:
+   - Added `ensure_active_worktree()` and supporting helpers (`is_bare_repository()`, `is_worktree()`,
+     `prune_worktrees()`, `resolve_target_worktree_path()`).
+   - Automatically derives dedicated worktree directory paths (e.g. `apps/<repo>/flow-<slug>`) and branches
+     (`flow-<slug>`).
+   - Pre-emptively runs `git worktree prune` to purge orphaned worktree metadata from manual disk deletions.
+   - Dispatches branch detection: if the branch exists locally or on remote, it attaches cleanly via
+     `git worktree add <path> <branch>`; if new, it cuts from `origin/main` without tracking.
+2. **`holon flow` Integration (`sandbox_executor.cli.commands.flow`)**:
+   - Integrated `ensure_active_worktree()` into `_resolve_checkpoint_and_intent()` and `_build_flow_context()`.
+   - Allows operators and agents to invoke `holon flow <intent.json>` from root, bare directories, or arbitrary
+     locations, seamlessly re-anchoring `context.repo_dir` to the active worktree.
+3. **Hermetic Integration Tests Minimising Mocks (`test_flow.py`)**:
+   - Added real Git repository test cases in `apps/sandbox-executor/tests/test_flow.py` using `tmp_path`.
+   - Verified real bare repository worktree creation, `git worktree prune` recovery from `shutil.rmtree()` deletions,
+     and idempotent re-use of pre-existing branches without mocking.
