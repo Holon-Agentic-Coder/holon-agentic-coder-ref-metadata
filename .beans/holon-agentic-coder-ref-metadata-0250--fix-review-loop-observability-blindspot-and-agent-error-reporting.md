@@ -1,8 +1,6 @@
 ---
 # holon-agentic-coder-ref-metadata-0250
-title:
-  "Fix review loop observability blindspots: surface agent exit code and stderr, and pass file-based prompts for large
-  inputs"
+title: "Fix review loop observability blindspots and pass file-based prompts across all supported agent harnesses"
 status: todo
 type: bug
 priority: high
@@ -74,8 +72,9 @@ When an agent fails to start (e.g. `OSError 7: Argument list too long`), crashes
 
 ## Goal
 
-Provide full observability into reviewer agent failures so errors are never swallowed, and utilize file-based prompt
-passing for `AntigravityAgentRunner` to prevent `MAX_ARG_STRLEN` command-line overflows.
+Provide full observability into reviewer agent failures so errors are never swallowed, and implement file-based prompt
+passing across all supported agent harnesses (`antigravity`, `claude`, `pi`, `gemini`, `opencode`, `codex`) to prevent
+`MAX_ARG_STRLEN` command-line overflows on Linux.
 
 ### 1. Surface Agent Return Code and Stderr in `review_ensemble.py`
 
@@ -101,21 +100,21 @@ In `apps/sandbox-executor/src/sandbox_executor/review_ensemble.py`:
 - Add logging in `_supervise_reviewer_turn()`:
   - Log agent invocation command (with secrets masked) and log warning on non-zero exit code or captured stderr.
 
-### 2. File-Based Prompt Support in `AntigravityAgentRunner`
+### 2. File-Based Prompt Support Across All Supported Agent Harnesses
 
 In `apps/sandbox-executor/src/sandbox_executor/agent_runner.py`:
 
-- Update `AntigravityAgentRunner.build_cmd()`:
-  - When `prompt_file` is provided and exists on disk (or when `len(full_prompt) > 32768`), pass `f"@{prompt_file}"` to
-    `compose_cmd()` rather than inlining the entire prompt string directly into `argv`:
-    ```python
-    if prompt_file and os.path.isfile(prompt_file):
-        prompt_arg = f"@{prompt_file}"
-    else:
-        prompt_arg = full_prompt
-    return self.compose_cmd(model_name, prompt_arg)
-    ```
-  - This reduces the CLI argument from 140+ KB to ~35 bytes, avoiding kernel `MAX_ARG_STRLEN` limits.
+- Update `AgentRunner.build_cmd()` and `compose_cmd()` across all supported agent runners:
+  - **Antigravity (`agy`)**: When `prompt_file` exists (or `len(full_prompt) > 32768`), pass `f"@{prompt_file}"` to `-p`
+    instead of inlining the raw prompt string into `argv`.
+  - **Claude Code (`claude`)**: When `prompt_file` exists, pass the prompt file or pipe via `stdin` instead of inlining
+    unbounded strings into `argv`.
+  - **Pi (`pi`)**: Support file-based prompt argument or stdin stream from `prompt_file`.
+  - **Gemini / Codex / OpenCode**: Configure file argument or standard input redirection when `prompt_file` is
+    available.
+- In `apps/sandbox-executor/src/sandbox_executor/turns.py`:
+  - Support optional `stdin_file: str | None` in `run_turn()` so any CLI runner lacking native `@file` syntax can stream
+    `prompt_file` cleanly without placing unbounded strings in `argv`.
 
 ### 3. Preflight Safety & Truncation Guard for Review Diff
 
@@ -133,9 +132,11 @@ In `apps/sandbox-executor/src/sandbox_executor/review_ensemble.py`:
     `"the reviewer wrote no report"`.
   - Test that a non-zero exit code with no report produces a failure reason naming the exit code and stderr.
 - In `apps/sandbox-executor/tests/test_agent_runner.py`:
+  - Test all runners (`antigravity`, `claude`, `pi`, `gemini`, `opencode`, `codex`) with prompts exceeding 130 KB to
+    verify none fail with `[Errno 7] Argument list too long`.
   - Test that `AntigravityAgentRunner.build_cmd()` produces `f"@{prompt_file}"` when `prompt_file` is provided and
     exists.
-  - Test that `AntigravityAgentRunner.build_cmd()` falls back to `full_prompt` when `prompt_file` is empty or None.
+  - Test that runners fall back to `full_prompt` string when `prompt_file` is omitted or empty.
 
 ## Constraints
 
