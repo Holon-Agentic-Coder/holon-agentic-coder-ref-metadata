@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-07 13:04:26 UTC
+**Last Updated:** 2026-11-07 13:05:58 UTC
 
 ## Executive Summary
 
@@ -14,10 +14,10 @@ Concurrent flows on overlapping files (#94, #95 and #96 all changed `flow.py` an
 re-reviews: 141 review-loop passes from the first sync onward, about 10M+ tokens. Beans 0151 and 0152 address that, and
 overlapping flows now run one after another.
 
-- **Total Tracked Beans**: 250 (excluding template)
-- **Completed**: 189 (75.6%)
+- **Total Tracked Beans**: 251 (excluding template)
+- **Completed**: 189 (75.3%)
 - **Scrapped / Superseded**: 3 (1.2%)
-- **Active**: 58 (23.2%), of which 4 are in progress and 54 are todo
+- **Active**: 59 (23.5%), of which 4 are in progress and 55 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -487,6 +487,7 @@ and **Bean 0234** (event-driven CI check progress reporting during Stage 4 revie
 | **P2**   | todo        |  High  |   L    | 0142   | Real-workload benchmark: Qwen3.8-27B dense vs Flash-Next MoE                                                               | Model Selection            | Real data only (AGENTS.md item 10).                                                                                                                                                                                                                           |
 | **P3**   | todo        |  Low   |   XS   | 0231   | Exhausted-budget error string interpolates raw count while payload reports clamped 0                                       | Flow Engine / Cosmetic     | PR #124 loop deferral (cosmetic, out-of-increment). Touches `flow.py` - bundle with 0230.                                                                                                                                                                     |
 | **P3**   | todo        | Medium |   M    | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                                                        | vmlx / Performance         | Pairs with 0142.                                                                                                                                                                                                                                              |
+| **P1**   | todo        |  High  |   M    | 0251   | Pass prompts to agent runners via files across all agent harnesses                                                         | Flow / Architecture        |                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   M    | 0250   | Fix review loop observability blindspots: surface agent exit code and stderr, and pass file-based prompts for large inputs | Flow / Architecture        |                                                                                                                                                                                                                                                               |
 | **P1**   | in-progress |  High  |   M    | 0249   | Replace and completely remove --repo-dir with --target-worktree across Holon CLI                                           | Flow / Architecture        |                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   M    | 0246   | Fix pr-review-loop skill to strictly post consensus review once and prohibit dual-posting via gh pr comment                | Flow / Architecture        |                                                                                                                                                                                                                                                               |
