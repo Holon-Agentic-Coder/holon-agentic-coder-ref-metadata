@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0248
 title: "Add holon models command to list supported models across agent runners"
-status: in-progress
+status: completed
 type: feature
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - discovery
   - holon-agentic-coder
 created_at: 2026-11-07T02:35:00Z
-updated_at: 2026-11-07T02:35:00Z
+updated_at: 2026-11-07T09:45:00Z
 ---
 
 ## Problem
@@ -87,11 +87,24 @@ In `apps/sandbox-executor/tests/test_models_cli.py`:
 - Test invalid runner names produce clean, helpful error messages.
 - Test against real runner configurations without mocking internal data structures.
 
-## Constraints
+## Resolution
 
-- Australian English spelling in all documentation and code comments.
-- Zero new external dependencies; dependencies managed strictly via `uv`.
-- All tests executed strictly via `uv run pytest`.
-- Linting and documentation gates (`uv run task check` or `make lint`) must pass cleanly.
-- Keep target repositories isolated with zero harness path leaks.
-- Merge remains human-only.
+Delivered and verified through the 5-stage Holon flow via
+[PR #136](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/136) and merged into `main` at commit
+`71135dd3375cd82a4dc52aa285b6b73a1aa81a90`.
+
+Key technical deliveries:
+
+1. **`holon models` Command (`sandbox_executor.cli.commands.models`)**:
+   - Added subcommand `holon models` (and alias `holon list-models`).
+   - Supports formatted Markdown table output and `--json` for automated script parsing.
+   - Supports runner-specific filtering with `--agent <runner>`.
+2. **Centralised Model Capabilities (`sandbox_executor.agent_defaults`)**:
+   - Implemented `get_supported_models_matrix()`, `format_models_table()`, and `detect_runner_auth()`.
+   - Populated model aliases (`fable`, `opus`, `sonnet`, `haiku`, `flash`, `flash-medium`, `flash-high`).
+   - Added effort coordination so `-medium` and `-high` model suffixes seamlessly coordinate with `--effort`.
+3. **Integration into `holon doctor` & Preflight (`sandbox_executor.cli.commands.doctor`, `preflight.py`)**:
+   - Integrated `suggest_models_help()` to suggest running `holon models` when an invalid model is supplied.
+4. **Hermetic Test Suite (`apps/sandbox-executor/tests/test_models_cli.py`)**:
+   - Comprehensive unit and CLI integration tests validating table formatting, JSON serialization, `--agent` filtering,
+     and model aliases without mocking internal dictionaries.
