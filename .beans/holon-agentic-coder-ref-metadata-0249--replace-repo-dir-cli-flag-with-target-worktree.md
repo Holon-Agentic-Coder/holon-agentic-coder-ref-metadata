@@ -1,6 +1,6 @@
 ---
 # holon-agentic-coder-ref-metadata-0249
-title: "Replace --repo-dir CLI flag with --target-worktree across Holon CLI commands"
+title: "Replace and completely remove --repo-dir with --target-worktree across Holon CLI"
 status: todo
 type: feature
 priority: high
@@ -11,13 +11,13 @@ tags:
   - flags
   - holon-agentic-coder
 created_at: 2026-11-07T08:57:00Z
-updated_at: 2026-11-07T08:57:00Z
+updated_at: 2026-11-07T09:25:00Z
 ---
 
 ## Problem
 
-Currently, Holon CLI commands (`holon flow`, `holon review`, `holon doctor`, `holon calibrate`, etc.) use the
-`--repo-dir` flag to specify the location of the repository on disk:
+Currently, Holon CLI commands (`holon flow`, `holon review`, `holon doctor`, `holon calibrate`, etc.) use the legacy
+`--repo-dir` flag to specify the location of the repository worktree on disk:
 
 ```bash
 holon flow /path/to/intent.json --repo-dir apps/holon-agentic-coder/main
@@ -35,16 +35,20 @@ In our bare-clone and isolated multi-worktree architecture, `--repo-dir` is ambi
    from which Git remote URLs, ledgers, and branches are derived and from which dedicated feature worktrees are
    provisioned.
 
+Because Holon is pre-release software currently undergoing active bootstrap, **backwards compatibility is explicitly not
+required**. The legacy `--repo-dir` flag, variable names, and environment variables should be completely retired and
+removed rather than aliased.
+
 ## Goal
 
-Replace `--repo-dir` with `--target-worktree` as the canonical flag across all Holon CLI commands, while preserving
-`--repo-dir` as a backward-compatible alias.
+Completely replace and remove `--repo-dir` across the entire codebase with `--target-worktree`, retiring all legacy
+aliases and parameter names.
 
 ### 1. Canonical Flag in `cli/options.py`
 
 In `apps/sandbox-executor/src/sandbox_executor/cli/options.py`:
 
-- Update `add_repo_dir_option` (and alias/rename to `add_target_worktree_option`):
+- Replace `add_repo_dir_option` with `add_target_worktree_option`:
 
 ```python
 def add_target_worktree_option(
@@ -52,20 +56,18 @@ def add_target_worktree_option(
     default: str | None = None,
     help: str = "Target repository worktree path (default: current directory).",
 ) -> None:
-    """Add standard --target-worktree (and backward-compatible --repo-dir) argument to a parser."""
+    """Add standard --target-worktree argument to a parser."""
     parser.add_argument(
         "--target-worktree",
-        "--repo-dir",
         dest="target_worktree",
         default=default,
         help=help,
     )
 ```
 
-- Ensure any legacy access via `getattr(args, "repo_dir", ...)` continues to resolve cleanly by mapping or aliasing
-  attributes on parsed namespaces.
+- Do **not** register `--repo-dir` as an alias. Invoking `--repo-dir` must result in an unrecognized argument error.
 
-### 2. Update CLI Commands & Option Parsers
+### 2. Update All CLI Subcommands & Dispatchers
 
 Update all subcommand parsers and execution handlers across:
 
@@ -81,15 +83,16 @@ Update all subcommand parsers and execution handlers across:
 - `apps/sandbox-executor/src/sandbox_executor/cli/commands/stats.py`
 - `apps/sandbox-executor/src/sandbox_executor/cli/commands/veto.py`
 
-Handlers should resolve the worktree path from `args.target_worktree or getattr(args, "repo_dir", None) or "."`.
+All command handlers must expect and read `args.target_worktree`.
 
-### 3. Context & Checkpoint Compatibility
+### 3. Context & Engine Clean Refactor
 
-In `apps/sandbox-executor/src/sandbox_executor/flow.py` (`FlowContext`):
+In `apps/sandbox-executor/src/sandbox_executor/flow.py`:
 
-- Support `target_worktree` as an alias or parameter alongside `repo_dir`.
-- Ensure checkpoint JSON serialization and deserialization remain backward-compatible without breaking existing
-  checkpoints.
+- Rename `FlowContext.repo_dir` to `FlowContext.target_worktree`.
+- In `agent_runner.py`, `turns.py`, `calibration.py`, and `git_flow.py`:
+  - Rename `repo_dir` parameters and local variables to `target_worktree`.
+  - Replace `HOLON_REPO_DIR` environment variable with `HOLON_TARGET_WORKTREE`.
 
 ### 4. Documentation & Help Text Alignment
 
@@ -101,13 +104,13 @@ In `apps/sandbox-executor/src/sandbox_executor/flow.py` (`FlowContext`):
 In `apps/sandbox-executor/tests/test_cli_options.py` and `tests/test_flow.py`:
 
 - Test that passing `--target-worktree /some/path` populates the worktree path correctly.
-- Test that passing the legacy `--repo-dir /some/path` still populates the worktree path identically for backward
-  compatibility.
-- Test that `--help` displays `--target-worktree` as the canonical option.
+- Test that `--repo-dir` is rejected as an unrecognized argument (asserting clean removal).
+- Update all existing test fixtures to pass `--target-worktree` instead of `--repo-dir`.
 - Strictly minimise mocks and test against real `argparse` instances and real Git worktrees.
 
 ## Constraints
 
+- Complete removal: no backward-compatibility shims, aliases, or fallback mappings for `--repo-dir`.
 - Australian English spelling in all documentation and code comments.
 - Zero new external dependencies; dependencies managed strictly via `uv`.
 - All tests executed strictly via `uv run pytest`.
