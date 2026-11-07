@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0249
 title: "Replace and completely remove --repo-dir with --target-worktree across Holon CLI"
-status: in-progress
+status: completed
 type: feature
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - flags
   - holon-agentic-coder
 created_at: 2026-11-07T08:57:00Z
-updated_at: 2026-11-07T09:25:00Z
+updated_at: 2026-11-08T01:17:00Z
 ---
 
 ## Problem
@@ -117,3 +117,26 @@ In `apps/sandbox-executor/tests/test_cli_options.py` and `tests/test_flow.py`:
 - Linting and documentation gates (`uv run task check` or `make lint`) must pass cleanly.
 - Target repository isolation: zero harness path leaks into `holon-agentic-coder`.
 - Merge remains human-only.
+
+## Resolution
+
+Delivered via [PR #137](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/137) and merged into `main`
+(`86c8949`):
+
+- **Canonical CLI Option**: Replaced `add_repo_dir_option` with `add_target_worktree_option` in `options.py`,
+  registering strictly `--target-worktree` with `dest='target_worktree'` across all 11 subcommands (`flow`, `doctor`,
+  `calibrate`, `review`, `ledger`, `promote`, `reconcile`, `record`, `stats`, `veto`, `consult`). `--repo-dir` was
+  completely excised without backward-compatibility shims.
+- **Context & Engine Refactor**: `FlowContext.target_worktree` replaces `FlowContext.repo_dir` as the primary worktree
+  state container. Environment variable migrated from `HOLON_REPO_DIR` to `HOLON_TARGET_WORKTREE`. Internal function
+  parameters across `agent_runner.py`, `git_flow.py`, `calibration.py`, and entrypoints migrated to `target_worktree`.
+- **Complexity Ratchet Compliance**: Restored `run_calibrate` parameter count and removed `# noqa: PLR0913`, maintaining
+  zero complexity regressions in `test_complexity_gate.py`.
+- **Comprehensive Testing**: Added parameterised option parsing and rejection tests in `test_cli_options.py`. Migrated
+  all unit, integration, and stress test suites (`test_cli.py`, `test_calibration.py`, `test_executor.py`,
+  `test_flow.py`, `test_review_loop.py`), confirming 100% pass across 3,061 tests.
+- **Holon Flow Traversal**: All 5 stages completed successfully: Intent
+  (`I-1794049523-replace-repo-dir-with-target-worktree/_`), Plan
+  (`P-1794049540-antigravity-agent-gemini-3.8-flash-medium`), Execute
+  (`E-1794050058-antigravity-agent-gemini-3.8-flash-medium`), 3-agent ensemble Review Loop (unanimous 3/3 `APPROVED`),
+  and Stage 5 Calibration (`Actual EV: 92.81`, ΔEV: +7.77).

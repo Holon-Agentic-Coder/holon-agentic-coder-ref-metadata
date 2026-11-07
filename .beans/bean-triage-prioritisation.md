@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-07 13:07:53 UTC
+**Last Updated:** 2026-11-07 14:18:42 UTC
 
 ## Executive Summary
 
@@ -15,9 +15,9 @@ re-reviews: 141 review-loop passes from the first sync onward, about 10M+ tokens
 overlapping flows now run one after another.
 
 - **Total Tracked Beans**: 251 (excluding template)
-- **Completed**: 189 (75.3%)
+- **Completed**: 190 (75.7%)
 - **Scrapped / Superseded**: 3 (1.2%)
-- **Active**: 59 (23.5%), of which 4 are in progress and 55 are todo
+- **Active**: 58 (23.1%), of which 3 are in progress and 55 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -489,7 +489,6 @@ and **Bean 0234** (event-driven CI check progress reporting during Stage 4 revie
 | **P3**   | todo        | Medium |   M    | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                                         | vmlx / Performance         | Pairs with 0142.                                                                                                                                                                                                                                              |
 | **P1**   | todo        |  High  |   M    | 0251   | Pass prompts to agent runners via files across all agent harnesses                                          | Flow / Architecture        |                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   M    | 0250   | Fix review loop observability blindspots and pass file-based prompts across all supported agent harnesses   | Flow / Architecture        |                                                                                                                                                                                                                                                               |
-| **P1**   | in-progress |  High  |   M    | 0249   | Replace and completely remove --repo-dir with --target-worktree across Holon CLI                            | Flow / Architecture        |                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   M    | 0246   | Fix pr-review-loop skill to strictly post consensus review once and prohibit dual-posting via gh pr comment | Flow / Architecture        |                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   M    | 0243   | Purge all harness bean references and BEAN SAFETY HALT strings from holon-agentic-coder code and docs       | Flow / Architecture        |                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   M    | 0241   | Persist review loop sandbox across iterations to eliminate repeated clone and teardown overhead             | Ledger / Observability     |                                                                                                                                                                                                                                                               |
