@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0248
 title: "Add holon models command to list supported models across agent runners"
-status: todo
+status: in-progress
 type: feature
 priority: high
 tags:
