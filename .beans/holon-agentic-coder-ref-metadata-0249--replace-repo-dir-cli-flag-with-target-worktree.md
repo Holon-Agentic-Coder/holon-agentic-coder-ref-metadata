@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0249
 title: "Replace and completely remove --repo-dir with --target-worktree across Holon CLI"
-status: todo
+status: in-progress
 type: feature
 priority: high
 tags:
