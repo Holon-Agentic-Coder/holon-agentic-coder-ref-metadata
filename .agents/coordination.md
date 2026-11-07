@@ -53,7 +53,24 @@ so that long-running multi-iteration review loops never hijack the user's primar
   background flow orchestrator subagent executing Stage 4), it proceeds directly to Step 1 of `pr-review-loop` without
   spawning a nested loop orchestrator.
 
-### 3. Generic Subagent Protocol (Any Coding Agent)
+### 3. Holon Flow Delegation (Background Flow Subagent)
+
+Executing the 5-stage Holon flow (`holon flow <intent.json>`) runs containerised agents through Intent, Plan, Execute,
+Stage 4 Review Loop, and Stage 5 Calibration, requiring between 15 minutes and several hours. To ensure the main
+interactive session remains responsive:
+
+- **Interactive Agent Delegation**: The main interactive agent MUST NOT execute `holon flow` inline. Instead, it
+  immediately spawns 1 background **Holon Flow Subagent** via `invoke_subagent` (`TypeName: "self"`,
+  `Role: "Holon Flow Subagent (<slug>)"`, `Model: "inherit"`) and returns control to the user immediately (see
+  [holon-flow Step 0](skills/holon_flow/SKILL.md#step-0-entrypoint-delegation--spawn-the-background-flow-subagent)).
+- **Subagent Flow Ownership**: The background subagent executes `holon flow` directly, watches checkpoints
+  (`.holon/flow/checkpoint-<slug>.json`), applies the automatic model fallback ladder on quota/session exhaustion,
+  verifies PR creation and Stage 5 calibration inclusion in the PR diff, and notifies the parent agent via
+  `send_message` **only once** upon terminal completion or an unresolvable blocker.
+- **Re-Entrancy Guard**: If the executing agent is already the spawned `Holon Flow Subagent`, it proceeds directly to
+  flow execution without spawning another nested subagent.
+
+### 4. Generic Subagent Protocol (Any Coding Agent)
 
 For any coding agent runner operating in this workspace (Antigravity/AGY, Claude Code, Codex, Pi, OpenCodeInterpreter):
 
@@ -67,7 +84,7 @@ For any coding agent runner operating in this workspace (Antigravity/AGY, Claude
   that agent or its bean) and must work exclusively inside it. Never delegate two writers onto the same worktree, and
   never delegate work into a `main` worktree. Read-only reviewers and searchers need no worktree of their own.
 
-### 4. Antigravity (AGY) Runtime Instructions
+### 5. Antigravity (AGY) Runtime Instructions
 
 When executing within the **Antigravity (AGY)** environment:
 
@@ -89,7 +106,7 @@ When executing within the **Antigravity (AGY)** environment:
 - **Reactive Wakeup (Zero Polling)**: AGY resumes parent execution automatically upon child message arrival or task
   completion. **Never poll, sleep, or loop on task status.**
 
-### 5. Dispatch Concurrency: Local vs Hosted Runtimes
+### 6. Dispatch Concurrency: Local vs Hosted Runtimes
 
 Fanout is a property of the _work_, but whether it is safe is a property of the _runtime_. Every child inherits the
 parent's model, so when that model is served locally all children contend for one inference backend on the operator's
