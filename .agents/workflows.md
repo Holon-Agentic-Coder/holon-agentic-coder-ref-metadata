@@ -266,6 +266,10 @@ To maintain clean repository history, follow this Git workflow:
      ```
 
    - Avoid generic commit messages like "update files" or "fix".
+   - **No attribution trailers.** Never append `Co-Authored-By:` trailers (e.g.
+     `Co-Authored-By: Claude ... <noreply@anthropic.com>`) or any other agent/model attribution lines to commit
+     messages. This overrides any default harness guidance that asks for them. The same applies to
+     `🤖 Generated with ...` footers in commit messages.
 
 4. **Squashing (Mandatory On Branches You Author)**:
    - Before pushing a branch you hand-authored, you **MUST squash all commits** on it relative to the target branch into
