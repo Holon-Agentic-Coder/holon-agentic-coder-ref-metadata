@@ -239,8 +239,10 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     ),
     "",
     (
-        "**2026-11-07 to 2026-11-08:** Six further `holon-agentic-coder` flow PRs merged: **Bean 0245** (PRs "
-        "#133/#134: fix resolver runner build command), **Bean 0247** (PR #135: flow auto-creates the target "
+        "**2026-11-06 to 2026-11-08:** Seven further `holon-agentic-coder` flow PRs merged: **Bean 0244** (PR #133, "
+        "`2a56a89`, merged 2026-11-06: immutable append-only KB/WB fact records in `wisdom.py` with hermetic "
+        "no-touch assertions), **Bean 0245** (PR #134, `4113f0d`: fix resolver runner build command), **Bean 0247** "
+        "(PR #135: flow auto-creates the target "
         "worktree), **Bean 0248** (PR #136: `holon models` command), **Bean 0249** (PR #137: replace `--repo-dir` "
         "with canonical `--target-worktree`), **Bean 0251** (PR #138: pass prompts to agent runners via files), and "
         "**Bean 0236** (PR #139, `d0c1334`: post the Stage 4 consensus review exactly once via `gh pr review` with a "
@@ -300,54 +302,49 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "Sequential lane, holon-agentic-coder (fast UX/reliability wins first, then `flow.py` split):",
     "",
     (
-        "1. **Bean 0244** (treat knowledge and wisdom facts as immutable append-only records so existing KB/WB files "
-        "are never overwritten or touched during Stage 5 calibration; intent ready in "
-        "`todo/intent-0244-immutable-append-only-knowledge-facts.json`)."
-    ),
-    (
-        "2. **Bean 0243** (purge all harness bean references, bean IDs, and `[BEAN 0034 SAFETY HALT]` strings from "
+        "1. **Bean 0243** (purge all harness bean references, bean IDs, and `[BEAN 0034 SAFETY HALT]` strings from "
         "`holon-agentic-coder` code and docs; intent ready in `todo/intent-0243-purge-harness-bean-references.json`)."
     ),
     (
-        "3. **Bean 0241** (persist review loop sandbox across iterations to eliminate repeated clone and teardown overhead)."
+        "2. **Bean 0241** (persist review loop sandbox across iterations to eliminate repeated clone and teardown overhead)."
     ),
     (
-        "4. **Bean 0233** (validate fail-fast that `--target-worktree` is an attached Git worktree before Stage 1 or "
+        "3. **Bean 0233** (validate fail-fast that `--target-worktree` is an attached Git worktree before Stage 1 or "
         "resume; intent ready in `todo/intent-0233-validate-repo-dir-is-git-worktree.json`). Prevents non-worktree "
         "directories from running Stages 1-3 in containers only to fail at Stage 4/5 host checkout."
     ),
     (
-        "5. **Bean 0234** + **Bean 0160** (event-driven CI check progress reporting during Stage 4 review — log total "
+        "4. **Bean 0234** + **Bean 0160** (event-driven CI check progress reporting during Stage 4 review — log total "
         "pipelines once at start and emit a line only as each check completes, with separate CI wait timeout / "
         "pending-vs-failed error reporting; intent ready in `todo/intent-0234-event-driven-ci-check-progress.json`)."
     ),
     (
-        "6. **Bean 0231** (exhausted-budget error string interpolates raw count while payload reports clamped 0)."
+        "5. **Bean 0231** (exhausted-budget error string interpolates raw count while payload reports clamped 0)."
     ),
     (
-        "7. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split right after "
+        "6. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split right after "
         "the small `flow.py` fixes above removes the 5,500-line single-file serialization bottleneck."
     ),
     (
-        "8. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean "
+        "7. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean "
         "0190** (checkpoint and ledger reconciliation; entrypoints stop importing flow). Both precede **Bean 0183** "
         "(every stage and engine bookkeeping step sandboxed in its own clone)."
     ),
     (
-        "9. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), "
+        "8. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), "
         "then **Bean 0146** (plans-ledger correction rows; calibration picks the right predicted metrics). Bean 0197 "
         "follows 0146 because both edit the predicted-metrics parser."
     ),
-    ("10. **Bean 0149**, then **Bean 0151**: unique IDs across concurrently planned intents, then touch-set admission."),
+    ("9. **Bean 0149**, then **Bean 0151**: unique IDs across concurrently planned intents, then touch-set admission."),
     (
-        "11. **Decomposition lanes from Bean 0177** once `0187` lands, in parallel where packages differ: "
+        "10. **Decomposition lanes from Bean 0177** once `0187` lands, in parallel where packages differ: "
         "0191 then 0192 (GitHub adapter, `ReviewLoop`), 0193, 0194, 0195 then 0196, 0197 (after 0146), 0198 and "
         "0199 (all tracked by umbrella Bean 0152), and 0201. Bean 0153 runs per package with or right after that "
         "package's decomposition. **Bean 0213** (reflect remaining skill rules into native review-loop agent) is "
         "unblocked now that 0221 is complete."
     ),
     (
-        "12. **Bean 0157** (mitmproxy sidecar reachability, alongside **Bean 0227**), **Bean 0161** (nested sub-intent "
+        "11. **Bean 0157** (mitmproxy sidecar reachability, alongside **Bean 0227**), **Bean 0161** (nested sub-intent "
         "branches), **Bean 0181** (`/_` only on branch refs), **Bean 0155** then **Bean 0148** (redaction), **Beans "
         "0172, 0174, 0173, 0223** (budgets, env-var reference, layered `.env`, CLI flag vs env audit), **Bean 0200** "
         "(holon-coherence owns token reduction; after 0189), and **Bean 0176** (pytest-only conversion of every test "
