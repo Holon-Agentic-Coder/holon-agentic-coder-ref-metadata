@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0241
 title: "Persist review loop sandbox across iterations to eliminate repeated clone and teardown overhead"
-status: in-progress
+status: completed
 type: feature
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
   - sandbox
   - holon-agentic-coder
 created_at: 2026-11-06T06:01:17Z
-updated_at: 2026-11-08T11:07:58Z
+updated_at: 2026-11-08T23:49:31Z
 ---
 
 ## Problem
@@ -48,7 +48,7 @@ startup, network git clone, and git checkout) and burns excess compute resources
 4. **Hermetic Unit & Integration Tests**: Verify that multi-iteration reviews operate cleanly within a single sandbox
    lifecycle without leaking uncommitted state between iterations.
 
-## Progress (2026-11-09)
+## Resolution
 
 Holon flow completed all 5 stages. Stages 1-3 and review iterations 1-3 ran on claude-agent / claude-fable-5; iterations
 4-6 stepped down to claude-opus-5-5 after the Fable limit, where the resolver's pre-push tests failed deterministically
@@ -56,5 +56,7 @@ on iterations 5-6; a cross-runner switch to antigravity-agent / gemini-3.8-flash
 iteration 10 (posted once via the HTTP 422 fallback). Two ledger-only merges of `origin/main` (PRs #142, #144) were
 interleaved by `created_at`. Stage 5 calibration (`plans/P-1794136106-claude-agent-claude-fable-5_calibration.md`, EV
 47.66 predicted vs 66.63 actual, ΔEV +18.97) was merged into the PR head because `/calibrated` was cut from a stale
-local head. All 11 CI checks pass; PR #143 is MERGEABLE/CLEAN and awaiting human merge:
-https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/143
+local head. All 11 CI checks passed and [PR #143](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/143)
+merged into `main` (`a17a854`, 2026-11-08T23:49:31Z): the Stage 4 review loop sandbox now persists across reviewer and
+resolver passes with incremental `git fetch` sync instead of a full clone and teardown per pass, covered by hermetic
+no-leak integration tests.
