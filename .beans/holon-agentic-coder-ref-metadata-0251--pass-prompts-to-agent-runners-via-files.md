@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0251
 title: "Pass prompts to agent runners via files across all agent harnesses"
-status: todo
+status: completed
 type: feature
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - linux-limits
   - holon-agentic-coder
 created_at: 2026-11-07T13:08:00Z
-updated_at: 2026-11-07T13:08:00Z
+updated_at: 2026-11-08T07:47:00Z
 ---
 
 ## Problem
@@ -124,3 +124,35 @@ In `apps/sandbox-executor/src/sandbox_executor/turns.py`:
 - No new external dependencies.
 - Strict test execution with `uv run pytest`.
 - Linting passes cleanly with `uv run task lint`.
+
+## Resolution
+
+Delivered via PR #138 (`cfe3ddf69f50b6aaa7d937aacf162436e103f02b`) by traversing the full 5-stage Holon flow:
+
+1. **Agent Runner Protocol Refactor (`agent_runner.py`)**:
+   - Refactored `AgentRunner` and `StandardAgentRunner` hierarchy across all supported runners (`Claude`, `Pi`,
+     `Gemini`, `OpenCode`, `Codex`, and `Antigravity`).
+   - Configured `uses_stdin: bool = True` on standard runners to assemble promptless CLI commands when `prompt_file` is
+     specified, eliminating prompt strings from `argv`.
+   - Configured `uses_stdin: bool = False` on `AntigravityAgentRunner`, passing `@f"@{prompt_file}"` to leverage native
+     file prompt input in `agy`.
+   - Hardened `_sync_prompt_file()` to require absolute paths (`os.path.isabs(prompt_file)`), preventing test runs from
+     writing untracked prompt artifacts to the repository root.
+2. **Subprocess Stdin Streaming (`turns.py`)**:
+   - Enhanced `run_turn()` with `stdin_file: str | None = None`. Streams prompts directly from disk into subprocess
+     `stdin` via file handles, eliminating Linux `MAX_ARG_STRLEN` (128 KB) buffer limits and high memory pressure.
+3. **Stage Caller Harmonisation**:
+   - Updated `entrypoint/planner.py`, `entrypoint/executor.py`, and `review_ensemble.py` to consistently pass
+     `prompt_file` and conditional `stdin_file` to `supervise_authoring_turn()`.
+4. **Verification & Tests**:
+   - Validated that large prompts (>130 KB) execute cleanly without `[Errno 7] Argument list too long`.
+   - Removed stray `prompt.txt` file and verified all 3,047 unit/integration tests and `uv run task lint` pass with 100%
+     success.
+5. **Flow Provenance**:
+   - Intent: `I-1794089603-pass-prompts-to-agent-runners-via-files/_`
+   - Plan: `plans/P-1794089619-antigravity-agent-gemini-3.8-flash-medium.md`
+   - Execution: `executions/E-1794090082-antigravity-agent-gemini-3.8-flash-medium.md`
+   - Review: 3-agent ensemble consensus approved (3/3)
+   - Calibration: `plans/P-1794089619-antigravity-agent-gemini-3.8-flash-medium_calibration.md` (Predicted EV: 78.86 |
+     Actual EV: 84.78 | $\Delta\text{EV} = +5.92$)
+   - Merged by maintainer into `main` (`cfe3ddf`).
