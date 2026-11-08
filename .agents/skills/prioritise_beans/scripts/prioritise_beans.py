@@ -250,8 +250,10 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "`gh pr comment`; 3/3 consensus on iteration 1 with zero findings, calibration ΔEV +10.37 on "
         "claude-agent/claude-fable-5). **Bean 0250** (PR #140, `be6cd7b`: surface agent returncode, stderr "
         "diagnostics, and command lines in `review_ensemble.py` when reviewers fail; calibration ΔEV +4.37 on "
-        "antigravity-agent/gemini-3.8-flash-medium) followed and merged into `main`. **Bean 0243** (purge "
-        "harness bean references from code and docs) is the next flow in flight."
+        "antigravity-agent/gemini-3.8-flash-medium) followed and merged into `main`. **Bean 0243** (PR #141, "
+        "`e130dfb`: purge harness bean references and rename `[BEAN 0034 SAFETY HALT]` to `[SAFETY HALT]` across "
+        "code, tests and docs; 3/3 consensus on iteration 1 with zero findings, calibration ΔEV +6.84 on "
+        "claude-agent/claude-fable-5) followed and merged into `main`."
     ),
 ]
 
@@ -292,9 +294,9 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Merge / In-Flight State (2026-11-08):** `holon-agentic-coder` PRs #133–#140 all merged (Beans 0244, 0245, "
-        "0247, 0248, 0249, 0251, 0236, 0250); trunk is at `be6cd7b` and the `install-holon` rebuild runs ahead of "
-        "the Bean 0243 flow. Harness PR #58 merged into `main` and operational tracking PR #59 is open on "
+        "**Merge / In-Flight State (2026-11-08):** `holon-agentic-coder` PRs #133–#141 all merged (Beans 0244, 0245, "
+        "0247, 0248, 0249, 0251, 0236, 0250, 0243); trunk is at `e130dfb`, installed editable with images rebuilt "
+        "via `install-holon`. No open flow PRs. Harness PR #58 merged into `main` and operational tracking PR #59 is open on "
         "`docs/harness-20261106`. `fix/0227-proxy-readiness-http-probe` (`36c9765`, Bean 0227) has a green test "
         "suite and awaits the maintainer's call on PR creation. Coherence PR #41 (Bean 0208, `2f30d6e`) needs its 9 "
         "unit test failures resolved on its execution branch before Stage 4 review and Stage 5 calibration."
@@ -303,49 +305,45 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "Sequential lane, holon-agentic-coder (fast UX/reliability wins first, then `flow.py` split):",
     "",
     (
-        "1. **Bean 0243** (purge all harness bean references, bean IDs, and `[BEAN 0034 SAFETY HALT]` strings from "
-        "`holon-agentic-coder` code and docs; intent ready in `todo/intent-0243-purge-harness-bean-references.json`)."
+        "1. **Bean 0241** (persist review loop sandbox across iterations to eliminate repeated clone and teardown overhead)."
     ),
     (
-        "2. **Bean 0241** (persist review loop sandbox across iterations to eliminate repeated clone and teardown overhead)."
-    ),
-    (
-        "3. **Bean 0233** (validate fail-fast that `--target-worktree` is an attached Git worktree before Stage 1 or "
+        "2. **Bean 0233** (validate fail-fast that `--target-worktree` is an attached Git worktree before Stage 1 or "
         "resume; intent ready in `todo/intent-0233-validate-repo-dir-is-git-worktree.json`). Prevents non-worktree "
         "directories from running Stages 1-3 in containers only to fail at Stage 4/5 host checkout."
     ),
     (
-        "4. **Bean 0234** + **Bean 0160** (event-driven CI check progress reporting during Stage 4 review — log total "
+        "3. **Bean 0234** + **Bean 0160** (event-driven CI check progress reporting during Stage 4 review — log total "
         "pipelines once at start and emit a line only as each check completes, with separate CI wait timeout / "
         "pending-vs-failed error reporting; intent ready in `todo/intent-0234-event-driven-ci-check-progress.json`)."
     ),
     (
-        "5. **Bean 0231** (exhausted-budget error string interpolates raw count while payload reports clamped 0)."
+        "4. **Bean 0231** (exhausted-budget error string interpolates raw count while payload reports clamped 0)."
     ),
     (
-        "6. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split right after "
+        "5. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split right after "
         "the small `flow.py` fixes above removes the 5,500-line single-file serialization bottleneck."
     ),
     (
-        "7. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean "
+        "6. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean "
         "0190** (checkpoint and ledger reconciliation; entrypoints stop importing flow). Both precede **Bean 0183** "
         "(every stage and engine bookkeeping step sandboxed in its own clone)."
     ),
     (
-        "8. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), "
+        "7. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), "
         "then **Bean 0146** (plans-ledger correction rows; calibration picks the right predicted metrics). Bean 0197 "
         "follows 0146 because both edit the predicted-metrics parser."
     ),
-    ("9. **Bean 0149**, then **Bean 0151**: unique IDs across concurrently planned intents, then touch-set admission."),
+    ("8. **Bean 0149**, then **Bean 0151**: unique IDs across concurrently planned intents, then touch-set admission."),
     (
-        "10. **Decomposition lanes from Bean 0177** once `0187` lands, in parallel where packages differ: "
+        "9. **Decomposition lanes from Bean 0177** once `0187` lands, in parallel where packages differ: "
         "0191 then 0192 (GitHub adapter, `ReviewLoop`), 0193, 0194, 0195 then 0196, 0197 (after 0146), 0198 and "
         "0199 (all tracked by umbrella Bean 0152), and 0201. Bean 0153 runs per package with or right after that "
         "package's decomposition. **Bean 0213** (reflect remaining skill rules into native review-loop agent) is "
         "unblocked now that 0221 is complete."
     ),
     (
-        "11. **Bean 0157** (mitmproxy sidecar reachability, alongside **Bean 0227**), **Bean 0161** (nested sub-intent "
+        "10. **Bean 0157** (mitmproxy sidecar reachability, alongside **Bean 0227**), **Bean 0161** (nested sub-intent "
         "branches), **Bean 0181** (`/_` only on branch refs), **Bean 0155** then **Bean 0148** (redaction), **Beans "
         "0172, 0174, 0173, 0223** (budgets, env-var reference, layered `.env`, CLI flag vs env audit), **Bean 0200** "
         "(holon-coherence owns token reduction; after 0189), and **Bean 0176** (pytest-only conversion of every test "
