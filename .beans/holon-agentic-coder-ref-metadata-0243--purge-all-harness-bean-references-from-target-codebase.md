@@ -52,3 +52,12 @@ downstream consumers and agents.
 4. **Verification**:
    - Run `uv run task lint`, `uv run task lint-docs`, and `uv run task test` to ensure no tests break and all linters
      pass.
+
+## Progress (2026-11-08)
+
+Holon flow completed all 5 stages (claude-agent / claude-fable-5; Stage 4 resumed from checkpoint after the driving
+subagent was stopped mid-review). PR #141 raised, 3/3 ensemble consensus approved on iteration 1 (zero findings) and
+posted once via the HTTP 422 `--comment` fallback, Stage 5 calibration included in the PR diff
+(`plans/P-1794132519-claude-agent-claude-fable-5_calibration.md`, EV 46.33 predicted vs 53.17 actual, ΔEV +6.84). All CI
+checks pass; PR is MERGEABLE/CLEAN and awaiting human merge:
+https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/141
