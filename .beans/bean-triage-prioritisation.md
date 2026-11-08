@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-08 14:06:19 UTC
+**Last Updated:** 2026-11-08 23:35:39 UTC
 
 ## Executive Summary
 
@@ -15,9 +15,9 @@ re-reviews: 141 review-loop passes from the first sync onward, about 10M+ tokens
 overlapping flows now run one after another.
 
 - **Total Tracked Beans**: 251 (excluding template)
-- **Completed**: 195 (77.7%)
+- **Completed**: 196 (78.1%)
 - **Scrapped / Superseded**: 3 (1.2%)
-- **Active**: 53 (21.1%), of which 4 are in progress and 49 are todo
+- **Active**: 52 (20.7%), of which 4 are in progress and 48 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -460,7 +460,6 @@ into `main`.
 | **P1**   | todo        |  High  |   M    | 0189   | Launcher module owns container launch and role dispatch; break the `flow` -> `cli` cycle                    | Refactor / Architecture    | After 0187 (0188 is merged as #117); unblocks 0200. Runs with 0190 and precedes 0183.                                                                                                                                                                         |
 | **P1**   | todo        |  High  |   M    | 0190   | `FlowCheckpoint` and ledger reconciliation own their behaviour; entrypoints stop importing flow             | Ledger / Holon Flow        | After 0187; 0158 (PR #111, same code) has merged. Precedes 0183. Unblocks 0196, 0199.                                                                                                                                                                         |
 | **P1**   | todo        |  High  |   M    | 0191   | One GitHub adapter owns every `gh` call (PR, CI probe, mergeability, review posting)                        | GitHub / Architecture      | After 0187. Unblocks 0192.                                                                                                                                                                                                                                    |
-| **P1**   | todo        |  High  |   M    | 0195   | Executor entrypoint's raw `git` subprocess calls go through a `GitRepository` adapter                       | Executor / Git             | After 0185 (#115 merged). 81 raw `git` calls; disjoint from `flow.py`. With 0190, unblocks 0196.                                                                                                                                                              |
 | **P1**   | todo        |  High  |   L    | 0192   | `run_review_loop` and `run_review_stage` become a `ReviewLoop` object with named steps                      | Review Loop / Refactor     | After 0191. 528 lines, CC 131. Sequence after 0160/0234 (same touch set).                                                                                                                                                                                     |
 | **P1**   | todo        |  High  |   L    | 0196   | Executor entrypoint `main` becomes an `ExecutionRun` with named steps; module becomes a package             | Executor / Refactor        | After 0195 and 0190. 798 lines, CC 178 (worst in the repository).                                                                                                                                                                                             |
 | **P1**   | todo        |  High  |   S    | 0175   | Check GitHub token scopes before Stage 3 when the plan touches workflow files                               | Holon Flow / GitHub        | A 55-minute Stage 3 for Bean 0168 was lost to a push rejected for the missing `workflow` scope. Complements 0171 (#108 merged, refused-push patch salvage).                                                                                                   |

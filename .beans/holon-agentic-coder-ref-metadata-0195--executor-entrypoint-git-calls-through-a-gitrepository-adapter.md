@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0195
 title: "Route the executor entrypoint's raw git subprocess calls through a GitRepository adapter"
-status: todo
+status: completed
 type: task
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0185
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-11-08T22:04:38Z
 ---
 
 ## Problem
@@ -43,3 +43,22 @@ Blocked by 0185. Blocks 0196. Parallel-safe with 0187 and 0188.
 ## Notes
 
 - Run through the Holon flow on holon-agentic-coder. Also groundwork for 0183 (engine git checks in a sandboxed clone).
+
+## Resolution
+
+Delivered via [PR #144](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/144) and merged into `main`
+(`cc2ed3e`):
+
+- **Key Architectural Deliverables**: Implemented the `GitRepository` adapter class in
+  `apps/sandbox-executor/src/sandbox_executor/git.py` with intention-revealing methods (`run`, `current_branch`,
+  `rev_parse`, `status_porcelain`, `is_clean`, `add`, `commit`, `push`, `fetch`, `checkout`, `merge_base`,
+  `rebase_onto`, `config`, `reset`, `clean`) while preserving existing module-level wrappers; routed all git invocations
+  in `apps/sandbox-executor/src/sandbox_executor/entrypoint/executor.py` through `GitRepository` without growing
+  `executor.py` or adding inline `# noqa` suppressions.
+- **Verification & Tests**: Added unit tests in `apps/sandbox-executor/tests/test_git.py` covering `GitRepository`
+  methods and an AST/source check asserting no raw `["git", ...]` call literals remain in `entrypoint/executor.py`
+  outside the low-level command runner.
+- **Holon Flow Traversal**: All 5 stages (Intent -> Plan -> Execute -> Review Loop -> Calibration) completed in an
+  isolated worktree (`task-0195-executor-git-adapter`) with unanimous 3/3 consensus approval on iteration 1 (0 findings,
+  11/11 CI checks passed) and Stage 5 calibration included in the PR diff (EV predicted: 75.21, actual: 82.31,
+  $\Delta\text{EV} = +7.10$).
