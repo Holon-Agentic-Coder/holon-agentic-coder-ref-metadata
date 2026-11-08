@@ -248,8 +248,10 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "**Bean 0236** (PR #139, `d0c1334`: post the Stage 4 consensus review exactly once via `gh pr review` with a "
         "single `--comment` fallback on the HTTP 422 self-review restriction, retiring the duplicate unconditional "
         "`gh pr comment`; 3/3 consensus on iteration 1 with zero findings, calibration ΔEV +10.37 on "
-        "claude-agent/claude-fable-5). **Bean 0250** (surface agent returncode/stderr diagnostics in "
-        "`review_ensemble.py`) is in flight as PR #140 on antigravity-agent/gemini-3.8-flash-medium."
+        "claude-agent/claude-fable-5). **Bean 0250** (PR #140, `be6cd7b`: surface agent returncode, stderr "
+        "diagnostics, and command lines in `review_ensemble.py` when reviewers fail; calibration ΔEV +4.37 on "
+        "antigravity-agent/gemini-3.8-flash-medium) followed and merged into `main`. **Bean 0243** (purge "
+        "harness bean references from code and docs) is the next flow in flight."
     ),
 ]
 
@@ -290,10 +292,9 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Merge / In-Flight State (2026-11-08):** `holon-agentic-coder` PRs #133–#139 merged (Beans 0245, 0247, "
-        "0248, 0249, 0251, 0236); PR #140 (Bean 0250) is open with its flow running the Stage 4 review loop against "
-        "`apps/holon-agentic-coder/main`, so trunk fast-forward and `install-holon` rebuild are deferred until it "
-        "completes. Harness PR #58 merged into `main` and operational tracking PR #59 is open on "
+        "**Merge / In-Flight State (2026-11-08):** `holon-agentic-coder` PRs #133–#140 all merged (Beans 0244, 0245, "
+        "0247, 0248, 0249, 0251, 0236, 0250); trunk is at `be6cd7b` and the `install-holon` rebuild runs ahead of "
+        "the Bean 0243 flow. Harness PR #58 merged into `main` and operational tracking PR #59 is open on "
         "`docs/harness-20261106`. `fix/0227-proxy-readiness-http-probe` (`36c9765`, Bean 0227) has a green test "
         "suite and awaits the maintainer's call on PR creation. Coherence PR #41 (Bean 0208, `2f30d6e`) needs its 9 "
         "unit test failures resolved on its execution branch before Stage 4 review and Stage 5 calibration."

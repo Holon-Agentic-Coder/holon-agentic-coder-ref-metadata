@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0250
 title: "Fix review loop observability blindspots and pass file-based prompts across all supported agent harnesses"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - agent-runner
   - holon-agentic-coder
 created_at: 2026-11-07T13:05:00Z
-updated_at: 2026-11-07T13:05:00Z
+updated_at: 2026-11-08T10:03:27Z
 ---
 
 ## Problem
@@ -145,3 +145,34 @@ In `apps/sandbox-executor/src/sandbox_executor/review_ensemble.py`:
 - No new external dependencies.
 - Strict test execution with `uv run pytest`.
 - Linting passes cleanly with `uv run task lint`.
+
+## Resolution
+
+Delivered via [PR #140](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/140) and merged into `main`
+(`be6cd7b`):
+
+- **Key Architectural Deliverables**: Updated `review_ensemble.py` to inspect `TurnResult` returncode and stderr in
+  `_turn_failure()` and `_result_from_outcome()`, surfacing exit codes and truncated/redacted stderr rather than the
+  generic `"the reviewer wrote no report"`; added reviewer command logging and process completion status reporting
+  matching conventions in planner and executor; ensured secret redaction via `redact_agent_secrets()`.
+- **Verification & Tests**: Added unit tests in `apps/sandbox-executor/tests/test_review_ensemble.py` asserting that
+  non-zero exit codes (e.g. 127) and stderr details appear in failure reasons; verified that secret redaction functions
+  properly and linting/tests pass.
+- **Holon Flow Traversal**: All 5 stages (Intent -> Plan -> Execute -> Review Loop -> Calibration) completed
+  successfully with unanimous 3/3 consensus approval and Stage 5 calibration report committed and included in the PR
+  diff (EV predicted: 78.97, actual: 83.34, $\Delta\text{EV} = +4.37$).
+
+## Resolution
+
+Delivered via [PR #140](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/140) and merged into `main`
+(`be6cd7b`, 2026-11-08T10:03:27Z):
+
+- **Key Architectural Deliverables**: `review_ensemble.py` now surfaces agent process diagnostics when a reviewer writes
+  no report — `_turn_failure()` / `_result_from_outcome()` include the returncode and truncated, secret-redacted stderr
+  in `ReviewerResult.reason` instead of the generic "the reviewer wrote no report", and the agent execution command line
+  and completion status are logged matching `planner.py` / `executor.py` conventions.
+- **Verification & Tests**: `test_review_ensemble.py` asserts that failed turns (e.g. returncode 127, non-empty stderr)
+  surface diagnostic details in the failure reason; all CI checks passed and the PR merged MERGEABLE/CLEAN.
+- **Holon Flow Traversal**: All 5 stages completed on antigravity-agent / gemini-3.8-flash-medium. Calibration report
+  `plans/P-1794124920-antigravity-agent-gemini-3.8-flash-medium_calibration.md` included in the PR diff (EV predicted
+  78.97 vs actual 83.34, ΔEV +4.37).

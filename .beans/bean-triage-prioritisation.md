@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-08 08:41:20 UTC
+**Last Updated:** 2026-11-08 10:06:17 UTC
 
 ## Executive Summary
 
@@ -15,9 +15,9 @@ re-reviews: 141 review-loop passes from the first sync onward, about 10M+ tokens
 overlapping flows now run one after another.
 
 - **Total Tracked Beans**: 251 (excluding template)
-- **Completed**: 192 (76.5%)
+- **Completed**: 193 (76.9%)
 - **Scrapped / Superseded**: 3 (1.2%)
-- **Active**: 56 (22.3%), of which 3 are in progress and 53 are todo
+- **Active**: 55 (21.9%), of which 4 are in progress and 51 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -172,9 +172,10 @@ worktree), **Bean 0248** (PR #136: `holon models` command), **Bean 0249** (PR #1
 `--target-worktree`), **Bean 0251** (PR #138: pass prompts to agent runners via files), and **Bean 0236** (PR #139,
 `d0c1334`: post the Stage 4 consensus review exactly once via `gh pr review` with a single `--comment` fallback on the
 HTTP 422 self-review restriction, retiring the duplicate unconditional `gh pr comment`; 3/3 consensus on iteration 1
-with zero findings, calibration ΔEV +10.37 on claude-agent/claude-fable-5). **Bean 0250** (surface agent
-returncode/stderr diagnostics in `review_ensemble.py`) is in flight as PR #140 on
-antigravity-agent/gemini-3.8-flash-medium.
+with zero findings, calibration ΔEV +10.37 on claude-agent/claude-fable-5). **Bean 0250** (PR #140, `be6cd7b`: surface
+agent returncode, stderr diagnostics, and command lines in `review_ensemble.py` when reviewers fail; calibration ΔEV
++4.37 on antigravity-agent/gemini-3.8-flash-medium) followed and merged into `main`. **Bean 0243** (purge harness bean
+references from code and docs) is the next flow in flight.
 
 ---
 
@@ -497,9 +498,8 @@ antigravity-agent/gemini-3.8-flash-medium.
 | **P2**   | todo        |  High  |   L    | 0142   | Real-workload benchmark: Qwen3.8-27B dense vs Flash-Next MoE                                                | Model Selection            | Real data only (AGENTS.md item 10).                                                                                                                                                                                                                           |
 | **P3**   | todo        |  Low   |   XS   | 0231   | Exhausted-budget error string interpolates raw count while payload reports clamped 0                        | Flow Engine / Cosmetic     | PR #124 loop deferral (cosmetic, out-of-increment). Touches `flow.py` - bundle with 0230.                                                                                                                                                                     |
 | **P3**   | todo        | Medium |   M    | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                                         | vmlx / Performance         | Pairs with 0142.                                                                                                                                                                                                                                              |
-| **P1**   | todo        |  High  |   M    | 0250   | Fix review loop observability blindspots and pass file-based prompts across all supported agent harnesses   | Flow / Architecture        |                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   M    | 0246   | Fix pr-review-loop skill to strictly post consensus review once and prohibit dual-posting via gh pr comment | Flow / Architecture        |                                                                                                                                                                                                                                                               |
-| **P1**   | todo        |  High  |   M    | 0243   | Purge all harness bean references and BEAN SAFETY HALT strings from holon-agentic-coder code and docs       | Flow / Architecture        |                                                                                                                                                                                                                                                               |
+| **P1**   | in-progress |  High  |   M    | 0243   | Purge all harness bean references and BEAN SAFETY HALT strings from holon-agentic-coder code and docs       | Flow / Architecture        |                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   M    | 0241   | Persist review loop sandbox across iterations to eliminate repeated clone and teardown overhead             | Ledger / Observability     |                                                                                                                                                                                                                                                               |
 
 ---
@@ -527,10 +527,9 @@ failure repair (#129), Stage 5 calibration knowledge/wisdom artifact commits (#1
 fail-closed verification defaults (#131) are all live. `HOLON_TOKEN_REDUCE=0` stays the workaround until Beans 0227 and
 0157 land. Set `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172 lands.
 
-**Merge / In-Flight State (2026-11-08):** `holon-agentic-coder` PRs #133–#139 merged (Beans 0245, 0247, 0248, 0249,
-0251, 0236); PR #140 (Bean 0250) is open with its flow running the Stage 4 review loop against
-`apps/holon-agentic-coder/main`, so trunk fast-forward and `install-holon` rebuild are deferred until it completes.
-Harness PR #58 merged into `main` and operational tracking PR #59 is open on `docs/harness-20261106`.
+**Merge / In-Flight State (2026-11-08):** `holon-agentic-coder` PRs #133–#140 all merged (Beans 0244, 0245, 0247, 0248,
+0249, 0251, 0236, 0250); trunk is at `be6cd7b` and the `install-holon` rebuild runs ahead of the Bean 0243 flow. Harness
+PR #58 merged into `main` and operational tracking PR #59 is open on `docs/harness-20261106`.
 `fix/0227-proxy-readiness-http-probe` (`36c9765`, Bean 0227) has a green test suite and awaits the maintainer's call on
 PR creation. Coherence PR #41 (Bean 0208, `2f30d6e`) needs its 9 unit test failures resolved on its execution branch
 before Stage 4 review and Stage 5 calibration.

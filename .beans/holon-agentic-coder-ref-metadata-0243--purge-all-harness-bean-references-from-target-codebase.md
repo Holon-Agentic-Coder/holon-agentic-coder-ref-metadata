@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0243
 title: "Purge all harness bean references and BEAN SAFETY HALT strings from holon-agentic-coder code and docs"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - rule-12
   - holon-agentic-coder
 created_at: 2026-11-06T09:00:00Z
-updated_at: 2026-11-06T09:00:00Z
+updated_at: 2026-11-08T10:05:54Z
 ---
 
 ## Problem
