@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-08 11:02:15 UTC
+**Last Updated:** 2026-11-08 14:06:19 UTC
 
 ## Executive Summary
 
@@ -15,9 +15,9 @@ re-reviews: 141 review-loop passes from the first sync onward, about 10M+ tokens
 overlapping flows now run one after another.
 
 - **Total Tracked Beans**: 251 (excluding template)
-- **Completed**: 194 (77.3%)
+- **Completed**: 195 (77.7%)
 - **Scrapped / Superseded**: 3 (1.2%)
-- **Active**: 54 (21.5%), of which 3 are in progress and 51 are todo
+- **Active**: 53 (21.1%), of which 4 are in progress and 49 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -491,7 +491,6 @@ into `main`.
 | **P2**   | todo        | Medium |   M    | 0194   | `run_execute_stage` becomes an `ExecuteStage` with named steps                                              | Holon Flow / Refactor      | After 0187; parallel decomposition lane. 306 lines, CC 40.                                                                                                                                                                                                    |
 | **P2**   | todo        | Medium |   M    | 0197   | Split `calibration.py` into a package; decompose metrics parsing and report generation                      | Calibration / Refactor     | After 0187 and 0146 (0162 is merged as #112); parallel lane otherwise.                                                                                                                                                                                        |
 | **P2**   | todo        | Medium |   M    | 0198   | Agent runner registry: one `RunnerSpec` module per agent                                                    | Runners / Refactor         | After 0185 (#115 merged); parallel lane.                                                                                                                                                                                                                      |
-| **P2**   | todo        | Medium |   S    | 0201   | Planner, executor and reviewer prompts carry the module-layout, complexity and naming rules                 | Prompts / Standards        | After 0185 (#115 merged). Plans declare touch sets at module granularity (feeds 0151).                                                                                                                                                                        |
 | **P2**   | todo        | Medium |   M    | 0200   | Remove holon-agentic-coder's diverged `token_reduction` copy; holon-coherence is the owner                  | Token Reduction            | After 0189. Ownership already ruled: holon-coherence owns token reduction.                                                                                                                                                                                    |
 | **P2**   | todo        | Medium |   M    | 0199   | Decompose ledger query and the knowledge index                                                              | Ledger / Knowledge         | After 0190; parallel lane. Low bean priority.                                                                                                                                                                                                                 |
 | **P2**   | todo        | Medium |   M    | 0216   | Holon flow references and drives beads work items (claim on intent, close on merge)                         | Holon Flow / Beads         | Holon flow against holon-agentic-coder. Intent `work_item` field, `holon intent` claims issue, calibration/merge closes with PR URL. Sequence after 0214.                                                                                                     |
@@ -501,7 +500,7 @@ into `main`.
 | **P3**   | todo        |  Low   |   XS   | 0231   | Exhausted-budget error string interpolates raw count while payload reports clamped 0                        | Flow Engine / Cosmetic     | PR #124 loop deferral (cosmetic, out-of-increment). Touches `flow.py` - bundle with 0230.                                                                                                                                                                     |
 | **P3**   | todo        | Medium |   M    | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                                         | vmlx / Performance         | Pairs with 0142.                                                                                                                                                                                                                                              |
 | **P1**   | todo        |  High  |   M    | 0246   | Fix pr-review-loop skill to strictly post consensus review once and prohibit dual-posting via gh pr comment | Flow / Architecture        |                                                                                                                                                                                                                                                               |
-| **P1**   | todo        |  High  |   M    | 0241   | Persist review loop sandbox across iterations to eliminate repeated clone and teardown overhead             | Ledger / Observability     |                                                                                                                                                                                                                                                               |
+| **P1**   | in-progress |  High  |   M    | 0241   | Persist review loop sandbox across iterations to eliminate repeated clone and teardown overhead             | Ledger / Observability     |                                                                                                                                                                                                                                                               |
 
 ---
 
