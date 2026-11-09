@@ -379,6 +379,11 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "After it merges, resume the **Bean 0262** flow from its checkpoint (halted at sub-intent 1 of 4, PR #152)."
     ),
     (
+        "   - **Bean 0267** (`entrypoint/executor.py` + `flow/stages/` + `flow/review/loop.py` + docs; **hold behind Bean "
+        "0262**): Stage 3 runs the test task and records a measured `test_pass_rate`, and the review loop measures tests "
+        "itself when no CI registers, so the flow no longer depends on CI alone."
+    ),
+    (
         "   - **Bean 0263** (`tests/flow/` + `docs/architecture.md`; **hold until PR #152 / Bean 0262 merges**, since both "
         "edit the move-proof snapshot): retire the `flow.py` move-proof snapshot, `move_proof.py` and "
         "`test_move_proof.py`, and rework `test_package_exports.py` to read the package itself."
@@ -498,6 +503,19 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "notes": (
             "Unblocked by 0159 (#97 merged), 0201 (#142 merged), and 0149 (#146 merged). Sequence after 0254 "
             "(`flow/` package split). Must handle `{parent}--{n}-{slug}` child branches."
+        ),
+    },
+    "0267": {
+        "title": "Stage 3 records a measured `test_pass_rate` (and the review loop can measure tests itself) so the flow does not depend on CI alone",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Holon Flow / Testing",
+        "notes": (
+            "The executor never runs or records tests: `test_pass_rate` is `null` in 51 of 54 ledger rows, so every flow "
+            "relies on CI alone. Stage 3 should run `uv run task test` and record the rate, and the review loop's "
+            "`local_tests` fallback should measure when no CI registers. Independent of Bean 0266; hold behind Bean "
+            "0262, which also edits `flow/review/`."
         ),
     },
     "0266": {
