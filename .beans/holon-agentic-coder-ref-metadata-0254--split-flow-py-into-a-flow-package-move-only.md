@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0254
 title: "Split flow.py into a flow/ package of focused modules (move only) so concurrent flows stop colliding"
-status: todo
+status: in-progress
 type: task
 priority: critical
 tags:
