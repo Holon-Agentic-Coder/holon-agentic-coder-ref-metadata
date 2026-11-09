@@ -379,10 +379,10 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "`test_move_proof.py`, and rework `test_package_exports.py` to read the package itself."
     ),
     (
-        "   - **Bean 0264** (`pyproject.toml` + `scripts/` + `tests/`; **hold until Beans 0262 and 0263 merge**): move "
+        "   - **Bean 0264** (`holon-config/hygiene/` + `scripts/` + `tests/`; **hold until Beans 0262 and 0263 merge**): move "
         "the `flow/` module size budgets out of `flow_module_budgets.json` and the check script's constants into "
-        "`pyproject.toml` configuration read by a generic `check_module_budgets.py`; agents may change it, and raised "
-        "limits warn instead of failing."
+        "`holon-config/hygiene/module_budgets.json` configuration read by a generic `check_module_budgets.py`; "
+        "agents may change it, and raised limits warn instead of failing."
     ),
     ("3. **Calibration & resolver lane (`flow/stages/calibrate.py` & `entrypoint/review_loop.py`):**"),
     (
@@ -496,8 +496,8 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "M",
         "domain": "Lint / Configuration",
         "notes": (
-            "Moves the `flow/` size budgets into `pyproject.toml` configuration (packages, default ceiling, overrides "
-            "with reasons) read by a generic `check_module_budgets.py`, deleting `flow_module_budgets.json`. Agents may "
+            "Moves the `flow/` size budgets into `holon-config/hygiene/module_budgets.json` (packages, default ceiling, "
+            "overrides with reasons) read by a generic `check_module_budgets.py`, deleting `flow_module_budgets.json`. Agents may "
             "change the configuration; raised limits warn instead of failing. Hold until PR #152 (Bean 0262) and "
             "Bean 0263 merge."
         ),

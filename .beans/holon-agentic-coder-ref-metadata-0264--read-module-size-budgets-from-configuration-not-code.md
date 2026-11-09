@@ -28,29 +28,36 @@ The per-module size ratchet from Bean 0254 (PR #147) has its settings baked into
   creation size, so the file holds 28 numbers, 18 of them above 200 lines (the largest, `review/loop.py`, is 962).
 - `tests/flow/test_module_budgets.py` builds temporary packages against the same hardcoded layout.
 
-Settings that people tune belong in configuration that tools read, not in script constants or a bespoke JSON file that
-sits beside the source.
+Settings that people tune belong in the repository's Holon configuration directory, which tools read like the metrics
+and prompt files, not in script constants or a bespoke JSON file that sits beside the source.
 
 ## Goal
 
-1. **Define the settings as configuration** in the repository's existing `pyproject.toml` (read with the standard
-   library `tomllib`, so no new dependency), for example:
+1. **Define the settings in `holon-config/`**, the repository's existing configuration directory (next to
+   `holon-config/metrics/*.json`, `prompts/` and `world/`, which the code already reads by path). They do not go in
+   `pyproject.toml`. Add `holon-config/hygiene/module_budgets.json`, read with the standard library `json` module (no
+   new dependency), for example:
 
-   ```toml
-   [tool.holon.module-budgets]
-   default-max-lines = 200
-   packages = ["apps/sandbox-executor/src/sandbox_executor/flow"]
-
-   [tool.holon.module-budgets.overrides]
-   "apps/sandbox-executor/src/sandbox_executor/flow/review/loop.py" = 962
+   ```json
+   {
+     "default_max_lines": 200,
+     "packages": ["apps/sandbox-executor/src/sandbox_executor/flow"],
+     "overrides": {
+       "apps/sandbox-executor/src/sandbox_executor/flow/review/loop.py": {
+         "max_lines": 962,
+         "reason": "Review loop engine; to be decomposed by the ReviewLoop extraction"
+       }
+     }
+   }
    ```
 
-   The exact table and key names may differ, but the shape must give three things: which packages are checked, one
-   default ceiling, and per-module overrides keyed by repository-relative path, recorded at the modules' current sizes.
+   The exact key names may differ, but the shape must give three things: which packages are checked, one default
+   ceiling, and per-module overrides keyed by repository-relative path, recorded at the modules' current sizes, each
+   with a reason. Keys are sorted, one entry per module.
 
-2. **Make the check generic and free of hardcoded values.** Rename it to `scripts/check_module_budgets.py`. It reads the
-   configuration (with an optional `--config` path used by tests), checks every `.py` file under each configured
-   package, and reports one message per violation:
+2. **Make the check generic and free of hardcoded values.** Rename it to `scripts/check_module_budgets.py`. It reads
+   `holon-config/hygiene/module_budgets.json` (with an optional `--config` path used by tests), checks every `.py` file
+   under each configured package, and reports one message per violation:
    - a module above its override, or above the default ceiling when it has no override;
    - an override naming a missing module (remove it);
    - an override above the default ceiling is allowed (that is what an override is for), but an override at or below the
@@ -61,11 +68,12 @@ sits beside the source.
 3. **Agents can change the configuration, with changes made visible.** The settings are ordinary configuration that flow
    agents and people edit in a PR like any other file: nothing blocks lowering, raising, adding or removing an override,
    or changing the default ceiling. What the check adds is visibility, not a veto: it compares the configuration with
-   the merge base's copy (`git show <base>:pyproject.toml`, skipped quietly when there is no base) and prints a
-   `::warning::` line for every effective limit that went up, naming the module, the old and new limit and the number of
-   lines it now allows. Each override carries a short `reason` (a table with `max-lines` and `reason`, or an adjacent
-   comment convention the check can read), and the check reports an override with no reason as a violation so a raise is
-   never silent. Reviewers see the warnings in CI output and the reason in the diff, and decide.
+   the merge base's copy (`git show <base>:holon-config/hygiene/module_budgets.json`, skipped quietly when there is no
+   base) and prints a `::warning::` line for every effective limit that went up, naming the module, the old and new
+   limit and the number of lines it now allows. Each override carries a short `reason` (a table with `max-lines` and
+   `reason`, or an adjacent comment convention the check can read), and the check reports an override with no reason as
+   a violation so a raise is never silent. Reviewers see the warnings in CI output and the reason in the diff, and
+   decide.
 
 4. **Remove the old pieces.** Delete `apps/sandbox-executor/flow_module_budgets.json` and
    `scripts/check_flow_module_budgets.py`, update the `lint` task and any CI hygiene step that calls the script, and
@@ -83,8 +91,8 @@ sits beside the source.
 
 - **Do not start yet.** PR #152 (Bean 0262) lowers entries in `flow_module_budgets.json`, and Bean 0263 edits
   `tests/flow/` and `docs/architecture.md`. Run this after both have merged, to avoid conflicts on the same files.
-- It touches `pyproject.toml`, `scripts/`, `tests/`, the CI hygiene configuration and `docs/`, and no source modules, so
-  it can run alongside beans that change `src/`.
+- It touches `holon-config/hygiene/`, `scripts/`, `tests/`, the CI hygiene configuration and `docs/`, and no source
+  modules, so it can run alongside beans that change `src/`.
 
 ## Trade-offs to note
 
