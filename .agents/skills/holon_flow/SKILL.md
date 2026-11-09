@@ -221,6 +221,16 @@ Once the flow finishes:
 
 ---
 
+### Push notifications (ntfy.sh)
+
+`scripts/run_holon_flow.py` sends a push notification when a flow ends (`white_check_mark` when it ends cleanly, a high
+priority `warning` when it stops), through `scripts/notify_ntfy.py`. The topic is read from `HOLON_NTFY_TOPIC` or
+`~/.holon/secrets/ntfy-topic` (mode 600, never committed or printed in reports; anyone who knows it can read the
+messages). With no topic configured it silently does nothing. Messages stay on the ntfy server for a while, so they
+carry only the intent slug, a verdict and an exit code. Send a manual one with
+`python3 .agents/skills/holon_flow/scripts/notify_ntfy.py "Title" "Message" --priority high`; use it after any hand-run
+`holon review-loop` or `holon calibrate` that the maintainer is waiting on.
+
 ### Step 5: Terminal Completion & Notification
 
 1. **Write State Artifact**: Record completion summary to `.subagent/flow_<slug>_state.json`:

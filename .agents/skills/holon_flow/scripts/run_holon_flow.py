@@ -402,6 +402,20 @@ def run_flow(
         return returncode
 
 
+def _notify_outcome(intent_path: Path, exit_code: int) -> None:
+    """Tell the maintainer (ntfy.sh, if configured) that the flow ended; never fails the flow."""
+    try:
+        from notify_ntfy import notify
+
+        slug = parse_intent_file(intent_path)["slug"]
+        if exit_code == 0:
+            notify(f"Holon flow finished: {slug}", "Ended cleanly. Check the PR and calibration, then merge if ready.", tags="white_check_mark")
+        else:
+            notify(f"Holon flow STOPPED: {slug}", f"Exit code {exit_code}. It needs a look or a decision.", priority="high", tags="warning")
+    except Exception:  # noqa: BLE001 - a notification must never break a flow
+        pass
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Run and monitor the 5-stage Holon flow from a subagent or terminal."
@@ -467,6 +481,8 @@ def main() -> None:
         auto_fallback=not args.no_fallback,
         dry_run=args.dry_run,
     )
+    if not args.dry_run:
+        _notify_outcome(args.intent, exit_code)
     sys.exit(exit_code)
 
 
