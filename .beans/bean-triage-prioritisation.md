@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-09 10:43:42 UTC
+**Last Updated:** 2026-11-09 11:08:05 UTC
 
 ## Executive Summary
 
@@ -15,9 +15,9 @@ re-reviews: 141 review-loop passes from the first sync onward, about 10M+ tokens
 overlapping flows now run one after another.
 
 - **Total Tracked Beans**: 267 (excluding template)
-- **Completed**: 204 (76.4%)
+- **Completed**: 205 (76.8%)
 - **Scrapped / Superseded**: 4 (1.5%)
-- **Active**: 59 (22.1%), of which 5 are in progress and 54 are todo
+- **Active**: 58 (21.7%), of which 4 are in progress and 54 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -196,10 +196,12 @@ with bugs included plus Bug EV Drag; 3/3 consensus at iteration 4 on antigravity
 predicted EV +6.24, Clean EV +6.07 / ΔEV_clean −0.17, Observed EV −2.43, Bug EV Drag +8.50), **Bean 0259** (PR #150,
 `8000794`: `holon flow` redirects a `main` target to a `flow-<slug>` worktree off `origin/main` and never mutates the
 `main` worktree; default-branch checkpoints and the direct `review`, `review-loop` and `calibrate` commands are refused;
-3/3 consensus at iteration 3 on claude-agent/claude-opus-5-5, calibration ΔEV +29.58), and **Bean 0256** (PR #151,
+3/3 consensus at iteration 3 on claude-agent/claude-opus-5-5, calibration ΔEV +29.58), **Bean 0256** (PR #151,
 `61796c6`: resolver captures `pre_resolver_head` before `_run_resolver_agent` and soft-resets any local agent commits in
 `_commit_and_push_resolution`, ensuring pre-push verification, canonical review trailers, and git push are never
-skipped; 3/3 consensus at iteration 5, calibrated ΔEV +0.53). New beans logged: **Bean 0252** (resolver preserves its
+skipped; 3/3 consensus at iteration 5, calibrated ΔEV +0.53), and **Bean 0266** (PR #153, `fe3b540`: the six CI
+workflows run on pull requests into any base branch so stacked sub-intent PRs are tested; 3/3 consensus at iteration 5
+on claude-agent/claude-opus-5-5, calibration ΔEV +20.60). New beans logged: **Bean 0252** (resolver preserves its
 rejected diff and full test output on pre-push failure), **Bean 0253** (calibration branches from the origin PR head,
 not a stale local ref), **Bean 0255** (streaming per-issue resolvers during Stage 4 CI & review with a single
 consolidated commit), **Bean 0260** (never post intermediate review iterations or aborted review passes to PR), **Bean
@@ -512,8 +514,7 @@ host-provisioned worktree into sandbox containers to eliminate in-container git 
 | **P0**   | todo        |  High  |   L    | 0183   | Every flow stage works in its own sandboxed clone; `holon flow` needs no host checkout                                             | Holon Flow / Sandbox        | Stages 1-3 already clone in-container; move checkpoint, engine git checks and Stage 5 calibration into sandboxed clones so concurrent flows never share or require a host worktree. Pairs with 0179, 0149, 0151.                                                                                                                                                                                   |
 | **P0**   | todo        |  High  |   S    | 0160   | Review loop burns its iteration budget polling pending CI, then reports test failures                                              | Review Loop / CI            | PR #101 added bounded CI waiting within the iteration budget; remaining: separate `HOLON_REVIEW_CI_WAIT_SECONDS` budget and pending-vs-failed error reporting. Pair with 0234.                                                                                                                                                                                                                     |
 | **P0**   | todo        |  High  |   L    | 0151   | Planner estimates the touch set; overlapping concurrent flows are blocked                                                          | Holon Flow / Concurrency    | Unblocked by 0159 (#97 merged), 0201 (#142 merged), and 0149 (#146 merged). Sequence after 0254 (`flow/` package split). Must handle `{parent}--{n}-{slug}` child branches.                                                                                                                                                                                                                        |
-| **P1**   | todo        |  High  |   M    | 0267   | Stage 3 records a measured `test_pass_rate` (and the review loop can measure tests itself) so the flow does not depend on CI alone | Holon Flow / Testing        | The executor never runs or records tests: `test_pass_rate` is `null` in 51 of 54 ledger rows, so every flow relies on CI alone. Stage 3 should run `uv run task test` and record the rate, and the review loop's `local_tests` fallback should measure when no CI registers. Independent of Bean 0266; hold behind Bean 0262, which also edits `flow/review/`.                                     |
-| **P0**   | in-progress |  High  |   S    | 0266   | Run CI on pull requests into any branch so stacked sub-intent PRs are tested                                                       | CI / Holon Flow             | In flight. Sub-intent PRs target the parent intent branch, but every workflow restricts `pull_request` to `main`, so no checks run and the Stage 4 review halts with 'test results not measured' even at 3/3 approval. Removes the base-branch filter from six workflows and guards it with a test. Blocks the Bean 0262 flow, which is halted at sub-intent 1 of 4 (PR #152).                     |
+| **P1**   | todo        |  High  |   M    | 0267   | Stage 3 records a measured `test_pass_rate` (and the review loop can measure tests itself) so the flow does not depend on CI alone | Holon Flow / Testing        | The executor never runs or records tests: `test_pass_rate` is `null` in 51 of 54 ledger rows, so every flow relies on CI alone. Stage 3 should run `uv run task test` and record the rate, and the review loop's `local_tests` fallback should measure when no CI registers. Hold behind Bean 0262, which also edits `flow/review/`.                                                               |
 | **P1**   | todo        |  High  |   L    | 0265   | Split `cli/__init__.py` into focused modules (move only), like the `flow/` package                                                 | Refactor / Architecture     | Splits the 2,026-line `cli/__init__.py` (80 definitions, 96 `mock.patch` targets, 63 importers) into `cli/{log,constants,network,credentials,repo_resolution,mounts,proxy_sidecar,env_files,containers,doctor,role_dispatch,parser}.py` with re-exports and a throwaway AST verification, no committed snapshot. Hold until PR #152 (Bean 0262) and Beans 0263 and 0264 merge. Unblocks Bean 0189. |
 | **P2**   | todo        | Medium |   M    | 0264   | Read module size budgets from configuration instead of hardcoding paths and numbers in the check                                   | Lint / Configuration        | Moves the `flow/` size budgets into `holon-config/hygiene/module_budgets.json` (packages, default ceiling, overrides with reasons) read by a generic `check_module_budgets.py`, deleting `flow_module_budgets.json`. Agents may change the configuration; raised limits warn instead of failing. Hold until PR #152 (Bean 0262) and Bean 0263 merge.                                               |
 | **P2**   | todo        | Medium |   S    | 0263   | Retire the `flow.py` move-proof snapshot and its test: it now blocks every change to a moved function                              | Tests / Flow Package        | Touches `tests/flow/` and `docs/architecture.md` only. Deletes `flow_py_definitions.json`, `move_proof.py` and `test_move_proof.py`, and reworks `test_package_exports.py` to read the package itself. Hold until PR #152 (Bean 0262) merges, because it also edits the snapshot.                                                                                                                  |
@@ -595,18 +596,18 @@ fail-closed verification defaults (#131), and resolver commit soft-reset (#151) 
 stays the workaround until Beans 0227 and 0157 land. Set `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172
 lands.
 
-**Merge / In-Flight State (2026-11-09):** `holon-agentic-coder` PRs #133–#151 all merged (Beans 0244, 0245, 0247, 0248,
-0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, 0254, 0258, 0257, 0259, 0256); trunk is at `61796c6`,
-installed editable, and images rebuilt via `install-holon` with `uv` 0.13.7 in the base image and Dual-EV calibration in
-`holon/orchestrator`. `flow.py` is now the `flow/` package, so beans touching different `flow/` submodules can run in
-parallel. Harness PR #58 merged into `main` and operational tracking PR #59 is open on `docs/harness-20261106`.
-`fix/0227-proxy-readiness-http-probe` (`36c9765`, Bean 0227) has a green test suite and awaits the maintainer's call on
-PR creation. Coherence PR #41 (Bean 0208, `2f30d6e`) needs its 9 unit test failures resolved on its execution branch
-before Stage 4 review and Stage 5 calibration. **Worktree rule (2026-11-09):** a flow never runs in the `main` worktree;
-naming `main` as the target selects the repository and base branch only, and the flow runs in a `flow-<slug>` worktree
-off `origin/main` (Bean 0259, PR #150). Standalone external PR reviews provision `pr<N>-<slug>` only when no local
-worktree exists; otherwise `flow-<slug>` is reused directly across all stages. Image builds use a temporary
-`build-images-<sha>` worktree, and the `main` worktrees stay on `main`, identical to `origin/main`.
+**Merge / In-Flight State (2026-11-09):** `holon-agentic-coder` PRs #133–#151 and #153 all merged (Beans 0244, 0245,
+0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, 0254, 0258, 0257, 0259, 0256, 0266); trunk is at
+`fe3b540`, installed editable, and images rebuilt via `install-holon` with `uv` 0.13.7 in the base image and Dual-EV
+calibration in `holon/orchestrator`. `flow.py` is now the `flow/` package, so beans touching different `flow/`
+submodules can run in parallel. Harness PR #58 merged into `main` and operational tracking PR #59 is open on
+`docs/harness-20261106`. `fix/0227-proxy-readiness-http-probe` (`36c9765`, Bean 0227) has a green test suite and awaits
+the maintainer's call on PR creation. Coherence PR #41 (Bean 0208, `2f30d6e`) needs its 9 unit test failures resolved on
+its execution branch before Stage 4 review and Stage 5 calibration. **Worktree rule (2026-11-09):** a flow never runs in
+the `main` worktree; naming `main` as the target selects the repository and base branch only, and the flow runs in a
+`flow-<slug>` worktree off `origin/main` (Bean 0259, PR #150). Standalone external PR reviews provision `pr<N>-<slug>`
+only when no local worktree exists; otherwise `flow-<slug>` is reused directly across all stages. Image builds use a
+temporary `build-images-<sha>` worktree, and the `main` worktrees stay on `main`, identical to `origin/main`.
 
 Sequential & Disjoint Lanes, holon-agentic-coder (Bean 0254 landed: lanes are now per `flow/` submodule; items 1–3 touch
 pairwise-disjoint files and can run concurrently):
@@ -620,15 +621,12 @@ pairwise-disjoint files and can run concurrently):
      print a single clean summary line matching canonical skill output.
 2. **Sandbox worktree mount & dead git code eradication lane (`flow/review/workspace.py` &
    `entrypoint/review_loop.py`):**
-   - **Bean 0262** (**ON HOLD**: PR #152, sub-intent 1 of 4, is approved 3/3 but waits for Bean 0266; once 0266 merges,
-     merge `origin/main` into the flow branches and re-run its Stage 4 review loop): bind-mount host worktree
-     (`flow-<slug>`) directly to `/home/holon/.holon-sandbox/workspace`, eliminate named Docker volumes and root `chown`
-     boilerplate, ruthlessly purge dead in-container git cloning/resetting (`_clone_or_fetch`, `_reset_reused_checkout`,
-     `_ensure_head`, `_origin_matches`, `ReviewWorkspaceSession`) and all associated mock tests, and unify intermediate
-     review files under `<worktree>/.subagent/`.
-   - **Bean 0266** (`.github/workflows/` + `flow/github/` + tests; **in flight**, disjoint from the other lanes): CI
-     runs on pull requests into any branch so decomposed flows' stacked sub-intent PRs are tested. After it merges,
-     resume the **Bean 0262** flow from its checkpoint (halted at sub-intent 1 of 4, PR #152).
+   - **Bean 0262** (**IN FLIGHT**: PR #152, sub-intent 1 of 4, was approved 3/3 but halted for lack of CI; Bean 0266
+     landed, `origin/main` was merged into its branches, and its Stage 4 review loop was resumed from the checkpoint):
+     bind-mount host worktree (`flow-<slug>`) directly to `/home/holon/.holon-sandbox/workspace`, eliminate named Docker
+     volumes and root `chown` boilerplate, ruthlessly purge dead in-container git cloning/resetting (`_clone_or_fetch`,
+     `_reset_reused_checkout`, `_ensure_head`, `_origin_matches`, `ReviewWorkspaceSession`) and all associated mock
+     tests, and unify intermediate review files under `<worktree>/.subagent/`.
    - **Bean 0267** (`entrypoint/executor.py` + `flow/stages/` + `flow/review/loop.py` + docs; **hold behind Bean
      0262**): Stage 3 runs the test task and records a measured `test_pass_rate`, and the review loop measures tests
      itself when no CI registers, so the flow no longer depends on CI alone.
