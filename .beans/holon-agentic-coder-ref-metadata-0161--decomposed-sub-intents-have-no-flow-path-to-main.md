@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0161
 title: "Decomposed sub-intents have no flow path to main and do not build on each other"
-status: todo
+status: in-progress
 type: feature
 priority: critical
 tags:
