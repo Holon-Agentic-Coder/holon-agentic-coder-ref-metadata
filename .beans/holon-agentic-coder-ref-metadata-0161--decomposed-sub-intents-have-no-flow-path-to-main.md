@@ -137,3 +137,8 @@ to `main`. The maintainer chose to let the flow run and to fix it up by hand:
 
 **Exception to the sole-change-path rule:** the child merges and the combined PR are done outside the flow at the
 maintainer's explicit instruction, and this bean and the commit messages name it.
+
+**Review of the combined PR (maintainer instruction, 2026-11-09):** the single PR into `main` goes through the review
+loop (reviewer ensemble and resolver, iterating to unanimous consensus with every nit actioned) before it is handed
+over, even though it was assembled by hand. The `pr-review-loop` skill drives it, since `holon review-loop` alone runs
+one pass and has no resolver. Hand over only after consensus, with CI green and the PR mergeable against `main`.
