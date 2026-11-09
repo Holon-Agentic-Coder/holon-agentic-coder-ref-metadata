@@ -294,6 +294,7 @@ def resolve_flow_worktree(target_worktree: Path, slug: str, dry_run: bool = Fals
     execution branch and commit in the target worktree. A sibling ``flow-<slug>`` worktree is cut from ``origin/main``
     (the name and branch ``holon flow`` derives itself) and used instead; it is reused when it already exists.
     """
+    target_worktree = target_worktree.resolve()
     if target_worktree.name != "main":
         return target_worktree
     clean_slug = re.sub(r"[^a-zA-Z0-9_\-]+", "-", slug.strip()).strip("-") or "flow"
