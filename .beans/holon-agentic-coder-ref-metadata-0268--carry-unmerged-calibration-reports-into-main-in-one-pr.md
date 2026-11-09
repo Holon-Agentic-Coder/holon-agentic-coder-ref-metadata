@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0268
 title: "Carry the calibration reports that missed their PRs into `main` in one pull request"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - flow
   - holon-agentic-coder
 created_at: 2026-11-09T12:00:00Z
-updated_at: 2026-11-09T12:00:00Z
+updated_at: 2026-11-09T12:30:00Z
 ---
 
 ## Problem
@@ -59,3 +59,14 @@ this bean.
 
 Observation: the shared repository's local git config carries the committer identity "Holon Review Loop Agent", set by
 earlier flow runs, so commits made by hand in any worktree of the bare repository use it unless overridden.
+
+## Resolution
+
+Delivered via [PR #154](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/154), merged into `main`
+(`b63fce7`, 2026-11-09T11:18:18Z), four commits: the calibration reports for the Bean 0259 (PR #150) and Bean 0266 (PR
+#153) flows and their ledger rows. `main` now holds both reports and is checked clean at `b63fce7`. The chore worktree
+and local branch are removed.
+
+Left in place deliberately: the two `.../calibrated` branches on `origin` and the rest of those flows' `I-/P-/E-`
+provenance branches. Their report is now in `main`, so they are safe to remove with the `clean-branches` skill whenever
+the maintainer wants a cleanup pass.

@@ -330,9 +330,9 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Merge / In-Flight State (2026-11-09):** `holon-agentic-coder` PRs #133–#151 and #153 all merged (Beans 0244, 0245, "
+        "**Merge / In-Flight State (2026-11-09):** `holon-agentic-coder` PRs #133–#151, #153 and #154 all merged (Beans 0244, 0245, "
         "0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, 0254, 0258, 0257, 0259, 0256, 0266); "
-        "trunk is at `fe3b540`, installed editable, and images rebuilt via `install-holon` with `uv` 0.13.7 in the "
+        "trunk is at `b63fce7`, installed editable, and images rebuilt via `install-holon` with `uv` 0.13.7 in the "
         "base image and Dual-EV calibration in `holon/orchestrator`. `flow.py` is now the `flow/` package, so beans "
         "touching different `flow/` submodules can run in parallel. Harness PR #58 merged into `main` and operational "
         "tracking PR #59 is open on `docs/harness-20261106`. `fix/0227-proxy-readiness-http-probe` (`36c9765`, "
@@ -500,18 +500,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "notes": (
             "Unblocked by 0159 (#97 merged), 0201 (#142 merged), and 0149 (#146 merged). Sequence after 0254 "
             "(`flow/` package split). Must handle `{parent}--{n}-{slug}` child branches."
-        ),
-    },
-    "0268": {
-        "title": "Carry the calibration reports that missed their PRs into `main` in one pull request",
-        "priority": "**P2**",
-        "impact": "Low",
-        "sizing": "XS",
-        "domain": "Calibration / Housekeeping",
-        "notes": (
-            "PR #154 carries the reports for the Bean 0259 (PR #150) and Bean 0266 (PR #153) flows, which were merged "
-            "before their calibration commits reached the PR. Assembled by hand at the maintainer's instruction. "
-            "Awaiting merge; keep both `calibrated` branches until then."
         ),
     },
     "0267": {
