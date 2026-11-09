@@ -142,3 +142,13 @@ maintainer's explicit instruction, and this bean and the commit messages name it
 loop (reviewer ensemble and resolver, iterating to unanimous consensus with every nit actioned) before it is handed
 over, even though it was assembled by hand. The `pr-review-loop` skill drives it, since `holon review-loop` alone runs
 one pass and has no resolver. Hand over only after consensus, with CI green and the PR mergeable against `main`.
+
+## Progress (2026-11-10)
+
+Both children finished and were merged by hand into the parent intent branch with merge commits: child 1 (PR #156, plan
+records the decision) and child 2 (PR #157, nest under the plan branch, merge, combined PR, resume safety). The parent
+plan and execution record were merged in first. Overlap resolved by hand (ledger rows interleaved; two hunks kept
+plan-owned; snapshot regenerated on Python 3.13; one child 1 test adapted). **Combined
+[PR #158](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/158) into `main` is open** and is in the
+`pr-review-loop` (reviewer ensemble and resolver). Deferrals from that loop are in Bean 0269. Hand over only after
+unanimous consensus with CI green; merging into `main` stays with the maintainer.
