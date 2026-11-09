@@ -814,13 +814,15 @@ OVERRIDES: dict[str, dict[str, str]] = {
     },
     "0161": {
         "title": "Decomposed sub-intents have no flow path to `main` and do not build on each other",
-        "priority": "**P1**",
+        "priority": "**P0**",
         "impact": "High",
-        "sizing": "M",
+        "sizing": "L",
         "domain": "Holon Flow",
         "notes": (
-            "Deferred from #97. Implement the 2026-10-29 rulings: nest under the deciding node, merge into the "
-            "deciding plan/execution branch, nested PRs automatic, sibling slugs distinct. "
+            "Blocks Bean 0262 (PRs #152 and #155). Corrected design 2026-11-09: Stage 2 records the split decision on "
+            "the plan; Stage 3 only executes the children; children are cut from and target the plan branch; a "
+            "combined PR carrying the parent plan and every child reaches `main`; resume continues an existing child "
+            "instead of re-running it. Open decision: who merges a child PR into the plan branch. "
             "Docs: PRs #103, #110 and #113 (all merged)."
         ),
     },

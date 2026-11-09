@@ -3,13 +3,13 @@
 title: "Decomposed sub-intents have no flow path to main and do not build on each other"
 status: todo
 type: feature
-priority: high
+priority: critical
 tags:
   - holon-flow
   - decomposition
   - holon-agentic-coder
 created_at: 2026-10-26T07:16:04Z
-updated_at: 2026-10-30T01:41:00Z
+updated_at: 2026-11-09T13:00:00Z
 ---
 
 ## Problem
@@ -64,3 +64,53 @@ Once Bean 0159 runs decomposed sub-intents autonomously (`_run_decomposed_plan` 
 - Sibling sub-intents under one deciding node always have different slugs, so ids cannot collide; no sequence suffix.
 - Documented in PR #103 (merged, `e187393`), follow-up docs PR #110 (merged as `85ef122`, 2026-10-29T14:37:07Z), and
   remaining-docs sweep PR #113 (Bean 0210, merged as `760ee87`, 2026-10-30T01:27:16Z).
+
+## Corrected design (maintainer ruling, 2026-11-09)
+
+Found while running Bean 0262 (decomposed into 4 sub-intents; PRs #152 and #155). **The decision to split belongs to the
+plan, and the execution only executes the children.** The current flow decides it in the execution and cuts children
+from the wrong branch.
+
+### What the Bean 0262 run did (evidence)
+
+- Parent chain: `main` → `I-1794214501-…/_` → `I-…/P-1794214522-…/_` (plan, with a prose `## Sub-intent list`) →
+  `I-…/P-…/E-1794214787-…/_` (execution: one commit adding 2 rows to `executions.jsonl`, a summary row with
+  `status: decomposed` and the machine-readable `sub_intents` list, plus an action row). `_run_decomposed_plan` reads
+  the list from that **execution** row.
+- Each child (`I-…--1-add-host…/_`) was cut from the parent **intent** branch, a sibling of the parent plan, and its PR
+  (#152) targets that intent branch. Neither the parent plan branch nor the parent execution branch is an ancestor of
+  the child, so the parent plan file never appears in a child PR and never reaches `main`.
+- Stage 2 already evaluates the rule: `_plan_budget_decision` calls the executor's own `should_decompose` on the plan
+  row and plan file, which parses the plan's sub-intent list, before the executor container is dispatched. The decision
+  exists at plan time; it is just recorded late, by the executor.
+- Resuming the decomposed flow from the parent checkpoint re-ran sub-intent 1 from scratch (a new intent, plan and
+  execution) instead of resuming its review, opened a duplicate PR (#155) and overwrote the child's checkpoint.
+
+### Required behaviour
+
+1. **Stage 2 records the decision.** After the planner writes the plan, the plan stage records the decomposition
+   decision (decision, entropy, budget and the `sub_intents` list: slug, description, goal) on the plan's `plans.jsonl`
+   row, on the plan branch, using the single existing `should_decompose` rule. The plan branch is self-describing.
+2. **Stage 3 only executes.** For a decomposed plan the executor container does not re-decide or write the sub-intent
+   list. The execution runs the recorded child sub-intents, and its summary row refers to the children and to the plan's
+   recorded decision.
+3. **Children nest under and target the plan branch.** Each child intent is cut from the plan branch (`I-…/P-…/_`), its
+   branch nests under the plan, and its PR targets the plan branch, not the intent branch and never `main`.
+4. **Children build on each other.** Child N+1 sees child N's work (see the open decision below).
+5. **A combined PR reaches `main`.** After all children, the integration PR from the plan's branch to `main` is raised
+   with the review loop and calibration on the combined diff, carrying the parent plan, the parent execution record and
+   every child plan and execution, and stops at the human merge boundary.
+6. **Resume safety.** A resume continues an existing child (its execution branch and PR) at the stage it stopped, and
+   never re-dispatches a child that already has an execution branch or PR, never opens a duplicate PR and never
+   overwrites a child's checkpoint. Deterministic child names stay.
+7. **Docs.** `docs/architecture.md` and `docs/git_flow.md` stop describing the interim "parent intent branch" behaviour.
+
+### Open decision (maintainer): who merges a child PR into the plan branch?
+
+- **A. The flow merges it** after that child's consensus and calibration, as `docs/architecture.md` describes ("below
+  the root no human intervention"). Needs an explicit, narrow exception to the harness rule that agents never merge a
+  PR, limited to PRs whose base is not `main`.
+- **B. The maintainer merges** each child PR, so the flow waits between children.
+- **C. No child merges:** child N+1 is cut from child N's execution head and the integration PR carries everything.
+
+Record the choice here before the intent is written.
