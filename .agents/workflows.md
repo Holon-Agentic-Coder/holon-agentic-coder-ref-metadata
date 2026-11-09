@@ -225,9 +225,10 @@ To maintain clean repository history, follow this Git workflow:
      worktree in `apps/holon-coherence`.** Those checkouts are the **user's playground**: no edits, staging, commits,
      stashes, resets, cleans, checkouts, builds, stray files, or local-state mutation of any kind (including `.venv/`,
      caches, and generated artifacts).
-   - **A flow never runs in the `main` worktree, even when its target branch is `main`.** Pass `holon flow` a dedicated
-     `apps/<project>/task-<bean-id>-<slug>` worktree cut from `origin/main` as `--target-worktree`; the target branch is
-     only the PR base. Keep `main` on `main`, identical to `origin/main`, and build images from a separate worktree.
+   - **A flow never runs in the `main` worktree, even when its target is `main`.** Naming `main` selects the repository
+     and base branch only; run `holon flow` in a dedicated `flow-<slug>` worktree cut from `origin/main` (the
+     `holon-flow` skill's script creates it). Keep `main` on `main`, identical to `origin/main`, and build images from a
+     separate worktree.
    - **Autonomous branch creation is allowed.** Do not wait to be asked: create the worktree and branch yourself, then
      work exclusively inside it. Inside your own worktree you have full latitude to edit, commit, squash, test, and
      rebuild images.

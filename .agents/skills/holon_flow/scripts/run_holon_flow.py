@@ -145,13 +145,6 @@ def run_prerequisites_check(target_worktree: Path) -> None:
         sys.exit(1)
 
     # Check target worktree
-    if target_worktree.name == "main":
-        log_error(
-            f"Refusing to run the flow in the 'main' worktree: {target_worktree}. Create a dedicated worktree "
-            "(git worktree add --no-track -b task/<bean-id>-<slug> ../task-<bean-id>-<slug> origin/main) and pass that."
-        )
-        sys.exit(1)
-
     if not target_worktree.exists():
         log_error(f"Target worktree does not exist: {target_worktree}")
         sys.exit(1)
@@ -294,6 +287,35 @@ def execute_flow_process(
     return proc.returncode, combined_output
 
 
+def resolve_flow_worktree(target_worktree: Path, slug: str, dry_run: bool = False) -> Path:
+    """Return the worktree the flow runs in; a ``main`` target becomes a dedicated ``flow-<slug>`` worktree.
+
+    The ``main`` worktree must stay on ``main`` and identical to ``origin/main``, but stages 4 and 5 check out the
+    execution branch and commit in the target worktree. A sibling ``flow-<slug>`` worktree is cut from ``origin/main``
+    (the name and branch ``holon flow`` derives itself) and used instead; it is reused when it already exists.
+    """
+    if target_worktree.name != "main":
+        return target_worktree
+    clean_slug = re.sub(r"[^a-zA-Z0-9_\-]+", "-", slug.strip()).strip("-") or "flow"
+    flow_worktree = target_worktree.parent / f"flow-{clean_slug}"
+    if flow_worktree.exists():
+        log_info(f"Reusing flow worktree {flow_worktree} (the 'main' worktree stays untouched).")
+        return flow_worktree
+    log_info(f"Creating flow worktree {flow_worktree} from origin/main (the 'main' worktree stays untouched).")
+    if dry_run:
+        return flow_worktree
+    for cmd in (
+        ["git", "-C", str(target_worktree), "fetch", "origin", "main"],
+        ["git", "-C", str(target_worktree), "worktree", "add", "--no-track", "-b", f"flow-{clean_slug}",
+         str(flow_worktree), "origin/main"],
+    ):
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        if result.returncode != 0:
+            log_error(f"{' '.join(cmd)} failed: {(result.stderr or result.stdout).strip()}")
+            sys.exit(1)
+    return flow_worktree
+
+
 def run_flow(
     intent_path: Path,
     target_worktree: Path,
@@ -305,9 +327,10 @@ def run_flow(
     dry_run: bool = False,
 ) -> int:
     """Run holon flow with optional automatic fallback ladder on quota errors."""
-    run_prerequisites_check(target_worktree)
     intent_data = parse_intent_file(intent_path)
     slug = intent_data["slug"]
+    target_worktree = resolve_flow_worktree(target_worktree, slug, dry_run=dry_run)
+    run_prerequisites_check(target_worktree)
 
     current_agent = agent
     current_model = model
@@ -390,10 +413,11 @@ def main() -> None:
     parser.add_argument(
         "--target-worktree",
         type=Path,
-        required=True,
+        default=Path("apps/holon-agentic-coder/main"),
         help=(
-            "Path to a dedicated git worktree for this flow, e.g. apps/holon-agentic-coder/task-<bean-id>-<slug>. "
-            "The 'main' worktree is never a valid target: the flow checks out and commits on branches there."
+            "Target repository worktree (default: apps/holon-agentic-coder/main). Naming the 'main' worktree selects "
+            "the repository and base branch only: the flow runs in a dedicated flow-<slug> worktree branched off "
+            "origin/main, and the 'main' worktree itself is never touched."
         ),
     )
     parser.add_argument(
