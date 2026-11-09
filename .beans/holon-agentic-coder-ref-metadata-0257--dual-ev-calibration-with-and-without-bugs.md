@@ -3,7 +3,7 @@
 title:
   "Dual Actual EV in Stage 5 calibration: report both Intrinsic EV (without pre-existing/pipeline bugs) and Observed EV
   (with bugs included)"
-status: in-progress
+status: completed
 type: feature
 priority: high
 tags:
@@ -14,8 +14,38 @@ tags:
   - ev
   - holon-agentic-coder
 created_at: 2026-11-09T13:16:30Z
-updated_at: 2026-11-09T15:01:15Z
+updated_at: 2026-11-09T16:46:15Z
 ---
+
+## Resolution
+
+Delivered via [PR #149](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/149) and merged into `main`
+(`c554e8e`):
+
+- **Key Architectural Deliverables**:
+  - Added
+    [`apps/sandbox-executor/src/sandbox_executor/calibration_ev.py`](apps/holon-agentic-coder/main/apps/sandbox-executor/src/sandbox_executor/calibration_ev.py)
+    (190 lines) containing `DualEVMetrics`, `evaluate_dual_ev_outcomes()`, `parse_summary_records()`,
+    `format_dual_ev_table_rows()`, and `format_dual_ev_derivation_lines()`.
+  - Updated
+    [`apps/sandbox-executor/src/sandbox_executor/calibration.py`](apps/holon-agentic-coder/main/apps/sandbox-executor/src/sandbox_executor/calibration.py)
+    (net $-9$ lines) to extend `ActualMetrics` (`ev_clean`, `ev_with_bugs`, `p_success_clean`, `p_success_with_bugs`,
+    `impact_clean`, `impact_with_bugs`, `bug_ev_drag`) and `CalibrationDeltas` (`delta_ev_clean`, `delta_ev_with_bugs`,
+    `bug_ev_drag`), treating `status in ("success", "halted_for_human")` with `exit_code == 0` as converged success
+    (`p_success_clean = 1.0`, `impact_clean = predicted.impact`) while capturing any intermediate failed summary rows in
+    `ev_with_bugs` and `bug_ev_drag`.
+- **Verification & Tests**:
+  - Added
+    [`apps/sandbox-executor/tests/test_calibration_dual_ev.py`](apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_calibration_dual_ev.py)
+    (248 lines) verifying clean runs (`ev_clean == ev_with_bugs`, `bug_ev_drag == 0.0`), intermediate failure runs
+    (`ev_clean > 0`, `ev_with_bugs < 0`, `bug_ev_drag == round(ev_clean - ev_with_bugs, 2)`), and dual-EV Markdown
+    table/derivation formatting.
+- **Holon Flow Traversal**:
+  - Completed all 5 stages (`I-1794197246-dual-ev-calibration-with-and-without-bugs/_` $\rightarrow$
+    `P-1794197261-edaaa218-antigravity-agent-gemini-3.8-flash-medium/_` $\rightarrow$
+    `E-1794197584-95243df0-antigravity-agent-gemini-3.8-flash-medium/_` $\rightarrow$ Stage 4 3/3 unanimous `APPROVED`
+    consensus $\rightarrow$ Stage 5 `/calibrated` audit branch and
+    `plans/P-1794197261-edaaa218-antigravity-agent-gemini-3.8-flash-medium_calibration.md` included in PR #149).
 
 ## Problem
 

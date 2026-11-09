@@ -55,7 +55,9 @@ Verify the local environment satisfies all execution requirements:
 
 ### Phase 2: Upstream Git Synchronization (Optional)
 
-Unless `--no-sync` is specified, fetch the latest references and fast-forward trunk:
+Unless `--no-sync` is specified, fetch the latest references and fast-forward trunk. The `main` worktrees must be on
+`main`, free of tracked changes and identical to `origin/main`, because the editable CLI install runs the code in them;
+the script stops with an error otherwise instead of building from a stray branch:
 
 ```bash
 git -C apps/holon-agentic-coder/main fetch origin
@@ -67,21 +69,26 @@ git -C apps/holon-coherence/main pull --ff-only origin main
 
 ### Phase 3: Docker Image Builds via Docker Buildx Bake
 
-Rebuild all container images with latest source and dependencies:
+Rebuild all container images with latest source and dependencies. Builds never run in the `main` worktrees: the script
+cuts a temporary detached worktree (`build-images-<sha>`) at `origin/main`, builds from it and removes it. Doing it by
+hand, do the same:
 
 ```bash
+git -C apps/holon-agentic-coder/main worktree add --detach ../build-images-<sha> origin/main
 # 1. Build all holon-agentic-coder images (base, agents, orchestrator)
-make -C apps/holon-agentic-coder/main build-images
-# Or: ./apps/holon-agentic-coder/main/apps/sandbox-executor/build_all_images.sh
+./apps/holon-agentic-coder/build-images-<sha>/apps/sandbox-executor/build_all_images.sh
+git -C apps/holon-agentic-coder/main worktree remove --force ../build-images-<sha>
 
+git -C apps/holon-coherence/main worktree add --detach ../build-images-<sha> origin/main
 # 2. Build holon-coherence proxy image
-make -C apps/holon-coherence/main build-image
-# Or: ./apps/holon-coherence/main/build_image.sh
+./apps/holon-coherence/build-images-<sha>/build_image.sh
+git -C apps/holon-coherence/main worktree remove --force ../build-images-<sha>
 ```
 
 ### Phase 4: CLI Tool Installation via `uv tool install`
 
-Install or update the CLI executables in `~/.local/bin/`:
+Install or update the CLI executables in `~/.local/bin/`. This is the one sanctioned use of the `main` worktree: the
+editable install points at it, which is why it must stay on `main`, identical to `origin/main`:
 
 ```bash
 # 1. Install holon CLI

@@ -45,7 +45,9 @@ gh pr view <pr_number_or_url> --repo <owner>/<repo> --json state,mergedAt,mergeC
 
 If `state != "MERGED"`, halt and inform the user that the PR is still open.
 
-Once confirmed merged, fetch and fast-forward `main` in the target repository:
+Once confirmed merged, fetch and fast-forward `main` in the target repository. The `main` worktree must already be on
+`main` and clean: flows run in their own `flow-<slug>` worktree and never leave it elsewhere. If it is on another branch
+or has tracked changes, do not paper over it: report it, because something ran in the `main` worktree.
 
 ```bash
 # For holon-agentic-coder
@@ -57,7 +59,8 @@ git -C apps/holon-coherence/main fetch origin
 git -C apps/holon-coherence/main pull --ff-only origin main
 ```
 
-Verify that `git -C apps/<repo>/main rev-parse HEAD` matches `mergeCommit.oid`.
+Verify that `git -C apps/<repo>/main rev-parse HEAD` matches `mergeCommit.oid`. Step 4 also removes the flow's
+`flow-<slug>` worktree and its branch.
 
 ---
 
@@ -124,8 +127,10 @@ Locate the bean corresponding to the merged work under `.beans/`.
 Remove the temporary worktree created for the flow/PR:
 
 ```bash
-# 1. Remove the PR worktree
-git -C apps/<repo> worktree remove apps/<repo>/pr<N>-<slug>
+# 1. Remove the flow's worktree (`flow-<slug>`) or the PR worktree, and any leftover `build-images-<sha>` worktree
+git -C apps/<repo> worktree remove apps/<repo>/flow-<slug>
+git -C apps/<repo> worktree remove apps/<repo>/pr<N>-<slug>  # only if one was created
+git -C apps/<repo> branch -D flow-<slug>
 
 # 2. Prune any detached worktree refs
 git -C apps/<repo> worktree prune

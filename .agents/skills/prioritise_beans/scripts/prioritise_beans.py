@@ -239,7 +239,7 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     ),
     "",
     (
-        "**2026-11-06 to 2026-11-09:** Twelve further `holon-agentic-coder` flow PRs merged: **Bean 0244** (PR #133, "
+        "**2026-11-06 to 2026-11-09:** Sixteen further `holon-agentic-coder` flow PRs merged: **Bean 0244** (PR #133, "
         "`2a56a89`, merged 2026-11-06: immutable append-only KB/WB fact records in `wisdom.py` with hermetic "
         "no-touch assertions), **Bean 0245** (PR #134, `4113f0d`: fix resolver runner build command), **Bean 0247** "
         "(PR #135: flow auto-creates the target "
@@ -260,25 +260,28 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "adapter in `sandbox_executor.git` routing all executor git calls; 3/3 consensus on iteration 1, calibration "
         "ΔEV +7.10), **Bean 0233** (PR #145, `8b1e668`: fail fast when the resolved `--target-worktree` or a "
         "checkpoint's recorded worktree is not an attached git working tree; 3/3 consensus at iteration 4 on "
-        "claude-agent/claude-opus-5-5, calibration ΔEV +14.85), and **Bean 0149** (PR #146, `4682449`: globally unique "
+        "claude-agent/claude-opus-5-5, calibration ΔEV +14.85), **Bean 0149** (PR #146, `4682449`: globally unique "
         "`P-...` and `E-...` stage IDs with 8-char hex disambiguators and ledger duplicate validation; 3/3 consensus "
-        "at iteration 5), and **Bean 0254** (PR #147, `7258f61`: `flow.py` split into a `flow/` package, move-only, "
+        "at iteration 5), **Bean 0254** (PR #147, `7258f61`: `flow.py` split into a `flow/` package, move-only, "
         "AST-verified, with a per-module size ratchet; 3/3 consensus at iteration 5 on claude-agent/claude-opus-5-5, "
-        "calibration ΔEV −59.40, distorted by Beans 0257 and 0253), and **Bean 0258** (PR #148, `b6cd9a6`: pinned "
+        "calibration ΔEV −59.40, distorted by Beans 0257 and 0253), **Bean 0258** (PR #148, `b6cd9a6`: pinned "
         "`uv` 0.13.7 in the `holon-base` image with a build-time smoke check; a resolver that cannot run its checks "
         "or whose container fails now halts the review loop; the consensus post reports the real approval fraction and "
         "open findings; 3/3 consensus at iteration 5 on claude-agent/claude-opus-5-5, calibration ΔEV −65.23, "
-        "distorted by Beans 0257 and 0253). "
+        "distorted by Beans 0257 and 0253), and **Bean 0257** (PR #149, `c554e8e`: dual Actual EV in Stage 5 "
+        "calibration via `calibration_ev.py` and `calibration.py` reporting both Clean/Intrinsic EV without bugs and "
+        "Observed EV with bugs included plus Bug EV Drag; 3/3 consensus at iteration 4 on "
+        "antigravity-agent/gemini-3.8-flash-medium, predicted EV +6.24, Clean EV +6.07 / ΔEV_clean −0.17, Observed EV "
+        "−2.43, Bug EV Drag +8.50). "
         "New beans logged: **Bean 0252** (resolver preserves its rejected diff and full test output on pre-push "
         "failure), **Bean 0253** (calibration branches from the origin PR head, not a stale local ref), **Bean 0255** "
-        "(streaming per-issue resolvers during Stage 4 CI & review with a single consolidated commit), **Bean 0256** "
-        "(resolver agent committing locally causes `_commit_and_push_resolution` to skip verification and `git push`), "
-        "and **Bean 0257** (dual Actual EV in Stage 5 calibration: report both Clean/Intrinsic EV without bugs and "
-        "Observed EV with bugs included)."
+        "(streaming per-issue resolvers during Stage 4 CI & review with a single consolidated commit), and **Bean "
+        "0256** (resolver agent committing locally causes `_commit_and_push_resolution` to skip verification and "
+        "`git push`)."
     ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0251)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0258)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
@@ -315,11 +318,11 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Merge / In-Flight State (2026-11-09):** `holon-agentic-coder` PRs #133–#148 all merged (Beans 0244, 0245, "
-        "0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, 0254, 0258); trunk is at `b6cd9a6`, "
-        "installed editable; images were rebuilt from it with `uv` 0.13.7 in the base image. `flow.py` is now the `flow/` package, so "
-        "beans touching different `flow/` submodules can run in parallel. **Bean 0257** is in flight (PR #149) "
-        "via another session. Harness PR #58 merged into `main` and operational "
+        "**Merge / In-Flight State (2026-11-09):** `holon-agentic-coder` PRs #133–#149 all merged (Beans 0244, 0245, "
+        "0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, 0254, 0258, 0257); trunk is at "
+        "`c554e8e`, installed editable, and images rebuilt via `install-holon` with `uv` 0.13.7 in the base image and "
+        "Dual-EV calibration in `holon/orchestrator`. `flow.py` is now the `flow/` package, so beans touching "
+        "different `flow/` submodules can run in parallel. Harness PR #58 merged into `main` and operational "
         "tracking PR #59 is open on `docs/harness-20261106`. `fix/0227-proxy-readiness-http-probe` (`36c9765`, "
         "Bean 0227) has a green test suite and awaits the maintainer's call on PR creation. Coherence PR #41 "
         "(Bean 0208, `2f30d6e`) needs its 9 unit test failures resolved on its execution branch before Stage 4 "
@@ -328,7 +331,7 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "",
     (
         "Sequential & Disjoint Lanes, holon-agentic-coder (Bean 0254 landed: lanes are now per `flow/` submodule; "
-        "items 1–3 can run concurrently, but items within the item-1 lane stay sequential):"
+        "items 1–2 can run concurrently, but items within the item-1 lane stay sequential):"
     ),
     "",
     (
@@ -343,42 +346,35 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "rejected diff and full pytest output on pre-push failure in `entrypoint/review_loop.py`)."
     ),
     (
-        "2. **Bean 0257** (`calibration.py` + `calibration_ev.py` — **disjoint from `flow.py`**): compute and report "
-        "**Dual Actual EV** in Stage 5 calibration — both `Actual EV — Clean` (`ev_clean`, intrinsic value without "
-        "pre-existing/pipeline bugs, treating `halted_for_human` consensus and `E-...` success as `p_success=1.0`) "
-        "and `Actual EV — Observed` (`ev_with_bugs`, raw end-to-end EV with intermediate failures included), plus "
-        "`bug_ev_drag`."
-    ),
-    (
-        "3. **Bean 0253** (`flow/stages/calibrate.py` + `flow/git_refs.py`): calibration branches from "
-        "`origin/<E>/_` so `/calibrated` fast-forwards into the PR (it recurred on PR #147). It is disjoint from "
-        "0257's `calibration.py`."
+        "2. **Bean 0253** (`flow/stages/calibrate.py` + `flow/git_refs.py` — **disjoint from "
+        "`entrypoint/review_loop.py`**): calibration branches from `origin/<E>/_` so `/calibrated` fast-forwards into "
+        "the PR (it recurred on PR #147)."
     ),
     (
         "   - Afterwards: **Bean 0255** (streaming per-issue resolvers with a single consolidated commit, after "
         "0258/0256/0252 in the resolver lane, paired with **Bean 0234** + **Bean 0160**), and **Bean 0151** (planner "
         "touch-set estimation that blocks overlapping concurrent flows; Bean 0254 made it practical)."
     ),
-    ("4. **Bean 0231** (exhausted-budget error string interpolates raw count while payload reports clamped 0)."),
+    ("3. **Bean 0231** (exhausted-budget error string interpolates raw count while payload reports clamped 0)."),
     (
-        "5. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean "
+        "4. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean "
         "0190** (checkpoint and ledger reconciliation; entrypoints stop importing flow). Both precede **Bean 0183** "
         "(every stage and engine bookkeeping step sandboxed in its own clone)."
     ),
     (
-        "6. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), "
+        "5. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), "
         "then **Bean 0146** (plans-ledger correction rows; calibration picks the right predicted metrics). Bean 0197 "
-        "follows 0146 and 0257 because they touch `calibration.py`."
+        "follows 0146 because both touch `calibration.py`."
     ),
     (
-        "7. **Decomposition lanes from Bean 0177** once `0254` lands, in parallel where packages differ: "
+        "6. **Decomposition lanes from Bean 0177** once `0254` lands, in parallel where packages differ: "
         "0191 then 0192 (GitHub adapter, `ReviewLoop`), 0193, 0194, 0196 (now unblocked by 0195 PR #144 once 0190 "
-        "lands), 0197 (after 0146/0257), 0198 and 0199 (all tracked by umbrella Bean 0152). Bean 0153 runs per "
+        "lands), 0197 (after 0146), 0198 and 0199 (all tracked by umbrella Bean 0152). Bean 0153 runs per "
         "package with or right after that package's decomposition. **Bean 0213** (reflect remaining skill rules into "
         "native review-loop agent) is unblocked now that 0221 is complete."
     ),
     (
-        "9. **Bean 0157** (mitmproxy sidecar reachability, alongside **Bean 0227**), **Bean 0161** (nested sub-intent "
+        "7. **Bean 0157** (mitmproxy sidecar reachability, alongside **Bean 0227**), **Bean 0161** (nested sub-intent "
         "branches), **Bean 0181** (`/_` only on branch refs), **Bean 0155** then **Bean 0148** (redaction), **Beans "
         "0172, 0174, 0173, 0223** (budgets, env-var reference, layered `.env`, CLI flag vs env audit), **Bean 0200** "
         "(holon-coherence owns token reduction; after 0189), and **Bean 0176** (pytest-only conversion of every test "
@@ -461,24 +457,9 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "S",
         "domain": "Review Loop / Resolver",
         "notes": (
-            "Disjoint from `flow.py` (touches `entrypoint/review_loop.py` and `test_review_loop.py`). Capture "
+            "Disjoint from `flow/` (touches `entrypoint/review_loop.py` and `test_review_loop.py`). Capture "
             "`pre_resolver_head` before `_run_resolver_agent` and `git reset --soft <pre_resolver_head>` if `HEAD` "
             "moved, so `_commit_and_push_resolution` always verifies, attaches trailers, commits, and pushes."
-        ),
-    },
-    "0257": {
-        "title": (
-            "Dual Actual EV in Stage 5 calibration: report both Intrinsic EV (without bugs) and Observed EV "
-            "(with bugs included)"
-        ),
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "M",
-        "domain": "Stage 5 / Calibration",
-        "notes": (
-            "Disjoint from `flow.py` (touches `calibration.py` + new helper module). Separates `E-...` and converged "
-            "`REV-...` (`halted_for_human`) outcomes (`ev_clean`) from intermediate bug/failure rows "
-            "(`ev_with_bugs`) and reports `bug_ev_drag`."
         ),
     },
     "0255": {
@@ -1772,9 +1753,10 @@ def generate_triage_document(
             ),
             (
                 "29. **Immutable KB/WB Facts, Worktree Auto-Provisioning & Validation, Persistent Review Sandbox, "
-                "Prompt Complexity Rules, Executor GitRepository Adapter, and Globally Unique Stage IDs "
-                "(Beans 0242, 0244, 0245, 0247–0251, 0236, 0243, 0201, 0241, 0195, 0233, 0149 / HAC PRs #132–#146, "
-                "2026-11-06 to 2026-11-09)**:"
+                "Prompt Complexity Rules, Executor GitRepository Adapter, Globally Unique Stage IDs, `flow/` Package "
+                "Split, Pinned Container `uv`, and Dual-EV Calibration "
+                "(Beans 0242, 0244, 0245, 0247–0251, 0236, 0243, 0201, 0241, 0195, 0233, 0149, 0254, 0258, 0257 / "
+                "HAC PRs #132–#149, 2026-11-06 to 2026-11-09)**:"
             ),
             (
                 "    - `0242` (#132, `d932d48`), `0244` (#133, `2a56a89`), `0245` (#134, `4113f0d`), `0247` (#135), "
@@ -1801,6 +1783,22 @@ def generate_triage_document(
             (
                 "    - `0149` (#146, `4682449`): globally unique `P-...` and `E-...` stage IDs with 8-character hex "
                 "disambiguators and ledger duplicate validation across concurrent intents."
+            ),
+            (
+                "    - `0254` (#147, `7258f61`): decomposed monolithic `flow.py` (6,159 lines) into the modular "
+                "`sandbox_executor/flow/` package (`stages/`, `git_refs.py`, `ci_gate.py`, `review_consensus.py`, "
+                "etc.) with AST-verified move-only parity and per-module size ratchets."
+            ),
+            (
+                "    - `0258` (#148, `b6cd9a6`): pinned `uv` 0.13.7 in `holon-base` with a build-time smoke check and "
+                "made resolver check/container failures fail-closed in Stage 4."
+            ),
+            (
+                "    - `0257` (#149, `c554e8e`): implemented Dual Actual EV in Stage 5 calibration "
+                "(`calibration_ev.py` and `calibration.py`), reporting both Intrinsic/Clean EV (`ev_clean`, without "
+                "bugs) and Observed EV (`ev_with_bugs`, with bugs included) plus `bug_ev_drag` (predicted EV `+6.24`, "
+                "Clean EV `+6.07` / $\\Delta\\text{EV}_{\\text{clean}} = -0.17$, Observed EV `-2.43`, Bug EV Drag "
+                "`+8.50`)."
             ),
             "",
             "---",

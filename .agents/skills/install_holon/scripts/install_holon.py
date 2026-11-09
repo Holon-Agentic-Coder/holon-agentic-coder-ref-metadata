@@ -8,9 +8,11 @@ and install/update the latest versions of the holon and holon-coherence CLIs via
 from __future__ import annotations
 
 import argparse
+import contextlib
 import shutil
 import subprocess
 import sys
+from collections.abc import Iterator
 from pathlib import Path
 
 # Terminal colors
@@ -87,24 +89,55 @@ def check_prerequisites() -> None:
     log_success(f"Found Docker Buildx: {res.stdout.strip()}")
 
 
-def sync_git_worktree(repo_path: Path, dry_run: bool = False) -> None:
-    log_info(f"Syncing repository worktree at {repo_path}...")
-    if not (repo_path / ".git").exists() and not (repo_path.parent / ".git").exists():
-        log_warn(f"Directory {repo_path} does not appear to be a Git repository; skipping fetch.")
-        return
+def _git_out(repo_path: Path, *args: str) -> str:
+    res = subprocess.run(["git", *args], cwd=repo_path, capture_output=True, text=True, check=False)
+    return res.stdout.strip() if res.returncode == 0 else ""
 
+
+def sync_git_worktree(repo_path: Path, dry_run: bool = False) -> None:
+    """Fast-forward the ``main`` worktree to ``origin/main``, refusing to continue if it is not pristine.
+
+    The ``main`` worktree must stay on ``main``, identical to ``origin/main``: the editable CLI install runs the code in
+    it. If it is on another branch, has tracked changes or cannot fast-forward, stop instead of building from it.
+    """
+    log_info(f"Syncing repository worktree at {repo_path}...")
     run_cmd(["git", "fetch", "origin"], cwd=repo_path, dry_run=dry_run)
-    # Check if currently on main
-    branch_res = subprocess.run(
-        ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-        cwd=repo_path,
-        capture_output=True,
-        text=True,
-    )
-    current_branch = branch_res.stdout.strip()
-    if current_branch == "main":
-        run_cmd(["git", "pull", "--ff-only", "origin", "main"], cwd=repo_path, dry_run=dry_run, check=False)
-    log_success(f"Synchronised {repo_path.name} on branch {current_branch}.")
+    if dry_run:
+        return
+    current_branch = _git_out(repo_path, "rev-parse", "--abbrev-ref", "HEAD")
+    if current_branch != "main":
+        log_error(
+            f"{repo_path} is on '{current_branch}', not 'main'. The main worktree must stay on main; restore it "
+            "(git checkout main) once nothing is using it, then re-run."
+        )
+        sys.exit(1)
+    if _git_out(repo_path, "status", "--porcelain", "--untracked-files=no"):
+        log_error(f"{repo_path} has uncommitted tracked changes; the main worktree must match origin/main.")
+        sys.exit(1)
+    run_cmd(["git", "pull", "--ff-only", "origin", "main"], cwd=repo_path)
+    if _git_out(repo_path, "rev-parse", "HEAD") != _git_out(repo_path, "rev-parse", "origin/main"):
+        log_error(f"{repo_path} is not identical to origin/main after the fast-forward.")
+        sys.exit(1)
+    log_success(f"Synchronised {repo_path.parent.name}/main at origin/main.")
+
+
+@contextlib.contextmanager
+def build_worktree(repo_path: Path, dry_run: bool = False) -> Iterator[Path]:
+    """Yield a temporary detached worktree at ``origin/main`` to build images from, then remove it.
+
+    Image builds never run in the ``main`` worktree: they must not leave generated files or local state in it.
+    """
+    if dry_run:
+        yield repo_path
+        return
+    sha = _git_out(repo_path, "rev-parse", "--short", "origin/main")
+    build_path = repo_path.parent / f"build-images-{sha}"
+    run_cmd(["git", "worktree", "remove", "--force", str(build_path)], cwd=repo_path, check=False)
+    run_cmd(["git", "worktree", "add", "--detach", str(build_path), "origin/main"], cwd=repo_path)
+    try:
+        yield build_path
+    finally:
+        run_cmd(["git", "worktree", "remove", "--force", str(build_path)], cwd=repo_path, check=False)
 
 
 def build_holon_agentic_coder_images(repo_path: Path, no_cache: bool = False, dry_run: bool = False) -> None:
@@ -231,9 +264,11 @@ def main() -> None:
     # 2. Build Docker images
     if not args.skip_images:
         if build_holon and holon_agentic_coder_path.exists():
-            build_holon_agentic_coder_images(holon_agentic_coder_path, no_cache=args.no_cache, dry_run=args.dry_run)
+            with build_worktree(holon_agentic_coder_path, dry_run=args.dry_run) as build_path:
+                build_holon_agentic_coder_images(build_path, no_cache=args.no_cache, dry_run=args.dry_run)
         if build_coherence and holon_coherence_path.exists():
-            build_holon_coherence_images(holon_coherence_path, no_cache=args.no_cache, dry_run=args.dry_run)
+            with build_worktree(holon_coherence_path, dry_run=args.dry_run) as build_path:
+                build_holon_coherence_images(build_path, no_cache=args.no_cache, dry_run=args.dry_run)
 
     # 3. Install CLIs via uv tool install
     if not args.skip_tools:
