@@ -164,6 +164,11 @@ When you are spawned or begin a new session, follow these steps sequentially:
    - **The `main` worktree is the user's playground.** `apps/holon-agentic-coder/main` and `apps/holon-coherence/main`
      are off-limits to agents: never edit, stage, commit, stash, reset, clean or checkout in them, never build into or
      leave stray files there, and do not mutate their local state either (`.venv/`, caches, generated artifacts).
+   - **A flow never runs in the `main` worktree, even when its target branch is `main`.** `holon flow` checks out the
+     execution branch in `--target-worktree` and commits calibration and ledger rows there, so pass a dedicated
+     `apps/<project>/task-<bean-id>-<slug>` worktree cut from `origin/main`. The target branch is only the PR base. The
+     `main` worktree must stay on `main`, identical to `origin/main` including local files. The same goes for image
+     builds: use a separate temporary worktree.
    - If changes have already landed in a `main` worktree, move them into a dedicated worktree and restore `main` to a
      pristine checkout of its committed state.
 6. **Format Before Commit**: In the harness repository, always execute `npx prettier --write "**/*.md"` before

@@ -145,6 +145,13 @@ def run_prerequisites_check(target_worktree: Path) -> None:
         sys.exit(1)
 
     # Check target worktree
+    if target_worktree.name == "main":
+        log_error(
+            f"Refusing to run the flow in the 'main' worktree: {target_worktree}. Create a dedicated worktree "
+            "(git worktree add --no-track -b task/<bean-id>-<slug> ../task-<bean-id>-<slug> origin/main) and pass that."
+        )
+        sys.exit(1)
+
     if not target_worktree.exists():
         log_error(f"Target worktree does not exist: {target_worktree}")
         sys.exit(1)
@@ -383,8 +390,11 @@ def main() -> None:
     parser.add_argument(
         "--target-worktree",
         type=Path,
-        default=Path("apps/holon-agentic-coder/main"),
-        help="Path to target git worktree (default: apps/holon-agentic-coder/main).",
+        required=True,
+        help=(
+            "Path to a dedicated git worktree for this flow, e.g. apps/holon-agentic-coder/task-<bean-id>-<slug>. "
+            "The 'main' worktree is never a valid target: the flow checks out and commits on branches there."
+        ),
     )
     parser.add_argument(
         "--agent",

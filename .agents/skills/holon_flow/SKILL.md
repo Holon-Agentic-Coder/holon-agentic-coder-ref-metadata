@@ -35,8 +35,12 @@ multi-hour containerised lifecycle, **the flow is executed inside a dedicated ba
 3. **Canonical `holon flow` Runner**: Changes to target codebases MUST always be executed using the unified
    `holon flow <intent.json>` runner directly (or with `--from-stage` / `--checkpoint` when resuming). Never use ad-hoc
    wrapper scripts (such as `holon-stage.sh`) and never run disconnected manual stage commands.
-4. **Canonical `--target-worktree` Flag**: Following Bean 0249, the CLI accepts strictly `--target-worktree <path>`
-   (defaulting to `apps/holon-agentic-coder/main` or `apps/holon-coherence/main`). Legacy `--repo-dir` is completely
+4. **Canonical `--target-worktree` Flag**: Following Bean 0249, the CLI accepts strictly `--target-worktree <path>` and
+   it has no safe default. **Always pass a dedicated per-flow worktree** (`apps/<project>/task-<bean-id>-<slug>`, cut
+   from `origin/main` with `git worktree add --no-track -b task/<bean-id>-<slug> ../task-<bean-id>-<slug> origin/main`
+   from the bare repository), **never the `main` worktree**, even though the PR targets `main`. The flow checks out the
+   execution branch in that worktree and commits calibration and ledger rows there, and the `main` worktree must stay on
+   `main` and identical to `origin/main`. Remove the worktree after the PR merges. Legacy `--repo-dir` is completely
    removed and must never be passed.
 5. **Automatic Model & Runner Fallback Ladder**: If any stage or subagent encounters model credit exhaustion, session
    limits, rate limits, or HTTP 429 errors (`You've hit your session limit`, `insufficient_quota`,
@@ -99,7 +103,8 @@ Inside the background subagent, perform pre-flight verification:
    `~/.local/bin/holon`).
 2. **Verify Docker Daemon**: Ensure Docker is running (`docker info`).
 3. **Verify Intent JSON**: Read and parse `<intent_path>`. Ensure `slug`, `goal`, and `description` are present.
-4. **Verify Target Worktree**: Ensure `--target-worktree` exists and is a clean git repository.
+4. **Verify Target Worktree**: Ensure `--target-worktree` is a dedicated per-flow worktree (never `main`) that exists
+   and is a clean git repository. Create it first if it does not exist.
 5. **Determine Runner & Model**:
    - Default agent: `antigravity-agent` (or `claude-agent`)
    - Default model: `gemini-3.8-flash-medium` (or `claude-fable-5` / `claude-opus-5-5`)
