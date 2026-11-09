@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-08 23:51:06 UTC
+**Last Updated:** 2026-11-09 00:34:45 UTC
 
 ## Executive Summary
 
@@ -14,10 +14,10 @@ Concurrent flows on overlapping files (#94, #95 and #96 all changed `flow.py` an
 re-reviews: 141 review-loop passes from the first sync onward, about 10M+ tokens. Beans 0151 and 0152 address that, and
 overlapping flows now run one after another.
 
-- **Total Tracked Beans**: 251 (excluding template)
-- **Completed**: 197 (78.5%)
+- **Total Tracked Beans**: 253 (excluding template)
+- **Completed**: 198 (78.3%)
 - **Scrapped / Superseded**: 3 (1.2%)
-- **Active**: 51 (20.3%), of which 3 are in progress and 48 are todo
+- **Active**: 52 (20.6%), of which 4 are in progress and 48 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -180,7 +180,11 @@ consensus on iteration 1 with zero findings, calibration ΔEV +6.84 on claude-ag
 into `main`. PRs #142 and #144 also merged. **Bean 0241** (PR #143, `a17a854`: persist the Stage 4 review loop sandbox
 across iterations with incremental git sync) converged at review iteration 10 after stepping down from fable to opus
 (resolver pre-push tests failed at iterations 5-6) and switching cross-runner to
-antigravity-agent/gemini-3.8-flash-medium; calibration ΔEV +18.97.
+antigravity-agent/gemini-3.8-flash-medium; calibration ΔEV +18.97. **Bean 0233** (PR #145, `8b1e668`: fail fast when the
+resolved `--target-worktree` or a checkpoint's recorded worktree is not an attached git working tree; 3/3 consensus at
+iteration 4 on claude-agent/claude-opus-5-5, calibration ΔEV +14.85) followed and merged. New beans logged: **Bean
+0252** (resolver preserves its rejected diff and full test output on pre-push failure) and **Bean 0253** (calibration
+branches from the origin PR head, not a stale local ref), both found during the PR #143 run.
 
 ---
 
@@ -454,7 +458,6 @@ antigravity-agent/gemini-3.8-flash-medium; calibration ΔEV +18.97.
 | **P0**   | todo        |  High  |   L    | 0183   | Every flow stage works in its own sandboxed clone; `holon flow` needs no host checkout                      | Holon Flow / Sandbox       | Stages 1-3 already clone in-container; move checkpoint, engine git checks and Stage 5 calibration into sandboxed clones so concurrent flows never share or require a host worktree. Pairs with 0179, 0149, 0151.                                              |
 | **P0**   | todo        |  High  |   S    | 0160   | Review loop burns its iteration budget polling pending CI, then reports test failures                       | Review Loop / CI           | PR #101 added bounded CI waiting within the iteration budget; remaining: separate `HOLON_REVIEW_CI_WAIT_SECONDS` budget and pending-vs-failed error reporting. Pair with 0234.                                                                                |
 | **P0**   | todo        |  High  |   L    | 0151   | Planner estimates the touch set; overlapping concurrent flows are blocked                                   | Holon Flow / Concurrency   | Unblocked by 0159 (#97 merged). Re-plan on the new `main`; land 0149 first. Must handle `{parent}--{n}-{slug}` child branches.                                                                                                                                |
-| **P1**   | todo        |  High  |   S    | 0233   | Validate that `--repo-dir` is an attached git worktree                                                      | CLI / Flow Validation      | Fail fast before Stage 1 or checkpoint resume if `--repo-dir` is a bare repo or non-worktree directory (`git rev-parse --is-inside-work-tree`), preventing hours-in Stage 4/5 host checkout crashes. Intent in `todo/`.                                       |
 | **P1**   | todo        | Medium |   S    | 0234   | Event-driven CI check progress reporting during Stage 4 review                                              | Review Loop / Logging      | Log total CI pipelines once at start (`Tracking N GitHub CI check(s)...`) and emit a log line only when a check completes or changes state, suppressing 15 s polling noise. Intent in `todo/`; pair with 0160.                                                |
 | **P1**   | todo        |  High  |   M    | 0224   | Claude credentials just work: auto-discover the secrets file, map by type, no HOLON_AGENT_KEY               | Agent Runner / Credentials | Touches `agent_runner.py`/pre-flight only - disjoint from `flow.py`. Kills the `HOLON_AGENT_SETTINGS` echo-pad tunnel; `--settings` value redacted in command echoes. Before 0225.                                                                            |
 | **P1**   | in-progress |  High  |   S    | 0227   | Sidecar readiness probe false positive (docker-proxy accepts before mitmproxy binds)                        | Token Reduce / Proxy       | Fix complete on `fix/0227-proxy-readiness-http-probe` (`36c9765`), suite green; hand-authored under the explicit-instruction exception. Awaiting maintainer call on PR creation.                                                                              |
@@ -468,7 +471,7 @@ antigravity-agent/gemini-3.8-flash-medium; calibration ΔEV +18.97.
 | **P1**   | todo        |  High  |   S    | 0175   | Check GitHub token scopes before Stage 3 when the plan touches workflow files                               | Holon Flow / GitHub        | A 55-minute Stage 3 for Bean 0168 was lost to a push rejected for the missing `workflow` scope. Complements 0171 (#108 merged, refused-push patch salvage).                                                                                                   |
 | **P1**   | todo        |  High  |   S    | 0157   | `holon flow` auto-enables the mitmproxy sidecar; role containers cannot reach it                            | Holon Flow / Proxy         | Workaround: `HOLON_TOKEN_REDUCE=0`. Pairs with 0227 (`fix/0227-proxy-readiness-http-probe`).                                                                                                                                                                  |
 | **P1**   | todo        |  High  |   M    | 0161   | Decomposed sub-intents have no flow path to `main` and do not build on each other                           | Holon Flow                 | Deferred from #97. Implement the 2026-10-29 rulings: nest under the deciding node, merge into the deciding plan/execution branch, nested PRs automatic, sibling slugs distinct. Docs: PRs #103, #110 and #113 (all merged).                                   |
-| **P1**   | todo        |  High  |   M    | 0149   | Plan and execution IDs collide across concurrently planned intents                                          | Provenance / Planner       | #91 and #92 shared `P-1792765112`. Prerequisite for 0151.                                                                                                                                                                                                     |
+| **P1**   | in-progress |  High  |   M    | 0149   | Plan and execution IDs collide across concurrently planned intents                                          | Provenance / Planner       | #91 and #92 shared `P-1792765112`. Prerequisite for 0151.                                                                                                                                                                                                     |
 | **P1**   | todo        |  High  |   M    | 0155   | General `HOLON_*` forwarding puts credential-shaped values on the docker argv                               | Security                   | Already on main. Default fix: send every `HOLON_*` value through the 0600 env-file.                                                                                                                                                                           |
 | **P1**   | todo        |  High  |   M    | 0148   | Redact before truncating ledger `error_context`; close `CredentialRedactor` gaps                            | Security / Ledger          | Route those rows through `redact_agent_secrets`.                                                                                                                                                                                                              |
 | **P1**   | todo        | Medium |   M    | 0146   | Plans-ledger correction rows; calibration picks the right predicted metrics                                 | Calibration / Ledger       | Every calibration in the 2026-10-26 batch needed a manual annotation. Runs before 0197 (same parser).                                                                                                                                                         |
@@ -501,6 +504,8 @@ antigravity-agent/gemini-3.8-flash-medium; calibration ΔEV +18.97.
 | **P2**   | todo        |  High  |   L    | 0142   | Real-workload benchmark: Qwen3.8-27B dense vs Flash-Next MoE                                                | Model Selection            | Real data only (AGENTS.md item 10).                                                                                                                                                                                                                           |
 | **P3**   | todo        |  Low   |   XS   | 0231   | Exhausted-budget error string interpolates raw count while payload reports clamped 0                        | Flow Engine / Cosmetic     | PR #124 loop deferral (cosmetic, out-of-increment). Touches `flow.py` - bundle with 0230.                                                                                                                                                                     |
 | **P3**   | todo        | Medium |   M    | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                                         | vmlx / Performance         | Pairs with 0142.                                                                                                                                                                                                                                              |
+| **P1**   | todo        |  High  |   M    | 0253   | Stage 5 calibration branches from the origin PR head, not a stale local execution ref                       | Ledger / Observability     |                                                                                                                                                                                                                                                               |
+| **P1**   | todo        |  High  |   M    | 0252   | Stage 4 resolver preserves its rejected diff and full test output when pre-push tests fail                  | Ledger / Observability     |                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   M    | 0246   | Fix pr-review-loop skill to strictly post consensus review once and prohibit dual-posting via gh pr comment | Flow / Architecture        |                                                                                                                                                                                                                                                               |
 
 ---
@@ -528,18 +533,19 @@ failure repair (#129), Stage 5 calibration knowledge/wisdom artifact commits (#1
 fail-closed verification defaults (#131) are all live. `HOLON_TOKEN_REDUCE=0` stays the workaround until Beans 0227 and
 0157 land. Set `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172 lands.
 
-**Merge / In-Flight State (2026-11-09):** `holon-agentic-coder` PRs #133–#144 all merged (Beans 0244, 0245, 0247, 0248,
-0249, 0251, 0236, 0250, 0243, 0241); trunk is at `a17a854`, installed editable with images rebuilt via `install-holon`.
-No open flow PRs. Harness PR #58 merged into `main` and operational tracking PR #59 is open on `docs/harness-20261106`.
-`fix/0227-proxy-readiness-http-probe` (`36c9765`, Bean 0227) has a green test suite and awaits the maintainer's call on
-PR creation. Coherence PR #41 (Bean 0208, `2f30d6e`) needs its 9 unit test failures resolved on its execution branch
-before Stage 4 review and Stage 5 calibration.
+**Merge / In-Flight State (2026-11-09):** `holon-agentic-coder` PRs #133–#145 all merged (Beans 0244, 0245, 0247, 0248,
+0249, 0251, 0236, 0250, 0243, 0241, 0233); trunk is at `8b1e668`, installed editable with images rebuilt via
+`install-holon`. PR #146 (Bean 0149, unique plan and execution IDs) is in flight. Harness PR #58 merged into `main` and
+operational tracking PR #59 is open on `docs/harness-20261106`. `fix/0227-proxy-readiness-http-probe` (`36c9765`,
+Bean 0227) has a green test suite and awaits the maintainer's call on PR creation. Coherence PR #41 (Bean 0208,
+`2f30d6e`) needs its 9 unit test failures resolved on its execution branch before Stage 4 review and Stage 5
+calibration.
 
 Sequential lane, holon-agentic-coder (fast UX/reliability wins first, then `flow.py` split):
 
-1. **Bean 0233** (validate fail-fast that `--target-worktree` is an attached Git worktree before Stage 1 or resume;
-   intent ready in `todo/intent-0233-validate-repo-dir-is-git-worktree.json`). Prevents non-worktree directories from
-   running Stages 1-3 in containers only to fail at Stage 4/5 host checkout.
+1. **Bean 0253** (calibration branches from `origin/<E>/_` so `/calibrated` fast-forwards into the PR) and **Bean 0252**
+   (resolver keeps its rejected diff and full pytest summary on pre-push failure): both remove manual interventions seen
+   on every recent flow; run after the in-flight Bean 0149 (PR #146).
 2. **Bean 0234** + **Bean 0160** (event-driven CI check progress reporting during Stage 4 review — log total pipelines
    once at start and emit a line only as each check completes, with separate CI wait timeout / pending-vs-failed error
    reporting; intent ready in `todo/intent-0234-event-driven-ci-check-progress.json`).

@@ -257,7 +257,11 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "0241** (PR #143, `a17a854`: persist the Stage 4 review loop sandbox across iterations with incremental git "
         "sync) converged at review iteration 10 after stepping down from fable to opus (resolver pre-push tests failed "
         "at iterations 5-6) and switching cross-runner to antigravity-agent/gemini-3.8-flash-medium; calibration "
-        "ΔEV +18.97."
+        "ΔEV +18.97. **Bean 0233** (PR #145, `8b1e668`: fail fast when the resolved `--target-worktree` or a "
+        "checkpoint's recorded worktree is not an attached git working tree; 3/3 consensus at iteration 4 on "
+        "claude-agent/claude-opus-5-5, calibration ΔEV +14.85) followed and merged. New beans logged: **Bean 0252** "
+        "(resolver preserves its rejected diff and full test output on pre-push failure) and **Bean 0253** "
+        "(calibration branches from the origin PR head, not a stale local ref), both found during the PR #143 run."
     ),
 ]
 
@@ -298,9 +302,9 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Merge / In-Flight State (2026-11-09):** `holon-agentic-coder` PRs #133–#144 all merged (Beans 0244, 0245, "
-        "0247, 0248, 0249, 0251, 0236, 0250, 0243, 0241); trunk is at `a17a854`, installed editable with images "
-        "rebuilt via `install-holon`. No open flow PRs. Harness PR #58 merged into `main` and operational tracking PR #59 is open on "
+        "**Merge / In-Flight State (2026-11-09):** `holon-agentic-coder` PRs #133–#145 all merged (Beans 0244, 0245, "
+        "0247, 0248, 0249, 0251, 0236, 0250, 0243, 0241, 0233); trunk is at `8b1e668`, installed editable with "
+        "images rebuilt via `install-holon`. PR #146 (Bean 0149, unique plan and execution IDs) is in flight. Harness PR #58 merged into `main` and operational tracking PR #59 is open on "
         "`docs/harness-20261106`. `fix/0227-proxy-readiness-http-probe` (`36c9765`, Bean 0227) has a green test "
         "suite and awaits the maintainer's call on PR creation. Coherence PR #41 (Bean 0208, `2f30d6e`) needs its 9 "
         "unit test failures resolved on its execution branch before Stage 4 review and Stage 5 calibration."
@@ -309,9 +313,9 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "Sequential lane, holon-agentic-coder (fast UX/reliability wins first, then `flow.py` split):",
     "",
     (
-        "1. **Bean 0233** (validate fail-fast that `--target-worktree` is an attached Git worktree before Stage 1 or "
-        "resume; intent ready in `todo/intent-0233-validate-repo-dir-is-git-worktree.json`). Prevents non-worktree "
-        "directories from running Stages 1-3 in containers only to fail at Stage 4/5 host checkout."
+        "1. **Bean 0253** (calibration branches from `origin/<E>/_` so `/calibrated` fast-forwards into the PR) "
+        "and **Bean 0252** (resolver keeps its rejected diff and full pytest summary on pre-push failure): both "
+        "remove manual interventions seen on every recent flow; run after the in-flight Bean 0149 (PR #146)."
     ),
     (
         "2. **Bean 0234** + **Bean 0160** (event-driven CI check progress reporting during Stage 4 review — log total "

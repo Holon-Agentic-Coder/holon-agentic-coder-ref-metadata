@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0149
 title: "Plan (and execution) IDs collide across intents planned concurrently"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - planner
   - ledger
 created_at: 2026-10-24T02:20:00Z
-updated_at: 2026-10-24T02:20:00Z
+updated_at: 2026-11-09T10:58:30Z
 ---
 
 ## Problem
