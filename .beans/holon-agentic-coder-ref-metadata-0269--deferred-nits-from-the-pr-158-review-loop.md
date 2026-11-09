@@ -21,3 +21,5 @@ Collected by the PR 158 review loop (principle 12 deferral bean). Each was a Nit
   (iteration 4 dry run, out of increment).
 - The removed-definitions consistency test cannot prove the removed key ever existed in the original `flow.py`
   (iteration 5 ensemble, out of increment).
+- `docs/git_flow.md:295` says an exception 'keeps the recorded progress', which no longer holds when the checkpoint save
+  itself fails (iteration 6, out of increment).

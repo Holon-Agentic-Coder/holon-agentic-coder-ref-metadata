@@ -152,3 +152,10 @@ plan-owned; snapshot regenerated on Python 3.13; one child 1 test adapted). **Co
 [PR #158](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/158) into `main` is open** and is in the
 `pr-review-loop` (reviewer ensemble and resolver). Deferrals from that loop are in Bean 0269. Hand over only after
 unanimous consensus with CI green; merging into `main` stays with the maintainer.
+
+**2026-11-10: PR #158 passed the review loop.** Unanimous 3/3 consensus at head `cb9a592` after 6 iterations (CI 11/11,
+mergeable `CLEAN`); the consensus review is posted as a `COMMENT` (GitHub rejects `--approve` on a PR the same account
+authored). The whole PR was reviewed by the full-scope ensemble at `fbaab92`; the final two ensembles were
+increment-scoped (`03a1b61..cb9a592`). Three out-of-increment items are deferred to Bean 0269. **Awaiting the
+maintainer's merge into `main`.** After the merge: install from `main`, close this bean, refresh the triage, recommend
+the next set of concurrent beans, and restart Bean 0262 on the fixed engine.
