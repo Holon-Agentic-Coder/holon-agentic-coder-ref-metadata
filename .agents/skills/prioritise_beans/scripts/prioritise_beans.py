@@ -367,7 +367,7 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "`entrypoint/review_loop.py`):**"
     ),
     (
-        "   - **Bean 0262**: bind-mount host worktree (`flow-<slug>`) directly to "
+        "   - **Bean 0262** (**ON HOLD**: PR #152, sub-intent 1 of 4, is approved 3/3 but waits for Bean 0266; once 0266 merges, merge `origin/main` into the flow branches and re-run its Stage 4 review loop): bind-mount host worktree (`flow-<slug>`) directly to "
         "`/home/holon/.holon-sandbox/workspace`, eliminate named Docker volumes and root `chown` boilerplate, "
         "ruthlessly purge dead in-container git cloning/resetting (`_clone_or_fetch`, `_reset_reused_checkout`, "
         "`_ensure_head`, `_origin_matches`, `ReviewWorkspaceSession`) and all associated mock tests, and unify "

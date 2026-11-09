@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-09 10:43:06 UTC
+**Last Updated:** 2026-11-09 10:43:42 UTC
 
 ## Executive Summary
 
@@ -620,11 +620,12 @@ pairwise-disjoint files and can run concurrently):
      print a single clean summary line matching canonical skill output.
 2. **Sandbox worktree mount & dead git code eradication lane (`flow/review/workspace.py` &
    `entrypoint/review_loop.py`):**
-   - **Bean 0262**: bind-mount host worktree (`flow-<slug>`) directly to `/home/holon/.holon-sandbox/workspace`,
-     eliminate named Docker volumes and root `chown` boilerplate, ruthlessly purge dead in-container git
-     cloning/resetting (`_clone_or_fetch`, `_reset_reused_checkout`, `_ensure_head`, `_origin_matches`,
-     `ReviewWorkspaceSession`) and all associated mock tests, and unify intermediate review files under
-     `<worktree>/.subagent/`.
+   - **Bean 0262** (**ON HOLD**: PR #152, sub-intent 1 of 4, is approved 3/3 but waits for Bean 0266; once 0266 merges,
+     merge `origin/main` into the flow branches and re-run its Stage 4 review loop): bind-mount host worktree
+     (`flow-<slug>`) directly to `/home/holon/.holon-sandbox/workspace`, eliminate named Docker volumes and root `chown`
+     boilerplate, ruthlessly purge dead in-container git cloning/resetting (`_clone_or_fetch`, `_reset_reused_checkout`,
+     `_ensure_head`, `_origin_matches`, `ReviewWorkspaceSession`) and all associated mock tests, and unify intermediate
+     review files under `<worktree>/.subagent/`.
    - **Bean 0266** (`.github/workflows/` + `flow/github/` + tests; **in flight**, disjoint from the other lanes): CI
      runs on pull requests into any branch so decomposed flows' stacked sub-intent PRs are tested. After it merges,
      resume the **Bean 0262** flow from its checkpoint (halted at sub-intent 1 of 4, PR #152).

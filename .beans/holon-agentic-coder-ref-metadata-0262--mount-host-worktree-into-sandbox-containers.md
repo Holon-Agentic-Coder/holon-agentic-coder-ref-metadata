@@ -189,3 +189,21 @@ Specifically, this bean deletes:
 - `apps/sandbox-executor/src/sandbox_executor/cli/commands/flow.py`
 - `apps/sandbox-executor/tests/flow/test_workspace.py`
 - `apps/sandbox-executor/tests/test_review_loop.py`
+
+## On hold (2026-11-09)
+
+The flow was decomposed by the planner into 4 sub-intents. Sub-intent 1 (PR #152, base
+`I-1794214501-mount-host-worktree-into-sandbox-containers/_`) reached 3/3 reviewer approval at iteration 5 but halted
+because no CI checks ran on a pull request into a non-`main` branch (Bean 0266). **PR #152 and this bean are on hold; do
+not merge or advance PR #152 yet.**
+
+State preserved: worktree `apps/holon-agentic-coder/flow-mount-host-worktree-into-sandbox-containers` and its checkpoint
+under `.holon/flow/`.
+
+Resume plan, after Bean 0266 has merged and the images are rebuilt:
+
+1. Bring `origin/main` into the flow branches by **merging**, not rebasing (audited flow branches are never rewritten):
+   merge `origin/main` into the parent intent branch, then into the sub-intent 1 head, resolving ledger-only conflicts
+   by interleaving on `created_at`. Push, which also triggers CI on PR #152.
+2. Re-run the Stage 4 review loop for PR #152 from the checkpoint (`--from-stage review`) on `claude-opus-5-5`.
+3. Then continue with sub-intents 2 to 4, in order.
