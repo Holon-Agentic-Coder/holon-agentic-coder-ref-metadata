@@ -3,7 +3,7 @@
 title:
   "Dual Actual EV in Stage 5 calibration: report both Intrinsic EV (without pre-existing/pipeline bugs) and Observed EV
   (with bugs included)"
-status: todo
+status: in-progress
 type: feature
 priority: high
 tags:
@@ -14,7 +14,7 @@ tags:
   - ev
   - holon-agentic-coder
 created_at: 2026-11-09T13:16:30Z
-updated_at: 2026-11-09T14:30:00Z
+updated_at: 2026-11-09T15:01:15Z
 ---
 
 ## Problem
