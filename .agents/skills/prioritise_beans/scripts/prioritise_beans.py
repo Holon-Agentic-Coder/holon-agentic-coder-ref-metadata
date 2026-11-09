@@ -502,6 +502,18 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "(`flow/` package split). Must handle `{parent}--{n}-{slug}` child branches."
         ),
     },
+    "0268": {
+        "title": "Carry the calibration reports that missed their PRs into `main` in one pull request",
+        "priority": "**P2**",
+        "impact": "Low",
+        "sizing": "XS",
+        "domain": "Calibration / Housekeeping",
+        "notes": (
+            "PR #154 carries the reports for the Bean 0259 (PR #150) and Bean 0266 (PR #153) flows, which were merged "
+            "before their calibration commits reached the PR. Assembled by hand at the maintainer's instruction. "
+            "Awaiting merge; keep both `calibrated` branches until then."
+        ),
+    },
     "0267": {
         "title": "Stage 3 records a measured `test_pass_rate` (and the review loop can measure tests itself) so the flow does not depend on CI alone",
         "priority": "**P1**",

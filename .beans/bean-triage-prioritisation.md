@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-09 11:08:05 UTC
+**Last Updated:** 2026-11-09 11:16:41 UTC
 
 ## Executive Summary
 
@@ -14,10 +14,10 @@ Concurrent flows on overlapping files (#94, #95 and #96 all changed `flow.py` an
 re-reviews: 141 review-loop passes from the first sync onward, about 10M+ tokens. Beans 0151 and 0152 address that, and
 overlapping flows now run one after another.
 
-- **Total Tracked Beans**: 267 (excluding template)
-- **Completed**: 205 (76.8%)
+- **Total Tracked Beans**: 268 (excluding template)
+- **Completed**: 205 (76.5%)
 - **Scrapped / Superseded**: 4 (1.5%)
-- **Active**: 58 (21.7%), of which 4 are in progress and 54 are todo
+- **Active**: 59 (22.0%), of which 5 are in progress and 54 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -514,6 +514,7 @@ host-provisioned worktree into sandbox containers to eliminate in-container git 
 | **P0**   | todo        |  High  |   L    | 0183   | Every flow stage works in its own sandboxed clone; `holon flow` needs no host checkout                                             | Holon Flow / Sandbox        | Stages 1-3 already clone in-container; move checkpoint, engine git checks and Stage 5 calibration into sandboxed clones so concurrent flows never share or require a host worktree. Pairs with 0179, 0149, 0151.                                                                                                                                                                                   |
 | **P0**   | todo        |  High  |   S    | 0160   | Review loop burns its iteration budget polling pending CI, then reports test failures                                              | Review Loop / CI            | PR #101 added bounded CI waiting within the iteration budget; remaining: separate `HOLON_REVIEW_CI_WAIT_SECONDS` budget and pending-vs-failed error reporting. Pair with 0234.                                                                                                                                                                                                                     |
 | **P0**   | todo        |  High  |   L    | 0151   | Planner estimates the touch set; overlapping concurrent flows are blocked                                                          | Holon Flow / Concurrency    | Unblocked by 0159 (#97 merged), 0201 (#142 merged), and 0149 (#146 merged). Sequence after 0254 (`flow/` package split). Must handle `{parent}--{n}-{slug}` child branches.                                                                                                                                                                                                                        |
+| **P2**   | in-progress |  Low   |   XS   | 0268   | Carry the calibration reports that missed their PRs into `main` in one pull request                                                | Calibration / Housekeeping  | PR #154 carries the reports for the Bean 0259 (PR #150) and Bean 0266 (PR #153) flows, which were merged before their calibration commits reached the PR. Assembled by hand at the maintainer's instruction. Awaiting merge; keep both `calibrated` branches until then.                                                                                                                           |
 | **P1**   | todo        |  High  |   M    | 0267   | Stage 3 records a measured `test_pass_rate` (and the review loop can measure tests itself) so the flow does not depend on CI alone | Holon Flow / Testing        | The executor never runs or records tests: `test_pass_rate` is `null` in 51 of 54 ledger rows, so every flow relies on CI alone. Stage 3 should run `uv run task test` and record the rate, and the review loop's `local_tests` fallback should measure when no CI registers. Hold behind Bean 0262, which also edits `flow/review/`.                                                               |
 | **P1**   | todo        |  High  |   L    | 0265   | Split `cli/__init__.py` into focused modules (move only), like the `flow/` package                                                 | Refactor / Architecture     | Splits the 2,026-line `cli/__init__.py` (80 definitions, 96 `mock.patch` targets, 63 importers) into `cli/{log,constants,network,credentials,repo_resolution,mounts,proxy_sidecar,env_files,containers,doctor,role_dispatch,parser}.py` with re-exports and a throwaway AST verification, no committed snapshot. Hold until PR #152 (Bean 0262) and Beans 0263 and 0264 merge. Unblocks Bean 0189. |
 | **P2**   | todo        | Medium |   M    | 0264   | Read module size budgets from configuration instead of hardcoding paths and numbers in the check                                   | Lint / Configuration        | Moves the `flow/` size budgets into `holon-config/hygiene/module_budgets.json` (packages, default ceiling, overrides with reasons) read by a generic `check_module_budgets.py`, deleting `flow_module_budgets.json`. Agents may change the configuration; raised limits warn instead of failing. Hold until PR #152 (Bean 0262) and Bean 0263 merge.                                               |
