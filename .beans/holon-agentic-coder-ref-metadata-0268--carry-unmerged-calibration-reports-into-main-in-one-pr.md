@@ -67,6 +67,9 @@ Delivered via [PR #154](https://github.com/Holon-Agentic-Coder/holon-agentic-cod
 #153) flows and their ledger rows. `main` now holds both reports and is checked clean at `b63fce7`. The chore worktree
 and local branch are removed.
 
-Left in place deliberately: the two `.../calibrated` branches on `origin` and the rest of those flows' `I-/P-/E-`
-provenance branches. Their report is now in `main`, so they are safe to remove with the `clean-branches` skill whenever
-the maintainer wants a cleanup pass.
+Cleanup (2026-11-09, `clean-branches` skill, at the maintainer's request): the `calibrated` branches were removed from
+`origin` together with the rest of their merged flow trees (7 trees, 21 branches: Stage 5 knowledge commits, and Beans
+0249, 0254, 0258, 0259, 0256 and 0266), plus a stray branch `x` that I had pushed by mistake. Kept: the active Bean 0262
+tree (open PRs #152 and #155), `fix/0227-proxy-readiness-http-probe`, `task/0213-reflect-review-loop-skill-template`,
+and the older no-PR tree `I-1793864707-stage-4-resolver-review-loop-converges` (sibling attempt `I-1793869839` merged as
+PR #125; this tree may hold unmerged work). Locally, 25 merged flow and helper branches were deleted.
