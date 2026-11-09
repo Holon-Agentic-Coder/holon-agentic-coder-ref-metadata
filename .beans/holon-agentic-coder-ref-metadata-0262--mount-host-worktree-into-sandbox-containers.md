@@ -88,32 +88,26 @@ Once started, the container operates directly on the mounted worktree:
 
 ### Worktree Naming Conventions (`flow-<slug>` vs `pr<N>-<slug>`)
 
-To eliminate worktree fragmentation, avoid unnecessary directory churn, and provide a clean lifecycle:
+To eliminate worktree fragmentation, avoid unnecessary directory churn, and establish an unambiguous contract, the exact
+rules governing worktree naming are defined below:
 
-1. **`flow-<slug>`: The Single, Persistent Worktree for the Entire Flow Lifecycle**:
-   - When a change is produced via `holon flow`, the harness provisions `apps/<repo>/flow-<slug>` at the start of
-     Stage 1.
-   - **`flow-<slug>` is reused across ALL 5 stages**: Intent -> Plan -> Execute -> Review Loop -> Calibration.
-   - Opening a Pull Request at the end of Stage 3 **does not rename or recreate** the worktree. Stage 4 Review Loop,
-     Resolver turns, and Stage 5 Calibration continue operating directly inside the existing `apps/<repo>/flow-<slug>`
-     worktree.
-2. **`pr<N>-<slug>`: Strictly for Standalone External PR Reviews**:
-   - The `pr<N>-<slug>` naming convention is reserved strictly for standalone skills (`pr-reviewer`, `/pr-review-loop`)
-     when invoked on an existing Pull Request from GitHub **when no local worktree is already checked out**.
-   - If a review loop or resolver is invoked on a PR that already has a local `flow-<slug>` worktree checked out, it
-     **reuses `flow-<slug>` directly** without creating a redundant checkout.
-3. **Container Mount Target**:
-   - The active host worktree (`apps/<repo>/flow-<slug>` for flows, or `apps/<repo>/pr<N>-<slug>` for standalone PR
-     reviews) is bind-mounted directly at: `/home/holon/.holon-sandbox/workspace`
-4. **Concurrent Sub-Worktree Isolation (Optional / Multi-Reviewer Ensemble)**:
-   - If concurrent reviewer turns in an ensemble run test suites simultaneously that conflict on local file locks or
-     `.pytest_cache`, provision isolated ephemeral sibling worktrees: `apps/<repo>/flow-<slug>-rev<index>` (e.g.
-     `apps/holon-agentic-coder/flow-resolver-commits-locally-skip-push-fix-rev1`), pruned automatically upon iteration
-     completion.
+| Scenario                        | Target Path                          | When It Applies                                                                                               | Reuse Rule                                                                                                                        |
+| :------------------------------ | :----------------------------------- | :------------------------------------------------------------------------------------------------------------ | :-------------------------------------------------------------------------------------------------------------------------------- |
+| **Full Flow (`holon flow`)**    | `apps/<repo>/flow-<slug>`            | Stages 1–5: Intent $\rightarrow$ Plan $\rightarrow$ Execute $\rightarrow$ Review Loop $\rightarrow$ Calibrate | **Single persistent worktree**: provisioned at start and reused through calibration. Opening a PR does NOT rename or recreate it. |
+| **Review on Existing Worktree** | `apps/<repo>/flow-<slug>`            | Running review loop / resolver on a branch/PR that already has a local worktree                               | **Reuses `flow-<slug>` directly**: never provisions a redundant `pr<N>-<slug>` checkout.                                          |
+| **Standalone PR Review**        | `apps/<repo>/pr<N>-<slug>`           | Ad-hoc external review (`/pr-reviewer`, `/pr-review-loop`) where no local worktree exists                     | **Provisions `pr<N>-<slug>`**: strictly because no worktree is currently checked out on the host.                                 |
+| **Concurrent Ensemble Turns**   | `apps/<repo>/flow-<slug>-rev<index>` | Parallel reviewer turns executing simultaneous test suites                                                    | **Ephemeral sibling**: isolated for the pass, pruned automatically upon iteration completion.                                     |
 
-### Removal of Obsolete In-Container Git & Docker Volume Logic
+### Mandatory Purge of Obsolete In-Container Git Functionality & Tests
 
-Mounting the host worktree makes extensive existing in-container git plumbing completely obsolete. This bean deletes:
+> [!CAUTION] **Zero Dead Git Code Policy**: As demonstrated in Bean 0256, in-container git plumbing (`git reset --hard`,
+> `git clean -fdx`, `git checkout -B`, unpushed resolver commits) is inherently fragile and error-prone. With host
+> worktree mounting, **all in-container cloning, checkout, and volume reset logic becomes completely obsolete**. Leaving
+> dead in-container git functions, fallback branches, or legacy tests lying around will cause confusion, false
+> regressions, and serious maintenance hindrance. **All legacy in-container git functions and their associated unit
+> tests MUST be completely deleted.**
+
+Specifically, this bean deletes:
 
 1. **Delete In-Container Clone, Fetch & Destructive Wipe Functions (`entrypoint/review_loop.py`)**:
    - Delete `_clone_or_fetch()` (`git clone --branch`, `git fetch origin`).
@@ -131,6 +125,14 @@ Mounting the host worktree makes extensive existing in-container git plumbing co
    - Delete root `chown` init container (`docker run --rm --network none --user root ... chown -R 1000:1000`).
    - Delete volume teardown (`docker volume rm -f`) and pruning heuristics (`review_session_volume_name()`,
      `HOLON_REVIEW_PERSIST`).
+4. **Purge Associated Legacy Tests (`tests/test_review_loop.py` & `tests/flow/test_workspace.py`)**:
+   - Remove obsolete unit tests that assert named volume creation, root `chown` invocation, container-side git cloning,
+     or `_reset_reused_checkout` behavior.
+   - Replace with clean tests asserting:
+     - The host worktree is validated / provisioned and bind-mounted into the container.
+     - The container starts without remote cloning or destructive resets.
+     - Files written by the container are immediately present on the host worktree.
+     - Container crashes preserve all uncommitted edits and test logs on the host.
 
 ## Scope
 

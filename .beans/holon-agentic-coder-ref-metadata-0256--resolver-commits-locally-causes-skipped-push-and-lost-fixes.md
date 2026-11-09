@@ -84,6 +84,17 @@ commits created by the resolver agent back into staged changes before verificati
      `_commit_and_push_resolution` soft-resets to `pre_resolver_head`, runs `_verify_before_push`, re-commits with the
      canonical `Review-Iteration:` git trailers, and pushes `HEAD:refs/heads/<head_branch>` with `pushed=True`.
 
+## Notes & Forward Link to Bean 0262
+
+> [!IMPORTANT] **Complete Removal of Obsolete In-Container Git Logic & Tests (Bean 0262)**: Bean 0256 resolved an urgent
+> data-loss vulnerability caused by in-container git operations (`git reset --hard`, `git checkout -B`, unpushed
+> resolver commits). However, patching in-container git plumbing was fundamentally a stopgap for running git clones
+> inside containers. Under **Bean 0262**, the host harness directly bind-mounts a host worktree (`flow-<slug>`), making
+> all in-container cloning, checkout, and reset plumbing (`_clone_or_fetch`, `_reset_reused_checkout`, `_ensure_head`,
+> `_origin_matches`, `ReviewWorkspaceSession`) completely obsolete. **When implementing Bean 0262, ALL this legacy
+> in-container git logic and its associated mock/unit tests MUST be completely purged.** Leaving obsolete in-container
+> git code or stale tests lying around will cause confusion, false regressions, and serious maintenance hindrance.
+
 ## Resolution
 
 Delivered via [PR #151](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/151) and merged into `main`
