@@ -268,11 +268,14 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "`uv` 0.13.7 in the `holon-base` image with a build-time smoke check; a resolver that cannot run its checks "
         "or whose container fails now halts the review loop; the consensus post reports the real approval fraction and "
         "open findings; 3/3 consensus at iteration 5 on claude-agent/claude-opus-5-5, calibration ΔEV −65.23, "
-        "distorted by Beans 0257 and 0253), and **Bean 0257** (PR #149, `c554e8e`: dual Actual EV in Stage 5 "
+        "distorted by Beans 0257 and 0253), **Bean 0257** (PR #149, `c554e8e`: dual Actual EV in Stage 5 "
         "calibration via `calibration_ev.py` and `calibration.py` reporting both Clean/Intrinsic EV without bugs and "
         "Observed EV with bugs included plus Bug EV Drag; 3/3 consensus at iteration 4 on "
         "antigravity-agent/gemini-3.8-flash-medium, predicted EV +6.24, Clean EV +6.07 / ΔEV_clean −0.17, Observed EV "
-        "−2.43, Bug EV Drag +8.50). "
+        "−2.43, Bug EV Drag +8.50), and **Bean 0259** (PR #150, `8000794`: `holon flow` redirects a `main` target to a "
+        "`flow-<slug>` worktree off `origin/main` and never mutates the `main` worktree; default-branch checkpoints "
+        "and the direct `review`, `review-loop` and `calibrate` commands are refused; 3/3 consensus at iteration 3 on "
+        "claude-agent/claude-opus-5-5, calibration ΔEV +29.58). "
         "New beans logged: **Bean 0252** (resolver preserves its rejected diff and full test output on pre-push "
         "failure), **Bean 0253** (calibration branches from the origin PR head, not a stale local ref), **Bean 0255** "
         "(streaming per-issue resolvers during Stage 4 CI & review with a single consolidated commit), and **Bean "
@@ -318,9 +321,9 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Merge / In-Flight State (2026-11-09):** `holon-agentic-coder` PRs #133–#149 all merged (Beans 0244, 0245, "
-        "0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, 0254, 0258, 0257); trunk is at "
-        "`c554e8e`, installed editable, and images rebuilt via `install-holon` with `uv` 0.13.7 in the base image and "
+        "**Merge / In-Flight State (2026-11-09):** `holon-agentic-coder` PRs #133–#150 all merged (Beans 0244, 0245, "
+        "0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, 0254, 0258, 0257, 0259); trunk is at "
+        "`8000794`, installed editable, and images rebuilt via `install-holon` with `uv` 0.13.7 in the base image and "
         "Dual-EV calibration in `holon/orchestrator`. `flow.py` is now the `flow/` package, so beans touching "
         "different `flow/` submodules can run in parallel. Harness PR #58 merged into `main` and operational "
         "tracking PR #59 is open on `docs/harness-20261106`. `fix/0227-proxy-readiness-http-probe` (`36c9765`, "
@@ -328,14 +331,14 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "(Bean 0208, `2f30d6e`) needs its 9 unit test failures resolved on its execution branch before Stage 4 "
         "review and Stage 5 calibration. **Worktree rule (2026-11-09):** a flow never runs in the `main` worktree; "
         "naming `main` as the target selects the repository and base branch only, and the flow runs in a "
-        "`flow-<slug>` worktree off `origin/main` (the `holon-flow` skill's script creates it, and Bean 0259 makes "
-        "`holon flow` enforce it). Image builds use a temporary `build-images-<sha>` worktree, and the `main` "
+        "`flow-<slug>` worktree off `origin/main` (Bean 0259, PR #150, makes `holon flow` itself create and enforce "
+        "it, including for direct `holon flow` runs). Image builds use a temporary `build-images-<sha>` worktree, and the `main` "
         "worktrees stay on `main`, identical to `origin/main`."
     ),
     "",
     (
         "Sequential & Disjoint Lanes, holon-agentic-coder (Bean 0254 landed: lanes are now per `flow/` submodule; "
-        "items 1–3 touch pairwise-disjoint files and can run concurrently, but items within the item-1 lane stay "
+        "items 1–2 touch pairwise-disjoint files and can run concurrently, but items within the item-1 lane stay "
         "sequential):"
     ),
     "",
@@ -354,12 +357,6 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "2. **Bean 0253** (`flow/stages/calibrate.py` + `flow/git_refs.py` — **disjoint from "
         "`entrypoint/review_loop.py`**): calibration branches from `origin/<E>/_` so `/calibrated` fast-forwards into "
         "the PR (it recurred on PRs #147 and #148)."
-    ),
-    (
-        "3. **Bean 0259** (`cli/commands/flow.py` + `git_flow.py` — **disjoint from the other lanes**, run it first "
-        "because every later flow depends on it): `holon flow` redirects a `main` target to a `flow-<slug>` worktree "
-        "off `origin/main` and never mutates the `main` worktree; checkpoints and the direct `review`, `review-loop` "
-        "and `calibrate` commands refuse a default-branch worktree."
     ),
     (
         "   - Afterwards: **Bean 0255** (streaming per-issue resolvers with a single consolidated commit, after "
@@ -456,19 +453,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "notes": (
             "Unblocked by 0159 (#97 merged), 0201 (#142 merged), and 0149 (#146 merged). Sequence after 0254 "
             "(`flow/` package split). Must handle `{parent}--{n}-{slug}` child branches."
-        ),
-    },
-    "0259": {
-        "title": "`holon flow` never runs in the `main` worktree: provision a dedicated flow worktree off `origin/main`",
-        "priority": "**P0**",
-        "impact": "High",
-        "sizing": "M",
-        "domain": "Holon Flow / Worktrees",
-        "notes": (
-            "Disjoint from `flow/` and `entrypoint/review_loop.py` (touches `cli/commands/flow.py` and "
-            "`git_flow.py`). Redirects a default-branch target to `flow-<slug>` off `origin/main`, asserts the `main` "
-            "worktree is unchanged, refuses default-branch checkpoints, and guards `review`, `review-loop` and "
-            "`calibrate`. Harness rules and the `holon-flow` skill already require it."
         ),
     },
     "0256": {
@@ -1779,8 +1763,8 @@ def generate_triage_document(
                 "29. **Immutable KB/WB Facts, Worktree Auto-Provisioning & Validation, Persistent Review Sandbox, "
                 "Prompt Complexity Rules, Executor GitRepository Adapter, Globally Unique Stage IDs, `flow/` Package "
                 "Split, Pinned Container `uv`, and Dual-EV Calibration "
-                "(Beans 0242, 0244, 0245, 0247–0251, 0236, 0243, 0201, 0241, 0195, 0233, 0149, 0254, 0258, 0257 / "
-                "HAC PRs #132–#149, 2026-11-06 to 2026-11-09)**:"
+                "(Beans 0242, 0244, 0245, 0247–0251, 0236, 0243, 0201, 0241, 0195, 0233, 0149, 0254, 0258, 0257, 0259 / "
+                "HAC PRs #132–#150, 2026-11-06 to 2026-11-09)**:"
             ),
             (
                 "    - `0242` (#132, `d932d48`), `0244` (#133, `2a56a89`), `0245` (#134, `4113f0d`), `0247` (#135), "
@@ -1823,6 +1807,11 @@ def generate_triage_document(
                 "bugs) and Observed EV (`ev_with_bugs`, with bugs included) plus `bug_ev_drag` (predicted EV `+6.24`, "
                 "Clean EV `+6.07` / $\\Delta\\text{EV}_{\\text{clean}} = -0.17$, Observed EV `-2.43`, Bug EV Drag "
                 "`+8.50`)."
+            ),
+            (
+                "    - `0259` (#150, `8000794`): `holon flow` now runs a `main` target in a dedicated `flow-<slug>` "
+                "worktree off `origin/main`, never mutating the `main` worktree, and refuses default-branch "
+                "checkpoints and direct stage commands."
             ),
             "",
             "---",

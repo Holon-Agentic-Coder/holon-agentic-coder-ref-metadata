@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0259
 title: "`holon flow` never runs in the `main` worktree: provision a dedicated flow worktree off `origin/main`"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - worktree
   - holon-agentic-coder
 created_at: 2026-11-09T06:00:00Z
-updated_at: 2026-11-09T06:00:00Z
+updated_at: 2026-11-09T07:45:00Z
 ---
 
 ## Problem
@@ -54,3 +54,25 @@ new worktree branched off `main`, not in the `main` worktree itself.
 - Harness side (done): `AGENTS.md`, `.agents/workflows.md` and the `holon-flow` skill now require a `flow-<slug>`
   worktree, and `run_holon_flow.py` creates it from `origin/main` for a `main` target. This bean makes the CLI enforce
   it for everyone who calls `holon flow` directly.
+
+## Resolution
+
+Delivered via [PR #150](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/150) and merged into `main`
+(`8000794`, 2026-11-09T07:31:08Z), 21 files, +1,994 / −171:
+
+- **Redirect**: `holon flow` provisions or attaches the derived `flow-<slug>` worktree, branched off `origin/main`, when
+  the target is a worktree with the target branch checked out, and runs every stage, the checkpoint and the summary
+  there. Non-default-branch targets are still used as they are, and bare or absent targets still auto-provision.
+- **Guards**: a checkpoint recording a default-branch worktree, and the direct `holon review`, `review-loop` and
+  `calibrate` commands, refuse a default-branch worktree with an actionable error. Hermetic tests assert the `main`
+  worktree's `HEAD`, branch and status are unchanged after a run.
+- **Holon flow traversal**: all 5 stages on `claude-agent` / `claude-opus-5-5`, launched through the `holon-flow` skill
+  script, which created the `flow-<slug>` worktree. Execute took 12.9 min. The resolver pushed fixes in iterations 1 and
+  2 (no `uv` crash: Bean 0258 held), and 3/3 consensus with zero findings came at iteration 3. Calibration: predicted EV
+  34.85, actual 64.43 (ΔEV +29.58; Clean and Observed EV agree, since Bean 0257 landed).
+- **Calibration report not in the merged PR**: the PR was merged at head `84493a1` before the calibration merge commit
+  could be pushed, so `plans/P-1794205494-860c0862-claude-agent-claude-opus-5-5_calibration.md` is only on the
+  `.../E-1794205767-3c799dc6-claude-agent-claude-opus-5-5/calibrated` branch on `origin`. Keep that branch until the
+  report is carried into `main` by a later flow.
+- **Harness side**: the first launch of the `holon-flow` script created the worktree inside `main` (a relative-path
+  bug); it was removed and the script now resolves absolute paths (`420e281`).
