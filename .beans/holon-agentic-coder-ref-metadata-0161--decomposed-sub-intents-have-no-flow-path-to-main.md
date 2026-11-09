@@ -116,3 +116,24 @@ combined PR from the plan branch into `main` stops for the human maintainer.
 **Widened by the maintainer on 2026-11-09:** any PR that does not target `main` may be merged autonomously, by the flow
 engine or by an agent. `AGENTS.md` carries the ruling and its pre-merge checks. The combined PR from the plan branch
 into `main` still stops for the human maintainer.
+
+## Run on the old engine, fixed up by hand (maintainer instruction, 2026-11-09)
+
+The Bean 0161 flow (`I-1794224634-plan-owned-decomposition-with-plan-branch-children`) was itself over the entropy
+budget (18.6 against 15.0) and the plan split it into two child intents, so it runs on the old engine it is meant to
+replace:
+
+1. Record the decomposition decision on the plan row, and make Stage 3 execute only that recorded decision.
+2. Nest decomposed children under the plan branch, merge each child PR into it, raise the combined PR and resume safely.
+
+Both children are cut from the parent **intent** branch, child 2 before child 1 has merged, and neither PR has a route
+to `main`. The maintainer chose to let the flow run and to fix it up by hand:
+
+- When a child reaches consensus and calibration, merge its PR into the parent intent branch (allowed: its base is not
+  `main`), resolving ledger-only conflicts by interleaving on `created_at`. Child 2 may have been written blind to child
+  1; expect and resolve overlap in the shared files.
+- When both are in, raise the combined PR from the parent intent branch into `main` by hand, with the parent plan and
+  execution records and both children's plans and executions, then stop for the maintainer.
+
+**Exception to the sole-change-path rule:** the child merges and the combined PR are done outside the flow at the
+maintainer's explicit instruction, and this bean and the commit messages name it.
