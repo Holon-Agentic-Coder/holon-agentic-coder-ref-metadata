@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-09 02:44:50 UTC
+**Last Updated:** 2026-11-09 03:24:08 UTC
 
 ## Executive Summary
 
@@ -17,7 +17,7 @@ overlapping flows now run one after another.
 - **Total Tracked Beans**: 257 (excluding template)
 - **Completed**: 199 (77.4%)
 - **Scrapped / Superseded**: 4 (1.6%)
-- **Active**: 54 (21.0%), of which 4 are in progress and 50 are todo
+- **Active**: 54 (21.0%), of which 5 are in progress and 49 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -483,7 +483,7 @@ included).
 | **P0**   | todo        |  High  |   L    | 0151   | Planner estimates the touch set; overlapping concurrent flows are blocked                                                    | Holon Flow / Concurrency   | Unblocked by 0159 (#97 merged), 0201 (#142 merged), and 0149 (#146 merged). Sequence after 0254 (`flow/` package split). Must handle `{parent}--{n}-{slug}` child branches.                                                                                                                             |
 | **P1**   | in-progress |  High  |   L    | 0254   | Split `flow.py` into a `flow/` package of focused modules (move only, AST-verified)                                          | Refactor / Architecture    | In progress via `claude-agent`. Supersedes 0187. Splits 5,950-line `flow.py` into focused `flow/` submodules with AST equivalence test and size ratchet, unblocking parallel `flow/` lanes.                                                                                                             |
 | **P1**   | todo        |  High  |   S    | 0256   | Resolver agent committing locally causes `_commit_and_push_resolution` to skip verification and `git push`, losing all fixes | Review Loop / Resolver     | Disjoint from `flow.py` (touches `entrypoint/review_loop.py` and `test_review_loop.py`). Capture `pre_resolver_head` before `_run_resolver_agent` and `git reset --soft <pre_resolver_head>` if `HEAD` moved, so `_commit_and_push_resolution` always verifies, attaches trailers, commits, and pushes. |
-| **P1**   | todo        |  High  |   M    | 0257   | Dual Actual EV in Stage 5 calibration: report both Intrinsic EV (without bugs) and Observed EV (with bugs included)          | Stage 5 / Calibration      | Disjoint from `flow.py` (touches `calibration.py` + new helper module). Separates `E-...` and converged `REV-...` (`halted_for_human`) outcomes (`ev_clean`) from intermediate bug/failure rows (`ev_with_bugs`) and reports `bug_ev_drag`.                                                             |
+| **P1**   | in-progress |  High  |   M    | 0257   | Dual Actual EV in Stage 5 calibration: report both Intrinsic EV (without bugs) and Observed EV (with bugs included)          | Stage 5 / Calibration      | Disjoint from `flow.py` (touches `calibration.py` + new helper module). Separates `E-...` and converged `REV-...` (`halted_for_human`) outcomes (`ev_clean`) from intermediate bug/failure rows (`ev_with_bugs`) and reports `bug_ev_drag`.                                                             |
 | **P1**   | todo        |  High  |   L    | 0255   | Streaming per-issue resolvers during Stage 4 CI & review with single consolidated commit                                     | Review Loop / Concurrency  | Spin up isolated resolvers immediately as each CI pipeline fails (e.g. `Test - Hygiene` at 10 s) while continuing to wait for remaining pipelines, then merge all resolver fixes and push a single commit per iteration. Sequence after 0254 and 0256; pairs with 0234.                                 |
 | **P1**   | todo        |  High  |   S    | 0252   | Resolver preserves its rejected diff and full test output on pre-push verification failure                                   | Review Loop / Resolver     | Touches `entrypoint/review_loop.py` (disjoint from `flow.py`; pair with or right after 0256). Saves `.holon/review/iter-N/rejected.patch` and full pytest failure output when `_verify_before_push` fails.                                                                                              |
 | **P1**   | todo        |  High  |   S    | 0253   | Stage 5 calibration branches from `origin` PR head, not stale local execution ref                                            | Stage 5 / Calibration      | Fetches and resets local `<execution_branch>` to `origin/<execution_branch>` after Stage 4 resolver pushes so `/calibrated` is always a fast-forward descendant of the PR head. Sequence after 0254.                                                                                                    |
