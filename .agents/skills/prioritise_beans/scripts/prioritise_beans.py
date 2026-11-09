@@ -378,6 +378,12 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "edit the move-proof snapshot): retire the `flow.py` move-proof snapshot, `move_proof.py` and "
         "`test_move_proof.py`, and rework `test_package_exports.py` to read the package itself."
     ),
+    (
+        "   - **Bean 0264** (`pyproject.toml` + `scripts/` + `tests/`; **hold until Beans 0262 and 0263 merge**): move "
+        "the `flow/` module size budgets out of `flow_module_budgets.json` and the check script's constants into "
+        "`pyproject.toml` configuration read by a generic `check_module_budgets.py`; agents may change it, and raised "
+        "limits warn instead of failing."
+    ),
     ("3. **Calibration & resolver lane (`flow/stages/calibrate.py` & `entrypoint/review_loop.py`):**"),
     (
         "   - **Bean 0253** (`flow/stages/calibrate.py` + `flow/git_refs.py`): calibration branches from "
@@ -481,6 +487,19 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "notes": (
             "Unblocked by 0159 (#97 merged), 0201 (#142 merged), and 0149 (#146 merged). Sequence after 0254 "
             "(`flow/` package split). Must handle `{parent}--{n}-{slug}` child branches."
+        ),
+    },
+    "0264": {
+        "title": "Read module size budgets from configuration instead of hardcoding paths and numbers in the check",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Lint / Configuration",
+        "notes": (
+            "Moves the `flow/` size budgets into `pyproject.toml` configuration (packages, default ceiling, overrides "
+            "with reasons) read by a generic `check_module_budgets.py`, deleting `flow_module_budgets.json`. Agents may "
+            "change the configuration; raised limits warn instead of failing. Hold until PR #152 (Bean 0262) and "
+            "Bean 0263 merge."
         ),
     },
     "0263": {
