@@ -379,6 +379,12 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "`test_move_proof.py`, and rework `test_package_exports.py` to read the package itself."
     ),
     (
+        "   - **Bean 0265** (`cli/` + `tests/test_cli.py` + `docs/architecture.md`; **hold until Beans 0262, 0263 and "
+        "0264 merge**): move-only split of the 2,026-line `cli/__init__.py` into focused modules with re-exports, "
+        "patch targets moved, and `tests/test_cli.py` split into `tests/cli/`; runs alone on `cli/`. It makes Bean "
+        "0189 (launcher module) a much smaller move."
+    ),
+    (
         "   - **Bean 0264** (`holon-config/hygiene/` + `scripts/` + `tests/`; **hold until Beans 0262 and 0263 merge**): move "
         "the `flow/` module size budgets out of `flow_module_budgets.json` and the check script's constants into "
         "`holon-config/hygiene/module_budgets.json` configuration read by a generic `check_module_budgets.py`; "
@@ -487,6 +493,19 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "notes": (
             "Unblocked by 0159 (#97 merged), 0201 (#142 merged), and 0149 (#146 merged). Sequence after 0254 "
             "(`flow/` package split). Must handle `{parent}--{n}-{slug}` child branches."
+        ),
+    },
+    "0265": {
+        "title": "Split `cli/__init__.py` into focused modules (move only), like the `flow/` package",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "L",
+        "domain": "Refactor / Architecture",
+        "notes": (
+            "Splits the 2,026-line `cli/__init__.py` (80 definitions, 96 `mock.patch` targets, 63 importers) into "
+            "`cli/{log,constants,network,credentials,repo_resolution,mounts,proxy_sidecar,env_files,containers,doctor,"
+            "role_dispatch,parser}.py` with re-exports and a throwaway AST verification, no committed snapshot. Hold "
+            "until PR #152 (Bean 0262) and Beans 0263 and 0264 merge. Unblocks Bean 0189."
         ),
     },
     "0264": {
