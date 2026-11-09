@@ -88,24 +88,71 @@ Once started, the container operates directly on the mounted worktree:
 
 ### Worktree Naming Conventions (`flow-<slug>` vs `pr<N>-<slug>`)
 
-To eliminate worktree fragmentation, avoid unnecessary directory churn, and establish an unambiguous contract, the exact
-rules governing worktree naming are defined below:
+To eliminate worktree fragmentation, avoid unnecessary directory churn, and establish an unambiguous contract across the
+harness, skills, and sandboxes, the exact rules governing worktree naming and lifecycle are defined below:
 
-| Scenario                        | Target Path                          | When It Applies                                                                                               | Reuse Rule                                                                                                                        |
-| :------------------------------ | :----------------------------------- | :------------------------------------------------------------------------------------------------------------ | :-------------------------------------------------------------------------------------------------------------------------------- |
-| **Full Flow (`holon flow`)**    | `apps/<repo>/flow-<slug>`            | Stages 1–5: Intent $\rightarrow$ Plan $\rightarrow$ Execute $\rightarrow$ Review Loop $\rightarrow$ Calibrate | **Single persistent worktree**: provisioned at start and reused through calibration. Opening a PR does NOT rename or recreate it. |
-| **Review on Existing Worktree** | `apps/<repo>/flow-<slug>`            | Running review loop / resolver on a branch/PR that already has a local worktree                               | **Reuses `flow-<slug>` directly**: never provisions a redundant `pr<N>-<slug>` checkout.                                          |
-| **Standalone PR Review**        | `apps/<repo>/pr<N>-<slug>`           | Ad-hoc external review (`/pr-reviewer`, `/pr-review-loop`) where no local worktree exists                     | **Provisions `pr<N>-<slug>`**: strictly because no worktree is currently checked out on the host.                                 |
-| **Concurrent Ensemble Turns**   | `apps/<repo>/flow-<slug>-rev<index>` | Parallel reviewer turns executing simultaneous test suites                                                    | **Ephemeral sibling**: isolated for the pass, pruned automatically upon iteration completion.                                     |
+#### 1. Exactly When `flow-<slug>` Applies
+
+`flow-<slug>` is the primary, persistent worktree for the entire lifecycle of any task executed through the Holon flow:
+
+- **Lifecycle Scope (Stages 1 through 5)**: From the moment `holon flow <intent.json>` is invoked, the host harness
+  provisions or checks out a dedicated worktree named `apps/<repo>/flow-<slug>` off `origin/main` (per Bean 0259). This
+  single worktree persists across **all 5 stages**:
+  1. Stage 1 (Intent)
+  2. Stage 2 (Plan)
+  3. Stage 3 (Execute)
+  4. Stage 4 (PR Review Loop & Resolver)
+  5. Stage 5 (Calibration)
+- **PR Creation Does NOT Rename or Recreate the Worktree**: When Stage 3 finishes and autonomously creates a GitHub Pull
+  Request (`gh pr create`), the worktree is **never renamed** to `pr<N>-<slug>` and is **never deleted and recreated**.
+  Stage 4 review loop and resolver continue operating directly inside the existing `flow-<slug>` worktree.
+- **Stage 5 Calibration Reuses `flow-<slug>`**: Stage 5 calibration runs directly inside the same `flow-<slug>`
+  worktree, generating the calibration report and pushing the `/calibrated` branch.
+- **Resumed & Retried Flows**: If a flow is stopped, resumed from a checkpoint (`--checkpoint`), re-run from a specific
+  stage (`--from-stage`), or if an agent re-triggers review on an in-flight flow branch, the existing `flow-<slug>`
+  worktree is reused directly.
+- **Teardown**: The `flow-<slug>` worktree is removed only during the post-PR merge lifecycle (`post-pr-merge` skill)
+  after the PR has been merged into `main`.
+
+#### 2. Exactly When `pr<N>-<slug>` Applies
+
+`pr<N>-<slug>` is strictly a secondary fallback convention used exclusively for standalone reviews:
+
+- **Ad-Hoc External Reviews (No Local Worktree Checked Out)**: When an agent or developer invokes a standalone review
+  skill (such as `/pr-reviewer`, `/pr-review-loop`, or manual PR verification) targeting a Pull Request where **no local
+  worktree currently exists on the host**, the harness provisions a fresh worktree named `apps/<repo>/pr<N>-<slug>`
+  tracking the PR's head ref.
+- **Strict Reuse Invariant**: If a local worktree (`flow-<slug>`) is **already checked out on the host** for that
+  branch/PR, `pr<N>-<slug>` **MUST NEVER be created**. The tool or skill must detect the existing worktree and reuse
+  `flow-<slug>` directly. Redundant or duplicate worktrees for the same PR are strictly prohibited.
+
+#### Summary Comparison Table
+
+| Scenario                                     | Target Path                          | When It Applies                                                                                               | Reuse Rule                                                                                                            |
+| :------------------------------------------- | :----------------------------------- | :------------------------------------------------------------------------------------------------------------ | :-------------------------------------------------------------------------------------------------------------------- |
+| **Holon Flow (`holon flow`)**                | `apps/<repo>/flow-<slug>`            | Stages 1–5: Intent $\rightarrow$ Plan $\rightarrow$ Execute $\rightarrow$ Review Loop $\rightarrow$ Calibrate | **Single persistent worktree**: provisioned at start and reused through calibration. Opening a PR does NOT rename it. |
+| **Review / Resume on Existing Worktree**     | `apps/<repo>/flow-<slug>`            | Running review loop, resolver, or resume on a branch/PR that already has a local worktree                     | **Reuses `flow-<slug>` directly**: never provisions a redundant `pr<N>-<slug>` checkout.                              |
+| **Standalone PR Review (No Local Worktree)** | `apps/<repo>/pr<N>-<slug>`           | Ad-hoc external review (`/pr-reviewer`, `/pr-review-loop`) where NO worktree is checked out on the host       | **Provisions `pr<N>-<slug>`**: strictly because no local worktree is present.                                         |
+| **Concurrent Ensemble Turns**                | `apps/<repo>/flow-<slug>-rev<index>` | Parallel reviewer turns executing simultaneous test suites                                                    | **Ephemeral sibling**: isolated for the pass, pruned automatically upon iteration completion.                         |
 
 ### Mandatory Purge of Obsolete In-Container Git Functionality & Tests
 
-> [!CAUTION] **Zero Dead Git Code Policy**: As demonstrated in Bean 0256, in-container git plumbing (`git reset --hard`,
-> `git clean -fdx`, `git checkout -B`, unpushed resolver commits) is inherently fragile and error-prone. With host
-> worktree mounting, **all in-container cloning, checkout, and volume reset logic becomes completely obsolete**. Leaving
-> dead in-container git functions, fallback branches, or legacy tests lying around will cause confusion, false
-> regressions, and serious maintenance hindrance. **All legacy in-container git functions and their associated unit
-> tests MUST be completely deleted.**
+> [!CAUTION] **Zero Dead Git Code Policy — Remove Old Code to Eliminate Confusion & Hindrance**: As demonstrated in Bean
+> 0256, in-container git plumbing (`git reset --hard`, `git clean -fdx`, `git checkout -B`, unpushed resolver commits)
+> is inherently fragile, confusing, and error-prone. With host worktree mounting, **all in-container cloning, checkout,
+> and volume reset logic becomes completely obsolete**.
+>
+> **If we have old code lying around, it will cause severe confusion and hindrance**:
+>
+> - Developers and future agents reading the codebase will see duplicate, competing codepaths (`_clone_or_fetch` vs host
+>   mounts) and mistakenly assume in-container cloning is still supported or required.
+> - Legacy tests mocking remote GitHub clones or named volume creation will trigger false failures, mask real
+>   regressions, and add friction to ongoing maintenance.
+> - Dead fallback logic creates subtle edge cases where containers could inadvertently fall back to destructive resets
+>   or remote network calls.
+>
+> **Therefore, all legacy in-container git functions, named volume machinery, and their associated unit tests MUST be
+> completely eradicated.**
 
 Specifically, this bean deletes:
 
@@ -115,7 +162,7 @@ Specifically, this bean deletes:
      `git merge --abort`).
    - Delete `_ensure_head()`, `_origin_matches()`, and `_has_checkout()`.
    - Simplify workspace initialization to a clean validation that `/home/holon/.holon-sandbox/workspace` exists and
-     reading `git rev-parse HEAD`. The container starts working immediately.
+     reading `git rev-parse HEAD`. The container starts working immediately on the mounted host worktree.
 2. **Direct Commit & Push Kept in Container**:
    - The container continues to create canonical trailer commits and push directly
      (`git push origin HEAD:refs/heads/<branch>`).
@@ -126,9 +173,9 @@ Specifically, this bean deletes:
    - Delete volume teardown (`docker volume rm -f`) and pruning heuristics (`review_session_volume_name()`,
      `HOLON_REVIEW_PERSIST`).
 4. **Purge Associated Legacy Tests (`tests/test_review_loop.py` & `tests/flow/test_workspace.py`)**:
-   - Remove obsolete unit tests that assert named volume creation, root `chown` invocation, container-side git cloning,
-     or `_reset_reused_checkout` behavior.
-   - Replace with clean tests asserting:
+   - Completely delete obsolete unit tests that assert named volume creation, root `chown` invocation, container-side
+     git cloning, or `_reset_reused_checkout` behavior.
+   - Replace with clean, modern tests asserting:
      - The host worktree is validated / provisioned and bind-mounted into the container.
      - The container starts without remote cloning or destructive resets.
      - Files written by the container are immediately present on the host worktree.

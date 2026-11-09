@@ -130,13 +130,16 @@ When you are spawned or begin a new session, follow these steps sequentially:
      exceptional cases only, follow the legacy worktree instructions below:
    - For `apps/holon-agentic-coder/`, all development and feature work must be based off the `origin/main` branch.
    - For `apps/holon-coherence/`, all development and feature work must be based off the `origin/main` branch.
-   - Name the worktree and branch after you or your bean (for example `apps/holon-coherence/pr25-coherence-make-tasks`
-     for a flow PR branch) so concurrent agents never share a directory or a branch. Which name applies is decided by
-     this order:
-     - **Checked out from a Holon flow branch** (`I-.../P-.../E-.../...`): such a branch always has a Pull Request, so
-       the worktree **must carry the PR number and a slug** -- `apps/<project>/pr<N>-<slug>`, for example
-       `apps/holon-agentic-coder/pr61-agent-output-capture`. Keep the flow ref itself exactly as the flow created it
-       (never rename or re-cut an audited provenance branch); the `pr<N>-<slug>` marker lives on the **directory**.
+   - Name the worktree and branch after you or your bean so concurrent agents never share a directory or a branch. Which
+     name applies is decided by this order:
+     - **Holon flow (`holon flow`)**: The worktree is named `apps/<project>/flow-<slug>`. It is provisioned at the start
+       of the flow (Bean 0259) and **persists across all 5 stages** (Intent $\rightarrow$ Plan $\rightarrow$ Execute
+       $\rightarrow$ PR Review Loop $\rightarrow$ Calibrate). Opening a PR does NOT rename or recreate the worktree; the
+       review loop and calibration reuse `flow-<slug>` directly.
+     - **Standalone PR review (no local worktree checked out)**: If an ad-hoc review (`/pr-reviewer`, `/pr-review-loop`)
+       is triggered for an existing remote PR and **no local worktree exists** for that branch, provision
+       `apps/<project>/pr<N>-<slug>`. If a local worktree (`flow-<slug>`) is already checked out, reuse it directly
+       instead of creating a redundant checkout.
      - **No Holon flow branch involved** (hand-authored harness work or fallback): the **bean number goes in the name**
        -- directory `apps/<project>/<type>-<bean-id>-<slug>` for branch `<type>/<bean-id>-<slug>`. Work that has neither
        a PR nor a bean yet needs the bean logged first.

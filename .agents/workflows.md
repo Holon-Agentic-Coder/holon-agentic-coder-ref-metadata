@@ -209,10 +209,14 @@ To maintain clean repository history, follow this Git workflow:
      bean identifier so concurrent agents never share a directory or a branch (e.g.
      `apps/holon-coherence/fix-0027-host-local-llm-routing` for branch `fix/0027-host-local-llm-routing`). Never edit,
      commit to, or reuse another agent's worktree or branch. Name it by whichever of these applies:
-     - The checkout tracks a **Holon flow branch** (`I-.../P-.../E-.../...`), which always has a Pull Request: the
-       worktree directory carries the **PR number and a slug**, `apps/<project>/pr<N>-<slug>` (e.g.
-       `apps/holon-agentic-coder/pr61-agent-output-capture`). The flow ref keeps its exact audited name -- never rename
-       or re-cut it -- so the marker lives on the directory.
+     - The checkout tracks a **Holon flow (`holon flow`)**: The worktree is named `apps/<project>/flow-<slug>`. It is
+       provisioned at the start of the flow (Bean 0259) and **persists across all 5 stages** (Intent $\rightarrow$ Plan
+       $\rightarrow$ Execute $\rightarrow$ PR Review Loop $\rightarrow$ Calibrate). Opening a PR does NOT rename or
+       recreate the worktree; the review loop and calibration reuse `flow-<slug>` directly.
+     - A **standalone PR review** is triggered where **no local worktree exists**: If an ad-hoc review (`/pr-reviewer`,
+       `/pr-review-loop`) targets an existing remote PR and no local worktree is checked out for that branch, provision
+       `apps/<project>/pr<N>-<slug>`. If a local worktree (`flow-<slug>`) is already checked out, reuse it directly
+       instead of creating a redundant checkout.
      - **No Holon flow branch** is involved: the directory carries the **bean number**,
        `apps/<project>/<type>-<bean-id>-<slug>` for branch `<type>/<bean-id>-<slug>`. Log the bean first if the work is
        not tracked yet.
@@ -253,9 +257,10 @@ To maintain clean repository history, follow this Git workflow:
      `git worktree add --no-track -b <type>/<bean-id>-<short-description> ../<branch-dir> origin/main` (e.g.,
      `feat/0001-add-agent-rules`). Run this from the bare repository directory (`<project>/.git`): `../` resolves
      relative to that directory, which is what places the checkout at `<project>/<branch-dir>`. When the checkout is
-     raised for an existing Pull Request instead -- always the case for a `I-.../P-.../E-.../...` flow branch -- name
-     the directory `pr<N>-<slug>` (e.g. `pr61-agent-output-capture`) while checking the flow ref out under its own exact
-     name; a temporary checkout takes a fully descriptive `<purpose>-<subject>-<qualifier>` directory name.
+     raised for an existing Pull Request where no local worktree is checked out on the host, name the directory
+     `pr<N>-<slug>` (e.g. `pr61-agent-output-capture`) while checking the flow ref out under its own exact name (for
+     Holon flow runs, the worktree is `flow-<slug>` throughout all stages); a temporary checkout takes a fully
+     descriptive `<purpose>-<subject>-<qualifier>` directory name.
 2. **Formatting (Mandatory)**:
    - Always run `npx prettier --write "**/*.md"` to format markdown files before creating any commits.
 3. **Commits**:

@@ -88,12 +88,16 @@ commits created by the resolver agent back into staged changes before verificati
 
 > [!IMPORTANT] **Complete Removal of Obsolete In-Container Git Logic & Tests (Bean 0262)**: Bean 0256 resolved an urgent
 > data-loss vulnerability caused by in-container git operations (`git reset --hard`, `git checkout -B`, unpushed
-> resolver commits). However, patching in-container git plumbing was fundamentally a stopgap for running git clones
-> inside containers. Under **Bean 0262**, the host harness directly bind-mounts a host worktree (`flow-<slug>`), making
-> all in-container cloning, checkout, and reset plumbing (`_clone_or_fetch`, `_reset_reused_checkout`, `_ensure_head`,
-> `_origin_matches`, `ReviewWorkspaceSession`) completely obsolete. **When implementing Bean 0262, ALL this legacy
-> in-container git logic and its associated mock/unit tests MUST be completely purged.** Leaving obsolete in-container
-> git code or stale tests lying around will cause confusion, false regressions, and serious maintenance hindrance.
+> resolver commits). However, patching in-container git plumbing was fundamentally an interim stopgap for running git
+> clones inside containers. Under **Bean 0262**, the host harness directly bind-mounts a host worktree (`flow-<slug>`),
+> making all in-container cloning, checkout, and reset plumbing (`_clone_or_fetch`, `_reset_reused_checkout`,
+> `_ensure_head`, `_origin_matches`, `ReviewWorkspaceSession`) completely obsolete.
+>
+> **It is critically important to remove all existing in-container git functionality and tests when executing Bean 0262:
+> if we have old code lying around, it will cause more confusion and hindrance.** Leaving obsolete in-container git code
+> or stale mock tests lying around creates competing codepaths, confuses future agents and maintainers, triggers false
+> regressions, and hinders ongoing development. All legacy in-container git helpers and associated tests MUST be
+> completely purged.
 
 ## Resolution
 
