@@ -207,3 +207,19 @@ Resume plan, after Bean 0266 has merged and the images are rebuilt:
    by interleaving on `created_at`. Push, which also triggers CI on PR #152.
 2. Re-run the Stage 4 review loop for PR #152 from the checkpoint (`--from-stage review`) on `claude-opus-5-5`.
 3. Then continue with sub-intents 2 to 4, in order.
+
+## Restart from the beginning (maintainer ruling, 2026-11-09)
+
+The decomposed run above used a wrong flow (children cut from the intent branch, the split decided by the executor, no
+combined PR, and a resume that re-ran a child). **Bean 0262 will be re-run from the beginning, as a fresh flow, once
+Bean 0161 has landed and the images are rebuilt**, so the whole decomposed flow is proven end to end on the corrected
+engine.
+
+Until then:
+
+- **PRs #152 and #155 and the whole `I-1794214501-…` branch tree are left alone**: no merge, no close, no rebase, no
+  resolver run, and they are excluded from any branch cleanup. They are the reference the new sub-intents copy from
+  (sub-intent 1's design and tests in #152, the plan with its four-way split on the parent plan branch).
+- The earlier hold and resume plan in the section above are superseded.
+- The new run writes its own intent file and starts from Stage 1. It does not resume the old checkpoints, and it should
+  not reuse the old branch names.

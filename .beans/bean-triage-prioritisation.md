@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-09 11:40:36 UTC
+**Last Updated:** 2026-11-09 11:46:26 UTC
 
 ## Executive Summary
 
@@ -17,7 +17,7 @@ overlapping flows now run one after another.
 - **Total Tracked Beans**: 268 (excluding template)
 - **Completed**: 206 (76.9%)
 - **Scrapped / Superseded**: 4 (1.5%)
-- **Active**: 58 (21.6%), of which 4 are in progress and 54 are todo
+- **Active**: 58 (21.6%), of which 5 are in progress and 53 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -536,7 +536,7 @@ host-provisioned worktree into sandbox containers to eliminate in-container git 
 | **P1**   | todo        |  High  |   L    | 0196   | Executor entrypoint `main` becomes an `ExecutionRun` with named steps; module becomes a package                                    | Executor / Refactor         | After 0195 and 0190. 798 lines, CC 178 (worst in the repository).                                                                                                                                                                                                                                                                                                                                                                                   |
 | **P1**   | todo        |  High  |   S    | 0175   | Check GitHub token scopes before Stage 3 when the plan touches workflow files                                                      | Holon Flow / GitHub         | A 55-minute Stage 3 for Bean 0168 was lost to a push rejected for the missing `workflow` scope. Complements 0171 (#108 merged, refused-push patch salvage).                                                                                                                                                                                                                                                                                         |
 | **P1**   | todo        |  High  |   S    | 0157   | `holon flow` auto-enables the mitmproxy sidecar; role containers cannot reach it                                                   | Holon Flow / Proxy          | Workaround: `HOLON_TOKEN_REDUCE=0`. Pairs with 0227 (`fix/0227-proxy-readiness-http-probe`).                                                                                                                                                                                                                                                                                                                                                        |
-| **P0**   | todo        |  High  |   L    | 0161   | Decomposed sub-intents have no flow path to `main` and do not build on each other                                                  | Holon Flow                  | Blocks Bean 0262 (PRs #152 and #155). Corrected design 2026-11-09: Stage 2 records the split decision on the plan; Stage 3 only executes the children; children are cut from and target the plan branch; a combined PR carrying the parent plan and every child reaches `main`; resume continues an existing child instead of re-running it. Open decision: who merges a child PR into the plan branch. Docs: PRs #103, #110 and #113 (all merged). |
+| **P0**   | in-progress |  High  |   L    | 0161   | Decomposed sub-intents have no flow path to `main` and do not build on each other                                                  | Holon Flow                  | Blocks Bean 0262 (PRs #152 and #155). Corrected design 2026-11-09: Stage 2 records the split decision on the plan; Stage 3 only executes the children; children are cut from and target the plan branch; a combined PR carrying the parent plan and every child reaches `main`; resume continues an existing child instead of re-running it. Open decision: who merges a child PR into the plan branch. Docs: PRs #103, #110 and #113 (all merged). |
 | **P1**   | todo        |  High  |   M    | 0155   | General `HOLON_*` forwarding puts credential-shaped values on the docker argv                                                      | Security                    | Already on main. Default fix: send every `HOLON_*` value through the 0600 env-file.                                                                                                                                                                                                                                                                                                                                                                 |
 | **P1**   | todo        |  High  |   M    | 0148   | Redact before truncating ledger `error_context`; close `CredentialRedactor` gaps                                                   | Security / Ledger           | Route those rows through `redact_agent_secrets`.                                                                                                                                                                                                                                                                                                                                                                                                    |
 | **P1**   | todo        | Medium |   M    | 0146   | Plans-ledger correction rows; calibration picks the right predicted metrics                                                        | Calibration / Ledger        | Every calibration in the 2026-10-26 batch needed a manual annotation. Runs before 0197 (same parser).                                                                                                                                                                                                                                                                                                                                               |
@@ -621,8 +621,8 @@ pairwise-disjoint files and can run concurrently):
      print a single clean summary line matching canonical skill output.
 2. **Sandbox worktree mount & dead git code eradication lane (`flow/review/workspace.py` &
    `entrypoint/review_loop.py`):**
-   - **Bean 0262** (**IN FLIGHT**: PR #152, sub-intent 1 of 4, was approved 3/3 but halted for lack of CI; Bean 0266
-     landed, `origin/main` was merged into its branches, and its Stage 4 review loop was resumed from the checkpoint):
+   - **Bean 0262** (**RESTARTS FROM THE BEGINNING after Bean 0161 lands**: the first decomposed run used the wrong flow;
+     PRs #152 and #155 and their `I-1794214501-…` branches are left untouched as the reference for the new sub-intents):
      bind-mount host worktree (`flow-<slug>`) directly to `/home/holon/.holon-sandbox/workspace`, eliminate named Docker
      volumes and root `chown` boilerplate, ruthlessly purge dead in-container git cloning/resetting (`_clone_or_fetch`,
      `_reset_reused_checkout`, `_ensure_head`, `_origin_matches`, `ReviewWorkspaceSession`) and all associated mock
