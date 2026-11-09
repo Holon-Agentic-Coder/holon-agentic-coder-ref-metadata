@@ -264,9 +264,12 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "`P-...` and `E-...` stage IDs with 8-char hex disambiguators and ledger duplicate validation; 3/3 consensus "
         "at iteration 5), and **Bean 0254** (PR #147, `7258f61`: `flow.py` split into a `flow/` package, move-only, "
         "AST-verified, with a per-module size ratchet; 3/3 consensus at iteration 5 on claude-agent/claude-opus-5-5, "
-        "calibration ΔEV −59.40, distorted by Beans 0257 and 0253). "
-        "New beans logged: **Bean 0258** (resolver pre-push verification crashes because `uv` is missing from the "
-        "agent image, losing fixes and over-reporting consensus),**Bean 0252** (resolver preserves its rejected diff and full test output on pre-push "
+        "calibration ΔEV −59.40, distorted by Beans 0257 and 0253), and **Bean 0258** (PR #148, `b6cd9a6`: pinned "
+        "`uv` 0.13.7 in the `holon-base` image with a build-time smoke check; a resolver that cannot run its checks "
+        "or whose container fails now halts the review loop; the consensus post reports the real approval fraction and "
+        "open findings; 3/3 consensus at iteration 5 on claude-agent/claude-opus-5-5, calibration ΔEV −65.23, "
+        "distorted by Beans 0257 and 0253). "
+        "New beans logged: **Bean 0252** (resolver preserves its rejected diff and full test output on pre-push "
         "failure), **Bean 0253** (calibration branches from the origin PR head, not a stale local ref), **Bean 0255** "
         "(streaming per-issue resolvers during Stage 4 CI & review with a single consolidated commit), **Bean 0256** "
         "(resolver agent committing locally causes `_commit_and_push_resolution` to skip verification and `git push`), "
@@ -312,11 +315,11 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Merge / In-Flight State (2026-11-09):** `holon-agentic-coder` PRs #133–#147 all merged (Beans 0244, 0245, "
-        "0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, 0254); trunk is at `7258f61`, "
-        "installed editable with images rebuilt via `install-holon`. `flow.py` is now the `flow/` package, so "
-        "beans touching different `flow/` submodules can run in parallel. No holon-agentic-coder flow is in "
-        "flight. Harness PR #58 merged into `main` and operational "
+        "**Merge / In-Flight State (2026-11-09):** `holon-agentic-coder` PRs #133–#148 all merged (Beans 0244, 0245, "
+        "0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, 0254, 0258); trunk is at `b6cd9a6`, "
+        "installed editable; images were rebuilt from it with `uv` 0.13.7 in the base image. `flow.py` is now the `flow/` package, so "
+        "beans touching different `flow/` submodules can run in parallel. **Bean 0257** is in flight (PR #149) "
+        "via another session. Harness PR #58 merged into `main` and operational "
         "tracking PR #59 is open on `docs/harness-20261106`. `fix/0227-proxy-readiness-http-probe` (`36c9765`, "
         "Bean 0227) has a green test suite and awaits the maintainer's call on PR creation. Coherence PR #41 "
         "(Bean 0208, `2f30d6e`) needs its 9 unit test failures resolved on its execution branch before Stage 4 "
@@ -329,9 +332,8 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "1. **Resolver lane (`entrypoint/review_loop.py`, sequential):** **Bean 0258** first (critical: ship `uv` in "
-        "the agent images, fail loudly when pre-push verification cannot run, and post the true final verdict). It "
-        "also touches the Docker images and `flow/review/`. Then **Bean 0256**, then **Bean 0252**, then **Bean 0255**."
+        "1. **Resolver lane (`entrypoint/review_loop.py`, sequential):** **Bean 0256** first, then **Bean 0252**, "
+        "then **Bean 0255**. Bean 0258 landed, so the resolver can run its checks and a failure halts the loop."
     ),
     (
         "   - **Bean 0256** (`entrypoint/review_loop.py` + `tests/test_review_loop.py`): "
@@ -447,18 +449,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "notes": (
             "Unblocked by 0159 (#97 merged), 0201 (#142 merged), and 0149 (#146 merged). Sequence after 0254 "
             "(`flow/` package split). Must handle `{parent}--{n}-{slug}` child branches."
-        ),
-    },
-    "0258": {
-        "title": "Resolver pre-push verification crashes because `uv` is missing from the agent image",
-        "priority": "**P0**",
-        "impact": "High",
-        "sizing": "S",
-        "domain": "Review Loop / Resolver",
-        "notes": (
-            "Seen on PR #147: the resolver crashed in iterations 2 and 3 (`FileNotFoundError: 'uv'`), lost its "
-            "fixes, and the post claimed 3/3. Ship `uv` in the images, fail loudly, and post the true verdict. Run "
-            "first in the resolver lane."
         ),
     },
     "0256": {

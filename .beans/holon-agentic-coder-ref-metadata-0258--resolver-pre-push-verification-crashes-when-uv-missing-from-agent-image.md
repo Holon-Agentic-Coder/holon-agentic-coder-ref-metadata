@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0258
 title: "Resolver pre-push verification crashes because `uv` is missing from the agent image, losing the fixes"
-status: todo
+status: completed
 type: bug
 priority: critical
 tags:
@@ -12,7 +12,7 @@ tags:
   - docker
   - holon-agentic-coder
 created_at: 2026-11-09T03:45:00Z
-updated_at: 2026-11-09T03:45:00Z
+updated_at: 2026-11-09T05:30:00Z
 ---
 
 ## Problem
@@ -60,3 +60,27 @@ Consequences:
   binary crashes the verification step.
 - Follow-up: once this lands, fix the stale "pre-push" wording in `flow/stage_conflicts.py` and `docs/architecture.md`
   through a flow.
+
+## Resolution
+
+Delivered via [PR #148](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/148) and merged into `main`
+(`b6cd9a6`, 2026-11-09T05:16:55Z):
+
+- **`uv` in the base image**: `holon-base` copies a pinned `uv` 0.13.7 (the latest release) from the official
+  `ghcr.io/astral-sh/uv` image to `/usr/local/bin`, with a single `UV_VERSION` build argument and a build-time
+  `uv --version` smoke check as the `holon` user. Documented in `docs/docker_bake.md`.
+- **Fail loudly**: `entrypoint/review_verification.py` returns a structured failure naming the missing tool instead of
+  raising. `resolver_result.py` turns a non-zero container exit or a missing result marker into a failed pass, and
+  `flow/review/loop.py` halts the loop on any resolver error before adjudication.
+- **Honest consensus post**: the heading fraction counts only completed approving reviewers, and open findings from the
+  final iteration are listed (`review_report.py`, `tests/test_review_report.py`).
+- **Verification**: hermetic tests for a missing `uv`, a non-zero container exit, a missing result, a 2/3 heading and
+  the Dockerfile pin. CI 11/11 green. Flow module budgets were lowered, not raised.
+- **Holon flow traversal**: all 5 stages on `claude-agent` / `claude-opus-5-5`. The first review loop hit the bug it
+  fixes (the resolver crashed on the missing `uv` in iteration 1 and iteration 2 declared consensus on open nits). I
+  rebuilt the images from the PR branch and resumed Stage 4. The resolver then ran its checks and pushed fixes in
+  iterations 3 and 4, and 3/3 consensus with zero nits came at iteration 5. Calibration: predicted EV 28.58, actual
+  −36.65 (ΔEV −65.23), distorted by Bean 0257 (`halted_for_human` counted as `p_success=0`). `/calibrated` was cut from
+  a stale head (Bean 0253), so it was merged into the PR.
+- **Follow-ups**: the stale "pre-push" wording from PR #147 (`flow/stage_conflicts.py` docstring and the architecture
+  map) is still open for a follow-up flow. No Dependabot or Renovate config watches the `uv` pin.
