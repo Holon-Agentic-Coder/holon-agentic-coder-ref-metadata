@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-09 03:30:22 UTC
+**Last Updated:** 2026-11-09 03:52:38 UTC
 
 ## Executive Summary
 
@@ -14,10 +14,10 @@ Concurrent flows on overlapping files (#94, #95 and #96 all changed `flow.py` an
 re-reviews: 141 review-loop passes from the first sync onward, about 10M+ tokens. Beans 0151 and 0152 address that, and
 overlapping flows now run one after another.
 
-- **Total Tracked Beans**: 257 (excluding template)
-- **Completed**: 199 (77.4%)
+- **Total Tracked Beans**: 258 (excluding template)
+- **Completed**: 200 (77.5%)
 - **Scrapped / Superseded**: 4 (1.6%)
-- **Active**: 54 (21.0%), of which 4 are in progress and 50 are todo
+- **Active**: 54 (20.9%), of which 3 are in progress and 51 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -184,13 +184,15 @@ in `sandbox_executor.git` routing all executor git calls; 3/3 consensus on itera
 0233** (PR #145, `8b1e668`: fail fast when the resolved `--target-worktree` or a checkpoint's recorded worktree is not
 an attached git working tree; 3/3 consensus at iteration 4 on claude-agent/claude-opus-5-5, calibration ΔEV +14.85), and
 **Bean 0149** (PR #146, `4682449`: globally unique `P-...` and `E-...` stage IDs with 8-char hex disambiguators and
-ledger duplicate validation; 3/3 consensus at iteration 5). **Bean 0254** (split `flow.py` into a `flow/` package,
-move-only) is currently in progress. New beans logged: **Bean 0252** (resolver preserves its rejected diff and full test
-output on pre-push failure), **Bean 0253** (calibration branches from the origin PR head, not a stale local ref), **Bean
-0255** (streaming per-issue resolvers during Stage 4 CI & review with a single consolidated commit), **Bean 0256**
-(resolver agent committing locally causes `_commit_and_push_resolution` to skip verification and `git push`), and **Bean
-0257** (dual Actual EV in Stage 5 calibration: report both Clean/Intrinsic EV without bugs and Observed EV with bugs
-included).
+ledger duplicate validation; 3/3 consensus at iteration 5), and **Bean 0254** (PR #147, `7258f61`: `flow.py` split into
+a `flow/` package, move-only, AST-verified, with a per-module size ratchet; 3/3 consensus at iteration 5 on
+claude-agent/claude-opus-5-5, calibration ΔEV −59.40, distorted by Beans 0257 and 0253). New beans logged: **Bean 0258**
+(resolver pre-push verification crashes because `uv` is missing from the agent image, losing fixes and over-reporting
+consensus),**Bean 0252** (resolver preserves its rejected diff and full test output on pre-push failure), **Bean 0253**
+(calibration branches from the origin PR head, not a stale local ref), **Bean 0255** (streaming per-issue resolvers
+during Stage 4 CI & review with a single consolidated commit), **Bean 0256** (resolver agent committing locally causes
+`_commit_and_push_resolution` to skip verification and `git push`), and **Bean 0257** (dual Actual EV in Stage 5
+calibration: report both Clean/Intrinsic EV without bugs and Observed EV with bugs included).
 
 ---
 
@@ -481,7 +483,7 @@ included).
 | **P0**   | todo        |  High  |   L    | 0183   | Every flow stage works in its own sandboxed clone; `holon flow` needs no host checkout                                       | Holon Flow / Sandbox       | Stages 1-3 already clone in-container; move checkpoint, engine git checks and Stage 5 calibration into sandboxed clones so concurrent flows never share or require a host worktree. Pairs with 0179, 0149, 0151.                                                                                        |
 | **P0**   | todo        |  High  |   S    | 0160   | Review loop burns its iteration budget polling pending CI, then reports test failures                                        | Review Loop / CI           | PR #101 added bounded CI waiting within the iteration budget; remaining: separate `HOLON_REVIEW_CI_WAIT_SECONDS` budget and pending-vs-failed error reporting. Pair with 0234.                                                                                                                          |
 | **P0**   | todo        |  High  |   L    | 0151   | Planner estimates the touch set; overlapping concurrent flows are blocked                                                    | Holon Flow / Concurrency   | Unblocked by 0159 (#97 merged), 0201 (#142 merged), and 0149 (#146 merged). Sequence after 0254 (`flow/` package split). Must handle `{parent}--{n}-{slug}` child branches.                                                                                                                             |
-| **P1**   | in-progress |  High  |   L    | 0254   | Split `flow.py` into a `flow/` package of focused modules (move only, AST-verified)                                          | Refactor / Architecture    | In progress via `claude-agent`. Supersedes 0187. Splits 5,950-line `flow.py` into focused `flow/` submodules with AST equivalence test and size ratchet, unblocking parallel `flow/` lanes.                                                                                                             |
+| **P0**   | todo        |  High  |   S    | 0258   | Resolver pre-push verification crashes because `uv` is missing from the agent image                                          | Review Loop / Resolver     | Seen on PR #147: the resolver crashed in iterations 2 and 3 (`FileNotFoundError: 'uv'`), lost its fixes, and the post claimed 3/3. Ship `uv` in the images, fail loudly, and post the true verdict. Run first in the resolver lane.                                                                     |
 | **P1**   | todo        |  High  |   S    | 0256   | Resolver agent committing locally causes `_commit_and_push_resolution` to skip verification and `git push`, losing all fixes | Review Loop / Resolver     | Disjoint from `flow.py` (touches `entrypoint/review_loop.py` and `test_review_loop.py`). Capture `pre_resolver_head` before `_run_resolver_agent` and `git reset --soft <pre_resolver_head>` if `HEAD` moved, so `_commit_and_push_resolution` always verifies, attaches trailers, commits, and pushes. |
 | **P1**   | todo        |  High  |   M    | 0257   | Dual Actual EV in Stage 5 calibration: report both Intrinsic EV (without bugs) and Observed EV (with bugs included)          | Stage 5 / Calibration      | Disjoint from `flow.py` (touches `calibration.py` + new helper module). Separates `E-...` and converged `REV-...` (`halted_for_human`) outcomes (`ev_clean`) from intermediate bug/failure rows (`ev_with_bugs`) and reports `bug_ev_drag`.                                                             |
 | **P1**   | todo        |  High  |   L    | 0255   | Streaming per-issue resolvers during Stage 4 CI & review with single consolidated commit                                     | Review Loop / Concurrency  | Spin up isolated resolvers immediately as each CI pipeline fails (e.g. `Test - Hygiene` at 10 s) while continuing to wait for remaining pipelines, then merge all resolver fixes and push a single commit per iteration. Sequence after 0254 and 0256; pairs with 0234.                                 |
@@ -558,33 +560,34 @@ failure repair (#129), Stage 5 calibration knowledge/wisdom artifact commits (#1
 fail-closed verification defaults (#131) are all live. `HOLON_TOKEN_REDUCE=0` stays the workaround until Beans 0227 and
 0157 land. Set `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172 lands.
 
-**Merge / In-Flight State (2026-11-09):** `holon-agentic-coder` PRs #133–#146 all merged (Beans 0244, 0245, 0247, 0248,
-0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149); trunk is at `4682449`, installed editable with images
-rebuilt via `install-holon`. **Bean 0254** (split `flow.py` into a `flow/` package, move-only) is currently in flight
-via `claude-agent`. Harness PR #58 merged into `main` and operational tracking PR #59 is open on
-`docs/harness-20261106`. `fix/0227-proxy-readiness-http-probe` (`36c9765`, Bean 0227) has a green test suite and awaits
-the maintainer's call on PR creation. Coherence PR #41 (Bean 0208, `2f30d6e`) needs its 9 unit test failures resolved on
-its execution branch before Stage 4 review and Stage 5 calibration.
+**Merge / In-Flight State (2026-11-09):** `holon-agentic-coder` PRs #133–#147 all merged (Beans 0244, 0245, 0247, 0248,
+0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, 0254); trunk is at `7258f61`, installed editable with images
+rebuilt via `install-holon`. `flow.py` is now the `flow/` package, so beans touching different `flow/` submodules can
+run in parallel. No holon-agentic-coder flow is in flight. Harness PR #58 merged into `main` and operational tracking PR
+#59 is open on `docs/harness-20261106`. `fix/0227-proxy-readiness-http-probe` (`36c9765`, Bean 0227) has a green test
+suite and awaits the maintainer's call on PR creation. Coherence PR #41 (Bean 0208, `2f30d6e`) needs its 9 unit test
+failures resolved on its execution branch before Stage 4 review and Stage 5 calibration.
 
-Sequential & Disjoint Lanes, holon-agentic-coder (while **Bean 0254** splits `flow.py`, run disjoint modules first):
+Sequential & Disjoint Lanes, holon-agentic-coder (Bean 0254 landed: lanes are now per `flow/` submodule; items 1–3 can
+run concurrently, but items within the item-1 lane stay sequential):
 
-1. **Bean 0256** (`entrypoint/review_loop.py` + `tests/test_review_loop.py` — **disjoint from `flow.py`**): capture
-   `pre_resolver_head` before `_run_resolver_agent()` and `git reset --soft <pre_resolver_head>` if the resolver agent
-   committed locally during its turn, preventing `_commit_and_push_resolution()` from seeing a clean working tree and
-   skipping verification and `git push`. Can also pair with **Bean 0252** (preserve rejected diff and full pytest output
-   on pre-push failure in `entrypoint/review_loop.py`).
+1. **Resolver lane (`entrypoint/review_loop.py`, sequential):** **Bean 0258** first (critical: ship `uv` in the agent
+   images, fail loudly when pre-push verification cannot run, and post the true final verdict). It also touches the
+   Docker images and `flow/review/`. Then **Bean 0256**, then **Bean 0252**, then **Bean 0255**.
+   - **Bean 0256** (`entrypoint/review_loop.py` + `tests/test_review_loop.py`): capture `pre_resolver_head` before
+     `_run_resolver_agent()` and `git reset --soft <pre_resolver_head>` if the resolver agent committed locally during
+     its turn, preventing `_commit_and_push_resolution()` from seeing a clean working tree and skipping verification and
+     `git push`. Can also pair with **Bean 0252** (preserve rejected diff and full pytest output on pre-push failure in
+     `entrypoint/review_loop.py`).
 2. **Bean 0257** (`calibration.py` + `calibration_ev.py` — **disjoint from `flow.py`**): compute and report **Dual
    Actual EV** in Stage 5 calibration — both `Actual EV — Clean` (`ev_clean`, intrinsic value without
    pre-existing/pipeline bugs, treating `halted_for_human` consensus and `E-...` success as `p_success=1.0`) and
    `Actual EV — Observed` (`ev_with_bugs`, raw end-to-end EV with intermediate failures included), plus `bug_ev_drag`.
-3. **Bean 0254** (in-progress on `claude-agent`: split `flow.py` into a `flow/` package of focused modules, move-only,
-   proved by an AST comparison, with a size ratchet; supersedes Bean 0187). Once Bean 0254 merges, the `flow/`
-   sub-module lanes unlock in parallel:
-   - **Bean 0253** (calibration branches from `origin/<E>/_` so `/calibrated` fast-forwards into the PR).
-   - **Bean 0255** (streaming per-issue resolvers during Stage 4 CI & review with a single consolidated commit at the
-     end of the iteration, paired with **Bean 0234** + **Bean 0160** event-driven CI check progress reporting).
-   - **Bean 0151** (planner estimates the touch set and blocks overlapping concurrent flows — now unblocked by Bean 0149
-     PR #146 and Bean 0201 PR #142).
+3. **Bean 0253** (`flow/stages/calibrate.py` + `flow/git_refs.py`): calibration branches from `origin/<E>/_` so
+   `/calibrated` fast-forwards into the PR (it recurred on PR #147). It is disjoint from 0257's `calibration.py`.
+   - Afterwards: **Bean 0255** (streaming per-issue resolvers with a single consolidated commit, after 0258/0256/0252 in
+     the resolver lane, paired with **Bean 0234** + **Bean 0160**), and **Bean 0151** (planner touch-set estimation that
+     blocks overlapping concurrent flows; Bean 0254 made it practical).
 4. **Bean 0231** (exhausted-budget error string interpolates raw count while payload reports clamped 0).
 5. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean 0190**
    (checkpoint and ledger reconciliation; entrypoints stop importing flow). Both precede **Bean 0183** (every stage and

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0254
 title: "Split flow.py into a flow/ package of focused modules (move only) so concurrent flows stop colliding"
-status: in-progress
+status: completed
 type: task
 priority: critical
 tags:
@@ -11,7 +11,7 @@ tags:
   - concurrency
   - holon-agentic-coder
 created_at: 2026-11-09T01:00:00Z
-updated_at: 2026-11-09T01:00:00Z
+updated_at: 2026-11-09T04:00:00Z
 ---
 
 ## Problem
@@ -132,3 +132,27 @@ Update `docs/architecture.md` with the module map and a one-line responsibility 
 - Target repository changes in `holon-agentic-coder` must be delivered through the 5-stage Holon flow.
 - Stage 3 output is large. Set `HOLON_STAGE_BUDGET_EXECUTE_MINUTES` generously for this run.
 - The intent JSON must not mention bean IDs or harness paths, because it is copied into `intents.jsonl`.
+
+## Resolution
+
+Delivered via [PR #147](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/147) and merged into `main`
+(`7258f61`, 2026-11-09T03:51:32Z):
+
+- **Package split**: `flow.py` (6,159 lines) replaced by a `sandbox_executor.flow` package of cluster modules
+  (`context`, `checkpoint`, `ledger_reconcile`, `stage_conflicts`, `github/`, `dispatch`, `git_refs`, `stages/`,
+  `review/` including a new `review/cli.py`, `pipeline`, `constants`). `flow/__init__.py` re-exports every name, so
+  callers are unchanged. 78 files, +15,884 / −12,772.
+- **Proof of move**: `tests/flow/test_move_proof.py` and `tests/flow/move_proof.py` compare `ast.dump` of every
+  definition against the original `flow.py` blob, with zero differences. `tests/flow/test_patch_targets.py` blocks
+  package-level `mock.patch` targets, and `tests/flow/test_package_exports.py` checks the re-exports.
+- **Tests**: `tests/test_flow.py` split into `tests/flow/`, 293 test functions against 280 before. CI 11/11 green.
+- **Size ratchet**: `scripts/check_flow_module_budgets.py` with `apps/sandbox-executor/flow_module_budgets.json`, run by
+  lint. `docs/architecture.md` has the module map.
+- **Holon flow traversal**: all 5 stages on `claude-agent` / `claude-opus-5-5`. Execute took 21.2 min. Consensus came at
+  iteration 4 and again 3/3 at iteration 5, after a resume. Calibration: predicted EV 27.39, actual −32.01 (ΔEV −59.40).
+  The actual figure is distorted by Bean 0257 (`halted_for_human` counted as `p_success=0`) and Bean 0253 (`/calibrated`
+  was cut from the pre-resolver head `377e17e`, so it was merged into the PR with an ordinary merge commit).
+- **Known residuals**: the resolver crashed in iterations 2 and 3 because `uv` is missing from the agent image, which
+  lost those fixes and made the posted summary claim 3/3 at iteration 4 (Bean 0258). The open docs nit (the
+  `flow/stage_conflicts.py` docstring and the architecture map say "pre-push" when the check runs before each stage) is
+  left for a follow-up flow.

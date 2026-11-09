@@ -262,8 +262,11 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "checkpoint's recorded worktree is not an attached git working tree; 3/3 consensus at iteration 4 on "
         "claude-agent/claude-opus-5-5, calibration ΔEV +14.85), and **Bean 0149** (PR #146, `4682449`: globally unique "
         "`P-...` and `E-...` stage IDs with 8-char hex disambiguators and ledger duplicate validation; 3/3 consensus "
-        "at iteration 5). **Bean 0254** (split `flow.py` into a `flow/` package, move-only) is currently in progress. "
-        "New beans logged: **Bean 0252** (resolver preserves its rejected diff and full test output on pre-push "
+        "at iteration 5), and **Bean 0254** (PR #147, `7258f61`: `flow.py` split into a `flow/` package, move-only, "
+        "AST-verified, with a per-module size ratchet; 3/3 consensus at iteration 5 on claude-agent/claude-opus-5-5, "
+        "calibration ΔEV −59.40, distorted by Beans 0257 and 0253). "
+        "New beans logged: **Bean 0258** (resolver pre-push verification crashes because `uv` is missing from the "
+        "agent image, losing fixes and over-reporting consensus),**Bean 0252** (resolver preserves its rejected diff and full test output on pre-push "
         "failure), **Bean 0253** (calibration branches from the origin PR head, not a stale local ref), **Bean 0255** "
         "(streaming per-issue resolvers during Stage 4 CI & review with a single consolidated commit), **Bean 0256** "
         "(resolver agent committing locally causes `_commit_and_push_resolution` to skip verification and `git push`), "
@@ -309,10 +312,11 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Merge / In-Flight State (2026-11-09):** `holon-agentic-coder` PRs #133–#146 all merged (Beans 0244, 0245, "
-        "0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149); trunk is at `4682449`, installed "
-        "editable with images rebuilt via `install-holon`. **Bean 0254** (split `flow.py` into a `flow/` package, "
-        "move-only) is currently in flight via `claude-agent`. Harness PR #58 merged into `main` and operational "
+        "**Merge / In-Flight State (2026-11-09):** `holon-agentic-coder` PRs #133–#147 all merged (Beans 0244, 0245, "
+        "0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, 0254); trunk is at `7258f61`, "
+        "installed editable with images rebuilt via `install-holon`. `flow.py` is now the `flow/` package, so "
+        "beans touching different `flow/` submodules can run in parallel. No holon-agentic-coder flow is in "
+        "flight. Harness PR #58 merged into `main` and operational "
         "tracking PR #59 is open on `docs/harness-20261106`. `fix/0227-proxy-readiness-http-probe` (`36c9765`, "
         "Bean 0227) has a green test suite and awaits the maintainer's call on PR creation. Coherence PR #41 "
         "(Bean 0208, `2f30d6e`) needs its 9 unit test failures resolved on its execution branch before Stage 4 "
@@ -320,12 +324,17 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "Sequential & Disjoint Lanes, holon-agentic-coder "
-        "(while **Bean 0254** splits `flow.py`, run disjoint modules first):"
+        "Sequential & Disjoint Lanes, holon-agentic-coder (Bean 0254 landed: lanes are now per `flow/` submodule; "
+        "items 1–3 can run concurrently, but items within the item-1 lane stay sequential):"
     ),
     "",
     (
-        "1. **Bean 0256** (`entrypoint/review_loop.py` + `tests/test_review_loop.py` — **disjoint from `flow.py`**): "
+        "1. **Resolver lane (`entrypoint/review_loop.py`, sequential):** **Bean 0258** first (critical: ship `uv` in "
+        "the agent images, fail loudly when pre-push verification cannot run, and post the true final verdict). It "
+        "also touches the Docker images and `flow/review/`. Then **Bean 0256**, then **Bean 0252**, then **Bean 0255**."
+    ),
+    (
+        "   - **Bean 0256** (`entrypoint/review_loop.py` + `tests/test_review_loop.py`): "
         "capture `pre_resolver_head` before `_run_resolver_agent()` and `git reset --soft <pre_resolver_head>` if the "
         "resolver agent committed locally during its turn, preventing `_commit_and_push_resolution()` from seeing a "
         "clean working tree and skipping verification and `git push`. Can also pair with **Bean 0252** (preserve "
@@ -339,19 +348,14 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "`bug_ev_drag`."
     ),
     (
-        "3. **Bean 0254** (in-progress on `claude-agent`: split `flow.py` into a `flow/` package of focused modules, "
-        "move-only, proved by an AST comparison, with a size ratchet; supersedes Bean 0187). Once Bean 0254 merges, "
-        "the `flow/` sub-module lanes unlock in parallel:"
-    ),
-    ("   - **Bean 0253** (calibration branches from `origin/<E>/_` so `/calibrated` fast-forwards into the PR)."),
-    (
-        "   - **Bean 0255** (streaming per-issue resolvers during Stage 4 CI & review with a single consolidated "
-        "commit at the end of the iteration, paired with **Bean 0234** + **Bean 0160** event-driven CI check progress "
-        "reporting)."
+        "3. **Bean 0253** (`flow/stages/calibrate.py` + `flow/git_refs.py`): calibration branches from "
+        "`origin/<E>/_` so `/calibrated` fast-forwards into the PR (it recurred on PR #147). It is disjoint from "
+        "0257's `calibration.py`."
     ),
     (
-        "   - **Bean 0151** (planner estimates the touch set and blocks overlapping concurrent flows — now unblocked "
-        "by Bean 0149 PR #146 and Bean 0201 PR #142)."
+        "   - Afterwards: **Bean 0255** (streaming per-issue resolvers with a single consolidated commit, after "
+        "0258/0256/0252 in the resolver lane, paired with **Bean 0234** + **Bean 0160**), and **Bean 0151** (planner "
+        "touch-set estimation that blocks overlapping concurrent flows; Bean 0254 made it practical)."
     ),
     ("4. **Bean 0231** (exhausted-budget error string interpolates raw count while payload reports clamped 0)."),
     (
@@ -445,15 +449,16 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "(`flow/` package split). Must handle `{parent}--{n}-{slug}` child branches."
         ),
     },
-    "0254": {
-        "title": "Split `flow.py` into a `flow/` package of focused modules (move only, AST-verified)",
-        "priority": "**P1**",
+    "0258": {
+        "title": "Resolver pre-push verification crashes because `uv` is missing from the agent image",
+        "priority": "**P0**",
         "impact": "High",
-        "sizing": "L",
-        "domain": "Refactor / Architecture",
+        "sizing": "S",
+        "domain": "Review Loop / Resolver",
         "notes": (
-            "In progress via `claude-agent`. Supersedes 0187. Splits 5,950-line `flow.py` into focused `flow/` "
-            "submodules with AST equivalence test and size ratchet, unblocking parallel `flow/` lanes."
+            "Seen on PR #147: the resolver crashed in iterations 2 and 3 (`FileNotFoundError: 'uv'`), lost its "
+            "fixes, and the post claimed 3/3. Ship `uv` in the images, fail loudly, and post the true verdict. Run "
+            "first in the resolver lane."
         ),
     },
     "0256": {
