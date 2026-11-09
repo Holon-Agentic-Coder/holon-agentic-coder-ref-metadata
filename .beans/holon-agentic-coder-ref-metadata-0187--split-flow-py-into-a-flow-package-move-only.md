@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0187
 title: "Split flow.py into a flow/ package, one module per stage and concern (move only, AST-verified)"
-status: todo
+status: scrapped
 type: task
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0185
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-30T01:01:41Z
+updated_at: 2026-11-09T01:00:00Z
 ---
 
 ## Problem
@@ -57,3 +57,8 @@ Blocked by 0185. Unblocks 0189, 0190, 0191, 0193, 0194 and 0197, which can then 
 - Can run in parallel with 0188 (`cli.py`), because the re-exports keep `cli`'s imports valid.
 - Reverses Bean 0152's "decompose before splitting": a move-only diff is mechanically reviewable and is what removes the
   shared file.
+
+## Superseded (2026-11-09)
+
+Scrapped in favour of Bean 0254, which re-plans the same move-only split from the current `flow.py` (6,160 lines, 124
+definitions at `8b1e668`) instead of the 5,157-line `993b686` snapshot this bean was written against.

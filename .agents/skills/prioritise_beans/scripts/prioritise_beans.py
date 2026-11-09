@@ -313,21 +313,22 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "Sequential lane, holon-agentic-coder (fast UX/reliability wins first, then `flow.py` split):",
     "",
     (
-        "1. **Bean 0253** (calibration branches from `origin/<E>/_` so `/calibrated` fast-forwards into the PR) "
-        "and **Bean 0252** (resolver keeps its rejected diff and full pytest summary on pre-push failure): both "
-        "remove manual interventions seen on every recent flow; run after the in-flight Bean 0149 (PR #146)."
+        "1. **Bean 0254** (split `flow.py` into a `flow/` package of focused modules, move only, proved by an AST "
+        "comparison, with a size ratchet; supersedes Bean 0187). Runs alone, right after PR #146 merges; then Beans "
+        "0252 and 0253 and the decomposition lanes can run in parallel on disjoint modules."
     ),
     (
-        "2. **Bean 0234** + **Bean 0160** (event-driven CI check progress reporting during Stage 4 review — log total "
+        "2. **Bean 0253** (calibration branches from `origin/<E>/_` so `/calibrated` fast-forwards into the PR) "
+        "and **Bean 0252** (resolver keeps its rejected diff and full pytest summary on pre-push failure): both "
+        "remove manual interventions seen on every recent flow; run in parallel once Bean 0254 lands."
+    ),
+    (
+        "3. **Bean 0234** + **Bean 0160** (event-driven CI check progress reporting during Stage 4 review — log total "
         "pipelines once at start and emit a line only as each check completes, with separate CI wait timeout / "
         "pending-vs-failed error reporting; intent ready in `todo/intent-0234-event-driven-ci-check-progress.json`)."
     ),
     (
-        "3. **Bean 0231** (exhausted-budget error string interpolates raw count while payload reports clamped 0)."
-    ),
-    (
-        "4. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split right after "
-        "the small `flow.py` fixes above removes the 5,500-line single-file serialization bottleneck."
+        "4. **Bean 0231** (exhausted-budget error string interpolates raw count while payload reports clamped 0)."
     ),
     (
         "5. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean "

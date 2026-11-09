@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-09 00:34:45 UTC
+**Last Updated:** 2026-11-09 01:03:52 UTC
 
 ## Executive Summary
 
@@ -14,10 +14,10 @@ Concurrent flows on overlapping files (#94, #95 and #96 all changed `flow.py` an
 re-reviews: 141 review-loop passes from the first sync onward, about 10M+ tokens. Beans 0151 and 0152 address that, and
 overlapping flows now run one after another.
 
-- **Total Tracked Beans**: 253 (excluding template)
-- **Completed**: 198 (78.3%)
-- **Scrapped / Superseded**: 3 (1.2%)
-- **Active**: 52 (20.6%), of which 4 are in progress and 48 are todo
+- **Total Tracked Beans**: 254 (excluding template)
+- **Completed**: 198 (78.0%)
+- **Scrapped / Superseded**: 4 (1.6%)
+- **Active**: 52 (20.5%), of which 4 are in progress and 48 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -462,7 +462,6 @@ branches from the origin PR head, not a stale local ref), both found during the 
 | **P1**   | todo        |  High  |   M    | 0224   | Claude credentials just work: auto-discover the secrets file, map by type, no HOLON_AGENT_KEY               | Agent Runner / Credentials | Touches `agent_runner.py`/pre-flight only - disjoint from `flow.py`. Kills the `HOLON_AGENT_SETTINGS` echo-pad tunnel; `--settings` value redacted in command echoes. Before 0225.                                                                            |
 | **P1**   | in-progress |  High  |   S    | 0227   | Sidecar readiness probe false positive (docker-proxy accepts before mitmproxy binds)                        | Token Reduce / Proxy       | Fix complete on `fix/0227-proxy-readiness-http-probe` (`36c9765`), suite green; hand-authored under the explicit-instruction exception. Awaiting maintainer call on PR creation.                                                                              |
 | **P1**   | todo        | Medium |   S    | 0222   | pi-agent sandbox cannot create `~/.pi/agent/sessions`, so pi-runner flows die at pre-flight                 | Agent Runner / Sandbox     | Mounting only `~/.pi/agent/models.json` makes Docker pre-create `/home/holon/.pi/agent` as root (EACCES for uid 1000). Add a writable tmpfs overlay for pi sessions/state in `get_agent_session_mounts`.                                                      |
-| **P1**   | todo        |  High  |   L    | 0187   | Split `flow.py` into a `flow/` package, one module per stage and concern (move only)                        | Refactor / Architecture    | After 0185 (#115 merged) and 0188 (#117 merged). >5,500 lines; AST-verified move only. Runs alone among `flow.py` PRs; unblocks 0189, 0190, 0191, 0193, 0194, 0197.                                                                                           |
 | **P1**   | todo        |  High  |   M    | 0189   | Launcher module owns container launch and role dispatch; break the `flow` -> `cli` cycle                    | Refactor / Architecture    | After 0187 (0188 is merged as #117); unblocks 0200. Runs with 0190 and precedes 0183.                                                                                                                                                                         |
 | **P1**   | todo        |  High  |   M    | 0190   | `FlowCheckpoint` and ledger reconciliation own their behaviour; entrypoints stop importing flow             | Ledger / Holon Flow        | After 0187; 0158 (PR #111, same code) has merged. Precedes 0183. Unblocks 0196, 0199.                                                                                                                                                                         |
 | **P1**   | todo        |  High  |   M    | 0191   | One GitHub adapter owns every `gh` call (PR, CI probe, mergeability, review posting)                        | GitHub / Architecture      | After 0187. Unblocks 0192.                                                                                                                                                                                                                                    |
@@ -504,6 +503,7 @@ branches from the origin PR head, not a stale local ref), both found during the 
 | **P2**   | todo        |  High  |   L    | 0142   | Real-workload benchmark: Qwen3.8-27B dense vs Flash-Next MoE                                                | Model Selection            | Real data only (AGENTS.md item 10).                                                                                                                                                                                                                           |
 | **P3**   | todo        |  Low   |   XS   | 0231   | Exhausted-budget error string interpolates raw count while payload reports clamped 0                        | Flow Engine / Cosmetic     | PR #124 loop deferral (cosmetic, out-of-increment). Touches `flow.py` - bundle with 0230.                                                                                                                                                                     |
 | **P3**   | todo        | Medium |   M    | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                                         | vmlx / Performance         | Pairs with 0142.                                                                                                                                                                                                                                              |
+| **P0**   | todo        |  High  |   M    | 0254   | Split flow.py into a flow/ package of focused modules (move only) so concurrent flows stop colliding        | Flow / Architecture        |                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   M    | 0253   | Stage 5 calibration branches from the origin PR head, not a stale local execution ref                       | Ledger / Observability     |                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   M    | 0252   | Stage 4 resolver preserves its rejected diff and full test output when pre-push tests fail                  | Ledger / Observability     |                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |   M    | 0246   | Fix pr-review-loop skill to strictly post consensus review once and prohibit dual-posting via gh pr comment | Flow / Architecture        |                                                                                                                                                                                                                                                               |
@@ -543,15 +543,16 @@ calibration.
 
 Sequential lane, holon-agentic-coder (fast UX/reliability wins first, then `flow.py` split):
 
-1. **Bean 0253** (calibration branches from `origin/<E>/_` so `/calibrated` fast-forwards into the PR) and **Bean 0252**
+1. **Bean 0254** (split `flow.py` into a `flow/` package of focused modules, move only, proved by an AST comparison,
+   with a size ratchet; supersedes Bean 0187). Runs alone, right after PR #146 merges; then Beans 0252 and 0253 and the
+   decomposition lanes can run in parallel on disjoint modules.
+2. **Bean 0253** (calibration branches from `origin/<E>/_` so `/calibrated` fast-forwards into the PR) and **Bean 0252**
    (resolver keeps its rejected diff and full pytest summary on pre-push failure): both remove manual interventions seen
-   on every recent flow; run after the in-flight Bean 0149 (PR #146).
-2. **Bean 0234** + **Bean 0160** (event-driven CI check progress reporting during Stage 4 review — log total pipelines
+   on every recent flow; run in parallel once Bean 0254 lands.
+3. **Bean 0234** + **Bean 0160** (event-driven CI check progress reporting during Stage 4 review — log total pipelines
    once at start and emit a line only as each check completes, with separate CI wait timeout / pending-vs-failed error
    reporting; intent ready in `todo/intent-0234-event-driven-ci-check-progress.json`).
-3. **Bean 0231** (exhausted-budget error string interpolates raw count while payload reports clamped 0).
-4. **Bean 0187** (split `flow.py` into a `flow/` package, move only). Landing the move-only split right after the small
-   `flow.py` fixes above removes the 5,500-line single-file serialization bottleneck.
+4. **Bean 0231** (exhausted-budget error string interpolates raw count while payload reports clamped 0).
 5. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean 0190**
    (checkpoint and ledger reconciliation; entrypoints stop importing flow). Both precede **Bean 0183** (every stage and
    engine bookkeeping step sandboxed in its own clone).
