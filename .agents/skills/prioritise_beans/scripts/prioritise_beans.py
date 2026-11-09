@@ -326,12 +326,17 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "tracking PR #59 is open on `docs/harness-20261106`. `fix/0227-proxy-readiness-http-probe` (`36c9765`, "
         "Bean 0227) has a green test suite and awaits the maintainer's call on PR creation. Coherence PR #41 "
         "(Bean 0208, `2f30d6e`) needs its 9 unit test failures resolved on its execution branch before Stage 4 "
-        "review and Stage 5 calibration."
+        "review and Stage 5 calibration. **Worktree rule (2026-11-09):** a flow never runs in the `main` worktree; "
+        "naming `main` as the target selects the repository and base branch only, and the flow runs in a "
+        "`flow-<slug>` worktree off `origin/main` (the `holon-flow` skill's script creates it, and Bean 0259 makes "
+        "`holon flow` enforce it). Image builds use a temporary `build-images-<sha>` worktree, and the `main` "
+        "worktrees stay on `main`, identical to `origin/main`."
     ),
     "",
     (
         "Sequential & Disjoint Lanes, holon-agentic-coder (Bean 0254 landed: lanes are now per `flow/` submodule; "
-        "items 1–2 can run concurrently, but items within the item-1 lane stay sequential):"
+        "items 1–3 touch pairwise-disjoint files and can run concurrently, but items within the item-1 lane stay "
+        "sequential):"
     ),
     "",
     (
@@ -348,26 +353,32 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     (
         "2. **Bean 0253** (`flow/stages/calibrate.py` + `flow/git_refs.py` — **disjoint from "
         "`entrypoint/review_loop.py`**): calibration branches from `origin/<E>/_` so `/calibrated` fast-forwards into "
-        "the PR (it recurred on PR #147)."
+        "the PR (it recurred on PRs #147 and #148)."
+    ),
+    (
+        "3. **Bean 0259** (`cli/commands/flow.py` + `git_flow.py` — **disjoint from the other lanes**, run it first "
+        "because every later flow depends on it): `holon flow` redirects a `main` target to a `flow-<slug>` worktree "
+        "off `origin/main` and never mutates the `main` worktree; checkpoints and the direct `review`, `review-loop` "
+        "and `calibrate` commands refuse a default-branch worktree."
     ),
     (
         "   - Afterwards: **Bean 0255** (streaming per-issue resolvers with a single consolidated commit, after "
         "0258/0256/0252 in the resolver lane, paired with **Bean 0234** + **Bean 0160**), and **Bean 0151** (planner "
         "touch-set estimation that blocks overlapping concurrent flows; Bean 0254 made it practical)."
     ),
-    ("3. **Bean 0231** (exhausted-budget error string interpolates raw count while payload reports clamped 0)."),
+    ("4. **Bean 0231** (exhausted-budget error string interpolates raw count while payload reports clamped 0)."),
     (
-        "4. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean "
+        "5. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean "
         "0190** (checkpoint and ledger reconciliation; entrypoints stop importing flow). Both precede **Bean 0183** "
         "(every stage and engine bookkeeping step sandboxed in its own clone)."
     ),
     (
-        "5. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), "
+        "6. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), "
         "then **Bean 0146** (plans-ledger correction rows; calibration picks the right predicted metrics). Bean 0197 "
         "follows 0146 because both touch `calibration.py`."
     ),
     (
-        "6. **Decomposition lanes from Bean 0177** once `0254` lands, in parallel where packages differ: "
+        "7. **Decomposition lanes from Bean 0177** once `0254` lands, in parallel where packages differ: "
         "0191 then 0192 (GitHub adapter, `ReviewLoop`), 0193, 0194, 0196 (now unblocked by 0195 PR #144 once 0190 "
         "lands), 0197 (after 0146), 0198 and 0199 (all tracked by umbrella Bean 0152). Bean 0153 runs per "
         "package with or right after that package's decomposition. **Bean 0213** (reflect remaining skill rules into "
@@ -445,6 +456,19 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "notes": (
             "Unblocked by 0159 (#97 merged), 0201 (#142 merged), and 0149 (#146 merged). Sequence after 0254 "
             "(`flow/` package split). Must handle `{parent}--{n}-{slug}` child branches."
+        ),
+    },
+    "0259": {
+        "title": "`holon flow` never runs in the `main` worktree: provision a dedicated flow worktree off `origin/main`",
+        "priority": "**P0**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Holon Flow / Worktrees",
+        "notes": (
+            "Disjoint from `flow/` and `entrypoint/review_loop.py` (touches `cli/commands/flow.py` and "
+            "`git_flow.py`). Redirects a default-branch target to `flow-<slug>` off `origin/main`, asserts the `main` "
+            "worktree is unchanged, refuses default-branch checkpoints, and guards `review`, `review-loop` and "
+            "`calibrate`. Harness rules and the `holon-flow` skill already require it."
         ),
     },
     "0256": {
