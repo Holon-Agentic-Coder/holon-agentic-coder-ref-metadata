@@ -112,3 +112,7 @@ engine merges that child PR into the plan branch with a merge commit (not squash
 ancestors), only when CI is green and the PR is mergeable. The engine refuses to merge any PR whose base is `main` or
 another default branch. `AGENTS.md` carries the matching narrow exception; agents still never merge by hand. The
 combined PR from the plan branch into `main` stops for the human maintainer.
+
+**Widened by the maintainer on 2026-11-09:** any PR that does not target `main` may be merged autonomously, by the flow
+engine or by an agent. `AGENTS.md` carries the ruling and its pre-merge checks. The combined PR from the plan branch
+into `main` still stops for the human maintainer.
