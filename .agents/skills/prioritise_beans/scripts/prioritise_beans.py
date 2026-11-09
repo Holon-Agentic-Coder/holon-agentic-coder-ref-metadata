@@ -239,52 +239,58 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     ),
     "",
     (
-        "**2026-11-06 to 2026-11-09:** Sixteen further `holon-agentic-coder` flow PRs merged: **Bean 0244** (PR #133, "
-        "`2a56a89`, merged 2026-11-06: immutable append-only KB/WB fact records in `wisdom.py` with hermetic "
-        "no-touch assertions), **Bean 0245** (PR #134, `4113f0d`: fix resolver runner build command), **Bean 0247** "
-        "(PR #135: flow auto-creates the target "
-        "worktree), **Bean 0248** (PR #136: `holon models` command), **Bean 0249** (PR #137: replace `--repo-dir` "
-        "with canonical `--target-worktree`), **Bean 0251** (PR #138: pass prompts to agent runners via files), "
-        "**Bean 0236** (PR #139, `d0c1334`: post the Stage 4 consensus review exactly once via `gh pr review` with a "
-        "single `--comment` fallback on the HTTP 422 self-review restriction, retiring the duplicate unconditional "
-        "`gh pr comment`; 3/3 consensus on iteration 1 with zero findings, calibration ΔEV +10.37 on "
-        "claude-agent/claude-fable-5), **Bean 0250** (PR #140, `be6cd7b`: surface agent returncode, stderr "
-        "diagnostics, and command lines in `review_ensemble.py` when reviewers fail; calibration ΔEV +4.37 on "
-        "antigravity-agent/gemini-3.8-flash-medium), **Bean 0243** (PR #141, "
-        "`e130dfb`: purge harness bean references and rename `[BEAN 0034 SAFETY HALT]` to `[SAFETY HALT]` across "
-        "code, tests and docs; 3/3 consensus on iteration 1 with zero findings, calibration ΔEV +6.84 on "
-        "claude-agent/claude-fable-5), **Bean 0201** (PR #142, `e10b4d4`: planner, executor, and reviewer prompts "
-        "carry module-layout and complexity rules; 3/3 consensus on iteration 2, calibration ΔEV +6.27), **Bean "
-        "0241** (PR #143, `a17a854`: persist the Stage 4 review loop sandbox across iterations with incremental git "
-        "sync; converged at iteration 10, calibration ΔEV +18.97), **Bean 0195** (PR #144, `cc2ed3e`: `GitRepository` "
-        "adapter in `sandbox_executor.git` routing all executor git calls; 3/3 consensus on iteration 1, calibration "
+        "**2026-11-06 to 2026-11-09:** Seventeen further `holon-agentic-coder` flow PRs merged: "
+        "**Bean 0244** (PR #133, `2a56a89`, merged 2026-11-06: immutable append-only KB/WB fact records in "
+        "`wisdom.py` with hermetic no-touch assertions), **Bean 0245** (PR #134, `4113f0d`: fix resolver runner "
+        "build command), **Bean 0247** (PR #135: flow auto-creates the target worktree), **Bean 0248** (PR #136: "
+        "`holon models` command), **Bean 0249** (PR #137: replace `--repo-dir` with canonical `--target-worktree`), "
+        "**Bean 0251** (PR #138: pass prompts to agent runners via files), **Bean 0236** (PR #139, `d0c1334`: post "
+        "the Stage 4 consensus review exactly once via `gh pr review` with a single `--comment` fallback on the "
+        "HTTP 422 self-review restriction, retiring the duplicate unconditional `gh pr comment`; 3/3 consensus on "
+        "iteration 1 with zero findings, calibration ΔEV +10.37 on claude-agent/claude-fable-5), **Bean 0250** "
+        "(PR #140, `be6cd7b`: surface agent returncode, stderr diagnostics, and command lines in "
+        "`review_ensemble.py` when reviewers fail; calibration ΔEV +4.37 on "
+        "antigravity-agent/gemini-3.8-flash-medium), **Bean 0243** (PR #141, `e130dfb`: purge harness bean "
+        "references and rename `[BEAN 0034 SAFETY HALT]` to `[SAFETY HALT]` across code, tests and docs; 3/3 "
+        "consensus on iteration 1 with zero findings, calibration ΔEV +6.84 on claude-agent/claude-fable-5), "
+        "**Bean 0201** (PR #142, `e10b4d4`: planner, executor, and reviewer prompts carry module-layout and "
+        "complexity rules; 3/3 consensus on iteration 2, calibration ΔEV +6.27), **Bean 0241** (PR #143, `a17a854`: "
+        "persist the Stage 4 review loop sandbox across iterations with incremental git sync; converged at "
+        "iteration 10, calibration ΔEV +18.97), **Bean 0195** (PR #144, `cc2ed3e`: `GitRepository` adapter in "
+        "`sandbox_executor.git` routing all executor git calls; 3/3 consensus on iteration 1, calibration "
         "ΔEV +7.10), **Bean 0233** (PR #145, `8b1e668`: fail fast when the resolved `--target-worktree` or a "
         "checkpoint's recorded worktree is not an attached git working tree; 3/3 consensus at iteration 4 on "
         "claude-agent/claude-opus-5-5, calibration ΔEV +14.85), **Bean 0149** (PR #146, `4682449`: globally unique "
-        "`P-...` and `E-...` stage IDs with 8-char hex disambiguators and ledger duplicate validation; 3/3 consensus "
-        "at iteration 5), **Bean 0254** (PR #147, `7258f61`: `flow.py` split into a `flow/` package, move-only, "
-        "AST-verified, with a per-module size ratchet; 3/3 consensus at iteration 5 on claude-agent/claude-opus-5-5, "
-        "calibration ΔEV −59.40, distorted by Beans 0257 and 0253), **Bean 0258** (PR #148, `b6cd9a6`: pinned "
-        "`uv` 0.13.7 in the `holon-base` image with a build-time smoke check; a resolver that cannot run its checks "
-        "or whose container fails now halts the review loop; the consensus post reports the real approval fraction and "
-        "open findings; 3/3 consensus at iteration 5 on claude-agent/claude-opus-5-5, calibration ΔEV −65.23, "
-        "distorted by Beans 0257 and 0253), **Bean 0257** (PR #149, `c554e8e`: dual Actual EV in Stage 5 "
-        "calibration via `calibration_ev.py` and `calibration.py` reporting both Clean/Intrinsic EV without bugs and "
-        "Observed EV with bugs included plus Bug EV Drag; 3/3 consensus at iteration 4 on "
-        "antigravity-agent/gemini-3.8-flash-medium, predicted EV +6.24, Clean EV +6.07 / ΔEV_clean −0.17, Observed EV "
-        "−2.43, Bug EV Drag +8.50), and **Bean 0259** (PR #150, `8000794`: `holon flow` redirects a `main` target to a "
-        "`flow-<slug>` worktree off `origin/main` and never mutates the `main` worktree; default-branch checkpoints "
-        "and the direct `review`, `review-loop` and `calibrate` commands are refused; 3/3 consensus at iteration 3 on "
-        "claude-agent/claude-opus-5-5, calibration ΔEV +29.58). "
+        "`P-...` and `E-...` stage IDs with 8-char hex disambiguators and ledger duplicate validation; 3/3 "
+        "consensus at iteration 5), **Bean 0254** (PR #147, `7258f61`: `flow.py` split into a `flow/` package, "
+        "move-only, AST-verified, with a per-module size ratchet; 3/3 consensus at iteration 5 on "
+        "claude-agent/claude-opus-5-5, calibration ΔEV −59.40, distorted by Beans 0257 and 0253), **Bean 0258** "
+        "(PR #148, `b6cd9a6`: pinned `uv` 0.13.7 in the `holon-base` image with a build-time smoke check; a "
+        "resolver that cannot run its checks or whose container fails now halts the review loop; the consensus "
+        "post reports the real approval fraction and open findings; 3/3 consensus at iteration 5 on "
+        "claude-agent/claude-opus-5-5, calibration ΔEV −65.23, distorted by Beans 0257 and 0253), **Bean 0257** "
+        "(PR #149, `c554e8e`: dual Actual EV in Stage 5 calibration via `calibration_ev.py` and `calibration.py` "
+        "reporting both Clean/Intrinsic EV without bugs and Observed EV with bugs included plus Bug EV Drag; 3/3 "
+        "consensus at iteration 4 on antigravity-agent/gemini-3.8-flash-medium, predicted EV +6.24, Clean EV +6.07 / "
+        "ΔEV_clean −0.17, Observed EV −2.43, Bug EV Drag +8.50), **Bean 0259** (PR #150, `8000794`: `holon flow` "
+        "redirects a `main` target to a `flow-<slug>` worktree off `origin/main` and never mutates the `main` "
+        "worktree; default-branch checkpoints and the direct `review`, `review-loop` and `calibrate` commands are "
+        "refused; 3/3 consensus at iteration 3 on claude-agent/claude-opus-5-5, calibration ΔEV +29.58), and "
+        "**Bean 0256** (PR #151, `61796c6`: resolver captures `pre_resolver_head` before `_run_resolver_agent` and "
+        "soft-resets any local agent commits in `_commit_and_push_resolution`, ensuring pre-push verification, "
+        "canonical review trailers, and git push are never skipped; 3/3 consensus at iteration 5, "
+        "calibrated ΔEV +0.53). "
         "New beans logged: **Bean 0252** (resolver preserves its rejected diff and full test output on pre-push "
-        "failure), **Bean 0253** (calibration branches from the origin PR head, not a stale local ref), **Bean 0255** "
-        "(streaming per-issue resolvers during Stage 4 CI & review with a single consolidated commit), and **Bean "
-        "0256** (resolver agent committing locally causes `_commit_and_push_resolution` to skip verification and "
-        "`git push`)."
+        "failure), **Bean 0253** (calibration branches from the origin PR head, not a stale local ref), "
+        "**Bean 0255** (streaming per-issue resolvers during Stage 4 CI & review with a single consolidated commit), "
+        "**Bean 0260** (never post intermediate review iterations or aborted review passes to PR), **Bean 0261** "
+        "(deduplicate and streamline PR review evaluation line in consensus report), and **Bean 0262** (mount "
+        "host-provisioned worktree into sandbox containers to eliminate in-container git cloning and mid-crash state "
+        "loss)."
     ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0258)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0259)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
@@ -308,60 +314,77 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Tooling (2026-11-06):** `holon-agentic-coder` `main` (`3c752e6`) and `holon-coherence` `main` (`d6f1655`) "
+        "**Tooling (2026-11-06):** `holon-agentic-coder` `main` (`61796c6`) and `holon-coherence` `main` (`d6f1655`) "
         "are installed editable and all agent images were rebuilt via `install-holon`, so Stage 3 partial-code "
         "salvage (#108), pure-append ledgers (#111), the calibration-report Prettier fix (#112), Stage 4 in the "
         "`review-loop` container (#116), the modular `cli/` package (#117), mandatory `--agent` / `--model` "
         "(#119), the standardised consensus review template (#123), the engine-owned single-shot review loop (#124), "
         "the native Stage 4 resolver (#125), the 3600 s default per-turn timeout (#126), the 120-minute default "
         "`review_iteration` stage budget (#127), post-review CI gating (#128), resolver CI failure repair (#129), "
-        "Stage 5 calibration knowledge/wisdom artifact commits (#130), and resolver command execution & fail-closed "
-        "verification defaults (#131) are all live. `HOLON_TOKEN_REDUCE=0` stays the workaround until Beans 0227 and "
-        "0157 land. Set `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172 lands."
+        "Stage 5 calibration knowledge/wisdom artifact commits (#130), resolver command execution & fail-closed "
+        "verification defaults (#131), and resolver commit soft-reset (#151) are all live. `HOLON_TOKEN_REDUCE=0` "
+        "stays the workaround until Beans 0227 and 0157 land. Set `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until "
+        "Bean 0172 lands."
     ),
     "",
     (
-        "**Merge / In-Flight State (2026-11-09):** `holon-agentic-coder` PRs #133–#150 all merged (Beans 0244, 0245, "
-        "0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, 0254, 0258, 0257, 0259); trunk is at "
-        "`8000794`, installed editable, and images rebuilt via `install-holon` with `uv` 0.13.7 in the base image and "
-        "Dual-EV calibration in `holon/orchestrator`. `flow.py` is now the `flow/` package, so beans touching "
-        "different `flow/` submodules can run in parallel. Harness PR #58 merged into `main` and operational "
+        "**Merge / In-Flight State (2026-11-09):** `holon-agentic-coder` PRs #133–#151 all merged (Beans 0244, 0245, "
+        "0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, 0254, 0258, 0257, 0259, 0256); "
+        "trunk is at `61796c6`, installed editable, and images rebuilt via `install-holon` with `uv` 0.13.7 in the "
+        "base image and Dual-EV calibration in `holon/orchestrator`. `flow.py` is now the `flow/` package, so beans "
+        "touching different `flow/` submodules can run in parallel. Harness PR #58 merged into `main` and operational "
         "tracking PR #59 is open on `docs/harness-20261106`. `fix/0227-proxy-readiness-http-probe` (`36c9765`, "
         "Bean 0227) has a green test suite and awaits the maintainer's call on PR creation. Coherence PR #41 "
         "(Bean 0208, `2f30d6e`) needs its 9 unit test failures resolved on its execution branch before Stage 4 "
         "review and Stage 5 calibration. **Worktree rule (2026-11-09):** a flow never runs in the `main` worktree; "
         "naming `main` as the target selects the repository and base branch only, and the flow runs in a "
-        "`flow-<slug>` worktree off `origin/main` (Bean 0259, PR #150, makes `holon flow` itself create and enforce "
-        "it, including for direct `holon flow` runs). Image builds use a temporary `build-images-<sha>` worktree, and the `main` "
-        "worktrees stay on `main`, identical to `origin/main`."
+        "`flow-<slug>` worktree off `origin/main` (Bean 0259, PR #150). Standalone external PR reviews provision "
+        "`pr<N>-<slug>` only when no local worktree exists; otherwise `flow-<slug>` is reused directly across all "
+        "stages. Image builds use a temporary `build-images-<sha>` worktree, and the `main` worktrees stay on `main`, "
+        "identical to `origin/main`."
     ),
     "",
     (
         "Sequential & Disjoint Lanes, holon-agentic-coder (Bean 0254 landed: lanes are now per `flow/` submodule; "
-        "items 1–2 touch pairwise-disjoint files and can run concurrently, but items within the item-1 lane stay "
-        "sequential):"
+        "items 1–3 touch pairwise-disjoint files and can run concurrently):"
     ),
     "",
     (
-        "1. **Resolver lane (`entrypoint/review_loop.py`, sequential):** **Bean 0256** first, then **Bean 0252**, "
-        "then **Bean 0255**. Bean 0258 landed, so the resolver can run its checks and a failure halts the loop."
+        "1. **Review loop hygiene & reporting lane (`flow/review/` & `review_report.py`, disjoint from resolver):** "
+        "**Bean 0260** first, then **Bean 0261**."
     ),
     (
-        "   - **Bean 0256** (`entrypoint/review_loop.py` + `tests/test_review_loop.py`): "
-        "capture `pre_resolver_head` before `_run_resolver_agent()` and `git reset --soft <pre_resolver_head>` if the "
-        "resolver agent committed locally during its turn, preventing `_commit_and_push_resolution()` from seeing a "
-        "clean working tree and skipping verification and `git push`. Can also pair with **Bean 0252** (preserve "
-        "rejected diff and full pytest output on pre-push failure in `entrypoint/review_loop.py`)."
+        "   - **Bean 0260** (`flow/review/loop.py`): never post intermediate review iterations or aborted review "
+        "passes to GitHub PR; only post consensus review comments when `consensus_reached` is True or the 25-iteration "
+        "budget is fully exhausted."
     ),
     (
-        "2. **Bean 0253** (`flow/stages/calibrate.py` + `flow/git_refs.py` — **disjoint from "
-        "`entrypoint/review_loop.py`**): calibration branches from `origin/<E>/_` so `/calibrated` fast-forwards into "
-        "the PR (it recurred on PRs #147 and #148)."
+        "   - **Bean 0261** (`review_report.py`): deduplicate and streamline the evaluation header line in consensus "
+        "reports to print a single clean summary line matching canonical skill output."
     ),
     (
-        "   - Afterwards: **Bean 0255** (streaming per-issue resolvers with a single consolidated commit, after "
-        "0258/0256/0252 in the resolver lane, paired with **Bean 0234** + **Bean 0160**), and **Bean 0151** (planner "
-        "touch-set estimation that blocks overlapping concurrent flows; Bean 0254 made it practical)."
+        "2. **Sandbox worktree mount & dead git code eradication lane (`flow/review/workspace.py` & "
+        "`entrypoint/review_loop.py`):**"
+    ),
+    (
+        "   - **Bean 0262**: bind-mount host worktree (`flow-<slug>`) directly to "
+        "`/home/holon/.holon-sandbox/workspace`, eliminate named Docker volumes and root `chown` boilerplate, "
+        "ruthlessly purge dead in-container git cloning/resetting (`_clone_or_fetch`, `_reset_reused_checkout`, "
+        "`_ensure_head`, `_origin_matches`, `ReviewWorkspaceSession`) and all associated mock tests, and unify "
+        "intermediate review files under `<worktree>/.subagent/`."
+    ),
+    ("3. **Calibration & resolver lane (`flow/stages/calibrate.py` & `entrypoint/review_loop.py`):**"),
+    (
+        "   - **Bean 0253** (`flow/stages/calibrate.py` + `flow/git_refs.py`): calibration branches from "
+        "`origin/<E>/_` so `/calibrated` fast-forwards into the PR (recurred on PRs #147 and #148)."
+    ),
+    (
+        "   - **Bean 0252** (`entrypoint/review_loop.py`): resolver preserves its rejected diff and full pytest output "
+        "on pre-push verification failure."
+    ),
+    (
+        "   - **Bean 0255** (streaming per-issue resolvers during Stage 4 CI & review with a single consolidated "
+        "commit, paired with **Bean 0234** + **Bean 0160**), and **Bean 0151** (planner touch-set estimation)."
     ),
     ("4. **Bean 0231** (exhausted-budget error string interpolates raw count while payload reports clamped 0)."),
     (
@@ -468,6 +491,45 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "Disjoint from `flow/` (touches `entrypoint/review_loop.py` and `test_review_loop.py`). Capture "
             "`pre_resolver_head` before `_run_resolver_agent` and `git reset --soft <pre_resolver_head>` if `HEAD` "
             "moved, so `_commit_and_push_resolution` always verifies, attaches trailers, commits, and pushes."
+        ),
+    },
+    "0260": {
+        "title": "Never post intermediate review iterations or aborted review passes to GitHub PR",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "S",
+        "domain": "Review Loop / Observability",
+        "notes": (
+            "Only post consensus review comments when `consensus_reached` is True or the 25-iteration budget is "
+            "fully exhausted. Aborted, timed-out, or failed review passes remain local in `.subagent/` and are never "
+            "posted to GitHub. Prevents intermediate spam on GitHub PRs."
+        ),
+    },
+    "0261": {
+        "title": "Deduplicate and streamline PR review evaluation line in consensus report",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "XS",
+        "domain": "Review Loop / Report",
+        "notes": (
+            "Streamline redundant evaluation header text in `review_report.py` to print a single clean summary line "
+            "matching canonical skill output and avoiding duplicated PR/iteration metadata."
+        ),
+    },
+    "0262": {
+        "title": (
+            "Mount host-provisioned worktree into sandbox containers to eliminate in-container git cloning and "
+            "mid-crash state loss"
+        ),
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Flow / Sandbox / Worktree",
+        "notes": (
+            "Bind-mount host worktree (`flow-<slug>`) directly to `/home/holon/.holon-sandbox/workspace`. Completely "
+            "purge in-container git cloning and volume resets (`_clone_or_fetch`, `_reset_reused_checkout`), named "
+            "volume machinery, and associated mock tests. Unify intermediate review artifacts under "
+            "`<worktree>/.subagent/`."
         ),
     },
     "0255": {
@@ -1762,9 +1824,9 @@ def generate_triage_document(
             (
                 "29. **Immutable KB/WB Facts, Worktree Auto-Provisioning & Validation, Persistent Review Sandbox, "
                 "Prompt Complexity Rules, Executor GitRepository Adapter, Globally Unique Stage IDs, `flow/` Package "
-                "Split, Pinned Container `uv`, and Dual-EV Calibration "
-                "(Beans 0242, 0244, 0245, 0247–0251, 0236, 0243, 0201, 0241, 0195, 0233, 0149, 0254, 0258, 0257, 0259 / "
-                "HAC PRs #132–#150, 2026-11-06 to 2026-11-09)**:"
+                "Split, Pinned Container `uv`, Dual-EV Calibration, Main Worktree Guard, and Resolver Commit "
+                "Normalisation (Beans 0242, 0244, 0245, 0247–0251, 0236, 0243, 0201, 0241, 0195, 0233, 0149, 0254, "
+                "0258, 0257, 0259, 0256 / HAC PRs #132–#151, 2026-11-06 to 2026-11-09)**:"
             ),
             (
                 "    - `0242` (#132, `d932d48`), `0244` (#133, `2a56a89`), `0245` (#134, `4113f0d`), `0247` (#135), "
@@ -1812,6 +1874,12 @@ def generate_triage_document(
                 "    - `0259` (#150, `8000794`): `holon flow` now runs a `main` target in a dedicated `flow-<slug>` "
                 "worktree off `origin/main`, never mutating the `main` worktree, and refuses default-branch "
                 "checkpoints and direct stage commands."
+            ),
+            (
+                "    - `0256` (#151, `61796c6`): resolver captures `pre_resolver_head` before `_run_resolver_agent` "
+                "and soft-resets any local agent commits in `_commit_and_push_resolution`, ensuring pre-push "
+                "verification, canonical review trailers, and git push are never skipped "
+                "(calibrated $\\Delta\\text{EV} = +0.53$)."
             ),
             "",
             "---",
