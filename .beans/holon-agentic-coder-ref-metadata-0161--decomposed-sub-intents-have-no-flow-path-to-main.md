@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0161
 title: "Decomposed sub-intents have no flow path to main and do not build on each other"
-status: in-progress
+status: completed
 type: feature
 priority: critical
 tags:
@@ -9,7 +9,7 @@ tags:
   - decomposition
   - holon-agentic-coder
 created_at: 2026-10-26T07:16:04Z
-updated_at: 2026-11-09T13:00:00Z
+updated_at: 2026-11-10T09:18:00Z
 ---
 
 ## Problem
@@ -156,6 +156,33 @@ unanimous consensus with CI green; merging into `main` stays with the maintainer
 **2026-11-10: PR #158 passed the review loop.** Unanimous 3/3 consensus at head `cb9a592` after 6 iterations (CI 11/11,
 mergeable `CLEAN`); the consensus review is posted as a `COMMENT` (GitHub rejects `--approve` on a PR the same account
 authored). The whole PR was reviewed by the full-scope ensemble at `fbaab92`; the final two ensembles were
-increment-scoped (`03a1b61..cb9a592`). Three out-of-increment items are deferred to Bean 0269. **Awaiting the
-maintainer's merge into `main`.** After the merge: install from `main`, close this bean, refresh the triage, recommend
-the next set of concurrent beans, and restart Bean 0262 on the fixed engine.
+increment-scoped (`03a1b61..cb9a592`). Three out-of-increment items are deferred to Bean 0269.
+
+## Resolution
+
+Delivered via [PR #158](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/158) and merged into `main`
+(`14886b853dbc8e9a7ca88b963c2e8e9192d0a3e8`):
+
+- **Plan Decides Decomposition**:
+  - Stage 2 records the decomposition decision on the plan's `plans.jsonl` row (decision, entropy, budget, and the
+    `sub_intents` list), using the single existing `should_decompose` rule
+    (`sandbox_executor/flow/stages/plan_decision.py`, `sandbox_executor/decomposition_rule.py`). The plan branch is
+    self-describing.
+  - Stage 3 only executes the decision recorded on the plan; the executor container no longer re-decides or writes the
+    sub-intent list (`sandbox_executor/flow/stages/execute.py`, `entrypoint/executor.py`).
+- **Children Nest Under Plan Branch, Merge, and Resume Safely**:
+  - Each child intent is cut from and targets the plan branch (`I-.../P-.../_`), never the intent branch and never
+    `main`.
+  - The flow merges each child PR into the plan branch with a merge commit once consensus, calibration, green CI, and
+    mergeability hold (`sandbox_executor/flow/github/merge.py`, `sandbox_executor/flow/stages/children.py`). The flow
+    engine refuses any PR targeting `main` or the default branch.
+  - After the final child merges, the flow raises the combined integration PR targeting `main`
+    (`sandbox_executor/flow/stages/integration.py`), carrying the parent plan, parent execution record, and all child
+    plans and executions.
+  - Resuming a decomposed flow (`sandbox_executor/flow/child_progress.py`) continues an existing child at its current
+    stage without opening duplicate PRs or overwriting checkpoints.
+- **Verification & Review**:
+  - 17 unit test suites added or updated across `tests/flow/`, `tests/test_executor_plan_decision.py`,
+    `tests/flow/github/test_merge.py`, `tests/flow/stages/test_children.py`, and `tests/test_decomposition_rule.py`.
+  - Unanimous 3/3 multi-agent ensemble consensus approval on combined PR #158.
+  - Residual review nits tracked in Bean 0269.

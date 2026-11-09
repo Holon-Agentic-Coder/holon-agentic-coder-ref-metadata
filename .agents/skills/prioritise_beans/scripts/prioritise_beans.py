@@ -279,20 +279,25 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "**Bean 0256** (PR #151, `61796c6`: resolver captures `pre_resolver_head` before `_run_resolver_agent` and "
         "soft-resets any local agent commits in `_commit_and_push_resolution`, ensuring pre-push verification, "
         "canonical review trailers, and git push are never skipped; 3/3 consensus at iteration 5, "
-        "calibrated ΔEV +0.53), and **Bean 0266** (PR #153, `fe3b540`: the six CI workflows run on pull requests "
+        "calibrated ΔEV +0.53), **Bean 0266** (PR #153, `fe3b540`: the six CI workflows run on pull requests "
         "into any base branch so stacked sub-intent PRs are tested; 3/3 consensus at iteration 5 on "
-        "claude-agent/claude-opus-5-5, calibration ΔEV +20.60). "
+        "claude-agent/claude-opus-5-5, calibration ΔEV +20.60), **Bean 0268** (PR #154, `b63fce7`: carry "
+        "unmerged calibration reports into `main`), and **Bean 0161** (PR #158, `14886b8`: the plan decides "
+        "decomposition; children nest under and merge into the plan branch; combined PR reaches `main`; unanimous "
+        "3/3 consensus at iteration 6 on claude-agent/claude-opus-5-5, closing Bean 0161). "
         "New beans logged: **Bean 0252** (resolver preserves its rejected diff and full test output on pre-push "
         "failure), **Bean 0253** (calibration branches from the origin PR head, not a stale local ref), "
         "**Bean 0255** (streaming per-issue resolvers during Stage 4 CI & review with a single consolidated commit), "
         "**Bean 0260** (never post intermediate review iterations or aborted review passes to PR), **Bean 0261** "
-        "(deduplicate and streamline PR review evaluation line in consensus report), and **Bean 0262** (mount "
+        "(deduplicate and streamline PR review evaluation line in consensus report), **Bean 0262** (mount "
         "host-provisioned worktree into sandbox containers to eliminate in-container git cloning and mid-crash state "
-        "loss)."
+        "loss), **Bean 0263** (retire flow.py move-proof snapshot and its test), **Bean 0264** (read module size "
+        "budgets from configuration not code), **Bean 0265** (split cli/__init__.py into focused modules), "
+        "**Bean 0267** (Stage 3 measured test pass rate), and **Bean 0269** (deferred nits from PR 158 review loop)."
     ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0259)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0268)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
@@ -316,7 +321,7 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Tooling (2026-11-06):** `holon-agentic-coder` `main` (`61796c6`) and `holon-coherence` `main` (`d6f1655`) "
+        "**Tooling (2026-11-10):** `holon-agentic-coder` `main` (`14886b8`) and `holon-coherence` `main` (`d6f1655`) "
         "are installed editable and all agent images were rebuilt via `install-holon`, so Stage 3 partial-code "
         "salvage (#108), pure-append ledgers (#111), the calibration-report Prettier fix (#112), Stage 4 in the "
         "`review-loop` container (#116), the modular `cli/` package (#117), mandatory `--agent` / `--model` "
@@ -324,16 +329,18 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "the native Stage 4 resolver (#125), the 3600 s default per-turn timeout (#126), the 120-minute default "
         "`review_iteration` stage budget (#127), post-review CI gating (#128), resolver CI failure repair (#129), "
         "Stage 5 calibration knowledge/wisdom artifact commits (#130), resolver command execution & fail-closed "
-        "verification defaults (#131), and resolver commit soft-reset (#151) are all live. `HOLON_TOKEN_REDUCE=0` "
-        "stays the workaround until Beans 0227 and 0157 land. Set `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until "
-        "Bean 0172 lands."
+        "verification defaults (#131), resolver commit soft-reset (#151), all-branch CI for stacked PRs (#153), "
+        "missed calibration report catch-up (#154), and plan-owned decomposition with plan-branch child nesting & "
+        "autonomous merges (#158) are all live. `HOLON_TOKEN_REDUCE=0` stays the workaround until Beans 0227 and "
+        "0157 land. Set `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172 lands."
     ),
     "",
     (
-        "**Merge / In-Flight State (2026-11-09):** `holon-agentic-coder` PRs #133–#151, #153 and #154 all merged (Beans 0244, 0245, "
-        "0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, 0254, 0258, 0257, 0259, 0256, 0266); "
-        "trunk is at `b63fce7`, installed editable, and images rebuilt via `install-holon` with `uv` 0.13.7 in the "
-        "base image and Dual-EV calibration in `holon/orchestrator`. `flow.py` is now the `flow/` package, so beans "
+        "**Merge / In-Flight State (2026-11-10):** `holon-agentic-coder` PRs #133–#151, #153, #154, and #158 "
+        "all merged (Beans 0244, 0245, 0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, "
+        "0257, 0259, 0256, 0266, 0268, 0161); trunk is at `14886b8`, installed editable, and images rebuilt via "
+        "`install-holon` with `uv` 0.13.7 in the base image, Dual-EV calibration in `holon/orchestrator`, and "
+        "plan-owned child nesting in `sandbox_executor/flow/`. `flow.py` is now the `flow/` package, so beans "
         "touching different `flow/` submodules can run in parallel. Harness PR #58 merged into `main` and operational "
         "tracking PR #59 is open on `docs/harness-20261106`. `fix/0227-proxy-readiness-http-probe` (`36c9765`, "
         "Bean 0227) has a green test suite and awaits the maintainer's call on PR creation. Coherence PR #41 "
@@ -369,33 +376,34 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "`entrypoint/review_loop.py`):**"
     ),
     (
-        "   - **Bean 0262** (**RESTARTS FROM THE BEGINNING after Bean 0161 lands**: the first decomposed run used the wrong flow; PRs #152 and #155 and their `I-1794214501-…` branches are left untouched as the reference for the new sub-intents): bind-mount host worktree (`flow-<slug>`) directly to "
-        "`/home/holon/.holon-sandbox/workspace`, eliminate named Docker volumes and root `chown` boilerplate, "
-        "ruthlessly purge dead in-container git cloning/resetting (`_clone_or_fetch`, `_reset_reused_checkout`, "
-        "`_ensure_head`, `_origin_matches`, `ReviewWorkspaceSession`) and all associated mock tests, and unify "
-        "intermediate review files under `<worktree>/.subagent/`."
+        "   - **Bean 0262** (Ready to restart from the beginning on the fixed engine now that Bean 0161 PR #158 "
+        "has merged; PRs #152 and #155 and their `I-1794214501-…` branches remain as reference): bind-mount host "
+        "worktree (`flow-<slug>`) directly to `/home/holon/.holon-sandbox/workspace`, eliminate named Docker volumes "
+        "and root `chown` boilerplate, ruthlessly purge dead in-container git cloning/resetting (`_clone_or_fetch`, "
+        "`_reset_reused_checkout`, `_ensure_head`, `_origin_matches`, `ReviewWorkspaceSession`) and all associated "
+        "mock tests, and unify intermediate review files under `<worktree>/.subagent/`."
     ),
     (
-        "   - **Bean 0267** (`entrypoint/executor.py` + `flow/stages/` + `flow/review/loop.py` + docs; **hold behind Bean "
-        "0262**): Stage 3 runs the test task and records a measured `test_pass_rate`, and the review loop measures tests "
-        "itself when no CI registers, so the flow no longer depends on CI alone."
+        "   - **Bean 0267** (`entrypoint/executor.py` + `flow/stages/` + `flow/review/loop.py` + docs; **hold behind "
+        "Bean 0262**): Stage 3 runs the test task and records a measured `test_pass_rate`, and the review loop "
+        "measures tests itself when no CI registers, so the flow no longer depends on CI alone."
     ),
     (
-        "   - **Bean 0263** (`tests/flow/` + `docs/architecture.md`; **hold until PR #152 / Bean 0262 merges**, since both "
-        "edit the move-proof snapshot): retire the `flow.py` move-proof snapshot, `move_proof.py` and "
+        "   - **Bean 0263** (`tests/flow/` + `docs/architecture.md`; **hold until PR #152 / Bean 0262 merges**, since "
+        "both edit the move-proof snapshot): retire the `flow.py` move-proof snapshot, `move_proof.py` and "
         "`test_move_proof.py`, and rework `test_package_exports.py` to read the package itself."
     ),
     (
-        "   - **Bean 0265** (`cli/` + `tests/test_cli.py` + `docs/architecture.md`; **hold until Beans 0262, 0263 and "
-        "0264 merge**): move-only split of the 2,026-line `cli/__init__.py` into focused modules with re-exports, "
+        "   - **Bean 0265** (`cli/` + `tests/test_cli.py` + `docs/architecture.md`; **hold until Beans 0262, 0263 "
+        "and 0264 merge**): move-only split of the 2,026-line `cli/__init__.py` into focused modules with re-exports, "
         "patch targets moved, and `tests/test_cli.py` split into `tests/cli/`; runs alone on `cli/`. It makes Bean "
         "0189 (launcher module) a much smaller move."
     ),
     (
-        "   - **Bean 0264** (`holon-config/hygiene/` + `scripts/` + `tests/`; **hold until Beans 0262 and 0263 merge**): move "
-        "the `flow/` module size budgets out of `flow_module_budgets.json` and the check script's constants into "
-        "`holon-config/hygiene/module_budgets.json` configuration read by a generic `check_module_budgets.py`; "
-        "agents may change it, and raised limits warn instead of failing."
+        "   - **Bean 0264** (`holon-config/hygiene/` + `scripts/` + `tests/`; **hold until Beans 0262 and 0263 "
+        "merge**): move the `flow/` module size budgets out of `flow_module_budgets.json` and the check script's "
+        "constants into `holon-config/hygiene/module_budgets.json` configuration read by a generic "
+        "`check_module_budgets.py`; agents may change it, and raised limits warn instead of failing."
     ),
     ("3. **Calibration & resolver lane (`flow/stages/calibrate.py` & `entrypoint/review_loop.py`):**"),
     (
@@ -429,11 +437,10 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "native review-loop agent) is unblocked now that 0221 is complete."
     ),
     (
-        "7. **Bean 0157** (mitmproxy sidecar reachability, alongside **Bean 0227**), **Bean 0161** (nested sub-intent "
-        "branches), **Bean 0181** (`/_` only on branch refs), **Bean 0155** then **Bean 0148** (redaction), **Beans "
-        "0172, 0174, 0173, 0223** (budgets, env-var reference, layered `.env`, CLI flag vs env audit), **Bean 0200** "
-        "(holon-coherence owns token reduction; after 0189), and **Bean 0176** (pytest-only conversion of every test "
-        "file; runs alone)."
+        "8. **Bean 0157** (mitmproxy sidecar reachability, alongside **Bean 0227**), **Bean 0181** (`/_` only on "
+        "branch refs), **Bean 0155** then **Bean 0148** (redaction), **Beans 0172, 0174, 0173, 0223** (budgets, "
+        "env-var reference, layered `.env`, CLI flag vs env audit), **Bean 0200** (holon-coherence owns token "
+        "reduction; after 0189), and **Bean 0176** (pytest-only conversion of every test file; runs alone)."
     ),
     "",
     "Parallel lanes (disjoint files / repositories):",
@@ -503,16 +510,19 @@ OVERRIDES: dict[str, dict[str, str]] = {
         ),
     },
     "0267": {
-        "title": "Stage 3 records a measured `test_pass_rate` (and the review loop can measure tests itself) so the flow does not depend on CI alone",
+        "title": (
+            "Stage 3 records a measured `test_pass_rate` (and the review loop can measure tests itself) so the flow "
+            "does not depend on CI alone"
+        ),
         "priority": "**P1**",
         "impact": "High",
         "sizing": "M",
         "domain": "Holon Flow / Testing",
         "notes": (
-            "The executor never runs or records tests: `test_pass_rate` is `null` in 51 of 54 ledger rows, so every flow "
-            "relies on CI alone. Stage 3 should run `uv run task test` and record the rate, and the review loop's "
-            "`local_tests` fallback should measure when no CI registers. Hold behind Bean "
-            "0262, which also edits `flow/review/`."
+            "The executor never runs or records tests: `test_pass_rate` is `null` in 51 of 54 ledger rows, so every "
+            "flow relies on CI alone. Stage 3 should run `uv run task test` and record the rate, and the review "
+            "loop's `local_tests` fallback should measure when no CI registers. Hold behind Bean 0262, which also "
+            "edits `flow/review/`."
         ),
     },
     "0265": {
@@ -535,22 +545,24 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "M",
         "domain": "Lint / Configuration",
         "notes": (
-            "Moves the `flow/` size budgets into `holon-config/hygiene/module_budgets.json` (packages, default ceiling, "
-            "overrides with reasons) read by a generic `check_module_budgets.py`, deleting `flow_module_budgets.json`. Agents may "
-            "change the configuration; raised limits warn instead of failing. Hold until PR #152 (Bean 0262) and "
-            "Bean 0263 merge."
+            "Moves the `flow/` size budgets into `holon-config/hygiene/module_budgets.json` (packages, default "
+            "ceiling, overrides with reasons) read by a generic `check_module_budgets.py`, deleting "
+            "`flow_module_budgets.json`. Agents may change the configuration; raised limits warn instead of failing. "
+            "Hold until PR #152 (Bean 0262) and Bean 0263 merge."
         ),
     },
     "0263": {
-        "title": "Retire the `flow.py` move-proof snapshot and its test: it now blocks every change to a moved function",
+        "title": (
+            "Retire the `flow.py` move-proof snapshot and its test: it now blocks every change to a moved function"
+        ),
         "priority": "**P2**",
         "impact": "Medium",
         "sizing": "S",
         "domain": "Tests / Flow Package",
         "notes": (
-            "Touches `tests/flow/` and `docs/architecture.md` only. Deletes `flow_py_definitions.json`, `move_proof.py` "
-            "and `test_move_proof.py`, and reworks `test_package_exports.py` to read the package itself. Hold until "
-            "PR #152 (Bean 0262) merges, because it also edits the snapshot."
+            "Touches `tests/flow/` and `docs/architecture.md` only. Deletes `flow_py_definitions.json`, "
+            "`move_proof.py` and `test_move_proof.py`, and reworks `test_package_exports.py` to read the package "
+            "itself. Hold until PR #152 (Bean 0262) merges, because it also edits the snapshot."
         ),
     },
     "0256": {
@@ -1145,6 +1157,17 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "XS",
         "domain": "Flow Engine / Cosmetic",
         "notes": "PR #124 loop deferral (cosmetic, out-of-increment). Touches `flow.py` - bundle with 0230.",
+    },
+    "0269": {
+        "title": "Deferred nits from the holon-agentic-coder PR 158 review loop",
+        "priority": "**P3**",
+        "impact": "Low",
+        "sizing": "XS",
+        "domain": "Review Loop / Housekeeping",
+        "notes": (
+            "Three deferred nits from PR #158: fold `parse_actual_metrics` onto `_record_exit_code`, "
+            "removed-definitions test proof, and `docs/git_flow.md` checkpoint wording."
+        ),
     },
     "0141": {
         "title": "Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe",
@@ -1901,9 +1924,10 @@ def generate_triage_document(
             (
                 "29. **Immutable KB/WB Facts, Worktree Auto-Provisioning & Validation, Persistent Review Sandbox, "
                 "Prompt Complexity Rules, Executor GitRepository Adapter, Globally Unique Stage IDs, `flow/` Package "
-                "Split, Pinned Container `uv`, Dual-EV Calibration, Main Worktree Guard, and Resolver Commit "
-                "Normalisation (Beans 0242, 0244, 0245, 0247–0251, 0236, 0243, 0201, 0241, 0195, 0233, 0149, 0254, "
-                "0258, 0257, 0259, 0256 / HAC PRs #132–#151, 2026-11-06 to 2026-11-09)**:"
+                "Split, Pinned Container `uv`, Dual-EV Calibration, Main Worktree Guard, Resolver Commit "
+                "Normalisation, All-Branch CI, and Plan-Owned Decomposition (Beans 0242, 0244, 0245, 0247–0251, "
+                "0236, 0243, 0201, 0241, 0195, 0233, 0149, 0254, 0258, 0257, 0259, 0256, 0266, 0268, 0161 / "
+                "HAC PRs #132–#151, #153, #154, #158, 2026-11-06 to 2026-11-10)**:"
             ),
             (
                 "    - `0242` (#132, `d932d48`), `0244` (#133, `2a56a89`), `0245` (#134, `4113f0d`), `0247` (#135), "
@@ -1957,6 +1981,15 @@ def generate_triage_document(
                 "and soft-resets any local agent commits in `_commit_and_push_resolution`, ensuring pre-push "
                 "verification, canonical review trailers, and git push are never skipped "
                 "(calibrated $\\Delta\\text{EV} = +0.53$)."
+            ),
+            (
+                "    - `0266` (#153, `fe3b540`): the six CI workflows run on pull requests into any base branch so "
+                "stacked sub-intent PRs are tested (calibrated $\\Delta\\text{EV} = +20.60$)."
+            ),
+            ("    - `0268` (#154, `b63fce7`): carried unmerged calibration reports into `main` in one pull request."),
+            (
+                "    - `0161` (#158, `14886b8`): the plan decides decomposition; children nest under and merge into "
+                "the plan branch; combined integration PR reaches `main`."
             ),
             "",
             "---",
