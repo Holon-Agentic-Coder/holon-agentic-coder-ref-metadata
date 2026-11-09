@@ -374,6 +374,11 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "intermediate review files under `<worktree>/.subagent/`."
     ),
     (
+        "   - **Bean 0266** (`.github/workflows/` + `flow/github/` + tests; **in flight**, disjoint from the other "
+        "lanes): CI runs on pull requests into any branch so decomposed flows' stacked sub-intent PRs are tested. "
+        "After it merges, resume the **Bean 0262** flow from its checkpoint (halted at sub-intent 1 of 4, PR #152)."
+    ),
+    (
         "   - **Bean 0263** (`tests/flow/` + `docs/architecture.md`; **hold until PR #152 / Bean 0262 merges**, since both "
         "edit the move-proof snapshot): retire the `flow.py` move-proof snapshot, `move_proof.py` and "
         "`test_move_proof.py`, and rework `test_package_exports.py` to read the package itself."
@@ -493,6 +498,19 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "notes": (
             "Unblocked by 0159 (#97 merged), 0201 (#142 merged), and 0149 (#146 merged). Sequence after 0254 "
             "(`flow/` package split). Must handle `{parent}--{n}-{slug}` child branches."
+        ),
+    },
+    "0266": {
+        "title": "Run CI on pull requests into any branch so stacked sub-intent PRs are tested",
+        "priority": "**P0**",
+        "impact": "High",
+        "sizing": "S",
+        "domain": "CI / Holon Flow",
+        "notes": (
+            "In flight. Sub-intent PRs target the parent intent branch, but every workflow restricts `pull_request` to "
+            "`main`, so no checks run and the Stage 4 review halts with 'test results not measured' even at 3/3 "
+            "approval. Removes the base-branch filter from six workflows and guards it with a test. Blocks the Bean "
+            "0262 flow, which is halted at sub-intent 1 of 4 (PR #152)."
         ),
     },
     "0265": {
