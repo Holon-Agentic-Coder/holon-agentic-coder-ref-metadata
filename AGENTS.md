@@ -202,7 +202,7 @@ When you are spawned or begin a new session, follow these steps sequentially:
      autonomous**: once Stage 3 (Execute) pushes the execution branch, the agent autonomously raises the Pull Request
      via `gh pr create` targeting the base branch so Stage 4 (PR review loop) can proceed seamlessly without manual
      interruption. **PR merging remains exclusively the human maintainer's responsibility — agents MUST NEVER merge a PR
-     (see "🔒 PR Merging — Human-Only" below).**
+     that targets `main` (see "🔒 PR Merging — Human-Only" below).**
 8. **Report and Document**: Summarise changes cleanly and concisely. Point both the user and successor agents to updated
    files or artifacts.
 9. **Route Every Change Through the Flow & Always Use `holon flow`**: Produce all `holon-agentic-coder` and
@@ -305,8 +305,9 @@ Subagent delegation in this ecosystem is primarily targeted towards the **Antigr
 
 ## 🔒 PR Merging — Human-Only
 
-> [!CAUTION] **Agents MUST NEVER merge a Pull Request.** This is an absolute, non-negotiable constraint with no
-> exceptions. Merging is exclusively the human maintainer's responsibility.
+> [!CAUTION] **Agents MUST NEVER merge a Pull Request that targets `main`.** This is an absolute, non-negotiable
+> constraint. Merging into `main` is exclusively the human maintainer's responsibility. PRs into any other branch are
+> covered by the maintainer ruling below.
 
 The following actions are **strictly forbidden** for all agents at all times, regardless of context, user request
 phrasing, or skill instructions:
@@ -317,6 +318,15 @@ phrasing, or skill instructions:
 - Enabling repository settings that trigger automatic merging (`allow_auto_merge: true` via `gh repo edit` or any other
   method).
 - Adding a PR to the merge queue by any means.
+
+**Maintainer ruling (2026-11-09): only a PR that targets `main` is human-only.** A PR whose base branch is **not**
+`main` (nor the repository's default branch) may be merged **autonomously**, by the Holon flow engine or by an agent:
+for example a sub-intent PR into its plan branch. Before merging, verify immediately beforehand that the PR's
+`baseRefName` is not `main` or the default branch (refuse otherwise), that its consensus review is approved, that its
+calibration report is included, that CI is green and that it is mergeable. Prefer a merge commit, so the branch's
+commits stay ancestors of the base. Auto-merge, the merge queue and `gh repo edit` settings that merge on their own stay
+prohibited. **Everything else in this section applies unchanged to a PR that targets `main`**, including the combined PR
+from a decomposed plan's branch into `main`.
 
 **What agents must do instead:**
 

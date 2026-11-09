@@ -326,8 +326,9 @@ To maintain clean repository history, follow this Git workflow:
      merged into `main` frequently. Raising a Pull Request or merging to `main` is an infrequent maintainer checkpoint,
      not a daily requirement.
 
-> [!CAUTION] **Agents MUST NEVER merge a Pull Request.** Merging is exclusively the human maintainer's responsibility.
-> The following actions are **strictly forbidden** with no exceptions:
+> [!CAUTION] **Agents MUST NEVER merge a Pull Request that targets `main`.** (A PR into any other branch may be merged
+> autonomously under the maintainer ruling in `AGENTS.md`.) Merging is exclusively the human maintainer's
+> responsibility. The following actions are **strictly forbidden** with no exceptions:
 >
 > - `gh pr merge` (with any flags: `--squash`, `--rebase`, `--merge`, `--auto`, `--delete-branch`, etc.)
 > - `gh pr merge --auto` or enabling auto-merge by any means

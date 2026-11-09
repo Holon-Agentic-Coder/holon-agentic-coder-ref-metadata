@@ -250,9 +250,9 @@ Check if **Dry-Run Mode** is enabled (e.g. via `--dry-run` parameter or loop ins
 _Note: GitHub disallows users from approving or requesting changes on their own PRs. If `--approve` or
 `--request-changes` returns an error because the PR author is the authenticated user, fallback to `--comment`._
 
-> [!CAUTION] **Agents MUST NEVER merge a Pull Request.** Submitting the review completes the review process. Do NOT run
-> `gh pr merge`, do NOT add the PR to the merge queue, and do NOT enable auto-merge. PR merging is strictly reserved for
-> the human maintainer.
+> [!CAUTION] **Agents MUST NEVER merge a Pull Request that targets `main`.** Submitting the review completes the review
+> process. Do NOT run `gh pr merge`, do NOT add the PR to the merge queue, and do NOT enable auto-merge. PR merging is
+> strictly reserved for the human maintainer.
 
 ### Step 5: Keep the Artifacts (Nothing Is Deleted)
 

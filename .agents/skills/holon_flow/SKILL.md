@@ -64,9 +64,9 @@ multi-hour containerised lifecycle, **the flow is executed inside a dedicated ba
    `holon-knowledge/ledger/` (`intents.jsonl`, `plans.jsonl`, `executions.jsonl`). When concurrent PR merges cause
    ledger conflicts against `origin/main`, do not run test suites: interleave the JSONL records chronologically by their
    `created_at` timestamp, commit, and push.
-8. **Human-Only Merge Boundary (Bean 0034 / Rule 8)**: Agents MUST NEVER merge a PR (`gh pr merge` is strictly
-   forbidden). The subagent completes when Stage 5 calibration is included in the PR, confirms the PR is clean and
-   mergeable, and notifies the parent agent that the PR is ready for human merge.
+8. **Human-Only Merge Boundary (Bean 0034 / Rule 8)**: Agents MUST NEVER merge a PR that targets `main` (`gh pr merge`
+   is strictly forbidden). The subagent completes when Stage 5 calibration is included in the PR, confirms the PR is
+   clean and mergeable, and notifies the parent agent that the PR is ready for human merge.
 
 ---
 

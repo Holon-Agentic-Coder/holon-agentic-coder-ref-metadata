@@ -105,12 +105,10 @@ from the wrong branch.
    overwrites a child's checkpoint. Deterministic child names stay.
 7. **Docs.** `docs/architecture.md` and `docs/git_flow.md` stop describing the interim "parent intent branch" behaviour.
 
-### Open decision (maintainer): who merges a child PR into the plan branch?
+### Decision (maintainer, 2026-11-09): the flow merges child PRs into the plan branch
 
-- **A. The flow merges it** after that child's consensus and calibration, as `docs/architecture.md` describes ("below
-  the root no human intervention"). Needs an explicit, narrow exception to the harness rule that agents never merge a
-  PR, limited to PRs whose base is not `main`.
-- **B. The maintainer merges** each child PR, so the flow waits between children.
-- **C. No child merges:** child N+1 is cut from child N's execution head and the integration PR carries everything.
-
-Record the choice here before the intent is written.
+After a child's Stage 4 consensus and Stage 5 calibration (the calibration report is in the child PR first), the flow
+engine merges that child PR into the plan branch with a merge commit (not squash or rebase, so the child's commits stay
+ancestors), only when CI is green and the PR is mergeable. The engine refuses to merge any PR whose base is `main` or
+another default branch. `AGENTS.md` carries the matching narrow exception; agents still never merge by hand. The
+combined PR from the plan branch into `main` stops for the human maintainer.

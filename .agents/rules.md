@@ -199,7 +199,8 @@ code in this repository.
       architecture ideation).
 
 11. **Human-Only Pull Request Merging Invariant**:
-    - Agents MUST NEVER merge a Pull Request, enable auto-merge, or add a PR to the merge queue.
+    - Agents MUST NEVER merge a Pull Request that targets `main`, enable auto-merge, or add a PR to the merge queue. A
+      PR whose base is any other branch may be merged autonomously under the maintainer ruling in `AGENTS.md`.
     - Commands such as `gh pr merge` (with `--squash`, `--rebase`, `--merge`, `--auto`, etc.), `gh api` calls to merge
       endpoints, or toggling `allow_auto_merge` via `gh repo edit` are strictly prohibited.
     - Merging is strictly reserved for the human maintainer. Once all review iterations pass with consensus approval,
