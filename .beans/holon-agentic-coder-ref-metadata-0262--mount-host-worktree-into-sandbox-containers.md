@@ -3,7 +3,7 @@
 title:
   "Mount host-provisioned worktree into sandbox containers to eliminate in-container git cloning and mid-crash state
   loss"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:

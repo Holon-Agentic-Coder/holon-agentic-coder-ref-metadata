@@ -373,6 +373,11 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "`_ensure_head`, `_origin_matches`, `ReviewWorkspaceSession`) and all associated mock tests, and unify "
         "intermediate review files under `<worktree>/.subagent/`."
     ),
+    (
+        "   - **Bean 0263** (`tests/flow/` + `docs/architecture.md`; **hold until PR #152 / Bean 0262 merges**, since both "
+        "edit the move-proof snapshot): retire the `flow.py` move-proof snapshot, `move_proof.py` and "
+        "`test_move_proof.py`, and rework `test_package_exports.py` to read the package itself."
+    ),
     ("3. **Calibration & resolver lane (`flow/stages/calibrate.py` & `entrypoint/review_loop.py`):**"),
     (
         "   - **Bean 0253** (`flow/stages/calibrate.py` + `flow/git_refs.py`): calibration branches from "
@@ -476,6 +481,18 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "notes": (
             "Unblocked by 0159 (#97 merged), 0201 (#142 merged), and 0149 (#146 merged). Sequence after 0254 "
             "(`flow/` package split). Must handle `{parent}--{n}-{slug}` child branches."
+        ),
+    },
+    "0263": {
+        "title": "Retire the `flow.py` move-proof snapshot and its test: it now blocks every change to a moved function",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "S",
+        "domain": "Tests / Flow Package",
+        "notes": (
+            "Touches `tests/flow/` and `docs/architecture.md` only. Deletes `flow_py_definitions.json`, `move_proof.py` "
+            "and `test_move_proof.py`, and reworks `test_package_exports.py` to read the package itself. Hold until "
+            "PR #152 (Bean 0262) merges, because it also edits the snapshot."
         ),
     },
     "0256": {
