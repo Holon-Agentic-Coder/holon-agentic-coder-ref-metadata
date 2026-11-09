@@ -3,7 +3,7 @@
 title:
   "Resolver agent committing locally causes _commit_and_push_resolution to skip verification and git push, losing all
   fixes"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -14,7 +14,7 @@ tags:
   - git
   - holon-agentic-coder
 created_at: 2026-11-09T12:23:30Z
-updated_at: 2026-11-09T12:23:30Z
+updated_at: 2026-11-09T08:10:00Z
 ---
 
 ## Problem
@@ -83,3 +83,29 @@ commits created by the resolver agent back into staged changes before verificati
    - Add a unit test where `_run_resolver_agent` creates a local `git commit` during its turn, and verify that
      `_commit_and_push_resolution` soft-resets to `pre_resolver_head`, runs `_verify_before_push`, re-commits with the
      canonical `Review-Iteration:` git trailers, and pushes `HEAD:refs/heads/<head_branch>` with `pushed=True`.
+
+## Resolution
+
+Delivered via [PR #151](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/151) and merged into `main`
+(`61796c65e7e1bc6becc7a25f275096dc30360a9e`):
+
+- **Key Architectural Deliverables**:
+  - Captured `pre_resolver_head` prior to running `_run_resolver_agent()`.
+  - Added soft-reset (`git reset --soft pre_resolver_head`) in `_commit_and_push_resolution()` whenever the resolver
+    agent authors local commits, restoring all edits cleanly to the staged index before pre-push verification.
+  - Updated `_build_resolver_prompt()` to explicitly forbid both `git commit` and `git push`
+    (`"Do not run git commit or git push yourself; leave your edits in the working tree..."`).
+  - Added honest `pushed` check in `sandbox_executor.flow.review.loop` to avoid falsely logging that a new head was
+    pushed when `pushed == False`.
+- **Verification & Tests**:
+  - Unit tests added in `apps/sandbox-executor/tests/test_review_loop.py`
+    (`test_resolver_local_commit_soft_resets_and_pushes`, `test_build_resolver_prompt_forbids_commit_and_push`) and
+    `apps/sandbox-executor/tests/flow/review/test_loop.py`
+    (`test_honest_pushed_check_does_not_advance_target_when_unpushed`).
+- **Holon Flow Traversal**:
+  - Successfully traversed all 5 Holon flow stages (Intent $\rightarrow$ Plan $\rightarrow$ Execute $\rightarrow$ Review
+    Loop $\rightarrow$ Calibration).
+  - Achieved unanimous 3/3 review consensus approval with 0 open findings and passing CI.
+  - Stage 5 calibration analysis committed and included in PR diff
+    (`plans/P-1794205877-cbad6e47-antigravity-agent-gemini-3.8-flash-medium_calibration.md`, Predicted EV: 5.39, Actual
+    EV: 5.92, $\Delta\text{EV} = +0.53$).
