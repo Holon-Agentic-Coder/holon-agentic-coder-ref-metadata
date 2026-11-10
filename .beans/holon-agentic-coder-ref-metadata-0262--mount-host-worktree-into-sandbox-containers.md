@@ -230,3 +230,11 @@ PR #159 merged as `80b844d` and was found to open a sandbox escape through the s
 flow had declared consensus and posted `APPROVED (3/3)` although reviewer 3's final verdict was CHANGES_REQUESTED with a
 critical Security finding (Bean 0273). At the maintainer's instruction the PR is being reverted (Bean 0272), after which
 this bean is re-run through the flow with the security requirement as a hard constraint. Status stays `in-progress`.
+
+## Re-land in review (2026-11-10)
+
+[PR #162](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/162) (`reland/0262-host-worktree-mount`,
+`4feb94a`) restores PR #159's contents (revert of #160), hand-merged against #161's consensus-honesty rework. The known
+sibling-worktree vulnerability is deliberately still present; the `pr-review-loop` is running on the fixed engine and
+must raise and resolve it in-loop (mount redesign plus sibling-worktree tests) before any approval. Do not merge until a
+genuine 3/3 approval is posted.
