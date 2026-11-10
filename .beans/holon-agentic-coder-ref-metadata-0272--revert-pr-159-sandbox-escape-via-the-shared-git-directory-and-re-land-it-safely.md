@@ -51,3 +51,12 @@ review.
 
 - Related: Bean 0273 (consensus declared with an open critical finding), Bean 0262 (the original feature).
 - PRs #152 and #155 and their branch tree are left alone as the reference for the earlier decomposed attempt.
+
+## Progress (2026-11-10)
+
+[PR #160](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/160) (`revert/0272-pr-159-sandbox-escape`,
+commit `79bdfc0`) reverts the source, test and docs changes of #159: 36 files, no new code, provenance records kept.
+`uv run task lint`, `lint-docs` and the full suite pass locally (3,530 passed, 2 skipped, Python 3.13). It has not been
+through the review loop (a mechanical revert, done by hand at the maintainer's instruction). **Awaiting CI and the
+maintainer's merge.** After it merges: remove the `revert-0272-pr-159-sandbox-escape` worktree, rebuild the images from
+`main`, then re-run Bean 0262 through the flow (Bean 0273 first, so the loop cannot approve past a critical finding).
