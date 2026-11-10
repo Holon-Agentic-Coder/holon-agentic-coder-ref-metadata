@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0273
 title: "Stage 4 declares consensus and posts an approving review while a reviewer's critical finding is open"
-status: in-progress
+status: completed
 type: bug
 priority: critical
 tags:
@@ -11,7 +11,7 @@ tags:
   - honesty
   - holon-agentic-coder
 created_at: 2026-11-10T07:00:00Z
-updated_at: 2026-11-10T07:00:00Z
+updated_at: 2026-11-10T09:10:00Z
 ---
 
 ## Problem
@@ -64,3 +64,19 @@ fixes `c361127`, `eea0332`). Calibration (predicted EV 43.19, actual 72.12, ΔEV
 the PR as `5f6a76f` with ledger-union conflict resolution; all three ledgers parse. Awaiting CI at the new head and the
 maintainer's merge. After it merges: images rebuild, then restore PR #159's contents (revert of PR #160) and run the
 review loop on them on the fixed engine (the agreed re-land path for Bean 0262).
+
+## Resolution
+
+Delivered via [PR #161](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/161), merged into `main`
+(`7837fa4`, 2026-11-10T09:03:33Z): 25 files, +2,253/−267.
+
+- **Cause found and fixed**: the verdict now derives from the reviewers' returned results; adjudication suppression only
+  narrows what is handed to the resolver and applies to Nits only; cross-checks can only downgrade a verdict, never
+  upgrade it. Critical, important and Security-role findings are never filtered from the verdict.
+- **Honest posting**: the posted review reports each reviewer's verdict and counts exactly as returned, and cannot be
+  headed APPROVED while any reviewer or role is CHANGES. Resolver rejections of important-or-higher findings need an
+  evidenced reason. End-of-flow wording no longer calls a non-approved run ready.
+- **Flow traversal**: all 5 stages on `claude-agent`/`claude-opus-5-5`. The loop hit the usage limit at iteration 3 and
+  was resumed by the watcher at 19:11 Melbourne; genuine 3/3 consensus at iteration 6 (head `eea0332`), verified
+  independently from the worktree ledger. Calibration ΔEV +28.93 (Clean = Observed), merged into the PR (`5f6a76f`).
+- **Unblocks**: the Bean 0262 re-land (restore PR #159's contents and run the review loop on the fixed engine).
