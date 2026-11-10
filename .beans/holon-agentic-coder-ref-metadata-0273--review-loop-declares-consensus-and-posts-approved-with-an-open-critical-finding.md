@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0273
 title: "Stage 4 declares consensus and posts an approving review while a reviewer's critical finding is open"
-status: todo
+status: in-progress
 type: bug
 priority: critical
 tags:
@@ -53,3 +53,14 @@ flipped to APPROVED.
   mention bean IDs or harness paths in the intent.
 - Touches `flow/review/loop.py`, `flow/review/resolver.py` and `flow/review/records.py`; run it alone on the review
   loop.
+
+## Progress (2026-11-10)
+
+[PR #161](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/161) ran through the flow on
+`claude-agent`/`claude-opus-5-5` (25 files, +2,253/−267). The loop hit the usage limit at iteration 3 (all three
+reviewers died); a watcher resumed it from the checkpoint at 19:11 Melbourne. **Verified from the worktree ledger, not
+the posted review**: iteration 6 is a genuine 3/3 APPROVED at head `eea0332` (iter 4: r3 CHANGES; iter 5: r1+r3 CHANGES;
+fixes `c361127`, `eea0332`). Calibration (predicted EV 43.19, actual 72.12, ΔEV +28.93; Clean = Observed) merged into
+the PR as `5f6a76f` with ledger-union conflict resolution; all three ledgers parse. Awaiting CI at the new head and the
+maintainer's merge. After it merges: images rebuild, then restore PR #159's contents (revert of PR #160) and run the
+review loop on them on the fixed engine (the agreed re-land path for Bean 0262).
