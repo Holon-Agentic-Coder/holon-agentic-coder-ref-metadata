@@ -525,6 +525,19 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "edits `flow/review/`."
         ),
     },
+    "0271": {
+        "title": "Resolver pre-push verification includes the Markdown formatting check that CI runs",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "S",
+        "domain": "Review Loop / Resolver",
+        "notes": (
+            "The resolver's `uv run task lint` skips the Prettier Markdown check that CI's hygiene job runs, so a "
+            "resolver that edits Markdown pushes fixes that fail CI. Seen on PRs #148, #153 and #159, where "
+            "`apps/sandbox-executor/README.md` stayed red through ten iterations. Run the same check on changed "
+            "Markdown, auto-format, and share one lint definition with CI."
+        ),
+    },
     "0265": {
         "title": "Split `cli/__init__.py` into focused modules (move only), like the `flow/` package",
         "priority": "**P1**",
