@@ -409,7 +409,7 @@ def _notify_outcome(intent_path: Path, exit_code: int) -> None:
 
         slug = parse_intent_file(intent_path)["slug"]
         if exit_code == 0:
-            notify(f"Holon flow finished: {slug}", "Ended cleanly. Check the PR and calibration, then merge if ready.", tags="white_check_mark")
+            notify(f"Holon flow ended: {slug}", "The flow ended without an error. This is NOT an approval: read the PR's final review verdicts and CI before merging.", tags="information_source")
         else:
             notify(f"Holon flow STOPPED: {slug}", f"Exit code {exit_code}. It needs a look or a decision.", priority="high", tags="warning")
     except Exception:  # noqa: BLE001 - a notification must never break a flow

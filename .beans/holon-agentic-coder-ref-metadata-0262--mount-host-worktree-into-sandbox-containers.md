@@ -223,3 +223,10 @@ Until then:
 - The earlier hold and resume plan in the section above are superseded.
 - The new run writes its own intent file and starts from Stage 1. It does not resume the old checkpoints, and it should
   not reuse the old branch names.
+
+## Merged, then reverted (2026-11-10)
+
+PR #159 merged as `80b844d` and was found to open a sandbox escape through the shared git directory (Bean 0272). The
+flow had declared consensus and posted `APPROVED (3/3)` although reviewer 3's final verdict was CHANGES_REQUESTED with a
+critical Security finding (Bean 0273). At the maintainer's instruction the PR is being reverted (Bean 0272), after which
+this bean is re-run through the flow with the security requirement as a hard constraint. Status stays `in-progress`.
