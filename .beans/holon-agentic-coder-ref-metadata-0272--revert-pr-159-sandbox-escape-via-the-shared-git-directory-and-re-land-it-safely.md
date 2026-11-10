@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0272
 title: "Revert PR #159 (sandbox escape through the shared git directory) and re-land the host-worktree mount safely"
-status: in-progress
+status: completed
 type: bug
 priority: critical
 tags:
@@ -11,7 +11,7 @@ tags:
   - git
   - holon-agentic-coder
 created_at: 2026-11-10T07:00:00Z
-updated_at: 2026-11-10T07:00:00Z
+updated_at: 2026-11-10T07:30:00Z
 ---
 
 ## Problem
@@ -60,3 +60,21 @@ commit `79bdfc0`) reverts the source, test and docs changes of #159: 36 files, n
 through the review loop (a mechanical revert, done by hand at the maintainer's instruction). **Awaiting CI and the
 maintainer's merge.** After it merges: remove the `revert-0272-pr-159-sandbox-escape` worktree, rebuild the images from
 `main`, then re-run Bean 0262 through the flow (Bean 0273 first, so the loop cannot approve past a critical finding).
+
+## Resolution
+
+[PR #160](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/160) merged into `main` (`2faa325`,
+2026-11-10T06:59:55Z), reverting the source, test and docs changes of PR #159: 36 files, no new code, provenance records
+(`holon-knowledge/ledger`, `plans/`, `executions/`) kept. `main` no longer contains `execution_workspace.py` or the
+bind-mount path, so the exposure of the shared git directory to role containers is removed. The `main` worktree is
+fast-forwarded, the revert worktree and branch are removed, and the images were rebuilt from `main`.
+
+Not done by this bean, and tracked elsewhere:
+
+- **Re-landing Bean 0262** through the flow, with the security requirement as a hard constraint in its intent (no
+  container write access to any git administrative path that host git later reads or executes, including every sibling
+  worktree's folder). Do this after Bean 0273.
+- **Bean 0273** (the review loop declared consensus and posted `APPROVED (3/3)` with a critical finding open) must land
+  first, so that the loop cannot approve past a critical or security finding again.
+- The old flow worktree `apps/holon-agentic-coder/flow-mount-host-worktree-into-sandbox-containers` (on the reverted
+  PR's branch, with uncommitted ledger rows) and PRs #152 and #155 are left alone until Bean 0262 is re-run.

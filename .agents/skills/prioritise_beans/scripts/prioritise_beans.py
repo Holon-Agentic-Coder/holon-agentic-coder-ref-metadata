@@ -525,6 +525,19 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "edits `flow/review/`."
         ),
     },
+    "0273": {
+        "title": "Stage 4 declares consensus and posts an approving review while a reviewer's critical finding is open",
+        "priority": "**P0**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Review Loop / Honesty",
+        "notes": (
+            "PR #159 was approved `3/3` with reviewer 3's critical Security finding open and merged; it was reverted "
+            "(PR #160). A critical or security finding can never be filtered as already adjudicated, the verdict comes "
+            "from what the reviewers returned, and an important-or-higher rejection needs evidence. Run before "
+            "re-landing Bean 0262, alone on `flow/review/`."
+        ),
+    },
     "0271": {
         "title": "Resolver pre-push verification includes the Markdown formatting check that CI runs",
         "priority": "**P1**",
