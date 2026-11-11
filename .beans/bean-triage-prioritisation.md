@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-11 11:36:38 UTC
+**Last Updated:** 2026-11-11 13:32:25 UTC
 
 ## Executive Summary
 
@@ -15,9 +15,9 @@ Concurrent flows on overlapping files forced repeated syncs and re-reviews earli
 together.
 
 - **Total Tracked Beans**: 275 (excluding template)
-- **Completed**: 212 (77.1%)
+- **Completed**: 213 (77.5%)
 - **Scrapped / Superseded**: 5 (1.8%)
-- **Active**: 58 (21.1%), of which 3 are in progress and 55 are todo
+- **Active**: 57 (20.7%), of which 3 are in progress and 54 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -600,7 +600,6 @@ loop), and the flow runner sends a push notification when it ends. New beans: **
 | **P3**   | todo        |  Low   |   XS   | 0269   | Deferred nits from the holon-agentic-coder PR 158 review loop                                                                      | Review Loop / Housekeeping  | Three deferred nits from PR #158: fold `parse_actual_metrics` onto `_record_exit_code`, removed-definitions test proof, and `docs/git_flow.md` checkpoint wording.                                                                                                                                                                                                                                 |
 | **P3**   | todo        | Medium |   M    | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                                                                | vmlx / Performance          | Pairs with 0142.                                                                                                                                                                                                                                                                                                                                                                                   |
 | **P1**   | todo        | Medium |   M    | 0275   | Decomposed flows build branch names longer than GitHub's ref limit; cap and shorten them                                           | Build / DevEx               |                                                                                                                                                                                                                                                                                                                                                                                                    |
-| **P1**   | todo        | Medium |   M    | 0274   | Every flow stage works in the host-provisioned worktree; remove `HOLON_REPO_URL` altogether                                        | General                     |                                                                                                                                                                                                                                                                                                                                                                                                    |
 | **P1**   | todo        |  High  |   M    | 0270   | Discover runner models dynamically through each harness instead of the hardcoded model table                                       | Flow / Architecture         |                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 ---
@@ -618,7 +617,7 @@ consensus review and Stage 5 calibration.
 **Rule (2026-10-28):** the target suites rely solely on pytest. No new code or documentation names any other test runner
 (Bean 0176 removes the existing references).
 
-**Tooling (2026-11-11):** `holon-agentic-coder` `main` (`97731e2`) and `holon-coherence` `main` (`d6f1655`) are
+**Tooling (2026-11-11):** `holon-agentic-coder` `main` (`660c50b`) and `holon-coherence` `main` (`d6f1655`) are
 installed editable and all agent images were rebuilt via `install-holon`, so Stage 3 partial-code salvage (#108),
 pure-append ledgers (#111), the calibration-report Prettier fix (#112), Stage 4 in the `review-loop` container (#116),
 the modular `cli/` package (#117), mandatory `--agent` / `--model` (#119), the standardised consensus review template
@@ -631,20 +630,20 @@ merges (#158), the review-consensus honesty fix (#161) and the host-worktree san
 protection (#162) are all live. `HOLON_TOKEN_REDUCE=0` stays the workaround until Beans 0227 and 0157 land. Set
 `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172 lands.
 
-**Merge / In-Flight State (2026-11-11):** `holon-agentic-coder` PRs #133–#151, #153, #154, #158, #159–#164 all merged
+**Merge / In-Flight State (2026-11-11):** `holon-agentic-coder` PRs #133–#151, #153, #154, #158, #159–#165 all merged
 (Beans 0244, 0245, 0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, 0257, 0259, 0256, 0266, 0268,
-0161, 0272, 0273, 0262, 0263, 0160); trunk is at `97731e2` (PRs #165 and #166, Beans 0274 and 0275, are approved and
-awaiting the maintainer's merge), installed editable, and images rebuilt via `install-holon` with `uv` 0.13.7 in the
-base image, Dual-EV calibration in `holon/orchestrator`, and plan-owned child nesting in `sandbox_executor/flow/`.
-`flow.py` is now the `flow/` package, so beans touching different `flow/` submodules can run in parallel. Harness PR #58
-merged into `main` and operational tracking PR #59 is open on `docs/harness-20261106`.
-`fix/0227-proxy-readiness-http-probe` (`36c9765`, Bean 0227) has a green test suite and awaits the maintainer's call on
-PR creation. Coherence PR #41 (Bean 0208, `2f30d6e`) needs its 9 unit test failures resolved on its execution branch
-before Stage 4 review and Stage 5 calibration. **Worktree rule (2026-11-09):** a flow never runs in the `main` worktree;
-naming `main` as the target selects the repository and base branch only, and the flow runs in a `flow-<slug>` worktree
-off `origin/main` (Bean 0259, PR #150). Standalone external PR reviews provision `pr<N>-<slug>` only when no local
-worktree exists; otherwise `flow-<slug>` is reused directly across all stages. Image builds use a temporary
-`build-images-<sha>` worktree, and the `main` worktrees stay on `main`, identical to `origin/main`.
+0161, 0272, 0273, 0262, 0263, 0160, 0274); trunk is at `660c50b` (PR #166, Bean 0275, is synced onto it and awaiting the
+maintainer's merge), installed editable, and images rebuilt via `install-holon` with `uv` 0.13.7 in the base image,
+Dual-EV calibration in `holon/orchestrator`, and plan-owned child nesting in `sandbox_executor/flow/`. `flow.py` is now
+the `flow/` package, so beans touching different `flow/` submodules can run in parallel. Harness PR #58 merged into
+`main` and operational tracking PR #59 is open on `docs/harness-20261106`. `fix/0227-proxy-readiness-http-probe`
+(`36c9765`, Bean 0227) has a green test suite and awaits the maintainer's call on PR creation. Coherence PR #41 (Bean
+0208, `2f30d6e`) needs its 9 unit test failures resolved on its execution branch before Stage 4 review and Stage 5
+calibration. **Worktree rule (2026-11-09):** a flow never runs in the `main` worktree; naming `main` as the target
+selects the repository and base branch only, and the flow runs in a `flow-<slug>` worktree off `origin/main` (Bean 0259,
+PR #150). Standalone external PR reviews provision `pr<N>-<slug>` only when no local worktree exists; otherwise
+`flow-<slug>` is reused directly across all stages. Image builds use a temporary `build-images-<sha>` worktree, and the
+`main` worktrees stay on `main`, identical to `origin/main`.
 
 Sequential & Disjoint Lanes, holon-agentic-coder (Bean 0254 landed: lanes are now per `flow/` submodule; items 1–3 touch
 pairwise-disjoint files and can run concurrently):
