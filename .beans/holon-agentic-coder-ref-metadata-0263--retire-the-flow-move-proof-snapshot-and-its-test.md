@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0263
 title: "Retire the `flow.py` move-proof snapshot and its test: it now blocks every change to a moved function"
-status: todo
+status: completed
 type: task
 priority: normal
 tags:
@@ -11,7 +11,7 @@ tags:
   - concurrency
   - holon-agentic-coder
 created_at: 2026-11-09T09:30:00Z
-updated_at: 2026-11-09T09:30:00Z
+updated_at: 2026-11-11T11:45:00Z
 ---
 
 ## Problem
@@ -70,3 +70,18 @@ That proof was complete when PR #147 merged. Since then it has only added fricti
 
 - Target repository changes in `holon-agentic-coder` must be delivered through the 5-stage Holon flow.
 - The intent JSON must not mention bean IDs or harness paths, because it is copied into `intents.jsonl`.
+
+## Resolution
+
+Delivered via [PR #163](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/163) and merged into `main`
+(`f905040`, 2026-11-11T10:15Z), through the 5-stage flow (`claude-agent` / `claude-sonnet-5-5`).
+
+- **Deliverable**: deleted the `flow.py` move-proof snapshot, `tests/flow/move_proof.py` and `test_move_proof.py`;
+  `test_package_exports.py` now derives its expectations from the package itself (every public definition re-exported
+  and listed in `__all__`), and `docs/architecture.md` describes the remaining guards (patch targets, re-exports, module
+  budgets). The patch-target and module-budget tests are unchanged.
+- **Review**: the engine's review loop took 8 iterations (iteration 8: unanimous 3/3 APPROVED, 0 findings; earlier
+  iterations had Engineering at CHANGES), CI 11/11, calibration report included in the PR (predicted EV 23.97, actual
+  29.80, ΔEV +5.83). Verdicts were read from the log and the posted comment, not from the reviewers' report files.
+- **Effect on concurrent flows**: Beans 0160, 0274 and 0275 each hit the deleted snapshot file when syncing to `main`
+  (modify/delete); the later flows' new public names then had to be re-exported to satisfy the new guard.

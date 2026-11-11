@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-11 09:06:22 UTC
+**Last Updated:** 2026-11-11 11:36:38 UTC
 
 ## Executive Summary
 
@@ -14,10 +14,10 @@ Concurrent flows on overlapping files forced repeated syncs and re-reviews earli
 10M+ tokens), so flows that touch the same files still run one after another; only flows with disjoint touch sets run
 together.
 
-- **Total Tracked Beans**: 273 (excluding template)
-- **Completed**: 210 (76.9%)
+- **Total Tracked Beans**: 275 (excluding template)
+- **Completed**: 212 (77.1%)
 - **Scrapped / Superseded**: 5 (1.8%)
-- **Active**: 58 (21.2%), of which 3 are in progress and 55 are todo
+- **Active**: 58 (21.1%), of which 3 are in progress and 55 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -544,13 +544,11 @@ loop), and the flow runner sends a push notification when it ends. New beans: **
 
 | Priority | Status      | Impact | Sizing | Bean # | Title                                                                                                                              | Domain                      | Dependencies / Notes                                                                                                                                                                                                                                                                                                                                                                               |
 | :------- | :---------- | :----: | :----: | :----- | :--------------------------------------------------------------------------------------------------------------------------------- | :-------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **P0**   | todo        |  High  |   S    | 0160   | Review loop burns its iteration budget polling pending CI, then reports test failures                                              | Review Loop / CI            | PR #101 added bounded CI waiting within the iteration budget; remaining: separate `HOLON_REVIEW_CI_WAIT_SECONDS` budget and pending-vs-failed error reporting. Pair with 0234.                                                                                                                                                                                                                     |
 | **P0**   | todo        |  High  |   L    | 0151   | Planner estimates the touch set; overlapping concurrent flows are blocked                                                          | Holon Flow / Concurrency    | Unblocked by 0159 (#97 merged), 0201 (#142 merged), and 0149 (#146 merged). Sequence after 0254 (`flow/` package split). Must handle `{parent}--{n}-{slug}` child branches.                                                                                                                                                                                                                        |
 | **P1**   | todo        |  High  |   M    | 0267   | Stage 3 records a measured `test_pass_rate` (and the review loop can measure tests itself) so the flow does not depend on CI alone | Holon Flow / Testing        | The executor never runs or records tests: `test_pass_rate` is `null` in 51 of 54 ledger rows, so every flow relies on CI alone. Stage 3 should run `uv run task test` and record the rate, and the review loop's `local_tests` fallback should measure when no CI registers. Bean 0262 has merged, so this is unblocked.                                                                           |
 | **P1**   | todo        |  High  |   S    | 0271   | Resolver pre-push verification includes the Markdown formatting check that CI runs                                                 | Review Loop / Resolver      | The resolver's `uv run task lint` skips the Prettier Markdown check that CI's hygiene job runs, so a resolver that edits Markdown pushes fixes that fail CI. Seen on PRs #148, #153 and #159, where `apps/sandbox-executor/README.md` stayed red through ten iterations. Run the same check on changed Markdown, auto-format, and share one lint definition with CI.                               |
 | **P1**   | todo        |  High  |   L    | 0265   | Split `cli/__init__.py` into focused modules (move only), like the `flow/` package                                                 | Refactor / Architecture     | Splits the 2,026-line `cli/__init__.py` (80 definitions, 96 `mock.patch` targets, 63 importers) into `cli/{log,constants,network,credentials,repo_resolution,mounts,proxy_sidecar,env_files,containers,doctor,role_dispatch,parser}.py` with re-exports and a throwaway AST verification, no committed snapshot. Hold until PR #152 (Bean 0262) and Beans 0263 and 0264 merge. Unblocks Bean 0189. |
 | **P2**   | todo        | Medium |   M    | 0264   | Read module size budgets from configuration instead of hardcoding paths and numbers in the check                                   | Lint / Configuration        | Moves the `flow/` size budgets into `holon-config/hygiene/module_budgets.json` (packages, default ceiling, overrides with reasons) read by a generic `check_module_budgets.py`, deleting `flow_module_budgets.json`. Agents may change the configuration; raised limits warn instead of failing. Hold until Bean 0263 merges.                                                                      |
-| **P2**   | todo        | Medium |   S    | 0263   | Retire the `flow.py` move-proof snapshot and its test: it now blocks every change to a moved function                              | Tests / Flow Package        | Touches `tests/flow/` and `docs/architecture.md` only. Deletes `flow_py_definitions.json`, `move_proof.py` and `test_move_proof.py`, and reworks `test_package_exports.py` to read the package itself. Ready now that Bean 0262 has merged.                                                                                                                                                        |
 | **P1**   | todo        |  High  |   S    | 0260   | Never post intermediate review iterations or aborted review passes to GitHub PR                                                    | Review Loop / Observability | Only post consensus review comments when `consensus_reached` is True or the 25-iteration budget is fully exhausted. Aborted, timed-out, or failed review passes remain local in `.subagent/` and are never posted to GitHub. Prevents intermediate spam on GitHub PRs.                                                                                                                             |
 | **P2**   | todo        | Medium |   XS   | 0261   | Deduplicate and streamline PR review evaluation line in consensus report                                                           | Review Loop / Report        | Streamline redundant evaluation header text in `review_report.py` to print a single clean summary line matching canonical skill output and avoiding duplicated PR/iteration metadata.                                                                                                                                                                                                              |
 | **P1**   | todo        |  High  |   L    | 0255   | Streaming per-issue resolvers during Stage 4 CI & review with single consolidated commit                                           | Review Loop / Concurrency   | Spin up isolated resolvers immediately as each CI pipeline fails (e.g. `Test - Hygiene` at 10 s) while continuing to wait for remaining pipelines, then merge all resolver fixes and push a single commit per iteration. Sequence after 0254 and 0256; pairs with 0234.                                                                                                                            |
@@ -601,6 +599,8 @@ loop), and the flow runner sends a push notification when it ends. New beans: **
 | **P3**   | todo        |  Low   |   XS   | 0231   | Exhausted-budget error string interpolates raw count while payload reports clamped 0                                               | Flow Engine / Cosmetic      | PR #124 loop deferral (cosmetic, out-of-increment). Touches `flow.py` - bundle with 0230.                                                                                                                                                                                                                                                                                                          |
 | **P3**   | todo        |  Low   |   XS   | 0269   | Deferred nits from the holon-agentic-coder PR 158 review loop                                                                      | Review Loop / Housekeeping  | Three deferred nits from PR #158: fold `parse_actual_metrics` onto `_record_exit_code`, removed-definitions test proof, and `docs/git_flow.md` checkpoint wording.                                                                                                                                                                                                                                 |
 | **P3**   | todo        | Medium |   M    | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                                                                | vmlx / Performance          | Pairs with 0142.                                                                                                                                                                                                                                                                                                                                                                                   |
+| **P1**   | todo        | Medium |   M    | 0275   | Decomposed flows build branch names longer than GitHub's ref limit; cap and shorten them                                           | Build / DevEx               |                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **P1**   | todo        | Medium |   M    | 0274   | Every flow stage works in the host-provisioned worktree; remove `HOLON_REPO_URL` altogether                                        | General                     |                                                                                                                                                                                                                                                                                                                                                                                                    |
 | **P1**   | todo        |  High  |   M    | 0270   | Discover runner models dynamically through each harness instead of the hardcoded model table                                       | Flow / Architecture         |                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 ---
@@ -618,7 +618,7 @@ consensus review and Stage 5 calibration.
 **Rule (2026-10-28):** the target suites rely solely on pytest. No new code or documentation names any other test runner
 (Bean 0176 removes the existing references).
 
-**Tooling (2026-11-11):** `holon-agentic-coder` `main` (`dd00fb9`) and `holon-coherence` `main` (`d6f1655`) are
+**Tooling (2026-11-11):** `holon-agentic-coder` `main` (`97731e2`) and `holon-coherence` `main` (`d6f1655`) are
 installed editable and all agent images were rebuilt via `install-holon`, so Stage 3 partial-code salvage (#108),
 pure-append ledgers (#111), the calibration-report Prettier fix (#112), Stage 4 in the `review-loop` container (#116),
 the modular `cli/` package (#117), mandatory `--agent` / `--model` (#119), the standardised consensus review template
@@ -631,12 +631,13 @@ merges (#158), the review-consensus honesty fix (#161) and the host-worktree san
 protection (#162) are all live. `HOLON_TOKEN_REDUCE=0` stays the workaround until Beans 0227 and 0157 land. Set
 `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172 lands.
 
-**Merge / In-Flight State (2026-11-11):** `holon-agentic-coder` PRs #133–#151, #153, #154, #158 and #159–#162 all merged
+**Merge / In-Flight State (2026-11-11):** `holon-agentic-coder` PRs #133–#151, #153, #154, #158, #159–#164 all merged
 (Beans 0244, 0245, 0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, 0257, 0259, 0256, 0266, 0268,
-0161, 0272, 0273, 0262); trunk is at `dd00fb9`, installed editable, and images rebuilt via `install-holon` with `uv`
-0.13.7 in the base image, Dual-EV calibration in `holon/orchestrator`, and plan-owned child nesting in
-`sandbox_executor/flow/`. `flow.py` is now the `flow/` package, so beans touching different `flow/` submodules can run
-in parallel. Harness PR #58 merged into `main` and operational tracking PR #59 is open on `docs/harness-20261106`.
+0161, 0272, 0273, 0262, 0263, 0160); trunk is at `97731e2` (PRs #165 and #166, Beans 0274 and 0275, are approved and
+awaiting the maintainer's merge), installed editable, and images rebuilt via `install-holon` with `uv` 0.13.7 in the
+base image, Dual-EV calibration in `holon/orchestrator`, and plan-owned child nesting in `sandbox_executor/flow/`.
+`flow.py` is now the `flow/` package, so beans touching different `flow/` submodules can run in parallel. Harness PR #58
+merged into `main` and operational tracking PR #59 is open on `docs/harness-20261106`.
 `fix/0227-proxy-readiness-http-probe` (`36c9765`, Bean 0227) has a green test suite and awaits the maintainer's call on
 PR creation. Coherence PR #41 (Bean 0208, `2f30d6e`) needs its 9 unit test failures resolved on its execution branch
 before Stage 4 review and Stage 5 calibration. **Worktree rule (2026-11-09):** a flow never runs in the `main` worktree;
@@ -664,9 +665,8 @@ pairwise-disjoint files and can run concurrently):
    - **Bean 0267** (`entrypoint/executor.py` + `flow/stages/` + `flow/review/loop.py` + docs; **ready now**): Stage 3
      runs the test task and records a measured `test_pass_rate`, and the review loop measures tests itself when no CI
      registers, so the flow no longer depends on CI alone.
-   - **Bean 0263** (`tests/flow/` + `docs/architecture.md`; **ready now (Bean 0262 has merged)**; both edit the
-     move-proof snapshot): retire the `flow.py` move-proof snapshot, `move_proof.py` and `test_move_proof.py`, and
-     rework `test_package_exports.py` to read the package itself.
+   - **Bean 0263** (DONE: PR #163, merged `f905040` on 2026-11-11): the `flow.py` move-proof snapshot, `move_proof.py`
+     and `test_move_proof.py` are retired and `test_package_exports.py` reads the package itself.
    - **Bean 0265** (`cli/` + `tests/test_cli.py` + `docs/architecture.md`; **hold until Beans 0263 and 0264 merge**):
      move-only split of the 2,026-line `cli/__init__.py` into focused modules with re-exports, patch targets moved, and
      `tests/test_cli.py` split into `tests/cli/`; runs alone on `cli/`. It makes Bean 0189 (launcher module) a much
