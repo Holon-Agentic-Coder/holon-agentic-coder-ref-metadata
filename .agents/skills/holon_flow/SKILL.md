@@ -109,7 +109,10 @@ Inside the background subagent, perform pre-flight verification:
 1. **Verify Global `holon` Binary**: Ensure `holon` is available in `PATH` (`which holon` $\rightarrow$
    `~/.local/bin/holon`).
 2. **Verify Docker Daemon**: Ensure Docker is running (`docker info`).
-3. **Verify Intent JSON**: Read and parse `<intent_path>`. Ensure `slug`, `goal`, and `description` are present.
+3. **Verify Intent JSON**: Read and parse `<intent_path>`. Ensure `slug`, `goal`, and `description` are present. Keep
+   the `slug` short (8 characters or fewer when the work may decompose): GitHub rejects any full ref over 255
+   characters, `refs/heads/` included, and nested child branch names repeat the slug and the agent and model labels (see
+   `.agents/rules.md`, "Git ref names are limited to 255 characters").
 4. **Verify Target Worktree**: Ensure `--target-worktree` is a dedicated `flow-<slug>` worktree (never the `main`
    worktree itself) that exists and is a clean git repository. Create it from `origin/main` first if it does not exist.
 5. **Determine Runner & Model**:
