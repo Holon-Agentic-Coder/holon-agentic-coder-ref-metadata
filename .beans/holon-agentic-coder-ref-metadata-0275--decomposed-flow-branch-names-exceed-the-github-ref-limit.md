@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0275
 title: "Decomposed flows build branch names longer than GitHub's ref limit; cap and shorten them"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - branches
   - holon-agentic-coder
 created_at: 2026-11-11T10:30:00Z
-updated_at: 2026-11-11T10:30:00Z
+updated_at: 2026-11-12T08:30:00Z
 ---
 
 ## Problem
@@ -38,3 +38,23 @@ fit. Hermetic tests build the failing name and assert the cap.
 ## Workaround
 
 Give decomposable intents a very short slug (8 characters kept the Bean 0274 names under the limit).
+
+## Resolution
+
+Delivered via [PR #166](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/166) and merged into `main`
+(`0528a63`, 2026-11-11T21:18Z), through the 5-stage flow (`claude-agent` / `claude-sonnet-5-5`, intent slug `refcap`),
+followed by a harness `pr-review-loop`.
+
+- **Deliverable**: `ref_names.py` holds one limit (255 characters, `refs/heads/` included) and one builder that checks
+  every branch name the engine creates as if it ended in `/calibrated`. Names that fit are unchanged; longer ones are
+  shortened deterministically with a stable digest, original labels are recorded in the ledger rows, a name that cannot
+  fit fails at Stage 1, and a rejected push is reported by name. Documented in `docs/git_flow.md` and
+  `docs/ledger_schema.md`.
+- **Review**: the flow's engine review took 10 iterations (calibration predicted EV 42.72, actual -24.31, delta -67.03).
+  After syncing with `main` (Beans 0160 and 0274 had merged, which removed the executor's container-side unpushed-work
+  reporting and moved its push error to `flow/host_remote.py`) the harness loop ran 2 iterations: iteration 1 found
+  important issues that the resolver fixed (two nits rejected with reasons), iteration 2 was unanimous 3/3 with 0
+  findings, read from the on-disk reports. CI 11/11 at `16e2f71`.
+- **Origin**: found when the first run of Bean 0274 failed pushing a 282-character child branch; the limit (255
+  accepted, 256 rejected) was measured against GitHub with throwaway branches on 2026-11-11 and is documented in
+  `.agents/rules.md`.

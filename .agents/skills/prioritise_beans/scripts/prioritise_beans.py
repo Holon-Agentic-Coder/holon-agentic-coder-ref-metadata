@@ -339,7 +339,7 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Tooling (2026-11-11):** `holon-agentic-coder` `main` (`660c50b`) and `holon-coherence` `main` (`d6f1655`) "
+        "**Tooling (2026-11-11):** `holon-agentic-coder` `main` (`0528a63`) and `holon-coherence` `main` (`d6f1655`) "
         "are installed editable and all agent images were rebuilt via `install-holon`, so Stage 3 partial-code "
         "salvage (#108), pure-append ledgers (#111), the calibration-report Prettier fix (#112), Stage 4 in the "
         "`review-loop` container (#116), the modular `cli/` package (#117), mandatory `--agent` / `--model` "
@@ -354,9 +354,9 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Merge / In-Flight State (2026-11-11):** `holon-agentic-coder` PRs #133–#151, #153, #154, #158, #159–#165 "
+        "**Merge / In-Flight State (2026-11-11):** `holon-agentic-coder` PRs #133–#151, #153, #154, #158, #159–#166 "
         "all merged (Beans 0244, 0245, 0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, "
-        "0257, 0259, 0256, 0266, 0268, 0161, 0272, 0273, 0262, 0263, 0160, 0274); trunk is at `660c50b` (PR #166, Bean 0275, is synced onto it and awaiting the maintainer's merge), installed editable, and images rebuilt via "
+        "0257, 0259, 0256, 0266, 0268, 0161, 0272, 0273, 0262, 0263, 0160, 0274, 0275); trunk is at `0528a63`, installed editable, and images rebuilt via "
         "`install-holon` with `uv` 0.13.7 in the base image, Dual-EV calibration in `holon/orchestrator`, and "
         "plan-owned child nesting in `sandbox_executor/flow/`. `flow.py` is now the `flow/` package, so beans "
         "touching different `flow/` submodules can run in parallel. Harness PR #58 merged into `main` and operational "
