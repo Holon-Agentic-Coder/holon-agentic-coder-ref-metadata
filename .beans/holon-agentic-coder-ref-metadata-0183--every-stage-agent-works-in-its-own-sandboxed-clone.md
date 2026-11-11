@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0183
 title: "Every flow stage works in its own sandboxed clone; holon flow needs no host checkout"
-status: todo
+status: scrapped
 type: feature
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - concurrency
   - holon-agentic-coder
 created_at: 2026-10-29T04:20:00Z
-updated_at: 2026-10-29T04:20:00Z
+updated_at: 2026-11-11T09:30:00Z
 ---
 
 ## Problem
@@ -61,3 +61,13 @@ repository and keeps no flow state of its own; it only starts the containers and
 - Enables safe parallel flows together with Bean 0151 (touch-set admission) and Bean 0149 (ID collisions across
   concurrently planned intents); related to Bean 0152 (bringing parallelism back).
 - Until it lands, each parallel flow runs with its own throwaway host worktree, created and removed automatically.
+
+## Resolution (scrapped, 2026-11-11)
+
+Superseded by the opposite design, at the maintainer's agreement. Bean 0183 required every stage to clone its own copy
+inside its container and the host to keep no checkout. Bean 0259 gave each flow its own host worktree (`flow-<slug>`),
+and Bean 0262 ([PR #162](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/162), merged `dd00fb9`)
+bind-mounts that worktree into the role containers, with the shared git directory's `worktrees/` area read-only so a
+sandbox cannot reach a sibling worktree. Concurrent flows are safe because each has its own worktree, which was this
+bean's goal. Stage 4 already runs in the review-loop container (PR #116); the checkpoint lives in the flow's own
+worktree, and calibration and the engine's git checks run in that worktree by design. No residual work.

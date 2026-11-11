@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-11 08:40:27 UTC
+**Last Updated:** 2026-11-11 09:04:45 UTC
 
 ## Executive Summary
 
@@ -16,8 +16,8 @@ overlapping flows now run one after another.
 
 - **Total Tracked Beans**: 273 (excluding template)
 - **Completed**: 210 (76.9%)
-- **Scrapped / Superseded**: 4 (1.5%)
-- **Active**: 59 (21.6%), of which 3 are in progress and 56 are todo
+- **Scrapped / Superseded**: 5 (1.8%)
+- **Active**: 58 (21.2%), of which 3 are in progress and 55 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -522,7 +522,6 @@ from PR 158 review loop).
 
 | Priority | Status      | Impact | Sizing | Bean # | Title                                                                                                                              | Domain                      | Dependencies / Notes                                                                                                                                                                                                                                                                                                                                                                               |
 | :------- | :---------- | :----: | :----: | :----- | :--------------------------------------------------------------------------------------------------------------------------------- | :-------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **P0**   | todo        |  High  |   L    | 0183   | Every flow stage works in its own sandboxed clone; `holon flow` needs no host checkout                                             | Holon Flow / Sandbox        | Stages 1-3 already clone in-container; move checkpoint, engine git checks and Stage 5 calibration into sandboxed clones so concurrent flows never share or require a host worktree. Pairs with 0179, 0149, 0151.                                                                                                                                                                                   |
 | **P0**   | todo        |  High  |   S    | 0160   | Review loop burns its iteration budget polling pending CI, then reports test failures                                              | Review Loop / CI            | PR #101 added bounded CI waiting within the iteration budget; remaining: separate `HOLON_REVIEW_CI_WAIT_SECONDS` budget and pending-vs-failed error reporting. Pair with 0234.                                                                                                                                                                                                                     |
 | **P0**   | todo        |  High  |   L    | 0151   | Planner estimates the touch set; overlapping concurrent flows are blocked                                                          | Holon Flow / Concurrency    | Unblocked by 0159 (#97 merged), 0201 (#142 merged), and 0149 (#146 merged). Sequence after 0254 (`flow/` package split). Must handle `{parent}--{n}-{slug}` child branches.                                                                                                                                                                                                                        |
 | **P1**   | todo        |  High  |   M    | 0267   | Stage 3 records a measured `test_pass_rate` (and the review loop can measure tests itself) so the flow does not depend on CI alone | Holon Flow / Testing        | The executor never runs or records tests: `test_pass_rate` is `null` in 51 of 54 ledger rows, so every flow relies on CI alone. Stage 3 should run `uv run task test` and record the rate, and the review loop's `local_tests` fallback should measure when no CI registers. Bean 0262 has merged, so this is unblocked.                                                                           |
@@ -588,8 +587,8 @@ from PR 158 review loop).
 
 **Rule (2026-10-25):** never run concurrent flows whose touched files overlap. Nearly every holon-agentic-coder bean
 touches `flow.py` or `cli.py`, so those flows run **one at a time**: merge one, then plan the next on the new `main`.
-Only disjoint work runs in parallel. Bean 0151 will make the flow enforce this; Bean 0183 and Bean 0152 will bring back
-parallelism.
+Only disjoint work runs in parallel. Bean 0151 will make the flow enforce this; per-flow worktrees (Beans 0259 and 0262)
+and Bean 0152 bring back parallelism.
 
 **Rule (2026-10-26):** no stage before the merge may halt for human review. The PR merge is the only human step, after
 consensus review and Stage 5 calibration.
@@ -663,8 +662,8 @@ pairwise-disjoint files and can run concurrently):
      with **Bean 0234** + **Bean 0160**), and **Bean 0151** (planner touch-set estimation).
 4. **Bean 0231** (exhausted-budget error string interpolates raw count while payload reports clamped 0).
 5. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean 0190**
-   (checkpoint and ledger reconciliation; entrypoints stop importing flow). Both precede **Bean 0183** (every stage and
-   engine bookkeeping step sandboxed in its own clone).
+   (checkpoint and ledger reconciliation; entrypoints stop importing flow). Bean 0183 is scrapped: per-flow worktrees
+   mounted into the containers replaced it.
 6. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), then **Bean
    0146** (plans-ledger correction rows; calibration picks the right predicted metrics). Bean 0197 follows 0146 because
    both touch `calibration.py`.

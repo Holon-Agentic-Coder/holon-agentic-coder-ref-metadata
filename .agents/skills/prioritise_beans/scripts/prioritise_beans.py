@@ -307,7 +307,7 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "**Rule (2026-10-25):** never run concurrent flows whose touched files overlap. Nearly every "
         "holon-agentic-coder bean touches `flow.py` or `cli.py`, so those flows run **one at a time**: merge one, "
         "then plan the next on the new `main`. Only disjoint work runs in parallel. Bean 0151 will make the flow "
-        "enforce this; Bean 0183 and Bean 0152 will bring back parallelism."
+        "enforce this; per-flow worktrees (Beans 0259 and 0262) and Bean 0152 bring back parallelism."
     ),
     "",
     (
@@ -419,8 +419,8 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ("4. **Bean 0231** (exhausted-budget error string interpolates raw count while payload reports clamped 0)."),
     (
         "5. **Bean 0189** (launcher module for container launch; breaks the `flow`-`cli` import cycle), then **Bean "
-        "0190** (checkpoint and ledger reconciliation; entrypoints stop importing flow). Both precede **Bean 0183** "
-        "(every stage and engine bookkeeping step sandboxed in its own clone)."
+        "0190** (checkpoint and ledger reconciliation; entrypoints stop importing flow). Bean 0183 is scrapped: "
+        "per-flow worktrees mounted into the containers replaced it."
     ),
     (
         "6. **Bean 0175** (check GitHub token scopes before Stage 3 starts when the plan touches workflow files), "
@@ -474,17 +474,6 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
 # judgement rather than a truncated first paragraph. Insertion order is the
 # matrix row order (priority blocks, hand-curated within each block).
 OVERRIDES: dict[str, dict[str, str]] = {
-    "0183": {
-        "title": "Every flow stage works in its own sandboxed clone; `holon flow` needs no host checkout",
-        "priority": "**P0**",
-        "impact": "High",
-        "sizing": "L",
-        "domain": "Holon Flow / Sandbox",
-        "notes": (
-            "Stages 1-3 already clone in-container; move checkpoint, engine git checks and Stage 5 calibration into "
-            "sandboxed clones so concurrent flows never share or require a host worktree. Pairs with 0179, 0149, 0151."
-        ),
-    },
     "0160": {
         "title": "Review loop burns its iteration budget polling pending CI, then reports test failures",
         "priority": "**P0**",
