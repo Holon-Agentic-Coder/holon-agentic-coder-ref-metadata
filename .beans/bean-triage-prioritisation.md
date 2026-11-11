@@ -1,18 +1,18 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-11 09:04:45 UTC
+**Last Updated:** 2026-11-11 09:06:22 UTC
 
 ## Executive Summary
 
-Since the 2026-10-22 checkpoint, every bean that was active then and blocked on a runner has gone through the full
-5-stage Holon flow and been merged by the maintainer:
+The harness now drives every `holon-agentic-coder` change through the 5-stage Holon flow and the `pr-review-loop`, and
+the maintainer merges each pull request into `main`. The most recent stretch (2026-11-10 to 2026-11-11) was dominated by
+one incident and its repair, described in the last paragraph below: a sandbox escape reached `main` behind a review that
+said `APPROVED (3/3)` while a reviewer still held an open critical finding. It was reverted, the review loop's consensus
+decision was fixed, and the change was re-landed with the escape closed.
 
-- holon-agentic-coder PRs #90, #91, #93, #94, #95 and #96
-- holon-coherence PR #27
-
-Concurrent flows on overlapping files (#94, #95 and #96 all changed `flow.py` and `cli.py`) forced repeated syncs and
-re-reviews: 141 review-loop passes from the first sync onward, about 10M+ tokens. Beans 0151 and 0152 address that, and
-overlapping flows now run one after another.
+Concurrent flows on overlapping files forced repeated syncs and re-reviews earlier on (141 review-loop passes, about
+10M+ tokens), so flows that touch the same files still run one after another; only flows with disjoint touch sets run
+together.
 
 - **Total Tracked Beans**: 273 (excluding template)
 - **Completed**: 210 (76.9%)
@@ -214,9 +214,23 @@ snapshot and its test), **Bean 0264** (read module size budgets from configurati
 cli/**init**.py into focused modules), **Bean 0267** (Stage 3 measured test pass rate), and **Bean 0269** (deferred nits
 from PR 158 review loop).
 
+**2026-11-10 to 2026-11-11:** **Bean 0262** (host-provisioned worktree mounted into the role containers) first merged as
+PR #159 (`80b844d`) after the flow posted `APPROVED (3/3)`, although reviewer 3's final verdict was CHANGES_REQUESTED
+with a critical Security finding: the shared git directory let a sandbox write a sibling worktree's admin files and so
+run code on the host. **Bean 0272** reverted it (PR #160, `2faa325`). **Bean 0273** (PR #161, `7837fa4`) fixed the
+cause: the consensus verdict now comes only from what the reviewers returned, adjudication suppression covers nits only,
+critical, important and Security findings are never filtered, the posted review reports each verdict exactly, and a
+rejection of an important or higher finding needs evidence. **Bean 0262** was re-landed as PR #162 (`dd00fb9`): a
+read-only overlay of the git directory's `worktrees/` area, with the mounted worktree's own admin directory writable,
+plus `rr-cache` and `MERGE_RR` protection. A hand-assembled PR run through the repaired `pr-review-loop`, it reached a
+genuine unanimous 3/3 with zero findings at iteration 16 of 25, CI 11/11. **Bean 0183** was scrapped as superseded by
+per-flow worktrees. Usage-limit handling now waits out a named reset and resumes automatically (flow runner and review
+loop), and the flow runner sends a push notification when it ends. New beans: **0263** to **0265**, **0267**, **0269**,
+**0271**.
+
 ---
 
-## Key Milestones Completed (Beans 0080 – 0268)
+## Key Milestones Completed (Beans 0080 – 0273)
 
 1. **Holon Flow and Automation Engine**:
    - `0084`: Fixed CI check name collisions in review gates.
@@ -515,6 +529,14 @@ from PR 158 review loop).
     - `0268` (#154, `b63fce7`): carried unmerged calibration reports into `main` in one pull request.
     - `0161` (#158, `14886b8`): the plan decides decomposition; children nest under and merge into the plan branch;
       combined integration PR reaches `main`.
+30. **Sandbox Escape Revert, Honest Review Consensus, and Host-Worktree Mount Re-land (Beans 0272, 0273, 0262 / HAC PRs
+    #159–#162, 2026-11-10 to 2026-11-11)**:
+    - `0262` (#159, `80b844d`) merged on a false `APPROVED (3/3)` with an open critical sandbox escape; `0272` (#160,
+      `2faa325`) reverted it.
+    - `0273` (#161, `7837fa4`): consensus comes only from the reviewers' returned verdicts; adjudication suppression
+      applies to nits only; the posted review is exact; evidence is required to reject an important or higher finding.
+    - `0262` (#162, `dd00fb9`): host worktree mounted into the role containers with the git directory's `worktrees/`
+      area read-only; unanimous 3/3 with zero findings at iteration 16, CI 11/11 green.
 
 ---
 
@@ -609,12 +631,12 @@ merges (#158), the review-consensus honesty fix (#161) and the host-worktree san
 protection (#162) are all live. `HOLON_TOKEN_REDUCE=0` stays the workaround until Beans 0227 and 0157 land. Set
 `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172 lands.
 
-**Merge / In-Flight State (2026-11-10):** `holon-agentic-coder` PRs #133–#151, #153, #154, and #158 all merged (Beans
-0244, 0245, 0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, 0257, 0259, 0256, 0266, 0268, 0161,
-0272, 0273, 0262); trunk is at `dd00fb9`, installed editable, and images rebuilt via `install-holon` with `uv` 0.13.7 in
-the base image, Dual-EV calibration in `holon/orchestrator`, and plan-owned child nesting in `sandbox_executor/flow/`.
-`flow.py` is now the `flow/` package, so beans touching different `flow/` submodules can run in parallel. Harness PR #58
-merged into `main` and operational tracking PR #59 is open on `docs/harness-20261106`.
+**Merge / In-Flight State (2026-11-11):** `holon-agentic-coder` PRs #133–#151, #153, #154, #158 and #159–#162 all merged
+(Beans 0244, 0245, 0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, 0257, 0259, 0256, 0266, 0268,
+0161, 0272, 0273, 0262); trunk is at `dd00fb9`, installed editable, and images rebuilt via `install-holon` with `uv`
+0.13.7 in the base image, Dual-EV calibration in `holon/orchestrator`, and plan-owned child nesting in
+`sandbox_executor/flow/`. `flow.py` is now the `flow/` package, so beans touching different `flow/` submodules can run
+in parallel. Harness PR #58 merged into `main` and operational tracking PR #59 is open on `docs/harness-20261106`.
 `fix/0227-proxy-readiness-http-probe` (`36c9765`, Bean 0227) has a green test suite and awaits the maintainer's call on
 PR creation. Coherence PR #41 (Bean 0208, `2f30d6e`) needs its 9 unit test failures resolved on its execution branch
 before Stage 4 review and Stage 5 calibration. **Worktree rule (2026-11-09):** a flow never runs in the `main` worktree;
