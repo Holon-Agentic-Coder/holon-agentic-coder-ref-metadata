@@ -43,10 +43,16 @@ multi-hour containerised lifecycle, **the flow is executed inside a dedicated ba
    `scripts/run_holon_flow.py` creates it (`git worktree add --no-track -b flow-<slug> ../flow-<slug> origin/main`) and
    passes it as `--target-worktree`; when invoking `holon flow` directly, do the same. Remove the worktree after the PR
    merges. Legacy `--repo-dir` is completely removed and must never be passed.
-5. **Automatic Model & Runner Fallback Ladder**: If any stage or subagent encounters model credit exhaustion, session
-   limits, rate limits, or HTTP 429 errors (`You've hit your session limit`, `insufficient_quota`,
-   `RESOURCE_EXHAUSTED`), **do not stop or block**. Automatically step down the fallback ladder and continue the flow
-   from the current stage or checkpoint:
+5. **Wait Out a Named Reset, Then the Fallback Ladder (maintainer rule, 2026-11-11)**: If any stage or subagent
+   encounters model credit exhaustion, session limits, rate limits, or HTTP 429 errors (`You've hit your session limit`,
+   `insufficient_quota`, `RESOURCE_EXHAUSTED`), **do not stop or block**:
+   - **When the error names its reset time** (e.g. `resets 5:40pm (Australia/Melbourne)` — a daily or weekly window),
+     **wait until about one minute after that reset and resume automatically from the checkpoint on the same agent and
+     model**. `scripts/run_holon_flow.py` does this itself (`parse_limit_reset` / `wait_for_limit_reset`), sending an
+     ntfy notification before it sleeps; a hand-driven stage follows the same rule. Never report such a stop as terminal
+     and never wait for a human to type "continue".
+   - **When no reset time is named** (true credit exhaustion), step down the fallback ladder and continue the flow from
+     the current stage or checkpoint:
    - **Claude (`claude-agent`)**: `claude-fable-5` $\rightarrow$ `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6`
      $\rightarrow$ `claude-haiku-4-5`.
    - **Antigravity (`antigravity-agent`)**: `gemini-3.8-pro-high` $\rightarrow$ `gemini-3.8-pro` $\rightarrow$

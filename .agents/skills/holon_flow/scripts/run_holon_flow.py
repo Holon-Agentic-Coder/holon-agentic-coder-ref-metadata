@@ -317,6 +317,57 @@ def resolve_flow_worktree(target_worktree: Path, slug: str, dry_run: bool = Fals
     return flow_worktree
 
 
+def parse_limit_reset(output: str):
+    """Return the datetime of the usage-limit reset named in ``output`` (e.g. "resets 5:40pm (Australia/Melbourne)").
+
+    Returns None when no reset time is named. The next occurrence of that wall-clock time in the named timezone is
+    used (today if still ahead, otherwise tomorrow), so daily windows resolve exactly and a weekly reset that names a
+    time resolves to its next daily occurrence, which is always sooner than doing nothing.
+    """
+    import re
+    from datetime import datetime, timedelta
+    from zoneinfo import ZoneInfo
+
+    m = re.search(r"resets\s+(\d{1,2}):(\d{2})\s*(am|pm)(?:\s*\(([^)]+)\))?", output, re.I)
+    if not m:
+        return None
+    hour, minute, ampm, tz_name = int(m.group(1)), int(m.group(2)), m.group(3).lower(), m.group(4)
+    hour = hour % 12 + (12 if ampm == "pm" else 0)
+    try:
+        tz = ZoneInfo(tz_name) if tz_name else None
+    except Exception:  # noqa: BLE001 - an unknown zone name falls back to local time
+        tz = None
+    now = datetime.now(tz)
+    reset = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+    if reset <= now:
+        reset += timedelta(days=1)
+    return reset
+
+
+def wait_for_limit_reset(reset, slug: str) -> None:
+    """Sleep until one minute after ``reset``, telling the maintainer (ntfy) that the flow will resume itself."""
+    import time
+    from datetime import datetime, timedelta
+
+    resume_at = reset + timedelta(minutes=1)
+    log_warn(f"Usage limit hit; the flow will resume itself at {resume_at.strftime('%H:%M %Z') or resume_at}.")
+    try:
+        from notify_ntfy import notify
+
+        notify(
+            f"Holon flow waiting on the usage limit: {slug}",
+            f"Will resume automatically at {resume_at.strftime('%H:%M %Z')}.",
+            tags="hourglass",
+        )
+    except Exception:  # noqa: BLE001 - a notification must never break a flow
+        pass
+    while True:
+        remaining = (resume_at - datetime.now(resume_at.tzinfo)).total_seconds()
+        if remaining <= 0:
+            return
+        time.sleep(min(remaining, 60))
+
+
 def run_flow(
     intent_path: Path,
     target_worktree: Path,
@@ -365,6 +416,17 @@ def run_flow(
 
         if auto_fallback and is_quota_error(output):
             log_warn("Detected model credit, quota, or session limit exhaustion.")
+            # A limit that names its reset time is waited out and resumed on the SAME model (maintainer rule,
+            # 2026-11-11); the fallback ladder is for exhaustion with no reset time in sight.
+            reset = parse_limit_reset(output)
+            if reset is not None:
+                chk_path = target_worktree / f".holon/flow/checkpoint-{slug}.json"
+                if chk_path.exists():
+                    current_checkpoint = chk_path
+                    current_from_stage = None
+                wait_for_limit_reset(reset, slug)
+                log_info("Usage limit window reset; resuming the flow from its checkpoint.")
+                continue
             fallback = resolve_next_model(current_agent, current_model)
             if fallback:
                 next_agent, next_model = fallback
