@@ -8,3 +8,6 @@ todo
 holon-knowledge
 __pycache__/
 *.pyc
+
+# run_247 learned limit resets: changes on every limit message
+.agents/skills/run_247/resets.json
