@@ -1,6 +1,6 @@
 ---
 # holon-agentic-coder-ref-metadata-0274
-title: "Every flow stage works in the host-provisioned worktree; no clone URL and no reliance on the worktree's origin"
+title: "Every flow stage works in the host-provisioned worktree; remove `HOLON_REPO_URL` altogether"
 status: todo
 type: feature
 priority: high
@@ -32,15 +32,16 @@ made no difference). Stages 1 to 3 passed only because they clone over HTTPS or 
 
 ## Requirement (maintainer, 2026-11-11)
 
-All stages should use the local worktree. Follow-up from the maintainer's question whether the clone URL variable is
-still needed once every stage works in a worktree: it is not needed for cloning; keep one resolved credential-free URL
-for container-side pushes and for naming the repository to `gh`.
+All stages should use the local worktree, and `HOLON_REPO_URL` should be removed altogether (maintainer, 2026-11-11).
+Containers never touch the remote: roles commit inside the mounted worktree and the host does every fetch and push with
+its own credentials. `gh` reads the repository from the worktree's own remote, so no replacement variable is added.
 
 ## Action
 
-Run through the Holon flow: `todo/intent-0274-every-flow-stage-uses-the-host-worktree.json`. It mounts the worktree for
-the intent and plan roles with the same protections as the existing mount, removes the clone role of the URL variable,
-sends every container fetch and push through the resolved URL, and names the URL and operation in failures.
+Run through the Holon flow: `todo/intent-0274-every-flow-stage-uses-the-host-worktree-and-no-clone-url.json`. It mounts
+the worktree for the intent and plan roles with the same protections as the existing mount, moves the resolver push and
+the review loop fetches to the host, deletes `HOLON_REPO_URL` and `get_repo_url()` with every reference, and names the
+operation, branch and remote in failures.
 
 ## Blocker for running it
 
