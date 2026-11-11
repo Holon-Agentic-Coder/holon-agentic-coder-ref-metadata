@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-11 21:40:04 UTC
+**Last Updated:** 2026-11-11 21:42:56 UTC
 
 ## Executive Summary
 
@@ -14,10 +14,10 @@ Concurrent flows on overlapping files forced repeated syncs and re-reviews earli
 10M+ tokens), so flows that touch the same files still run one after another; only flows with disjoint touch sets run
 together.
 
-- **Total Tracked Beans**: 276 (excluding template)
-- **Completed**: 214 (77.5%)
+- **Total Tracked Beans**: 280 (excluding template)
+- **Completed**: 214 (76.4%)
 - **Scrapped / Superseded**: 5 (1.8%)
-- **Active**: 57 (20.7%), of which 4 are in progress and 53 are todo
+- **Active**: 61 (21.8%), of which 4 are in progress and 57 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -600,6 +600,10 @@ loop), and the flow runner sends a push notification when it ends. New beans: **
 | **P3**   | todo        |  Low   |   XS   | 0269   | Deferred nits from the holon-agentic-coder PR 158 review loop                                                                      | Review Loop / Housekeeping  | Three deferred nits from PR #158: fold `parse_actual_metrics` onto `_record_exit_code`, removed-definitions test proof, and `docs/git_flow.md` checkpoint wording.                                                                                                                                                                                                                                 |
 | **P3**   | todo        | Medium |   M    | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                                                                | vmlx / Performance          | Pairs with 0142.                                                                                                                                                                                                                                                                                                                                                                                   |
 | **P0**   | in-progress | Medium |   M    | 0276   | Intent and plan containers write git config into the shared repository; every flow fails at Stage 1                                | Build / DevEx               |                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **P1**   | todo        | Medium |   M    | 0280   | The flow does not re-check CI after the calibration push; the macOS timing gate is flaky near 300 s                                | General                     |                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **P1**   | todo        |  High  |   M    | 0279   | Executor loses its push when syncing with `origin/main` hits a non-ledger conflict                                                 | Ledger / Observability      |                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **P1**   | todo        |  High  |   M    | 0278   | Concurrent flows collide on plan file names and review execution ids                                                               | Ledger / Observability      |                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **P1**   | todo        | Medium |   M    | 0277   | Flow executor commits carry a `Co-Authored-By` attribution trailer                                                                 | General                     |                                                                                                                                                                                                                                                                                                                                                                                                    |
 | **P1**   | todo        |  High  |   M    | 0270   | Discover runner models dynamically through each harness instead of the hardcoded model table                                       | Flow / Architecture         |                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 ---
