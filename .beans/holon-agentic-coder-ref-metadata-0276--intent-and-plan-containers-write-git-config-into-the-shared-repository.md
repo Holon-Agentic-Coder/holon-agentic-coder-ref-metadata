@@ -44,3 +44,12 @@ exception is named in the commit message. Pull request creation and merge stay w
 After it merges: rebuild the images (`install-holon --holon-only`), then restart the three flows (intents
 `todo/intent-0271-mdcheck.json`, `todo/intent-0222-pimount.json`, `todo/intent-0224-creds.json`) and remove the leftover
 worktrees `flow-mdcheck`, `flow-pimount` and `flow-creds`.
+
+## Progress (2026-11-12)
+
+Branch `fix/0276-intent-plan-git-identity` (commit `1ef9f3d`, off `origin/main` at `660c50b`) is pushed; no PR opened
+(PR creation for hand-authored work stays with the maintainer). It changes `entrypoint/intent_creator.py` and
+`entrypoint/planner.py` (identity via `git -c` on the commit command, no `git config` writes), updates the two tests
+that matched the old command shape, and adds `tests/test_entrypoint_git_identity.py` (source guard plus a commit made
+with the repository config read-only). Full suite 3548 passed, lint clean. Waiting for the maintainer to open and merge
+the PR.
