@@ -159,8 +159,13 @@ resolution step is executed in a dedicated, fresh subagent**.
    human maintainer's responsibility; a PR into any other branch follows the maintainer ruling in `AGENTS.md`.
 9. **Runtime Attrition Is Absorbed, Never Propagated**: A review, consensus or resolution pass can die for reasons that
    have nothing to do with the change under review -- a child wall-clock timeout, a model that spends its output budget
-   on reasoning and returns no final message, or a launch/transport error whose rejection tears down the enclosing
-   orchestration. A pass death never ends the loop and never cancels the iteration. Every pass therefore MUST:
+   on reasoning and returns no final message, a usage-limit kill (HTTP 429 naming its reset time), or a launch/transport
+   error whose rejection tears down the enclosing orchestration. A pass death never ends the loop and never cancels the
+   iteration. **A usage-limit kill that names its reset time is waited out, never terminal (maintainer rule,
+   2026-11-11)**: the orchestrator records state (`_state.json`, with the dead pass's `done` / `remaining`), waits until
+   about one minute after the named reset, then salvages the dead pass (capture any uncommitted resolver edits to a
+   concurrent patch, verify them against the open findings, finish on top) and continues the loop automatically --
+   without waiting for a human "continue". Every pass therefore MUST:
    - **ensure child write capability**: every review, consensus, and resolution child MUST possess file-writing tools
      (`write_to_file`, `replace_file_content`, or child equivalent) to write its report file directly to disk. A pass
      dispatched to a child that cannot write files (such as read-only `TypeName: "research"` or non-writing local
