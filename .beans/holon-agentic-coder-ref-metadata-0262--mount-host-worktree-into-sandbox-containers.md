@@ -3,7 +3,7 @@
 title:
   "Mount host-provisioned worktree into sandbox containers to eliminate in-container git cloning and mid-crash state
   loss"
-status: in-progress
+status: completed
 type: task
 priority: high
 tags:
@@ -14,7 +14,7 @@ tags:
   - review-loop
   - holon-agentic-coder
 created_at: 2026-11-09T07:47:00Z
-updated_at: 2026-11-09T07:47:00Z
+updated_at: 2026-11-11T08:45:00Z
 ---
 
 ## Problem
@@ -238,3 +238,21 @@ this bean is re-run through the flow with the security requirement as a hard con
 sibling-worktree vulnerability is deliberately still present; the `pr-review-loop` is running on the fixed engine and
 must raise and resolve it in-loop (mount redesign plus sibling-worktree tests) before any approval. Do not merge until a
 genuine 3/3 approval is posted.
+
+## Resolution
+
+Delivered via [PR #162](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/162) (re-land of the reverted PR
+#159), merged into `main` (`dd00fb9`, 2026-11-11T08:39Z).
+
+- **Deliverable**: the host-provisioned `flow-<slug>` worktree is bind-mounted into the role containers; in-container
+  git cloning, named volumes and the destructive container preamble are gone; review artefacts live under
+  `<worktree>/.subagent/`.
+- **Security fix that made the re-land safe**: the shared git directory's `worktrees/` area is overlaid read-only, with
+  the mounted worktree's own admin directory re-mounted writable, so a sandbox cannot write a sibling worktree's admin
+  files (the SEC-001 escape that forced the revert). Later iterations also covered the `rr-cache` and `MERGE_RR` paths.
+- **Review**: hand-assembled PR (exception to the flow rule, at the maintainer's instruction), run through the
+  `pr-review-loop` on the corrected engine (Bean 0273). Unanimous 3/3 APPROVED with 0/0/0 findings at head `6fe360b` in
+  iteration 16 of 25, every nit applied or rejected with a recorded reason; CI 11/11 green. The consensus review was
+  posted as a comment (GitHub refuses self-approval).
+- **Calibration**: not run. The PR was hand-assembled, not flow-driven, so there is no execution branch to calibrate.
+- **Left alone**: PRs #152 and #155 and the `I-1794214501-...` tree stay open as reference for the decomposition design.
