@@ -313,9 +313,22 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "reset and resumes automatically (flow runner and review loop), and the flow runner sends a push "
         "notification when it ends. New beans: **0263** to **0265**, **0267**, **0269**, **0271**."
     ),
+    "",
+    (
+        "**2026-11-11 to 2026-11-12:** the merge train landed in order: **Bean 0160** (PR #164, `97731e2`, review "
+        "loop waits for CI outside its iteration budget), **Bean 0274** (PR #165, `660c50b`, every flow stage uses "
+        "the host worktree) and **Bean 0275** (PR #166, `0528a63`, decomposed flow branch names stay under GitHub's "
+        "255-character full-ref limit). #165 then broke every new flow at Stage 1: the intent and plan containers "
+        "wrote `git config --local` into the shared repository (**Bean 0276**, hand-authored fix branch pushed, "
+        "awaiting the maintainer's PR). The train also exposed four flow-engine defects, logged as **Beans 0277** "
+        "(executor commits carry a `Co-Authored-By` trailer), **0278** (concurrent flows collide on plan file and "
+        "review ids), **0279** (executor loses its push on a non-ledger sync conflict) and **0280** (no CI re-check "
+        "after the calibration push), plus **Bean 0281** (carry the one calibration report that missed `main`). New "
+        "beans: **0276** to **0281**."
+    ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0273)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0275)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
@@ -354,9 +367,9 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Merge / In-Flight State (2026-11-11):** `holon-agentic-coder` PRs #133–#151, #153, #154, #158, #159–#166 "
+        "**Merge / In-Flight State (2026-11-12):** `holon-agentic-coder` PRs #133–#151, #153, #154, #158, #159–#166 "
         "all merged (Beans 0244, 0245, 0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, "
-        "0257, 0259, 0256, 0266, 0268, 0161, 0272, 0273, 0262, 0263, 0160, 0274, 0275); trunk is at `0528a63`, installed editable, and images rebuilt via "
+        "0257, 0259, 0256, 0266, 0268, 0161, 0272, 0273, 0262, 0263, 0160, 0274, 0275); trunk is at `0528a63`, the merge train (#164, #165, #166) is complete, `fix/0276-intent-plan-git-identity` (Bean 0276, merged with `main`, tests green) awaits the maintainer's PR and blocks every flow, installed editable, and images rebuilt via "
         "`install-holon` with `uv` 0.13.7 in the base image, Dual-EV calibration in `holon/orchestrator`, and "
         "plan-owned child nesting in `sandbox_executor/flow/`. `flow.py` is now the `flow/` package, so beans "
         "touching different `flow/` submodules can run in parallel. Harness PR #58 merged into `main` and operational "
@@ -369,6 +382,16 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "`pr<N>-<slug>` only when no local worktree exists; otherwise `flow-<slug>` is reused directly across all "
         "stages. Image builds use a temporary `build-images-<sha>` worktree, and the `main` worktrees stay on `main`, "
         "identical to `origin/main`."
+    ),
+    "",
+    (
+        "**Start here (2026-11-12):** **Bean 0276** first: every flow fails at Stage 1 until its fix branch merges "
+        "(maintainer opens and merges the PR). Then restart the three flows that died at intent, in this order of "
+        "files: **Bean 0271** (`entrypoint/review_loop.py`, resolver lint), **Bean 0222** (pi-agent mount) and "
+        "**Bean 0224** (credential mapping) run together, their touch sets being disjoint. Next concurrent set once "
+        "those are running: **Bean 0278** (ledger and plan/review ids), **Bean 0280** (`flow/stages/calibrate.py`) "
+        "and **Bean 0281** (calibration catch-up, hand-assembled) are pairwise disjoint; **Beans 0279** then **0277** "
+        "share `entrypoint/executor.py`, so they run one after the other."
     ),
     "",
     (
@@ -491,6 +514,74 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
 # judgement rather than a truncated first paragraph. Insertion order is the
 # matrix row order (priority blocks, hand-curated within each block).
 OVERRIDES: dict[str, dict[str, str]] = {
+    "0276": {
+        "title": "Intent and plan containers write git config into the shared repository; every flow fails at Stage 1",
+        "priority": "**P0**",
+        "impact": "Critical",
+        "sizing": "S",
+        "domain": "Flow / Sandbox",
+        "notes": (
+            "Hand-authored fix on `fix/0276-intent-plan-git-identity` (pushed, 3,580 tests pass): commit identity"
+            " via `git -c` on the commit, no config write. **Blocks every flow**; the maintainer opens and merges"
+            " the PR, then flows 0271, 0222 and 0224 restart."
+        ),
+    },
+    "0281": {
+        "title": "Carry the calibration report that missed its PR into `main` in one pull request",
+        "priority": "**P1**",
+        "impact": "Medium",
+        "sizing": "S",
+        "domain": "Calibration / Ledger",
+        "notes": (
+            "Two cherry-picked calibration commits from one surviving `calibrated` branch; hand-assembled at the "
+            "maintainer's instruction. Keep the source branch tree until the PR merges. Ledger-only; disjoint "
+            "from the flow bugs."
+        ),
+    },
+    "0278": {
+        "title": "Concurrent flows collide on plan file names and review execution ids",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "S",
+        "domain": "Ledger / Concurrency",
+        "notes": (
+            "Add the plan's 8-character hex to the plan file and review id. Touches the planner, review-id "
+            "creation and ledger validation; disjoint from 0277, 0279 and 0280."
+        ),
+    },
+    "0279": {
+        "title": "Executor loses its push when syncing with `origin/main` hits a non-ledger conflict",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Executor / Resume",
+        "notes": (
+            "Still push the executor's own commits and record a resumable state with the execution branch in the "
+            "checkpoint. Touches `entrypoint/executor.py` and the checkpoint; sequence with 0277."
+        ),
+    },
+    "0280": {
+        "title": "The flow does not re-check CI after the calibration push; the macOS timing gate is flaky near 300 s",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Calibration / CI",
+        "notes": (
+            "Wait for CI on the final head after Stage 5 and name failed checks. The 300 s gate headroom is a "
+            "maintainer decision. Touches `flow/stages/calibrate.py`."
+        ),
+    },
+    "0277": {
+        "title": "Flow executor commits carry a `Co-Authored-By` attribution trailer",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "S",
+        "domain": "Executor / Attribution",
+        "notes": (
+            "Start the container's Claude Code with attribution disabled via the settings route, and report "
+            "trailers found in the execution branch. Touches `entrypoint/executor.py`; sequence with 0279."
+        ),
+    },
     "0160": {
         "title": "Review loop burns its iteration budget polling pending CI, then reports test failures",
         "priority": "**P0**",
