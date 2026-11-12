@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0276
 title: "Intent and plan containers write git config into the shared repository; every flow fails at Stage 1"
-status: in-progress
+status: completed
 type: bug
 priority: critical
 tags:
@@ -10,7 +10,7 @@ tags:
   - worktree
   - holon-agentic-coder
 created_at: 2026-11-12T01:00:00Z
-updated_at: 2026-11-12T01:00:00Z
+updated_at: 2026-11-12T01:15:00Z
 ---
 
 ## Problem
@@ -61,3 +61,15 @@ and 2 rejected with reasons (brittle source-scan guard, public name of the ident
 `1435e14`, CI green, posted as a comment review. A review was then submitted from the wrong account, so #167 was closed
 and replaced by **PR #168** at the same head. Not calibrated: hand-authored, no `E-...` branch. Waiting for the
 maintainer to merge #168; the follow-up above then applies.
+
+## Resolution
+
+Delivered via [PR #168](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/168) and merged into `main`
+(`56f53dd`, 2026-11-12):
+
+- **Key Architectural Deliverables**: intent creator and planner set the commit identity with `git -c` on the commit
+  command; no role entrypoint writes git config in a mounted worktree.
+- **Verification & Tests**: `tests/test_entrypoint_git_identity.py` (source guard plus a commit with the repository
+  config read-only); full suite green, CI green; review loop 3/3 approval at `1435e14` (as #167, replaced by #168).
+- **Holon Flow Traversal**: none. Hand-authored under the bootstrap-harness exception because Stage 1 could not run; no
+  calibration (no `E-...` branch).

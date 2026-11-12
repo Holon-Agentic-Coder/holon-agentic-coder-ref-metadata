@@ -319,8 +319,8 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "loop waits for CI outside its iteration budget), **Bean 0274** (PR #165, `660c50b`, every flow stage uses "
         "the host worktree) and **Bean 0275** (PR #166, `0528a63`, decomposed flow branch names stay under GitHub's "
         "255-character full-ref limit). #165 then broke every new flow at Stage 1: the intent and plan containers "
-        "wrote `git config --local` into the shared repository (**Bean 0276**, hand-authored fix branch pushed, "
-        "awaiting the maintainer's PR). The train also exposed four flow-engine defects, logged as **Beans 0277** "
+        "wrote `git config --local` into the shared repository (**Bean 0276**, hand-authored fix, PR #168, "
+        "`56f53dd`, merged after a 3/3 review-loop approval). The train also exposed four flow-engine defects, logged as **Beans 0277** "
         "(executor commits carry a `Co-Authored-By` trailer), **0278** (concurrent flows collide on plan file and "
         "review ids), **0279** (executor loses its push on a non-ledger sync conflict) and **0280** (no CI re-check "
         "after the calibration push), plus **Bean 0281** (carry the one calibration report that missed `main`). New "
@@ -328,7 +328,7 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0275)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0276)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
@@ -367,9 +367,9 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Merge / In-Flight State (2026-11-12):** `holon-agentic-coder` PRs #133–#151, #153, #154, #158, #159–#166 "
+        "**Merge / In-Flight State (2026-11-12):** `holon-agentic-coder` PRs #133–#151, #153, #154, #158, #159–#166 and #168 "
         "all merged (Beans 0244, 0245, 0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, "
-        "0257, 0259, 0256, 0266, 0268, 0161, 0272, 0273, 0262, 0263, 0160, 0274, 0275); trunk is at `0528a63`, the merge train (#164, #165, #166) is complete, `fix/0276-intent-plan-git-identity` (Bean 0276, merged with `main`, tests green) is open as PR #168 (reviewed to a 3/3 consensus approval at `1435e14` as #167, CI green, mergeable) and blocks every flow, installed editable, and images rebuilt via "
+        "0257, 0259, 0256, 0266, 0268, 0161, 0272, 0273, 0262, 0263, 0160, 0274, 0275, 0276); trunk is at `56f53dd` (PR #168 fixed the Stage 1 git-config failure, so flows run again), installed editable, and images rebuilt via "
         "`install-holon` with `uv` 0.13.7 in the base image, Dual-EV calibration in `holon/orchestrator`, and "
         "plan-owned child nesting in `sandbox_executor/flow/`. `flow.py` is now the `flow/` package, so beans "
         "touching different `flow/` submodules can run in parallel. Harness PR #58 merged into `main` and operational "
@@ -385,9 +385,8 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Start here (2026-11-12):** **Bean 0276** first: every flow fails at Stage 1 until its fix branch merges "
-        "(maintainer merges PR #168). Then restart the three flows that died at intent, in this order of "
-        "files: **Bean 0271** (`entrypoint/review_loop.py`, resolver lint), **Bean 0222** (pi-agent mount) and "
+        "**Start here (2026-11-12):** Bean 0276 merged (PR #168), so flows run again. Restart the three flows that died at intent: "
+        "**Bean 0271** (`entrypoint/review_loop.py`, resolver lint), **Bean 0222** (pi-agent mount) and "
         "**Bean 0224** (credential mapping) run together, their touch sets being disjoint. Next concurrent set once "
         "those are running: **Bean 0278** (ledger and plan/review ids), **Bean 0280** (`flow/stages/calibrate.py`) "
         "and **Bean 0281** (calibration catch-up, hand-assembled) are pairwise disjoint; **Beans 0279** then **0277** "
@@ -514,18 +513,6 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
 # judgement rather than a truncated first paragraph. Insertion order is the
 # matrix row order (priority blocks, hand-curated within each block).
 OVERRIDES: dict[str, dict[str, str]] = {
-    "0276": {
-        "title": "Intent and plan containers write git config into the shared repository; every flow fails at Stage 1",
-        "priority": "**P0**",
-        "impact": "Critical",
-        "sizing": "S",
-        "domain": "Flow / Sandbox",
-        "notes": (
-            "Hand-authored fix on `fix/0276-intent-plan-git-identity` (PR #168, 3/3 review-loop approval, CI green): commit identity"
-            " via `git -c` on the commit, no config write. **Blocks every flow**; the maintainer merges"
-            " PR #168, then flows 0271, 0222 and 0224 restart."
-        ),
-    },
     "0281": {
         "title": "Carry the calibration report that missed its PR into `main` in one pull request",
         "priority": "**P1**",
