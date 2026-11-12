@@ -320,15 +320,21 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "the host worktree) and **Bean 0275** (PR #166, `0528a63`, decomposed flow branch names stay under GitHub's "
         "255-character full-ref limit). #165 then broke every new flow at Stage 1: the intent and plan containers "
         "wrote `git config --local` into the shared repository (**Bean 0276**, hand-authored fix, PR #168, "
-        "`56f53dd`, merged after a 3/3 review-loop approval). The train also exposed four flow-engine defects, logged as **Beans 0277** "
+        "`56f53dd`, merged after a 3/3 review-loop approval). The first flows then showed that Stage 4 cannot run in the "
+        "review-loop container, which has no ssh: **Bean 0282** (PR #171, `5d30bda`, no in-container fetch in the review "
+        "target) merged after a host-driven review loop, **Bean 0224** (PR #170, `0990f34`, claude credential "
+        "auto-discovery by token type) merged on a host-driven review loop and calibration, and **Bean 0284** (the "
+        "execution-diff check still fetched in the container) is in review as PR #172. **Bean 0283** logs that the "
+        "token-reduction proxy's `cache_control` injection makes sonnet planner calls fail with an API error that the "
+        "engine writes as the plan (`HOLON_TOKEN_REDUCE=0` is the workaround). The train also exposed four flow-engine defects, logged as **Beans 0277** "
         "(executor commits carry a `Co-Authored-By` trailer), **0278** (concurrent flows collide on plan file and "
         "review ids), **0279** (executor loses its push on a non-ledger sync conflict) and **0280** (no CI re-check "
         "after the calibration push), plus **Bean 0281** (carry the one calibration report that missed `main`). New "
-        "beans: **0276** to **0281**."
+        "beans: **0276** to **0284**."
     ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0276)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0284)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
@@ -367,9 +373,9 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Merge / In-Flight State (2026-11-12):** `holon-agentic-coder` PRs #133–#151, #153, #154, #158, #159–#166 and #168 "
+        "**Merge / In-Flight State (2026-11-12):** `holon-agentic-coder` PRs #133–#151, #153, #154, #158, #159–#166, #168, #170 and #171 "
         "all merged (Beans 0244, 0245, 0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, "
-        "0257, 0259, 0256, 0266, 0268, 0161, 0272, 0273, 0262, 0263, 0160, 0274, 0275, 0276); trunk is at `56f53dd` (PR #168 fixed the Stage 1 git-config failure, so flows run again), installed editable, and images rebuilt via "
+        "0257, 0259, 0256, 0266, 0268, 0161, 0272, 0273, 0262, 0263, 0160, 0274, 0275, 0276, 0282, 0224); trunk is at `0990f34`, installed editable, and images rebuilt via "
         "`install-holon` with `uv` 0.13.7 in the base image, Dual-EV calibration in `holon/orchestrator`, and "
         "plan-owned child nesting in `sandbox_executor/flow/`. `flow.py` is now the `flow/` package, so beans "
         "touching different `flow/` submodules can run in parallel. Harness PR #58 merged into `main` and operational "
@@ -385,10 +391,11 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Start here (2026-11-12):** Bean 0276 merged (PR #168), so flows run again. Restart the three flows that died at intent: "
-        "**Bean 0271** (`entrypoint/review_loop.py`, resolver lint), **Bean 0222** (pi-agent mount) and "
-        "**Bean 0224** (credential mapping) run together, their touch sets being disjoint. Next concurrent set once "
-        "those are running: **Bean 0278** (ledger and plan/review ids), **Bean 0280** (`flow/stages/calibrate.py`) "
+        "**Start here (2026-11-12):** flows run again, but Stage 4 only runs on the host until **Bean 0284** (PR #172) "
+        "merges, so drive each flow's review loop and calibration from the host (maintainer authorised) and set "
+        "`HOLON_TOKEN_REDUCE=0`. **Bean 0278** (PR #169) is in its review loop. Once 0284 merges, restart **Bean 0271** "
+        "(`entrypoint/review_loop.py`, resolver lint) and **Bean 0222** (pi-agent mount); next concurrent set: "
+        "**Bean 0280** (`flow/stages/calibrate.py`) "
         "and **Bean 0281** (calibration catch-up, hand-assembled) are pairwise disjoint; **Beans 0279** then **0277** "
         "share `entrypoint/executor.py`, so they run one after the other."
     ),
@@ -483,7 +490,7 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "Parallel lanes (disjoint files / repositories):",
     "",
     (
-        "- **Agent Runner / Credentials lane (`holon-agentic-coder`, disjoint from `flow.py`):** **Bean 0224** "
+        "- **Agent Runner / Credentials lane (`holon-agentic-coder`, disjoint from `flow.py`):** **Bean 0224** (DONE, PR #170) "
         "(auto-discover `~/.holon/secrets/claude-oauth-token`, map by credential type, kill `HOLON_AGENT_KEY` and "
         "the echo-pad tunnel; touches `agent_runner.py`/pre-flight only), followed by **Bean 0225** (OS keychain "
         "storage) and **Bean 0222** (writable `~/.pi/agent` tmpfs mount so `pi-agent` flows pass pre-flight)."
@@ -806,17 +813,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "Log total CI pipelines once at start (`Tracking N GitHub CI check(s)...`) and emit a log line only "
             "when a check completes or changes state, suppressing 15 s polling noise. Intent in `todo/`; pair with "
             "0160."
-        ),
-    },
-    "0224": {
-        "title": "Claude credentials just work: auto-discover the secrets file, map by type, no HOLON_AGENT_KEY",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "M",
-        "domain": "Agent Runner / Credentials",
-        "notes": (
-            "Touches `agent_runner.py`/pre-flight only - disjoint from `flow.py`. Kills the "
-            "`HOLON_AGENT_SETTINGS` echo-pad tunnel; `--settings` value redacted in command echoes. Before 0225."
         ),
     },
     "0227": {
