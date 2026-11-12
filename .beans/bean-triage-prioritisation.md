@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-12 04:00:18 UTC
+**Last Updated:** 2026-11-12 04:04:30 UTC
 
 ## Executive Summary
 
@@ -15,9 +15,9 @@ Concurrent flows on overlapping files forced repeated syncs and re-reviews earli
 together.
 
 - **Total Tracked Beans**: 284 (excluding template)
-- **Completed**: 217 (76.4%)
+- **Completed**: 218 (76.8%)
 - **Scrapped / Superseded**: 5 (1.8%)
-- **Active**: 62 (21.8%), of which 5 are in progress and 57 are todo
+- **Active**: 61 (21.5%), of which 4 are in progress and 57 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -236,13 +236,13 @@ broke every new flow at Stage 1: the intent and plan containers wrote `git confi
 showed that Stage 4 cannot run in the review-loop container, which has no ssh: **Bean 0282** (PR #171, `5d30bda`, no
 in-container fetch in the review target) merged after a host-driven review loop, **Bean 0224** (PR #170, `0990f34`,
 claude credential auto-discovery by token type) merged on a host-driven review loop and calibration, and **Bean 0284**
-(the execution-diff check still fetched in the container) is in review as PR #172. **Bean 0283** logs that the
-token-reduction proxy's `cache_control` injection makes sonnet planner calls fail with an API error that the engine
-writes as the plan (`HOLON_TOKEN_REDUCE=0` is the workaround). The train also exposed four flow-engine defects, logged
-as **Beans 0277** (executor commits carry a `Co-Authored-By` trailer), **0278** (concurrent flows collide on plan file
-and review ids), **0279** (executor loses its push on a non-ledger sync conflict) and **0280** (no CI re-check after the
-calibration push), plus **Bean 0281** (carry the one calibration report that missed `main`). New beans: **0276** to
-**0284**.
+(PR #172, `0181186`, the execution-diff check no longer fetched in the container) closed the remaining fetch site.
+**Bean 0283** logs that the token-reduction proxy's `cache_control` injection makes sonnet planner calls fail with an
+API error that the engine writes as the plan (`HOLON_TOKEN_REDUCE=0` is the workaround). The train also exposed four
+flow-engine defects, logged as **Beans 0277** (executor commits carry a `Co-Authored-By` trailer), **0278** (concurrent
+flows collide on plan file and review ids), **0279** (executor loses its push on a non-ledger sync conflict) and
+**0280** (no CI re-check after the calibration push), plus **Bean 0281** (carry the one calibration report that missed
+`main`). New beans: **0276** to **0284**.
 
 ---
 
@@ -619,7 +619,6 @@ calibration push), plus **Bean 0281** (carry the one calibration report that mis
 | **P3**   | todo        |  Low   |   XS   | 0231   | Exhausted-budget error string interpolates raw count while payload reports clamped 0                                               | Flow Engine / Cosmetic      | PR #124 loop deferral (cosmetic, out-of-increment). Touches `flow.py` - bundle with 0230.                                                                                                                                                                                                                                                                                                          |
 | **P3**   | todo        |  Low   |   XS   | 0269   | Deferred nits from the holon-agentic-coder PR 158 review loop                                                                      | Review Loop / Housekeeping  | Three deferred nits from PR #158: fold `parse_actual_metrics` onto `_record_exit_code`, removed-definitions test proof, and `docs/git_flow.md` checkpoint wording.                                                                                                                                                                                                                                 |
 | **P3**   | todo        | Medium |   M    | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                                                                | vmlx / Performance          | Pairs with 0142.                                                                                                                                                                                                                                                                                                                                                                                   |
-| **P0**   | in-progress | Medium |   M    | 0284   | The execution-diff check still fetches from origin inside the review container; Stage 4 fails again after Bean 0282                | Build / DevEx               |                                                                                                                                                                                                                                                                                                                                                                                                    |
 | **P1**   | todo        | Medium |   M    | 0283   | An agent's API error output is written as the plan and reported as a metrics failure                                               | CLI / Telemetry             |                                                                                                                                                                                                                                                                                                                                                                                                    |
 | **P1**   | todo        |  High  |   M    | 0270   | Discover runner models dynamically through each harness instead of the hardcoded model table                                       | Flow / Architecture         |                                                                                                                                                                                                                                                                                                                                                                                                    |
 
@@ -651,27 +650,27 @@ merges (#158), the review-consensus honesty fix (#161) and the host-worktree san
 protection (#162) are all live. `HOLON_TOKEN_REDUCE=0` stays the workaround until Beans 0227 and 0157 land. Set
 `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172 lands.
 
-**Merge / In-Flight State (2026-11-12):** `holon-agentic-coder` PRs #133–#151, #153, #154, #158, #159–#166, #168, #170
-and #171 all merged (Beans 0244, 0245, 0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, 0257,
-0259, 0256, 0266, 0268, 0161, 0272, 0273, 0262, 0263, 0160, 0274, 0275, 0276, 0282, 0224); trunk is at `0990f34`,
-installed editable, and images rebuilt via `install-holon` with `uv` 0.13.7 in the base image, Dual-EV calibration in
-`holon/orchestrator`, and plan-owned child nesting in `sandbox_executor/flow/`. `flow.py` is now the `flow/` package, so
-beans touching different `flow/` submodules can run in parallel. Harness PR #58 merged into `main` and operational
-tracking PR #59 is open on `docs/harness-20261106`. `fix/0227-proxy-readiness-http-probe` (`36c9765`, Bean 0227) has a
-green test suite and awaits the maintainer's call on PR creation. Coherence PR #41 (Bean 0208, `2f30d6e`) needs its 9
-unit test failures resolved on its execution branch before Stage 4 review and Stage 5 calibration. **Worktree rule
-(2026-11-09):** a flow never runs in the `main` worktree; naming `main` as the target selects the repository and base
-branch only, and the flow runs in a `flow-<slug>` worktree off `origin/main` (Bean 0259, PR #150). Standalone external
-PR reviews provision `pr<N>-<slug>` only when no local worktree exists; otherwise `flow-<slug>` is reused directly
-across all stages. Image builds use a temporary `build-images-<sha>` worktree, and the `main` worktrees stay on `main`,
-identical to `origin/main`.
+**Merge / In-Flight State (2026-11-12):** `holon-agentic-coder` PRs #133–#151, #153, #154, #158, #159–#166, #168, #170,
+#171 and #172 all merged (Beans 0244, 0245, 0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149,
+0257, 0259, 0256, 0266, 0268, 0161, 0272, 0273, 0262, 0263, 0160, 0274, 0275, 0276, 0282, 0224, 0284); trunk is at
+`0181186`, installed editable, and images rebuilt via `install-holon` with `uv` 0.13.7 in the base image, Dual-EV
+calibration in `holon/orchestrator`, and plan-owned child nesting in `sandbox_executor/flow/`. `flow.py` is now the
+`flow/` package, so beans touching different `flow/` submodules can run in parallel. Harness PR #58 merged into `main`
+and operational tracking PR #59 is open on `docs/harness-20261106`. `fix/0227-proxy-readiness-http-probe` (`36c9765`,
+Bean 0227) has a green test suite and awaits the maintainer's call on PR creation. Coherence PR #41 (Bean 0208,
+`2f30d6e`) needs its 9 unit test failures resolved on its execution branch before Stage 4 review and Stage 5
+calibration. **Worktree rule (2026-11-09):** a flow never runs in the `main` worktree; naming `main` as the target
+selects the repository and base branch only, and the flow runs in a `flow-<slug>` worktree off `origin/main` (Bean 0259,
+PR #150). Standalone external PR reviews provision `pr<N>-<slug>` only when no local worktree exists; otherwise
+`flow-<slug>` is reused directly across all stages. Image builds use a temporary `build-images-<sha>` worktree, and the
+`main` worktrees stay on `main`, identical to `origin/main`.
 
-**Start here (2026-11-12):** flows run again, but Stage 4 only runs on the host until **Bean 0284** (PR #172) merges, so
-drive each flow's review loop and calibration from the host (maintainer authorised) and set `HOLON_TOKEN_REDUCE=0`.
-**Bean 0278** (PR #169) is in its review loop. Once 0284 merges, restart **Bean 0271** (`entrypoint/review_loop.py`,
-resolver lint) and **Bean 0222** (pi-agent mount); next concurrent set: **Bean 0280** (`flow/stages/calibrate.py`) and
-**Bean 0281** (calibration catch-up, hand-assembled) are pairwise disjoint; **Beans 0279** then **0277** share
-`entrypoint/executor.py`, so they run one after the other.
+**Start here (2026-11-12):** the Stage 1 and Stage 4 container blockers are fixed (Beans 0276, 0282, 0284), so flows
+should run end to end again; the next flow is the first real proof, so watch its Stage 4. Keep `HOLON_TOKEN_REDUCE=0`
+until Bean 0283. **Bean 0278** (PR #169) is finishing its host-driven review loop. Next concurrent set: **Bean 0271**
+(`entrypoint/review_loop.py`, resolver lint), **Bean 0222** (pi-agent mount) and **Bean 0280**
+(`flow/stages/calibrate.py`) are pairwise disjoint; **Beans 0279** then **0277** share `entrypoint/executor.py`, so they
+run one after the other.
 
 Sequential & Disjoint Lanes, holon-agentic-coder (Bean 0254 landed: lanes are now per `flow/` submodule; items 1–3 touch
 pairwise-disjoint files and can run concurrently):

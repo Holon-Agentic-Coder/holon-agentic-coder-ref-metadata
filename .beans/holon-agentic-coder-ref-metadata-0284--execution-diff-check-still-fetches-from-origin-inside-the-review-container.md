@@ -2,7 +2,7 @@
 # holon-agentic-coder-ref-metadata-0284
 title:
   "The execution-diff check still fetches from origin inside the review container; Stage 4 fails again after Bean 0282"
-status: in-progress
+status: completed
 type: bug
 priority: critical
 tags:
@@ -11,7 +11,7 @@ tags:
   - sandbox
   - holon-agentic-coder
 created_at: 2026-11-12T03:10:00Z
-updated_at: 2026-11-12T03:10:00Z
+updated_at: 2026-11-12T04:10:00Z
 ---
 
 ## Problem
@@ -35,3 +35,19 @@ reachable from the review-loop container and give each the same mounted-workspac
 ## Follow-up
 
 After it merges: rebuild images (`install-holon --holon-only`) and resume anything still on hold.
+
+## Resolution
+
+Delivered via [PR #172](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/172) and merged into `main`
+(`0181186`, 2026-11-12):
+
+- **Key Architectural Deliverables**: `flow/git_refs._execution_effective_diff` no longer fetches from origin in a
+  mounted role container; it compares the refs the host fetched and reports an unverifiable result naming the missing
+  branch. With Bean 0282 this closes the in-container fetch on the Stage 4 review path.
+- **Verification & Tests**: hermetic tests for the mounted and host paths; review loop 4 iterations to a clean 3/3 at
+  `60b4bcf`, CI green at the merged head.
+- **Holon Flow Traversal**: Intent, Plan and Execute ran in the engine on `claude-sonnet-5-5` with
+  `HOLON_TOKEN_REDUCE=0`. Stage 4 failed in-container on the bug repaired, so the review loop and `holon calibrate` were
+  driven from the host (maintainer authorised). Calibration: predicted EV 52.45, actual EV -9.29, delta -61.74.
+- **Follow-up**: Stage 4 should now run in the container; the next flow is the first real proof. The two earlier
+  host-driven calibration deltas (about -55 to -62) are all negative and worth a look in the calibration beans.

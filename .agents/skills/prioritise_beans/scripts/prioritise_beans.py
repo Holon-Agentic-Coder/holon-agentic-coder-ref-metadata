@@ -323,8 +323,8 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "`56f53dd`, merged after a 3/3 review-loop approval). The first flows then showed that Stage 4 cannot run in the "
         "review-loop container, which has no ssh: **Bean 0282** (PR #171, `5d30bda`, no in-container fetch in the review "
         "target) merged after a host-driven review loop, **Bean 0224** (PR #170, `0990f34`, claude credential "
-        "auto-discovery by token type) merged on a host-driven review loop and calibration, and **Bean 0284** (the "
-        "execution-diff check still fetched in the container) is in review as PR #172. **Bean 0283** logs that the "
+        "auto-discovery by token type) merged on a host-driven review loop and calibration, and **Bean 0284** (PR #172, "
+        "`0181186`, the execution-diff check no longer fetched in the container) closed the remaining fetch site. **Bean 0283** logs that the "
         "token-reduction proxy's `cache_control` injection makes sonnet planner calls fail with an API error that the "
         "engine writes as the plan (`HOLON_TOKEN_REDUCE=0` is the workaround). The train also exposed four flow-engine defects, logged as **Beans 0277** "
         "(executor commits carry a `Co-Authored-By` trailer), **0278** (concurrent flows collide on plan file and "
@@ -373,9 +373,9 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Merge / In-Flight State (2026-11-12):** `holon-agentic-coder` PRs #133–#151, #153, #154, #158, #159–#166, #168, #170 and #171 "
+        "**Merge / In-Flight State (2026-11-12):** `holon-agentic-coder` PRs #133–#151, #153, #154, #158, #159–#166, #168, #170, #171 and #172 "
         "all merged (Beans 0244, 0245, 0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, "
-        "0257, 0259, 0256, 0266, 0268, 0161, 0272, 0273, 0262, 0263, 0160, 0274, 0275, 0276, 0282, 0224); trunk is at `0990f34`, installed editable, and images rebuilt via "
+        "0257, 0259, 0256, 0266, 0268, 0161, 0272, 0273, 0262, 0263, 0160, 0274, 0275, 0276, 0282, 0224, 0284); trunk is at `0181186`, installed editable, and images rebuilt via "
         "`install-holon` with `uv` 0.13.7 in the base image, Dual-EV calibration in `holon/orchestrator`, and "
         "plan-owned child nesting in `sandbox_executor/flow/`. `flow.py` is now the `flow/` package, so beans "
         "touching different `flow/` submodules can run in parallel. Harness PR #58 merged into `main` and operational "
@@ -391,12 +391,11 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Start here (2026-11-12):** flows run again, but Stage 4 only runs on the host until **Bean 0284** (PR #172) "
-        "merges, so drive each flow's review loop and calibration from the host (maintainer authorised) and set "
-        "`HOLON_TOKEN_REDUCE=0`. **Bean 0278** (PR #169) is in its review loop. Once 0284 merges, restart **Bean 0271** "
-        "(`entrypoint/review_loop.py`, resolver lint) and **Bean 0222** (pi-agent mount); next concurrent set: "
-        "**Bean 0280** (`flow/stages/calibrate.py`) "
-        "and **Bean 0281** (calibration catch-up, hand-assembled) are pairwise disjoint; **Beans 0279** then **0277** "
+        "**Start here (2026-11-12):** the Stage 1 and Stage 4 container blockers are fixed (Beans 0276, 0282, 0284), so "
+        "flows should run end to end again; the next flow is the first real proof, so watch its Stage 4. Keep "
+        "`HOLON_TOKEN_REDUCE=0` until Bean 0283. **Bean 0278** (PR #169) is finishing its host-driven review loop. "
+        "Next concurrent set: **Bean 0271** (`entrypoint/review_loop.py`, resolver lint), **Bean 0222** (pi-agent "
+        "mount) and **Bean 0280** (`flow/stages/calibrate.py`) are pairwise disjoint; **Beans 0279** then **0277** "
         "share `entrypoint/executor.py`, so they run one after the other."
     ),
     "",
