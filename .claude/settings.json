@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "mkdir -p \"$HOME/.holon/limit-watch\" && nohup python3 \"$CLAUDE_PROJECT_DIR/.agents/skills/run_247/scripts/watch_limits.py\" --relaunch >> \"$HOME/.holon/limit-watch/watch.log\" 2>&1 < /dev/null &",
+            "async": true,
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

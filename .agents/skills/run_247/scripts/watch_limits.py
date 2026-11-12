@@ -16,6 +16,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import fcntl
 import json
 import os
 import re
@@ -36,6 +37,7 @@ from notify_ntfy import notify  # noqa: E402
 
 LOG_GLOB = "flow_*.log"
 STATE_FILE = Path.home() / ".holon" / "limit-watch" / "state.json"
+LOCK_FILE = STATE_FILE.with_name("watch.lock")
 TOKEN_FILE = Path.home() / ".holon" / "secrets" / "claude-oauth-token"
 LIMIT_RE = re.compile(
     r"hit your (?:session|weekly|daily|usage)? ?limit|reached your \w+ limit|session limit reached|"
@@ -185,6 +187,13 @@ def main() -> int:
     if args.self_test:
         _self_test()
         return 0
+    if not (args.once or args.dry_run):  # one long-running watcher at a time; a second one exits at once
+        STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        lock = LOCK_FILE.open("w")
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError:
+            return 0
     state = load_state()
     while True:
         poll(state, args.relaunch, args.dry_run)

@@ -30,6 +30,11 @@ through ntfy (`resume_at`, or credit exhaustion when no reset is named) and, wit
 from the secrets file, never printed). Review loops are conversation-driven, so they are announced only, never resumed.
 
 - Try it: `python3 .agents/skills/run_247/scripts/watch_limits.py --once --dry-run`; `--self-test` checks it.
-- Run it permanently: copy `scripts/com.holon.limit-watch.plist` to `~/Library/LaunchAgents/`, create
-  `~/.holon/limit-watch/`, then `launchctl load ~/Library/LaunchAgents/com.holon.limit-watch.plist`. State is kept in
-  `~/.holon/limit-watch/state.json`; history before the first poll is not announced.
+- Starts itself: `.claude/settings.json` has a `SessionStart` hook that launches `watch_limits.py --relaunch` detached
+  (async, output to `~/.holon/limit-watch/watch.log`). The watcher takes an exclusive lock on
+  `~/.holon/limit-watch/watch.lock`, so a second session's launch exits at once and only one watcher ever runs. A
+  detached process survives the session losing its tokens. A limit that resets while no session is open is announced and
+  acted on at the next session start (state is kept in `~/.holon/limit-watch/state.json`; history before the first poll
+  is not announced).
+- Without a session (reboot, no terminal open): copy `scripts/com.holon.limit-watch.plist` to `~/Library/LaunchAgents/`
+  and `launchctl load` it; the same lock keeps it single.
