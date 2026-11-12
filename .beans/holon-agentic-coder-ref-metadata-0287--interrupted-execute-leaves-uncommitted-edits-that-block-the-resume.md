@@ -3,7 +3,7 @@
 title:
   "An interrupted Stage 3 leaves uncommitted edits in the mounted worktree, so the resume refuses to start and the work
   is lost"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -41,3 +41,16 @@ ledger-only dirty case.
 
 Touches `flow` and the executor entrypoint (`execution_workspace.py`), so it must not run concurrently with another flow
 on those files.
+
+## Resolution
+
+Delivered via [PR #178](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/178) and merged into `main`
+(`ebfa3bb`):
+
+- **Fix**: a Stage 3 resume over a worktree with uncommitted leftovers commits them as a labelled partial-work commit on
+  the failed execution branch (engine-owned ledger and report files excluded) and continues from them, instead of
+  refusing to start. The commit is recorded in the existing ledgers; a clean resume is unchanged.
+- **Review**: 3/3 ensemble approval in 4 iterations; one `COMMENTED` review; CI green on the final head.
+- **Calibration**: `plans/P-1794478317-4eb07fff-claude-agent-claude-sonnet-5-5_calibration.md` in the PR; EV predicted
+  37.48 vs actual 52.17.
+- **Flow**: all five stages traversed through `holon flow`, uninterrupted.
