@@ -3,7 +3,7 @@
 title:
   "Stage 4 posts a changes-requested review to the PR whenever the review loop exits, including when it halts without
   consensus"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -39,3 +39,17 @@ new dependencies.
 ## Notes
 
 Touches `flow/review/loop.py`, so it must not run concurrently with another flow on that file.
+
+## Resolution
+
+Delivered via [PR #177](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/177) and merged into `main`
+(`89b2530`):
+
+- **Fix**: the Stage 4 review loop posts its consensus review only on a clean approval or at the iteration cap. A
+  resolver error, a failed gate, a budget stop or any other non-terminal exit posts nothing, logs why, and writes no
+  `ACT-POST`.
+- **Review**: 3/3 ensemble approval in 2 iterations with zero findings; one `COMMENTED` review on the PR and no
+  premature changes-requested review. Final head CI green.
+- **Calibration**: `plans/P-1794476365-334a8266-claude-agent-claude-sonnet-5-5_calibration.md` in the PR; EV predicted
+  40.70 vs actual 52.47.
+- **Flow**: all five stages traversed through `holon flow`, uninterrupted.
