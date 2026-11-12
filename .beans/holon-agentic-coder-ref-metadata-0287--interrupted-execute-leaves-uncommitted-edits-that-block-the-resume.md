@@ -3,7 +3,7 @@
 title:
   "An interrupted Stage 3 leaves uncommitted edits in the mounted worktree, so the resume refuses to start and the work
   is lost"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
