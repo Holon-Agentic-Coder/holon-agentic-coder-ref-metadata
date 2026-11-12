@@ -369,7 +369,7 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     (
         "**Merge / In-Flight State (2026-11-12):** `holon-agentic-coder` PRs #133–#151, #153, #154, #158, #159–#166 "
         "all merged (Beans 0244, 0245, 0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, "
-        "0257, 0259, 0256, 0266, 0268, 0161, 0272, 0273, 0262, 0263, 0160, 0274, 0275); trunk is at `0528a63`, the merge train (#164, #165, #166) is complete, `fix/0276-intent-plan-git-identity` (Bean 0276, merged with `main`, tests green) awaits the maintainer's PR and blocks every flow, installed editable, and images rebuilt via "
+        "0257, 0259, 0256, 0266, 0268, 0161, 0272, 0273, 0262, 0263, 0160, 0274, 0275); trunk is at `0528a63`, the merge train (#164, #165, #166) is complete, `fix/0276-intent-plan-git-identity` (Bean 0276, merged with `main`, tests green) is open as PR #168 (reviewed to a 3/3 consensus approval at `1435e14` as #167, CI green, mergeable) and blocks every flow, installed editable, and images rebuilt via "
         "`install-holon` with `uv` 0.13.7 in the base image, Dual-EV calibration in `holon/orchestrator`, and "
         "plan-owned child nesting in `sandbox_executor/flow/`. `flow.py` is now the `flow/` package, so beans "
         "touching different `flow/` submodules can run in parallel. Harness PR #58 merged into `main` and operational "
@@ -386,7 +386,7 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "",
     (
         "**Start here (2026-11-12):** **Bean 0276** first: every flow fails at Stage 1 until its fix branch merges "
-        "(maintainer opens and merges the PR). Then restart the three flows that died at intent, in this order of "
+        "(maintainer merges PR #168). Then restart the three flows that died at intent, in this order of "
         "files: **Bean 0271** (`entrypoint/review_loop.py`, resolver lint), **Bean 0222** (pi-agent mount) and "
         "**Bean 0224** (credential mapping) run together, their touch sets being disjoint. Next concurrent set once "
         "those are running: **Bean 0278** (ledger and plan/review ids), **Bean 0280** (`flow/stages/calibrate.py`) "
@@ -521,9 +521,9 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "S",
         "domain": "Flow / Sandbox",
         "notes": (
-            "Hand-authored fix on `fix/0276-intent-plan-git-identity` (pushed, 3,580 tests pass): commit identity"
-            " via `git -c` on the commit, no config write. **Blocks every flow**; the maintainer opens and merges"
-            " the PR, then flows 0271, 0222 and 0224 restart."
+            "Hand-authored fix on `fix/0276-intent-plan-git-identity` (PR #168, 3/3 review-loop approval, CI green): commit identity"
+            " via `git -c` on the commit, no config write. **Blocks every flow**; the maintainer merges"
+            " PR #168, then flows 0271, 0222 and 0224 restart."
         ),
     },
     "0281": {

@@ -53,3 +53,11 @@ Branch `fix/0276-intent-plan-git-identity` (commit `1ef9f3d`, off `origin/main` 
 that matched the old command shape, and adds `tests/test_entrypoint_git_identity.py` (source guard plus a commit made
 with the repository config read-only). Full suite 3548 passed, lint clean. Waiting for the maintainer to open and merge
 the PR.
+
+## Progress (2026-11-12, later)
+
+PR #167 was opened and driven through the review loop: 5 iterations, 2 Nits applied in `7a53144`, 5 more in `1435e14`
+and 2 rejected with reasons (brittle source-scan guard, public name of the identity constant); 3/3 consensus approval at
+`1435e14`, CI green, posted as a comment review. A review was then submitted from the wrong account, so #167 was closed
+and replaced by **PR #168** at the same head. Not calibrated: hand-authored, no `E-...` branch. Waiting for the
+maintainer to merge #168; the follow-up above then applies.

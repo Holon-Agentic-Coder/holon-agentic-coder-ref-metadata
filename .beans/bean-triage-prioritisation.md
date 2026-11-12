@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-12 00:41:50 UTC
+**Last Updated:** 2026-11-12 01:11:55 UTC
 
 ## Executive Summary
 
@@ -554,7 +554,7 @@ beans: **0276** to **0281**.
 
 | Priority | Status      |  Impact  | Sizing | Bean # | Title                                                                                                                              | Domain                      | Dependencies / Notes                                                                                                                                                                                                                                                                                                                                                                               |
 | :------- | :---------- | :------: | :----: | :----- | :--------------------------------------------------------------------------------------------------------------------------------- | :-------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **P0**   | in-progress | Critical |   S    | 0276   | Intent and plan containers write git config into the shared repository; every flow fails at Stage 1                                | Flow / Sandbox              | Hand-authored fix on `fix/0276-intent-plan-git-identity` (pushed, 3,580 tests pass): commit identity via `git -c` on the commit, no config write. **Blocks every flow**; the maintainer opens and merges the PR, then flows 0271, 0222 and 0224 restart.                                                                                                                                           |
+| **P0**   | in-progress | Critical |   S    | 0276   | Intent and plan containers write git config into the shared repository; every flow fails at Stage 1                                | Flow / Sandbox              | Hand-authored fix on `fix/0276-intent-plan-git-identity` (PR #168, 3/3 review-loop approval, CI green): commit identity via `git -c` on the commit, no config write. **Blocks every flow**; the maintainer merges PR #168, then flows 0271, 0222 and 0224 restart.                                                                                                                                 |
 | **P1**   | in-progress |  Medium  |   S    | 0281   | Carry the calibration report that missed its PR into `main` in one pull request                                                    | Calibration / Ledger        | Two cherry-picked calibration commits from one surviving `calibrated` branch; hand-assembled at the maintainer's instruction. Keep the source branch tree until the PR merges. Ledger-only; disjoint from the flow bugs.                                                                                                                                                                           |
 | **P1**   | todo        |   High   |   S    | 0278   | Concurrent flows collide on plan file names and review execution ids                                                               | Ledger / Concurrency        | Add the plan's 8-character hex to the plan file and review id. Touches the planner, review-id creation and ledger validation; disjoint from 0277, 0279 and 0280.                                                                                                                                                                                                                                   |
 | **P1**   | todo        |   High   |   M    | 0279   | Executor loses its push when syncing with `origin/main` hits a non-ledger conflict                                                 | Executor / Resume           | Still push the executor's own commits and record a resumable state with the execution branch in the checkpoint. Touches `entrypoint/executor.py` and the checkpoint; sequence with 0277.                                                                                                                                                                                                           |
@@ -648,21 +648,21 @@ protection (#162) are all live. `HOLON_TOKEN_REDUCE=0` stays the workaround unti
 **Merge / In-Flight State (2026-11-12):** `holon-agentic-coder` PRs #133–#151, #153, #154, #158, #159–#166 all merged
 (Beans 0244, 0245, 0247, 0248, 0249, 0251, 0236, 0250, 0243, 0201, 0241, 0195, 0233, 0149, 0257, 0259, 0256, 0266, 0268,
 0161, 0272, 0273, 0262, 0263, 0160, 0274, 0275); trunk is at `0528a63`, the merge train (#164, #165, #166) is complete,
-`fix/0276-intent-plan-git-identity` (Bean 0276, merged with `main`, tests green) awaits the maintainer's PR and blocks
-every flow, installed editable, and images rebuilt via `install-holon` with `uv` 0.13.7 in the base image, Dual-EV
-calibration in `holon/orchestrator`, and plan-owned child nesting in `sandbox_executor/flow/`. `flow.py` is now the
-`flow/` package, so beans touching different `flow/` submodules can run in parallel. Harness PR #58 merged into `main`
-and operational tracking PR #59 is open on `docs/harness-20261106`. `fix/0227-proxy-readiness-http-probe` (`36c9765`,
-Bean 0227) has a green test suite and awaits the maintainer's call on PR creation. Coherence PR #41 (Bean 0208,
-`2f30d6e`) needs its 9 unit test failures resolved on its execution branch before Stage 4 review and Stage 5
-calibration. **Worktree rule (2026-11-09):** a flow never runs in the `main` worktree; naming `main` as the target
-selects the repository and base branch only, and the flow runs in a `flow-<slug>` worktree off `origin/main` (Bean 0259,
-PR #150). Standalone external PR reviews provision `pr<N>-<slug>` only when no local worktree exists; otherwise
-`flow-<slug>` is reused directly across all stages. Image builds use a temporary `build-images-<sha>` worktree, and the
-`main` worktrees stay on `main`, identical to `origin/main`.
+`fix/0276-intent-plan-git-identity` (Bean 0276, merged with `main`, tests green) is open as PR #168 (reviewed to a 3/3
+consensus approval at `1435e14` as #167, CI green, mergeable) and blocks every flow, installed editable, and images
+rebuilt via `install-holon` with `uv` 0.13.7 in the base image, Dual-EV calibration in `holon/orchestrator`, and
+plan-owned child nesting in `sandbox_executor/flow/`. `flow.py` is now the `flow/` package, so beans touching different
+`flow/` submodules can run in parallel. Harness PR #58 merged into `main` and operational tracking PR #59 is open on
+`docs/harness-20261106`. `fix/0227-proxy-readiness-http-probe` (`36c9765`, Bean 0227) has a green test suite and awaits
+the maintainer's call on PR creation. Coherence PR #41 (Bean 0208, `2f30d6e`) needs its 9 unit test failures resolved on
+its execution branch before Stage 4 review and Stage 5 calibration. **Worktree rule (2026-11-09):** a flow never runs in
+the `main` worktree; naming `main` as the target selects the repository and base branch only, and the flow runs in a
+`flow-<slug>` worktree off `origin/main` (Bean 0259, PR #150). Standalone external PR reviews provision `pr<N>-<slug>`
+only when no local worktree exists; otherwise `flow-<slug>` is reused directly across all stages. Image builds use a
+temporary `build-images-<sha>` worktree, and the `main` worktrees stay on `main`, identical to `origin/main`.
 
 **Start here (2026-11-12):** **Bean 0276** first: every flow fails at Stage 1 until its fix branch merges (maintainer
-opens and merges the PR). Then restart the three flows that died at intent, in this order of files: **Bean 0271**
+merges PR #168). Then restart the three flows that died at intent, in this order of files: **Bean 0271**
 (`entrypoint/review_loop.py`, resolver lint), **Bean 0222** (pi-agent mount) and **Bean 0224** (credential mapping) run
 together, their touch sets being disjoint. Next concurrent set once those are running: **Bean 0278** (ledger and
 plan/review ids), **Bean 0280** (`flow/stages/calibrate.py`) and **Bean 0281** (calibration catch-up, hand-assembled)
