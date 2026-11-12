@@ -3,7 +3,7 @@
 title:
   "Stage 4 posts a changes-requested review to the PR whenever the review loop exits, including when it halts without
   consensus"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
