@@ -2,7 +2,7 @@
 # holon-agentic-coder-ref-metadata-0286
 title:
   "A children test makes a real git fetch against origin, so the resolver pre-push gate fails in the review container"
-status: in-progress
+status: completed
 type: bug
 priority: critical
 tags:
@@ -35,3 +35,17 @@ against a remote (or reaches the network), then run the whole suite in the revie
 ## Follow-up
 
 After it merges: rebuild images, then resume the `calci` flow (Bean 0280) from review.
+
+## Resolution
+
+Delivered via [PR #174](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/174) and merged into `main`
+(`a5550b5`):
+
+- **Fix**: the children test no longer makes a real `git fetch`; the pipeline stubs it, and a network guard fixture in
+  the suite (`tests/network_guard.py`) fails any test that opens a non-local git remote or socket, so the pre-push gate
+  no longer depends on the network.
+- **Review**: 3/3 ensemble approval after 8 iterations, in which the resolver gate ran in the container. Reviewer 2's
+  open Nit was actioned. A spurious `uv.lock` rewrite from a newer host `uv` was reverted, not shipped.
+- **Calibration**: `plans/P-1794458347-aa9e9dfa-claude-agent-claude-sonnet-5-5_calibration.md` in the PR; EV predicted
+  35.20 vs actual -13.31.
+- **Flow**: all five stages traversed through `holon flow`, resumed three times from partial work (Bean 0287).
