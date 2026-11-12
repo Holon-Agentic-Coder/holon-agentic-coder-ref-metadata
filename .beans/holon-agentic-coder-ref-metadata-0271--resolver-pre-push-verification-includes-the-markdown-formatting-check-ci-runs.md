@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0271
 title: "Resolver pre-push verification includes the Markdown formatting check that CI runs"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
