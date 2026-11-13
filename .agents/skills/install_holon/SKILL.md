@@ -8,6 +8,10 @@ description:
 
 # Install Holon Ecosystem Skill (`install-holon`)
 
+> [!NOTE] **Model tier: lowest.** This skill is mechanical, so run it in a dedicated subagent on the lowest-tier model,
+> found by probing the harness as described in [`.agents/model-tiers.md`](../../model-tiers.md). Do not hard-code a
+> model name here.
+
 This skill provides an automated, reproducible workflow for building all role and orchestrator Docker images using
 Docker Buildx Bake and installing or updating the host-side `holon` and `holon-coherence` CLI tools via
 `uv tool install`.

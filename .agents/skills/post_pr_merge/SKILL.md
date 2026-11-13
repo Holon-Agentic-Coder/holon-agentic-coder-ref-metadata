@@ -9,6 +9,10 @@ description:
 
 # Post-PR Merge Skill (`post-pr-merge`)
 
+> [!NOTE] **Model tier: lowest.** This skill is mechanical, so run it in a dedicated subagent on the lowest-tier model,
+> found by probing the harness as described in [`.agents/model-tiers.md`](../../model-tiers.md). Do not hard-code a
+> model name here.
+
 This skill orchestrates the end-to-end post-merge lifecycle across the Holon ecosystem (`holon-agentic-coder`,
 `holon-coherence`, and `holon-agentic-coder-ref-metadata`) once a Pull Request is merged into `main`.
 

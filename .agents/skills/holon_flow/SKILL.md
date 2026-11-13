@@ -9,6 +9,10 @@ description:
 
 # Autonomous Holon Flow Driver Skill (`holon-flow`)
 
+> [!NOTE] **Model tier: lowest.** This skill is mechanical, so run it in a dedicated subagent on the lowest-tier model,
+> found by probing the harness as described in [`.agents/model-tiers.md`](../../model-tiers.md). Do not hard-code a
+> model name here.
+
 This skill orchestrates the end-to-end execution of the 5-stage Holon development lifecycle across target repositories
 (`holon-agentic-coder` and `holon-coherence`). To avoid hijacking the user's primary interactive session for the
 multi-hour containerised lifecycle, **the flow is executed inside a dedicated background subagent**.
@@ -20,8 +24,8 @@ multi-hour containerised lifecycle, **the flow is executed inside a dedicated ba
 1. **Background Subagent Execution (Bean 0212 & Flow Delegation)**: Running `holon flow` across all 5 stages takes
    between 15 minutes and several hours depending on plan complexity and review iterations. The main interactive agent
    **MUST NOT execute the flow inline**. Instead, it delegates to a background `Holon Flow Subagent` (`invoke_subagent`
-   with `TypeName: "self"`, `Role: "Holon Flow Subagent (<slug>)"`, `Model: "inherit"`) and immediately returns control
-   to the user.
+   with `TypeName: "self"`, `Role: "Holon Flow Subagent (<slug>)"`, `Model` = the lowest tier per
+   `.agents/model-tiers.md`) and immediately returns control to the user.
 2. **Sole Change Path Invariant**: Every target codebase change (`holon-agentic-coder` or `holon-coherence`) MUST
    traverse the 5 containerised stages:
    - **Stage 1 (Intent)**: `I-{ts}-{slug}/_` branch created and logged to `holon-knowledge/ledger/intents.jsonl`.
@@ -48,9 +52,9 @@ multi-hour containerised lifecycle, **the flow is executed inside a dedicated ba
    `insufficient_quota`, `RESOURCE_EXHAUSTED`), **do not stop or block**:
    - **When the error names its reset time** (e.g. `resets 5:40pm (Australia/Melbourne)` — a daily or weekly window),
      **wait until about one minute after that reset and resume automatically from the checkpoint on the same agent and
-     model**. `scripts/run_holon_flow.py` does this itself (`parse_limit_reset` / `wait_for_limit_reset`), sending an
-     ntfy notification before it sleeps; a hand-driven stage follows the same rule. Never report such a stop as terminal
-     and never wait for a human to type "continue".
+     model**. `scripts/run_holon_flow.py` does this itself (`parse_limit_reset` / `wait_for_limit_reset`), logging it
+     before it sleeps; a hand-driven stage follows the same rule. Never report such a stop as terminal and never wait
+     for a human to type "continue".
    - **When no reset time is named** (true credit exhaustion), step down the fallback ladder and continue the flow from
      the current stage or checkpoint:
    - **Claude (`claude-agent`)**: `claude-fable-5` $\rightarrow$ `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6`
@@ -95,7 +99,7 @@ Before executing any flow commands, evaluate the **Re-Entrancy Guard**:
      {
        "TypeName": "self",
        "Role": "Holon Flow Subagent (<slug>)",
-       "Model": "inherit",
+       "Model": "<lowest-tier model, probed per .agents/model-tiers.md>",
        "Prompt": "You are the background Holon Flow Subagent for intent `<intent_path>` (target_worktree: `<target_worktree>`, agent: `<agent>`, model: `<model>`). Execute `.agents/skills/holon_flow/SKILL.md`. Because you are already the spawned Holon Flow Subagent, pass the Step 0 re-entrancy guard and proceed directly to Step 1. Drive the entire 5-stage Holon flow lifecycle (Intent -> Plan -> Execute -> Review Loop -> Calibration). Ensure PR creation, handle model fallback ladders on quota errors, verify that the calibration report is committed and pushed into the PR diff, check mergeability against target branch, and record state in `.subagent/flow_<slug>_state.json`. Do NOT send intermediate messages; call `send_message` to the parent agent ONLY ONCE upon terminal completion (PR approved, calibrated, and awaiting human merge) or an unresolvable blocker."
      }
      ```
@@ -141,6 +145,15 @@ python3 .agents/skills/holon_flow/scripts/run_holon_flow.py <intent_path> \
   --agent <agent> \
   --model <model>
 ```
+
+#### Claude credentials are built in
+
+For `--agent claude-agent`, `scripts/run_holon_flow.py` builds the container credentials itself (`scripts/flow_env.py`):
+it reads the long-lived OAuth token from `CLAUDE_CODE_OAUTH_TOKEN` or `~/.holon/secrets/claude-oauth-token`, wraps it in
+`HOLON_AGENT_SETTINGS` with the echo padding, and sets `HOLON_TOKEN_REDUCE=0` and `PYTHONUNBUFFERED=1` for the flow
+process. The token is never printed. Nothing needs exporting by hand, and an already-set `HOLON_AGENT_SETTINGS` is left
+alone. When no credentials can be found the runner stops before dispatch with a message naming what is missing, instead
+of letting every Stage 4 reviewer exit with code 1 and no reason.
 
 #### Monitoring Stage Progress
 
@@ -232,13 +245,14 @@ Once the flow finishes:
 
 ### Push notifications (ntfy.sh)
 
-`scripts/run_holon_flow.py` sends a push notification when a flow ends (`white_check_mark` when it ends cleanly, a high
-priority `warning` when it stops), through `scripts/notify_ntfy.py`. The topic is read from `HOLON_NTFY_TOPIC` or
-`~/.holon/secrets/ntfy-topic` (mode 600, never committed or printed in reports; anyone who knows it can read the
-messages). With no topic configured it silently does nothing. Messages stay on the ntfy server for a while, so they
-carry only the intent slug, a verdict and an exit code. Send a manual one with
+`scripts/run_holon_flow.py` sends **one** push notification, and only when calibration is done: the flow exited cleanly
+and its checkpoint records Stage 5 as completed (`white_check_mark`, through `scripts/notify_ntfy.py`). A flow that
+stops, fails or waits on a usage limit sends nothing, and neither does the limit watcher. The topic is read from
+`HOLON_NTFY_TOPIC` or `~/.holon/secrets/ntfy-topic` (mode 600, never committed or printed in reports; anyone who knows
+it can read the messages). With no topic configured it silently does nothing. Messages stay on the ntfy server for a
+while, so they carry only the intent slug. Send a manual one with
 `python3 .agents/skills/holon_flow/scripts/notify_ntfy.py "Title" "Message" --priority high`; use it after any hand-run
-`holon review-loop` or `holon calibrate` that the maintainer is waiting on.
+`holon calibrate` that the maintainer is waiting on, and only once calibration has finished.
 
 ### Step 5: Terminal Completion & Notification
 

@@ -3,7 +3,7 @@
 title:
   "Stage 3 records a measured `test_pass_rate` (and the review loop can measure tests itself) so the flow does not
   depend on CI alone"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -70,3 +70,20 @@ for the question "do the tests pass?".
 
 - Target repository changes in `holon-agentic-coder` must be delivered through the 5-stage Holon flow.
 - The intent JSON must not mention bean IDs or harness paths, because it is copied into `intents.jsonl`.
+
+## Resolution (completed, 2026-11-13)
+
+Delivered by flow `measure` as holon-agentic-coder PR #187, merged 2026-11-13T10:54:02Z (merge commit `7a8f086`, review
+`PRR_kwDORMmd1c8AAAABXwsrdQ`, all checks green). Calibration report
+`plans/P-1794546221-53ff4e71-claude-agent-claude-sonnet-5-5_calibration.md` is in the PR. EV predicted vs actual: delta
+-61.87 (actual -28.71); the test-pass term is still 0 because the flow ran on the install that predates this change, so
+the first measured `test_pass_rate` appears on the next flow.
+
+**Hand edit outside the Holon flow (explicit maintainer instruction, 2026-11-13).** Commit `deb5026` patches the head
+lookup in the CI wait tests' `_loop` helper. The new review-local measurement reads the head with a real
+`git rev-parse`; the `TestUnmeasuredTestsStopEarly` tests patch `time.sleep` process-wide and assert it is never called,
+so `subprocess` polling its git child failed them in the review-loop container and the resolver halted three times. A
+first, global stub in the shared test fixtures broke a test that needs the real head and was reverted before pushing.
+The commit also carries the resolver's iteration 3 edits (the `min()` re-wrap and the lockfile revert). The PR needed a
+conflict merge with `origin/main` after PRs #185 and #186 landed, done by the `resolve-conflict` skill. Related beans:
+0293 (scope the sleep patches), 0294 (stale lockfile), 0295 (rejected-diff patch not saved).

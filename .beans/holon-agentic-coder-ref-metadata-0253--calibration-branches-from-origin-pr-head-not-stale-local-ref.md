@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0253
 title: "Stage 5 calibration branches from the origin PR head, not a stale local execution ref"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -52,3 +52,25 @@ check out `main` again (seen on both the PR #141 and PR #143 runs).
 
 - Target repository changes in `holon-agentic-coder` must be delivered through the 5-stage Holon flow.
 - Touches Stage 5 calibration and flow wrap-up in `flow.py`, so run it sequentially with other `flow.py` beans.
+
+## Resolution (completed, 2026-11-13)
+
+Delivered by flow `calsync` as holon-agentic-coder PR #184, merged 2026-11-13T04:57:56Z (merge commit `5c958fc`, review
+`PRR_kwDORMmd1c8AAAABXtEKBQ`, approved 3/3 at iteration 11). Calibration report
+`plans/P-1794529181-eabd8e76-claude-agent-claude-sonnet-5-5_calibration.md` is in the PR. EV predicted vs actual: delta
+-60.00 (actual -20.41); the calibration's test-pass term was 0 (see Bean 0267).
+
+**Hand edits outside the Holon flow (explicit maintainer instruction, 2026-11-13).** Two commits on the execution branch
+were authored by hand because the flow's resolver halted on failures it could not fix itself:
+
+- `c027793` record the starting branch through the stage's git runner. `record_starting_branch` ran a real git process
+  inside `run_review_stage`, which `test_ci`'s guard-refusal test did not patch; `subprocess` polls with `time.sleep`,
+  which that test patches process-wide, so the test failed whenever git was slower than the first poll (every time in
+  the review-loop container, never on the host). The resolver's pre-push test run halted on it three times.
+- `1dc716c` patch `check_final_head_ci` in `test_stage5_calibration_success_still_pushes`. The test sat in the real
+  final-head CI check's 180 second registration wait, which pushed macOS unit and Workspace survival past the
+  five-minute CI timing gate.
+
+Also: the PR needed a conflict merge with `origin/main` after PR #183 landed (resolved by the `resolve-conflict` skill
+on the lowest tier), and its approval was posted at one head while the calibration commit's head failed the macOS timing
+gate (passed on rerun); Bean 0292 tracks that gap.

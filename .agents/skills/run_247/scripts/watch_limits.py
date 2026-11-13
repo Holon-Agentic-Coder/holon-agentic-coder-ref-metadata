@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Watch the flow logs for usage-limit messages and, with --relaunch, resume the stopped flow after the reset.
 
-This runs outside any Claude session, so it keeps working when the session's own tokens are gone. Every
-poll it scans the new bytes of ``.subagent/flow_*.log``. A limit message that names a reset time (see
-``limit_reset.py``) is announced once through ntfy with its ``resume_at``; a message that names none is announced as
-credit exhaustion and left alone. With ``--relaunch`` a flow whose process is not running is relaunched from its
-checkpoint once ``resume_at`` has passed, on the same agent and model (claude-agent only, with the OAuth token read
-from the secrets file, never printed). Review loops are conversation-driven, so they are announced but not resumed.
+This runs outside any Claude session, so it keeps working when the session's own tokens are gone. Every poll it scans
+the new bytes of ``.subagent/flow_*.log``. A limit message that names a reset time (see ``limit_reset.py``) is logged
+once with its ``resume_at``; a message that names none is logged as credit exhaustion and left alone. Nothing is sent
+through ntfy: the only ntfy message is the flow runner's "calibration done". With ``--relaunch`` a flow whose process
+is not running is relaunched from its checkpoint once ``resume_at`` has passed, on the same agent and model
+(claude-agent only, with the OAuth token read from the secrets file, never printed). Review loops are
+conversation-driven, so they are logged but not resumed.
 
 Usage:
     watch_limits.py [--interval 60] [--relaunch] [--once] [--dry-run]
@@ -33,7 +34,6 @@ sys.path.insert(0, str(SCRIPTS))
 sys.path.insert(0, str(HARNESS / ".agents" / "skills" / "holon_flow" / "scripts"))
 
 from limit_reset import describe  # noqa: E402
-from notify_ntfy import notify  # noqa: E402
 
 LOG_GLOB = "flow_*.log"
 STATE_FILE = Path.home() / ".holon" / "limit-watch" / "state.json"
@@ -134,8 +134,6 @@ def poll(state: dict, relaunch_on: bool, dry_run: bool, now: datetime | None = N
                 else f"{slug}: credit exhausted (no reset named)"
             )
             print(text, flush=True)
-            if not dry_run:
-                notify("Usage limit", text, priority="high", tags="warning")
     if not relaunch_on:
         return
     stamp = now or datetime.now().astimezone()
@@ -181,7 +179,7 @@ def main() -> int:
     parser.add_argument("--interval", type=int, default=60)
     parser.add_argument("--relaunch", action="store_true", help="resume stopped claude-agent flows after the reset")
     parser.add_argument("--once", action="store_true")
-    parser.add_argument("--dry-run", action="store_true", help="print instead of notifying or relaunching")
+    parser.add_argument("--dry-run", action="store_true", help="print instead of relaunching")
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args()
     if args.self_test:

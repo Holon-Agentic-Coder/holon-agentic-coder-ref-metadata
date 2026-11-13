@@ -30,3 +30,7 @@ exclude = [
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# Data-heavy generator: its narrative strings are long prose, not code, and Prettier owns the generated Markdown.
+".agents/skills/prioritise_beans/scripts/prioritise_beans.py" = ["E501"]

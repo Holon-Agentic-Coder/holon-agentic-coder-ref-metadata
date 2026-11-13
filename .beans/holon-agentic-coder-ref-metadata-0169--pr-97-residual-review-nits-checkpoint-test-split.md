@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0169
 title: "PR #97 residual review Nits: split the pasted checkpoint test and complete the git_flow section list"
-status: todo
+status: scrapped
 type: task
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - docs
   - holon-agentic-coder
 created_at: 2026-10-27T12:10:02Z
-updated_at: 2026-10-30T00:59:03Z
+updated_at: 2026-11-12T12:00:00Z
 ---
 
 ## Problem
@@ -49,3 +49,9 @@ new `main`.
   assertion in `test_flow.py`, plus a `git_flow.md` 1.5 line that PR #103 has since rewritten). Saved as
   `.subagent/holon-agentic-coder_pr97_archive/holon-agentic-coder_pr97_concurrent_iter_33_b65ac56.patch` before the
   worktree was removed.
+
+## Resolution (scrapped, 2026-11-12)
+
+Obsolete on `origin/main`: `test_flow.py` was split into `tests/flow/`, where `test_atomic_checkpoint_save_and_load` is
+intact and the sub-intent checkpoint test is its own function (N-33-1); `docs/git_flow.md` §1.5 is now "ID Generation"
+and the target-model section list no longer exists (N-33-2). A flow would produce an empty diff.

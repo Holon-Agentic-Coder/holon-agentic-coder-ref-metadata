@@ -393,10 +393,9 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     (
         "**Start here (2026-11-12):** Beans 0285 and 0289 landed, so a failed resolver gate names its tests and the credential tests no longer fail in the credentialed container. Beans 0280, 0285, 0286, 0288 and 0289 have merged; Bean 0287 has merged too, so the chain is complete. The Stage 1 and Stage 4 container blockers are fixed (Beans 0276, 0282, 0284), so "
         "flows should run end to end again; the next flow is the first real proof, so watch its Stage 4. Keep "
-        "`HOLON_TOKEN_REDUCE=0` until Bean 0283. **Bean 0278** (PR #169) is finishing its host-driven review loop. "
-        "Next concurrent set: **Bean 0271** (`entrypoint/review_loop.py`, resolver lint), **Bean 0222** (pi-agent "
-        "mount) and **Bean 0280** (`flow/stages/calibrate.py`) are pairwise disjoint; **Beans 0279** then **0277** "
-        "share `entrypoint/executor.py`, so they run one after the other."
+        "`HOLON_TOKEN_REDUCE=0` until Bean 0283. "
+        "Bean 0271 merged (PR #179, `3e33313`) and Bean 0169 was scrapped as obsolete. Bean 0278 merged (PR #169, `94b2e19`). Next concurrent set beside it: **Bean 0222** (pi-agent "
+        "mount) and **Bean 0280** (`flow/stages/calibrate.py`) are pairwise disjoint; Bean 0277 merged (PR #183, `9852861`); Beans 0279 (PR #180, `583a230`) and 0291 (PR #181, `e71beb1`) merged; the review loop is free again."
     ),
     "",
     (
@@ -531,28 +530,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "from the flow bugs."
         ),
     },
-    "0278": {
-        "title": "Concurrent flows collide on plan file names and review execution ids",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "S",
-        "domain": "Ledger / Concurrency",
-        "notes": (
-            "Add the plan's 8-character hex to the plan file and review id. Touches the planner, review-id "
-            "creation and ledger validation; disjoint from 0277, 0279 and 0280."
-        ),
-    },
-    "0279": {
-        "title": "Executor loses its push when syncing with `origin/main` hits a non-ledger conflict",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "M",
-        "domain": "Executor / Resume",
-        "notes": (
-            "Still push the executor's own commits and record a resumable state with the execution branch in the "
-            "checkpoint. Touches `entrypoint/executor.py` and the checkpoint; sequence with 0277."
-        ),
-    },
     "0280": {
         "title": "The flow does not re-check CI after the calibration push; the macOS timing gate is flaky near 300 s",
         "priority": "**P2**",
@@ -562,17 +539,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "notes": (
             "Wait for CI on the final head after Stage 5 and name failed checks. The 300 s gate headroom is a "
             "maintainer decision. Touches `flow/stages/calibrate.py`."
-        ),
-    },
-    "0277": {
-        "title": "Flow executor commits carry a `Co-Authored-By` attribution trailer",
-        "priority": "**P2**",
-        "impact": "Medium",
-        "sizing": "S",
-        "domain": "Executor / Attribution",
-        "notes": (
-            "Start the container's Claude Code with attribution disabled via the settings route, and report "
-            "trailers found in the execution branch. Touches `entrypoint/executor.py`; sequence with 0279."
         ),
     },
     "0160": {
@@ -595,35 +561,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "notes": (
             "Unblocked by 0159 (#97 merged), 0201 (#142 merged), and 0149 (#146 merged). Sequence after 0254 "
             "(`flow/` package split). Must handle `{parent}--{n}-{slug}` child branches."
-        ),
-    },
-    "0267": {
-        "title": (
-            "Stage 3 records a measured `test_pass_rate` (and the review loop can measure tests itself) so the flow "
-            "does not depend on CI alone"
-        ),
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "M",
-        "domain": "Holon Flow / Testing",
-        "notes": (
-            "The executor never runs or records tests: `test_pass_rate` is `null` in 51 of 54 ledger rows, so every "
-            "flow relies on CI alone. Stage 3 should run `uv run task test` and record the rate, and the review "
-            "loop's `local_tests` fallback should measure when no CI registers. Bean 0262 has merged, so this is "
-            "unblocked."
-        ),
-    },
-    "0271": {
-        "title": "Resolver pre-push verification includes the Markdown formatting check that CI runs",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "S",
-        "domain": "Review Loop / Resolver",
-        "notes": (
-            "The resolver's `uv run task lint` skips the Prettier Markdown check that CI's hygiene job runs, so a "
-            "resolver that edits Markdown pushes fixes that fail CI. Seen on PRs #148, #153 and #159, where "
-            "`apps/sandbox-executor/README.md` stayed red through ten iterations. Run the same check on changed "
-            "Markdown, auto-format, and share one lint definition with CI."
         ),
     },
     "0265": {
@@ -732,28 +669,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "iteration. Sequence after 0254 and 0256; pairs with 0234."
         ),
     },
-    "0252": {
-        "title": "Resolver preserves its rejected diff and full test output on pre-push verification failure",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "S",
-        "domain": "Review Loop / Resolver",
-        "notes": (
-            "Touches `entrypoint/review_loop.py` (disjoint from `flow.py`; pair with or right after 0256). Saves "
-            "`.holon/review/iter-N/rejected.patch` and full pytest failure output when `_verify_before_push` fails."
-        ),
-    },
-    "0253": {
-        "title": "Stage 5 calibration branches from `origin` PR head, not stale local execution ref",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "S",
-        "domain": "Stage 5 / Calibration",
-        "notes": (
-            "Fetches and resets local `<execution_branch>` to `origin/<execution_branch>` after Stage 4 resolver "
-            "pushes so `/calibrated` is always a fast-forward descendant of the PR head. Sequence after 0254."
-        ),
-    },
     "0246": {
         "title": "Eliminate duplicate review comments in harness `pr-review-loop` skill",
         "priority": "**P2**",
@@ -823,17 +738,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "notes": (
             "Fix complete on `fix/0227-proxy-readiness-http-probe` (`36c9765`), suite green; hand-authored under "
             "the explicit-instruction exception. Awaiting maintainer call on PR creation."
-        ),
-    },
-    "0222": {
-        "title": "pi-agent sandbox cannot create `~/.pi/agent/sessions`, so pi-runner flows die at pre-flight",
-        "priority": "**P1**",
-        "impact": "Medium",
-        "sizing": "S",
-        "domain": "Agent Runner / Sandbox",
-        "notes": (
-            "Mounting only `~/.pi/agent/models.json` makes Docker pre-create `/home/holon/.pi/agent` as root (EACCES "
-            "for uid 1000). Add a writable tmpfs overlay for pi sessions/state in `get_agent_session_mounts`."
         ),
     },
     "0187": {
@@ -1113,13 +1017,21 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "After 0161 (overlaps `flow.py`; 0179 is merged)."
         ),
     },
-    "0169": {
-        "title": "PR #97 residual Nits: split the pasted checkpoint test; complete git_flow §1.5 list",
+    "0294": {
+        "title": "The committed uv.lock matches the project and container Python, so flows stop producing lockfile churn",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "S",
+        "domain": "Build / Lockfile",
+        "notes": "main's lock says >=3.14, the container is 3.13; every container uv run rewrites it. Run alone: touches uv.lock and stage uv calls.",
+    },
+    "0295": {
+        "title": "A rejected resolver diff is saved as a patch the host can read (patch_path is null today)",
         "priority": "**P2**",
         "impact": "Medium",
         "sizing": "S",
-        "domain": "Tests / Docs",
-        "notes": "Small; touches `test_flow.py` and `git_flow.md`. Not beside 0187 (both edit `test_flow.py`).",
+        "domain": "Review Loop / Resolver",
+        "notes": "Follow-up to the rejected-diff feature; touches entrypoint/review_loop.py and review_failure_detail.py.",
     },
     "0153": {
         "title": "Remove comments and docstrings from all code; make it self-documenting",

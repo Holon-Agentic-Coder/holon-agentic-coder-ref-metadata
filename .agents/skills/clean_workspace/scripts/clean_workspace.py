@@ -27,7 +27,7 @@ def format_rel(path: Path, root: Path | None) -> str:
         try:
             return str(path.relative_to(root))
         except ValueError:
-            pass
+            return str(path)  # outside the root: show it as given
     return str(path)
 
 

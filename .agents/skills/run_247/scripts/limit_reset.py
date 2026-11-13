@@ -13,9 +13,9 @@ Usage:
     limit_reset.py --self-test
 
 Prints JSON: reset, resume (reset + 1 min), seconds until then, and the window kind. Kind is the message's own label
-("weekly limit"), else the label of --runner's single entry in resets.json (loaded at startup) when that entry's reset matches
-this one, else "unknown". Each labelled message replaces the runner's entry. Exits 1 with {"resume_at": null} when no reset is named
-(credit exhaustion).
+("weekly limit"), else the label of --runner's single entry in resets.json (loaded at startup) when that entry's reset
+matches this one, else "unknown". Each labelled message replaces the runner's entry. Exits 1 with
+{"resume_at": null} when no reset is named (credit exhaustion).
 """
 
 from __future__ import annotations
@@ -24,8 +24,8 @@ import argparse
 import json
 import re
 import sys
-from pathlib import Path
 from datetime import datetime, timedelta, tzinfo
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 RESUME_DELAY = timedelta(minutes=1)
@@ -35,8 +35,20 @@ _NOT_LABELS = {"usage", "rate", "the", "your", "a", "this", "any", "no", "token"
 MONTHS = {
     name: number
     for number, names in enumerate(
-        ["jan january", "feb february", "mar march", "apr april", "may", "jun june", "jul july", "aug august",
-         "sep sept september", "oct october", "nov november", "dec december"],
+        [
+            "jan january",
+            "feb february",
+            "mar march",
+            "apr april",
+            "may",
+            "jun june",
+            "jul july",
+            "aug august",
+            "sep sept september",
+            "oct october",
+            "nov november",
+            "dec december",
+        ],
         start=1,
     )
     for name in names.split()
@@ -44,13 +56,19 @@ MONTHS = {
 WEEKDAYS = {
     name: number
     for number, names in enumerate(
-        ["mon monday", "tue tues tuesday", "wed wednesday", "thu thur thurs thursday", "fri friday", "sat saturday",
-         "sun sunday"]
+        [
+            "mon monday",
+            "tue tues tuesday",
+            "wed wednesday",
+            "thu thur thurs thursday",
+            "fri friday",
+            "sat saturday",
+            "sun sunday",
+        ]
     )
     for name in names.split()
 }
 _TIME = r"(?P<hour>\d{1,2})(?::(?P<minute>\d{2}))?\s*(?P<ampm>am|pm)"
-_ZONE = r"(?:\s*\((?P<tz>[^)]+)\))?"
 
 
 def _zone(name: str | None) -> tzinfo | None:
@@ -72,14 +90,18 @@ def parse_reset(message: str, now: datetime | None = None) -> datetime | None:
         return None
     rest = found.group("rest").strip()
 
-    relative = re.match(r"in\s+(?:(?P<h>\d+)\s*h(?:ours?|rs?)?)?\s*(?:and\s*)?(?:(?P<m>\d+)\s*m(?:in(?:ute)?s?)?)?", rest, re.I)
+    relative = re.match(
+        r"in\s+(?:(?P<h>\d+)\s*h(?:ours?|rs?)?)?\s*(?:and\s*)?(?:(?P<m>\d+)\s*m(?:in(?:ute)?s?)?)?", rest, re.I
+    )
     if relative and (relative.group("h") or relative.group("m")):
         base = now or datetime.now().astimezone()
         return base + timedelta(hours=int(relative.group("h") or 0), minutes=int(relative.group("m") or 0))
 
     zone_match = re.search(r"\((?P<tz>[^)]+)\)", rest)
     zone = _zone(zone_match.group("tz")) if zone_match else None
-    current = now.astimezone(zone) if now and zone else (now or datetime.now(zone) if zone else datetime.now().astimezone())
+    current = (
+        now.astimezone(zone) if now and zone else (now or datetime.now(zone) if zone else datetime.now().astimezone())
+    )
     if now and not zone:
         current = now
     time_match = re.search(_TIME, rest, re.I)
@@ -139,7 +161,7 @@ def classify(label: str | None, reset: datetime, entry: dict[str, str] | None) -
         if entry and abs(datetime.fromisoformat(entry["reset_at"]) - reset) <= MATCH_TOLERANCE:
             return entry["label"], "registry"
     except (KeyError, ValueError, TypeError):
-        pass
+        return "unknown", "none"  # a malformed registry entry names no label
     return "unknown", "none"
 
 
@@ -156,7 +178,10 @@ def describe(
 ) -> dict[str, object]:
     reset = parse_reset(message, now)
     if reset is None:
-        return {"resume_at": None, "reason": "the message names no reset time (credit exhaustion): step down a model tier"}
+        return {
+            "resume_at": None,
+            "reason": "the message names no reset time (credit exhaustion): step down a model tier",
+        }
     clock = now.astimezone(reset.tzinfo) if now and reset.tzinfo else (now or datetime.now(reset.tzinfo))
     resume = reset + RESUME_DELAY
     seconds = max(0.0, (resume - clock).total_seconds())
@@ -203,7 +228,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("message", nargs="?", help="the usage-limit message text")
     parser.add_argument("--runner", help="runner name (claude, codex, antigravity, ...) whose last-seen resets to use")
-    parser.add_argument("--registry", type=Path, default=REGISTRY_PATH, help="last-seen-resets file (default: resets.json)")
+    parser.add_argument(
+        "--registry", type=Path, default=REGISTRY_PATH, help="last-seen-resets file (default: resets.json)"
+    )
     parser.add_argument("--no-record", action="store_true", help="do not update the registry from this message")
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args()
@@ -215,7 +242,10 @@ def main() -> int:
     registry = load_registry(args.registry)
     out = describe(args.message, runner=args.runner, registry=registry)
     if args.runner and out.get("label") and out["resume_at"] and not args.no_record:
-        save_registry(observe(registry, args.runner, str(out["label"]), datetime.fromisoformat(str(out["reset_at"]))), args.registry)
+        save_registry(
+            observe(registry, args.runner, str(out["label"]), datetime.fromisoformat(str(out["reset_at"]))),
+            args.registry,
+        )
     print(json.dumps(out))
     return 0 if out["resume_at"] else 1
 

@@ -20,6 +20,8 @@ entirety before performing any operations or modifying any code.
 - [.agents/submodules.md](.agents/submodules.md) - Git submodules management and embedded repository workflows.
 - [.agents/coordination.md](.agents/coordination.md) - Delegation, subagent communication, and peer coordination
   protocols.
+- [.agents/model-tiers.md](.agents/model-tiers.md) - Model tiers (lowest, middle, top), probed from the harness at use
+  time; skills name a tier, never a model.
 - [.agents/skills/](.agents/skills/) - Project-specific agent skills and capability guidelines.
 - [todo/](todo/) - Temporary scratchpad directory for local agent files, documents, and notes (git ignored).
 

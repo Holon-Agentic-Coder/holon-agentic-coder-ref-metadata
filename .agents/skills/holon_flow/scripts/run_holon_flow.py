@@ -10,12 +10,15 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import shutil
 import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from flow_env import AuthRouteMissing, build_flow_env  # noqa: E402
 
 # Terminal formatting
 COLOR_BOLD = "\033[1m"
@@ -164,7 +167,7 @@ def parse_intent_file(intent_path: Path) -> dict[str, str]:
         sys.exit(1)
 
     try:
-        with open(intent_path, "r", encoding="utf-8") as f:
+        with open(intent_path, encoding="utf-8") as f:
             data = json.load(f)
     except Exception as exc:
         log_error(f"Failed to parse intent JSON '{intent_path}': {exc}")
@@ -205,9 +208,7 @@ def verify_pr_and_calibration(
         log_warn(f"Could not query GitHub PRs: {exc}")
         return
 
-    matching_prs = [
-        pr for pr in prs if slug in pr["headRefName"] or slug in pr["title"].lower()
-    ]
+    matching_prs = [pr for pr in prs if slug in pr["headRefName"] or slug in pr["title"].lower()]
     if not matching_prs:
         log_warn(f"No open PR found matching slug '{slug}'.")
         return
@@ -261,6 +262,7 @@ def verify_pr_and_calibration(
 def execute_flow_process(
     cmd: list[str],
     dry_run: bool = False,
+    env: dict[str, str] | None = None,
 ) -> tuple[int, str]:
     """Execute command streaming output to stdout and capturing combined log."""
     if dry_run:
@@ -274,6 +276,7 @@ def execute_flow_process(
         stderr=subprocess.STDOUT,
         text=True,
         bufsize=1,
+        env=env,
     )
 
     output_lines: list[str] = []
@@ -307,8 +310,18 @@ def resolve_flow_worktree(target_worktree: Path, slug: str, dry_run: bool = Fals
         return flow_worktree
     for cmd in (
         ["git", "-C", str(target_worktree), "fetch", "origin", "main"],
-        ["git", "-C", str(target_worktree), "worktree", "add", "--no-track", "-b", f"flow-{clean_slug}",
-         str(flow_worktree), "origin/main"],
+        [
+            "git",
+            "-C",
+            str(target_worktree),
+            "worktree",
+            "add",
+            "--no-track",
+            "-b",
+            f"flow-{clean_slug}",
+            str(flow_worktree),
+            "origin/main",
+        ],
     ):
         result = subprocess.run(cmd, capture_output=True, text=True, check=False)
         if result.returncode != 0:
@@ -324,7 +337,6 @@ def parse_limit_reset(output: str):
     used (today if still ahead, otherwise tomorrow), so daily windows resolve exactly and a weekly reset that names a
     time resolves to its next daily occurrence, which is always sooner than doing nothing.
     """
-    import re
     from datetime import datetime, timedelta
     from zoneinfo import ZoneInfo
 
@@ -345,22 +357,12 @@ def parse_limit_reset(output: str):
 
 
 def wait_for_limit_reset(reset, slug: str) -> None:
-    """Sleep until one minute after ``reset``, telling the maintainer (ntfy) that the flow will resume itself."""
+    """Sleep until one minute after ``reset``, then return so the flow resumes itself."""
     import time
     from datetime import datetime, timedelta
 
     resume_at = reset + timedelta(minutes=1)
     log_warn(f"Usage limit hit; the flow will resume itself at {resume_at.strftime('%H:%M %Z') or resume_at}.")
-    try:
-        from notify_ntfy import notify
-
-        notify(
-            f"Holon flow waiting on the usage limit: {slug}",
-            f"Will resume automatically at {resume_at.strftime('%H:%M %Z')}.",
-            tags="hourglass",
-        )
-    except Exception:  # noqa: BLE001 - a notification must never break a flow
-        pass
     while True:
         remaining = (resume_at - datetime.now(resume_at.tzinfo)).total_seconds()
         if remaining <= 0:
@@ -400,11 +402,15 @@ def run_flow(
         if current_checkpoint:
             cmd.extend(["--checkpoint", str(current_checkpoint)])
 
-        log_stage(
-            f"Launching Holon Flow: {slug} (Agent: {current_agent}, Model: {current_model})"
-        )
+        log_stage(f"Launching Holon Flow: {slug} (Agent: {current_agent}, Model: {current_model})")
 
-        returncode, output = execute_flow_process(cmd, dry_run=dry_run)
+        try:
+            flow_env = None if dry_run else build_flow_env(current_agent)
+        except AuthRouteMissing as exc:
+            log_error(str(exc))
+            return 1
+
+        returncode, output = execute_flow_process(cmd, dry_run=dry_run, env=flow_env)
 
         if returncode == 0:
             log_success(f"Holon flow for '{slug}' completed successfully!")
@@ -431,8 +437,7 @@ def run_flow(
             if fallback:
                 next_agent, next_model = fallback
                 log_info(
-                    f"Applying AGENTS.md fallback ladder: "
-                    f"stepping down to Agent='{next_agent}', Model='{next_model}'."
+                    f"Applying AGENTS.md fallback ladder: stepping down to Agent='{next_agent}', Model='{next_model}'."
                 )
 
                 # Locate checkpoint file to resume from
@@ -464,24 +469,37 @@ def run_flow(
         return returncode
 
 
-def _notify_outcome(intent_path: Path, exit_code: int) -> None:
-    """Tell the maintainer (ntfy.sh, if configured) that the flow ended; never fails the flow."""
+def _calibration_done(target_worktree: Path, slug: str) -> bool:
+    """True when the flow's checkpoint records Stage 5 (calibration) as completed."""
+    try:
+        checkpoint = json.loads((target_worktree / f".holon/flow/checkpoint-{slug}.json").read_text())
+        return "calibrate" in checkpoint.get("completed_stages", [])
+    except (OSError, ValueError):
+        return False
+
+
+def _notify_outcome(intent_path: Path, exit_code: int, target_worktree: Path) -> None:
+    """Tell the maintainer (ntfy.sh, if configured) that calibration is done; send nothing otherwise.
+
+    A flow that stops, fails or waits on a limit stays silent: the only notification is the one that says the pull
+    request is calibrated and ready for the maintainer's merge. Never fails the flow.
+    """
     try:
         from notify_ntfy import notify
 
         slug = parse_intent_file(intent_path)["slug"]
-        if exit_code == 0:
-            notify(f"Holon flow ended: {slug}", "The flow ended without an error. This is NOT an approval: read the PR's final review verdicts and CI before merging.", tags="information_source")
-        else:
-            notify(f"Holon flow STOPPED: {slug}", f"Exit code {exit_code}. It needs a look or a decision.", priority="high", tags="warning")
+        if exit_code == 0 and _calibration_done(target_worktree, slug):
+            notify(
+                f"Holon flow calibrated: {slug}",
+                "Calibration is done and in the PR. Review and merge it when you are ready.",
+                tags="white_check_mark",
+            )
     except Exception:  # noqa: BLE001 - a notification must never break a flow
         pass
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Run and monitor the 5-stage Holon flow from a subagent or terminal."
-    )
+    parser = argparse.ArgumentParser(description="Run and monitor the 5-stage Holon flow from a subagent or terminal.")
     parser.add_argument(
         "intent",
         type=Path,
@@ -544,7 +562,8 @@ def main() -> None:
         dry_run=args.dry_run,
     )
     if not args.dry_run:
-        _notify_outcome(args.intent, exit_code)
+        flow_worktree = resolve_flow_worktree(args.target_worktree, parse_intent_file(args.intent)["slug"])
+        _notify_outcome(args.intent, exit_code, flow_worktree)
     sys.exit(exit_code)
 
 

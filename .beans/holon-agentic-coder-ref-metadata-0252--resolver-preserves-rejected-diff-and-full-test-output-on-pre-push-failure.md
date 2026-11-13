@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0252
 title: "Stage 4 resolver preserves its rejected diff and full test output when pre-push tests fail"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -56,3 +56,11 @@ make the same change.
 - Target repository changes in `holon-agentic-coder` must be delivered through the 5-stage Holon flow.
 - Related: Bean 0250 (surface agent returncode and stderr in `review_ensemble.py`) made the reviewer-crash case
   diagnosable; this covers the resolver's test-failure case.
+
+## Resolution (completed, 2026-11-13)
+
+Delivered by flow `keepdiff` as holon-agentic-coder PR #185, merged 2026-11-13T06:30:31Z (merge commit `5137d9a`, review
+`PRR_kwDORMmd1c8AAAABXt3riA`). Calibration report
+`plans/P-1794546217-ec4d1e6a-claude-agent-claude-sonnet-5-5_calibration.md` is in the PR. EV predicted vs actual: delta
++17.38 (actual 60.08). A resolver halt on a failing pre-push test now keeps the rejected diff as a patch and the
+failing-test summary; the next halt is the first real proof.

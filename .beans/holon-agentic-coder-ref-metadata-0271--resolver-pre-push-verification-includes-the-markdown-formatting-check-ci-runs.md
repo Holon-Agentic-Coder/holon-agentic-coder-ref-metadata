@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0271
 title: "Resolver pre-push verification includes the Markdown formatting check that CI runs"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - ci
   - holon-agentic-coder
 created_at: 2026-11-10T05:00:00Z
-updated_at: 2026-11-10T05:00:00Z
+updated_at: 2026-11-12T21:10:00Z
 ---
 
 ## Problem
@@ -52,3 +52,16 @@ Each occurrence costs at least one extra review iteration, and on PR #159 it has
   must not mention bean IDs or harness paths.
 - Touches `entrypoint/review_loop.py` and the lint task wiring, so run it when no other flow is editing the review loop.
 - Related: Bean 0258 (the resolver's pre-push verification and its failure handling).
+
+- 2026-11-12: running as flow `mdgate` (claude-agent, claude-sonnet-5-5), currently at the plan stage in
+  `apps/holon-agentic-coder/flow-mdgate`. The earlier `mdcheck` run failed at intent ("could not write config file ...
+  Device or resource busy" on the read-only `.git/config` bind mount) and was superseded; its worktree `flow-mdcheck` is
+  stale. PR #169 (ids flow) is red on `hygiene`, the failure this bean prevents.
+
+## Resolution (completed, 2026-11-12)
+
+Delivered by flow `mdgate` as holon-agentic-coder PR #179, merged 2026-11-12T21:02:58Z (merge commit `3e33313`, review
+`PRR_kwDORMmd1c8AAAABXhQaGg`). Calibration report
+`plans/P-1794480915-c8cd81b2-claude-agent-claude-sonnet-5-5_calibration.md` is in the PR. EV predicted vs actual: delta
++17.07 (actual 45.17); entropy predicted 8.00 vs observed 1.09; 8 files modified. Verify on the next resolver run that a
+Markdown-editing fix now passes `Test - Hygiene` first time.

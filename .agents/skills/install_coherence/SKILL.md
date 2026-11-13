@@ -8,6 +8,10 @@ description:
 
 # Install Holon-Coherence Skill (`install-coherence`)
 
+> [!NOTE] **Model tier: lowest.** This skill is mechanical, so run it in a dedicated subagent on the lowest-tier model,
+> found by probing the harness as described in [`.agents/model-tiers.md`](../../model-tiers.md). Do not hard-code a
+> model name here.
+
 This skill provides an automated workflow for building the `holon-coherence` container image using Docker Buildx Bake
 and installing or updating the host-side `holon-coherence` CLI tool via `uv tool install`.
 
