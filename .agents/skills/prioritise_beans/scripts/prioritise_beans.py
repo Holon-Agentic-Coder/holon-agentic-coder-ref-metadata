@@ -334,7 +334,7 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0289)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0295)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
@@ -391,11 +391,13 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Start here (2026-11-12):** Beans 0285 and 0289 landed, so a failed resolver gate names its tests and the credential tests no longer fail in the credentialed container. Beans 0280, 0285, 0286, 0288 and 0289 have merged; Bean 0287 has merged too, so the chain is complete. The Stage 1 and Stage 4 container blockers are fixed (Beans 0276, 0282, 0284), so "
-        "flows should run end to end again; the next flow is the first real proof, so watch its Stage 4. Keep "
-        "`HOLON_TOKEN_REDUCE=0` until Bean 0283. "
-        "Bean 0271 merged (PR #179, `3e33313`) and Bean 0169 was scrapped as obsolete. Bean 0278 merged (PR #169, `94b2e19`). Next concurrent set beside it: **Bean 0222** (pi-agent "
-        "mount) and **Bean 0280** (`flow/stages/calibrate.py`) are pairwise disjoint; Bean 0277 merged (PR #183, `9852861`); Beans 0279 (PR #180, `583a230`) and 0291 (PR #181, `e71beb1`) merged; the review loop is free again."
+        "**Start here (2026-11-13):** Beans 0267, 0290, 0292, 0293, 0294 and 0295 are completed (PRs #187, #186, #188, "
+        "#190 and #189; Bean 0290 is harness-only), and Bean 0281 is completed by PR #191 (`ff25d77`, which carried the "
+        "calibration report and 192 ledger rows into `main`). No holon-agentic-coder PR is open. Bean 0296 is new "
+        "(todo, P1: Stage 5 rebuilds a stale calibrated branch itself instead of stopping after a conflict merge, found "
+        "on PR #190). The next beans to run concurrently are **Bean 0296** "
+        "(`calibrate_sync.py` and `calibrate.py`) and **Bean 0260** (`flow/review/loop.py`: never post intermediate "
+        "review iterations to GitHub), which touch disjoint files. Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283."
     ),
     "",
     (
@@ -427,7 +429,7 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "sandbox cannot reach a sibling worktree."
     ),
     (
-        "   - **Bean 0267** (`entrypoint/executor.py` + `flow/stages/` + `flow/review/loop.py` + docs; **ready now**"
+        "   - **Bean 0267** (`entrypoint/executor.py` + `flow/stages/` + `flow/review/loop.py` + docs; DONE: PR #187, merged `7a8f086` on 2026-11-13**"
         "): Stage 3 runs the test task and records a measured `test_pass_rate`, and the review loop "
         "measures tests itself when no CI registers, so the flow no longer depends on CI alone."
     ),
@@ -448,6 +450,10 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "`check_module_budgets.py`; agents may change it, and raised limits warn instead of failing."
     ),
     ("3. **Calibration & resolver lane (`flow/stages/calibrate.py` & `entrypoint/review_loop.py`):**"),
+    (
+        "   - **Bean 0296** (new, todo; `calibrate_sync.py` + `calibrate.py`): Stage 5 rebuilds a stale `calibrated` "
+        "branch itself instead of stopping after a conflict merge (found on PR #190); runs beside Bean 0260."
+    ),
     (
         "   - **Bean 0253** (`flow/stages/calibrate.py` + `flow/git_refs.py`): calibration branches from "
         "`origin/<E>/_` so `/calibrated` fast-forwards into the PR (recurred on PRs #147 and #148)."
@@ -518,18 +524,6 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
 # judgement rather than a truncated first paragraph. Insertion order is the
 # matrix row order (priority blocks, hand-curated within each block).
 OVERRIDES: dict[str, dict[str, str]] = {
-    "0281": {
-        "title": "Carry the calibration report that missed its PR into `main` in one pull request",
-        "priority": "**P1**",
-        "impact": "Medium",
-        "sizing": "S",
-        "domain": "Calibration / Ledger",
-        "notes": (
-            "Two cherry-picked calibration commits from one surviving `calibrated` branch; hand-assembled at the "
-            "maintainer's instruction. Keep the source branch tree until the PR merges. Ledger-only; disjoint "
-            "from the flow bugs."
-        ),
-    },
     "0280": {
         "title": "The flow does not re-check CI after the calibration push; the macOS timing gate is flaky near 300 s",
         "priority": "**P2**",
@@ -1017,21 +1011,13 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "After 0161 (overlaps `flow.py`; 0179 is merged)."
         ),
     },
-    "0294": {
-        "title": "The committed uv.lock matches the project and container Python, so flows stop producing lockfile churn",
+    "0296": {
+        "title": "Stage 5 rebuilds a stale calibrated branch itself instead of stopping after a conflict merge",
         "priority": "**P1**",
         "impact": "High",
         "sizing": "S",
-        "domain": "Build / Lockfile",
-        "notes": "main's lock says >=3.14, the container is 3.13; every container uv run rewrites it. Run alone: touches uv.lock and stage uv calls.",
-    },
-    "0295": {
-        "title": "A rejected resolver diff is saved as a patch the host can read (patch_path is null today)",
-        "priority": "**P2**",
-        "impact": "Medium",
-        "sizing": "S",
-        "domain": "Review Loop / Resolver",
-        "notes": "Follow-up to the rejected-diff feature; touches entrypoint/review_loop.py and review_failure_detail.py.",
+        "domain": "Stage 5 / Calibration",
+        "notes": "Found on PR #190: the flow ended with a failed Stage 5 after a conflict merge. Touches calibrate_sync.py and calibrate.py.",
     },
     "0153": {
         "title": "Remove comments and docstrings from all code; make it self-documenting",
@@ -2010,6 +1996,34 @@ def generate_triage_document(
                 "    - `0262` (#162, `dd00fb9`): host worktree mounted into the role containers with the git "
                 "directory's `worktrees/` area read-only; unanimous 3/3 with zero findings at iteration 16, CI "
                 "11/11 green."
+            ),
+            (
+                "31. **Stage 5 Calibration Freshness, Harness Test Isolation, Lockfile and Sleep Fixes, and Measured "
+                "Test Pass Rate (Beans 0267, 0290, 0292, 0293, 0294, 0295 / HAC PRs #186–#190, 2026-11-12 to "
+                "2026-11-13)**:"
+            ),
+            (
+                "    - `0290` (harness, no PR): the flow wrapper exports the Claude auth route from "
+                "`CLAUDE_CODE_OAUTH_TOKEN` or the secrets file, or stops before dispatch naming what is missing."
+            ),
+            (
+                "    - `0292` (#186, `9f2187e`): a red CI check, including a timing gate, blocks the approval and the "
+                "merge-ready report on the final head."
+            ),
+            (
+                "    - `0293` (#188, `54bfd55`): tests that patch `time.sleep` patch only the module under test, so "
+                "unrelated subprocesses cannot trip them."
+            ),
+            (
+                "    - `0294` (#190, `efff3ed`): the committed `uv.lock` matches the project and container Python, so "
+                "flows stop producing lockfile churn. Its calibration report predates the conflict merge, and Stage 5 "
+                "stopped on the stale calibrated branch; Bean 0296 tracks the fix."
+            ),
+            ("    - `0295` (#189, `bde4934`): a rejected resolver diff is saved as a patch the host can read."),
+            (
+                "    - `0267` (#187, `7a8f086`): Stage 3 records a measured `test_pass_rate`, and the review loop "
+                "measures tests itself when no CI registers. A hand edit outside the flow (`deb5026`, explicit "
+                "maintainer instruction) fixed the CI wait tests' head lookup."
             ),
             "",
             "---",

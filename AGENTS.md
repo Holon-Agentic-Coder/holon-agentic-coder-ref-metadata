@@ -13,380 +13,61 @@ entirety before performing any operations or modifying any code.
 
 ## 🎯 Quick Navigation
 
-- [README.md](README.md) - Repository architecture and general overview.
-- [.agents/instructions.md](.agents/instructions.md) - General operating principles and behavioural guidelines.
-- [.agents/rules.md](.agents/rules.md) - Coding standards, file handling, and sandbox constraints.
-- [.agents/workflows.md](.agents/workflows.md) - Task execution cycle, git guidelines, and PR procedures.
-- [.agents/submodules.md](.agents/submodules.md) - Git submodules management and embedded repository workflows.
-- [.agents/coordination.md](.agents/coordination.md) - Delegation, subagent communication, and peer coordination
-  protocols.
-- [.agents/model-tiers.md](.agents/model-tiers.md) - Model tiers (lowest, middle, top), probed from the harness at use
-  time; skills name a tier, never a model.
-- [.agents/skills/](.agents/skills/) - Project-specific agent skills and capability guidelines.
-- [todo/](todo/) - Temporary scratchpad directory for local agent files, documents, and notes (git ignored).
+- [README.md](README.md) - Architecture and overview.
+- [.agents/instructions.md](.agents/instructions.md) - Operating principles.
+- [.agents/rules.md](.agents/rules.md) - Coding standards, file handling, sandbox.
+- [.agents/workflows.md](.agents/workflows.md) - Task cycle, beans, git, PRs.
+- [.agents/submodules.md](.agents/submodules.md) - Submodules and embedded repositories.
+- [.agents/coordination.md](.agents/coordination.md) - Delegation and peer coordination.
+- [.agents/model-tiers.md](.agents/model-tiers.md) - Model tiers; skills name a tier, never a model.
+- [.agents/holon-flow.md](.agents/holon-flow.md) - The 5-stage Holon flow and `holon flow`.
+- [.agents/worktrees-and-git.md](.agents/worktrees-and-git.md) - Worktrees, naming, formatting, squash rules.
+- [.agents/pr-merging.md](.agents/pr-merging.md) - Human-only PR merging, post-merge protocol.
+- [.agents/engineering-rules.md](.agents/engineering-rules.md) - Benchmarks, tokens, isolation, tests, ledgers.
+- [.agents/subagents.md](.agents/subagents.md) - Subagent invocation, Antigravity runtime.
+- [.agents/skills/](.agents/skills/) - Project-specific agent skills.
+- [todo/](todo/) - Git-ignored scratchpad for local notes; never committed.
 
 ---
 
-## 🔒 Sole Change Path: The Holon Flow
+## ⚖️ Hard Rules (every task)
 
-> [!IMPORTANT] **Every change to a target codebase (`holon-agentic-coder` or `holon-coherence`) MUST be produced by the
-> 5-stage Holon flow.** No agent or developer may hand-author, hand-patch, or directly commit changes to
-> `holon-agentic-coder` or `holon-coherence` outside the flow lifecycle. Invoking `holon` inside either target
-> repository's worktree dynamically resolves `remote.origin.url` via `resolve_target_repo_url()`, driving the target
-> repository's `holon-knowledge/ledger/` provenance pipeline.
+These apply to every task. Each links to the file that holds the full rule.
 
-The lifecycle is a single pipeline, not a menu. A change is only "done through the flow" when it has traversed all of
-its stages:
-
-| #   | Stage          | Invocation (manual form)                                                                      | Artifact                                                                           |
-| --- | -------------- | --------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| 1   | Intent         | `holon intent <intent.json>`                                                                  | `I-{timestamp}-{slug}/_` + `holon-knowledge/ledger/intents.jsonl`                  |
-| 2   | Plan           | `holon plan <intent_branch>`                                                                  | `I-.../P-{ts}-{agent}-{model}/_` + `plans/P-*.md` + `plans.jsonl`                  |
-| 3   | Execute        | `holon execute <plan_branch>`                                                                 | `I-.../P-.../E-{ts}-{agent}-{model}/_` + `holon-knowledge/ledger/executions.jsonl` |
-| 4   | PR review loop | `holon review <execution_branch>` (+ `pr-review-loop` ensemble/resolver when fixing findings) | Consensus approval posted to the PR + `executions.jsonl` (`ACT-REV`/`ACT-POST`)    |
-| 5   | Calibration    | `holon calibrate <execution_branch>` (Bean 0038)                                              | `/calibrated` branch + `plans/P-*_calibration.md` (also included in PR diff)       |
-
-**Ordering of the merge boundary**: stage 5 (Calibration) is a **pre-merge** stage, matching `STAGE_ORDER` in
-`sandbox_executor/flow.py` (intent -> plan -> execute -> review -> calibrate). Run the review loop to consensus
-approval, calibrate, and only then stop and request the merge -- never calibrate after it, because merging a flow PR
-consumes the `E-...` execution branch that calibration reads.
-
-**Calibration branch and PR inclusion**: Running calibration creates the audited `/calibrated` branch
-(`I-.../P-.../E-.../calibrated`), which must be created and pushed. **For Pull Requests, the calibration report
-(`plans/P-*_calibration.md`) MUST ALSO be included in the PR** (by fast-forwarding or merging the calibration commit
-into the PR head execution branch `.../_` and pushing to `origin`) so that the calibration report appears in the PR diff
-and is preserved in `main` history when merged. Merging itself stays human-only (see "🔒 PR Merging — Human-Only"
-below).
-
-**Always use `holon flow` to drive changes.** Changes to target codebases MUST always be executed using the unified
-`holon flow <intent.json>` runner. Never use ad-hoc wrapper scripts (such as `holon-stage.sh`), and do not execute
-disconnected manual stage commands when authoring or driving tasks. `holon flow` is the canonical, self-contained
-orchestrator for the entire 5-stage lifecycle. When resuming an in-flight pipeline after fixing a blocker, timeout, or
-stepping down model tiers, always resume through `holon flow <intent.json> --from-stage <stage>` or
-`holon flow --checkpoint <path-to-checkpoint.json>`.
-
-**Consequences for agents:**
-
-- Changes are authored by the sandboxed role agents inside the containerised plan/execution branches and recorded in the
-  append-only ledgers. The ledgers, not the agent's word, are the system of record.
-- Host-side worktrees (`apps/<project>/{branch}`) exist to **build images, inspect code, run verification, and operate
-  the harness** -- they are not a change-authoring surface. Editing `holon-agentic-coder` or `holon-coherence` source in
-  a worktree outside the flow bypasses intent provenance, plan metrics, EV accounting, and the execution ledger, and is
-  therefore prohibited.
-- Skipping a stage is not permitted. If a stage cannot run (missing image, failed agent, unreachable remote), the change
-  is **blocked**: report the blocker instead of hand-applying the diff as a workaround.
-- **Automatic Model & Runner Fallback on Credit / Quota Exhaustion**: If a stage or subagent fails due to model credit
-  exhaustion, session quota limits, or rate-limit caps (e.g. `You've hit your session limit`, `insufficient_quota`,
-  `RESOURCE_EXHAUSTED`, or HTTP 429/quota errors), **do not stop or block** as long as a lower-tier model or alternate
-  configured runner still has available credit. Automatically step down the fallback ladder and **continue the flow from
-  the current stage/checkpoint** (reusing any already-pushed `I-.../_`, `P-.../_`, or `E-.../_` branch):
-  - **Claude (`claude-agent`) fallback ladder**: `claude-fable-5` (or `fable`) $\rightarrow$ `claude-opus-5-5` (or
-    `opus`) $\rightarrow$ `claude-sonnet-4-6` (or `sonnet`) $\rightarrow$ `claude-haiku-4-5` (or `haiku`). Fable is the
-    preferred top tier for flow stages (maintainer, 2026-11-05); `holon` passes `--model` through to the runner
-    verbatim, so no engine change is needed.
-  - **Antigravity (`antigravity-agent` in `holon` CLI) fallback ladder**: `gemini-3.8-pro-high` (or `gemini-3.8-pro`)
-    $\rightarrow$ `gemini-3.8-flash-medium` $\rightarrow$ `gemini-3.8-flash`.
-  - **Antigravity (`invoke_subagent` in AGY runtime) fallback ladder**: `Model: "inherit"` / `"pro"` $\rightarrow$
-    `"flash"` $\rightarrow$ `"flash_lite"`.
-  - **Cross-Runner Fallback**: If all model tiers on the active runner (`claude-agent` or `antigravity-agent`) share an
-    exhausted account-wide session limit, automatically switch `--agent` to the other runner (`antigravity-agent` or
-    `claude-agent`) at its highest available tier with credit and continue the remaining flow stages on the existing
-    flow branch.
-- The only permitted exception is an explicit, unambiguous user instruction to make a specific edit outside the flow,
-  and that exception must be named in the commit message and in the bean summary.
-
-**Harness exception & operational branches (control plane only).** The `holon-agentic-coder-ref-metadata` control plane
-itself (`.beans/`, `.agents/`, `AGENTS.md`) is the coordination harness rather than a flow-managed target repository.
-Those harness files stay directly editable. Furthermore, **harness branches (such as `docs/harness-YYYYMMDD` or task
-tracking branches) exist for day-to-day operations and do not need to be merged into `main` frequently**. They serve as
-the continuous operational record and living logbook of work done across sessions (tracking bean states, updating triage
-matrices, refining agent guidelines, and logging task history). Agents must not feel pressured to raise PRs or request
-merges for regular harness updates; merging harness branches into `main` is an infrequent maintainer checkpoint.
+- **Sole change path**: every change to `holon-agentic-coder` or `holon-coherence` is produced by the 5-stage Holon
+  flow, driven with `holon flow <intent.json>`; never hand-patch a target repository outside it. The harness files in
+  this repository (`.beans/`, `.agents/`, `AGENTS.md`) stay directly editable. See
+  [holon-flow.md](.agents/holon-flow.md).
+- **Never merge a PR that targets `main`**, enable auto-merge or use the merge queue; the human maintainer merges. Stop
+  after consensus approval and calibration, and report. See [pr-merging.md](.agents/pr-merging.md).
+- **One worktree per agent**, named for the flow or bean; the `main` worktrees are off-limits (never edit, stage, commit
+  or build in them). Hand-authored harness branches: squash once at the very end, never over commits you did not author;
+  never rewrite or force-push a flow branch. See [worktrees-and-git.md](.agents/worktrees-and-git.md).
+- **Tests**: only `uv run pytest`; never `unittest`, bare `pytest` or a `PYTHONPATH` override. See
+  [engineering-rules.md](.agents/engineering-rules.md).
+- **Target repositories** never reference harness paths (`.beans/`, `todo/`, `.agents/`); keep exactly three append-only
+  ledgers (`intents`, `plans`, `executions`); no synthetic data for benchmarks; keep updates dense and token-cheap. See
+  [engineering-rules.md](.agents/engineering-rules.md).
+- **Format before commit**: `npx prettier --write "**/*.md"` in the harness; only changed files in a target worktree.
+- **Subagents** follow [subagents.md](.agents/subagents.md) and the model tiers in
+  [model-tiers.md](.agents/model-tiers.md); post-merge steps run through the `post-pr-merge` skill.
 
 ---
 
 ## 🚀 Incoming Agent Checklist
 
-When you are spawned or begin a new session, follow these steps sequentially:
-
-1. **Verify Your Environment**: Check the current working directory, workspace structure, and locate the `.beans`
-   configuration. If the target repositories (`apps/holon-agentic-coder/` or `apps/holon-coherence/`) are not set up,
-   follow the checkout instructions in [README.md](README.md) to clone the bare repositories and configure worktrees.
-2. **Review the Tasks**: List the tasks in the [.beans/](.beans/) directory to determine your current assignment or log
-   a new task if none exists.
-3. **Internalise Constraints**: Load [.agents/rules.md](.agents/rules.md) to understand linting rules, language choices,
-   and test requirements.
-4. **Execute Tasks Systematically**: Follow the lifecycle specified in [.agents/workflows.md](.agents/workflows.md) to
-   transition tasks from `todo` to `in-progress` and finally `completed`.
-5. **Per-Agent Worktrees (Autonomous Branches Are Allowed)**: Every agent gets **its own worktree per project** and
-   works **exclusively** inside it. Creating that branch and worktree is autonomous -- no user instruction required:
-   - **Sole Change Path — Holon Flow is the Only Option**: `holon flow <intent.json>` is not merely a preferred option;
-     it is the **sole and exclusive option** for all development across `holon-agentic-coder` and `holon-coherence`.
-     Every change MUST be produced by traversing the containerised 5-stage lifecycle. Because all stages (Intent, Plan,
-     Execute, and Stage 4 Review Loop & Resolver) run inside Docker containers using the globally installed `holon` CLI
-     (`~/.local/bin/holon`), the worktree serves purely as a Git anchor to resolve repository URLs and Git state—running
-     `uv sync --group dev` on the host is not required for flow execution.
-   - **Legacy Worktree & Hand-Authoring Fallback**: Hand-authoring changes directly in a worktree is strictly a fallback
-     for when `holon flow` itself is broken or blocked and we must hand-author PRs to fix the bootstrap harness, or when
-     performing local container image builds, harness coordination, or manual host-side verification suites. In those
-     exceptional cases only, follow the legacy worktree instructions below:
-   - For `apps/holon-agentic-coder/`, all development and feature work must be based off the `origin/main` branch.
-   - For `apps/holon-coherence/`, all development and feature work must be based off the `origin/main` branch.
-   - Name the worktree and branch after you or your bean so concurrent agents never share a directory or a branch. Which
-     name applies is decided by this order:
-     - **Holon flow (`holon flow`)**: The worktree is named `apps/<project>/flow-<slug>`. It is provisioned at the start
-       of the flow (Bean 0259) and **persists across all 5 stages** (Intent $\rightarrow$ Plan $\rightarrow$ Execute
-       $\rightarrow$ PR Review Loop $\rightarrow$ Calibrate). Opening a PR does NOT rename or recreate the worktree; the
-       review loop and calibration reuse `flow-<slug>` directly.
-     - **Standalone PR review (no local worktree checked out)**: If an ad-hoc review (`/pr-reviewer`, `/pr-review-loop`)
-       is triggered for an existing remote PR and **no local worktree exists** for that branch, provision
-       `apps/<project>/pr<N>-<slug>`. If a local worktree (`flow-<slug>`) is already checked out, reuse it directly
-       instead of creating a redundant checkout.
-     - **No Holon flow branch involved** (hand-authored harness work or fallback): the **bean number goes in the name**
-       -- directory `apps/<project>/<type>-<bean-id>-<slug>` for branch `<type>/<bean-id>-<slug>`. Work that has neither
-       a PR nor a bean yet needs the bean logged first.
-   - **A worktree created for temporary use MUST be named descriptively enough to still read as its purpose months
-     later**: `<purpose>-<subject>-<qualifier>`, for example
-     `apps/holon-agentic-coder/verify-pr61-agent-output-redaction` or
-     `apps/holon-coherence/repro-0028-proxy-port-conflict`. Opaque names are prohibited -- `tmp`, `wip`, `scratch`,
-     `test1`, `worktree2`, or letter-suffixed names such as `resolve-a`, `calib-b`, `verify-0019-a` -- because
-     `git worktree list` reports only path, commit and refname, so a cleanup pass cannot attribute a directory it cannot
-     read. Delete the worktree as soon as its stated purpose is complete.
-   - When a harness change must not disturb the user's active checkout of this metadata repository, cut the worktree
-     under the git-ignored `apps/` tree instead: `apps/holon-agentic-coder-ref-metadata/{branch-dir}`.
-   - Create it from the bare repository directory with
-     `git worktree add --no-track -b {branch} ../{branch} origin/main`. Note that `../` resolves relative to
-     `<project>/.git`, which is what places the checkout at `<project>/{branch}`.
-   - Each worktree needs its own environment when authoring by hand or running host verification: virtualenvs are
-     per-directory and cannot be shared, so run `uv sync --group dev` inside the new worktree (legacy/manual authoring
-     and verification path only) and never point at another worktree's `.venv/`.
-   - Inside your own worktree you have full latitude to edit, commit, squash, test, rebuild images and push -- **for
-     harness work, image builds, verification runs, and handling branches the flow produced**. That squash latitude
-     **never extends to a branch the Holon flow or a review loop drives** (item 7 below; rule 4 in
-     [.agents/workflows.md](.agents/workflows.md)). Authoring `holon-agentic-coder` or `holon-coherence` source changes
-     by hand in a worktree outside the flow is prohibited: that is the flow's job (see
-     [🔒 Sole Change Path: The Holon Flow](#-sole-change-path-the-holon-flow)).
-   - **The `main` worktree is the user's playground.** `apps/holon-agentic-coder/main` and `apps/holon-coherence/main`
-     are off-limits to agents: never edit, stage, commit, stash, reset, clean or checkout in them, never build into or
-     leave stray files there, and do not mutate their local state either (`.venv/`, caches, generated artifacts).
-   - **A flow never runs in the `main` worktree, even when its target is `main`.** Naming `main` as the target selects
-     the repository and base branch only. `holon flow` checks out the execution branch in its `--target-worktree` and
-     commits calibration and ledger rows there, so run it in a dedicated `flow-<slug>` worktree cut from `origin/main`
-     (`git worktree add --no-track -b flow-<slug> ../flow-<slug> origin/main`; the `holon-flow` skill's script does this
-     for you). The `main` worktree must stay on `main`, identical to `origin/main` including local files. The same goes
-     for image builds: use a separate temporary worktree.
-   - If changes have already landed in a `main` worktree, move them into a dedicated worktree and restore `main` to a
-     pristine checkout of its committed state.
-6. **Format Before Commit**: In the harness repository, always execute `npx prettier --write "**/*.md"` before
-   committing. In nested target worktrees (`apps/<project>/<branch>`), format **only the changed files** using the
-   target repository's configuration (or `--no-config` if none exists) to prevent resolving the harness's
-   `.prettierrc.json` and reflowing unrelated files. Always verify `git diff --stat` before committing.
-7. **Squash Once, at the Very End, Then Push Your Own Branch Freely**: Applies to branches you hand-author -- harness
-   branches in this metadata repo and any supporting branch you cut for the flow. Ensure all commits on such a branch
-   are squashed into a single commit relative to the `main` branch, but **squash exactly once, immediately before the
-   push that finishes the task -- never mid-task**. While work is in progress, add new commits and push them as they
-   are. Mid-task history is the maintainer's checkpoint surface: they commit as `docs: wip` as they go, and those
-   commits are theirs to keep, split or discard. Never `reset`, `amend`, `rebase` or squash over commits you did not
-   author (including `docs: wip` checkpoints) unless the maintainer explicitly asks -- a squash swallows their
-   granularity and can capture another session's in-flight work under your message. Take the path list before any reset,
-   since after the reset the merge base _is_ `HEAD` and the diff that produced the list prints nothing (rule 4 in
-   [.agents/workflows.md](.agents/workflows.md)). **A branch a `pr-review-loop` run drives is exempt**: it pushes once
-   per iteration and is never squashed, rewritten, or force-pushed (rule 4 in
-   [.agents/workflows.md](.agents/workflows.md)). Pushing **your own** feature branch is allowed autonomously, without
-   waiting for instruction: `git push -u origin {branch}`, and `--force-with-lease` when you rewrite history on it. The
-   flow pushes its own `I-...`/`P-...`/`E-...` branches; never squash, rewrite, or force-push those, since they are the
-   audited provenance record.
-   - Never push to `main` (or any branch you do not own), never force-push a shared branch, and never push from a `main`
-     worktree.
-   - For hand-authored or non-flow work, Pull Request _creation_ stays with the human maintainer unless the user
-     instructs otherwise. Harness branches in this repository exist for day-to-day operations and logging work done, so
-     they do not need to be merged to `main` often. **When executing the Holon flow, Pull Request creation is fully
-     autonomous**: once Stage 3 (Execute) pushes the execution branch, the agent autonomously raises the Pull Request
-     via `gh pr create` targeting the base branch so Stage 4 (PR review loop) can proceed seamlessly without manual
-     interruption. **PR merging remains exclusively the human maintainer's responsibility — agents MUST NEVER merge a PR
-     that targets `main` (see "🔒 PR Merging — Human-Only" below).**
-8. **Report and Document**: Summarise changes cleanly and concisely. Point both the user and successor agents to updated
-   files or artifacts.
-9. **Route Every Change Through the Flow & Always Use `holon flow`**: Produce all `holon-agentic-coder` and
-   `holon-coherence` changes via the five-stage Holon flow (intent -> plan -> execute -> PR review loop -> calibration)
-   rather than hand-authored host-side edits, and calibrate before requesting the merge. **Always use the unified
-   `holon flow <intent.json>` runner directly** (or `--from-stage` / `--checkpoint` when resuming); never use ad-hoc
-   wrapper scripts like `holon-stage.sh` or manual disconnected stage commands. See
-   [🔒 Sole Change Path: The Holon Flow](#-sole-change-path-the-holon-flow).
-10. **Zero Synthetic Data for Benchmarking**: Absolutely never use synthetic or mock data to measure efficacy or
-    benchmark token reduction. Official evaluations and scorecards must derive exclusively from authentic real data
-    streams (live sandbox task executions, genuine wire logs, or real production payloads).
-11. **Token Conservation & Concise Communication**: Minimise prompt and generation token burn across harness and
-    subagents. Deliver dense, factual, and strictly actionable updates without narrative bloat. Intermediate review
-    iterations stay local in `.subagent/` — never post premature review comments to GitHub until all findings are fully
-    resolved or consensus approved. Prune stale `.subagent/` artifacts upon completion.
-12. **Target Repository Isolation & Zero Harness Path Leaks**: Target repositories (`holon-agentic-coder` and
-    `holon-coherence`) are independent, standalone software systems. They **MUST NEVER** know about, import, reference,
-    or configure harness-specific directories, conventions, or tooling (`.beans/`, `todo/`, `.agents/`). Any path lists,
-    ignore patterns, filters, or calibration logic inside target repositories must strictly contain target-native paths
-    only (`holon-knowledge/`, `plans/`, `.holon/`). Harness concerns must never leak into target codebases.
-13. **Strict Test Execution & Tooling Prohibition (NEVER `unittest`, NEVER `python3 -m unittest`, NEVER `PYTHONPATH`)**:
-    All test suites across all target repositories and the harness MUST be executed strictly using `uv run pytest`.
-    - Running `unittest`, `python3 -m unittest`, `python -m unittest`, or bare `pytest` is strictly forbidden.
-    - Executing commands with `PYTHONPATH` overrides (e.g., `PYTHONPATH=...`, `export PYTHONPATH=...`) is strictly
-      forbidden. All virtual environment dependencies and editable workspace packages are managed and resolved cleanly
-      by `uv`; manual `PYTHONPATH` overrides mask packaging and dependency errors, bypass workspace definitions, and
-      break hermetic testing.
-14. **Canonical 3-Ledger Architecture Invariant (`holon-knowledge/ledger/`)**: Target repositories maintain strictly
-    three append-only ledgers under `holon-knowledge/ledger/`: `intents.jsonl` (Intent), `plans.jsonl` (Plan), and
-    `executions.jsonl` (Execution, Review, and Calibration). **NEVER create auxiliary ledgers like `actions.jsonl` or
-    `reviews.jsonl`**. All discrete micro-action records (`entry_type: "action"`, such as `ACT-REV`, `ACT-FIND`,
-    `ACT-POST`, tool operations) and lifecycle summaries (`entry_type: "summary"`, such as `E-...`, `REV-...`) MUST be
-    interleaved chronologically inside `executions.jsonl` under `LedgerLock`. Auxiliary ledgers fragment the provenance
-    trail, break downstream query engines, and are strictly prohibited.
-    - **Ledger-Only Conflict Resolution (No Tests Required)**: When syncing or merging `origin/main` into a flow branch
-      results in conflicts strictly confined to ledger files (`holon-knowledge/ledger/*.jsonl`), **do NOT run the test
-      suites**. Simply interleave or append the JSONL records chronologically by their `created_at` timestamp, verify
-      that all lines parse cleanly as valid JSON, commit the resolved merge, and push.
-    - **Mandatory Target-Branch Conflict Resolution Before Review & Calibration**: Prior to posting an approved
-      consensus review to GitHub or executing Stage 5 calibration, agents and loop orchestrators **MUST** verify that
-      the PR is clean and mergeable against the target branch (`gh pr view <pr> --json mergeable,mergeStateStatus`). If
-      `mergeable == "CONFLICTING"` or `mergeStateStatus == "DIRTY"` (which frequently occurs when concurrent PRs merge
-      new entries into `holon-knowledge/ledger/`), the agent **MUST immediately fetch `origin/main`, merge `origin/main`
-      into the PR execution branch, resolve the conflicts (interleaving ledger entries chronologically), commit, and
-      push to origin**. Never post an approved review, never calibrate, and never report a PR as ready to merge while it
-      is in a conflicting state against the target branch.
-15. **Modular File Sizing & 200-Line Sizing Guideline**: Source files exceeding **200 lines** should generally be
-    decomposed into modular packages and focused single-responsibility modules (e.g. `flow/`, `cli/commands/`, `proxy/`,
-    `executor/`, `calibration/`). This is a recommended guideline and best practice rather than a rigid hard rule,
-    intended to minimise cross-agent merge conflicts, serialization bottlenecks, and bloated review passes. Keep
-    functions focused and prefer splitting collaborators, handlers, dispatchers, options, and models into dedicated
-    files where sensible.
-
----
-
-## 🌲 Managed Repositories & Git Worktree Structure
-
-This metadata repository hosts bare clones of target codebases with checkout worktrees:
-
-| Repository              | Worktree Directory              | Bare Git Location               | Base Branch   | Feature Branch Command                                            |
-| ----------------------- | ------------------------------- | ------------------------------- | ------------- | ----------------------------------------------------------------- |
-| **holon-agentic-coder** | `apps/holon-agentic-coder/main` | `apps/holon-agentic-coder/.git` | `origin/main` | `git worktree add --no-track -b {branch} ../{branch} origin/main` |
-| **holon-coherence**     | `apps/holon-coherence/main`     | `apps/holon-coherence/.git`     | `origin/main` | `git worktree add --no-track -b {branch} ../{branch} origin/main` |
-
-All code development must take place within the appropriate repository worktree. The metadata repository root is
-strictly for coordination, task tracking (`.beans/`), and agent guidance.
-
-> [!IMPORTANT] **One worktree per agent.** Each agent creates and owns its own worktree per project, named after its
-> agent or bean id, and works exclusively inside it -- never in `main` (the user's playground) and never in another
-> agent's worktree. Run the feature-branch command from the bare repository directory (for example
-> `apps/holon-coherence/.git`): `../` resolves relative to that directory, which is what places the checkout at
-> `apps/holon-coherence/{branch}`. Each worktree also owns its own virtualenv (`uv sync --group dev` when hand-authoring
-> or running host verification).
-
----
-
-## 🤖 Subagent Invocation & AGY Runtime
-
-Subagent delegation in this ecosystem is primarily targeted towards the **Antigravity (AGY)** runtime:
-
-- **Invocation Tool**: Use the `invoke_subagent` tool to spawn child tasks, isolated review passes, and resolution
-  passes.
-- **Subagent Type**: Specify `TypeName: "self"` to inherit the full suite of parent capabilities, tools (file viewing,
-  editing, command execution), instructions, and credentials. Use `TypeName: "research"` for read-only exploratory
-  research.
-- **Model Selection & Automatic Credit Fallback**: Set `Model: "inherit"` by default to inherit the parent agent's
-  active model configuration. If credit or quota runs out on the higher-level model (`"inherit"` / `"pro"`),
-  automatically fall back to `"flash"` and then `"flash_lite"` (and similarly step down `claude-fable-5` $\rightarrow$
-  `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` or `gemini-3.8-pro-high`
-  $\rightarrow$ `gemini-3.8-flash-medium` $\rightarrow$ `gemini-3.8-flash` in `holon` CLI invocations) and continue the
-  flow or review loop from the current stage without discarding completed work.
-- **Reactive Wakeup (Zero Polling)**: The AGY runtime automatically wakes up the parent agent upon subagent completion
-  or message delivery. Never poll or loop on subagent status.
-- **Generic Coding Agent Compatibility**: Skill workflows (such as `pr-review-loop`) define generic subagent task
-  contracts so any coding agent (Claude Code, Codex, Pi, OpenCodeInterpreter) can spin off subagents using its native
-  delegation mechanism (child process, task tool, or isolated session), while retaining explicit AGY invocation
-  parameters for seamless native execution.
-
----
-
-## 🔒 PR Merging — Human-Only
-
-> [!CAUTION] **Agents MUST NEVER merge a Pull Request that targets `main`.** This is an absolute, non-negotiable
-> constraint. Merging into `main` is exclusively the human maintainer's responsibility. PRs into any other branch are
-> covered by the maintainer ruling below.
-
-The following actions are **strictly forbidden** for all agents at all times, regardless of context, user request
-phrasing, or skill instructions:
-
-- Running `gh pr merge` (with any flags: `--squash`, `--rebase`, `--merge`, `--auto`, `--delete-branch`, etc.).
-- Running `gh pr merge --auto` or any command that enables auto-merge on a PR.
-- Calling GitHub API endpoints (`gh api`) to merge, auto-merge, or queue a PR.
-- Enabling repository settings that trigger automatic merging (`allow_auto_merge: true` via `gh repo edit` or any other
-  method).
-- Adding a PR to the merge queue by any means.
-
-**Maintainer ruling (2026-11-09): only a PR that targets `main` is human-only.** A PR whose base branch is **not**
-`main` (nor the repository's default branch) may be merged **autonomously**, by the Holon flow engine or by an agent:
-for example a sub-intent PR into its plan branch. Before merging, verify immediately beforehand that the PR's
-`baseRefName` is not `main` or the default branch (refuse otherwise), that its consensus review is approved, that its
-calibration report is included, that CI is green and that it is mergeable. Prefer a merge commit, so the branch's
-commits stay ancestors of the base. Auto-merge, the merge queue and `gh repo edit` settings that merge on their own stay
-prohibited. **Everything else in this section applies unchanged to a PR that targets `main`**, including the combined PR
-from a decomposed plan's branch into `main`.
-
-**What agents must do instead:**
-
-After the pr-reviewer ensemble consensus review is approved and posted to GitHub, the agent MUST stop all GitHub-facing
-PR activity (no further `gh pr` writes of any kind). On a PR the Holon flow drove it then runs stage 5
-(`holon calibrate <execution_branch>`) itself before requesting the merge, per "Ordering of the merge boundary" above:
-it creates and pushes the `/calibrated` branch, merges or fast-forwards the calibration commit into the PR head
-execution branch (`.../_`) so the calibration report is included in the PR diff, pushes the updated PR branch to
-`origin`, and reports:
-
-> ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub and Stage 5 calibration has
-> been completed and included in the PR. Please review and merge it manually at `<pr_url>` when you are ready; merging
-> before stage 5 (`holon calibrate`) has run destroys the `E-...` branch that calibration reads.
-
-Branch and worktree cleanup (removal of feature branch worktrees, pruning tracking refs) must only be performed
-**after** the human confirms the merge has completed, or when the user explicitly requests cleanup.
-
-**Post-Merge Protocol (target repository PRs only).** When an agent detects that a **target repository** PR
-(`holon-agentic-coder` or `holon-coherence`) it drove or tracked has been merged (the human says so, a merge watcher or
-`pr_merged` event fires, or `gh pr view` shows `MERGED`), it MUST, without waiting for a further instruction — harness
-PRs are exempt: harness branches are the operational logbook and their merge to `main` is an infrequent maintainer
-checkpoint needing no reaction:
-
-1. **Update the beans**: set the bean(s) the PR delivered to `completed` with a summary (PR number, merge commit, review
-   id, calibration commit and EV predicted vs actual), and refresh any related beans the merge unblocks or supersedes.
-2. **Refresh the triage**: update the `prioritise-beans` generator data (statistics, milestones, overrides, the
-   Recommended Next Execution Sequence) and regenerate `.beans/bean-triage-prioritisation.md`.
-3. **Recommend the next concurrent set**: from the refreshed triage, report to the maintainer the next set of beans that
-   can run concurrently (pairwise-disjoint touch sets, at most one bean touching a shared hotspot such as `flow.py` or
-   `cli.py` per repository, honouring each bean's recorded dependencies), so the next batch can start immediately.
+1. **Verify your environment**: check the working directory and locate `.beans`. If `apps/holon-agentic-coder/` or
+   `apps/holon-coherence/` is missing, follow the checkout steps in [README.md](README.md).
+2. **Pick up a task**: list [.beans/](.beans/) for your assignment, or log a new bean if none exists.
+3. **Load constraints**: [.agents/rules.md](.agents/rules.md), then the task lifecycle in
+   [.agents/workflows.md](.agents/workflows.md).
+4. **Report**: summarise changes concisely and point to the updated files.
 
 ---
 
 ## 📦 The Beans Task System
 
-This repository tracks work items using a lightweight file-based system in the [.beans/](.beans/) folder.
-
-- Each bean represents a single task or user request.
-- The metadata config [.beans.yml](.beans.yml) defines naming conventions (prefix `holon-agentic-coder-ref-metadata-`).
-- **Strict Sequential Numbering**: Bean IDs MUST follow a strictly sequential 4-digit zero-padded integer format
-  (`0001`, `0002`, ..., `0033`, `0034`, `0035`, etc.). Never generate random base36 IDs (e.g. `k4t7`, `1lh8`). To
-  determine the next ID, inspect existing files in `.beans/`, find the highest integer ID, increment by 1, and zero-pad
-  to 4 digits.
-- When picking up a task, update its status inside the task file to `in-progress`.
-- Once finished, change the status to `completed` and add a summary of your resolution.
-- Valid statuses are fixed by the [beans CLI](https://github.com/hmans/beans) and are `draft`, `todo`, `in-progress`,
-  `completed` and `scrapped`. `done` and `in_progress` are **not** valid: the CLI rejects them on create and never
-  archives them, because `beans archive` only moves `completed` and `scrapped` beans out of the active directory.
-
-For details on how to create and manage task files, refer to [.agents/workflows.md](.agents/workflows.md).
-
----
-
-## 📂 The Todo Directory (Temporary Scratchpad)
-
-The `todo/` directory is a local, git-ignored workspace where agents and developers can store temporary scratch files,
-draft documents, screenshots/images, and task notes.
-
-- This folder serves as a transient workbench for staging thoughts and intermediate artifacts.
-- **Strict Invariant**: None of the files in `todo/` should ever be committed to the repository (enforced via
-  `.gitignore`).
+Beans in [.beans/](.beans/) track one task or request each (config: [.beans.yml](.beans.yml)). IDs are strictly
+sequential 4-digit integers (next = highest + 1, never random base36). Valid statuses: `draft`, `todo`, `in-progress`,
+`completed`, `scrapped`; set `in-progress` when you start and `completed` with a summary when done. Full rules:
+[.agents/workflows.md](.agents/workflows.md).

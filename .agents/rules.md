@@ -170,8 +170,8 @@ code in this repository.
      they are explicitly **not** a surface for hand-authoring `holon-agentic-coder` or `holon-coherence` changes outside
      the flow.
    - The sole exceptions are (a) the `holon-agentic-coder-ref-metadata` control plane itself (`.beans/`, `.agents/`,
-     `AGENTS.md`), which is edited directly, and (b) an explicit, specific user instruction to edit outside the flow,
-     which must be recorded in the commit message and the bean summary.
+     [holon-flow.md](holon-flow.md)), which is edited directly, and (b) an explicit, specific user instruction to edit
+     outside the flow, which must be recorded in the commit message and the bean summary.
 
 9. **MITM Proxy Telemetry System of Record (`X-Holon-*`)**:
    - Streaming performance metrics (TTFT, Prefill TPS, Tail Prefill TPS, Decode Time, Output TPS, Total Time, Prompt
@@ -200,7 +200,8 @@ code in this repository.
 
 11. **Human-Only Pull Request Merging Invariant**:
     - Agents MUST NEVER merge a Pull Request that targets `main`, enable auto-merge, or add a PR to the merge queue. A
-      PR whose base is any other branch may be merged autonomously under the maintainer ruling in `AGENTS.md`.
+      PR whose base is any other branch may be merged autonomously under the maintainer ruling in
+      [pr-merging.md](pr-merging.md).
     - Commands such as `gh pr merge` (with `--squash`, `--rebase`, `--merge`, `--auto`, etc.), `gh api` calls to merge
       endpoints, or toggling `allow_auto_merge` via `gh repo edit` are strictly prohibited.
     - Merging is strictly reserved for the human maintainer. Once all review iterations pass with consensus approval,

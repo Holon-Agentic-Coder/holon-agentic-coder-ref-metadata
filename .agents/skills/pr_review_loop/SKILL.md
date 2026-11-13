@@ -156,7 +156,8 @@ resolution step is executed in a dedicated, fresh subagent**.
    (Calibration), a local-git operation on the flow checkout that pushes nothing (see Phase B, Case 1). This boundary is
    absolute and is **not** relaxed by the never-pause policy. Agents and subagents **MUST NEVER execute `gh pr merge` on
    a PR that targets `main`, enable auto-merge, or add a PR to a merge queue**. Merging into `main` is exclusively the
-   human maintainer's responsibility; a PR into any other branch follows the maintainer ruling in `AGENTS.md`.
+   human maintainer's responsibility; a PR into any other branch follows the maintainer ruling in
+   [pr-merging.md](../../pr-merging.md).
 9. **Runtime Attrition Is Absorbed, Never Propagated**: A review, consensus or resolution pass can die for reasons that
    have nothing to do with the change under review -- a child wall-clock timeout, a model that spends its output budget
    on reasoning and returns no final message, a usage-limit kill (HTTP 429 naming its reset time), or a launch/transport
@@ -639,7 +640,7 @@ Wait for the subagent to complete and inspect its report.
        - **STOP THE LOOP.**
        - **Run stage 5 (Calibration) yourself before any merge is requested, not after**: when the change reached the PR
          through the Holon flow, calibration is this loop's own job, not the maintainer's -- run
-         `holon calibrate <execution_branch>`, see [AGENTS.md](../../../AGENTS.md). Create and push the dedicated
+         `holon calibrate <execution_branch>`, see [pr-merging.md](../../pr-merging.md). Create and push the dedicated
          `/calibrated` branch (`I-.../P-.../E-.../calibrated`), and **include the calibration report in the PR** by
          fast-forwarding/merging the calibration commit into the PR head execution branch (`.../_`) and pushing to
          `origin`. This ensures the calibration report is recorded on the provenance `/calibrated` branch, appears in
@@ -648,8 +649,8 @@ Wait for the subagent to complete and inspect its report.
          reads.
        - **NEVER merge a PR that targets `main` autonomously**: Agents MUST NOT run `gh pr merge` on it, add it to the
          merge queue, or enable auto-merge. That merge is reserved for the human maintainer (PRs into other branches:
-         see the maintainer ruling in `AGENTS.md`).
-       - **Notify the user** that the PR is approved, in the same words [AGENTS.md](../../../AGENTS.md) prescribes:
+         see the maintainer ruling in [pr-merging.md](../../pr-merging.md)).
+       - **Notify the user** that the PR is approved, in the same words [pr-merging.md](../../pr-merging.md) prescribes:
          > ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub and Stage 5
          > calibration has been completed and included in the PR. Please review and merge it manually at `<pr_url>` when
          > you are ready; merging before stage 5 (`holon calibrate`) has run destroys the `E-...` branch that
