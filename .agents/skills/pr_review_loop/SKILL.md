@@ -154,12 +154,18 @@ resolution step is executed in a dedicated, fresh subagent**.
 8. **Human-Only PR Merging Boundary**: The loop's **GitHub-write** scope terminates upon posting the approved consensus
    review -- after that it makes no further `gh pr` call of any kind, and the only action it still takes is stage 5
    (Calibration), a local-git operation on the flow checkout that pushes nothing (see Phase B, Case 1). This boundary is
-   absolute and is **not** relaxed by the never-pause policy. Agents and subagents **MUST NEVER execute `gh pr merge`,
-   enable auto-merge, or add the PR to a merge queue**. Merging is exclusively the human maintainer's responsibility.
+   absolute and is **not** relaxed by the never-pause policy. Agents and subagents **MUST NEVER execute `gh pr merge` on
+   a PR that targets `main`, enable auto-merge, or add a PR to a merge queue**. Merging into `main` is exclusively the
+   human maintainer's responsibility; a PR into any other branch follows the maintainer ruling in `AGENTS.md`.
 9. **Runtime Attrition Is Absorbed, Never Propagated**: A review, consensus or resolution pass can die for reasons that
    have nothing to do with the change under review -- a child wall-clock timeout, a model that spends its output budget
-   on reasoning and returns no final message, or a launch/transport error whose rejection tears down the enclosing
-   orchestration. A pass death never ends the loop and never cancels the iteration. Every pass therefore MUST:
+   on reasoning and returns no final message, a usage-limit kill (HTTP 429 naming its reset time), or a launch/transport
+   error whose rejection tears down the enclosing orchestration. A pass death never ends the loop and never cancels the
+   iteration. **A usage-limit kill that names its reset time is waited out, never terminal (maintainer rule,
+   2026-11-11)**: the orchestrator records state (`_state.json`, with the dead pass's `done` / `remaining`), waits until
+   about one minute after the named reset, then salvages the dead pass (capture any uncommitted resolver edits to a
+   concurrent patch, verify them against the open findings, finish on top) and continues the loop automatically --
+   without waiting for a human "continue". Every pass therefore MUST:
    - **ensure child write capability**: every review, consensus, and resolution child MUST possess file-writing tools
      (`write_to_file`, `replace_file_content`, or child equivalent) to write its report file directly to disk. A pass
      dispatched to a child that cannot write files (such as read-only `TypeName: "research"` or non-writing local
@@ -640,8 +646,9 @@ Wait for the subagent to complete and inspect its report.
          the PR diff, and is preserved on `main` when merged. A PR approved here is "calibrated, ready to merge", never
          "ready to merge" while stage 5 is still outstanding, because merging consumes the `E-...` branch calibration
          reads.
-       - **NEVER merge autonomously**: Agents MUST NOT run `gh pr merge`, add the PR to the merge queue, or enable
-         auto-merge. Merging is strictly reserved for the human maintainer.
+       - **NEVER merge a PR that targets `main` autonomously**: Agents MUST NOT run `gh pr merge` on it, add it to the
+         merge queue, or enable auto-merge. That merge is reserved for the human maintainer (PRs into other branches:
+         see the maintainer ruling in `AGENTS.md`).
        - **Notify the user** that the PR is approved, in the same words [AGENTS.md](../../../AGENTS.md) prescribes:
          > ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub and Stage 5
          > calibration has been completed and included in the PR. Please review and merge it manually at `<pr_url>` when

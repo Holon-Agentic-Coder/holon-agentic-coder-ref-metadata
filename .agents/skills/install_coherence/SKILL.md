@@ -8,6 +8,10 @@ description:
 
 # Install Holon-Coherence Skill (`install-coherence`)
 
+> [!NOTE] **Model tier: lowest.** This skill is mechanical, so run it in a dedicated subagent on the lowest-tier model,
+> found by probing the harness as described in [`.agents/model-tiers.md`](../../model-tiers.md). Do not hard-code a
+> model name here.
+
 This skill provides an automated workflow for building the `holon-coherence` container image using Docker Buildx Bake
 and installing or updating the host-side `holon-coherence` CLI tool via `uv tool install`.
 
@@ -40,7 +44,8 @@ Verify the local environment satisfies all execution requirements:
 
 ### Phase 2: Upstream Git Synchronization (Optional)
 
-Unless `--no-sync` is specified, fetch the latest references and fast-forward trunk:
+Unless `--no-sync` is specified, fetch the latest references and fast-forward trunk. The `main` worktree must be on
+`main`, free of tracked changes and identical to `origin/main`; the script stops with an error otherwise:
 
 ```bash
 git -C apps/holon-coherence/main fetch origin
@@ -49,16 +54,20 @@ git -C apps/holon-coherence/main pull --ff-only origin main
 
 ### Phase 3: Docker Image Build via Docker Buildx Bake
 
-Rebuild the `holon-coherence` Docker image with latest source and dependencies:
+Rebuild the `holon-coherence` Docker image with latest source and dependencies. The build never runs in the `main`
+worktree: the script builds from a temporary detached worktree (`build-images-<sha>`) at `origin/main` and removes it.
+By hand:
 
 ```bash
-make -C apps/holon-coherence/main build-image
-# Or: ./apps/holon-coherence/main/build_image.sh
+git -C apps/holon-coherence/main worktree add --detach ../build-images-<sha> origin/main
+./apps/holon-coherence/build-images-<sha>/build_image.sh
+git -C apps/holon-coherence/main worktree remove --force ../build-images-<sha>
 ```
 
 ### Phase 4: CLI Tool Installation via `uv tool install`
 
-Install or update the `holon-coherence` executable in `~/.local/bin/`:
+Install or update the `holon-coherence` executable in `~/.local/bin/`. The editable install points at the `main`
+worktree, which is why it must stay on `main`, identical to `origin/main`:
 
 ```bash
 uv tool install --force --reinstall --editable apps/holon-coherence/main

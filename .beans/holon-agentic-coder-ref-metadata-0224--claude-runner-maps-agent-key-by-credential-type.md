@@ -3,7 +3,7 @@
 title:
   "Claude credentials just work: auto-discover ~/.holon/secrets/claude-oauth-token and map HOLON_AGENT_KEY by credential
   type"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
   - credentials
   - holon-agentic-coder
 created_at: 2026-11-04T01:30:00Z
-updated_at: 2026-11-04T08:30:00Z
+updated_at: 2026-11-12T04:00:00Z
 ---
 
 ## Problem
@@ -75,3 +75,22 @@ the secrets file directly.
 - Run through the Holon flow on holon-agentic-coder. Touches `agent_runner.py` and preflight code; sequence with other
   runner-touching beans. Related: 0223 (flag/env audit; this is its "secret in the wrong channel" case), the
   `HOLON_AGENT_OAUTH_TOKEN` follow-up candidate noted in Bean 0143.
+
+## Resolution
+
+Delivered via [PR #170](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/170) and merged into `main`
+(`0990f34`, 2026-11-12):
+
+- **Key Architectural Deliverables**: the claude runner discovers the OAuth token from the secrets store when no
+  explicit credential is set and exports it by format (`sk-ant-oat` as `CLAUDE_CODE_OAUTH_TOKEN`, anything else as
+  `ANTHROPIC_API_KEY`), re-maps an explicit `ANTHROPIC_API_KEY` that holds an `sk-ant-oat` value, no longer consults
+  `HOLON_AGENT_KEY`, names the secrets file in the pre-flight hint, and redacts the whole `--settings` value in echoes.
+- **Verification & Tests**: hermetic tests for discovery, mapping and redaction, run with an empty HOME and no
+  credential variables; the CI unit job had failed once on claude runner tests that depended on a host secrets file,
+  fixed in `3903e58`. Review loop 6 iterations to a clean 3/3 at `3903e58`, CI green.
+- **Holon Flow Traversal**: Intent, Plan and Execute ran in the engine on `claude-sonnet-5-5` with
+  `HOLON_TOKEN_REDUCE=0`. Stage 4 failed in-container on the ssh fetch bugs (Beans 0282 and 0284), so the review loop
+  and `holon calibrate` were driven from the host (maintainer authorised). Calibration: predicted EV 40.75, actual EV
+  -13.31, delta -54.06.
+- **Process note**: two agents drove the same worktree for a while (a flow agent and the review-loop orchestrator),
+  which produced an overlapping commit; the orchestrator adopted it as the baseline. One agent per PR from now on.

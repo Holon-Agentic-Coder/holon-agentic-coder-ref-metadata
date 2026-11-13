@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0236
 title: "Post consensus review once per PR exit instead of duplicating via both gh pr comment and gh pr review"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
   - skills
 created_at: 2026-11-06T00:12:00Z
-updated_at: 2026-11-06T00:12:00Z
+updated_at: 2026-11-08T08:45:00Z
 ---
 
 ## Problem
@@ -63,3 +63,20 @@ Post the consensus review report **exactly once** to the PR:
 
 - Target repository changes in `holon-agentic-coder` must be delivered through the 5-stage Holon flow (`holon flow`).
 - Supersedes the dual-posting requirement of Bean 0119.
+
+## Resolution
+
+Delivered via [PR #139](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/139) and merged into `main`
+(`d0c1334`, 2026-11-08T08:34:14Z):
+
+- **Key Architectural Deliverables**: `post_pr_review_consensus()` in
+  `apps/sandbox-executor/src/sandbox_executor/flow.py` now submits the consensus report exactly once via
+  `gh pr review --approve` (or `--request-changes`), falling back to a single `gh pr review --comment` on the HTTP 422
+  self-review restriction; the unconditional duplicate `gh pr comment` step is retired. Harness skills
+  (`.agents/skills/pr_reviewer/SKILL.md`, `.agents/skills/pr_review_loop/SKILL.md`) already post once — no
+  `gh pr comment` dual-posting remains. Supersedes the dual-posting requirement of Bean 0119.
+- **Verification & Tests**: Unit tests updated to assert single posting (1 `gh` call on successful `--approve`; 2 `gh`
+  calls total on 422 fallback, yielding 1 posted review). All 15 CI checks passed; PR was MERGEABLE/CLEAN.
+- **Holon Flow Traversal**: All 5 stages completed on claude-agent / claude-fable-5 (no model fallback). 3/3 ensemble
+  consensus APPROVED on iteration 1 with zero findings. Stage 5 calibration included in the PR diff
+  (`plans/P-1794124844-claude-agent-claude-fable-5_calibration.md`, EV predicted 50.76 vs actual 61.13, ΔEV +10.37).

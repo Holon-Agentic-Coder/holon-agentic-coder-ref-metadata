@@ -199,7 +199,8 @@ code in this repository.
       architecture ideation).
 
 11. **Human-Only Pull Request Merging Invariant**:
-    - Agents MUST NEVER merge a Pull Request, enable auto-merge, or add a PR to the merge queue.
+    - Agents MUST NEVER merge a Pull Request that targets `main`, enable auto-merge, or add a PR to the merge queue. A
+      PR whose base is any other branch may be merged autonomously under the maintainer ruling in `AGENTS.md`.
     - Commands such as `gh pr merge` (with `--squash`, `--rebase`, `--merge`, `--auto`, etc.), `gh api` calls to merge
       endpoints, or toggling `allow_auto_merge` via `gh repo edit` are strictly prohibited.
     - Merging is strictly reserved for the human maintainer. Once all review iterations pass with consensus approval,
@@ -287,3 +288,17 @@ code in this repository.
       10). Do not repeat a measurement that is already recorded for the same commit.
     - Origin: Bean 0168's Stage 3 spent about 55 of its 75 minutes in test runs, 27 minutes of it on 50 serial loaded
       repetitions that `-n auto` would have roughly halved.
+
+- **Git ref names are limited to 255 characters, `refs/heads/` included (measured 2026-11-11).** GitHub accepts a full
+  ref of up to 255 characters and rejects 256 and above with `remote: ref too long` / `pre-receive hook declined`. A
+  branch name can therefore be at most 244 characters, and a flow's execution branch (`I-…/P-…/E-…/_`) at most 235, so
+  that its `/calibrated` sibling (9 characters longer than `/_`) also fits. Git itself only limits each `/`-separated
+  segment (255 bytes on most filesystems), so the problem shows up at the push, after the agent has finished.
+  - **Decomposed flows nest names.** A child branch repeats the parent plan, the child slug and the agent and model
+    labels (`claude-agent-claude-sonnet-5-5`, about 30 characters each time), so a 56-character intent slug gave a
+    282-character execution branch and stopped Bean 0274's first run at Stage 3. Until the engine caps names itself
+    (Bean 0275), give any intent that may decompose a **short slug, 8 characters or fewer** (it is a label, the
+    description carries the meaning), and expect about 240 characters of a nested child name beyond the slug.
+  - **How it was measured:** throwaway branches pushed to and deleted from the harness repository at full ref lengths
+    200, 250, 253, 254, 255 (accepted) and 256, 257, 258, 260, 270, 293 (rejected). Re-measure the same way if GitHub's
+    behaviour is ever in doubt, and delete the branches afterwards.

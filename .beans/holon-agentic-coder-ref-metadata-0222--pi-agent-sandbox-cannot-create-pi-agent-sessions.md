@@ -1,6 +1,6 @@
 ---
 title: "pi-agent sandbox cannot create ~/.pi/agent/sessions, so pi-runner flows die at pre-flight"
-status: todo
+status: completed
 type: task
 priority: P1
 labels: [sandbox-executor, agent-pi, sandbox-hardening, preflight]
@@ -105,3 +105,10 @@ unavailable here today.
 
 - `--skip-preflight` is not a fix: Stage 1 hits the same `mkdir` inside the real role container.
 - Blocks any flow that inherits this harness session's runner, including Bean 0221 part B as currently briefed.
+
+## Resolution (completed, 2026-11-13)
+
+Delivered by flow `pidir` as holon-agentic-coder PR #182, merged 2026-11-13T00:58:18Z (merge commit `de50335`, review
+`PRR_kwDORMmd1c8AAAABXrrNnw`). Calibration report
+`plans/P-1794529184-344adb09-claude-agent-claude-sonnet-5-5_calibration.md` is in the PR. EV predicted vs actual: delta
++7.93 (actual 54.53).

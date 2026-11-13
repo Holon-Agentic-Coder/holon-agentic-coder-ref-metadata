@@ -20,6 +20,8 @@ entirety before performing any operations or modifying any code.
 - [.agents/submodules.md](.agents/submodules.md) - Git submodules management and embedded repository workflows.
 - [.agents/coordination.md](.agents/coordination.md) - Delegation, subagent communication, and peer coordination
   protocols.
+- [.agents/model-tiers.md](.agents/model-tiers.md) - Model tiers (lowest, middle, top), probed from the harness at use
+  time; skills name a tier, never a model.
 - [.agents/skills/](.agents/skills/) - Project-specific agent skills and capability guidelines.
 - [todo/](todo/) - Temporary scratchpad directory for local agent files, documents, and notes (git ignored).
 
@@ -130,13 +132,16 @@ When you are spawned or begin a new session, follow these steps sequentially:
      exceptional cases only, follow the legacy worktree instructions below:
    - For `apps/holon-agentic-coder/`, all development and feature work must be based off the `origin/main` branch.
    - For `apps/holon-coherence/`, all development and feature work must be based off the `origin/main` branch.
-   - Name the worktree and branch after you or your bean (for example `apps/holon-coherence/pr25-coherence-make-tasks`
-     for a flow PR branch) so concurrent agents never share a directory or a branch. Which name applies is decided by
-     this order:
-     - **Checked out from a Holon flow branch** (`I-.../P-.../E-.../...`): such a branch always has a Pull Request, so
-       the worktree **must carry the PR number and a slug** -- `apps/<project>/pr<N>-<slug>`, for example
-       `apps/holon-agentic-coder/pr61-agent-output-capture`. Keep the flow ref itself exactly as the flow created it
-       (never rename or re-cut an audited provenance branch); the `pr<N>-<slug>` marker lives on the **directory**.
+   - Name the worktree and branch after you or your bean so concurrent agents never share a directory or a branch. Which
+     name applies is decided by this order:
+     - **Holon flow (`holon flow`)**: The worktree is named `apps/<project>/flow-<slug>`. It is provisioned at the start
+       of the flow (Bean 0259) and **persists across all 5 stages** (Intent $\rightarrow$ Plan $\rightarrow$ Execute
+       $\rightarrow$ PR Review Loop $\rightarrow$ Calibrate). Opening a PR does NOT rename or recreate the worktree; the
+       review loop and calibration reuse `flow-<slug>` directly.
+     - **Standalone PR review (no local worktree checked out)**: If an ad-hoc review (`/pr-reviewer`, `/pr-review-loop`)
+       is triggered for an existing remote PR and **no local worktree exists** for that branch, provision
+       `apps/<project>/pr<N>-<slug>`. If a local worktree (`flow-<slug>`) is already checked out, reuse it directly
+       instead of creating a redundant checkout.
      - **No Holon flow branch involved** (hand-authored harness work or fallback): the **bean number goes in the name**
        -- directory `apps/<project>/<type>-<bean-id>-<slug>` for branch `<type>/<bean-id>-<slug>`. Work that has neither
        a PR nor a bean yet needs the bean logged first.
@@ -164,6 +169,12 @@ When you are spawned or begin a new session, follow these steps sequentially:
    - **The `main` worktree is the user's playground.** `apps/holon-agentic-coder/main` and `apps/holon-coherence/main`
      are off-limits to agents: never edit, stage, commit, stash, reset, clean or checkout in them, never build into or
      leave stray files there, and do not mutate their local state either (`.venv/`, caches, generated artifacts).
+   - **A flow never runs in the `main` worktree, even when its target is `main`.** Naming `main` as the target selects
+     the repository and base branch only. `holon flow` checks out the execution branch in its `--target-worktree` and
+     commits calibration and ledger rows there, so run it in a dedicated `flow-<slug>` worktree cut from `origin/main`
+     (`git worktree add --no-track -b flow-<slug> ../flow-<slug> origin/main`; the `holon-flow` skill's script does this
+     for you). The `main` worktree must stay on `main`, identical to `origin/main` including local files. The same goes
+     for image builds: use a separate temporary worktree.
    - If changes have already landed in a `main` worktree, move them into a dedicated worktree and restore `main` to a
      pristine checkout of its committed state.
 6. **Format Before Commit**: In the harness repository, always execute `npx prettier --write "**/*.md"` before
@@ -193,7 +204,7 @@ When you are spawned or begin a new session, follow these steps sequentially:
      autonomous**: once Stage 3 (Execute) pushes the execution branch, the agent autonomously raises the Pull Request
      via `gh pr create` targeting the base branch so Stage 4 (PR review loop) can proceed seamlessly without manual
      interruption. **PR merging remains exclusively the human maintainer's responsibility — agents MUST NEVER merge a PR
-     (see "🔒 PR Merging — Human-Only" below).**
+     that targets `main` (see "🔒 PR Merging — Human-Only" below).**
 8. **Report and Document**: Summarise changes cleanly and concisely. Point both the user and successor agents to updated
    files or artifacts.
 9. **Route Every Change Through the Flow & Always Use `holon flow`**: Produce all `holon-agentic-coder` and
@@ -296,8 +307,9 @@ Subagent delegation in this ecosystem is primarily targeted towards the **Antigr
 
 ## 🔒 PR Merging — Human-Only
 
-> [!CAUTION] **Agents MUST NEVER merge a Pull Request.** This is an absolute, non-negotiable constraint with no
-> exceptions. Merging is exclusively the human maintainer's responsibility.
+> [!CAUTION] **Agents MUST NEVER merge a Pull Request that targets `main`.** This is an absolute, non-negotiable
+> constraint. Merging into `main` is exclusively the human maintainer's responsibility. PRs into any other branch are
+> covered by the maintainer ruling below.
 
 The following actions are **strictly forbidden** for all agents at all times, regardless of context, user request
 phrasing, or skill instructions:
@@ -308,6 +320,15 @@ phrasing, or skill instructions:
 - Enabling repository settings that trigger automatic merging (`allow_auto_merge: true` via `gh repo edit` or any other
   method).
 - Adding a PR to the merge queue by any means.
+
+**Maintainer ruling (2026-11-09): only a PR that targets `main` is human-only.** A PR whose base branch is **not**
+`main` (nor the repository's default branch) may be merged **autonomously**, by the Holon flow engine or by an agent:
+for example a sub-intent PR into its plan branch. Before merging, verify immediately beforehand that the PR's
+`baseRefName` is not `main` or the default branch (refuse otherwise), that its consensus review is approved, that its
+calibration report is included, that CI is green and that it is mergeable. Prefer a merge commit, so the branch's
+commits stay ancestors of the base. Auto-merge, the merge queue and `gh repo edit` settings that merge on their own stay
+prohibited. **Everything else in this section applies unchanged to a PR that targets `main`**, including the combined PR
+from a decomposed plan's branch into `main`.
 
 **What agents must do instead:**
 

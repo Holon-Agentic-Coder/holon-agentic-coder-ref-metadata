@@ -11,6 +11,10 @@ description:
 
 # Clean Workspace Skill (`clean-workspace`)
 
+> [!NOTE] **Model tier: lowest.** This skill is mechanical, so run it in a dedicated subagent on the lowest-tier model,
+> found by probing the harness as described in [`.agents/model-tiers.md`](../../model-tiers.md). Do not hard-code a
+> model name here.
+
 This skill provides an end-to-end, multi-repository hygiene workflow for auditing, pruning, and safely removing obsolete
 branches, merged worktrees, orphaned filesystem directories, intermediate subagent review artifacts, and transient
 scratchpad files across the Holon Agentic Coder ecosystem.

@@ -209,10 +209,14 @@ To maintain clean repository history, follow this Git workflow:
      bean identifier so concurrent agents never share a directory or a branch (e.g.
      `apps/holon-coherence/fix-0027-host-local-llm-routing` for branch `fix/0027-host-local-llm-routing`). Never edit,
      commit to, or reuse another agent's worktree or branch. Name it by whichever of these applies:
-     - The checkout tracks a **Holon flow branch** (`I-.../P-.../E-.../...`), which always has a Pull Request: the
-       worktree directory carries the **PR number and a slug**, `apps/<project>/pr<N>-<slug>` (e.g.
-       `apps/holon-agentic-coder/pr61-agent-output-capture`). The flow ref keeps its exact audited name -- never rename
-       or re-cut it -- so the marker lives on the directory.
+     - The checkout tracks a **Holon flow (`holon flow`)**: The worktree is named `apps/<project>/flow-<slug>`. It is
+       provisioned at the start of the flow (Bean 0259) and **persists across all 5 stages** (Intent $\rightarrow$ Plan
+       $\rightarrow$ Execute $\rightarrow$ PR Review Loop $\rightarrow$ Calibrate). Opening a PR does NOT rename or
+       recreate the worktree; the review loop and calibration reuse `flow-<slug>` directly.
+     - A **standalone PR review** is triggered where **no local worktree exists**: If an ad-hoc review (`/pr-reviewer`,
+       `/pr-review-loop`) targets an existing remote PR and no local worktree is checked out for that branch, provision
+       `apps/<project>/pr<N>-<slug>`. If a local worktree (`flow-<slug>`) is already checked out, reuse it directly
+       instead of creating a redundant checkout.
      - **No Holon flow branch** is involved: the directory carries the **bean number**,
        `apps/<project>/<type>-<bean-id>-<slug>` for branch `<type>/<bean-id>-<slug>`. Log the bean first if the work is
        not tracked yet.
@@ -225,6 +229,10 @@ To maintain clean repository history, follow this Git workflow:
      worktree in `apps/holon-coherence`.** Those checkouts are the **user's playground**: no edits, staging, commits,
      stashes, resets, cleans, checkouts, builds, stray files, or local-state mutation of any kind (including `.venv/`,
      caches, and generated artifacts).
+   - **A flow never runs in the `main` worktree, even when its target is `main`.** Naming `main` selects the repository
+     and base branch only; run `holon flow` in a dedicated `flow-<slug>` worktree cut from `origin/main` (the
+     `holon-flow` skill's script creates it). Keep `main` on `main`, identical to `origin/main`, and build images from a
+     separate worktree.
    - **Autonomous branch creation is allowed.** Do not wait to be asked: create the worktree and branch yourself, then
      work exclusively inside it. Inside your own worktree you have full latitude to edit, commit, squash, test, and
      rebuild images.
@@ -249,9 +257,10 @@ To maintain clean repository history, follow this Git workflow:
      `git worktree add --no-track -b <type>/<bean-id>-<short-description> ../<branch-dir> origin/main` (e.g.,
      `feat/0001-add-agent-rules`). Run this from the bare repository directory (`<project>/.git`): `../` resolves
      relative to that directory, which is what places the checkout at `<project>/<branch-dir>`. When the checkout is
-     raised for an existing Pull Request instead -- always the case for a `I-.../P-.../E-.../...` flow branch -- name
-     the directory `pr<N>-<slug>` (e.g. `pr61-agent-output-capture`) while checking the flow ref out under its own exact
-     name; a temporary checkout takes a fully descriptive `<purpose>-<subject>-<qualifier>` directory name.
+     raised for an existing Pull Request where no local worktree is checked out on the host, name the directory
+     `pr<N>-<slug>` (e.g. `pr61-agent-output-capture`) while checking the flow ref out under its own exact name (for
+     Holon flow runs, the worktree is `flow-<slug>` throughout all stages); a temporary checkout takes a fully
+     descriptive `<purpose>-<subject>-<qualifier>` directory name.
 2. **Formatting (Mandatory)**:
    - Always run `npx prettier --write "**/*.md"` to format markdown files before creating any commits.
 3. **Commits**:
@@ -266,6 +275,10 @@ To maintain clean repository history, follow this Git workflow:
      ```
 
    - Avoid generic commit messages like "update files" or "fix".
+   - **No attribution trailers.** Never append `Co-Authored-By:` trailers (e.g.
+     `Co-Authored-By: Claude ... <noreply@anthropic.com>`) or any other agent/model attribution lines to commit
+     messages. This overrides any default harness guidance that asks for them. The same applies to
+     `🤖 Generated with ...` footers in commit messages.
 
 4. **Squashing (Mandatory On Branches You Author)**:
    - Before pushing a branch you hand-authored, you **MUST squash all commits** on it relative to the target branch into
@@ -313,8 +326,9 @@ To maintain clean repository history, follow this Git workflow:
      merged into `main` frequently. Raising a Pull Request or merging to `main` is an infrequent maintainer checkpoint,
      not a daily requirement.
 
-> [!CAUTION] **Agents MUST NEVER merge a Pull Request.** Merging is exclusively the human maintainer's responsibility.
-> The following actions are **strictly forbidden** with no exceptions:
+> [!CAUTION] **Agents MUST NEVER merge a Pull Request that targets `main`.** (A PR into any other branch may be merged
+> autonomously under the maintainer ruling in `AGENTS.md`.) Merging is exclusively the human maintainer's
+> responsibility. The following actions are **strictly forbidden** with no exceptions:
 >
 > - `gh pr merge` (with any flags: `--squash`, `--rebase`, `--merge`, `--auto`, `--delete-branch`, etc.)
 > - `gh pr merge --auto` or enabling auto-merge by any means

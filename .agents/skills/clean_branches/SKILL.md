@@ -11,6 +11,10 @@ description:
 
 # Clean Branches & Worktrees Skill (`clean-branches`)
 
+> [!NOTE] **Model tier: lowest.** This skill is mechanical, so run it in a dedicated subagent on the lowest-tier model,
+> found by probing the harness as described in [`.agents/model-tiers.md`](../../model-tiers.md). Do not hard-code a
+> model name here.
+
 This skill automates the identification and safe deletion of stale, merged, and orphaned branches, worktrees, and Pull
 Requests across all active projects within the Holon Agentic Coder workspace.
 

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0233
 title: "Validate that repo_dir is an attached git worktree"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
   - validation
   - holon-agentic-coder
 created_at: 2026-11-05T14:20:00Z
-updated_at: 2026-11-05T14:20:00Z
+updated_at: 2026-11-09T00:34:09Z
 ---
 
 ## Problem
@@ -63,3 +63,21 @@ Validate `--repo-dir` fail-fast before any pipeline stage runs:
 
 - Target repository: `holon-agentic-coder`.
 - Must be delivered through the Holon flow (`holon flow`).
+
+## Resolution
+
+Delivered via [PR #145](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/145) and merged into `main`
+(`8b1e668`, 2026-11-09T00:34:09Z). The intent was rescoped before running, because the flow already auto-provisions a
+worktree when `--target-worktree` is bare or absent (PR #135):
+
+- **Key Deliverables**: `holon flow` validates the resolved `--target-worktree` with the existing `git_flow` helpers
+  after auto-provisioning, and again when a `--checkpoint` / `--from-stage` resume restores one, plus a guard in the
+  engine before the first stage runs. A plain non-git directory, a deleted path, or a checkpoint whose recorded worktree
+  is no longer a working tree now fails fast with an actionable `git worktree add` error, instead of failing in Stage
+  4/5 host git operations.
+- **Verification & Tests**: Hermetic tests in `test_cli.py` / `test_flow.py` cover these rejections. They also check
+  that bare targets still auto-provision and that a valid worktree is accepted. All 11 CI checks passed.
+- **Holon Flow Traversal**: All 5 stages ran on claude-agent / claude-opus-5-5 with no fallback. 3/3 consensus came at
+  review iteration 4 and was posted once. The calibration report
+  `plans/P-1794182135-claude-agent-claude-opus-5-5_calibration.md` (EV 46.45 predicted vs 61.30 actual, ΔEV +14.85) went
+  into the PR through a merge: `/calibrated` was again cut from a stale local head (Bean 0253).

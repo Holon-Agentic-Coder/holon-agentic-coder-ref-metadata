@@ -9,6 +9,10 @@ description:
 
 # Prioritise Beans Skill (`prioritise-beans`)
 
+> [!NOTE] **Model tier: lowest.** This skill is mechanical, so run it in a dedicated subagent on the lowest-tier model,
+> found by probing the harness as described in [`.agents/model-tiers.md`](../../model-tiers.md). Do not hard-code a
+> model name here.
+
 This skill provides an automated workflow to audit, triage, and prioritise all beans in `.beans/`, calculate milestone
 completion statistics, and generate a clean, Unix-standard Active Beans Triage and Prioritisation Matrix in
 `.beans/bean-triage-prioritisation.md`.
