@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0208
 title: "holon-coherence: a ProxyLifecycle class owns start-up, readiness and teardown of the proxy"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -11,7 +11,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0203
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-11-01T07:31:00Z
+updated_at: 2026-11-14T14:10:00Z
 ---
 
 ## Problem
@@ -55,3 +55,23 @@ Blocked by 0203. Parallel-safe with 0207.
 - Stage 4 (review loop) has therefore not started and no review has been posted; `mergeStateStatus` is `UNSTABLE`.
 - Next: resume from Stage 3/4 on the existing execution branch (`holon flow <intent.json> --from-stage review`) after
   fixing the three failing test modules, then review to consensus, calibrate, and request the merge.
+
+## Resolution
+
+Delivered via [PR #42](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/42) and merged into `main`
+(`baf5c65`, holon-coherence `0.1.0`). It supersedes
+[PR #41](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/41), which the maintainer closed in favour of #42
+(its branches deleted).
+
+- **Key Architectural Deliverables**: `ProxyLifecycle` (in `src/holon_coherence/container/lifecycle.py`) owns
+  `ensure_ca`, `start`, `wait_until_ready` (monotonic deadline) and `stop`. The `start` and `stop` commands delegate to
+  it (`commands/start.py`, `commands/stop.py`, `commands/docker_ops.py`). `ProxyLifecycleConfig` carries the docker or
+  host-local settings.
+- **Verification & Tests**: CI 7/7 green on the PR head; hermetic tests added in `tests/test_proxy_lifecycle.py` and
+  `tests/commands/test_stop.py`.
+- **Holon Flow Traversal**: Stage 3 execution `E-1794660196-e8e8027b-claude-agent-claude-opus-5-5`; Stage 4 review
+  reached consensus 3/3 at iteration 5; Stage 5 calibration
+  (`plans/P-1793438393-antigravity-agent-gemini-3.8-flash-medium_calibration.md`) is included in the PR diff. EV
+  predicted 8.05 / actual 8.45.
+- **Engine findings exposed**: (1) the `skip_review` / `skip_calibrate` checkpoint flags stick across resumes; (2) the
+  flow halted for human review after consensus approval, skipping Stage 5, and needed a calibrate-only resume.

@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-14 13:32:21 UTC
+**Last Updated:** 2026-11-14 14:10:20 UTC
 
 ## Executive Summary
 
@@ -15,9 +15,9 @@ Concurrent flows on overlapping files forced repeated syncs and re-reviews earli
 together.
 
 - **Total Tracked Beans**: 300 (excluding template)
-- **Completed**: 244 (81.3%)
+- **Completed**: 245 (81.7%)
 - **Scrapped / Superseded**: 7 (2.3%)
-- **Active**: 49 (16.3%), of which 3 are in progress and 46 are todo
+- **Active**: 48 (16.0%), of which 2 are in progress and 46 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -625,7 +625,6 @@ partial work) completed the chain.
 | **P1**   | todo        |  High  |   L    | 0176   | Remove every unittest reference from holon-agentic-coder; the suite is pytest only               | Tests                      | Unblocked by 0168 (#99 merged). 59 `TestCase` classes and about 60 `unittest.mock` imports in 29 files. Runs alone: it touches most test files.                                                                                                                                                                                                                                                    |
 | **P1**   | todo        |  High  |   M    | 0166   | Pipeline duration dashboard for CI builds                                                        | CI / Observability         | Check org Actions performance metrics first. Shares data and baseline with 0163 (#109, #30).                                                                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |   XL   | 0152   | Audit long files; decompose oversized functions (flow.py, cli.py first)                          | Refactor / Concurrency     | Umbrella for the Bean 0177 action beans 0185-0200 and 0203-0208; 0185, 0186, 0188, and 0203-0207 are merged. Remaining: `flow.py` split (0187) and per-module lanes.                                                                                                                                                                                                                               |
-| **P2**   | in-progress | Medium |   M    | 0208   | holon-coherence: a `ProxyLifecycle` class owns proxy start-up, readiness and teardown            | Proxy / holon-coherence    | In progress as coherence PR #41 (`2f30d6e`): Stage 3 pushed, but both unit jobs are red (9 failures in `test_start.py`, `test_web_token.py`, `test_cli.py`), so Stage 4 has not started. Resume from the existing execution branch; 0203-0207 are merged.                                                                                                                                          |
 | **P2**   | todo        | Medium |   M    | 0225   | Claude token lives only in the OS keychain; retire the plaintext secrets file                    | Agent Runner / Credentials | After 0224 (extends its discovery seam). Keychain-only; one-time migration deletes the file.                                                                                                                                                                                                                                                                                                       |
 | **P2**   | todo        | Medium |   L    | 0223   | Audit CLI flags vs HOLON_* env vars: four-kind decision rule, flag>env precedence                | CLI / Config               | Exhaustive inventory of every add_argument and os.getenv; boundary-crossing=both, per-invocation=flag, ambient=env-primary, secrets=env-only.                                                                                                                                                                                                                                                      |
 | **P2**   | todo        |  High  |   L    | 0226   | End-to-end test for the holon flow commands with full teardown                                   | Testing / E2E              | Runs on a sub-1B local model via the `local_llm` envelope (no cloud secrets); never opens a PR; unconditional teardown of worktrees and remote `I-…` trees; invariant assertions + bounded whole-run retries. Operator-run `test-e2e` task, excluded from CI.                                                                                                                                      |
@@ -694,17 +693,18 @@ off `origin/main` (Bean 0259, PR #150). Standalone external PR reviews provision
 worktree exists; otherwise `flow-<slug>` is reused directly across all stages. Image builds use a temporary
 `build-images-<sha>` worktree, and the `main` worktrees stay on `main`, identical to `origin/main`.
 
-**Start here (2026-11-14):** Beans 0299 and 0227 are completed. Bean 0299 landed via PR #197 (`78a8630`: Stage 5
+**Start here (2026-11-14):** Beans 0299, 0227 and 0208 are completed. Bean 0299 landed via PR #197 (`78a8630`: Stage 5
 calibrate `git diff` uses fully qualified refs and a path separator on nested sub-intent branch names; EV predicted
 44.50 / actual -19.81). Bean 0227 landed via PR #198 (`40dbcc9`: `_wait_for_proxy` is an HTTP-level probe that requires
-real `HTTP/` response bytes; EV predicted 51.90 / actual 62.84). **Bean 0151** (P0, planner touch-set estimation and
-overlap blocking) is unblocked and next to resume: holon was reinstalled on 2026-11-14, but its worktree `flow-touchset`
-carries uncommitted bookkeeping from the failed Stage 5, to be checked before resuming. **Bean 0208** (coherence proxy
-lifecycle class) awaits a decision on the sticky `skip_review`/`skip_calibrate` checkpoint flags: resume from Stage 4 on
-the new execution branch, or start a fresh flow. Beans 0208, 0151 and 0147 stay in-progress. Bean 0297 stays todo on the
-Stage 5 lane. Note: after approval on PRs #196 and #198 the flow halted with "Pipeline halted for human review
-(autonomous merge prohibited)"; check this against the no-halt-before-merge rule, since a Stage 3 halt before merge is a
-bug. Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283.
+real `HTTP/` response bytes; EV predicted 51.90 / actual 62.84). Bean 0208 landed via holon-coherence PR #42 (`baf5c65`,
+which supersedes PR #41: `ProxyLifecycle` in `container/lifecycle.py` owns `ensure_ca`, `start`, `wait_until_ready` and
+`stop`; EV predicted 8.05 / actual 8.45). **Bean 0151** (P0, planner touch-set estimation and overlap blocking) is in
+progress: resolving the plan-branch conflict, then resuming review. **Bean 0147** is in progress: PR #199 is open and
+its CI repair is in flight. Beans 0151 and 0147 stay in-progress. Candidate beans from the Bean 0208 run: (a) the sticky
+`skip_review`/`skip_calibrate` checkpoint flags across resumes; (b) the halt for human review after consensus approval,
+which skipped Stage 5 and needed a calibrate-only resume (a halt before merge is a bug under the no-halt-before-merge
+rule). The hygiene test must exempt engine-written knowledge-base records. Bean 0297 stays todo on the Stage 5 lane.
+Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283.
 
 **Start here (2026-11-13):** Beans 0267, 0290, 0292, 0293, 0294 and 0295 are completed (PRs #187, #186, #188, #190 and
 #189; Bean 0290 is harness-only), and Bean 0281 is completed by PR #191 (`ff25d77`, which carried the calibration report
