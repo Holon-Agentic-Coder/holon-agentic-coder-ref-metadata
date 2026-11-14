@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-13 14:13:43 UTC
+**Last Updated:** 2026-11-14 00:46:53 UTC
 
 ## Executive Summary
 
@@ -15,9 +15,9 @@ Concurrent flows on overlapping files forced repeated syncs and re-reviews earli
 together.
 
 - **Total Tracked Beans**: 296 (excluding template)
-- **Completed**: 240 (81.1%)
+- **Completed**: 241 (81.4%)
 - **Scrapped / Superseded**: 6 (2.0%)
-- **Active**: 50 (16.9%), of which 3 are in progress and 47 are todo
+- **Active**: 49 (16.6%), of which 3 are in progress and 46 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -618,7 +618,6 @@ partial work) completed the chain.
 | **P2**   | todo        | Medium |   L    | 0223   | Audit CLI flags vs HOLON_* env vars: four-kind decision rule, flag>env precedence                | CLI / Config               | Exhaustive inventory of every add_argument and os.getenv; boundary-crossing=both, per-invocation=flag, ambient=env-primary, secrets=env-only.                                                                                                                                                                                                                                                      |
 | **P2**   | todo        |  High  |   L    | 0226   | End-to-end test for the holon flow commands with full teardown                                   | Testing / E2E              | Runs on a sub-1B local model via the `local_llm` envelope (no cloud secrets); never opens a PR; unconditional teardown of worktrees and remote `I-…` trees; invariant assertions + bounded whole-run retries. Operator-run `test-e2e` task, excluded from CI.                                                                                                                                      |
 | **P2**   | todo        | Medium |   M    | 0181   | Use the `/_` leaf only when referencing a git branch, never on ids                               | Holon Flow / Ledger        | `intents.jsonl` `branch` and `parent_intent_id` hold refs; migrate with readers accepting both shapes. After 0161 (overlaps `flow.py`; 0179 is merged).                                                                                                                                                                                                                                            |
-| **P1**   | todo        |  High  |   S    | 0296   | Stage 5 rebuilds a stale calibrated branch itself instead of stopping after a conflict merge     | Stage 5 / Calibration      | Found on PR #190: the flow ended with a failed Stage 5 after a conflict merge. Touches calibrate_sync.py and calibrate.py.                                                                                                                                                                                                                                                                         |
 | **P2**   | todo        | Medium |   XL   | 0153   | Remove comments and docstrings from all code; make it self-documenting                           | Readability                | Per package, with or right after that package's decomposition (which follows its split: 0187, 0188, 0204), not as one repository-wide flow.                                                                                                                                                                                                                                                        |
 | **P2**   | in-progress | Medium |   S    | 0147   | Remove harness paths tracked in the target repositories                                          | Hygiene                    | `holon-coherence` half merged (PR #29, `68fdf67`; follow-up PR #31, `b52c7e1`). `holon-agentic-coder` half pending (fold into 0214 when beads lands).                                                                                                                                                                                                                                              |
 | **P2**   | todo        | Medium |   M    | 0193   | Decompose the intent and plan stage modules                                                      | Holon Flow / Refactor      | After 0187; parallel decomposition lane.                                                                                                                                                                                                                                                                                                                                                           |
