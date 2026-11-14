@@ -400,8 +400,8 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "the repository's allowed merge methods, squash when merge commits are disallowed). Bean 0299 (PR #197, Stage 5 "
         "diff on nested sub-intent branch names) is open, and the calibration bundle PR #195 is already merged "
         "(`e556a0c`). **Bean 0151** (P0, planner touch-set estimation and overlap blocking) is blocked on Bean 0299. "
-        "**Bean 0300** (new, todo: CI runs on `pull_request` only, not also on `push`) is ready to run in parallel. "
-        "Bean 0297 stays todo on the Stage 5 lane. Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283."
+        "Bean 0300 (CI on `pull_request` only) is scrapped: `build (push)` runs only on `main` after a merge, so there "
+        "is no duplicate. Bean 0297 stays todo on the Stage 5 lane. Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283."
     ),
     "",
     (

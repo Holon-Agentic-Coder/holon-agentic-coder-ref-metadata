@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-14 12:35:07 UTC
+**Last Updated:** 2026-11-14 12:35:33 UTC
 
 ## Executive Summary
 
@@ -699,9 +699,9 @@ worktree exists; otherwise `flow-<slug>` is reused directly across all stages. I
 **Start here (2026-11-14):** Bean 0298 is completed (PR #196, merged as `721cd36`: the child PR merge uses the
 repository's allowed merge methods, squash when merge commits are disallowed). Bean 0299 (PR #197, Stage 5 diff on
 nested sub-intent branch names) is open, and the calibration bundle PR #195 is already merged (`e556a0c`). **Bean 0151**
-(P0, planner touch-set estimation and overlap blocking) is blocked on Bean 0299. **Bean 0300** (new, todo: CI runs on
-`pull_request` only, not also on `push`) is ready to run in parallel. Bean 0297 stays todo on the Stage 5 lane. Keep
-`HOLON_TOKEN_REDUCE=0` until Bean 0283.
+(P0, planner touch-set estimation and overlap blocking) is blocked on Bean 0299. Bean 0300 (CI on `pull_request` only)
+is scrapped: `build (push)` runs only on `main` after a merge, so there is no duplicate. Bean 0297 stays todo on the
+Stage 5 lane. Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283.
 
 **Start here (2026-11-13):** Beans 0267, 0290, 0292, 0293, 0294 and 0295 are completed (PRs #187, #186, #188, #190 and
 #189; Bean 0290 is harness-only), and Bean 0281 is completed by PR #191 (`ff25d77`, which carried the calibration report
