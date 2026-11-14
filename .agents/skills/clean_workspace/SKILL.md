@@ -85,8 +85,8 @@ scratchpad files across the Holon Agentic Coder ecosystem.
 
 7. **Local `.subagent/` Review Artifact Hygiene & Active PR Protection**: The multi-agent PR review ensemble
    (`pr-review-loop`, `pr-reviewer`, `pr-review-resolver`) stores intermediate review iterations, candidate diffs,
-   reviewer votes, and state files under `.subagent/`. Per AGENTS.md Rule 11 and PR review loop state persistence
-   invariants:
+   reviewer votes, and state files under `.subagent/`. Per `.agents/engineering-rules.md` (token conservation) and PR
+   review loop state persistence invariants:
    - **STRICT PRESERVATION INVARIANT**:
      - `.subagent/.gitkeep`: Must **NEVER** be deleted.
      - **Active PR Files**: Any review artifacts belonging to open PRs (or unresolved loops) must **NEVER** be deleted.

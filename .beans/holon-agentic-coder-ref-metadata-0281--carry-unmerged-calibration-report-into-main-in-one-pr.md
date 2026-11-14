@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0281
 title: "Carry the calibration report that missed its PR into `main` in one pull request"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - flow
   - holon-agentic-coder
 created_at: 2026-11-12T10:00:00Z
-updated_at: 2026-11-12T10:00:00Z
+updated_at: 2026-11-13T12:54:27Z
 ---
 
 ## Problem
@@ -38,3 +38,30 @@ exception is named in the commit messages.
 ## Follow-up
 
 Do not delete the `I-1794268087-...` branch tree until this pull request has merged.
+
+## Resolution
+
+Delivered via [PR #191](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/191) and merged into `main`
+(`ff25d77`, 2026-11-13T12:51:41Z):
+
+- **Calibration report in `main`**:
+  `plans/P-1794268104-fd29467b-antigravity-agent-gemini-3.8-flash-medium_calibration.md` (62 lines), verified in
+  `origin/main` at `ff25d77`.
+- **Ledger rows in `main`**: 192 rows appended to `holon-knowledge/ledger/executions.jsonl` (two cherry-picked commits,
+  `bf1e2a4` the report and 191 rows, `ff4f4b4` the reconciliation row, both with `-x`).
+- **Branch tree**: the `I-1794268087-...` `calibrated` branch was deleted locally and on `origin` (last tip `26d7b9a`)
+  after the report was confirmed in `main`. The cherry-picked commits carry new SHAs, so `calibrated` is not an ancestor
+  of `main`; the content is preserved.
+- **Exception to the sole-change-path rule**: the carry PR was hand-assembled outside the Holon flow at the maintainer's
+  explicit instruction (2026-11-12). It has no ensemble review and no calibration report of its own (both set to "none:
+  hand-assembled carry PR"). It moves existing, flow-generated, audited artefacts and authors no new code.
+
+Bean 0281 is complete.
+
+## Incident (2026-11-13)
+
+The 2026-11-12 branch clean-up deleted the `I-1794268087-...` branch tree from `origin`, including the `calibrated`
+branch this bean depends on, against the follow-up above. The commits `2e63f36` and `26d7b9a` were still in the object
+store, and the branch was restored on 2026-11-13 under its original name at `26d7b9a` (pushed to `origin`). Do not
+delete it until the carry pull request has merged. Clean-up runs must skip any `calibrated` branch whose report is not
+in `main`.

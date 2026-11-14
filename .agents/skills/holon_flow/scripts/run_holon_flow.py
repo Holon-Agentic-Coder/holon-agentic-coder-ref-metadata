@@ -28,7 +28,7 @@ COLOR_YELLOW = "\033[1;33m"
 COLOR_CYAN = "\033[1;36m"
 COLOR_RESET = "\033[0m"
 
-# Model fallback ladders (AGENTS.md)
+# Model fallback ladders (.agents/holon-flow.md)
 FALLBACK_LADDER_CLAUDE = [
     "claude-fable-5",
     "claude-opus-5-5",

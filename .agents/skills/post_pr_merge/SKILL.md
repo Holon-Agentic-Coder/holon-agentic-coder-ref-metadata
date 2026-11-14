@@ -21,8 +21,8 @@ This skill orchestrates the end-to-end post-merge lifecycle across the Holon eco
 ## 📐 Architecture & Principles
 
 1. **Human-Only Merge Invariant**: Agents never merge PRs that target `main` (`gh pr merge` is strictly forbidden for
-   them; see `AGENTS.md` for PRs into other branches). This skill activates **only after** the human maintainer merges
-   the Pull Request on GitHub.
+   them; see [pr-merging.md](../../pr-merging.md) for PRs into other branches). This skill activates **only after** the
+   human maintainer merges the Pull Request on GitHub.
 2. **Deterministic Post-Merge Sequence**:
    - **Step 1: Sync Trunk (`main`)**: Fetch and fast-forward `origin/main` in the relevant `apps/<repo>/main` worktree.
    - **Step 2: Ecosystem Image & CLI Rebuild (`install-holon` / `install-coherence`)**: Rebuild Docker images via Buildx

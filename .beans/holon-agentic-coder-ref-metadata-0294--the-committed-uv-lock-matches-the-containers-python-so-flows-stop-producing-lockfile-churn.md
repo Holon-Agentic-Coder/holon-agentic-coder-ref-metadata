@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0294
 title: "The committed uv.lock matches the project and container Python, so flows stop producing lockfile churn"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -36,3 +36,12 @@ host `uv` (newer Python) rewrites it the other way. Flows also keep sweeping a s
 - Target repository change in `holon-agentic-coder`: through the 5-stage Holon flow. The intent JSON must not mention
   bean ids or harness paths.
 - Touches `uv.lock`, the container build and the stages' `uv` invocations; run it when no other flow edits those.
+
+## Resolution (completed, 2026-11-13)
+
+Delivered by flow `lockfrz` as holon-agentic-coder PR #190, merged 2026-11-13T12:19:25Z (merge commit `efff3ed`, review
+`PRR_kwDORMmd1c8AAAABXxK8Nw`). EV predicted vs actual: delta +16.45 (actual 60.69). The calibration report in `main`
+(`plans/P-1794567535-986a8099-claude-agent-claude-sonnet-5-5_calibration.md`) was produced before the conflict merge:
+after the merge the flow's Stage 5 stopped with "existing calibrated branch does not contain the execution head" (the
+new fail-loudly check), so the report does not cover the final head. Bean 0296 tracks making Stage 5 rebuild a stale
+calibrated branch itself.
