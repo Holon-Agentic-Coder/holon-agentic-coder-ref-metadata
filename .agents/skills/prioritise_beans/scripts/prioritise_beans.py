@@ -396,11 +396,12 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Start here (2026-11-14):** Beans 0260 and 0296 are completed (PRs #192 and #193, merged as `3b6c3d7` and "
-        "`291727e`). Bean 0297 is new (todo, P1: Stage 5 reruns automatically when the pull request head moves after "
-        "calibration). No holon-agentic-coder PR is open. **Bean 0151** (P0, planner touch-set estimation and overlap "
-        "blocking) is the next recommended bean, and **Bean 0297** is next on the Stage 5 lane, building on 0296. Keep "
-        "`HOLON_TOKEN_REDUCE=0` until Bean 0283."
+        "**Start here (2026-11-14):** Bean 0298 is completed (PR #196, merged as `721cd36`: the child PR merge uses "
+        "the repository's allowed merge methods, squash when merge commits are disallowed). Bean 0299 (PR #197, Stage 5 "
+        "diff on nested sub-intent branch names) is open, and the calibration bundle PR #195 is already merged "
+        "(`e556a0c`). **Bean 0151** (P0, planner touch-set estimation and overlap blocking) is blocked on Bean 0299. "
+        "**Bean 0300** (new, todo: CI runs on `pull_request` only, not also on `push`) is ready to run in parallel. "
+        "Bean 0297 stays todo on the Stage 5 lane. Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283."
     ),
     "",
     (
@@ -584,6 +585,28 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "Builds on 0296 (rebuilds a stale `calibrated` branch; landed in PR #193). Related to 0253, 0292 and 0182. "
             "A head move after calibration, from a conflict merge, a resolver push or a review-loop rerun, reruns "
             "Stage 5 and marks the report stale until then."
+        ),
+    },
+    "0299": {
+        "title": "Stage 5 calibrate no longer fails with git diff 'ambiguous argument' on nested sub-intent branch names",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "S",
+        "domain": "Stage 5 / Calibration",
+        "notes": (
+            "Open as PR #197 (`calbrnch`). Blocks Bean 0151, which needs the decomposed flow's calibration to run. "
+            "Disjoint from Bean 0298 (merged as `721cd36`)."
+        ),
+    },
+    "0300": {
+        "title": "CI runs once per change, on the pull request only, not also on push",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "CI / Token cost",
+        "notes": (
+            "Drop the `push` trigger from every workflow. The timing baselines on `main` must move to a "
+            "`pull_request: closed` (merged) job or a schedule, so the timing gate keeps updating."
         ),
     },
     "0265": {
