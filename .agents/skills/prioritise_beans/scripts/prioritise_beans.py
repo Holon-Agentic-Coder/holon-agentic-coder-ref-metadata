@@ -396,12 +396,14 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Start here (2026-11-14):** Bean 0298 is completed (PR #196, merged as `721cd36`: the child PR merge uses "
-        "the repository's allowed merge methods, squash when merge commits are disallowed). Bean 0299 (PR #197, Stage 5 "
-        "diff on nested sub-intent branch names) is open, and the calibration bundle PR #195 is already merged "
-        "(`e556a0c`). **Bean 0151** (P0, planner touch-set estimation and overlap blocking) is blocked on Bean 0299. "
-        "Bean 0300 (CI on `pull_request` only) is scrapped: `build (push)` runs only on `main` after a merge, so there "
-        "is no duplicate. Bean 0297 stays todo on the Stage 5 lane. Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283."
+        "**Start here (2026-11-14):** Bean 0299 is completed (PR #197, merged as `78a8630`: Stage 5 calibrate `git diff` "
+        "uses fully qualified refs and a path separator on nested sub-intent branch names; calibration included in the PR "
+        "diff, EV predicted 44.50 / actual -19.81). **Bean 0151** (P0, planner touch-set estimation and overlap blocking) "
+        "is unblocked and next to resume: holon was reinstalled on 2026-11-14, so resume its flow. PR #198 (Bean 0227, "
+        "proxy readiness probe) is open and ready for the review loop. Bean 0208 (coherence proxy lifecycle class) needs "
+        "a decision on the sticky `skip_review`/`skip_calibrate` checkpoint flags: resume from Stage 4 on the new "
+        "execution branch, or start a fresh flow. Beans 0227, 0208 and 0147 stay in-progress. Bean 0297 stays todo on the "
+        "Stage 5 lane. Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283."
     ),
     "",
     (

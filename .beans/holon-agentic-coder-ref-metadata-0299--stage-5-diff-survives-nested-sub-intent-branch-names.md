@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0299
 title: "Stage 5 calibrate no longer fails with git diff 'ambiguous argument' on nested sub-intent branch names"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - decomposition
   - holon-agentic-coder
 created_at: 2026-11-14T10:30:00Z
-updated_at: 2026-11-14T10:30:00Z
+updated_at: 2026-11-14T13:22:41Z
 ---
 
 ## Problem
@@ -31,3 +31,14 @@ resolves to more than one ref).
 
 Run through the Holon flow on holon-agentic-coder. Disjoint from Bean 0298. A calibrate rerun on the touchset flow
 depends on it.
+
+## Resolution
+
+Delivered via [PR #197](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/197) and merged into `main`
+(`78a8630`):
+
+- **Key Architectural Deliverables**: Stage 5 calibrate `git diff` now uses fully qualified refs and a path separator on
+  nested sub-intent branch names, and the calibrate-sync git calls follow the same pattern.
+- **Verification & Tests**: Hermetic nested-ref tests for calibrate and calibrate-sync, plus git revision helper tests.
+- **Holon Flow Traversal**: All stages completed, including 3/3 consensus review and calibration included in the PR
+  diff. EV predicted 44.50, actual -19.81.
