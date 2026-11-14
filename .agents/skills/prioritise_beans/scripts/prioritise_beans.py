@@ -396,14 +396,18 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Start here (2026-11-14):** Bean 0299 is completed (PR #197, merged as `78a8630`: Stage 5 calibrate `git diff` "
-        "uses fully qualified refs and a path separator on nested sub-intent branch names; calibration included in the PR "
-        "diff, EV predicted 44.50 / actual -19.81). **Bean 0151** (P0, planner touch-set estimation and overlap blocking) "
-        "is unblocked and next to resume: holon was reinstalled on 2026-11-14, so resume its flow. PR #198 (Bean 0227, "
-        "proxy readiness probe) is open and ready for the review loop. Bean 0208 (coherence proxy lifecycle class) needs "
-        "a decision on the sticky `skip_review`/`skip_calibrate` checkpoint flags: resume from Stage 4 on the new "
-        "execution branch, or start a fresh flow. Beans 0227, 0208 and 0147 stay in-progress. Bean 0297 stays todo on the "
-        "Stage 5 lane. Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283."
+        "**Start here (2026-11-14):** Beans 0299 and 0227 are completed. Bean 0299 landed via PR #197 (`78a8630`: Stage 5 "
+        "calibrate `git diff` uses fully qualified refs and a path separator on nested sub-intent branch names; EV "
+        "predicted 44.50 / actual -19.81). Bean 0227 landed via PR #198 (`40dbcc9`: `_wait_for_proxy` is an HTTP-level "
+        "probe that requires real `HTTP/` response bytes; EV predicted 51.90 / actual 62.84). **Bean 0151** (P0, planner "
+        "touch-set estimation and overlap blocking) is unblocked and next to resume: holon was reinstalled on 2026-11-14, "
+        "but its worktree `flow-touchset` carries uncommitted bookkeeping from the failed Stage 5, to be checked before "
+        "resuming. **Bean 0208** (coherence proxy lifecycle class) awaits a decision on the sticky "
+        "`skip_review`/`skip_calibrate` checkpoint flags: resume from Stage 4 on the new execution branch, or start a "
+        "fresh flow. Beans 0208, 0151 and 0147 stay in-progress. Bean 0297 stays todo on the Stage 5 lane. Note: after "
+        "approval on PRs #196 and #198 the flow halted with \"Pipeline halted for human review (autonomous merge "
+        "prohibited)\"; check this against the no-halt-before-merge rule, since a Stage 3 halt before merge is a bug. "
+        "Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283."
     ),
     "",
     (

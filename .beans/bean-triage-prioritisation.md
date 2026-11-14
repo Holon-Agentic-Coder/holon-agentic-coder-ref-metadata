@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-14 13:22:55 UTC
+**Last Updated:** 2026-11-14 13:32:21 UTC
 
 ## Executive Summary
 
@@ -15,9 +15,9 @@ Concurrent flows on overlapping files forced repeated syncs and re-reviews earli
 together.
 
 - **Total Tracked Beans**: 300 (excluding template)
-- **Completed**: 243 (81.0%)
+- **Completed**: 244 (81.3%)
 - **Scrapped / Superseded**: 7 (2.3%)
-- **Active**: 50 (16.7%), of which 4 are in progress and 46 are todo
+- **Active**: 49 (16.3%), of which 3 are in progress and 46 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -606,7 +606,6 @@ partial work) completed the chain.
 | **P1**   | todo        |  High  |   L    | 0255   | Streaming per-issue resolvers during Stage 4 CI & review with single consolidated commit         | Review Loop / Concurrency  | Spin up isolated resolvers immediately as each CI pipeline fails (e.g. `Test - Hygiene` at 10 s) while continuing to wait for remaining pipelines, then merge all resolver fixes and push a single commit per iteration. Sequence after 0254 and 0256; pairs with 0234.                                                                                                                            |
 | **P2**   | todo        |  Low   |   XS   | 0246   | Eliminate duplicate review comments in harness `pr-review-loop` skill                            | Skills / Harness           | Target-side fix landed in PR #139 (Bean 0236); verify/close remaining harness skill doc wording.                                                                                                                                                                                                                                                                                                   |
 | **P1**   | todo        | Medium |   S    | 0234   | Event-driven CI check progress reporting during Stage 4 review                                   | Review Loop / Logging      | Log total CI pipelines once at start (`Tracking N GitHub CI check(s)...`) and emit a log line only when a check completes or changes state, suppressing 15 s polling noise. Intent in `todo/`; pair with 0160.                                                                                                                                                                                     |
-| **P1**   | in-progress |  High  |   S    | 0227   | Sidecar readiness probe false positive (docker-proxy accepts before mitmproxy binds)             | Token Reduce / Proxy       | Fix complete on `fix/0227-proxy-readiness-http-probe` (`36c9765`), suite green; hand-authored under the explicit-instruction exception. Awaiting maintainer call on PR creation.                                                                                                                                                                                                                   |
 | **P1**   | todo        |  High  |   M    | 0189   | Launcher module owns container launch and role dispatch; break the `flow` -> `cli` cycle         | Refactor / Architecture    | After 0187 (0188 is merged as #117); unblocks 0200. Runs with 0190 and precedes 0183.                                                                                                                                                                                                                                                                                                              |
 | **P1**   | todo        |  High  |   M    | 0190   | `FlowCheckpoint` and ledger reconciliation own their behaviour; entrypoints stop importing flow  | Ledger / Holon Flow        | After 0187; 0158 (PR #111, same code) has merged. Precedes 0183. Unblocks 0196, 0199.                                                                                                                                                                                                                                                                                                              |
 | **P1**   | todo        |  High  |   M    | 0191   | One GitHub adapter owns every `gh` call (PR, CI probe, mergeability, review posting)             | GitHub / Architecture      | After 0187. Unblocks 0192.                                                                                                                                                                                                                                                                                                                                                                         |
@@ -695,14 +694,17 @@ off `origin/main` (Bean 0259, PR #150). Standalone external PR reviews provision
 worktree exists; otherwise `flow-<slug>` is reused directly across all stages. Image builds use a temporary
 `build-images-<sha>` worktree, and the `main` worktrees stay on `main`, identical to `origin/main`.
 
-**Start here (2026-11-14):** Bean 0299 is completed (PR #197, merged as `78a8630`: Stage 5 calibrate `git diff` uses
-fully qualified refs and a path separator on nested sub-intent branch names; calibration included in the PR diff, EV
-predicted 44.50 / actual -19.81). **Bean 0151** (P0, planner touch-set estimation and overlap blocking) is unblocked and
-next to resume: holon was reinstalled on 2026-11-14, so resume its flow. PR #198 (Bean 0227, proxy readiness probe) is
-open and ready for the review loop. Bean 0208 (coherence proxy lifecycle class) needs a decision on the sticky
-`skip_review`/`skip_calibrate` checkpoint flags: resume from Stage 4 on the new execution branch, or start a fresh flow.
-Beans 0227, 0208 and 0147 stay in-progress. Bean 0297 stays todo on the Stage 5 lane. Keep `HOLON_TOKEN_REDUCE=0` until
-Bean 0283.
+**Start here (2026-11-14):** Beans 0299 and 0227 are completed. Bean 0299 landed via PR #197 (`78a8630`: Stage 5
+calibrate `git diff` uses fully qualified refs and a path separator on nested sub-intent branch names; EV predicted
+44.50 / actual -19.81). Bean 0227 landed via PR #198 (`40dbcc9`: `_wait_for_proxy` is an HTTP-level probe that requires
+real `HTTP/` response bytes; EV predicted 51.90 / actual 62.84). **Bean 0151** (P0, planner touch-set estimation and
+overlap blocking) is unblocked and next to resume: holon was reinstalled on 2026-11-14, but its worktree `flow-touchset`
+carries uncommitted bookkeeping from the failed Stage 5, to be checked before resuming. **Bean 0208** (coherence proxy
+lifecycle class) awaits a decision on the sticky `skip_review`/`skip_calibrate` checkpoint flags: resume from Stage 4 on
+the new execution branch, or start a fresh flow. Beans 0208, 0151 and 0147 stay in-progress. Bean 0297 stays todo on the
+Stage 5 lane. Note: after approval on PRs #196 and #198 the flow halted with "Pipeline halted for human review
+(autonomous merge prohibited)"; check this against the no-halt-before-merge rule, since a Stage 3 halt before merge is a
+bug. Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283.
 
 **Start here (2026-11-13):** Beans 0267, 0290, 0292, 0293, 0294 and 0295 are completed (PRs #187, #186, #188, #190 and
 #189; Bean 0290 is harness-only), and Bean 0281 is completed by PR #191 (`ff25d77`, which carried the calibration report

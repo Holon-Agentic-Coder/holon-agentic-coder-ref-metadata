@@ -3,7 +3,7 @@
 title:
   "Sidecar readiness probe false positive: docker-proxy accepts TCP before mitmproxy binds, role container gets
   connection refused"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
   - flow
   - holon-agentic-coder
 created_at: 2026-11-04T08:10:00Z
-updated_at: 2026-11-04T09:30:00Z
+updated_at: 2026-11-14T13:32:08Z
 ---
 
 ## Problem
@@ -43,10 +43,18 @@ listeners.
   I want you to fix it directly without using the holon and with local worktree") — the named exception to the flow-only
   rule; it is recorded in the commit message.
 
-## Resolution (2026-11-04)
+## Resolution
 
-Fixed hand-authored on branch `fix/0227-proxy-readiness-http-probe` (commit `36c9765`), pushed to origin.
-`_wait_for_proxy` now sends a proxy-style request for `holon-proxy-readiness.invalid` and declares readiness only on
-`HTTP/` response bytes; accept-then-silent-close (docker-proxy with no backend yet) retries until the existing 15 s
-deadline. Three real-socket unit tests cover silent-close, immediate-502 and boot-then-answer. Full sandbox-executor
-suite green (2900 passed, 1 skipped). Awaiting maintainer decision on PR creation/merge.
+Delivered via [PR #198](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/198) and merged into `main`
+(`40dbcc9`). This flow-delivered PR supersedes the earlier hand-authored branch `fix/0227-proxy-readiness-http-probe`
+(commit `36c9765`); its old Resolution text described that branch and is replaced here.
+
+- **Key Architectural Deliverables**: `_wait_for_proxy` is now an HTTP-level probe
+  (`token_reduction/proxy_readiness.py`). It sends a minimal proxy-style request and requires real `HTTP/` response
+  bytes before declaring the sidecar ready. A connection accepted and then closed or reset without an HTTP response
+  (docker-proxy with no backend yet) is not-ready and is retried until the existing `PROXY_READY_TIMEOUT_SECONDS`
+  deadline.
+- **Verification & Tests**: Hermetic tests with local socket listeners that fake both server behaviours
+  (`tests/test_proxy_readiness.py`), plus an updated `test_token_reduction.py`.
+- **Holon Flow Traversal**: All 5 stages completed, with 3/3 consensus review at iteration 3 and calibration included in
+  the PR diff. EV predicted 51.90, actual 62.84.
