@@ -334,7 +334,7 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0295)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0296)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
@@ -355,6 +355,11 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     (
         "**Rule (2026-10-28):** the target suites rely solely on pytest. No new code or documentation names any other "
         "test runner (Bean 0176 removes the existing references)."
+    ),
+    "",
+    (
+        "**Tooling (2026-11-14):** `holon-agentic-coder` `main` is `291727e` (PR #193 merged) and `holon` is reinstalled "
+        "from it via `install-holon`."
     ),
     "",
     (
@@ -391,6 +396,14 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
+        "**Start here (2026-11-14):** Beans 0260 and 0296 are completed (PRs #192 and #193, merged as `3b6c3d7` and "
+        "`291727e`). Bean 0297 is new (todo, P1: Stage 5 reruns automatically when the pull request head moves after "
+        "calibration). No holon-agentic-coder PR is open. **Bean 0151** (P0, planner touch-set estimation and overlap "
+        "blocking) is the next recommended bean, and **Bean 0297** is next on the Stage 5 lane, building on 0296. Keep "
+        "`HOLON_TOKEN_REDUCE=0` until Bean 0283."
+    ),
+    "",
+    (
         "**Start here (2026-11-13):** Beans 0267, 0290, 0292, 0293, 0294 and 0295 are completed (PRs #187, #186, #188, "
         "#190 and #189; Bean 0290 is harness-only), and Bean 0281 is completed by PR #191 (`ff25d77`, which carried the "
         "calibration report and 192 ledger rows into `main`). No holon-agentic-coder PR is open. Bean 0296 is new "
@@ -407,10 +420,10 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "",
     (
         "1. **Review loop hygiene & reporting lane (`flow/review/` & `review_report.py`, disjoint from resolver):** "
-        "**Bean 0260** first, then **Bean 0261**."
+        "**Bean 0260** (DONE, PR #192) first, then **Bean 0261**."
     ),
     (
-        "   - **Bean 0260** (`flow/review/loop.py`): never post intermediate review iterations or aborted review "
+        "   - **Bean 0260** (DONE: PR #192, merged `3b6c3d7` on 2026-11-13; `flow/review/loop.py`): never post intermediate review iterations or aborted review "
         "passes to GitHub PR; only post consensus review comments when `consensus_reached` is True or the 25-iteration "
         "budget is fully exhausted."
     ),
@@ -451,8 +464,12 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     ("3. **Calibration & resolver lane (`flow/stages/calibrate.py` & `entrypoint/review_loop.py`):**"),
     (
-        "   - **Bean 0296** (new, todo; `calibrate_sync.py` + `calibrate.py`): Stage 5 rebuilds a stale `calibrated` "
-        "branch itself instead of stopping after a conflict merge (found on PR #190); runs beside Bean 0260."
+        "   - **Bean 0296** (DONE: PR #193, merged `291727e` on 2026-11-14; `calibrate_sync.py` + `calibrate.py`): Stage 5 "
+        "rebuilds a stale `calibrated` branch itself instead of stopping after a conflict merge (found on PR #190)."
+    ),
+    (
+        "   - **Bean 0297** (new, todo, P1; `flow/stages/calibrate.py` + review loop, builds on 0296): Stage 5 reruns "
+        "automatically when the pull request head moves after calibration, so the merged head carries a current report."
     ),
     (
         "   - **Bean 0253** (`flow/stages/calibrate.py` + `flow/git_refs.py`): calibration branches from "
@@ -555,6 +572,18 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "notes": (
             "Unblocked by 0159 (#97 merged), 0201 (#142 merged), and 0149 (#146 merged). Sequence after 0254 "
             "(`flow/` package split). Must handle `{parent}--{n}-{slug}` child branches."
+        ),
+    },
+    "0297": {
+        "title": "Stage 5 reruns automatically when the pull request head moves after calibration",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Holon Flow / Calibration",
+        "notes": (
+            "Builds on 0296 (rebuilds a stale `calibrated` branch; landed in PR #193). Related to 0253, 0292 and 0182. "
+            "A head move after calibration, from a conflict merge, a resolver push or a review-loop rerun, reruns "
+            "Stage 5 and marks the report stale until then."
         ),
     },
     "0265": {
@@ -2017,13 +2046,33 @@ def generate_triage_document(
             (
                 "    - `0294` (#190, `efff3ed`): the committed `uv.lock` matches the project and container Python, so "
                 "flows stop producing lockfile churn. Its calibration report predates the conflict merge, and Stage 5 "
-                "stopped on the stale calibrated branch; Bean 0296 tracks the fix."
+                "stopped on the stale calibrated branch; Bean 0296 fixed it (PR #193)."
             ),
             ("    - `0295` (#189, `bde4934`): a rejected resolver diff is saved as a patch the host can read."),
             (
                 "    - `0267` (#187, `7a8f086`): Stage 3 records a measured `test_pass_rate`, and the review loop "
                 "measures tests itself when no CI registers. A hand edit outside the flow (`deb5026`, explicit "
                 "maintainer instruction) fixed the CI wait tests' head lookup."
+            ),
+            (
+                "32. **Stage 5 Calibration Rebuild and Review-Loop Posting Honesty (Beans 0260, 0296 / HAC PRs #192–#193, "
+                "2026-11-13 to 2026-11-14)**:"
+            ),
+            (
+                "    - `0260` (#192, `3b6c3d7`): the review consensus is posted to the PR only on unanimous approval or "
+                "when the review iteration budget is exhausted; halted iterations (failed verdict, infrastructure error, "
+                "reviewer crash or timeout) stay local in the ledgers. Final review iteration APPROVED 3/3 at head "
+                "`edb49fd` (predicted EV 50.68, actual 61.89, calibration delta +11.21)."
+            ),
+            (
+                "    - `0296` (#193, `291727e`, merged 2026-11-14): Stage 5 deletes and rebuilds a stale `calibrated` "
+                "branch that holds only the flow's own calibration commits, logs what it replaced, and still fails "
+                "loudly on foreign commits; the final report names the head the calibration report covers. The report "
+                "covers `cb55140`, not the merged head `0e183d8`, which is why Bean 0297 was logged."
+            ),
+            (
+                "    - New: `0297` (todo, P1): Stage 5 reruns automatically when the pull request head moves after "
+                "calibration, so the merged head carries a current report."
             ),
             "",
             "---",

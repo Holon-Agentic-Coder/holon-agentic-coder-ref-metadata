@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-14 00:46:53 UTC
+**Last Updated:** 2026-11-14 00:51:04 UTC
 
 ## Executive Summary
 
@@ -14,10 +14,10 @@ Concurrent flows on overlapping files forced repeated syncs and re-reviews earli
 10M+ tokens), so flows that touch the same files still run one after another; only flows with disjoint touch sets run
 together.
 
-- **Total Tracked Beans**: 296 (excluding template)
-- **Completed**: 241 (81.4%)
+- **Total Tracked Beans**: 297 (excluding template)
+- **Completed**: 241 (81.1%)
 - **Scrapped / Superseded**: 6 (2.0%)
-- **Active**: 49 (16.6%), of which 3 are in progress and 46 are todo
+- **Active**: 50 (16.8%), of which 3 are in progress and 47 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -257,7 +257,7 @@ partial work) completed the chain.
 
 ---
 
-## Key Milestones Completed (Beans 0080 – 0295)
+## Key Milestones Completed (Beans 0080 – 0296)
 
 1. **Holon Flow and Automation Engine**:
    - `0084`: Fixed CI check name collisions in review gates.
@@ -574,11 +574,23 @@ partial work) completed the chain.
       subprocesses cannot trip them.
     - `0294` (#190, `efff3ed`): the committed `uv.lock` matches the project and container Python, so flows stop
       producing lockfile churn. Its calibration report predates the conflict merge, and Stage 5 stopped on the stale
-      calibrated branch; Bean 0296 tracks the fix.
+      calibrated branch; Bean 0296 fixed it (PR #193).
     - `0295` (#189, `bde4934`): a rejected resolver diff is saved as a patch the host can read.
     - `0267` (#187, `7a8f086`): Stage 3 records a measured `test_pass_rate`, and the review loop measures tests itself
       when no CI registers. A hand edit outside the flow (`deb5026`, explicit maintainer instruction) fixed the CI wait
       tests' head lookup.
+32. **Stage 5 Calibration Rebuild and Review-Loop Posting Honesty (Beans 0260, 0296 / HAC PRs #192–#193, 2026-11-13 to
+    2026-11-14)**:
+    - `0260` (#192, `3b6c3d7`): the review consensus is posted to the PR only on unanimous approval or when the review
+      iteration budget is exhausted; halted iterations (failed verdict, infrastructure error, reviewer crash or timeout)
+      stay local in the ledgers. Final review iteration APPROVED 3/3 at head `edb49fd` (predicted EV 50.68, actual
+      61.89, calibration delta +11.21).
+    - `0296` (#193, `291727e`, merged 2026-11-14): Stage 5 deletes and rebuilds a stale `calibrated` branch that holds
+      only the flow's own calibration commits, logs what it replaced, and still fails loudly on foreign commits; the
+      final report names the head the calibration report covers. The report covers `cb55140`, not the merged head
+      `0e183d8`, which is why Bean 0297 was logged.
+    - New: `0297` (todo, P1): Stage 5 reruns automatically when the pull request head moves after calibration, so the
+      merged head carries a current report.
 
 ---
 
@@ -587,6 +599,7 @@ partial work) completed the chain.
 | Priority | Status      | Impact | Sizing | Bean # | Title                                                                                            | Domain                     | Dependencies / Notes                                                                                                                                                                                                                                                                                                                                                                               |
 | :------- | :---------- | :----: | :----: | :----- | :----------------------------------------------------------------------------------------------- | :------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **P0**   | todo        |  High  |   L    | 0151   | Planner estimates the touch set; overlapping concurrent flows are blocked                        | Holon Flow / Concurrency   | Unblocked by 0159 (#97 merged), 0201 (#142 merged), and 0149 (#146 merged). Sequence after 0254 (`flow/` package split). Must handle `{parent}--{n}-{slug}` child branches.                                                                                                                                                                                                                        |
+| **P1**   | todo        |  High  |   M    | 0297   | Stage 5 reruns automatically when the pull request head moves after calibration                  | Holon Flow / Calibration   | Builds on 0296 (rebuilds a stale `calibrated` branch; landed in PR #193). Related to 0253, 0292 and 0182. A head move after calibration, from a conflict merge, a resolver push or a review-loop rerun, reruns Stage 5 and marks the report stale until then.                                                                                                                                      |
 | **P1**   | todo        |  High  |   L    | 0265   | Split `cli/__init__.py` into focused modules (move only), like the `flow/` package               | Refactor / Architecture    | Splits the 2,026-line `cli/__init__.py` (80 definitions, 96 `mock.patch` targets, 63 importers) into `cli/{log,constants,network,credentials,repo_resolution,mounts,proxy_sidecar,env_files,containers,doctor,role_dispatch,parser}.py` with re-exports and a throwaway AST verification, no committed snapshot. Hold until PR #152 (Bean 0262) and Beans 0263 and 0264 merge. Unblocks Bean 0189. |
 | **P2**   | todo        | Medium |   M    | 0264   | Read module size budgets from configuration instead of hardcoding paths and numbers in the check | Lint / Configuration       | Moves the `flow/` size budgets into `holon-config/hygiene/module_budgets.json` (packages, default ceiling, overrides with reasons) read by a generic `check_module_budgets.py`, deleting `flow_module_budgets.json`. Agents may change the configuration; raised limits warn instead of failing. Hold until Bean 0263 merges.                                                                      |
 | **P2**   | todo        | Medium |   XS   | 0261   | Deduplicate and streamline PR review evaluation line in consensus report                         | Review Loop / Report       | Streamline redundant evaluation header text in `review_report.py` to print a single clean summary line matching canonical skill output and avoiding duplicated PR/iteration metadata.                                                                                                                                                                                                              |
@@ -651,6 +664,9 @@ consensus review and Stage 5 calibration.
 **Rule (2026-10-28):** the target suites rely solely on pytest. No new code or documentation names any other test runner
 (Bean 0176 removes the existing references).
 
+**Tooling (2026-11-14):** `holon-agentic-coder` `main` is `291727e` (PR #193 merged) and `holon` is reinstalled from it
+via `install-holon`.
+
 **Tooling (2026-11-11):** `holon-agentic-coder` `main` (`0528a63`) and `holon-coherence` `main` (`d6f1655`) are
 installed editable and all agent images were rebuilt via `install-holon`, so Stage 3 partial-code salvage (#108),
 pure-append ledgers (#111), the calibration-report Prettier fix (#112), Stage 4 in the `review-loop` container (#116),
@@ -679,6 +695,12 @@ off `origin/main` (Bean 0259, PR #150). Standalone external PR reviews provision
 worktree exists; otherwise `flow-<slug>` is reused directly across all stages. Image builds use a temporary
 `build-images-<sha>` worktree, and the `main` worktrees stay on `main`, identical to `origin/main`.
 
+**Start here (2026-11-14):** Beans 0260 and 0296 are completed (PRs #192 and #193, merged as `3b6c3d7` and `291727e`).
+Bean 0297 is new (todo, P1: Stage 5 reruns automatically when the pull request head moves after calibration). No
+holon-agentic-coder PR is open. **Bean 0151** (P0, planner touch-set estimation and overlap blocking) is the next
+recommended bean, and **Bean 0297** is next on the Stage 5 lane, building on 0296. Keep `HOLON_TOKEN_REDUCE=0` until
+Bean 0283.
+
 **Start here (2026-11-13):** Beans 0267, 0290, 0292, 0293, 0294 and 0295 are completed (PRs #187, #186, #188, #190 and
 #189; Bean 0290 is harness-only), and Bean 0281 is completed by PR #191 (`ff25d77`, which carried the calibration report
 and 192 ledger rows into `main`). No holon-agentic-coder PR is open. Bean 0296 is new (todo, P1: Stage 5 rebuilds a
@@ -690,10 +712,10 @@ Sequential & Disjoint Lanes, holon-agentic-coder (Bean 0254 landed: lanes are no
 pairwise-disjoint files and can run concurrently):
 
 1. **Review loop hygiene & reporting lane (`flow/review/` & `review_report.py`, disjoint from resolver):** **Bean 0260**
-   first, then **Bean 0261**.
-   - **Bean 0260** (`flow/review/loop.py`): never post intermediate review iterations or aborted review passes to GitHub
-     PR; only post consensus review comments when `consensus_reached` is True or the 25-iteration budget is fully
-     exhausted.
+   (DONE, PR #192) first, then **Bean 0261**.
+   - **Bean 0260** (DONE: PR #192, merged `3b6c3d7` on 2026-11-13; `flow/review/loop.py`): never post intermediate
+     review iterations or aborted review passes to GitHub PR; only post consensus review comments when
+     `consensus_reached` is True or the 25-iteration budget is fully exhausted.
    - **Bean 0261** (`review_report.py`): deduplicate and streamline the evaluation header line in consensus reports to
      print a single clean summary line matching canonical skill output.
 2. **Sandbox worktree mount & dead git code eradication lane (`flow/review/workspace.py` &
@@ -716,8 +738,10 @@ pairwise-disjoint files and can run concurrently):
      `holon-config/hygiene/module_budgets.json` configuration read by a generic `check_module_budgets.py`; agents may
      change it, and raised limits warn instead of failing.
 3. **Calibration & resolver lane (`flow/stages/calibrate.py` & `entrypoint/review_loop.py`):**
-   - **Bean 0296** (new, todo; `calibrate_sync.py` + `calibrate.py`): Stage 5 rebuilds a stale `calibrated` branch
-     itself instead of stopping after a conflict merge (found on PR #190); runs beside Bean 0260.
+   - **Bean 0296** (DONE: PR #193, merged `291727e` on 2026-11-14; `calibrate_sync.py` + `calibrate.py`): Stage 5
+     rebuilds a stale `calibrated` branch itself instead of stopping after a conflict merge (found on PR #190).
+   - **Bean 0297** (new, todo, P1; `flow/stages/calibrate.py` + review loop, builds on 0296): Stage 5 reruns
+     automatically when the pull request head moves after calibration, so the merged head carries a current report.
    - **Bean 0253** (`flow/stages/calibrate.py` + `flow/git_refs.py`): calibration branches from `origin/<E>/_` so
      `/calibrated` fast-forwards into the PR (recurred on PRs #147 and #148).
    - **Bean 0252** (`entrypoint/review_loop.py`): resolver preserves its rejected diff and full pytest output on
