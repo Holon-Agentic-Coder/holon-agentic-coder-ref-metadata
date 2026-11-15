@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-15 07:13:41 UTC
+**Last Updated:** 2026-11-15 21:51:48 UTC
 
 ## Executive Summary
 
@@ -14,10 +14,10 @@ Concurrent flows on overlapping files forced repeated syncs and re-reviews earli
 10M+ tokens), so flows that touch the same files still run one after another; only flows with disjoint touch sets run
 together.
 
-- **Total Tracked Beans**: 300 (excluding template)
-- **Completed**: 246 (82.0%)
+- **Total Tracked Beans**: 301 (excluding template)
+- **Completed**: 247 (82.1%)
 - **Scrapped / Superseded**: 7 (2.3%)
-- **Active**: 47 (15.7%), of which 1 are in progress and 46 are todo
+- **Active**: 47 (15.6%), of which 1 are in progress and 46 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -691,6 +691,14 @@ naming `main` as the target selects the repository and base branch only, and the
 off `origin/main` (Bean 0259, PR #150). Standalone external PR reviews provision `pr<N>-<slug>` only when no local
 worktree exists; otherwise `flow-<slug>` is reused directly across all stages. Image builds use a temporary
 `build-images-<sha>` worktree, and the `main` worktrees stay on `main`, identical to `origin/main`.
+
+**Start here (2026-11-16):** Bean 0301 is completed (PR #201, `05bd8bab`): the empty-diff guard compares a decomposed
+flow's combined execution branch against the plan's base on `main` (`flow/combined_base.py`), and stays fail-closed for
+ledger-only diffs. **Bean 0151 is next:** resume from review on its combined branch (merge commit `9840611b`, pushed;
+the `flow-touchset` worktree stays) to open its final PR. Three engine-finding bean candidates: (a) the sticky
+`skip_review`/`skip_calibrate` flags across resumes; (b) the halt after consensus approval that skips Stage 5; (c) the
+engine refusing to calibrate when the local branch is ahead of origin. `holon 0.1.0` was reinstalled on 2026-11-16, so
+nothing is deferred. Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283.
 
 **Start here (2026-11-15):** Beans 0299, 0227 and 0208 are completed (PRs #197 and #198, holon-coherence PR #42). **Bean
 0147 is completed, both halves:** the holon-coherence half merged as PR #29 (`68fdf67`) with follow-up PR #31
