@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0151
 title: "Planner estimates the files a change will touch, and overlapping flows are blocked from running concurrently"
-status: in-progress
+status: completed
 type: feature
 priority: critical
 tags:
@@ -11,7 +11,7 @@ tags:
   - token-cost
   - holon-agentic-coder
 created_at: 2026-10-25T07:34:25Z
-updated_at: 2026-10-29T23:34:36Z
+updated_at: 2026-11-15T23:45:34Z
 ---
 
 ## Problem
@@ -86,3 +86,40 @@ unions, and the maintainer chose to keep the ledger layout.
   entropy budget and fabricates placeholder sub-intents). Blocked by 0159 (PR #97, in review at the time); re-plan on
   `main` after it merges. PR #97 merged as `fbd3b35` (2026-10-27T12:10:13Z), so this is now unblocked. Also wants 0149
   first for reliable in-flight IDs. Logs `todo/logs/0151-flow*.log`, intent `todo/intent-0151-touch-set-admission.json`.
+
+## Resolution
+
+Delivered via [PR #202](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/202) and merged into `main`
+(`38638c0c`, 2026-11-15T23:36:16Z). Child PRs
+[#194](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/194) (planner estimate) and
+[#200](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/200) (admission and enforcement) merged into the
+plan branch first.
+
+- **Key Architectural Deliverables**:
+  - Stage 2 estimate: a `## Touch Set` plan section parsed by `sandbox_executor/touch_set.py` and recorded as the
+    `touch_set` field of the `plans.jsonl` row (`null` without the section, `[]` for placeholders only). Documented in
+    `docs/touch_set.md` and `docs/ledger_schema.md`. Metadata paths (`plans/`, `executions/`, `holon-knowledge/`,
+    `.holon/`) are excluded.
+  - Admission before Stage 3 (`flow/admission.py`, `flow/in_flight.py`): the plan's touch set is compared with the
+    declared sets of open flow pull requests and local in-flight flows, and with the real changed files of open flow
+    pull requests (`gh pr diff --name-only`). Overlap refuses to start, naming the conflicting PR or branch and the
+    files. Discovery failure fails closed. `--allow-overlap` admits the run and appends one `admission_override` row to
+    `executions.jsonl` on the plan branch.
+  - Enforcement after Stage 3 (`flow/stages/touch_set_guard.py`): a non-empty diff outside the declared set writes a
+    superseding `touch_set_violation` summary and returns to Stage 2 to widen the set, bounded by `MAX_REPLAN_ATTEMPTS`.
+  - Stage 5 calibration (`calibration_touch_set.py`, `calibration.py`): precision and recall of the predicted set
+    against the actual one, reported in the calibration report and metrics.
+- **Verification & Tests**: hermetic tests in `test_touch_set.py`, `test_planner_touch_set.py`,
+  `test_calibration_touch_set.py`, `flow/test_admission.py`, `flow/test_in_flight.py`,
+  `flow/stages/test_execute_touch_set.py` and `flow/test_pipeline_touch_set.py`, with no real `gh` calls. These were run
+  in the flow's review loop; this resolution did not rerun the suite. Metadata-only overlap is admitted
+  (`test_metadata_only_overlap_is_admitted`).
+- **Scope not delivered in the PR**: scope item 5 (the harness rule not to launch concurrent flows whose touch sets
+  overlap) is harness-side and was never part of the PR. It remains harness work, tracked as a workflow-docs follow-up
+  in the triage matrix.
+- **Holon Flow Traversal**: decomposed into 2 sub-intents, both merged into the plan branch. The final PR reached 3/3
+  consensus at review iteration 7, and calibration is in the PR diff. Expected value 27.70, actual 63.29.
+- **Engine findings exposed**: child-merge policy (Bean 0298, fixed); Stage 5 diff on nested branch names (Bean 0299,
+  fixed); empty-diff guard on decomposed flows (Bean 0301, fixed). Still unlogged as beans: sticky
+  `skip_review`/`skip_calibrate` flags across resumes; halt after consensus approval can skip Stage 5; calibrate refuses
+  a local branch that is ahead of origin.

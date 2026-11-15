@@ -396,13 +396,18 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Start here (2026-11-16):** Bean 0301 is completed (PR #201, `05bd8bab`): the empty-diff guard compares a "
-        "decomposed flow's combined execution branch against the plan's base on `main` (`flow/combined_base.py`), and "
-        "stays fail-closed for ledger-only diffs. **Bean 0151 is next:** resume from review on its combined branch "
-        "(merge commit `9840611b`, pushed; the `flow-touchset` worktree stays) to open its final PR. Three engine-finding "
-        "bean candidates: (a) the sticky `skip_review`/`skip_calibrate` flags across resumes; (b) the halt after consensus "
-        "approval that skips Stage 5; (c) the engine refusing to calibrate when the local branch is ahead of origin. "
-        "`holon 0.1.0` was reinstalled on 2026-11-16, so nothing is deferred. Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283."
+        "**Start here (2026-11-16):** Bean 0151 is completed (PR #202, `38638c0c`, with child PRs #194 and #200): a "
+        "planner `## Touch Set` estimate is recorded on the plan row; a flow whose touch set overlaps an in-flight flow is "
+        "refused before Stage 3 unless `--allow-overlap` is given (recorded in the ledger); a declared-set violation after "
+        "Stage 3 returns to re-planning; Stage 5 scores precision and recall. Not in the PR: the harness rule that "
+        "concurrent flows must not launch with overlapping touch sets. It is a follow-up for the workflow docs "
+        "(`.agents/workflows.md`, AGENTS.md) and the engine can now enforce it. **Next bean: 0297** (todo, Stage 5 lane: "
+        "Stage 5 reruns when the pull request head moves after calibration). Engine findings as bean candidates: (a) the "
+        "sticky `skip_review`/`skip_calibrate` flags across resumes; (b) the halt after consensus approval that skips "
+        "Stage 5; (c) the engine refusing to calibrate when the local branch is ahead of origin. Fixed by Beans 0298, 0299 "
+        "and 0301. The untracked `todo/` in the `apps/holon-agentic-coder/main` worktree holds `__pycache__/`, `cache/` and "
+        "`mitm_wire_logs/` and should be cleared by the maintainer. `holon 0.1.0` was reinstalled on 2026-11-16, so nothing "
+        "is deferred. Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283."
     ),
     "",
     (
