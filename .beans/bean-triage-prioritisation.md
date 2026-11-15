@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-14 14:10:20 UTC
+**Last Updated:** 2026-11-15 07:13:41 UTC
 
 ## Executive Summary
 
@@ -15,9 +15,9 @@ Concurrent flows on overlapping files forced repeated syncs and re-reviews earli
 together.
 
 - **Total Tracked Beans**: 300 (excluding template)
-- **Completed**: 245 (81.7%)
+- **Completed**: 246 (82.0%)
 - **Scrapped / Superseded**: 7 (2.3%)
-- **Active**: 48 (16.0%), of which 2 are in progress and 46 are todo
+- **Active**: 47 (15.7%), of which 1 are in progress and 46 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -630,7 +630,6 @@ partial work) completed the chain.
 | **P2**   | todo        |  High  |   L    | 0226   | End-to-end test for the holon flow commands with full teardown                                   | Testing / E2E              | Runs on a sub-1B local model via the `local_llm` envelope (no cloud secrets); never opens a PR; unconditional teardown of worktrees and remote `I-…` trees; invariant assertions + bounded whole-run retries. Operator-run `test-e2e` task, excluded from CI.                                                                                                                                      |
 | **P2**   | todo        | Medium |   M    | 0181   | Use the `/_` leaf only when referencing a git branch, never on ids                               | Holon Flow / Ledger        | `intents.jsonl` `branch` and `parent_intent_id` hold refs; migrate with readers accepting both shapes. After 0161 (overlaps `flow.py`; 0179 is merged).                                                                                                                                                                                                                                            |
 | **P2**   | todo        | Medium |   XL   | 0153   | Remove comments and docstrings from all code; make it self-documenting                           | Readability                | Per package, with or right after that package's decomposition (which follows its split: 0187, 0188, 0204), not as one repository-wide flow.                                                                                                                                                                                                                                                        |
-| **P2**   | in-progress | Medium |   S    | 0147   | Remove harness paths tracked in the target repositories                                          | Hygiene                    | `holon-coherence` half merged (PR #29, `68fdf67`; follow-up PR #31, `b52c7e1`). `holon-agentic-coder` half pending (fold into 0214 when beads lands).                                                                                                                                                                                                                                              |
 | **P2**   | todo        | Medium |   M    | 0193   | Decompose the intent and plan stage modules                                                      | Holon Flow / Refactor      | After 0187; parallel decomposition lane.                                                                                                                                                                                                                                                                                                                                                           |
 | **P2**   | todo        | Medium |   M    | 0194   | `run_execute_stage` becomes an `ExecuteStage` with named steps                                   | Holon Flow / Refactor      | After 0187; parallel decomposition lane. 306 lines, CC 40.                                                                                                                                                                                                                                                                                                                                         |
 | **P2**   | todo        | Medium |   M    | 0197   | Split `calibration.py` into a package; decompose metrics parsing and report generation           | Calibration / Refactor     | After 0187 and 0146 (0162 is merged as #112); parallel lane otherwise.                                                                                                                                                                                                                                                                                                                             |
@@ -693,18 +692,16 @@ off `origin/main` (Bean 0259, PR #150). Standalone external PR reviews provision
 worktree exists; otherwise `flow-<slug>` is reused directly across all stages. Image builds use a temporary
 `build-images-<sha>` worktree, and the `main` worktrees stay on `main`, identical to `origin/main`.
 
-**Start here (2026-11-14):** Beans 0299, 0227 and 0208 are completed. Bean 0299 landed via PR #197 (`78a8630`: Stage 5
-calibrate `git diff` uses fully qualified refs and a path separator on nested sub-intent branch names; EV predicted
-44.50 / actual -19.81). Bean 0227 landed via PR #198 (`40dbcc9`: `_wait_for_proxy` is an HTTP-level probe that requires
-real `HTTP/` response bytes; EV predicted 51.90 / actual 62.84). Bean 0208 landed via holon-coherence PR #42 (`baf5c65`,
-which supersedes PR #41: `ProxyLifecycle` in `container/lifecycle.py` owns `ensure_ca`, `start`, `wait_until_ready` and
-`stop`; EV predicted 8.05 / actual 8.45). **Bean 0151** (P0, planner touch-set estimation and overlap blocking) is in
-progress: resolving the plan-branch conflict, then resuming review. **Bean 0147** is in progress: PR #199 is open and
-its CI repair is in flight. Beans 0151 and 0147 stay in-progress. Candidate beans from the Bean 0208 run: (a) the sticky
+**Start here (2026-11-15):** Beans 0299, 0227 and 0208 are completed (PRs #197 and #198, holon-coherence PR #42). **Bean
+0147 is completed, both halves:** the holon-coherence half merged as PR #29 (`68fdf67`) with follow-up PR #31
+(`b52c7e1`), and the holon-agentic-coder half merged as PR #199 (`19a5a1f2`). The hygiene test exempts engine-written
+`holon-knowledge/kb/` records. **Bean 0151** (P0, planner touch-set estimation and overlap blocking) stays in progress:
+child PR #200 is in review, then the final PR. Two engine findings are bean candidates: (a) the sticky
 `skip_review`/`skip_calibrate` checkpoint flags across resumes; (b) the halt for human review after consensus approval,
 which skipped Stage 5 and needed a calibrate-only resume (a halt before merge is a bug under the no-halt-before-merge
-rule). The hygiene test must exempt engine-written knowledge-base records. Bean 0297 stays todo on the Stage 5 lane.
-Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283.
+rule), together with the engine refusing to calibrate when the local branch is ahead of origin. Bean 0297 stays todo on
+the Stage 5 lane. The `holon` CLI was reinstalled on 2026-11-15 (`holon 0.1.0`), so nothing is deferred. Keep
+`HOLON_TOKEN_REDUCE=0` until Bean 0283.
 
 **Start here (2026-11-13):** Beans 0267, 0290, 0292, 0293, 0294 and 0295 are completed (PRs #187, #186, #188, #190 and
 #189; Bean 0290 is harness-only), and Bean 0281 is completed by PR #191 (`ff25d77`, which carried the calibration report

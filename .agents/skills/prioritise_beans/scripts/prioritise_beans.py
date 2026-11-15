@@ -396,18 +396,16 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     ),
     "",
     (
-        "**Start here (2026-11-14):** Beans 0299, 0227 and 0208 are completed. Bean 0299 landed via PR #197 (`78a8630`: "
-        "Stage 5 calibrate `git diff` uses fully qualified refs and a path separator on nested sub-intent branch names; EV "
-        "predicted 44.50 / actual -19.81). Bean 0227 landed via PR #198 (`40dbcc9`: `_wait_for_proxy` is an HTTP-level "
-        "probe that requires real `HTTP/` response bytes; EV predicted 51.90 / actual 62.84). Bean 0208 landed via "
-        "holon-coherence PR #42 (`baf5c65`, which supersedes PR #41: `ProxyLifecycle` in `container/lifecycle.py` owns "
-        "`ensure_ca`, `start`, `wait_until_ready` and `stop`; EV predicted 8.05 / actual 8.45). **Bean 0151** (P0, planner "
-        "touch-set estimation and overlap blocking) is in progress: resolving the plan-branch conflict, then resuming "
-        "review. **Bean 0147** is in progress: PR #199 is open and its CI repair is in flight. Beans 0151 and 0147 stay "
-        "in-progress. Candidate beans from the Bean 0208 run: (a) the sticky `skip_review`/`skip_calibrate` checkpoint "
-        "flags across resumes; (b) the halt for human review after consensus approval, which skipped Stage 5 and needed a "
-        "calibrate-only resume (a halt before merge is a bug under the no-halt-before-merge rule). The hygiene test must "
-        "exempt engine-written knowledge-base records. Bean 0297 stays todo on the Stage 5 lane. "
+        "**Start here (2026-11-15):** Beans 0299, 0227 and 0208 are completed (PRs #197 and #198, holon-coherence PR #42). "
+        "**Bean 0147 is completed, both halves:** the holon-coherence half merged as PR #29 (`68fdf67`) with follow-up PR #31 "
+        "(`b52c7e1`), and the holon-agentic-coder half merged as PR #199 (`19a5a1f2`). The hygiene test exempts "
+        "engine-written `holon-knowledge/kb/` records. **Bean 0151** (P0, planner touch-set estimation and overlap "
+        "blocking) stays in progress: child PR #200 is in review, then the final PR. Two engine findings are bean "
+        "candidates: (a) the sticky `skip_review`/`skip_calibrate` checkpoint flags across resumes; (b) the halt for human "
+        "review after consensus approval, which skipped Stage 5 and needed a calibrate-only resume (a halt before merge is a "
+        "bug under the no-halt-before-merge rule), together with the engine refusing to calibrate when the local branch is "
+        "ahead of origin. Bean 0297 stays todo on the Stage 5 lane. The `holon` CLI was reinstalled on 2026-11-15 "
+        "(`holon 0.1.0`), so nothing is deferred. "
         "Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283."
     ),
     "",
