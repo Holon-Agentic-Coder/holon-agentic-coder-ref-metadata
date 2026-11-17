@@ -97,3 +97,8 @@ defects were encountered:
      - `ansible.cfg` collections path search list includes fallback.
      - Shell configs provide `conda` alias or hook for `micromamba`.
    - Run `make test`, `make lint`, and `make check`.
+
+5. **CI Cold-Start End-to-End Prevention (`.github/workflows/make.yml`)**:
+   - In `.github/workflows/make.yml`, add a step to run `make configure` cold-start before `make bootstrap` or Conda is
+     installed, preventing any regression where `make configure` crashes on fresh machines.
+   - Assert in test suite that `Makefile` never invokes `collection install` without `-p "$(COLLECTIONS)"`.
