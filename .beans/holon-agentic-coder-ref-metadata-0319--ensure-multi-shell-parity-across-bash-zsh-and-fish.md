@@ -1,9 +1,9 @@
 ---
 id: "0319"
 title: "Ensure first-class multi-shell parity across Bash, Zsh, and Fish for all managed tools"
-status: in-progress
+status: completed
 created_at: 2026-11-17T23:08:00+11:00
-updated_at: 2026-11-17T23:24:00+11:00
+updated_at: 2026-11-18T00:04:36+11:00
 tags:
   - dev-env
   - multi-shell
@@ -53,3 +53,12 @@ Consequently:
      - `fish -lc "which node; node -v"`
    - Assert that all three shells resolve to the pinned Node version (`v26.13.1`).
    - In `tests/test_manifest.py`, add tests asserting that all managed tools declare and verify multi-shell parity.
+
+## Resolution
+
+- **Pull Request**: [thomashan/dev-env#20](https://github.com/thomashan/dev-env/pull/20)
+- **Merge Commit**: `80aa2bb69caaa4fda6f4fc989c9778932bdd5d75`
+- **Summary**: Successfully implemented first-class multi-shell parity across Bash, Zsh, and Fish for Node, NVM, and
+  Conda. Added official `nvm` wiring and universal binary linkage (`~/.local/bin/node`, `npm`, `npx`), updated Ansible
+  validation tasks to test all three shells explicitly, and extended `tests/test_manifest.py` coverage. Verified all
+  tests passing and PR merged successfully.
