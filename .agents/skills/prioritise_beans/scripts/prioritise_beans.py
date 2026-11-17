@@ -334,7 +334,7 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0296)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0315)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
@@ -545,8 +545,8 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
         "complete."
     ),
     (
-        "- **Beads adoption lane (from Bean 0156):** **Bean 0214** (pilot beads in holon-agentic-coder, folding in "
-        "the 0147 hac half) and **Bean 0215** (deterministic beans-to-beads JSONL converter and real-data dry run, "
+        "- **Beads adoption lane (from Bean 0156):** **Bean 0214** is completed (PR #204, `d09df71`). **Bean 0215** "
+        "(deterministic beans-to-beads JSONL converter and real-data dry run, "
         "harness work) in parallel, followed by **Bean 0216** (flow integration), **Bean 0217** (adopt in coherence), "
         "and **Bean 0218** (port harness skills to `bd` and archive harness)."
     ),
@@ -605,6 +605,17 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "Builds on 0296 (rebuilds a stale `calibrated` branch; landed in PR #193). Related to 0253, 0292 and 0182. "
             "A head move after calibration, from a conflict merge, a resolver push or a review-loop rerun, reruns "
             "Stage 5 and marks the report stale until then."
+        ),
+    },
+    "0316": {
+        "title": "macOS unit CI timing gate trips on runner noise and blocks Stage 5",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "S",
+        "domain": "CI / Stage 5",
+        "notes": (
+            "Timing gate fails on runner speed alone (PR #204 and #203 calibration-only heads). Touches "
+            "`.github/workflows/test-unit.yml` and `scripts/check_ci_runtime_budget.py`. Run after 0297."
         ),
     },
     "0299": {
@@ -943,17 +954,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "conflict checks, ledger-only fast resolution, and model fallback into `review_loop.template.md`."
         ),
     },
-    "0214": {
-        "title": "Pilot beads (bd) issue tracking inside holon-agentic-coder",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "M",
-        "domain": "Issue Tracking / Pilot",
-        "notes": (
-            "Holon flow against holon-agentic-coder. `bd init` prefix `hac-`, offline config, pin `bd` in image, "
-            "import open beans, fold in 0147 hac half. Precursor to 0215-0218."
-        ),
-    },
     "0215": {
         "title": "Deterministic beans-to-beads JSONL converter and real-data dry run",
         "priority": "**P1**",
@@ -1200,6 +1200,17 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "notes": (
             "Harness work. Retire triage matrix / `prioritise-beans` for `bd ready --json`; port guidance; archive "
             "harness read-only after pilots succeed."
+        ),
+    },
+    "0317": {
+        "title": "GitHub Projects kanban board for holon-agentic-coder, fed by beads issues",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Issue Tracking / Projects",
+        "notes": (
+            "Blocked by 0214 (now completed, so unblocked). Board fed from `bd` issues on `refs/dolt/data`; "
+            "a read-only view for the maintainer. Sequence after 0215 and 0216."
         ),
     },
     "0142": {
@@ -2116,6 +2127,36 @@ def generate_triage_document(
             (
                 "    - New: `0297` (todo, P1): Stage 5 reruns automatically when the pull request head moves after "
                 "calibration, so the merged head carries a current report."
+            ),
+            (
+                "33. **Beads pilot and the dev-env wave (Bean 0214 / PR #204, Beans 0291, 0302 – 0315, "
+                "2026-11-13 to 2026-11-17)**:"
+            ),
+            (
+                "    - `0214` (PR #204, `d09df71`, merged 2026-11-17): `bd` (beads) is piloted inside "
+                "holon-agentic-coder, pinned in the role images, with `hac-` ids and agent guidance for "
+                "`bd ready`, `--claim` and `bd close`. The 0147 hac half was already done on `main` (PR #199). "
+                "Calibration: expected value predicted 39.65, actual 62.59. The `bd` tarball digest pin was left "
+                "as a follow-up patch."
+            ),
+            (
+                "    - `0291` (completed 2026-11-13): a failed Stage 4 reviewer logs its runner stderr and a real "
+                "stop reason instead of `unknown`."
+            ),
+            (
+                "    - `0302` – `0307` (2026-11-16 to 2026-11-17, dev-env harness): GNU Stow for dotfiles, a host "
+                "interactive wizard for dotfile merge and variants, curl-only bootstrap, uv as a standard toolset "
+                "package, and a reset of dotfiles, tmux and nvim to factory defaults."
+            ),
+            (
+                "    - `0308` – `0315` (2026-11-17, dev-env harness): robust Conda and Ansible detection, collection "
+                "skips with a side-by-side diff, the Node 26 LTS default, Ansible symlink syntax fix, nvm ahead of "
+                "Homebrew in fish PATH, centralised package versions, a single Python prompt, and a reset to pure OS "
+                "defaults with modular shell snippets."
+            ),
+            (
+                "    - New: `0316` (todo, P1): the macOS unit CI timing gate trips on runner noise and blocks Stage 5. "
+                "`0317` (todo, P2): a GitHub Projects kanban board fed by beads issues."
             ),
             "",
             "---",
