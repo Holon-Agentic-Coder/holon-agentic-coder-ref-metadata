@@ -1,9 +1,9 @@
 ---
 id: "0312"
 title: "Ensure nvm-managed node precedes Homebrew in fish PATH"
-status: in-progress
+status: completed
 created_at: 2026-11-17T15:49:00+11:00
-updated_at: 2026-11-17T15:49:00+11:00
+updated_at: 2026-11-17T16:06:00+11:00
 tags:
   - dev-env
   - fish
@@ -41,3 +41,10 @@ before `brew shellenv | source`. However, `brew shellenv` runs:
 2. **Tests & Validation**:
    - Run `uv run pytest -m "not network"` to ensure manifest and templating tests pass.
    - Verify `fish -l -c "which node"` resolves to `$HOME/.local/share/nvm/current/bin/node`.
+
+## Resolution
+
+- Reordered PATH initialization in `dotfiles/fish/.config/fish/config.fish` so Homebrew environment initializes prior to
+  nvm path prepending.
+- Updated `test_node_bin_is_first_on_path` in `tests/test_manifest.py` ensuring the relative order invariant is tested.
+- Merged via PR #15 (commit `ea61908`).
