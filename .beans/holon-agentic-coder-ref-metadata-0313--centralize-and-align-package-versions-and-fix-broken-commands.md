@@ -1,9 +1,9 @@
 ---
 id: "0313"
 title: "Centralize and align package versions and fix breaking commands (make lint, check-mode, neovim assert)"
-status: in-progress
+status: completed
 created_at: 2026-11-17T16:08:00+11:00
-updated_at: 2026-11-17T16:08:00+11:00
+updated_at: 2026-11-17T18:17:00+11:00
 tags:
   - dev-env
   - versions
@@ -59,3 +59,13 @@ tags:
 5. **Tests & Validation**:
    - Add unit tests in `tests/test_manifest.py` verifying version alignment across all consumers and verifying
      `make lint` and assertion syntax.
+
+## Resolution
+
+- Introduced centralized `versions.json` manifest for python, node, ansible_core, and neovim_min.
+- Aligned `devenv_wizard.py`, `Makefile`, and `test-hygiene.yml` with `versions.json`.
+- Fixed `make lint` to prefer `uv run --extra test ansible-lint` with Conda PATH fallback.
+- Fixed Neovim version assertion to use standard Ansible `is version('0.12', '>=')`.
+- Added `check_mode: false` to fisher directory creation task.
+- Added comprehensive unit tests in `tests/test_manifest.py` ensuring version alignment and command invariants.
+- Merged via PR #16 (commit `9fae41e`).
