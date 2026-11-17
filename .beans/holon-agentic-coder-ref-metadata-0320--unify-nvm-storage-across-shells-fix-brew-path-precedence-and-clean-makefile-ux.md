@@ -1,9 +1,9 @@
 ---
 id: "0320"
 title: "Unify NVM storage across Fish and Bash/Zsh, prevent Homebrew path usurpation, and clean Makefile bootstrap UX"
-status: in-progress
+status: completed
 created_at: 2026-11-18T00:35:00+11:00
-updated_at: 2026-11-18T00:42:00+11:00
+updated_at: 2026-11-18T10:31:00+11:00
 tags:
   - dev-env
   - nvm
@@ -82,3 +82,19 @@ shell testing:
      - `.bashrc` and `.zshrc` enforce NVM precedence over `/opt/homebrew/bin`.
      - `Makefile` does not output the next-step prompt during `make install`.
    - Run `make test`, `make lint`, and `make check`.
+
+## Resolution
+
+- **Pull Request**:
+  [#21 (Unify NVM version storage across Fish and Bash/Zsh, prevent Homebrew path usurpation, and clean Makefile bootstrap UX)](https://github.com/thomashan/dev-env/pull/21)
+- **Merge Commit**: `ba7204c`
+- **Delivered Changes**:
+  - Unified NVM storage in Fish via `set -g nvm_data $XDG_DATA_HOME/nvm/versions/node` in `00-devenv.fish` and
+    bidirectional backward compatibility symlinks.
+  - Guarded `brew shellenv` evaluation in `.bashrc` and `.zshrc` so it only evaluates if Homebrew bin is not already on
+    PATH.
+  - Ensured NVM bin precedence over Homebrew in `.bashrc` and `.zshrc`.
+  - Switched to canonical XDG NVM sourcing convention in Bash/Zsh, eliminating false `-> system` display in `nvm ls`.
+  - Conditioned `Run 'make install' or 'make check-mode' next.` on `ifeq ($(MAKECMDGOALS),bootstrap)` in `Makefile`.
+  - Added comprehensive manifest tests in `tests/test_manifest.py` verifying multi-shell NVM parity and Makefile
+    bootstrap UX.
