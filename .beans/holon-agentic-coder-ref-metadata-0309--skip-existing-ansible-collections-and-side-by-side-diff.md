@@ -1,9 +1,9 @@
 ---
 id: "0309"
 title: "Check and skip existing Ansible collections in bootstrap and provide side-by-side diff in wizard"
-status: in-progress
+status: completed
 created_at: 2026-11-17T15:08:00+11:00
-updated_at: 2026-11-17T15:08:00+11:00
+updated_at: 2026-11-17T15:38:00+11:00
 tags:
   - dev-env
   - makefile
@@ -48,4 +48,12 @@ tags:
 3. **Tests & Verification**:
    - Add tests in `tests/test_manifest.py` verifying `--force` is not present in collection install command and
      directory check is present.
-   - Run test suite (`uv run pytest`, `ruff`, `ansible-lint`, `prettier`, `make check`).
+
+## Resolution
+
+- Implemented collection caching and guard check in `Makefile` (`bootstrap:`), omitting `--force`.
+- Implemented side-by-side diff in `scripts/devenv_wizard.py` with `delta -s` and `diff -y` fallbacks.
+- Verified unit and manifest tests passing.
+- Merged via PR #12 (commit `bf61f2d`).
+
+  - Run test suite (`uv run pytest`, `ruff`, `ansible-lint`, `prettier`, `make check`).
