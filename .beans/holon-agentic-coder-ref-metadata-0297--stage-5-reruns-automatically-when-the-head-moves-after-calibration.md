@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0297
 title: "Stage 5 reruns automatically when the pull request head moves after calibration"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - review-loop
   - holon-agentic-coder
 created_at: 2026-11-14T01:00:00Z
-updated_at: 2026-11-14T01:00:00Z
+updated_at: 2026-11-17T09:10:00Z
 ---
 
 ## Problem
