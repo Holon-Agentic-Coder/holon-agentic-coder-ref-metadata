@@ -1,9 +1,9 @@
 ---
 id: "0320"
 title: "Unify NVM storage across Fish and Bash/Zsh, prevent Homebrew path usurpation, and clean Makefile bootstrap UX"
-status: todo
+status: in-progress
 created_at: 2026-11-18T00:35:00+11:00
-updated_at: 2026-11-18T00:35:00+11:00
+updated_at: 2026-11-18T00:42:00+11:00
 tags:
   - dev-env
   - nvm
