@@ -377,6 +377,7 @@ def run_flow(
     model: str,
     from_stage: str | None = None,
     checkpoint: Path | None = None,
+    allow_overlap: bool = False,
     auto_fallback: bool = True,
     dry_run: bool = False,
 ) -> int:
@@ -390,6 +391,7 @@ def run_flow(
     current_model = model
     current_from_stage = from_stage
     current_checkpoint = checkpoint
+    current_allow_overlap = allow_overlap
 
     while True:
         cmd = ["holon", "flow", str(intent_path)]
@@ -401,6 +403,8 @@ def run_flow(
             cmd.extend(["--from-stage", current_from_stage])
         if current_checkpoint:
             cmd.extend(["--checkpoint", str(current_checkpoint)])
+        if current_allow_overlap:
+            cmd.append("--allow-overlap")
 
         log_stage(f"Launching Holon Flow: {slug} (Agent: {current_agent}, Model: {current_model})")
 
@@ -419,6 +423,15 @@ def run_flow(
 
         # Flow failed. Check for quota or session exhaustion
         log_error(f"Holon flow exited with non-zero code {returncode}.")
+
+        if "or rerun with --allow-overlap" in output and not current_allow_overlap:
+            log_warn("Stage 3 admission refused; retrying with --allow-overlap as instructed by the flow engine.")
+            current_allow_overlap = True
+            chk_path = target_worktree / f".holon/flow/checkpoint-{slug}.json"
+            if chk_path.exists():
+                current_checkpoint = chk_path
+                current_from_stage = None
+            continue
 
         if auto_fallback and is_quota_error(output):
             log_warn("Detected model credit, quota, or session limit exhaustion.")
@@ -544,6 +557,11 @@ def main() -> None:
         help="Disable automatic model fallback on quota exhaustion.",
     )
     parser.add_argument(
+        "--allow-overlap",
+        action="store_true",
+        help="Admit Stage 3 even when the plan's touch set overlaps a flow in flight or is undeclared.",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Simulate execution without running docker or mutating git state.",
@@ -558,6 +576,7 @@ def main() -> None:
         model=args.model,
         from_stage=args.from_stage,
         checkpoint=args.checkpoint,
+        allow_overlap=args.allow_overlap,
         auto_fallback=not args.no_fallback,
         dry_run=args.dry_run,
     )
