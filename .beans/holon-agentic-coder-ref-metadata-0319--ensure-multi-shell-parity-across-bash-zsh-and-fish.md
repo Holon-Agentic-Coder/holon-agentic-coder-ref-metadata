@@ -1,9 +1,9 @@
 ---
 id: "0319"
 title: "Ensure first-class multi-shell parity across Bash, Zsh, and Fish for all managed tools"
-status: todo
+status: in-progress
 created_at: 2026-11-17T23:08:00+11:00
-updated_at: 2026-11-17T23:08:00+11:00
+updated_at: 2026-11-17T23:24:00+11:00
 tags:
   - dev-env
   - multi-shell
