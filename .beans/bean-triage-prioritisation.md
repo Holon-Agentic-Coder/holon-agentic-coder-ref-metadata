@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-16 22:24:58 UTC
+**Last Updated:** 2026-11-17 03:38:05 UTC
 
 ## Executive Summary
 
@@ -14,8 +14,8 @@ Concurrent flows on overlapping files forced repeated syncs and re-reviews earli
 10M+ tokens), so flows that touch the same files still run one after another; only flows with disjoint touch sets run
 together.
 
-- **Total Tracked Beans**: 306 (excluding template)
-- **Completed**: 253 (82.7%)
+- **Total Tracked Beans**: 307 (excluding template)
+- **Completed**: 254 (82.7%)
 - **Scrapped / Superseded**: 7 (2.3%)
 - **Active**: 46 (15.0%), of which 0 are in progress and 46 are todo
 
