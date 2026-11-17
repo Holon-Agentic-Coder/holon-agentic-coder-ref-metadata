@@ -3,7 +3,7 @@ id: "0324"
 title:
   "Support Micromamba prefix on Linuxbrew, resolve Ansible galaxy collection path isolation, and allow make configure
   Python fallback"
-status: todo
+status: in-progress
 created_at: 2026-11-18T10:32:00+11:00
 updated_at: 2026-11-18T10:32:00+11:00
 tags:
@@ -98,7 +98,13 @@ defects were encountered:
      - Shell configs provide `conda` alias or hook for `micromamba`.
    - Run `make test`, `make lint`, and `make check`.
 
-5. **CI Cold-Start End-to-End Prevention (`.github/workflows/make.yml`)**:
-   - In `.github/workflows/make.yml`, add a step to run `make configure` cold-start before `make bootstrap` or Conda is
-     installed, preventing any regression where `make configure` crashes on fresh machines.
-   - Assert in test suite that `Makefile` never invokes `collection install` without `-p "$(COLLECTIONS)"`.
+5. **CI Cold-Start & Ansible Execution Coverage (`.github/workflows/make.yml`)**:
+   - In `.github/workflows/make.yml`, on both `ubuntu-latest` and `macos-latest`:
+     - Test `make configure` cold-start before `make bootstrap` to ensure configuration succeeds on bare machines.
+     - Execute `make bootstrap` to verify the GNU Make -> Conda/Micromamba -> Ansible bootstrap chain actually works
+       end-to-end on both OSes.
+     - Execute Ansible playbook syntax & module check (`ansible-playbook ansible/site.yml --syntax-check` or
+       `make check-syntax`) using the runtime `ANSIBLE_COLLECTIONS_PATH`, directly testing that all collections
+       (including `community.general.homebrew_tap`) resolve without failure.
+     - Execute `make check-mode` (or tag-scoped dry-run e.g. `--tags dotfiles,nvim-sync`) on both runners to exercise
+       real playbook task execution without modifying runner system packages.
