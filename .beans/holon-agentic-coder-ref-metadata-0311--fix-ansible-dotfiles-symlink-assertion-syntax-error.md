@@ -1,9 +1,9 @@
 ---
 id: "0311"
 title: "Fix Ansible dotfiles and unlink symlink assertion syntax error (.startswith() method syntax)"
-status: in-progress
+status: completed
 created_at: 2026-11-17T15:11:00+11:00
-updated_at: 2026-11-17T15:11:00+11:00
+updated_at: 2026-11-17T15:44:00+11:00
 tags:
   - dev-env
   - ansible
@@ -35,3 +35,11 @@ The expression used `startswith devenv_repo_root` as an infix operator rather th
 3. **Tests & Validation**:
    - Run `ansible-playbook --syntax-check` or test suite to ensure assertion syntax parses and evaluates cleanly.
    - Run full verification (`uv run pytest`, `ruff`, `ansible-lint`, `prettier`, `make check`).
+
+## Resolution
+
+- Fixed Jinja2 string method call syntax to `(... | realpath).startswith(devenv_repo_root)` in both
+  `ansible/roles/dotfiles/tasks/main.yml` and `ansible/playbooks/unlink.yml`.
+- Added unit tests in `tests/test_templating.py` evaluating `that:` assertion clauses across playbooks and tasks with
+  mock link stat dictionaries.
+- Merged via PR #14 (commit `676c0e4`).
