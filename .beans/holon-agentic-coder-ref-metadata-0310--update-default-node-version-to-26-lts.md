@@ -1,9 +1,9 @@
 ---
 id: "0310"
 title: "Update default Node.js version from nvm to latest 26 LTS (v26.13.1 Lithium)"
-status: in-progress
+status: completed
 created_at: 2026-11-17T15:10:00+11:00
-updated_at: 2026-11-17T15:10:00+11:00
+updated_at: 2026-11-17T15:41:00+11:00
 tags:
   - dev-env
   - node
@@ -28,3 +28,10 @@ LTS release for Node.js 26 is `v26.13.1` (codename "Lithium").
    - Update table reference from `Node.js 22.23.2` to `Node.js 26.13.1`.
 4. **Tests & Validation**:
    - Verify tests in `tests/test_manifest.py` and `tests/test_templating.py` continue to pass.
+
+## Resolution
+
+- Updated default Node.js version to `26.13.1` (Lithium LTS) across `00-devenv.fish`, `devenv_wizard.py`, and
+  `README.md`.
+- Added unit tests in `tests/test_manifest.py` validating the 26.13.1 version string.
+- Merged via PR #13 (commit `52d1ec9`).
