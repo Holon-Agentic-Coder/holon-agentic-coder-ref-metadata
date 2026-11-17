@@ -1,9 +1,9 @@
 ---
 id: "0315"
 title: "Reset dotfiles to pure OS defaults and extract modular shell setup snippets"
-status: in-progress
+status: completed
 created_at: 2026-11-17T18:30:00+11:00
-updated_at: 2026-11-17T18:30:00+11:00
+updated_at: 2026-11-17T20:47:26+11:00
 tags:
   - dev-env
   - dotfiles
@@ -53,3 +53,19 @@ source of truth in `versions.json`.
    - Add test coverage verifying `dotfiles/examples/devenv-shell-snippets.sh` exists and contains valid syntax.
 4. **Validation**:
    - Run full verification suite (`make test`, `make lint`, `make check`).
+
+## Resolution
+
+Delivered via [PR #18](https://github.com/thomashan/dev-env/pull/18) and merged into `main`
+(`a3a21aa130ae34d953ecb546781c725a34f3d3f6`):
+
+- **Pure OS Default Dotfiles**: Reset `dotfiles/bash/.bashrc`, `dotfiles/bash/.bash_profile` (retained clean OS
+  skeleton), `dotfiles/zsh/.zshrc`, and `dotfiles/fish/.config/fish/config.fish` to pure vanilla OS defaults without
+  pre-injected toolchain hooks.
+- **Modular Shell Snippets**: Created `dotfiles/examples/devenv-shell-snippets.sh` providing opt-in modular snippets for
+  Homebrew/Linuxbrew, Conda (miniforge), NVM, and local override loading (`.bashrc.local`, `.zshrc.local`).
+- **Role & Test Decoupling**: Decoupled `ansible/roles/node/tasks/main.yml` and `tests/test_manifest.py` /
+  `tests/test_templating.py` from fish dotfile parsing, referencing `versions.json` and validating pure OS default
+  invariants plus snippet syntax.
+- **Holon Flow Traversal**: Completed all 5 stages (Intent -> Plan -> Execute -> Review Loop -> Calibration)
+  successfully.

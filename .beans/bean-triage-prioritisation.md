@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-17 09:39:45 UTC
+**Last Updated:** 2026-11-17 09:47:49 UTC
 
 ## Executive Summary
 
@@ -14,10 +14,10 @@ Concurrent flows on overlapping files forced repeated syncs and re-reviews earli
 10M+ tokens), so flows that touch the same files still run one after another; only flows with disjoint touch sets run
 together.
 
-- **Total Tracked Beans**: 316 (excluding template)
-- **Completed**: 261 (82.6%)
+- **Total Tracked Beans**: 317 (excluding template)
+- **Completed**: 262 (82.6%)
 - **Scrapped / Superseded**: 7 (2.2%)
-- **Active**: 48 (15.2%), of which 3 are in progress and 45 are todo
+- **Active**: 48 (15.1%), of which 2 are in progress and 46 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -642,8 +642,8 @@ partial work) completed the chain.
 | **P3**   | todo        |  Low   |   XS   | 0231   | Exhausted-budget error string interpolates raw count while payload reports clamped 0             | Flow Engine / Cosmetic     | PR #124 loop deferral (cosmetic, out-of-increment). Touches `flow.py` - bundle with 0230.                                                                                                                                                                                                                                                                                                          |
 | **P3**   | todo        |  Low   |   XS   | 0269   | Deferred nits from the holon-agentic-coder PR 158 review loop                                    | Review Loop / Housekeeping | Three deferred nits from PR #158: fold `parse_actual_metrics` onto `_record_exit_code`, removed-definitions test proof, and `docs/git_flow.md` checkpoint wording.                                                                                                                                                                                                                                 |
 | **P3**   | todo        | Medium |   M    | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                              | vmlx / Performance         | Pairs with 0142.                                                                                                                                                                                                                                                                                                                                                                                   |
-| **P1**   | in-progress | Medium |   M    | 0315   | Reset dotfiles to pure OS defaults and extract modular shell setup snippets                      | General                    |                                                                                                                                                                                                                                                                                                                                                                                                    |
-| **P1**   | todo        |  High  |   M    | 0308   | macOS unit CI timing gate trips on runner noise and blocks Stage 5                               | Ledger / Observability     |                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **P1**   | todo        | Medium |   M    | 0317   | GitHub Projects kanban board for holon-agentic-coder, fed by beads issues                        | General                    |                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **P1**   | todo        |  High  |   M    | 0316   | macOS unit CI timing gate trips on runner noise and blocks Stage 5                               | Ledger / Observability     |                                                                                                                                                                                                                                                                                                                                                                                                    |
 | **P1**   | todo        | Medium |   M    | 0283   | An agent's API error output is written as the plan and reported as a metrics failure             | CLI / Telemetry            |                                                                                                                                                                                                                                                                                                                                                                                                    |
 | **P1**   | todo        |  High  |   M    | 0270   | Discover runner models dynamically through each harness instead of the hardcoded model table     | Flow / Architecture        |                                                                                                                                                                                                                                                                                                                                                                                                    |
 
