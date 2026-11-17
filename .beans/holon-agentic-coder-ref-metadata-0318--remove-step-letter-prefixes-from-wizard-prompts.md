@@ -1,9 +1,9 @@
 ---
 id: "0318"
 title: "Remove step letter prefixes from wizard prompts, default to fish and docker-desktop, and fix nvm path in fish"
-status: in-progress
+status: completed
 created_at: 2026-11-17T22:55:00+11:00
-updated_at: 2026-11-17T22:57:00+11:00
+updated_at: 2026-11-17T23:20:05+11:00
 tags:
   - dev-env
   - wizard
@@ -42,3 +42,21 @@ tags:
 4. **Tests & Validation**:
    - Update `tests/test_wizard.py` and `tests/test_manifest.py`.
    - Run `make test`, `make lint`, and `make check`.
+
+## Resolution
+
+Delivered via [PR #19](https://github.com/thomashan/dev-env/pull/19) and merged into `main` (`75ba557`):
+
+- **Key Deliverables**:
+  - Removed `Step A: `, `Step B: `, and `Step D: ` prefixes from interactive prompts in `scripts/devenv_wizard.py` and
+    updated fallback defaults for `devenv_set_login_shell` and `devenv_install_gui_casks` to `True`.
+  - Set `devenv_set_login_shell: true` and `devenv_install_gui_casks: true` in `ansible/group_vars/all.yml`.
+  - Prepended `$XDG_DATA_HOME/nvm/current/bin` via `fish_add_path -gpPm` in
+    `dotfiles/fish/.config/fish/conf.d/00-devenv.fish` so Fish login shells resolve nvm-managed `node` ahead of
+    `/opt/homebrew/bin/node` while keeping `config.fish` pure OS default.
+- **Verification & Tests**:
+  - Updated `tests/test_wizard.py` and `tests/test_manifest.py` to assert the updated defaults, absence of `Step [A-Z]:`
+    prompt prefixes, and nvm PATH prepend in `00-devenv.fish`.
+- **Holon Flow Traversal**: Completed all 5 stages (Intent `I-1794916689-clean-wizard-prompts` -> Plan
+  `P-1794916706-610aa386-antigravity-agent-gemini-3.8-flash-medium` -> Execute
+  `E-1794916935-f6847f1a-antigravity-agent-gemini-3.8-flash-medium` -> Review Loop -> Calibration).
