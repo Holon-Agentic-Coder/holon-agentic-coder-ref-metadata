@@ -2,7 +2,7 @@
 id: "0326"
 title:
   "Automatically inject custom CA certificates into Miniforge cacert.pem during make bootstrap and Ansible convergence"
-status: todo
+status: in-progress
 created_at: 2026-11-18T11:51:00+11:00
 updated_at: 2026-11-18T11:51:00+11:00
 tags:
