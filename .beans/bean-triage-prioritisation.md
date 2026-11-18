@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-18 04:42:50 UTC
+**Last Updated:** 2026-11-18 05:58:12 UTC
 
 ## Executive Summary
 
@@ -14,10 +14,10 @@ Concurrent flows on overlapping files forced repeated syncs and re-reviews earli
 10M+ tokens), so flows that touch the same files still run one after another; only flows with disjoint touch sets run
 together.
 
-- **Total Tracked Beans**: 328 (excluding template)
-- **Completed**: 271 (82.6%)
+- **Total Tracked Beans**: 329 (excluding template)
+- **Completed**: 271 (82.4%)
 - **Scrapped / Superseded**: 8 (2.4%)
-- **Active**: 49 (14.9%), of which 2 are in progress and 47 are todo
+- **Active**: 50 (15.2%), of which 2 are in progress and 48 are todo
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -684,6 +684,7 @@ records findings as rejected).
 | **P3**   | todo        |  Low   |   XS   | 0269   | Deferred nits from the holon-agentic-coder PR 158 review loop                                      | Review Loop / Housekeeping      | Three deferred nits from PR #158: fold `parse_actual_metrics` onto `_record_exit_code`, removed-definitions test proof, and `docs/git_flow.md` checkpoint wording.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | **P3**   | todo        |  Low   |   S    | 0322   | Remove the gemini-agent runner, made redundant by antigravity-agent                                | Runners / Cleanup               | Todo; runs after 0321 because both touch `agent_defaults.py` (this bean also touches `agent_runner.py`, the `Dockerfile` and `docker-bake.hcl`). Removes the `gemini-agent` runner, image target and registry entries. Keeps Gemini models, the `gemini` URL detection in the token-reduction addon and historical ledger rows. Decide whether the `local-model` placeholder stays.                                                                                                                                                                                                                                                                          |
 | **P3**   | todo        | Medium |   M    | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                                | vmlx / Performance              | Pairs with 0142.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| **P1**   | todo        | Medium |   M    | 0329   | Switch tmux Stow package from ~/.config/tmux/tmux.conf to ~/.tmux.conf                             | General                         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 ---
 
