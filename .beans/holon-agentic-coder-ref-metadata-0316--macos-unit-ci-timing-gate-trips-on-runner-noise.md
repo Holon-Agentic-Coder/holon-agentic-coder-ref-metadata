@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0316
 title: "macOS unit CI timing gate trips on runner noise and blocks Stage 5"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - stage-5
   - holon-agentic-coder
 created_at: 2026-11-17T10:00:00Z
-updated_at: 2026-11-17T10:00:00Z
+updated_at: 2026-11-18T04:34:00Z
 ---
 
 ## Problem

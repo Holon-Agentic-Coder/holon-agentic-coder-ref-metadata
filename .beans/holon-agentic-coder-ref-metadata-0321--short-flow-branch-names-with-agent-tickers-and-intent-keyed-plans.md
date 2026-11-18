@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0321
 title: "Short flow branch names: agent tickers, model codes, no hex, plans keyed by intent"
-status: todo
+status: in-progress
 type: feature
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - provenance
   - holon-agentic-coder
 created_at: 2026-11-17T14:15:00Z
-updated_at: 2026-11-17T14:15:00Z
+updated_at: 2026-11-18T04:34:00Z
 ---
 
 ## Problem
