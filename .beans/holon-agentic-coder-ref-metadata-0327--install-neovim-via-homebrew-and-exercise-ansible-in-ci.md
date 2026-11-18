@@ -1,9 +1,9 @@
 ---
 id: "0327"
 title: "Install Neovim via Homebrew on Linux and macOS and mandate actual Ansible execution in CI"
-status: in-progress
+status: completed
 created_at: 2026-11-18T12:34:00+11:00
-updated_at: 2026-11-18T12:44:00+11:00
+updated_at: 2026-11-18T14:07:00+11:00
 tags:
   - dev-env
   - neovim
@@ -95,3 +95,12 @@ fatal: [localhost]: FAILED! => {"changed": false, "msg": "missing required argum
    - Verify that `make check-mode` passes locally without module failure.
    - Run `uv run --extra test pytest -m "not network"`, `uv run ruff check .`,
      `uv run --extra test ansible-lint ansible/site.yml`, `npx prettier --check "**/*.md"`, and `make check`.
+
+## Resolution
+
+- Implemented via Holon flow `neovim-brew` (Bean 0327).
+- Pull Request #25: [https://github.com/thomashan/dev-env/pull/25](https://github.com/thomashan/dev-env/pull/25) merged
+  to `main` (`7a92ce3`).
+- Replaced broken GitHub release download on Linux with Homebrew installation, added `neovim` to `devenv_pkg_skip` in
+  `os_Linux.yml`, and added `make check-syntax` to GitHub Actions CI (`.github/workflows/make.yml`).
+- Main branch fast-forwarded to `7a92ce3` and flow worktrees/branches pruned.
