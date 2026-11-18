@@ -42,6 +42,11 @@ Run through the Holon flow on `holon-agentic-coder`:
 - Hermetic tests: a resolver that exits 1 leaves the findings open and writes no `ACT-RES` row; a resume adjudicates
   them first; a rejection without a reason fails.
 - Append correction rows for the two false rows on PR #203 (see Bean 0146 for the correction-row mechanism).
+- PR #203 (Bean 0297) merged on 2026-11-18 with its two iteration-3 nits still open, so this flow must also apply or
+  reject-with-reason both carried nits: (1) `flow/calibrate_rerun.py` `_post_marked_comment` resolves
+  `approval_pr_number(context)` before its try block, although it is documented as never raising; (2)
+  `review_calibration_freshness` must store the refreshed StageResult back into `context.stage_results['calibrate']`, so
+  a gate-driven rerun's report-back and checkpoint name the final head, not the superseded one.
 
 ## Notes
 

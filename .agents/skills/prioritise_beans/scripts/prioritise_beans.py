@@ -340,15 +340,23 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "agent tickers, rule-based model codes, no hex, plans keyed by intent; decided with the maintainer on 2026-11-18) "
         "and **Bean 0322** (remove the `gemini-agent` runner, made redundant by `antigravity-agent`)."
     ),
+    "",
+    (
+        "**2026-11-18 (later):** **Bean 0297** merged as HAC PR #203 (`d5fbd14`), so Stage 5 now reruns when the pull "
+        "request head moves after calibration. The PR merged with two iteration-3 nits still open, and Bean 0323 "
+        "carries them. **Beans 0320, 0324 and 0326** completed (dev-env PRs #21, #22 and #24), and **Bean 0325** was "
+        "scrapped. **Bean 0328** (dev-env: Neovim plugins, tmux navigation, Homebrew Go toolchain) is in progress. New "
+        "bean: **Bean 0323** (crashed resolver turn records findings as rejected)."
+    ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0315)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0326)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
 # step with the matrix at every checkpoint.
 NEXT_EXECUTION_SEQUENCE: list[str] = [
-    "**Start here (2026-11-18):** no bean completed since the 2026-11-17 checkpoint (265 completed and 7 scrapped, unchanged). Bean 0297 is in progress on `holon-agentic-coder` with PR #203 open, and it heads the serial chain below. Bean 0320 is in progress (a dev-env flow is running now). New today: Bean 0321 (short flow branch names, P1) and Bean 0322 (remove the `gemini-agent` runner, P3). Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283 lands.",
+    "**Start here (2026-11-18):** Bean 0297 merged as HAC PR #203 (`d5fbd14`), which unblocks the serial chain and the review-loop lane below. Beans 0320, 0324 and 0326 completed (dev-env), Bean 0325 was scrapped, and Bean 0328 (dev-env) is in progress. New: Bean 0323 (P1, review-loop lane; it carries PR #203's two open nits). Bean 0321 (short flow branch names, P1) is the next serial item, then Bean 0322 (remove the `gemini-agent` runner, P3). Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283 lands.",
     "",
     "**Rule (2026-10-25):** never run concurrent flows whose touched files overlap. The engine enforces this from Bean 0151: a flow whose touch set overlaps an in-flight flow is refused before Stage 3 unless `--allow-overlap` is given. Items inside one lane below run one at a time. Lanes run together only when their touch sets are disjoint.",
     "",
@@ -359,18 +367,19 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "**Tooling:** `holon 0.1.0` was reinstalled on 2026-11-16. Set `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172 lands.",
     "",
     "**Serial chain, `holon-agentic-coder` (one flow at a time; these touch the ledgers, `agent_defaults.py`, the planner and the flow package):**",
-    "1. **Bean 0297** (in progress, PR #203 open; Stage 5 and the review loop). Its PR #203 must merge first, by the maintainer. Nothing in items 2 to 4 starts before PR #203 merges.",
-    "2. **Bean 0321** after #203 merges (`ledger.py`, `ref_names.py`, `agent_defaults.py`, `calibration.py`, the planner and executor entrypoints, the flow package). It runs alone and includes the one-off plan and ledger migration.",
+    "1. **Bean 0297** (completed; PR #203 merged 2026-11-18). Items 2 to 6 are unblocked.",
+    "2. **Bean 0321** (`ledger.py`, `ref_names.py`, `agent_defaults.py`, `calibration.py`, the planner and executor entrypoints, the flow package). It runs alone and includes the one-off plan and ledger migration.",
     "3. **Bean 0322** after 0321 (`agent_defaults.py`, `agent_runner.py`, `Dockerfile`, `docker-bake.hcl`), then **Bean 0270** after 0322 (model discovery replaces the table in `agent_defaults.py`; it is also blocked on a usable runner).",
     "4. **Bean 0283** after 0321 (planner entrypoint, `payload_cleaner`). Both touch the planner entrypoint, so they cannot overlap.",
     "5. **Bean 0146**, then **Bean 0197** (`calibration.py`). Both wait for 0321, which also touches `calibration.py`, and 0146 runs before 0197 because they share the parser.",
     "6. **Bean 0181** (`/_` only on branch refs) after 0321, which changes the branch and plan naming it depends on.",
     "",
-    "**Review loop and calibration lane (`entrypoint/review_loop.py`, `flow/review/`, `review_report.py`):** starts after 0297 merges, one item at a time.",
+    "**Review loop and calibration lane (`entrypoint/review_loop.py`, `flow/review/`, `review_report.py`):** unblocked now that 0297 has merged, one item at a time.",
+    "- **Bean 0323** (a crashed resolver turn records its findings as rejected; first in this lane, because it carries PR #203's two open nits).",
     "- **Bean 0255** (streaming per-issue resolvers, one consolidated commit per iteration), then **Bean 0234** (CI check progress logging; pairs with the completed 0160).",
     "- **Bean 0261** (`review_report.py`: one clean evaluation line), then **Bean 0269** (deferred nits from PR #158).",
     "- **Bean 0213** (reflect review-loop skill rules into the native review-loop agent template).",
-    "- **Bean 0316** (macOS unit CI timing gate: `.github/workflows/test-unit.yml` and `scripts/check_ci_runtime_budget.py`). Its note says to run after 0297. Its files do not overlap the serial chain, so it may run beside item 2 onward once 0297 has merged.",
+    "- **Bean 0316** (macOS unit CI timing gate: `.github/workflows/test-unit.yml` and `scripts/check_ci_runtime_budget.py`). Unblocked by 0297's merge. Its files are disjoint from 0321, so it may run beside item 2 of the serial chain.",
     "",
     "**Flow package and decomposition lane (`flow/` submodules, one flow at a time per submodule):**",
     "- **Bean 0264** (module budgets move to `holon-config/hygiene/module_budgets.json`), then **Bean 0265** (move-only split of `cli/__init__.py`). 0265 unblocks 0189.",
@@ -398,22 +407,6 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
 # judgement rather than a truncated first paragraph. Insertion order is the
 # matrix row order (priority blocks, hand-curated within each block).
 OVERRIDES: dict[str, dict[str, str]] = {
-    "0297": {
-        "title": "Stage 5 reruns automatically when the pull request head moves after calibration",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "M",
-        "domain": "Holon Flow / Calibration",
-        "notes": "In progress; PR #203 is open on holon-agentic-coder and is the head of the serial chain, so Bean 0321 waits for its merge. Builds on 0296 (rebuilds a stale `calibrated` branch; landed in PR #193). A head move after calibration (conflict merge, resolver push, review-loop rerun) reruns Stage 5 and marks the report stale until then. Related to 0253, 0292 and 0182.",
-    },
-    "0320": {
-        "title": "Unify NVM storage across Fish and Bash/Zsh, prevent Homebrew path usurpation, and clean Makefile bootstrap UX",
-        "priority": "**P1**",
-        "impact": "Medium",
-        "sizing": "M",
-        "domain": "Build / DevEx",
-        "notes": "In progress; a dev-env flow is running now. Touches the fish `00-devenv.fish`, `.bashrc`, `.zshrc`, the `Makefile` and `tests/test_manifest.py`, none of which the 0321 chain touches, so it can run beside that chain. Fixes the Fish and Bash/Zsh NVM version-storage split, Homebrew `shellenv` path precedence, and the misleading `make install` bootstrap message.",
-    },
     "0321": {
         "title": "Short flow branch names: agent tickers, rule-based model codes, no hex, plans keyed by intent",
         "priority": "**P1**",
@@ -421,6 +414,14 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "L",
         "domain": "Holon Flow / Branches / Ledger",
         "notes": "Todo; decided with the maintainer on 2026-11-18. Shortens a typical flow branch from 138 characters to about 78 (three-letter agent tickers, derived model codes, no hex, 32-character slugs) and keeps decomposed flows clear of GitHub's 255-character ref limit without the 8-character slug workaround. Includes a one-off migration of plan files and ledger paths. Touches `ledger.py`, `ref_names.py`, `agent_defaults.py`, `calibration.py`, the planner and executor entrypoints and the flow package: it must not run beside any flow on those files, and it waits for PR #203 (Bean 0297) to merge. Blocks 0322, 0270, 0283, 0181, 0146 and 0197.",
+    },
+    "0323": {
+        "title": "A resolver turn that crashes records its findings as rejected, and a resume never adjudicates them",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Review Loop / Resolver / Ledger",
+        "notes": "Todo; review-loop lane (`entrypoint/review_loop.py`, `flow/review/`). A resolver that exits 1 on a session limit writes `ACT-RES` rows marked rejected with an unspecified reason, and the resume skips them, so approval can land with findings never adjudicated. Carries the two open nits from PR #203 (Bean 0297, merged unresolved): `_post_marked_comment` resolves `approval_pr_number` before its try block, and `review_calibration_freshness` does not store the refreshed StageResult back into `context.stage_results['calibrate']`.",
     },
     "0280": {
         "title": "The flow does not re-check CI after the calibration push; the macOS timing gate is flaky near 300 s",
@@ -2029,6 +2030,26 @@ def generate_triage_document(
             (
                 "    - New: `0316` (todo, P1): the macOS unit CI timing gate trips on runner noise and blocks Stage 5. "
                 "`0317` (todo, P2): a GitHub Projects kanban board fed by beads issues."
+            ),
+            (
+                "34. **Stage 5 reruns when the pull request head moves after calibration, and the dev-env wave closes "
+                "(Bean 0297 / HAC PR #203, Beans 0320, 0324, 0326, 2026-11-18)**:"
+            ),
+            (
+                "    - `0297` (PR #203, `d5fbd14`, merged 2026-11-18): a calibration report is rechecked against the "
+                "pull request head, and Stage 5 reruns automatically when the head has moved, so the merged head "
+                "carries a current report. Review approved 3/3 at iteration 4. Calibration: expected value predicted "
+                "19.15, actual 47.23 (delta +28.08). The PR merged with two iteration-3 nits open; they are carried by "
+                "`0323`."
+            ),
+            (
+                "    - `0320` (dev-env PR #21, `ba7204c`), `0324` (dev-env PR #22, `1063b69`) and `0326` (dev-env PR "
+                "#24, `b576654`) completed. `0325` (corporate proxy SSL certificates for Ansible Galaxy and Conda) was "
+                "scrapped."
+            ),
+            (
+                "    - New: `0323` (todo, P1): a resolver turn that crashes records its findings as rejected, and a "
+                "resume never adjudicates them. The carried PR #203 nits are part of its action."
             ),
             "",
             "---",

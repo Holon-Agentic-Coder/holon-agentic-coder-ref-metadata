@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0297
 title: "Stage 5 reruns automatically when the pull request head moves after calibration"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - review-loop
   - holon-agentic-coder
 created_at: 2026-11-14T01:00:00Z
-updated_at: 2026-11-17T09:10:00Z
+updated_at: 2026-11-18T04:29:08Z
 ---
 
 ## Problem
@@ -48,3 +48,25 @@ pull request merged with a report for `cb55140`. PR #190 hit the same drift.
   or the watcher's `head_moved` event), and what a head move counts as when calibration commits themselves land on the
   branch.
 - Merging stays with the human maintainer; this bean makes the report current when they merge, it does not merge.
+
+## Resolution
+
+Delivered via [PR #203](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/203) and merged into `main`
+(`d5fbd14`):
+
+- **Key Architectural Deliverables**: New `flow/calibrate_rerun.py` with the head-move predicate, the stale-signal
+  rendering and the rerun seam, wired at pipeline Stage 5 and the review posting gate. A rerun rebuilds the `calibrated`
+  branch, appends its report and ledger rows, and fast-forwards them into the pull request branch. The rerun is
+  idempotent and does not loop on calibration commits.
+- **Verification & Tests**: Hermetic tests in `apps/sandbox-executor/tests/test_calibrate_rerun.py`. Review approved 3/3
+  at iteration 4. Calibration: predicted EV 19.15, actual EV 47.23 (delta +28.08). This resolution does not claim a CI
+  result; none was checked at merge time.
+- **Holon Flow Traversal**: All 5 stages (Intent -> Plan -> Execute -> Review Loop -> Calibration) completed. The
+  calibration report is `plans/P-1794891094-eede5d91-claude-agent-claude-fable-5_calibration.md`.
+- **Open caveat (merged unresolved)**: two iteration-3 nits from Reviewer 1 were never adjudicated, and the PR merged
+  with them open. The resolver crashed on a session limit, and the ledger falsely recorded both as "rejected:
+  unspecified". The nits are: (1) `flow/calibrate_rerun.py` `_post_marked_comment` resolves
+  `approval_pr_number(context)` before its try block, although it is documented as never raising; (2)
+  `review_calibration_freshness` never stores the refreshed StageResult back into `context.stage_results['calibrate']`,
+  so after a gate-driven rerun the report-back and checkpoint can still name the superseded head. Their follow-up is
+  Bean 0323, which must apply or reject-with-reason both nits.
