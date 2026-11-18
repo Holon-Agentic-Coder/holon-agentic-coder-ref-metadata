@@ -2,9 +2,9 @@
 id: "0326"
 title:
   "Automatically inject custom CA certificates into Miniforge cacert.pem during make bootstrap and Ansible convergence"
-status: in-progress
+status: completed
 created_at: 2026-11-18T11:51:00+11:00
-updated_at: 2026-11-18T11:51:00+11:00
+updated_at: 2026-11-18T12:28:00+11:00
 tags:
   - dev-env
   - ssl
@@ -52,3 +52,17 @@ convergence) must automatically detect custom certificates in `/usr/local/share/
      - The `Makefile` bootstrap recipe contains the CA certificate injection logic.
      - The injection is idempotent (does not duplicate certificates).
    - Run `make test`, `make lint`, and `make check`.
+
+## Resolution
+
+- **Pull Request**:
+  [#24 (feat(inject): Automatically inject custom CA certificates into Miniforge cacert.pem during make bootstrap and Ansible convergence)](https://github.com/thomashan/dev-env/pull/24)
+- **Merge Commit**: `b576654ef9cfb08497a8bfc49b1c0eae297f9d23`
+- **Delivered Changes**:
+  - Implemented pre-Ansible auto-injection in `Makefile` (`bootstrap` target) that scans
+    `/usr/local/share/ca-certificates/` for `.crt` and `.pem` files and appends missing certs into
+    `$(CONDA_DIR)/ssl/cacert.pem` with `# ANSIBLE MANAGED BLOCK: Custom CA <cert_name>` markers.
+  - Implemented idempotent custom CA discovery and injection in Ansible's `conda` role
+    (`ansible/roles/conda/tasks/main.yml`) using `ansible.builtin.blockinfile` matching the identical marker format.
+  - Added unit test `test_makefile_bootstrap_ca_injection` in `tests/test_toolchain.py` verifying the Makefile injection
+    logic and non-duplication safeguards.
