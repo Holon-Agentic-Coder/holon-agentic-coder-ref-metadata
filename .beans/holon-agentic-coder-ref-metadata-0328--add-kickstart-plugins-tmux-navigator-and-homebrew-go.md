@@ -1,23 +1,25 @@
 ---
 id: "0328"
-title: "Enable kickstart Neovim plugins and seamless tmux-nvim navigation"
+title: "Add core development enhancements: Neovim plugins, seamless tmux navigation, and Homebrew Go toolchain"
 status: todo
 created_at: 2026-11-18T14:08:00+11:00
-updated_at: 2026-11-18T14:39:00+11:00
+updated_at: 2026-11-18T14:40:00+11:00
 tags:
   - dev-env
   - neovim
   - tmux
+  - golang
+  - homebrew
   - dotfiles
   - plugins
   - feature
 ---
 
-# 0328 - Enable kickstart Neovim plugins and seamless tmux-nvim navigation
+# 0328 - Add core development enhancements: Neovim plugins, seamless tmux navigation, and Homebrew Go toolchain
 
 ## Problem Statement
 
-Two key usability features are currently missing from the default `dev-env` dotfiles setup:
+Several key productivity and language development capabilities are missing or commented out in `dev-env`:
 
 1. **Kickstart Neovim Plugins Disabled**: Essential editing and navigation plugins under `lua/kickstart/plugins/` are
    commented out by default in `dotfiles/nvim-kickstart/.config/nvim/init.lua`:
@@ -29,6 +31,10 @@ Two key usability features are currently missing from the default `dev-env` dotf
 2. **No Seamless Tmux-Neovim Navigation**: Currently, navigating between Neovim splits uses `<C-h,j,k,l>` internally,
    but cannot cross split boundaries into tmux panes. In tmux, moving panes requires the prefix key `<C-b> <arrow>`,
    breaking seamless directional navigation between editor splits and terminal panes.
+
+3. **Go Language Toolchain Missing**: The Go development toolchain is not currently installed or configured. Go is
+   available as an official formula via Homebrew (`go`) for both macOS and Linux, providing native `GOTOOLCHAIN` support
+   (Go 1.21+) for automatic project version switching without external wrapper complexity.
 
 ## Scope of Changes
 
@@ -69,7 +75,15 @@ Two key usability features are currently missing from the default `dev-env` dotf
        bind-key -T copy-mode-vi 'C-l' select-pane -R
        ```
 
-3. **Lockfile & Plugin Synchronization**:
+3. **Install Go via Homebrew on macOS and Linux**:
+   - Add `go` to logical core packages in `ansible/group_vars/all.yml` (`devenv_packages_core`) and `pkg_brew.yml` /
+     `pkg_apt.yml`.
+   - On Linux (`os_Linux.yml`), ensure `go` is skipped in `apt` via `devenv_pkg_skip: [neovim, go]` and installed via
+     Homebrew (`community.general.homebrew: name: go`) using `devenv_brew_bin`.
+   - Ensure `$HOME/go/bin` is exported in `PATH` across Bash, Zsh, and Fish shell startup files so user-installed Go
+     binaries are immediately executable.
+
+4. **Lockfile & Plugin Synchronization**:
    - Update `dotfiles/nvim-kickstart/.config/nvim/nvim-pack-lock.json` to lock revisions for:
      - `nvim-neo-tree/neo-tree.nvim`
      - `MunifTanjim/nui.nvim`
@@ -79,7 +93,7 @@ Two key usability features are currently missing from the default `dev-env` dotf
      - `christoomey/vim-tmux-navigator`
    - Verify headless startup and plugin synchronization (`make nvim-sync` / `nvim --headless`).
 
-4. **Tests & Verification**:
+5. **Tests & Verification**:
    - Update tests in `tests/test_templating.py` and `tests/test_manifest.py`.
    - Run `uv run --extra test pytest -m "not network"`, `uv run ruff check .`,
      `uv run --extra test ansible-lint ansible/site.yml`, `npx prettier --check "**/*.md"`, and `make check`.
