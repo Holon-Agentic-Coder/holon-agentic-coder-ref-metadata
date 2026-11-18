@@ -1,9 +1,9 @@
 ---
 id: "0328"
 title: "Add core development enhancements: Neovim plugins, seamless tmux navigation, and Homebrew Go toolchain"
-status: in-progress
+status: completed
 created_at: 2026-11-18T14:08:00+11:00
-updated_at: 2026-11-18T14:41:00+11:00
+updated_at: 2026-11-18T15:42:00+11:00
 tags:
   - dev-env
   - neovim
@@ -97,3 +97,14 @@ Several key productivity and language development capabilities are missing or co
    - Update tests in `tests/test_templating.py` and `tests/test_manifest.py`.
    - Run `uv run --extra test pytest -m "not network"`, `uv run ruff check .`,
      `uv run --extra test ansible-lint ansible/site.yml`, `npx prettier --check "**/*.md"`, and `make check`.
+
+## Resolution
+
+- Implemented via Holon flow `dev-enhancements` (Bean 0328).
+- Pull Request #26: [https://github.com/thomashan/dev-env/pull/26](https://github.com/thomashan/dev-env/pull/26) merged
+  to `main` (`4f1fa9f`).
+- Enabled Kickstart plugins (`indent_line`, `lint`, `autopairs`, `neo-tree`), added `vim-tmux-navigator` in Neovim with
+  matching `tmux.conf` smart pane-switching bindings, added Homebrew `go` installation and `$HOME/go/bin` `PATH` export
+  across shells, and synchronized `nvim-pack-lock.json`.
+- Main branch fast-forwarded to `4f1fa9f`, `delete_branch_on_merge` enabled on `thomashan/dev-env`, and all stale
+  local/remote branches and flow worktree pruned.
