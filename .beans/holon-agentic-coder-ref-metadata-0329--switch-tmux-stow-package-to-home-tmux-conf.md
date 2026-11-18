@@ -1,9 +1,9 @@
 ---
 id: "0329"
 title: "Switch tmux Stow package from ~/.config/tmux/tmux.conf to ~/.tmux.conf"
-status: in-progress
+status: completed
 created_at: 2026-11-18T16:56:00+11:00
-updated_at: 2026-11-18T17:32:00+11:00
+updated_at: 2026-11-18T18:54:00+11:00
 tags:
   - dev-env
   - tmux
@@ -50,3 +50,13 @@ Currently `dotfiles/tmux/` stores its configuration at `dotfiles/tmux/.config/tm
      path) and update `test_tmux_conf_smart_pane_switching` to read `dotfiles/tmux/.tmux.conf`.
    - Run `uv run --extra test pytest -m "not network"`, `uv run ruff check .`,
      `uv run --extra test ansible-lint ansible/site.yml`, `npx prettier --check "**/*.md"`, and `make check`.
+
+## Resolution
+
+- Implemented via Holon flow `tmux-home-conf` (Bean 0329).
+- Pull Request #27: [https://github.com/thomashan/dev-env/pull/27](https://github.com/thomashan/dev-env/pull/27) merged
+  to `main` (`12e4831`).
+- Relocated `dotfiles/tmux/.config/tmux/tmux.conf` to `dotfiles/tmux/.tmux.conf`, updated `devenv_links`, added legacy
+  XDG symlink cleanup in `ansible/roles/dotfiles/tasks/main.yml` and `ansible/playbooks/unlink.yml`, and updated
+  `README.md` and `tests/test_manifest.py`.
+- Main branch fast-forwarded and flow worktree/branches pruned.
