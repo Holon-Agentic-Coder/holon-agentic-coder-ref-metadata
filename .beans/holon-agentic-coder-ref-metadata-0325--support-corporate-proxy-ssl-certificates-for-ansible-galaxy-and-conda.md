@@ -1,7 +1,7 @@
 ---
 id: "0325"
 title: "Support corporate proxy SSL certificates for Ansible Galaxy and Conda via system CA trust store"
-status: todo
+status: in-progress
 created_at: 2026-11-18T11:31:00+11:00
 updated_at: 2026-11-18T11:31:00+11:00
 tags:
