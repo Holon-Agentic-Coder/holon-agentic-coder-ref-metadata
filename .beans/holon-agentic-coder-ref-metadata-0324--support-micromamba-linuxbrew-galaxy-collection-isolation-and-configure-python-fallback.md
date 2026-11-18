@@ -3,9 +3,9 @@ id: "0324"
 title:
   "Support Micromamba prefix on Linuxbrew, resolve Ansible galaxy collection path isolation, and allow make configure
   Python fallback"
-status: in-progress
+status: completed
 created_at: 2026-11-18T10:32:00+11:00
-updated_at: 2026-11-18T10:32:00+11:00
+updated_at: 2026-11-18T11:30:00+11:00
 tags:
   - dev-env
   - linuxbrew
@@ -108,3 +108,18 @@ defects were encountered:
        (including `community.general.homebrew_tap`) resolve without failure.
      - Execute `make check-mode` (or tag-scoped dry-run e.g. `--tags dotfiles,nvim-sync`) on both runners to exercise
        real playbook task execution without modifying runner system packages.
+
+## Resolution
+
+- **Pull Request**:
+  [#22 (Support Micromamba prefix on Linuxbrew, resolve Ansible galaxy collection path isolation, allow make configure Python fallback, and exercise Ansible playbook checks on macOS and Linux CI)](https://github.com/thomashan/dev-env/pull/22)
+- **Merge Commit**: `1063b69`
+- **Delivered Changes**:
+  - Allowed `make configure` to fall back to host `python3` (`command -v python3`) when Conda python is not yet
+    bootstrapped.
+  - Isolated Ansible Galaxy collection installation to `DEVENV_HOME` by passing `-p "$(COLLECTIONS)"` and adding
+    fallback in `ansible.cfg`.
+  - Added support for Micromamba prefix resolution on Linuxbrew and registered `alias conda=micromamba` across Bash,
+    Zsh, and Fish.
+  - Added `check-syntax` target in `Makefile` to run `ansible-playbook ansible/site.yml --syntax-check`.
+  - Added unit test assertions in `tests/test_toolchain.py` verifying all toolchain and collection isolation guarantees.
