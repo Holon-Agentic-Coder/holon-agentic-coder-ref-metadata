@@ -1,9 +1,9 @@
 ---
 id: "0329"
 title: "Switch tmux Stow package from ~/.config/tmux/tmux.conf to ~/.tmux.conf"
-status: todo
+status: in-progress
 created_at: 2026-11-18T16:56:00+11:00
-updated_at: 2026-11-18T16:56:00+11:00
+updated_at: 2026-11-18T17:32:00+11:00
 tags:
   - dev-env
   - tmux
