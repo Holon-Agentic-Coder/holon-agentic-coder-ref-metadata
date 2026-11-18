@@ -1,9 +1,9 @@
 ---
 id: "0328"
 title: "Add core development enhancements: Neovim plugins, seamless tmux navigation, and Homebrew Go toolchain"
-status: todo
+status: in-progress
 created_at: 2026-11-18T14:08:00+11:00
-updated_at: 2026-11-18T14:40:00+11:00
+updated_at: 2026-11-18T14:41:00+11:00
 tags:
   - dev-env
   - neovim
