@@ -1,9 +1,9 @@
 ---
 id: "0330"
 title: "Auto-install markdownlint via mason-tool-installer on Neovim startup and guard lint.try_lint"
-status: in-progress
+status: completed
 created_at: 2026-11-18T18:54:00+11:00
-updated_at: 2026-11-18T18:54:00+11:00
+updated_at: 2026-11-19T14:04:00+11:00
 tags:
   - dev-env
   - neovim
@@ -47,3 +47,14 @@ downloading `markdownlint` on first startup still throws `ENOENT`.
      `dotfiles/nvim-kickstart/.config/nvim/lua/kickstart/plugins/lint.lua`.
    - Run `uv run --extra test pytest -m "not network"`, `uv run ruff check .`,
      `uv run --extra test ansible-lint ansible/site.yml`, `npx prettier --check "**/*.md"`, and `make check`.
+
+## Resolution
+
+- Implemented via Holon flow `nvim-markdownlint` (Bean 0330).
+- Pull Request #28: [https://github.com/thomashan/dev-env/pull/28](https://github.com/thomashan/dev-env/pull/28) merged
+  to `main` (`035ce96`).
+- Added `'markdownlint'` to `ensure_installed` for `mason-tool-installer.nvim` in
+  `dotfiles/nvim-kickstart/.config/nvim/init.lua`, guarded `lint.try_lint` with `{ ignore_errors = true }` in
+  `dotfiles/nvim-kickstart/.config/nvim/lua/kickstart/plugins/lint.lua`, and added unit tests in
+  `tests/test_toolchain.py`.
+- Main branch fast-forwarded and flow worktree/branches pruned.
