@@ -1,9 +1,9 @@
 ---
 id: "0332"
 title: "Fold /usr/local/share/ca-certificates into ~/.config/node/node-extra-ca.pem and configure NODE_EXTRA_CA_CERTS"
-status: in-progress
+status: completed
 created_at: 2026-11-19T14:04:00+11:00
-updated_at: 2026-11-19T14:04:00+11:00
+updated_at: 2026-11-19T21:45:00+11:00
 tags:
   - dev-env
   - node
@@ -47,3 +47,9 @@ corporate CA trust.
      `node-extra-ca.pem`) and multi-shell `NODE_EXTRA_CA_CERTS` configuration.
    - Run `uv run --extra test pytest -m "not network"`, `uv run ruff check .`,
      `uv run --extra test ansible-lint ansible/site.yml`, `npx prettier --check "**/*.md"`, and `make check`.
+
+## Resolution
+
+- Implemented via Holon flow `node-extra-ca` (Bean 0332).
+- Pull Request #29: [https://github.com/thomashan/dev-env/pull/29](https://github.com/thomashan/dev-env/pull/29) merged
+  to `main` (`4aeb1c2`) on 2026-11-19.

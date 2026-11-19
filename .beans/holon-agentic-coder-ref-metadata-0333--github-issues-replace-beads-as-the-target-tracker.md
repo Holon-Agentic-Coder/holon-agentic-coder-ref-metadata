@@ -54,7 +54,7 @@ PR #204 left the pilot's scaffolding in `holon-agentic-coder`. Remove it:
 - The pilot's hermetic tests (config shape, gitignore entry, pinned Dockerfile version) and the `.beads/` coverage in
   the repository hygiene check.
 
-Drop the follow-up in `todo/beadspil-dockerfile-digest-pin.patch`; it has nothing left to pin.
+The follow-up in `todo/beadspil-dockerfile-digest-pin.patch` was dropped on 2026-11-19; it had nothing left to pin.
 
 ## Notes
 

@@ -354,19 +354,21 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "timing gate now compares the pull request's test step with the base branch's time on the same runner "
         "class, under a 600 s ceiling, and a timing failure on a head that adds only bookkeeping files gets one "
         "automatic rerun before the approval is withdrawn. Review approved 3/3 at iteration 3, and calibration "
-        "predicted 34.25 against an actual 60.61 (delta +26.36). **Beans 0327 – 0330** (dev-env) completed. The "
+        "predicted 34.25 against an actual 60.61 (delta +26.36). **Beans 0327 – 0330** and **Bean 0332** (dev-env PR #29) completed. The "
         "`holon` CLI and its images were rebuilt from `main` the same day. **Bean 0331** (an overlap override "
-        "moves the plan tip) is in progress; its harness half is done."
+        "moves the plan tip) is in progress; its harness half is done. The Bean 0321 `shortref` flow finished Stage 3 "
+        "locally after #205 merged; it is unpushed and waits for a resume into Stage 4. Merged branches, worktrees, "
+        "review artifacts and scratch files were cleaned up the same day."
     ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0330)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0332)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
 # step with the matrix at every checkpoint.
 NEXT_EXECUTION_SEQUENCE: list[str] = [
-    "**Start here (2026-11-19):** Bean 0316 merged as HAC PR #205 (`3d10c28`) and is completed. Bean 0321 (short flow branch names, P1) is in progress: its `shortref` flow is paused at Stage 3 and resumes now that #205 has merged, so nothing touching `ledger.py`, `ref_names.py`, `agent_defaults.py`, `calibration.py`, the entrypoint, cli or flow packages may run beside it. After 0321 the order is Bean 0323 (P1, review-loop lane), the target half of Bean 0331 (P1), Bean 0322 (P3) and then Bean 0283 (P1). Bean 0332 (dev-env, in progress) touches no holon flow file. Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283 lands.",
+    "**Start here (2026-11-19):** Bean 0316 merged as HAC PR #205 (`3d10c28`) and is completed. Bean 0321 (short flow branch names, P1) is in progress: its `shortref` flow finished Stage 3 on 2026-11-19 (execution `E-1795084333`, local head `66a3965`) but the runner stopped before the push, so the next action is to resume the flow (push, pull request, Stages 4 and 5). Until it merges, nothing touching `ledger.py`, `ref_names.py`, `agent_defaults.py`, `calibration.py`, the entrypoint, cli or flow packages may run beside it. After 0321 the order is Bean 0323 (P1, review-loop lane), the target half of Bean 0331 (P1), Bean 0322 (P3) and then Bean 0283 (P1). Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283 lands.",
     "",
     "**Rule (2026-10-25):** never run concurrent flows whose touched files overlap. The engine enforces this from Bean 0151: a flow whose touch set overlaps an in-flight flow is refused before Stage 3 unless `--allow-overlap` is given. Items inside one lane below run one at a time. Lanes run together only when their touch sets are disjoint.",
     "",
@@ -423,7 +425,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "High",
         "sizing": "L",
         "domain": "Holon Flow / Branches / Ledger",
-        "notes": "In progress; decided with the maintainer on 2026-11-18. Shortens a typical flow branch from 138 characters to about 78 (three-letter agent tickers, derived model codes, no hex, 32-character slugs) and keeps decomposed flows clear of GitHub's 255-character ref limit without the 8-character slug workaround. Includes a one-off migration of plan files and ledger paths. Its `shortref` flow is paused at Stage 3 and resumes now that PR #205 (Bean 0316) has merged. Touches `ledger.py`, `ref_names.py`, `agent_defaults.py`, `calibration.py`, the planner and executor entrypoints and the flow package: nothing touching those may run beside it. Blocks 0322, 0270, 0283, 0181, 0146 and 0197.",
+        "notes": "In progress; decided with the maintainer on 2026-11-18. Shortens a typical flow branch from 138 characters to about 78 (three-letter agent tickers, derived model codes, no hex, 32-character slugs) and keeps decomposed flows clear of GitHub's 255-character ref limit without the 8-character slug workaround. Includes a one-off migration of plan files and ledger paths. Its `shortref` flow finished Stage 3 on 2026-11-19 (all 11 plan steps, execution `E-1795084333`, local head `66a3965`), but the runner stopped before the push, so the execution branch is not on origin and there is no pull request yet; resuming the flow pushes it and runs Stages 4 and 5. Touches `ledger.py`, `ref_names.py`, `agent_defaults.py`, `calibration.py`, the planner and executor entrypoints and the flow package: nothing touching those may run beside it. Blocks 0322, 0270, 0283, 0181, 0146 and 0197.",
     },
     "0323": {
         "title": "A resolver turn that crashes records its findings as rejected, and a resume never adjudicates them",
@@ -477,17 +479,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "refusal, and `flow_env.py` sets the execute budget. Target half: a Stage 3 partial head that descends "
             "from an older plan tip is accepted on resume, with a hermetic test. It touches the Stage 3 resume code "
             "(`entrypoint/execution_workspace.py`), which Bean 0321 also changes, so it runs after 0321 and before 0322."
-        ),
-    },
-    "0332": {
-        "title": "Fold system CA certificates into a Node bundle and export NODE_EXTRA_CA_CERTS",
-        "priority": "**P2**",
-        "impact": "Medium",
-        "sizing": "M",
-        "domain": "Dev-env / Node / TLS",
-        "notes": (
-            "In progress in `dev-env` (another session). The Ansible `node` role folds `/usr/local/share/ca-certificates` "
-            "into `~/.config/node/node-extra-ca.pem`, and the shells export `NODE_EXTRA_CA_CERTS`. No holon flow dependency."
         ),
     },
     "0283": {
@@ -2076,7 +2067,7 @@ def generate_triage_document(
             ),
             (
                 "35. **The macOS timing gate compares against the base branch, and the dev-env wave completes (Bean "
-                "0316 / HAC PR #205, Beans 0327 – 0330, 2026-11-18 to 2026-11-19)**:"
+                "0316 / HAC PR #205, Beans 0327 – 0330 and 0332, 2026-11-18 to 2026-11-19)**:"
             ),
             (
                 "    - `0316` (PR #205, `3d10c28`, merged 2026-11-19): the `unit (macos-latest)` timing gate compares "
@@ -2092,6 +2083,11 @@ def generate_triage_document(
                 "(dev-env PR #28) completed: Neovim through Homebrew with Ansible run in CI, Neovim plugins, seamless "
                 "tmux navigation, the Homebrew Go toolchain, the tmux Stow package moved to `~/.tmux.conf`, and "
                 "markdownlint installed on Neovim startup."
+            ),
+            (
+                "    - `0332` (dev-env PR #29, `4aeb1c2`, merged 2026-11-19): the Ansible `node` role folds "
+                "`/usr/local/share/ca-certificates` into `~/.config/node/node-extra-ca.pem`, and the managed shells "
+                "export `NODE_EXTRA_CA_CERTS` when that file exists."
             ),
             (
                 "    - Tooling: `holon` and its images were reinstalled from `main` at `3d10c28`; `holon-coherence` was "

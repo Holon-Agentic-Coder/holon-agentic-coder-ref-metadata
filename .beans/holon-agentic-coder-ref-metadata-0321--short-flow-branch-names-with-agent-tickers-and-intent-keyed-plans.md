@@ -11,7 +11,7 @@ tags:
   - provenance
   - holon-agentic-coder
 created_at: 2026-11-17T14:15:00Z
-updated_at: 2026-11-18T04:34:00Z
+updated_at: 2026-11-19T10:45:00Z
 ---
 
 ## Problem
@@ -84,6 +84,18 @@ branches themselves never collided: each plan sits under its own intent.
 
 Run through the Holon flow on `holon-agentic-coder` (`todo/intent-0321-shortref.json`). One intent, so that no
 intermediate ID format (`P-{epoch}-{hex}-CLA-…`) ever reaches the ledger; the planner may decompose it.
+
+## Progress
+
+- **2026-11-18:** flow `shortref` launched (intent `I-1794976491-shortref`, plan `P-1794976507-654a2c7f`, 11 steps).
+  Stage 3 ran three times from scratch under `--allow-overlap` beside the `macgate` flow (Bean 0331); the third attempt
+  was cut off by the 45-minute budget at step 11.
+- **2026-11-19:** resumed after PR #205 merged. The continuation `E-1795084333-ec295034` recorded the step 11
+  verification gates, marked the execution completed and reconciled the ledgers with `origin/main` (local head
+  `66a3965`, 17 commits ahead of `main`, 0 behind). The runner process ended before the host push: the execution branch
+  is not on origin, the flow checkpoint still says `execute`, the resume log is empty, and no pull request exists.
+- **Next:** resume the flow from `flow-shortref` so it pushes the branch, opens the pull request and runs Stages 4
+  and 5.
 
 ## Notes
 
