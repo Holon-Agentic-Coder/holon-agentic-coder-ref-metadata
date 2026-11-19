@@ -348,15 +348,25 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "scrapped. **Bean 0328** (dev-env: Neovim plugins, tmux navigation, Homebrew Go toolchain) is in progress. New "
         "bean: **Bean 0323** (crashed resolver turn records findings as rejected)."
     ),
+    "",
+    (
+        "**2026-11-19:** **Bean 0316** merged as HAC PR #205 (`3d10c28`, flow slug `macgate`). The macOS unit "
+        "timing gate now compares the pull request's test step with the base branch's time on the same runner "
+        "class, under a 600 s ceiling, and a timing failure on a head that adds only bookkeeping files gets one "
+        "automatic rerun before the approval is withdrawn. Review approved 3/3 at iteration 3, and calibration "
+        "predicted 34.25 against an actual 60.61 (delta +26.36). **Beans 0327 – 0330** (dev-env) completed. The "
+        "`holon` CLI and its images were rebuilt from `main` the same day. **Bean 0331** (an overlap override "
+        "moves the plan tip) is in progress; its harness half is done."
+    ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0326)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0330)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
 # step with the matrix at every checkpoint.
 NEXT_EXECUTION_SEQUENCE: list[str] = [
-    "**Start here (2026-11-18):** Bean 0297 merged as HAC PR #203 (`d5fbd14`), which unblocks the serial chain and the review-loop lane below. Beans 0320, 0324 and 0326 completed (dev-env), Bean 0325 was scrapped, and Bean 0328 (dev-env) is in progress. New: Bean 0323 (P1, review-loop lane; it carries PR #203's two open nits). Bean 0321 (short flow branch names, P1) is the next serial item, then Bean 0322 (remove the `gemini-agent` runner, P3). Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283 lands.",
+    "**Start here (2026-11-19):** Bean 0316 merged as HAC PR #205 (`3d10c28`) and is completed. Bean 0321 (short flow branch names, P1) is in progress: its `shortref` flow is paused at Stage 3 and resumes now that #205 has merged, so nothing touching `ledger.py`, `ref_names.py`, `agent_defaults.py`, `calibration.py`, the entrypoint, cli or flow packages may run beside it. After 0321 the order is Bean 0323 (P1, review-loop lane), the target half of Bean 0331 (P1), Bean 0322 (P3) and then Bean 0283 (P1). Bean 0332 (dev-env, in progress) touches no holon flow file. Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283 lands.",
     "",
     "**Rule (2026-10-25):** never run concurrent flows whose touched files overlap. The engine enforces this from Bean 0151: a flow whose touch set overlaps an in-flight flow is refused before Stage 3 unless `--allow-overlap` is given. Items inside one lane below run one at a time. Lanes run together only when their touch sets are disjoint.",
     "",
@@ -364,13 +374,14 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "",
     "**Rule (2026-10-28) and worktree rule (2026-11-09):** the target suites rely solely on pytest. A flow never runs in the `main` worktree; it runs in a `flow-<slug>` worktree off `origin/main`.",
     "",
-    "**Tooling:** `holon 0.1.0` was reinstalled on 2026-11-16. Set `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172 lands.",
+    "**Tooling:** `holon 0.1.0` was reinstalled from `main` (`3d10c28`) on 2026-11-19 after PR #205; `holon-coherence` was not rebuilt. Set `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172 lands.",
     "",
     "**Serial chain, `holon-agentic-coder` (one flow at a time; these touch the ledgers, `agent_defaults.py`, the planner and the flow package):**",
     "1. **Bean 0297** (completed; PR #203 merged 2026-11-18). Items 2 to 6 are unblocked.",
-    "2. **Bean 0321** (`ledger.py`, `ref_names.py`, `agent_defaults.py`, `calibration.py`, the planner and executor entrypoints, the flow package). It runs alone and includes the one-off plan and ledger migration.",
+    "2. **Bean 0321**, in progress (`ledger.py`, `ref_names.py`, `agent_defaults.py`, `calibration.py`, the planner and executor entrypoints, the flow package). It runs alone and includes the one-off plan and ledger migration.",
     "3. **Bean 0322** after 0321 (`agent_defaults.py`, `agent_runner.py`, `Dockerfile`, `docker-bake.hcl`), then **Bean 0270** after 0322 (model discovery replaces the table in `agent_defaults.py`; it is also blocked on a usable runner).",
     "4. **Bean 0283** after 0321 (planner entrypoint, `payload_cleaner`). Both touch the planner entrypoint, so they cannot overlap.",
+    "**Order after 0321:** Bean 0323 (review-loop lane), then the target half of Bean 0331 (Stage 3 resume code, which must not run beside 0321), then Bean 0322, then Bean 0283.",
     "5. **Bean 0146**, then **Bean 0197** (`calibration.py`). Both wait for 0321, which also touches `calibration.py`, and 0146 runs before 0197 because they share the parser.",
     "6. **Bean 0181** (`/_` only on branch refs) after 0321, which changes the branch and plan naming it depends on.",
     "",
@@ -379,7 +390,6 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "- **Bean 0255** (streaming per-issue resolvers, one consolidated commit per iteration), then **Bean 0234** (CI check progress logging; pairs with the completed 0160).",
     "- **Bean 0261** (`review_report.py`: one clean evaluation line), then **Bean 0269** (deferred nits from PR #158).",
     "- **Bean 0213** (reflect review-loop skill rules into the native review-loop agent template).",
-    "- **Bean 0316** (macOS unit CI timing gate: `.github/workflows/test-unit.yml` and `scripts/check_ci_runtime_budget.py`). Unblocked by 0297's merge. Its files are disjoint from 0321, so it may run beside item 2 of the serial chain.",
     "",
     "**Flow package and decomposition lane (`flow/` submodules, one flow at a time per submodule):**",
     "- **Bean 0264** (module budgets move to `holon-config/hygiene/module_budgets.json`), then **Bean 0265** (move-only split of `cli/__init__.py`). 0265 unblocks 0189.",
@@ -413,7 +423,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "High",
         "sizing": "L",
         "domain": "Holon Flow / Branches / Ledger",
-        "notes": "Todo; decided with the maintainer on 2026-11-18. Shortens a typical flow branch from 138 characters to about 78 (three-letter agent tickers, derived model codes, no hex, 32-character slugs) and keeps decomposed flows clear of GitHub's 255-character ref limit without the 8-character slug workaround. Includes a one-off migration of plan files and ledger paths. Touches `ledger.py`, `ref_names.py`, `agent_defaults.py`, `calibration.py`, the planner and executor entrypoints and the flow package: it must not run beside any flow on those files, and it waits for PR #203 (Bean 0297) to merge. Blocks 0322, 0270, 0283, 0181, 0146 and 0197.",
+        "notes": "In progress; decided with the maintainer on 2026-11-18. Shortens a typical flow branch from 138 characters to about 78 (three-letter agent tickers, derived model codes, no hex, 32-character slugs) and keeps decomposed flows clear of GitHub's 255-character ref limit without the 8-character slug workaround. Includes a one-off migration of plan files and ledger paths. Its `shortref` flow is paused at Stage 3 and resumes now that PR #205 (Bean 0316) has merged. Touches `ledger.py`, `ref_names.py`, `agent_defaults.py`, `calibration.py`, the planner and executor entrypoints and the flow package: nothing touching those may run beside it. Blocks 0322, 0270, 0283, 0181, 0146 and 0197.",
     },
     "0323": {
         "title": "A resolver turn that crashes records its findings as rejected, and a resume never adjudicates them",
@@ -456,15 +466,28 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "(`flow/` package split). Must handle `{parent}--{n}-{slug}` child branches."
         ),
     },
-    "0316": {
-        "title": "macOS unit CI timing gate trips on runner noise and blocks Stage 5",
+    "0331": {
+        "title": "Each --allow-overlap resume moves the plan tip, so Stage 3 partial work is never continued",
         "priority": "**P1**",
         "impact": "High",
-        "sizing": "S",
-        "domain": "CI / Stage 5",
+        "sizing": "M",
+        "domain": "Holon Flow / Stage 3 / Resume",
         "notes": (
-            "Timing gate fails on runner speed alone (PR #204 and #203 calibration-only heads). Touches "
-            "`.github/workflows/test-unit.yml` and `scripts/check_ci_runtime_budget.py`. Run after 0297."
+            "In progress. Harness half done: `run_holon_flow.py` no longer adds `--allow-overlap` after an admission "
+            "refusal, and `flow_env.py` sets the execute budget. Target half: a Stage 3 partial head that descends "
+            "from an older plan tip is accepted on resume, with a hermetic test. It touches the Stage 3 resume code "
+            "(`entrypoint/execution_workspace.py`), which Bean 0321 also changes, so it runs after 0321 and before 0322."
+        ),
+    },
+    "0332": {
+        "title": "Fold system CA certificates into a Node bundle and export NODE_EXTRA_CA_CERTS",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Dev-env / Node / TLS",
+        "notes": (
+            "In progress in `dev-env` (another session). The Ansible `node` role folds `/usr/local/share/ca-certificates` "
+            "into `~/.config/node/node-extra-ca.pem`, and the shells export `NODE_EXTRA_CA_CERTS`. No holon flow dependency."
         ),
     },
     "0283": {
@@ -2050,6 +2073,33 @@ def generate_triage_document(
             (
                 "    - New: `0323` (todo, P1): a resolver turn that crashes records its findings as rejected, and a "
                 "resume never adjudicates them. The carried PR #203 nits are part of its action."
+            ),
+            (
+                "35. **The macOS timing gate compares against the base branch, and the dev-env wave completes (Bean "
+                "0316 / HAC PR #205, Beans 0327 – 0330, 2026-11-18 to 2026-11-19)**:"
+            ),
+            (
+                "    - `0316` (PR #205, `3d10c28`, merged 2026-11-19): the `unit (macos-latest)` timing gate compares "
+                "the pull request's test step with the base branch's time on the same runner class, under a 600 s "
+                "ceiling, instead of a fixed 300 s budget. A timing failure on a head that adds only ledger, plan and "
+                "knowledge-base files gets one automatic rerun of the failed job before the approval or the final-head "
+                "check is withdrawn. Review approved 3/3 at iteration 3. Calibration: expected value predicted 34.25, "
+                "actual 60.61 (delta +26.36). The PR also changed `flow_module_budgets.json`, outside the bean's "
+                "stated scope."
+            ),
+            (
+                "    - `0327` (dev-env PR #25), `0328` (dev-env PR #26), `0329` (dev-env PR #27, `12e4831`) and `0330` "
+                "(dev-env PR #28) completed: Neovim through Homebrew with Ansible run in CI, Neovim plugins, seamless "
+                "tmux navigation, the Homebrew Go toolchain, the tmux Stow package moved to `~/.tmux.conf`, and "
+                "markdownlint installed on Neovim startup."
+            ),
+            (
+                "    - Tooling: `holon` and its images were reinstalled from `main` at `3d10c28`; `holon-coherence` was "
+                "not rebuilt."
+            ),
+            (
+                "    - New: `0331` (in progress, P1): each `--allow-overlap` resume moves the plan tip, so Stage 3 partial "
+                "work is never continued. Its harness half is done; the target half waits for Bean 0321."
             ),
             "",
             "---",
