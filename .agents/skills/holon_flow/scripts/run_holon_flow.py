@@ -424,14 +424,17 @@ def run_flow(
         # Flow failed. Check for quota or session exhaustion
         log_error(f"Holon flow exited with non-zero code {returncode}.")
 
+        # An admission refusal is never overridden here: the override is the caller's decision, and every
+        # --allow-overlap admission moves the plan tip, which makes the engine discard a failed attempt's partial work.
         if "or rerun with --allow-overlap" in output and not current_allow_overlap:
-            log_warn("Stage 3 admission refused; retrying with --allow-overlap as instructed by the flow engine.")
-            current_allow_overlap = True
-            chk_path = target_worktree / f".holon/flow/checkpoint-{slug}.json"
-            if chk_path.exists():
-                current_checkpoint = chk_path
-                current_from_stage = None
-            continue
+            refusal = next((line.strip() for line in output.splitlines() if "Stage 3 refused" in line), "")
+            log_error(
+                "Stage 3 admission refused for a touch-set overlap; not retrying. Wait for the overlapping flow to "
+                "merge, or rerun with --allow-overlap if the maintainer accepts the overlap."
+            )
+            if refusal:
+                print(refusal)
+            return returncode
 
         if auto_fallback and is_quota_error(output):
             log_warn("Detected model credit, quota, or session limit exhaustion.")

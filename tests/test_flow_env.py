@@ -90,3 +90,44 @@ def test_the_token_never_reaches_the_printed_command(monkeypatch, tmp_path, caps
     run_holon_flow.execute_flow_process(["holon", "flow", "x.json"], env=env)
     assert FAKE in seen["env"]["HOLON_AGENT_SETTINGS"]
     assert FAKE not in capsys.readouterr().out
+
+
+def test_the_execute_budget_is_raised_unless_the_caller_set_one(secrets):
+    env = flow_env.build_flow_env("claude-agent", environ={}, secrets_dir=secrets)
+    assert env["HOLON_STAGE_BUDGET_EXECUTE_MINUTES"] == "10080"
+    kept = flow_env.build_flow_env(
+        "claude-agent", environ={"HOLON_STAGE_BUDGET_EXECUTE_MINUTES": "90"}, secrets_dir=secrets
+    )
+    assert kept["HOLON_STAGE_BUDGET_EXECUTE_MINUTES"] == "90"
+
+
+REFUSAL = (
+    "[2026-11-18T06:22:15Z] Stage 3 refused: the touch set overlaps pull request #205 on flow/x.py; wait for it to "
+    "merge, or rerun with --allow-overlap\n"
+)
+
+
+def _overlap_run(monkeypatch, tmp_path, **kwargs):
+    intent = tmp_path / "intent.json"
+    intent.write_text(json.dumps({"slug": "demo", "goal": "g", "description": "d"}))
+    worktree = tmp_path / "flow-demo"
+    (worktree / ".git").mkdir(parents=True)
+    launched = []
+    monkeypatch.setattr(run_holon_flow, "run_prerequisites_check", lambda w: None)
+    monkeypatch.setattr(run_holon_flow, "build_flow_env", lambda agent: {})
+    monkeypatch.setattr(run_holon_flow, "execute_flow_process", lambda cmd, **k: launched.append(cmd) or (1, REFUSAL))
+    code = run_holon_flow.run_flow(intent, worktree, "claude-agent", "claude-sonnet-5-5", **kwargs)
+    return code, launched
+
+
+def test_an_admission_refusal_is_reported_and_never_overridden_by_the_runner(monkeypatch, tmp_path, capsys):
+    code, launched = _overlap_run(monkeypatch, tmp_path)
+    assert code == 1 and len(launched) == 1
+    assert "--allow-overlap" not in launched[0]
+    assert "overlaps pull request #205" in capsys.readouterr().out
+
+
+def test_the_override_is_passed_only_when_the_caller_asks_for_it(monkeypatch, tmp_path):
+    code, launched = _overlap_run(monkeypatch, tmp_path, allow_overlap=True)
+    assert code == 1 and len(launched) == 1
+    assert "--allow-overlap" in launched[0]

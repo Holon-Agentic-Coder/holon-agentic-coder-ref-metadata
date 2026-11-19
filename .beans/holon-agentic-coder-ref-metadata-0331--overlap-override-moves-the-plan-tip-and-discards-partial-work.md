@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0331
 title: "Each --allow-overlap resume moves the plan tip, so Stage 3 partial work is never continued"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - overlap
   - holon-agentic-coder
 created_at: 2026-11-18T12:45:00Z
-updated_at: 2026-11-18T12:45:00Z
+updated_at: 2026-11-19T10:50:00Z
 ---
 
 ## Problem
@@ -45,6 +45,15 @@ executed three times from scratch, about 45 minutes each, and no attempt continu
   overlapping paths unless the flag was passed by the caller. It should also set the execute budget from the triage
   note, or the note should be retired by Bean 0172.
 - Intent authoring: list files, not whole directories, in `scope` when another flow is in flight.
+
+## Progress
+
+- **Harness half done (2026-11-19).** `run_holon_flow.py` no longer retries with `--allow-overlap` after an admission
+  refusal: it prints the refusal and exits, and passes the flag only when the caller gave it. `flow_env.py` sets
+  `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` unless the caller set a value. Three tests added to
+  `tests/test_flow_env.py`; `uv run pytest` passes (84).
+- **Target half open.** It changes the Stage 3 resume code, which the Bean 0321 flow also changes, so its flow starts
+  after Bean 0321 merges.
 
 ## Notes
 

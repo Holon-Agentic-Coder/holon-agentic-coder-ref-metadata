@@ -16,6 +16,10 @@ from pathlib import Path
 TOKEN_FILE = "claude-oauth-token"
 ECHO_PAD = "x" * 300
 CLAUDE_AGENTS = ("claude-agent",)
+# The default 45-minute Stage 3 budget cuts a large plan off mid-execution, and the next attempt starts over. One
+# week stands in for "no limit" until the engine takes an explicit unlimited budget.
+EXECUTE_BUDGET_VARIABLE = "HOLON_STAGE_BUDGET_EXECUTE_MINUTES"
+EXECUTE_BUDGET_MINUTES = "10080"
 
 
 class AuthRouteMissing(RuntimeError):
@@ -48,6 +52,7 @@ def build_flow_env(
     env = dict(os.environ if environ is None else environ)
     env.setdefault("PYTHONUNBUFFERED", "1")
     env.setdefault("HOLON_TOKEN_REDUCE", "0")
+    env.setdefault(EXECUTE_BUDGET_VARIABLE, EXECUTE_BUDGET_MINUTES)
     if agent in CLAUDE_AGENTS and not env.get("HOLON_AGENT_SETTINGS", "").strip():
         token = _claude_token(env, secrets_dir if secrets_dir is not None else Path.home() / ".holon" / "secrets")
         env["HOLON_AGENT_SETTINGS"] = json.dumps(
