@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0322
 title: "Remove the gemini-agent runner, made redundant by antigravity-agent"
-status: todo
+status: in-progress
 type: task
 priority: low
 tags:
@@ -9,7 +9,7 @@ tags:
   - cleanup
   - holon-agentic-coder
 created_at: 2026-11-17T14:40:00Z
-updated_at: 2026-11-17T14:40:00Z
+updated_at: 2026-11-20T20:30:00+11:00
 ---
 
 ## Problem

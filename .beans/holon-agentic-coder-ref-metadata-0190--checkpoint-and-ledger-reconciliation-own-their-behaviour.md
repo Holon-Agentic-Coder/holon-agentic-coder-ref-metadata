@@ -2,7 +2,7 @@
 # holon-agentic-coder-ref-metadata-0190
 title:
   "FlowCheckpoint and ledger reconciliation own their behaviour; container entrypoints stop importing the flow engine"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
   - holon-agentic-coder
 blocked_by:
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-11-20T12:00:00+11:00
+updated_at: 2026-11-20T20:30:00+11:00
 ---
 
 ## Problem
