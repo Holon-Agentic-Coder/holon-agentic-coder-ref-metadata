@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0335
 title: "A Stage 3 resume restarts from the ledger partial_head and ignores commits added to the execution branch tip"
-status: in-progress
+status: completed
 type: bug
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - resume
   - holon-agentic-coder
 created_at: 2026-11-20T11:30:00+11:00
-updated_at: 2026-11-20T12:05:00+11:00
+updated_at: 2026-11-20T14:30:00+11:00
 ---
 
 ## Problem
@@ -48,6 +48,20 @@ merge commit.
   (https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/208) reached 3/3 approval at iteration 2 (iteration 1
   had one Important finding per reviewer, resolved). Calibration is in the PR: predicted EV 39.61, actual EV -19.01 (ΔEV
   -58.62). CI is green on head `18c4e10`, and the PR is MERGEABLE/CLEAN and waiting for a human merge.
+
+## Resolution
+
+Delivered via [PR #208](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/208) and merged into `main`
+(`00fa535`), in the same `resumetip` flow as Bean 0331:
+
+- **Resume from the branch tip**: when the execution branch tip descends from the recorded `partial_head` and from a tip
+  of the plan branch, the executor continues from the tip, so commits added after the failure (such as an `origin/main`
+  merge) are kept. Otherwise the previous behaviour is kept and the log says why.
+- **No push before the ledger row**: an execution branch is not pushed before its ledger row exists, so a failed attempt
+  leaves no pushed branch without a ledger row.
+- **Verification & Tests**: same run and review as Bean 0331 (4441 tests passed; review approved 3/3 at iteration 2; CI
+  green on `18c4e10`).
+- **Holon Flow Traversal**: all five stages completed after one Stage 4 resume, as described in Bean 0331.
 
 ## Notes
 

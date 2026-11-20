@@ -376,17 +376,17 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "a resolver turn that fails writes no adjudication rows and leaves its findings open, a rejection needs a reason, "
         "and a review resume sends open findings to the resolver first. Review approved 3/3 at iteration 3; calibration "
         "predicted 61.85 against an actual 77.72 (delta +15.87). **Bean 0337** is new (a flow refused at Stage 3 admission "
-        "still counts as in flight), and Beans 0331 and 0335 run in the live `resumetip` flow."
+        "still counts as in flight). Beans 0331 and 0335 merged as PR #208 (`00fa535`) and are completed. **Bean 0337** merged as PR #209 (`7dc0342`) and is completed."
     ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0334)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0337)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
 # step with the matrix at every checkpoint.
 NEXT_EXECUTION_SEQUENCE: list[str] = [
-    "**Start here (2026-11-20):** Bean 0323 merged as HAC PR #207 (`d0b3e23`) and is completed; the harness installs were rebuilt from `main` at `d0b3e23` the same day. The next flow is Beans 0331 (target half) and 0335 (P1 and P2), which run in the live `resumetip` flow now that PR #207 has cleared its overlap. Run one flow at a time, because the next lanes share the Stage 3 resume path and the flow package. Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283 lands.",
+    "**Start here (2026-11-20):** Bean 0337 merged as HAC PR #209 (`7dc0342`) and is completed, so the blocked-admission lane is closed (Beans 0331 and 0335 merged earlier as PR #208). The harness installs were rebuilt from `main` at `7dc0342` the same day. The next serial item is Bean 0336, then Bean 0283. Run one flow at a time, because the next lanes share the flow package and the Stage 3 admission path. Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283 lands.",
     "",
     "**Rule (2026-10-25):** never run concurrent flows whose touched files overlap. The engine enforces this from Bean 0151: a flow whose touch set overlaps an in-flight flow is refused before Stage 3 unless `--allow-overlap` is given. Items inside one lane below run one at a time. Lanes run together only when their touch sets are disjoint.",
     "",
@@ -394,11 +394,11 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "",
     "**Rule (2026-10-28) and worktree rule (2026-11-09):** the target suites rely solely on pytest. A flow never runs in the `main` worktree; it runs in a `flow-<slug>` worktree off `origin/main`.",
     "",
-    "**Tooling:** `holon 0.1.0` and `holon-coherence 0.1.0` were reinstalled from `main` (`d0b3e23`) on 2026-11-20. `holon --version` prints no commit, so the editable install is the check. Set `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172 lands.",
+    "**Tooling:** `holon 0.1.0` and `holon-coherence 0.1.0` were reinstalled from `main` (`7dc0342`) on 2026-11-20. `holon --version` prints no commit, so the editable install is the check. Set `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172 lands.",
     "",
     "**Serial chain, `holon-agentic-coder` (one flow at a time; these touch the ledgers, `agent_defaults.py`, the planner and the flow package):**",
-    "1. **Beans 0331 (target half) and 0335** as one flow, running as the live `resumetip` flow: both change the Stage 3 resume path (`entrypoint/execution_workspace.py`), and 0335 resumes from the execution branch tip instead of the ledger `partial_head`. PR #207 has merged, so its Stage 3 can start.",
-    "2. **Bean 0337** (P1; a flow refused at Stage 3 admission must not count as in flight; `flow/in_flight.py`) after 0331 and 0335, since it changes the same admission and resume path.",
+    "1. ~~**Beans 0331 and 0335**~~ merged as HAC PR #208 (`00fa535`) and completed.",
+    "2. ~~**Bean 0337**~~ merged as HAC PR #209 (`7dc0342`) and completed.",
     "3. **Bean 0336** (Stage 4 review container leaves the worktree detached), in the review-loop lane; unblocked by Bean 0323's merge.",
     "4. **Bean 0283** (P1; planner entrypoint, `payload_cleaner`), unblocked by the 0321 merge.",
     "5. **Bean 0322** (P3; `agent_defaults.py`, `agent_runner.py`, `Dockerfile`, `docker-bake.hcl`), then **Bean 0270** after 0322 (model discovery; also blocked on a usable runner).",
@@ -457,6 +457,14 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "M",
         "domain": "Holon Flow / Stage 3 / Admission",
         "notes": "Decided 2026-11-20: a refused flow gets an explicit blocked state with its blockers, and only admitted flows count as in flight (`local_in_flight_flows`, `flow/in_flight.py`). Admission runs under a per-repository lock. Same admission and resume path as Beans 0331 and 0335, so it follows them.",
+    },
+    "0338": {
+        "title": "A flow admitted after waiting out an overlap executes from a stale plan branch and conflicts with the PR it waited for",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Holon Flow / Stage 3 / Admission",
+        "notes": "Decided 2026-11-20: on admission after a blocked state, merge origin/main into the plan branch before Stage 3 executes (never rebase). Seen on PR #209: Stage 4 hit five conflicts with #207/#208. Builds on Bean 0337 (PR #209); every overlap wait otherwise ends in a Stage 4 conflict.",
     },
     "0280": {
         "title": "The flow does not re-check CI after the calibration push; the macOS timing gate is flaky near 300 s",
@@ -2159,6 +2167,19 @@ def generate_triage_document(
             ),
             (
                 "    - New: `0337` (todo, P1): a flow refused at Stage 3 admission counts as in flight, so two waiting flows can block each other."
+            ),
+            (
+                "39. **Stage 3 resume keeps partial work and the branch tip (Beans 0331 and 0335 / HAC PR #208, 2026-11-20)**:"
+            ),
+            (
+                "    - `0331` (PR #208, `00fa535`, merged 2026-11-20): the `--allow-overlap` override is recorded once per plan, and a partial head that descends from any earlier plan tip is accepted, so Stage 3 partial work is continued. Review approved 3/3 at iteration 2. Calibration: expected value predicted 39.61, actual -19.01 (delta -58.62)."
+            ),
+            (
+                "    - `0335` (PR #208): a resume continues from the execution branch tip when it descends from the recorded `partial_head`, keeping commits added after the failure, and an execution branch is not pushed before its ledger row exists."
+            ),
+            ("40. **Blocked admission state (Bean 0337 / HAC PR #209, 2026-11-20)**:"),
+            (
+                "    - `0337` (PR #209, `7dc0342`, merged 2026-11-20): a Stage 3 admission refusal for a touch-set overlap records a `blocked` admission state with `blocked_by` and `blocked_since`. Blocked flows are not in flight for anyone else's admission, and admission runs under a per-repository lock, oldest `blocked_since` first."
             ),
             "",
             "---",

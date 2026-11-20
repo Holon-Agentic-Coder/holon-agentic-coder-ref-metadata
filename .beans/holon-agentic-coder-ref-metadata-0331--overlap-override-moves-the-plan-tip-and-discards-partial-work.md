@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0331
 title: "Each --allow-overlap resume moves the plan tip, so Stage 3 partial work is never continued"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - overlap
   - holon-agentic-coder
 created_at: 2026-11-18T12:45:00Z
-updated_at: 2026-11-20T11:40:00+11:00
+updated_at: 2026-11-20T14:30:00+11:00
 ---
 
 ## Problem
@@ -73,6 +73,20 @@ executed three times from scratch, about 45 minutes each, and no attempt continu
   (https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/208) reached 3/3 approval at iteration 2 (iteration 1
   had one Important finding per reviewer, resolved). Calibration is in the PR: predicted EV 39.61, actual EV -19.01 (ΔEV
   -58.62). CI is green on head `18c4e10`, and the PR is MERGEABLE/CLEAN and waiting for a human merge.
+
+## Resolution
+
+Delivered via [PR #208](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/208) and merged into `main`
+(`00fa535`), in the same `resumetip` flow as Bean 0335:
+
+- **Override records no longer invalidate partial work**: the `--allow-overlap` admission override is recorded once per
+  plan, not on every resume, and `resolve_partial_head` accepts a partial head that descends from any earlier tip of the
+  same plan branch.
+- **Harness half**: the runner no longer relaunches with `--allow-overlap` on its own (done before this flow).
+- **Verification & Tests**: 4441 tests passed on the executor run; review approved 3/3 at iteration 2; CI green on head
+  `18c4e10`. Calibration: predicted EV 39.61, actual EV -19.01 (delta -58.62).
+- **Holon Flow Traversal**: Stage 4 stopped on a pre-push sync conflict with `origin/main` (PR #207); a resolve-conflict
+  subagent merged `origin/main` and the flow resumed from Stage 4 without the override. All five stages then completed.
 
 ## Notes
 
