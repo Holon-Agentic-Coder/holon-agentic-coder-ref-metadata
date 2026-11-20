@@ -38,6 +38,17 @@ merge commit.
   and `apps/sandbox-executor/tests/flow/stages/test_execute.py`. Not overridden; resume with `--from-stage execute` in
   `flow-resumetip` after PR #207 merges.
 
+- **2026-11-20:** Flow `resumetip` resumed at Stage 3 with the maintainer-authorised one-time `--allow-overlap` (overlap
+  with the waiting `blockedflow` flow, recorded on the plan branch). Executor (claude-opus-5-5) finished in 13.5 min
+  (4441 tests passed) and pushed `E-1795139222-CLA-CO5.5/_`, but its pre-push sync hit non-ledger conflicts with
+  `origin/main` (PR #207) in `apps/sandbox-executor/flow_module_budgets.json` and
+  `apps/sandbox-executor/src/sandbox_executor/flow/__init__.py`, so Stage 4 stopped. A resolve-conflict subagent merged
+  `origin/main` (additive `__all__` union; budget for `flow/__init__.py` set to its real 514 lines; lint and 898 flow
+  tests pass), then the flow resumed from Stage 4 without the override. PR #208
+  (https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/208) reached 3/3 approval at iteration 2 (iteration 1
+  had one Important finding per reviewer, resolved). Calibration is in the PR: predicted EV 39.61, actual EV -19.01 (ΔEV
+  -58.62). CI is green on head `18c4e10`, and the PR is MERGEABLE/CLEAN and waiting for a human merge.
+
 ## Notes
 
 - Related: Bean 0171 (partial-work salvage), Bean 0331 (plan tip moved by override records).
