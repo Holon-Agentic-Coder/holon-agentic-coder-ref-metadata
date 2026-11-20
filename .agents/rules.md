@@ -271,7 +271,7 @@ code in this repository.
          `ACT-...`) and lifecycle summaries (`entry_type: "summary"`, `E-...`, `REV-...`).
     - **NEVER create auxiliary ledgers**: Under no circumstances should `actions.jsonl`, `reviews.jsonl`, or any other
       secondary JSONL ledger be introduced.
-    - All action-level telemetry (test suite runs, review loop iterations, findings, GitHub dual-posts, repair steps,
+    - All action-level telemetry (test suite runs, review loop iterations, findings, GitHub review posts, repair steps,
       late calibration reconciliations) MUST be written exclusively to `executions.jsonl` under `LedgerLock` using
       `append_action_record()` or `append_action_event(ledger_path=executions_file)`.
     - Creating auxiliary ledgers fragments provenance, breaks downstream ledger queries, and causes split-brain state.

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0246
 title: "Fix pr-review-loop skill to strictly post consensus review once and prohibit dual-posting via gh pr comment"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - github
   - pr-review-loop
 created_at: 2026-11-06T15:00:00Z
-updated_at: 2026-11-06T15:00:00Z
+updated_at: 2026-11-20T12:43:00+11:00
 ---
 
 ## Problem
@@ -55,3 +55,24 @@ This occurs because:
    [Bean 0236](holon-agentic-coder-ref-metadata-0236--post-consensus-review-once-not-duplicate-comment-and-review.md),
    which updates `post_pr_review_consensus()` in `apps/sandbox-executor/src/sandbox_executor/flow.py` to remove
    unconditional `gh pr comment` calls.
+
+## Audit (2026-11-20)
+
+Done: the harness review skills no longer dual-post and use only `gh pr review`; the engine side (Bean 0236) is
+completed. Remaining (harness only): an explicit "post the consensus exactly once" invariant and a ban on
+`gh pr comment` in `pr_review_loop`/`pr_reviewer`, the 422 fallback stated in full, and the "GitHub dual-posts"
+telemetry line in `.agents/rules.md`.
+
+## Resolution
+
+- **Engine Side**: Completed via
+  [Bean 0236](holon-agentic-coder-ref-metadata-0236--post-consensus-review-once-not-duplicate-comment-and-review.md)
+  (`holon-agentic-coder` PR #139).
+- **Harness Side**:
+  - Updated `.agents/skills/pr_review_loop/SKILL.md` to state the strict single-posting invariant ("posted strictly once
+    to GitHub using exclusively `gh pr review`"), explicitly forbid `gh pr comment` for posting/dual-posting review
+    bodies, and spell out the HTTP 422 (`Can not approve your own pull request` -> single fallback to
+    `gh pr review --comment`) rule across both approval and max-iteration final review paths.
+  - Updated `.agents/skills/pr_reviewer/SKILL.md` with the strict single-posting invariant, `gh pr comment` prohibition,
+    and full HTTP 422 self-review fallback note.
+  - Updated `.agents/rules.md` invariant 18 to replace `GitHub dual-posts` with `GitHub review posts`.

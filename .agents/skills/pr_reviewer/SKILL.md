@@ -217,6 +217,9 @@ Check if **Dry-Run Mode** is enabled (e.g. via `--dry-run` parameter or loop ins
     whoever picks the work up next.
 
 - **If Real Mode is ON (Default / Final Pass)**:
+  - **Strict Single-Posting Invariant**: **The consensus review report MUST be posted strictly once to GitHub** using
+    exclusively `gh pr review` (`--approve`, `--request-changes`, or `--comment`). **NEVER run `gh pr comment`** to post
+    or dual-post the review body.
   - **Post the canonical consensus comment** - step 3a of
     [`pr_review_prompt.md`](../../prompts/pr_review_prompt.md#-step-3a-consensus-comment-the-only-body-posted-to-github)
     - whole, even for a clean `APPROVED` with zero findings. A summary paragraph, a verdict-and-counts one-liner, or the
@@ -226,7 +229,8 @@ Check if **Dry-Run Mode** is enabled (e.g. via `--dry-run` parameter or loop ins
       resolver actions; the comment itself carries the compact role table.
   - Write your review output to a temporary file (`.subagent/<repo>_pr<N>_review_body.md`) to prevent shell character
     escaping issues.
-  - Submit the review to GitHub using the flag matching your overall ensemble verdict:
+  - Submit the review to GitHub **strictly once** using the single `gh pr review` command matching your overall ensemble
+    verdict:
     - **APPROVED**:
       ```bash
       gh pr review <pr_url_or_number> --approve -F .subagent/<repo>_pr<N>_review_body.md
@@ -247,8 +251,11 @@ Check if **Dry-Run Mode** is enabled (e.g. via `--dry-run` parameter or loop ins
 - Update `.subagent/<repo>_pr<N>_state.json` with this pass's entry (report path, `status: "COMPLETE"`, verdict, finding
   counts, `done`, `remaining`, `next_action`) whether or not the post succeeded.
 
-_Note: GitHub disallows users from approving or requesting changes on their own PRs. If `--approve` or
-`--request-changes` returns an error because the PR author is the authenticated user, fallback to `--comment`._
+_Note (HTTP 422 Self-Review Fallback): GitHub disallows users from approving or requesting changes on their own PRs. If
+`gh pr review --approve` or `--request-changes` fails with HTTP 422 (`Can not approve your own pull request` because the
+PR author is the authenticated user), fall back **once** to
+`gh pr review <pr_url_or_number> --comment -F .subagent/<repo>_pr<N>_review_body.md`. Do **NOT** call `gh pr comment` in
+addition to (or instead of) `gh pr review`._
 
 > [!CAUTION] **Agents MUST NEVER merge a Pull Request that targets `main`.** Submitting the review completes the review
 > process. Do NOT run `gh pr merge`, do NOT add the PR to the merge queue, and do NOT enable auto-merge. PR merging is

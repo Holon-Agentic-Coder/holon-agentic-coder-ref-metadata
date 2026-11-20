@@ -24,8 +24,9 @@ resolution step is executed in a dedicated, fresh subagent**.
    **If the consensus agent reviewers flag any Critical, Important or open actionable Nit issues, the review results
    MUST NOT be posted to the PR on GitHub.** The loop must resolve the issues, push the fixes, and run the review again.
    Review results are **strictly posted to GitHub only when there is nothing left to action** (or when the max iteration
-   cap is reached). The divergence report of [principle 12](#12-convergence-rules-bean-0170) also ends the loop, and
-   posts nothing to GitHub.
+   cap is reached), and **MUST be posted strictly once** using exclusively `gh pr review` (`--approve`, `--comment`, or
+   `--request-changes`); never call `gh pr comment` to post or dual-post a review. The divergence report of
+   [principle 12](#12-convergence-rules-bean-0170) also ends the loop, and posts nothing to GitHub.
    - **Nit policy (Nits are actioned, not waved through)**: every Nit / Optional 🟢 finding is adjudicated by the
      resolver exactly like a Critical or Important one and ends in one of two dispositions: `applied` (fixed and pushed)
      or `rejected` (with a one-line reason: not diff-grounded, inaccurate, out of scope, or conflicts with a
@@ -584,8 +585,11 @@ Wait for the subagent to complete and inspect its report.
          > `voted_head`, review the whole PR. Read `deferred_findings` from the coordination ledger and do not re-raise
          > them.
          >
-         > **Posting Gate**:
+         > **Posting Gate (Strict Single-Posting Invariant)**:
          >
+         > - The consensus review report **MUST be posted strictly once to GitHub** using exclusively `gh pr review`
+         >   (`--approve`, `--comment`, or `--request-changes`). **NEVER** run `gh pr comment` to post or dual-post the
+         >   review body.
          > - If ANY Critical (🔴), Important (🟡) or open actionable Nit (🟢) findings are flagged by the consensus
          >   reviewers:
          >   - **DO NOT POST TO GITHUB**. Skip executing `gh pr review`.
@@ -596,9 +600,12 @@ Wait for the subagent to complete and inspect its report.
          >   - Write the review body to `.subagent/<repo>_pr<N>_review_body.md`: the canonical consensus comment (step
          >     3a of [`pr_review_prompt.md`](../../prompts/pr_review_prompt.md)), built from the ensemble reviewer
          >     reports.
-         >   - Post the official review to GitHub via
-         >     `gh pr review <pr_url_or_number> --approve -F .subagent/<repo>_pr<N>_review_body.md` (falling back to
-         >     `--comment` if PR author is the authenticated user).
+         >   - Post the official review **strictly once** to GitHub via
+         >     `gh pr review <pr_url_or_number> --approve -F .subagent/<repo>_pr<N>_review_body.md`. If `--approve`
+         >     fails with HTTP 422 (`Can not approve your own pull request` because the PR author is the authenticated
+         >     user), fall back **once** to
+         >     `gh pr review <pr_url_or_number> --comment -F .subagent/<repo>_pr<N>_review_body.md`, and never call
+         >     `gh pr comment`.
          >   - **Then keep the receipt.** Copy the submitted text verbatim to `.subagent/<repo>_pr<N>_posted_review.md`
          >     and record it in `.subagent/<repo>_pr<N>_state.json` under `posted_review`: the review `url`,
          >     `submitted_at`, the kind GitHub accepted, and the head SHA the review was written against. **Do NOT
@@ -665,10 +672,11 @@ Wait for the subagent to complete and inspect its report.
      - **Case 2: Critical, Important or Open Actionable Nit Issues Flagged by Consensus Reviewers**:
        - **DO NOT POST TO GITHUB**. Ensure no intermediate review comment was posted to the GitHub PR thread.
        - If `iteration >= max_iterations`:
-         - Spawn a final `pr_reviewer` subagent to post the final review comment detailing remaining issues to GitHub PR
-           via `gh pr review`, in the changes-requested form of the canonical consensus comment (step 3a of
-           [`pr_review_prompt.md`](../../prompts/pr_review_prompt.md)): every unresolved finding with its id and
-           recommendation.
+         - Spawn a final `pr_reviewer` subagent to post the final review comment **strictly once** (never via
+           `gh pr comment`) detailing remaining issues to the GitHub PR via `gh pr review --request-changes` (falling
+           back once to `gh pr review --comment` on HTTP 422 own-PR error), in the changes-requested form of the
+           canonical consensus comment (step 3a of [`pr_review_prompt.md`](../../prompts/pr_review_prompt.md)): every
+           unresolved finding with its id and recommendation.
          - **STOP THE LOOP**.
          - Output warning:
            `Reached maximum iteration cap (<max_iterations>). Posted final review comment to GitHub. Stopping loop.`
@@ -714,9 +722,10 @@ Wait for the subagent to complete and inspect its report.
      were the configured one (see
      [LOCAL_RUNTIME.md §3](LOCAL_RUNTIME.md#3-compaction-is-expected-the-cap-is-not-your-lever)).
    - If `iteration >= max_iterations` and unresolved Critical or Important issues remain after Phase C:
-     - Post a single final review comment to GitHub PR via `gh pr review` listing every remaining finding with its id
-       and recommendation, in the changes-requested form of the canonical consensus comment (step 3a of
-       [`pr_review_prompt.md`](../../prompts/pr_review_prompt.md)).
+     - Post a single final review comment to the GitHub PR **strictly once** via `gh pr review --request-changes`
+       (falling back once to `gh pr review --comment` on HTTP 422 own-PR error; never use `gh pr comment`) listing every
+       remaining finding with its id and recommendation, in the changes-requested form of the canonical consensus
+       comment (step 3a of [`pr_review_prompt.md`](../../prompts/pr_review_prompt.md)).
      - **STOP THE LOOP**.
      - Output a warning:
        `Reached maximum iteration cap (<max_iterations>). Posted final review comment to GitHub. Stopping loop.`
