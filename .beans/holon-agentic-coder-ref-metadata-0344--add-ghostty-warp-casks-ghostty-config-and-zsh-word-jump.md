@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0344
 title: "Install Ghostty and Warp on macOS and Linux, add Stow-managed Ghostty config, and Zsh word-jump bindings"
-status: in-progress
+status: completed
 type: feature
 priority: normal
 tags:
@@ -13,7 +13,7 @@ tags:
   - zsh
   - tmux
 created_at: 2026-11-20T23:17:00+11:00
-updated_at: 2026-11-20T23:23:00+11:00
+updated_at: 2026-11-20T23:50:00+11:00
 ---
 
 ## Problem
@@ -54,3 +54,16 @@ Through the Holon flow on `dev-env`:
   `backward-word`/`forward-word`, preserving existing `^[b`/`^[f`.
 - **Tests**: add hermetic pytest coverage for macOS casks, Linux GUI apps config and Ansible tasks, Ghostty Stow
   manifest/config, wizard prompt on both `brew` and `apt`, and Zsh word-jump bindings.
+
+## Resolution
+
+Delivered via [PR #31](https://github.com/thomashan/dev-env/pull/31) and merged into `main`
+(`0ba3e94a9213a8054759cdce337b7d554c6e06f5`):
+
+- **Key Architectural Deliverables**: Added macOS Homebrew casks for Ghostty and Warp, Linux APT installation tasks for
+  Warp terminal (with official GPG keyring and repository) and Ghostty (native apt, snap, or PPA fallback), Stow-managed
+  Ghostty configuration unbinding alt+arrow keys for tmux pane resizing compatibility, Zsh interactive word-jump key
+  bindings for Alt+Left/Right and Ctrl+Left/Right, and wizard/README updates.
+- **Verification & Tests**: Hermetic pytest coverage successfully verified across all modules.
+- **Holon Flow Traversal**: All 5 stages (Intent -> Plan -> Execution -> Review Loop -> Calibration with EV realization
+  actual 91.04 vs predicted 89.36) completed successfully.
