@@ -380,13 +380,13 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0338)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0343)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
 # step with the matrix at every checkpoint.
 NEXT_EXECUTION_SEQUENCE: list[str] = [
-    "**Start here (2026-11-20):** Bean 0336 merged as HAC PR #212 (`b6e46e0b`) and is completed: the review stage restores the execution branch on exit and re-attaches a HEAD detached at the branch tip, instead of refusing to run the resolver. Bean 0338 merged as HAC PR #211 (`1610809`) and is completed, so a flow that waited out an overlap refreshes its plan branch from `origin/main` before Stage 3 executes. Bean 0337 merged as HAC PR #209 (`7dc0342`) and is completed (Beans 0331 and 0335 merged earlier as PR #208). Bean 0283 merged as HAC PR #210 (`30d7c77`) and is completed. The harness installs were rebuilt from `main` at `b6e46e0b` the same day. Bean 0339 (calibration scores an approved flow as failed after a resolved sync conflict) and then Bean 0264 (module budgets) lead. Run one flow at a time, because these share the ledgers and the flow package.",
+    "**Start here (2026-11-20):** Bean 0336 merged as HAC PR #212 (`b6e46e0b`) and is completed: the review stage restores the execution branch on exit and re-attaches a HEAD detached at the branch tip, instead of refusing to run the resolver. Bean 0338 merged as HAC PR #211 (`1610809`) and is completed, so a flow that waited out an overlap refreshes its plan branch from `origin/main` before Stage 3 executes. Bean 0337 merged as HAC PR #209 (`7dc0342`) and is completed (Beans 0331 and 0335 merged earlier as PR #208). Bean 0283 merged as HAC PR #210 (`30d7c77`) and is completed. The harness installs were rebuilt from `main` at `bea601e` the same day. Bean 0339 (calibration scores an approved flow as failed after a resolved sync conflict) merged as HAC PR #213 (`a450005`) and is completed, so the chain moves on from Bean 0264 (module budgets, merged as HAC PR #214 (`bea601e`) and completed) to Bean 0322. Bean 0340 (revisit the module budget default and overrides) is now unblocked. Run one flow at a time, because these share the ledgers and the flow package.",
     "",
     "**Rule (2026-10-25):** never run concurrent flows whose touched files overlap. The engine enforces this from Bean 0151: a flow whose touch set overlaps an in-flight flow is refused before Stage 3 unless `--allow-overlap` is given. Items inside one lane below run one at a time. Lanes run together only when their touch sets are disjoint.",
     "",
@@ -394,7 +394,7 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "",
     "**Rule (2026-10-28) and worktree rule (2026-11-09):** the target suites rely solely on pytest. A flow never runs in the `main` worktree; it runs in a `flow-<slug>` worktree off `origin/main`.",
     "",
-    "**Tooling:** `holon 0.1.0` and `holon-coherence 0.1.0` were reinstalled from `main` (`b6e46e0b`) on 2026-11-20. `holon --version` prints no commit, so the editable install is the check. Set `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172 lands.",
+    "**Tooling:** `holon 0.1.0` and `holon-coherence 0.1.0` were reinstalled from `main` (`bea601e`) on 2026-11-20. `holon --version` prints no commit, so the editable install is the check. Set `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172 lands.",
     "",
     "**Serial chain, `holon-agentic-coder` (one flow at a time; these touch the ledgers, `agent_defaults.py`, the planner and the flow package):**",
     "1. ~~**Beans 0331 and 0335**~~ merged as HAC PR #208 (`00fa535`) and completed.",
@@ -402,7 +402,7 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "3. ~~**Bean 0338**~~ merged as HAC PR #211 (`1610809`) and completed.",
     "4. ~~**Bean 0336**~~ merged as HAC PR #212 (`b6e46e0b`) and completed.",
     "5. ~~**Bean 0283**~~ merged as HAC PR #210 (`30d7c77`) and completed.",
-    "6. **Bean 0339** (P1; calibration and ledger; leads the chain), then **Bean 0264** (module budgets; the flow-package lane's lead), then **Bean 0322** (P3; `agent_defaults.py`, `agent_runner.py`, `Dockerfile`, `docker-bake.hcl`), then **Bean 0270** after 0322 (model discovery; also blocked on a usable runner).",
+    "6. ~~**Bean 0339**~~ merged as HAC PR #213 (`a450005`) and completed; ~~**Bean 0264**~~ merged as HAC PR #214 (`bea601e`) and completed; then **Bean 0322** (P3; `agent_defaults.py`, `agent_runner.py`, `Dockerfile`, `docker-bake.hcl`), then **Bean 0270** after 0322 (model discovery; also blocked on a usable runner).",
     "7. **Bean 0146**, then **Bean 0197** (`calibration.py`), and **Bean 0181** (`/_` only on branch refs). The 0321 naming change they waited for has landed.",
     "**Review loop and calibration lane (`entrypoint/review_loop.py`, `flow/review/`, `review_report.py`):** unblocked now that 0297 has merged, one item at a time.",
     "- **Bean 0255** (streaming per-issue resolvers, one consolidated commit per iteration), then **Bean 0234** (CI check progress logging; pairs with the completed 0160).",
@@ -410,11 +410,13 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "- **Bean 0213** (reflect review-loop skill rules into the native review-loop agent template).",
     "",
     "**Flow package and decomposition lane (`flow/` submodules, one flow at a time per submodule):**",
-    "- **Bean 0264** (module budgets move to `holon-config/hygiene/module_budgets.json`), then **Bean 0265** (move-only split of `cli/__init__.py`). 0265 unblocks 0189.",
+    "- ~~**Bean 0264**~~ merged as HAC PR #214 (`bea601e`) and completed. Next is **Bean 0265** (move-only split of `cli/__init__.py`). 0265 unblocks 0189.",
+    "- **Bean 0340** (revisit the module budget default and overrides) is a draft, now unblocked. Each override removal needs explicit maintainer authorisation.",
     "- **Bean 0189** (launcher module; breaks the `flow` to `cli` cycle), then **Bean 0190** (checkpoint and ledger reconciliation), then **Bean 0200** (remove the diverged `token_reduction` copy; after 0189) and **Bean 0199** (ledger query and knowledge index; after 0190).",
     "- **Bean 0191** (one GitHub adapter), then **Bean 0192** (`ReviewLoop` object). **Bean 0196** (`ExecutionRun`; after 0190, with 0195 completed).",
     "- **Beans 0193 and 0194** (intent, plan and execute stage modules; after 0187, completed). **Bean 0198** (runner registry; after 0322 because both touch runner registration). **Bean 0153** (remove comments per package, last in each package after its split). **Bean 0152** is the umbrella that tracks this lane.",
-    "- **Bean 0231** (P3; error-string fix in the flow package, no bundle partner left).",
+    "- **Bean 0231** (P3; error-string fix in the flow package; can pair with **Bean 0342**, the Stage 5 promoted-count log).",
+    "- **Bean 0341** (P1; failed resume clobbers the checkpoint; `flow/checkpoint.py`, after 0190). ~~**Bean 0343**~~ merged as HAC PR #215 (`c3c0471`) and completed.",
     "",
     "**Config, security and CLI lane (`cli/`, credentials, ledger redaction):**",
     "- **Bean 0155** (route `HOLON_*` values through the 0600 env file), then **Bean 0148** (redact before truncating `error_context`).",
@@ -542,27 +544,35 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "L",
         "domain": "Refactor / Architecture",
         "notes": (
-            "Splits the 2,026-line `cli/__init__.py` (80 definitions, 96 `mock.patch` targets, 63 importers) into "
+            "Splits the 1,755-line `cli/__init__.py` (80 definitions, 96 `mock.patch` targets, 63 importers) into "
             "`cli/{log,constants,network,credentials,repo_resolution,mounts,proxy_sidecar,env_files,containers,doctor,"
-            "role_dispatch,parser}.py` with re-exports and a throwaway AST verification, no committed snapshot. Hold "
-            "until PR #152 (Bean 0262) and Beans 0263 and 0264 merge. Unblocks Bean 0189."
+            "role_dispatch,parser}.py` with re-exports and a throwaway AST verification, no committed snapshot. Beans "
+            "0262 and 0263 have merged, so it is unblocked; in progress in another session. Unblocks Bean 0189."
         ),
     },
-    "0339": {
-        "title": "Calibration scores an approved flow as failed when Stage 3 recorded a sync conflict that was later resolved",
+    "0340": {
+        "title": "Revisit the module budget: implications of a strict 200-line default with no overrides",
+        "priority": "**P2**",
+        "impact": "High",
+        "sizing": "S (analysis) + L (splits)",
+        "domain": "Lint / Refactoring",
+        "notes": "Draft, unblocked now that 0264 has merged (PR #214). All 22 flow/ overrides sit exactly at current size (zero headroom); dropping them means 3,331 lines over the ceiling and at least 30 new modules; outside flow/ another 39 modules exceed 200 unbudgeted (cli/__init__.py 1,755). Decide ceiling, what is counted, packages in scope and split order; each override removal needs explicit authorisation.",
+    },
+    "0341": {
+        "title": "A flow resumed with --from-stage and no context fails and overwrites the good checkpoint with empty branches",
         "priority": "**P1**",
         "impact": "High",
         "sizing": "S",
-        "domain": "Holon Flow / Calibration / Ledger",
-        "notes": "Confirmed 2026-11-20 on PR #211: the Stage 3 sync_conflict row has ledger_revision 2 and outranks the later halted_for_human row (no revision), so calibration_ev picks it as final: P(success) 0, EV -18.21 for an approved PR. Fits #208 and #209 too. Every conflicted flow's calibration is wrong, corrupting EV feedback.",
+        "domain": "Holon Flow / Checkpoint / Resume",
+        "notes": "Seen on PR #214: `--from-stage review` without `--checkpoint` started from an empty context, failed, and saved empty branch fields over the completed checkpoint. Load the slug's existing checkpoint, never overwrite on a pre-stage failure, keep completed stages and `current_stage`. Touches `flow/checkpoint.py` and `cli/commands/flow.py`, so it follows 0190 (checkpoint reconciliation, in progress elsewhere).",
     },
-    "0264": {
-        "title": "Module size budgets force a split: forbid raising a budget, default ceiling for new modules",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "M",
-        "domain": "Lint / Configuration / Admission",
-        "notes": "Rewritten 2026-11-20: a budget forces a split; the budget config is frozen and any change fails lint/CI unless the maintainer explicitly authorised it (intent field + maintainer-only PR label); 200-line default so new modules need no entry; prompts say split; settings move to holon-config with no history prose. Removes flow_module_budgets.json from nearly every touch set, ending most Stage 3 overlap waits. Start after 0336 and 0338 merge.",
+    "0342": {
+        "title": "Stage 5 logs a running total of promoted knowledge candidates as if this flow promoted them",
+        "priority": "**P3**",
+        "impact": "Low",
+        "sizing": "S",
+        "domain": "Calibration / Logging",
+        "notes": "Log only the candidates this run newly promoted (`flow/stages/calibrate.py`, `knowledge/promotion.py`); check promotion is not repeating work. Cosmetic, can pair with 0231.",
     },
     "0263": {
         "title": (
@@ -1144,7 +1154,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "Low",
         "sizing": "S",
         "domain": "Runners / Cleanup",
-        "notes": "Todo; unblocked by the 0321 merge (2026-11-20). It touches `agent_defaults.py` (and also `agent_runner.py`, the `Dockerfile` and `docker-bake.hcl`). Removes the `gemini-agent` runner, image target and registry entries. Keeps Gemini models, the `gemini` URL detection in the token-reduction addon and historical ledger rows. Decide whether the `local-model` placeholder stays.",
+        "notes": "In progress in another session; unblocked by the 0321 merge (2026-11-20). It touches `agent_defaults.py` (and also `agent_runner.py`, the `Dockerfile` and `docker-bake.hcl`). Removes the `gemini-agent` runner, image target and registry entries. Keeps Gemini models, the `gemini` URL detection in the token-reduction addon and historical ledger rows. Decide whether the `local-model` placeholder stays.",
     },
     "0141": {
         "title": "Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe",
@@ -2180,6 +2190,18 @@ def generate_triage_document(
             ("43. **Review keeps the execution branch (Bean 0336 / HAC PR #212, 2026-11-20)**:"),
             (
                 "    - `0336` (PR #212, `b6e46e0b`, merged 2026-11-20): new `worktree_head.py` with `reattach_branch`/`restore_branch`, wired into the review stage and the review loop. The review restores the execution branch on exit and re-attaches a HEAD detached at the branch tip, instead of refusing the resolver. Review approved 3/3 at iteration 3. Calibration: expected value predicted 55.50, actual 71.68 (delta +16.18). First flow whose plan branch was refreshed onto `main` after an overlap wait, with no merge conflict."
+            ),
+            ("44. **Calibration final outcome by time (Bean 0339 / HAC PR #213, 2026-11-20)**:"),
+            (
+                "    - `0339` (PR #213, `a450005`, merged 2026-11-20): calibration orders a flow's summary rows by parsed `created_at`, with `ledger_revision` only as a tie-break, so a Stage 4 consensus row after a Stage 3 `sync_conflict` row is the final outcome. A `sync_conflict` that a later row supersedes is not a failure for the observed EV. The logic lives in a new `calibration_outcome.py` outside the flow package. Review approved 3/3 at iteration 2. Calibration: expected value predicted 52.10, actual 63.28 (delta +11.18)."
+            ),
+            ("45. **Module budgets frozen (Bean 0264 / HAC PR #214, 2026-11-20)**:"),
+            (
+                "    - `0264` (PR #214, `bea601e`, merged 2026-11-20): the budgets move to `holon-config/hygiene/module_budgets.json` (default ceiling 200 lines; the 22 existing overrides copied unchanged). The budget configuration is frozen: any change fails `scripts/check_module_budgets.py` unless authorised by the intent's `module_budget_change` field or the maintainer-only `module-budget-change` PR label. Over-budget modules are split. Review approved 3/3 on re-review. Calibration: expected value predicted 36.32, actual 70.68 (delta +34.36). Bean 0340 is new: it revisits the default and overrides."
+            ),
+            ("46. **Tests never write to the real worktree (Bean 0343 / HAC PR #215, 2026-11-20)**:"),
+            (
+                "    - `0343` (PR #215, `c3c0471`, merged 2026-11-20): decomposition tests write under `tmp_path` through `tests/flow/decomposition_fakes.py`. `tests/holon_dir_guard.py`, hooked in `conftest.py`, fails the session on any write under `.holon/`. Rules in `docs/hermetic_testing.md`. Review approved 3/3 at iteration 2. Calibration: expected value predicted 46.57, actual 62.39 (delta +15.82)."
             ),
             "",
             "---",

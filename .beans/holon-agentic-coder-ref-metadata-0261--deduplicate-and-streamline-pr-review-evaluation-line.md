@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0261
 title: "Deduplicate and streamline PR review evaluation line in consensus report"
-status: todo
+status: in-progress
 type: bug
 priority: normal
 tags:
@@ -71,3 +71,8 @@ def _evaluation(repo_dir: str, target: str, consensus_data: Mapping[str, Any], d
 
 - `apps/sandbox-executor/src/sandbox_executor/review_report.py`
 - `apps/sandbox-executor/tests/test_review_report.py`
+
+## Progress
+
+- 2026-11-20: Started holon flow `review-report-ci-log-redaction` (claude-agent, claude-opus-5-5), combined with beans
+  0261, 0213, 0234 and 0148.

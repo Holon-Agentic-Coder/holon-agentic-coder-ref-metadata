@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0213
 title: "Reflect review-loop skill rules into native Review Loop Holon Agent"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -80,3 +80,8 @@ ledger-only conflict interleaving in code (`flow/github/merge.py`, `flow/ledger_
 `task/0213-reflect-review-loop-skill-template` never merged. Remaining: the explicit CONFLICTING/DIRTY gate before
 consensus posting and Stage 5, the ledger-only fast-path procedure, the model fallback ladder, the zero-synthetic rule
 and the `uv run pytest`-only rule in the template.
+
+## Progress
+
+- 2026-11-20: Started holon flow `review-report-ci-log-redaction` (claude-agent, claude-opus-5-5), combined with beans
+  0261, 0213, 0234 and 0148.

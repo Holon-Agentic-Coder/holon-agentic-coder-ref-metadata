@@ -259,7 +259,7 @@ and its checkpoint records Stage 5 as completed (`white_check_mark`, through `sc
 stops, fails or waits on a usage limit sends nothing, and neither does the limit watcher. The topic is read from
 `HOLON_NTFY_TOPIC` or `~/.holon/secrets/ntfy-topic` (mode 600, never committed or printed in reports; anyone who knows
 it can read the messages). With no topic configured it silently does nothing. Messages stay on the ntfy server for a
-while, so they carry only the intent slug. Send a manual one with
+while, so they carry only the intent slug and the PR number (no URL or repository name). Send a manual one with
 `python3 .agents/skills/holon_flow/scripts/notify_ntfy.py "Title" "Message" --priority high`; use it after any hand-run
 `holon calibrate` that the maintainer is waiting on, and only once calibration has finished.
 

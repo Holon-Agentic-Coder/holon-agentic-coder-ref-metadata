@@ -186,6 +186,19 @@ def parse_intent_file(intent_path: Path) -> dict[str, str]:
     return data
 
 
+def find_flow_pr(target_worktree: Path, slug: str) -> dict | None:
+    """Return the open pull request (number, headRefName, title, url) whose head branch or title names the slug."""
+    res = subprocess.run(
+        ["gh", "pr", "list", "--state", "open", "--json", "number,headRefName,title,url"],
+        cwd=target_worktree,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    prs = json.loads(res.stdout)
+    return next((pr for pr in prs if slug in pr["headRefName"] or slug in pr["title"].lower()), None)
+
+
 def verify_pr_and_calibration(
     target_worktree: Path,
     slug: str,
@@ -198,26 +211,15 @@ def verify_pr_and_calibration(
 
     log_stage("Verifying Pull Request & Calibration Integrity")
 
-    # Locate PR using gh CLI
     try:
-        res = subprocess.run(
-            ["gh", "pr", "list", "--state", "open", "--json", "number,headRefName,title,url"],
-            cwd=target_worktree,
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        prs = json.loads(res.stdout)
+        pr = find_flow_pr(target_worktree, slug)
     except Exception as exc:
         log_warn(f"Could not query GitHub PRs: {exc}")
         return
-
-    matching_prs = [pr for pr in prs if slug in pr["headRefName"] or slug in pr["title"].lower()]
-    if not matching_prs:
+    if pr is None:
         log_warn(f"No open PR found matching slug '{slug}'.")
         return
 
-    pr = matching_prs[0]
     pr_number = pr["number"]
     pr_url = pr["url"]
     head_branch = pr["headRefName"]
@@ -592,9 +594,14 @@ def _notify_outcome(intent_path: Path, exit_code: int, target_worktree: Path) ->
 
         slug = parse_intent_file(intent_path)["slug"]
         if exit_code == 0 and _calibration_done(target_worktree, slug):
+            try:
+                pr = find_flow_pr(target_worktree, slug)
+            except Exception:  # noqa: BLE001 - the PR number is a nicety; still notify without it
+                pr = None
+            ref = f"PR #{pr['number']}" if pr else "the PR"
             notify(
-                f"Holon flow calibrated: {slug}",
-                "Calibration is done and in the PR. Review and merge it when you are ready.",
+                f"Holon flow calibrated: {ref} ({slug})" if pr else f"Holon flow calibrated: {slug}",
+                f"Calibration is done and in {ref}. Review and merge it when you are ready.",
                 tags="white_check_mark",
             )
     except Exception:  # noqa: BLE001 - a notification must never break a flow

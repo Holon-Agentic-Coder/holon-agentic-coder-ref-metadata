@@ -2,7 +2,7 @@
 # holon-agentic-coder-ref-metadata-0264
 title:
   "Module size budgets force a split: forbid raising a budget, default ceiling for new modules, no shared edit per flow"
-status: in-progress
+status: completed
 type: task
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
   - admission
   - holon-agentic-coder
 created_at: 2026-11-09T10:00:00Z
-updated_at: 2026-11-20T17:20:00+11:00
+updated_at: 2026-11-20T09:32:35Z
 ---
 
 ## Intent of the budget (maintainer, 2026-11-20)
@@ -92,9 +92,39 @@ and stops causing Stage 3 overlap waits and Stage 4 merge conflicts.
   deletes that file.
 - The intent JSON must not mention bean IDs or harness paths, because it is copied into `intents.jsonl`.
 
+## Progress
+
+- 2026-11-20 18:52 AEDT: flow `freeze-module-budgets-split` started (claude-agent, claude-opus-5-5) in worktree
+  `flow-freeze-module-budgets-split`.
+- 2026-11-20 20:05 AEDT: flow complete. PR #214 approved 3/3 (re-review after merging origin/main for #213 ledger
+  conflicts), calibration in PR diff (EV predicted 36.32, actual 70.68, +34.36), MERGEABLE/CLEAN, checks green. The 22
+  budgets over 200 lines were copied unchanged; the other 49 fall under the 200-line default. Awaiting human merge.
+
 ## History
 
 - 2026-11-09: first written as "read module size budgets from configuration", which let agents raise limits with a
   warning. Rewritten 2026-11-20 after the maintainer restated the intent: budgets force a split and are never raised.
   Tightened the same day: the budget configuration is frozen, and any change at all needs the maintainer's explicit
   instruction.
+
+## Resolution
+
+Delivered via [PR #214](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/214) and merged into `main`
+(`bea601e`):
+
+- **Budgets frozen and moved to configuration**: the settings now live in `holon-config/hygiene/module_budgets.json`
+  (`default_max_lines` 200, `packages`, `overrides` sorted, plain integers). The 22 existing overrides were copied
+  unchanged. Free-text history removed. `apps/sandbox-executor/flow_module_budgets.json` and
+  `scripts/check_flow_module_budgets.py` are deleted.
+- **Generic check**: `scripts/check_module_budgets.py` is generic over the configured packages (optional `--config` and
+  `--base`). Any difference from the merge base's configuration fails unless authorised, through the intent's
+  `module_budget_change` field (flow) or the maintainer-only `module-budget-change` PR label (CI). Overrides naming a
+  missing module, or at or below the default, warn only.
+- **Flow wiring**: `module_budget_guard.py` is wired into Stage 3 admission, the Stage 4 resolver and the review loop.
+  Without the intent field, those stages refuse budget-configuration changes and the planner leaves the file out of the
+  touch set.
+- **Prompts**: planner, executor and review-loop templates say to split an over-budget module, never raise the budget.
+- **Tests and docs**: `tests/test_module_budgets.py` and hermetic flow tests; `docs/architecture.md` states the rule.
+- **Calibration**: EV predicted 36.32, actual 70.68 (+34.36).
+- **Flow**: `freeze-module-budgets-split` (claude-agent, `I-1795161177`), approved 3/3 on re-review after merging
+  `origin/main` for ledger conflicts; all 5 stages completed.

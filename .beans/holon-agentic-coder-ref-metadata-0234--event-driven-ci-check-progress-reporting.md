@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0234
 title: "Event-driven CI check progress reporting during Stage 4 review"
-status: todo
+status: in-progress
 type: feature
 priority: normal
 tags:
@@ -70,3 +70,8 @@ Transform CI check waiting into clean, event-driven progress reporting:
 
 The code moved: the poll loop is now `flow/github/ci_wait.py:wait_for_pending_ci` and the tests are in
 `tests/test_review_ci_wait.py`. Still logs "Waiting for N pending..." on every poll with no transitions or summary.
+
+## Progress
+
+- 2026-11-20: Started holon flow `review-report-ci-log-redaction` (claude-agent, claude-opus-5-5), combined with beans
+  0261, 0213, 0234 and 0148.

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0148
 title: "Redact before truncating executor ledger error_context and remaining stderr logs"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -48,3 +48,15 @@ wire-log redaction behaviour to stay unchanged.
 ## Notes
 
 - PRs #90 and #96 have merged, so this can now run through the Holon flow on holon-agentic-coder.
+
+## Audit (2026-11-20)
+
+Still open on `main` (`bea601e`): `entrypoint/executor.py` (about line 1332) still cuts agent stderr to 500 characters
+before `redact_text`. The `calibration.py` "Git commit output" log line no longer exists, so that item is done.
+Remaining Action: redact first, then truncate, for every executor `error_context` writer; sweep other ledger writers and
+log lines; regression tests across the truncation boundary.
+
+## Progress
+
+- 2026-11-20: Started holon flow `review-report-ci-log-redaction` (claude-agent, claude-opus-5-5), combined with beans
+  0261, 0213, 0234 and 0148.
