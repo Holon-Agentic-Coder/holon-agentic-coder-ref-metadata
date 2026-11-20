@@ -9,9 +9,8 @@ tags:
   - complexity
   - holon-agentic-coder
 blocked_by:
-  - holon-agentic-coder-ref-metadata-0187
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-11-20T12:00:00+11:00
 ---
 
 ## Problem
@@ -40,3 +39,8 @@ empty-diff guard) and 0183.
 ## Notes
 
 - Run through the Holon flow on holon-agentic-coder.
+
+## Audit (2026-11-20)
+
+Blocker Bean 0187 was scrapped (the `flow/` split landed via #147/#163). `run_execute_stage` now lives in
+`flow/stages/execute.py` and is still one function under noqa; there is no `ExecuteStage`.

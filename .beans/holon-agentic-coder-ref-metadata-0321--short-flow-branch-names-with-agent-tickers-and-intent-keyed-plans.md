@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0321
 title: "Short flow branch names: agent tickers, model codes, no hex, plans keyed by intent"
-status: in-progress
+status: completed
 type: feature
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - provenance
   - holon-agentic-coder
 created_at: 2026-11-17T14:15:00Z
-updated_at: 2026-11-19T10:45:00Z
+updated_at: 2026-11-20T11:40:00+11:00
 ---
 
 ## Problem
@@ -94,8 +94,14 @@ intermediate ID format (`P-{epoch}-{hex}-CLA-…`) ever reaches the ledger; the 
   verification gates, marked the execution completed and reconciled the ledgers with `origin/main` (local head
   `66a3965`, 17 commits ahead of `main`, 0 behind). The runner process ended before the host push: the execution branch
   is not on origin, the flow checkpoint still says `execute`, the resume log is empty, and no pull request exists.
-- **Next:** resume the flow from `flow-shortref` so it pushes the branch, opens the pull request and runs Stages 4
-  and 5.
+- **2026-11-20:** re-planned as `P-1795087811-3604f487`; `E-1795088115-4e818090` (fable) committed steps 1-3, then its
+  pre-push sync hit a `flow_module_budgets.json` conflict with PR #205. Merged `origin/main` into it by hand (both
+  sides' budgets kept, budget check green, ledgers appended) and recorded a superseding failure row pointing
+  `partial_head` at the merge, since the executor resumes from the ledger's `partial_head`, not the branch tip. On
+  `claude-opus-5-5`, `E-1795130457-c11ac88f` finished steps 4-9; the first review halted because the worktree was left
+  on a detached HEAD mid-review (resolver refuses it), re-attached and resumed from `review`. PR #206: 3/3 APPROVED at
+  iteration 4, calibration included (EV predicted 33.50, actual -37.51), CI green, MERGEABLE/CLEAN.
+- **Next:** human merge of PR #206, then the post-merge protocol.
 
 ## Notes
 
@@ -107,3 +113,23 @@ intermediate ID format (`P-{epoch}-{hex}-CLA-…`) ever reaches the ledger; the 
   hex comes off the `E-` segment.
 - `gemini-agent` is redundant with antigravity but still wired into the code (image target, runner, registry). Its
   removal is a separate bean, not part of this one.
+
+## Resolution
+
+Delivered via [PR #206](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/206) and merged into `main`
+(`cac463b9`).
+
+- **Key Architectural Deliverables**: flow branches drop the hex and use runner tickers (`CLA`, `ANA`, `PIA`, a runner
+  with no ticker is rejected) and derived model codes (`P-{epoch}-CLA-CS5.5`). Plan and calibration files follow the
+  branch name under `plans/{intent}/`, with a migration of existing plans and ledgers. Slugs are capped at 32
+  characters. `ref_names.py` drops most of the agent and model shortening.
+- **Verification & Tests**: hermetic tests for ticker uniqueness, model-code derivation, plan-path layout, ledger
+  append-only rules and migration. Review 3/3 APPROVED at iteration 4, CI green, MERGEABLE/CLEAN at merge.
+- **Holon Flow Traversal**: Stages 1-2 on `claude-fable-5` (plan `P-1795087811-3604f487`). Stage 3 ran in two
+  executions: `E-1795088115-4e818090` (fable, steps 1-3) and `E-1795130457-c11ac88f` (opus, steps 4-9, after a
+  detached-HEAD stop, Bean 0336). Stage 4 review approved; Stage 5 calibration included (EV predicted 33.50, actual
+  -37.51).
+- **Follow-ups**: the calibration report was written by the pre-#206 engine to the flat path
+  `plans/P-1795087811-3604f487-claude-agent-claude-fable-5_calibration.md`; it still needs moving under
+  `plans/I-1794976491-shortref/` via a later flow. The stray pushed execution branch `E-1795130302-4856d0ac` (no ledger
+  row) was deleted on 2026-11-20. Stage 3 resume gaps are tracked in Beans 0331 and 0335.

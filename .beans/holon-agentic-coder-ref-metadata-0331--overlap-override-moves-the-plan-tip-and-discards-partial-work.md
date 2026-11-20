@@ -11,7 +11,7 @@ tags:
   - overlap
   - holon-agentic-coder
 created_at: 2026-11-18T12:45:00Z
-updated_at: 2026-11-19T10:50:00Z
+updated_at: 2026-11-20T11:40:00+11:00
 ---
 
 ## Problem
@@ -54,6 +54,14 @@ executed three times from scratch, about 45 minutes each, and no attempt continu
   `tests/test_flow_env.py`; `uv run pytest` passes (84).
 - **Target half open.** It changes the Stage 3 resume code, which the Bean 0321 flow also changes, so its flow starts
   after Bean 0321 merges.
+- **2026-11-20:** Bean 0321 merged (PR #206, `cac463b9`), so the target half is now unblocked and can start as its own
+  flow. Harness half remains done; status stays in-progress.
+- **2026-11-20:** Flow `resumetip` (holon-agentic-coder, claude-agent/claude-opus-5-5, combined with Bean 0331/0335)
+  passed Stage 1 (`I-1795136616-resumetip/_`) and Stage 2 (`P-1795136633-CLA-CO5.5`, EV 39.61). Stage 3 admission
+  refused: touch set overlaps PR #207 (`rescrash` flow) on `apps/sandbox-executor/flow_module_budgets.json`,
+  `apps/sandbox-executor/src/sandbox_executor/flow/__init__.py`, `apps/sandbox-executor/tests/flow/test_admission.py`
+  and `apps/sandbox-executor/tests/flow/stages/test_execute.py`. Not overridden; resume with `--from-stage execute` in
+  `flow-resumetip` after PR #207 merges.
 
 ## Notes
 

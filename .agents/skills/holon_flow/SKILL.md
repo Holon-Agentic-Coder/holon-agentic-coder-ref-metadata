@@ -113,10 +113,10 @@ Inside the background subagent, perform pre-flight verification:
 1. **Verify Global `holon` Binary**: Ensure `holon` is available in `PATH` (`which holon` $\rightarrow$
    `~/.local/bin/holon`).
 2. **Verify Docker Daemon**: Ensure Docker is running (`docker info`).
-3. **Verify Intent JSON**: Read and parse `<intent_path>`. Ensure `slug`, `goal`, and `description` are present. Keep
-   the `slug` short (8 characters or fewer when the work may decompose): GitHub rejects any full ref over 255
-   characters, `refs/heads/` included, and nested child branch names repeat the slug and the agent and model labels (see
-   `.agents/rules.md`, "Git ref names are limited to 255 characters").
+3. **Verify Intent JSON**: Read and parse `<intent_path>`. Ensure `slug`, `goal`, and `description` are present. Give
+   the intent a descriptive `slug` of up to 32 characters (lowercase, hyphen-separated); the engine rejects longer root
+   slugs, and since the short branch names of PR #206 two levels of nested child intents with 32-character slugs fit
+   GitHub's 255-character ref limit (see `.agents/rules.md`, "Git ref names are limited to 255 characters").
 4. **Verify Target Worktree**: Ensure `--target-worktree` is a dedicated `flow-<slug>` worktree (never the `main`
    worktree itself) that exists and is a clean git repository. Create it from `origin/main` first if it does not exist.
 5. **Determine Runner & Model**:
@@ -242,6 +242,15 @@ Once the flow finishes:
    ledger conflicts chronologically by `created_at`, commit, and push to origin.
 
 ---
+
+### Stage 3 overlap refusals are waited out
+
+When Stage 3 admission refuses a plan because its touch set overlaps another flow in flight, `scripts/run_holon_flow.py`
+does not stop and never adds `--allow-overlap` itself. It polls each overlapping pull request named in the refusal
+(`gh pr view <n> --json state`, every `--overlap-poll-seconds`, default 300) until each is merged or closed, then
+resumes the flow from its checkpoint, which runs admission again. An overlap with a local flow that has no pull request
+is re-checked by re-running admission after the same interval. Any other refusal (no touch set declared, discovery
+unavailable) still stops. Pass `--no-wait-on-overlap` to stop on an overlap as before.
 
 ### Push notifications (ntfy.sh)
 

@@ -3,7 +3,7 @@ id: "0334"
 title: "Open new tmux panes and windows in the current pane's working directory"
 status: completed
 created_at: 2026-11-20T09:56:00+11:00
-updated_at: 2026-11-20T10:20:00+11:00
+updated_at: 2026-11-20T12:00:00+11:00
 tags:
   - dev-env
   - tmux

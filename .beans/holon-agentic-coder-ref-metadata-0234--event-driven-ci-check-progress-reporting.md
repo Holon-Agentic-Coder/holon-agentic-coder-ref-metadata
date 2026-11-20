@@ -11,7 +11,7 @@ tags:
   - logging
   - holon-agentic-coder
 created_at: 2026-11-05T14:25:00Z
-updated_at: 2026-11-05T14:25:00Z
+updated_at: 2026-11-20T12:00:00+11:00
 ---
 
 ## Problem
@@ -65,3 +65,8 @@ Transform CI check waiting into clean, event-driven progress reporting:
 
 - Target repository: `holon-agentic-coder`.
 - Must be delivered through the Holon flow (`holon flow`).
+
+## Audit (2026-11-20)
+
+The code moved: the poll loop is now `flow/github/ci_wait.py:wait_for_pending_ci` and the tests are in
+`tests/test_review_ci_wait.py`. Still logs "Waiting for N pending..." on every poll with no transitions or summary.

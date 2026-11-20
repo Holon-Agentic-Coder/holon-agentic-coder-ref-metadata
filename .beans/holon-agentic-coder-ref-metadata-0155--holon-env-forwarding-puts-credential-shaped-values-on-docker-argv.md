@@ -9,7 +9,7 @@ tags:
   - redaction
   - holon-agentic-coder
 created_at: 2026-10-25T12:06:22Z
-updated_at: 2026-10-25T12:06:22Z
+updated_at: 2026-11-20T12:00:00+11:00
 ---
 
 ## Problem
@@ -37,3 +37,10 @@ see it. Example: a budget variable that ignores the bad value and falls back to 
 
 - Run through the Holon flow on holon-agentic-coder.
 - Related: Bean 0148 (redaction gaps in ledger `error_context`).
+
+## Audit (2026-11-20)
+
+Done: `add_env()` (`cli/__init__.py`) sends anything `is_secret_env_item()` flags (secret name, masked value, URL
+password) to the 0600 env-file. Remaining: a bare non-URL secret under an arbitrary `HOLON_*` name is not flagged, and
+the fuzz test still skips the `TIMEOUT`/`BUDGET` names instead of running every forwarded name against argv, probe and
+echo.

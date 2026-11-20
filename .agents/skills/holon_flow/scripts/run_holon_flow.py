@@ -43,6 +43,10 @@ FALLBACK_LADDER_ANTIGRAVITY = [
     "gemini-3.8-flash",
 ]
 
+# How often an overlap wait re-checks the overlapping pull requests (or, for a local flow with none, re-runs admission).
+OVERLAP_POLL_SECONDS = 300
+OVERLAP_REFUSAL = "Stage 3 refused: the touch set overlaps"
+
 QUOTA_ERROR_PATTERNS = [
     "hit your session limit",
     "session limit reached",
@@ -370,6 +374,57 @@ def wait_for_limit_reset(reset, slug: str) -> None:
         time.sleep(min(remaining, 60))
 
 
+def is_overlap_refusal(output: str) -> bool:
+    """Whether ``output`` is a Stage 3 touch-set overlap refusal (not a missing touch set or failed discovery)."""
+    return OVERLAP_REFUSAL in output
+
+
+def parse_overlapping_prs(output: str) -> list[int]:
+    """Pull request numbers named by the newest Stage 3 overlap refusal in ``output``; empty for local flows only."""
+    refusals = [line for line in output.splitlines() if OVERLAP_REFUSAL in line]
+    if not refusals:
+        return []
+    return sorted({int(number) for number in re.findall(r"pull request #(\d+)", refusals[-1])})
+
+
+def pr_state(number: int, repo_dir: Path) -> str | None:
+    """The state of pull request ``number`` (``OPEN``, ``MERGED``, ``CLOSED``), or None when gh could not tell."""
+    try:
+        result = subprocess.run(
+            ["gh", "pr", "view", str(number), "--json", "state", "--jq", ".state"],
+            cwd=repo_dir,
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    state = result.stdout.strip().upper()
+    return state if result.returncode == 0 and state else None
+
+
+def wait_for_overlapping_prs(numbers: list[int], repo_dir: Path, poll_seconds: int = OVERLAP_POLL_SECONDS) -> None:
+    """Poll each overlapping pull request until none is open (merged or closed), then return so Stage 3 is retried."""
+    import time
+
+    pending = set(numbers)
+    log_warn(
+        "Waiting for overlapping pull request(s) "
+        + ", ".join(f"#{n}" for n in sorted(pending))
+        + f" to merge or close; polling every {poll_seconds} s."
+    )
+    while pending:
+        for number in sorted(pending):
+            state = pr_state(number, repo_dir)
+            if state is None:
+                log_warn(f"Could not read the state of pull request #{number}; will poll again.")
+            elif state != "OPEN":
+                log_info(f"Overlapping pull request #{number} is {state.lower()}.")
+                pending.discard(number)
+        if pending:
+            time.sleep(poll_seconds)
+
+
 def run_flow(
     intent_path: Path,
     target_worktree: Path,
@@ -380,6 +435,8 @@ def run_flow(
     allow_overlap: bool = False,
     auto_fallback: bool = True,
     dry_run: bool = False,
+    wait_on_overlap: bool = True,
+    overlap_poll_seconds: int = OVERLAP_POLL_SECONDS,
 ) -> int:
     """Run holon flow with optional automatic fallback ladder on quota errors."""
     intent_data = parse_intent_file(intent_path)
@@ -426,8 +483,32 @@ def run_flow(
 
         # An admission refusal is never overridden here: the override is the caller's decision, and every
         # --allow-overlap admission moves the plan tip, which makes the engine discard a failed attempt's partial work.
+        # A touch-set overlap is waited out instead: poll the overlapping pull requests until they merge or close
+        # (a local flow with no pull request is re-checked by re-running admission), then resume from the checkpoint.
         if "or rerun with --allow-overlap" in output and not current_allow_overlap:
             refusal = next((line.strip() for line in output.splitlines() if "Stage 3 refused" in line), "")
+            if wait_on_overlap and is_overlap_refusal(output) and not dry_run:
+                if refusal:
+                    print(refusal)
+                numbers = parse_overlapping_prs(output)
+                if numbers:
+                    wait_for_overlapping_prs(numbers, target_worktree, overlap_poll_seconds)
+                else:
+                    import time
+
+                    log_warn(
+                        f"The overlap is a local flow with no pull request; re-checking admission in "
+                        f"{overlap_poll_seconds} s."
+                    )
+                    time.sleep(overlap_poll_seconds)
+                chk_path = target_worktree / f".holon/flow/checkpoint-{slug}.json"
+                if chk_path.exists():
+                    current_checkpoint = chk_path
+                    current_from_stage = None
+                else:
+                    current_from_stage = "execute"
+                log_info("Overlap cleared; resuming Stage 3 (admission is checked again).")
+                continue
             log_error(
                 "Stage 3 admission refused for a touch-set overlap; not retrying. Wait for the overlapping flow to "
                 "merge, or rerun with --allow-overlap if the maintainer accepts the overlap."
@@ -565,6 +646,17 @@ def main() -> None:
         help="Admit Stage 3 even when the plan's touch set overlaps a flow in flight or is undeclared.",
     )
     parser.add_argument(
+        "--no-wait-on-overlap",
+        action="store_true",
+        help="Stop on a Stage 3 touch-set overlap refusal instead of waiting for the overlapping flows to finish.",
+    )
+    parser.add_argument(
+        "--overlap-poll-seconds",
+        type=int,
+        default=OVERLAP_POLL_SECONDS,
+        help=f"How often an overlap wait polls the overlapping pull requests (default: {OVERLAP_POLL_SECONDS}).",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Simulate execution without running docker or mutating git state.",
@@ -582,6 +674,8 @@ def main() -> None:
         allow_overlap=args.allow_overlap,
         auto_fallback=not args.no_fallback,
         dry_run=args.dry_run,
+        wait_on_overlap=not args.no_wait_on_overlap,
+        overlap_poll_seconds=args.overlap_poll_seconds,
     )
     if not args.dry_run:
         flow_worktree = resolve_flow_worktree(args.target_worktree, parse_intent_file(args.intent)["slug"])

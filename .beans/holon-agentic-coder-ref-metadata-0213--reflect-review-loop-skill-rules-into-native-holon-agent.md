@@ -10,7 +10,7 @@ tags:
   - conflict-resolution
   - holon-agentic-coder
 created_at: 2026-10-30T03:02:00Z
-updated_at: 2026-10-30T03:02:00Z
+updated_at: 2026-11-20T12:00:00+11:00
 ---
 
 ## Problem
@@ -72,3 +72,11 @@ However, the native containerised Review Loop Holon Agent in `holon-agentic-code
     cleanly.
 - Pushed branch `origin/task/0213-reflect-review-loop-skill-template`. Remaining entrypoint / flow wiring will follow
   once PR #116 merges.
+
+## Audit (2026-11-20)
+
+Done on `main`: "Mergeability first" and "Increment review" in `holon-config/prompts/review_loop.template.md`;
+ledger-only conflict interleaving in code (`flow/github/merge.py`, `flow/ledger_interleave.py`). The old branch
+`task/0213-reflect-review-loop-skill-template` never merged. Remaining: the explicit CONFLICTING/DIRTY gate before
+consensus posting and Stage 5, the ledger-only fast-path procedure, the model fallback ladder, the zero-synthetic rule
+and the `uv run pytest`-only rule in the template.

@@ -295,11 +295,13 @@ code in this repository.
   branch name can therefore be at most 244 characters, and a flow's execution branch (`I-…/P-…/E-…/_`) at most 235, so
   that its `/calibrated` sibling (9 characters longer than `/_`) also fits. Git itself only limits each `/`-separated
   segment (255 bytes on most filesystems), so the problem shows up at the push, after the agent has finished.
-  - **Decomposed flows nest names.** A child branch repeats the parent plan, the child slug and the agent and model
-    labels (`claude-agent-claude-sonnet-5-5`, about 30 characters each time), so a 56-character intent slug gave a
-    282-character execution branch and stopped Bean 0274's first run at Stage 3. Until the engine caps names itself
-    (Bean 0275), give any intent that may decompose a **short slug, 8 characters or fewer** (it is a label, the
-    description carries the meaning), and expect about 240 characters of a nested child name beyond the slug.
+  - **Decomposed flows nest names.** A child branch repeats the parent plan and the child slug. Before Bean 0321 (PR
+    #206) it also repeated the full agent and model labels, so a 56-character slug gave a 282-character execution branch
+    and slugs were held to 8 characters. Since PR #206, plan and execution IDs use a runner ticker and model code
+    (`P-{epoch}-CLA-CO5.5`), the engine rejects a root slug over 32 characters and cuts derived slugs to 32, and two
+    levels of nested child intents with 32-character slugs fit unshortened. **Give every intent a descriptive slug of up
+    to 32 characters** (lowercase words joined by hyphens, e.g. `crashed-resolver-findings-open`), using the full length
+    when it helps; the old 8-character limit no longer applies.
   - **How it was measured:** throwaway branches pushed to and deleted from the harness repository at full ref lengths
     200, 250, 253, 254, 255 (accepted) and 256, 257, 258, 260, 270, 293 (rejected). Re-measure the same way if GitHub's
     behaviour is ever in doubt, and delete the branches afterwards.
