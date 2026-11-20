@@ -90,3 +90,97 @@ def test_the_token_never_reaches_the_printed_command(monkeypatch, tmp_path, caps
     run_holon_flow.execute_flow_process(["holon", "flow", "x.json"], env=env)
     assert FAKE in seen["env"]["HOLON_AGENT_SETTINGS"]
     assert FAKE not in capsys.readouterr().out
+
+
+def test_the_execute_budget_is_raised_unless_the_caller_set_one(secrets):
+    env = flow_env.build_flow_env("claude-agent", environ={}, secrets_dir=secrets)
+    assert env["HOLON_STAGE_BUDGET_EXECUTE_MINUTES"] == "10080"
+    kept = flow_env.build_flow_env(
+        "claude-agent", environ={"HOLON_STAGE_BUDGET_EXECUTE_MINUTES": "90"}, secrets_dir=secrets
+    )
+    assert kept["HOLON_STAGE_BUDGET_EXECUTE_MINUTES"] == "90"
+
+
+REFUSAL = (
+    "[2026-11-18T06:22:15Z] Stage 3 refused: the touch set overlaps pull request #205 on flow/x.py; wait for it to "
+    "merge, or rerun with --allow-overlap\n"
+)
+
+
+def _overlap_run(monkeypatch, tmp_path, **kwargs):
+    intent = tmp_path / "intent.json"
+    intent.write_text(json.dumps({"slug": "demo", "goal": "g", "description": "d"}))
+    worktree = tmp_path / "flow-demo"
+    (worktree / ".git").mkdir(parents=True)
+    launched = []
+    monkeypatch.setattr(run_holon_flow, "run_prerequisites_check", lambda w: None)
+    monkeypatch.setattr(run_holon_flow, "build_flow_env", lambda agent: {})
+    monkeypatch.setattr(run_holon_flow, "execute_flow_process", lambda cmd, **k: launched.append(cmd) or (1, REFUSAL))
+    code = run_holon_flow.run_flow(intent, worktree, "claude-agent", "claude-sonnet-5-5", **kwargs)
+    return code, launched
+
+
+def test_an_admission_refusal_is_reported_and_never_overridden_by_the_runner(monkeypatch, tmp_path, capsys):
+    code, launched = _overlap_run(monkeypatch, tmp_path, wait_on_overlap=False)
+    assert code == 1 and len(launched) == 1
+    assert "--allow-overlap" not in launched[0]
+    assert "overlaps pull request #205" in capsys.readouterr().out
+
+
+def test_the_override_is_passed_only_when_the_caller_asks_for_it(monkeypatch, tmp_path):
+    code, launched = _overlap_run(monkeypatch, tmp_path, allow_overlap=True)
+    assert code == 1 and len(launched) == 1
+    assert "--allow-overlap" in launched[0]
+
+
+LIVE_REFUSAL = (
+    "[2026-11-20T01:07:44Z] Stage 3 refused: the touch set overlaps pull request #207 (branch I-1-a/P-2-CLA-CO5.5/"
+    "E-3-CLA-CO5.5/_) on flow/x.py; pull request #209 (branch I-4-b/P-5-CLA-CO5.5/E-6-CLA-CO5.5/_) on flow/y.py; "
+    "finish or merge that flow first, or rerun with --allow-overlap.\n"
+)
+
+
+def test_the_overlapping_pull_requests_are_parsed_from_the_refusal():
+    assert run_holon_flow.parse_overlapping_prs(LIVE_REFUSAL) == [207, 209]
+    local = "Stage 3 refused: the touch set overlaps local flow on branch I-1-a/P-2/_ (worktree /w) on x.py; or rerun"
+    assert run_holon_flow.parse_overlapping_prs(local) == []
+    assert run_holon_flow.is_overlap_refusal(local)
+    assert not run_holon_flow.is_overlap_refusal("Stage 3 refused: the plan declares no touch set; or rerun")
+
+
+def test_an_overlap_is_waited_out_and_stage_3_resumes_from_the_checkpoint(monkeypatch, tmp_path):
+    intent = tmp_path / "intent.json"
+    intent.write_text(json.dumps({"slug": "demo", "goal": "g", "description": "d"}))
+    worktree = tmp_path / "flow-demo"
+    (worktree / ".git").mkdir(parents=True)
+    checkpoint = worktree / ".holon" / "flow" / "checkpoint-demo.json"
+    checkpoint.parent.mkdir(parents=True)
+    checkpoint.write_text("{}")
+    runs = iter([(1, LIVE_REFUSAL), (0, "")])
+    launched, polled, slept = [], [], []
+    states = {207: iter(["OPEN", "MERGED"]), 209: iter([None, "CLOSED"])}
+    monkeypatch.setattr(run_holon_flow, "run_prerequisites_check", lambda w: None)
+    monkeypatch.setattr(run_holon_flow, "build_flow_env", lambda agent: {})
+    monkeypatch.setattr(run_holon_flow, "verify_pr_and_calibration", lambda *a, **k: None)
+    monkeypatch.setattr(run_holon_flow, "execute_flow_process", lambda cmd, **k: launched.append(cmd) or next(runs))
+    monkeypatch.setattr(run_holon_flow, "pr_state", lambda n, d: polled.append(n) or next(states[n]))
+    monkeypatch.setattr("time.sleep", slept.append)
+    code = run_holon_flow.run_flow(intent, worktree, "claude-agent", "claude-opus-5-5", overlap_poll_seconds=7)
+    assert code == 0 and len(launched) == 2
+    assert all("--allow-overlap" not in cmd for cmd in launched)
+    assert launched[1][launched[1].index("--checkpoint") + 1] == str(checkpoint)
+    assert polled == [207, 209, 207, 209] and slept == [7]
+
+
+def test_a_refusal_that_is_not_an_overlap_still_stops(monkeypatch, tmp_path):
+    refusal = "Stage 3 refused: the plan declares no touch set; or rerun with --allow-overlap to admit it anyway.\n"
+    intent = tmp_path / "intent.json"
+    intent.write_text(json.dumps({"slug": "demo", "goal": "g", "description": "d"}))
+    worktree = tmp_path / "flow-demo"
+    (worktree / ".git").mkdir(parents=True)
+    launched = []
+    monkeypatch.setattr(run_holon_flow, "run_prerequisites_check", lambda w: None)
+    monkeypatch.setattr(run_holon_flow, "build_flow_env", lambda agent: {})
+    monkeypatch.setattr(run_holon_flow, "execute_flow_process", lambda cmd, **k: launched.append(cmd) or (1, refusal))
+    code = run_holon_flow.run_flow(intent, worktree, "claude-agent", "claude-opus-5-5")
+    assert code == 1 and len(launched) == 1

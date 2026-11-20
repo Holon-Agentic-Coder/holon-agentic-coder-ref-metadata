@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0260
 title: "Never post intermediate review iterations or aborted review passes to GitHub PR"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - github
   - holon-agentic-coder
 created_at: 2026-11-09T07:41:00Z
-updated_at: 2026-11-09T07:41:00Z
+updated_at: 2026-11-13T14:13:11Z
 ---
 
 ## Problem
@@ -77,3 +77,18 @@ Review consensus posting to GitHub PR must be reserved strictly for the terminal
 
 - `apps/sandbox-executor/src/sandbox_executor/flow/review/loop.py`
 - `apps/sandbox-executor/tests/flow/test_loop.py`
+
+## Resolution
+
+Delivered via [PR #192](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/192) and merged into `main`
+(`3b6c3d7`):
+
+- **Key Architectural Deliverables**: Review consensus is now posted to the PR only on unanimous approval or when the
+  review iteration budget is exhausted. Halted iterations (`ConsensusVerdict.FAILED`, infrastructure errors, reviewer
+  crashes or timeouts) stay local and are recorded in the ledgers without any GitHub post.
+- **Verification & Tests**: Hermetic tests updated in `apps/sandbox-executor/tests/flow/test_posting_terminal.py` and
+  `apps/sandbox-executor/tests/test_review_loop.py`. Final review iteration was APPROVED 3/3 with no findings (head
+  `edb49fd`).
+- **Holon Flow Traversal**: All 5 stages (Intent -> Plan -> Execute -> Review Loop -> Calibration) completed on
+  `claude-opus-5-5`; the Fable pre-flight hit a limit with no reset time. Calibration predicted EV 50.68, actual 61.89,
+  delta +11.21.

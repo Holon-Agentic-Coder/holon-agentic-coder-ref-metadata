@@ -10,9 +10,8 @@ tags:
   - github
   - holon-agentic-coder
 blocked_by:
-  - holon-agentic-coder-ref-metadata-0187
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-11-20T12:00:00+11:00
 ---
 
 ## Problem
@@ -45,3 +44,9 @@ Blocked by 0187. Blocks 0192. Sequence with 0160 (CI polling) and 0179.
 ## Notes
 
 - Run through the Holon flow on holon-agentic-coder. Tests never call real `gh`.
+
+## Audit (2026-11-20)
+
+Blocker Bean 0187 was scrapped (the `flow/` split landed via #147/#163); the `flow.py` references above are stale. The
+`gh` calls now sit under `flow/github/` plus `review_target.py`, `calibration.py` and `flow/review/loop.py`; there is
+still no single adapter.

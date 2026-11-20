@@ -52,10 +52,10 @@ mid-task is a defect, not courtesy: the operator has already authorised the work
 3. **Decide the unanticipated conservatively, log it, keep moving.** When something unforeseen appears mid-task, choose
    the conservative option, record the decision and its rationale, and state it in the final report. A question that
    arises after work has started is answered this way, not by interrupting the operator.
-4. **The standing exceptions stay absolute.** Merging a PR (human-only, `AGENTS.md`), destructive or irreversible
-   actions (force-pushing a shared branch, deleting worktrees or branches before a merge is confirmed, writing to a
-   `main` worktree, spending real money or quota beyond the task's scope), and any newly discovered scope beyond what
-   was asked. Those stop and ask; nothing else does.
+4. **The standing exceptions stay absolute.** Merging a PR (human-only, [pr-merging.md](pr-merging.md)), destructive or
+   irreversible actions (force-pushing a shared branch, deleting worktrees or branches before a merge is confirmed,
+   writing to a `main` worktree, spending real money or quota beyond the task's scope), and any newly discovered scope
+   beyond what was asked. Those stop and ask; nothing else does.
 5. **Local-runtime serial dispatch is not a blocker to ask about.** On a local model runtime, run delegable children one
    at a time and keep going; do not stop and ask whether to relaunch a child.
 
@@ -89,7 +89,7 @@ branch and ledger record the next one consumes (see invariant 8 in [rules.md](ru
 - **Post-merge** (on detecting the human's merge of a target repository PR; harness PRs are exempt): close the delivered
   bean(s) with a summary, refresh the triage generator and regenerate the matrix, and recommend the next set of
   concurrently runnable beans (disjoint touch sets, dependencies honoured) to the maintainer. See the Post-Merge
-  Protocol in [AGENTS.md](../AGENTS.md).
+  Protocol in [pr-merging.md](pr-merging.md).
 
 **Always drive changes with `holon flow <intent.json>` directly.** `holon flow` is the mandatory orchestrator for the
 entire 5-stage lifecycle. Never use ad-hoc wrapper scripts (such as `holon-stage.sh`) or disconnected manual stage
@@ -239,7 +239,7 @@ To maintain clean repository history, follow this Git workflow:
    - For `apps/holon-agentic-coder/`, a dedicated Git worktree (e.g. `apps/holon-agentic-coder/feat-<name>` branched off
      `origin/main`) is where you build images, inspect code, run verification, and operate the harness. It is **not** a
      surface for authoring changes: every `holon-agentic-coder` source change is produced by the Holon flow (invariant 8
-     in [rules.md](rules.md) and the Sole Change Path in [AGENTS.md](../AGENTS.md)), so hand-authoring or
+     in [rules.md](rules.md) and the Sole Change Path in [holon-flow.md](holon-flow.md)), so hand-authoring or
      hand-committing that repository's source from a worktree stays prohibited.
    - **Sole Change Path — Holon Flow is the Only Option**: `holon flow <intent.json>` is not merely a preferred option;
      it is the **sole and exclusive option** for all development across `holon-agentic-coder` and `holon-coherence`.
@@ -327,8 +327,8 @@ To maintain clean repository history, follow this Git workflow:
      not a daily requirement.
 
 > [!CAUTION] **Agents MUST NEVER merge a Pull Request that targets `main`.** (A PR into any other branch may be merged
-> autonomously under the maintainer ruling in `AGENTS.md`.) Merging is exclusively the human maintainer's
-> responsibility. The following actions are **strictly forbidden** with no exceptions:
+> autonomously under the maintainer ruling in [pr-merging.md](pr-merging.md).) Merging is exclusively the human
+> maintainer's responsibility. The following actions are **strictly forbidden** with no exceptions:
 >
 > - `gh pr merge` (with any flags: `--squash`, `--rebase`, `--merge`, `--auto`, `--delete-branch`, etc.)
 > - `gh pr merge --auto` or enabling auto-merge by any means
@@ -338,8 +338,8 @@ To maintain clean repository history, follow this Git workflow:
 > After the pr-reviewer ensemble consensus review is approved and posted to GitHub, the agent MUST stop all
 > GitHub-facing PR activity (no further `gh pr` writes of any kind). On a PR the Holon flow drove it then runs stage 5
 > (`holon calibrate <execution_branch>`) itself before requesting the merge, per "Ordering of the merge boundary" in
-> [AGENTS.md](../AGENTS.md): it pushes the `/calibrated` branch, merges/fast-forwards the calibration commit into the PR
-> execution branch so the calibration report is included in the PR diff, pushes to origin, and notifies the user:
+> [pr-merging.md](pr-merging.md): it pushes the `/calibrated` branch, merges/fast-forwards the calibration commit into
+> the PR execution branch so the calibration report is included in the PR diff, pushes to origin, and notifies the user:
 >
 > > ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub and Stage 5 calibration
 > > has been completed and included in the PR. Please review and merge it manually at `<pr_url>` when you are ready;

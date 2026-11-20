@@ -40,7 +40,8 @@ A skill that declares **Model tier: lowest** runs as follows:
    file plus the target (PR number, path, message). The subagent's output stays out of the parent's context; it returns
    a short report.
 2. If the subagent cannot finish (an escalation the skill names, or repeated failure), re-run it one tier up: **lowest**
-   $\rightarrow$ **middle** $\rightarrow$ **top**, matching the fallback ladders in `AGENTS.md`. The middle tier is the
-   next family up in the same probe output; the top tier is the harness's strongest, or the session model.
+   $\rightarrow$ **middle** $\rightarrow$ **top**, matching the fallback ladders in [holon-flow.md](holon-flow.md). The
+   middle tier is the next family up in the same probe output; the top tier is the harness's strongest, or the session
+   model.
 
 Skills that carry no tier (the PR reviewers and the review loop, `answer`) run on the session's model.

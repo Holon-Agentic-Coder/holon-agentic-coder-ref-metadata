@@ -1,0 +1,135 @@
+---
+# holon-agentic-coder-ref-metadata-0321
+title: "Short flow branch names: agent tickers, model codes, no hex, plans keyed by intent"
+status: completed
+type: feature
+priority: high
+tags:
+  - flow
+  - branches
+  - ledger
+  - provenance
+  - holon-agentic-coder
+created_at: 2026-11-17T14:15:00Z
+updated_at: 2026-11-20T11:40:00+11:00
+---
+
+## Problem
+
+A flow branch is `I-{epoch}-{slug}/P-{epoch}-{hex}-{agent}-{model}/E-{epoch}-{hex}-{agent}-{model}/calibrated`. A
+typical one is 138 characters, of which about 62 are the agent and model spelled out twice and 18 are the two hex
+fields. Decomposed flows nest further and run into GitHub's 255-character ref limit (Bean 0275), which is why intent
+slugs are held to 8 characters.
+
+The hex was added by Bean 0149 because a plan ID is used on its own as a flat key (plan file name, calibration report
+name, `plans.jsonl` lookup), so two intents planned in the same second by the same runner and model collided. The
+branches themselves never collided: each plan sits under its own intent.
+
+## Decisions (maintainer, 2026-11-18)
+
+1. **Agent ticker**: three uppercase letters, defined beside the runner in `agent_defaults.py`. Only the runners that
+   are needed get one:
+
+   | Runner              | Ticker |
+   | ------------------- | ------ |
+   | `claude-agent`      | `CLA`  |
+   | `antigravity-agent` | `ANA`  |
+   | `pi-agent`          | `PIA`  |
+
+   Tickers are unique (test-enforced) and never reassigned or reused. A runner with no ticker fails at `holon doctor`
+   and at intent time, before any branch exists; there is no fallback. `local-model` is not a runner and gets none.
+   `codex-agent` and `opencode-agent` get one when they are first needed.
+
+2. **Model code**: derived by rule, no table. First letter of each word in upper case, version numbers kept and joined
+   with a dot, anything before a `/` dropped, characters invalid in a git ref removed. `claude-sonnet-5-5` -> `CS5.5`,
+   `claude-fable-5` -> `CF5`, `claude-opus-5-5` -> `CO5.5`, `gemini-3.8-flash-medium` -> `G3.8FM`, `gemini-4-argon` ->
+   `G4A`, `gpt-5-codex` -> `G5C`, `anthropic/claude-opus-5-5` -> `CO5.5`. A local model name such as `qwen2.5-coder:32b`
+   must give a valid ref.
+
+3. **Drop the hex**. New IDs are `P-{epoch}-{ticker}-{model code}` and `E-{epoch}-{ticker}-{model code}`:
+
+   ```
+   I-1794567515-sleepfix/P-1794567531-CLA-CS5.5/E-1794567598-CLA-CS5.5/calibrated   (78 characters)
+   ```
+
+4. **Plan files follow the branch name**: `plans/{intent}/{plan-id}.md` with the calibration report beside it, mirroring
+   the full nesting (child intents, and a child intent hanging off its parent's plan segment,
+   `I-…/P-…--{n}-{slug}/P-…/E-…`, as in PRs #194 and #200).
+
+5. **Every plan query names both the intent and the plan ID**, and the duplicate check runs on the intent-and-plan pair.
+   The ledger keeps the full `agent` and `model`; the ticker and code are for names only.
+
+6. **Migration of existing plans and ledgers**, with a one-off exemption from the append-only rule granted for this
+   migration only:
+   - Everything must match the remote branch names. Merged branches are pruned, so the durable record is the head branch
+     name of each pull request (204 PRs surveyed 2026-11-18): 131 of 141 `plans.jsonl` rows match a PR head exactly on
+     intent plus plan ID; the other 10 are early plans that never raised a PR, for which the ledger's `intent_branch` is
+     the record. No plan ID appears under two intents.
+   - So no existing ID is renamed. Old-generation names (`P-{epoch}-{agent}-{model}` from PR #47 to #146, with `{hex}`
+     from PR #147) stay as they are and stay parseable; only new plans get the short form.
+   - Move each of the 262 files in `plans/` to the path its branch had, and rewrite only the stored paths in the ledgers
+     (`plan_file`, `calibration_report_path`).
+   - The migration verifies each moved file against the PR head branch names and reports mismatches.
+   - 25 plan files have no ledger row: match each to a PR head branch by plan ID, otherwise park it in `plans/legacy/`.
+
+7. **Slugs are at most 32 characters**, root and child alike. A hand-written root slug over 32 is rejected at intent
+   time; an engine-derived slug is cut to 32 at a word boundary. Budget: a branch name without `refs/heads/` and
+   `/calibrated` may be 233 characters. A new `P-` or `E-` segment is at most 26 (model code up to 8). A simple flow is
+   65 + slug; each level of nesting adds 31 + slug. With 32-character slugs: 97 simple, 160 with one level of child
+   intents, 223 with two. So 32 is the largest round figure that guarantees two levels unshortened (the exact ceiling is
+   35); a third level falls back to the existing slug shortening. This replaces the 8-character workaround from
+   Bean 0275.
+
+## Action
+
+Run through the Holon flow on `holon-agentic-coder` (`todo/intent-0321-shortref.json`). One intent, so that no
+intermediate ID format (`P-{epoch}-{hex}-CLA-…`) ever reaches the ledger; the planner may decompose it.
+
+## Progress
+
+- **2026-11-18:** flow `shortref` launched (intent `I-1794976491-shortref`, plan `P-1794976507-654a2c7f`, 11 steps).
+  Stage 3 ran three times from scratch under `--allow-overlap` beside the `macgate` flow (Bean 0331); the third attempt
+  was cut off by the 45-minute budget at step 11.
+- **2026-11-19:** resumed after PR #205 merged. The continuation `E-1795084333-ec295034` recorded the step 11
+  verification gates, marked the execution completed and reconciled the ledgers with `origin/main` (local head
+  `66a3965`, 17 commits ahead of `main`, 0 behind). The runner process ended before the host push: the execution branch
+  is not on origin, the flow checkpoint still says `execute`, the resume log is empty, and no pull request exists.
+- **2026-11-20:** re-planned as `P-1795087811-3604f487`; `E-1795088115-4e818090` (fable) committed steps 1-3, then its
+  pre-push sync hit a `flow_module_budgets.json` conflict with PR #205. Merged `origin/main` into it by hand (both
+  sides' budgets kept, budget check green, ledgers appended) and recorded a superseding failure row pointing
+  `partial_head` at the merge, since the executor resumes from the ledger's `partial_head`, not the branch tip. On
+  `claude-opus-5-5`, `E-1795130457-c11ac88f` finished steps 4-9; the first review halted because the worktree was left
+  on a detached HEAD mid-review (resolver refuses it), re-attached and resumed from `review`. PR #206: 3/3 APPROVED at
+  iteration 4, calibration included (EV predicted 33.50, actual -37.51), CI green, MERGEABLE/CLEAN.
+- **Next:** human merge of PR #206, then the post-merge protocol.
+
+## Notes
+
+- Touches `ledger.py`, `ref_names.py`, `agent_defaults.py`, `calibration.py`, the planner and executor entrypoints and
+  the flow package; do not run concurrently with another flow on those files.
+- Most of the agent and model shortening in `ref_names.py` (digests, `original_agent`/`original_model` ledger fields)
+  becomes unnecessary; slug shortening stays.
+- Not traced yet: every place an execution ID is used without its plan and intent. The flow must check this before the
+  hex comes off the `E-` segment.
+- `gemini-agent` is redundant with antigravity but still wired into the code (image target, runner, registry). Its
+  removal is a separate bean, not part of this one.
+
+## Resolution
+
+Delivered via [PR #206](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/206) and merged into `main`
+(`cac463b9`).
+
+- **Key Architectural Deliverables**: flow branches drop the hex and use runner tickers (`CLA`, `ANA`, `PIA`, a runner
+  with no ticker is rejected) and derived model codes (`P-{epoch}-CLA-CS5.5`). Plan and calibration files follow the
+  branch name under `plans/{intent}/`, with a migration of existing plans and ledgers. Slugs are capped at 32
+  characters. `ref_names.py` drops most of the agent and model shortening.
+- **Verification & Tests**: hermetic tests for ticker uniqueness, model-code derivation, plan-path layout, ledger
+  append-only rules and migration. Review 3/3 APPROVED at iteration 4, CI green, MERGEABLE/CLEAN at merge.
+- **Holon Flow Traversal**: Stages 1-2 on `claude-fable-5` (plan `P-1795087811-3604f487`). Stage 3 ran in two
+  executions: `E-1795088115-4e818090` (fable, steps 1-3) and `E-1795130457-c11ac88f` (opus, steps 4-9, after a
+  detached-HEAD stop, Bean 0336). Stage 4 review approved; Stage 5 calibration included (EV predicted 33.50, actual
+  -37.51).
+- **Follow-ups**: the calibration report was written by the pre-#206 engine to the flat path
+  `plans/P-1795087811-3604f487-claude-agent-claude-fable-5_calibration.md`; it still needs moving under
+  `plans/I-1794976491-shortref/` via a later flow. The stray pushed execution branch `E-1795130302-4856d0ac` (no ledger
+  row) was deleted on 2026-11-20. Stage 3 resume gaps are tracked in Beans 0331 and 0335.

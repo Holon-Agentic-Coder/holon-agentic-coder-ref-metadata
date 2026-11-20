@@ -11,9 +11,8 @@ tags:
   - architecture
   - holon-agentic-coder
 blocked_by:
-  - holon-agentic-coder-ref-metadata-0187
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-30T00:48:53Z
+updated_at: 2026-11-20T12:00:00+11:00
 ---
 
 ## Problem
@@ -53,3 +52,9 @@ precede 0183 (checkpoint storage) and 0196, 0199.
 ## Notes
 
 - Run through the Holon flow on holon-agentic-coder. The ledger layout and the three-ledger invariant are unchanged.
+
+## Audit (2026-11-20)
+
+Blocker Bean 0187 was scrapped; the `flow/` package split it covered landed through PR #147/#163, so this bean is not
+blocked by it. Still open: no `CheckpointStore`/`LedgerReconciler`, and the entrypoints still import
+`sandbox_executor.flow`.

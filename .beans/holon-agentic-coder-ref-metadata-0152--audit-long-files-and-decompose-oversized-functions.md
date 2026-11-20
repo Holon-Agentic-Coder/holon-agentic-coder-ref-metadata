@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:35:41Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-11-20T12:00:00+11:00
 ---
 
 ## Problem
@@ -100,3 +100,10 @@ Tests mirror this: `test_flow.py` 3952 lines, `test_token_reduction.py` 3725, `t
   (0187, 0188, 0204), verified by AST comparison, removes the shared files first; decomposition then runs per module in
   parallel. Re-measured on `993b686`: `flow.py` 5,157 lines, `cli.main` 1,097 lines (CC 114), `executor.main` 798 lines
   (CC 178).
+
+## Audit (2026-11-20)
+
+Done: the `flow.py` split (#147, #163), the `cli.py` split into commands (#117), and the ruff C901/PLR0915 gate with a
+noqa baseline (#115). Remaining: the long functions (`executor.main`, `planner.main`, `setup_token_reduction_proxy`,
+`run_docker_container`, `extract_sse_token_counts`), the committed audit script and re-audit numbers. The
+token-reduction duplication is Bean 0200. The "4434/2757 lines" figures are stale: both files are now packages.

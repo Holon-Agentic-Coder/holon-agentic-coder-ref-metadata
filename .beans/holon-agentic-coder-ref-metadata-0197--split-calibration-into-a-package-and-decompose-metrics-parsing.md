@@ -10,9 +10,8 @@ tags:
   - calibration
   - holon-agentic-coder
 blocked_by:
-  - holon-agentic-coder-ref-metadata-0187
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-11-20T12:00:00+11:00
 ---
 
 ## Problem
@@ -43,3 +42,7 @@ Blocked by 0187. Sequence **after 0146** (picks the predicted metrics in the sam
 ## Notes
 
 - Run through the Holon flow on holon-agentic-coder.
+
+## Audit (2026-11-20)
+
+Calibration is still one `calibration.py` module (1642 lines); the Bean 0187 blocker is scrapped and no longer applies.

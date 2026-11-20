@@ -41,6 +41,21 @@ completion statistics, and generate a clean, Unix-standard Active Beans Triage a
 
 ---
 
+## 🧹 Pre-Triage Audit: Close Solved and Deprecated Beans (Required)
+
+Before generating the matrix, audit every `todo`, `draft` and `in-progress` bean against the current `main` of its
+target (holon-agentic-coder, holon-coherence, dev-env or this harness): merged PRs, `git log` and the code itself. The
+audit is read-only and may fan out to lower-tier subagents; the closing edits are made after it.
+
+- **Solved**: everything the bean's Action asks for is already on `main`. Set `status: completed` and add a
+  `## Resolution` naming the PR or commit that solved it.
+- **Deprecated or superseded**: a later decision, bean or change made it moot, or the code it describes no longer
+  exists. Set `status: scrapped` and add a `## Resolution` naming what superseded it.
+- **Partly solved**: keep it active and rewrite its Action to the part that remains.
+- When the evidence is unclear, keep the bean active. Close a bean only with concrete evidence for every item.
+
+Closed beans then count toward the Executive Summary and the milestones narrative of the same run.
+
 ## 🚀 Execution Workflow
 
 To run the automated bean prioritisation script:
