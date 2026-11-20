@@ -3,7 +3,7 @@
 title:
   "A flow admitted after waiting out an overlap executes from a stale plan branch and conflicts with the PR it waited
   for"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -13,7 +13,7 @@ tags:
   - concurrency
   - holon-agentic-coder
 created_at: 2026-11-20T16:55:00+11:00
-updated_at: 2026-11-20T16:55:00+11:00
+updated_at: 2026-11-20T18:08:00+11:00
 ---
 
 ## Problem
@@ -58,3 +58,35 @@ Through the Holon flow on `holon-agentic-coder`:
   0264 (`flow_module_budgets.json` makes most flows overlap). The harness runner's overlap wait
   (`.agents/skills/holon_flow/scripts/run_holon_flow.py`) needs no change: it resumes from the checkpoint, and Stage 3
   does the refresh.
+
+## Progress
+
+- 2026-11-20 16:55 (+11:00): Holon flow `refresh-plan-after-overlap-wait` started (claude-agent, claude-opus-5-5) in
+  worktree `apps/holon-agentic-coder/flow-refresh-plan-after-overlap-wait`, concurrently with the
+  `review-keeps-worktree-on-branch` and `planner-api-error-not-a-plan` flows.
+- 2026-11-20 18:01 (+11:00): Flow completed all 5 stages; PR #211
+  (https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/211) MERGEABLE/CLEAN, CI 11/11 green, consensus
+  APPROVED 3/3 at review iteration 2, calibration report in the PR diff. Stage 3 waited out PR #210 (blocked admission),
+  executed 12.4 min; Stage 4 first stopped on the expected stale-base conflict in `flow_module_budgets.json`, resolved
+  by merging `origin/main` (description texts combined, ledgers interleaved, lint and 4620 tests green, merge commit
+  12ec758) and resumed from the checkpoint. EV predicted 44.16, actual -18.21 (calibration scored P(success) 0.00 and
+  impact 0 despite approval and green CI). Awaiting human merge.
+
+## Resolution
+
+Delivered via [PR #211](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/211) and merged into `main`
+(`1610809`, squash commit `16108098`):
+
+- **Key Architectural Deliverables**: `flow/plan_refresh.py` merges `origin/main` into the plan branch on Stage 3
+  admission after a blocked wait, before the execution branch is cut. Ledger-only conflicts are interleaved by
+  `created_at`; any other conflict aborts the merge and stops Stage 3 before dispatch, naming the files, with a
+  resumable checkpoint. The refreshed target commit is recorded as a `plan_refresh` row and as `refreshed_to` in the
+  checkpoint's admission object. A first-check admission is unchanged.
+- **Verification & Tests**: hermetic tests for the blocked-then-admitted refresh, the first-try no-op, ledger-only
+  resolution by `created_at`, and the resumable code-conflict stop. CI 11/11 green; consensus APPROVED 3/3 at review
+  iteration 2.
+- **Holon Flow Traversal**: all 5 stages completed. Stage 3 waited out PR #210. Stage 4 stopped on the expected
+  stale-base conflict in `flow_module_budgets.json`. That run predates the refresh code, so the conflict was resolved by
+  hand: `origin/main` (refreshed main commit `30d7c77c`, PR #210) merged at `12ec758`, then resumed from the checkpoint.
+- **Calibration caveat**: the calibration EV (predicted 44.16, actual -18.21) is wrong because of the bug in Bean 0339
+  (P(success) scored 0.00 and impact 0 despite approval and green CI). Do not use that EV as a signal.

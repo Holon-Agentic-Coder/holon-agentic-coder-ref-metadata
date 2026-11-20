@@ -44,7 +44,7 @@ FALLBACK_LADDER_ANTIGRAVITY = [
 ]
 
 # How often an overlap wait re-checks the overlapping pull requests (or, for a local flow with none, re-runs admission).
-OVERLAP_POLL_SECONDS = 300
+OVERLAP_POLL_SECONDS = 60
 OVERLAP_REFUSAL = "Stage 3 refused: the touch set overlaps"
 
 QUOTA_ERROR_PATTERNS = [
@@ -297,13 +297,19 @@ def execute_flow_process(
 def resolve_flow_worktree(target_worktree: Path, slug: str, dry_run: bool = False) -> Path:
     """Return the worktree the flow runs in; a ``main`` target becomes a dedicated ``flow-<slug>`` worktree.
 
+    A ``flow-<name>`` target that does not exist yet, beside a ``main`` worktree, is created the same way.
+
     The ``main`` worktree must stay on ``main`` and identical to ``origin/main``, but stages 4 and 5 check out the
     execution branch and commit in the target worktree. A sibling ``flow-<slug>`` worktree is cut from ``origin/main``
     (the name and branch ``holon flow`` derives itself) and used instead; it is reused when it already exists.
     """
     target_worktree = target_worktree.resolve()
     if target_worktree.name != "main":
-        return target_worktree
+        main_worktree = target_worktree.parent / "main"
+        if target_worktree.exists() or not target_worktree.name.startswith("flow-") or not main_worktree.exists():
+            return target_worktree
+        # A missing flow-<name> worktree next to the main worktree is cut from origin/main, like a main target.
+        target_worktree, slug = main_worktree, target_worktree.name.removeprefix("flow-")
     clean_slug = re.sub(r"[^a-zA-Z0-9_\-]+", "-", slug.strip()).strip("-") or "flow"
     flow_worktree = target_worktree.parent / f"flow-{clean_slug}"
     if flow_worktree.exists():

@@ -247,9 +247,9 @@ Once the flow finishes:
 
 When Stage 3 admission refuses a plan because its touch set overlaps another flow in flight, `scripts/run_holon_flow.py`
 does not stop and never adds `--allow-overlap` itself. It polls each overlapping pull request named in the refusal
-(`gh pr view <n> --json state`, every `--overlap-poll-seconds`, default 300) until each is merged or closed, then
-resumes the flow from its checkpoint, which runs admission again. An overlap with a local flow that has no pull request
-is re-checked by re-running admission after the same interval. Any other refusal (no touch set declared, discovery
+(`gh pr view <n> --json state`, every `--overlap-poll-seconds`, default 60) until each is merged or closed, then resumes
+the flow from its checkpoint, which runs admission again. An overlap with a local flow that has no pull request is
+re-checked by re-running admission after the same interval. Any other refusal (no touch set declared, discovery
 unavailable) still stops. Pass `--no-wait-on-overlap` to stop on an overlap as before.
 
 ### Push notifications (ntfy.sh)

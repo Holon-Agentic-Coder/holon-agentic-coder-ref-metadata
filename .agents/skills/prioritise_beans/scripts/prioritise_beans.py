@@ -376,17 +376,17 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "a resolver turn that fails writes no adjudication rows and leaves its findings open, a rejection needs a reason, "
         "and a review resume sends open findings to the resolver first. Review approved 3/3 at iteration 3; calibration "
         "predicted 61.85 against an actual 77.72 (delta +15.87). **Bean 0337** is new (a flow refused at Stage 3 admission "
-        "still counts as in flight). Beans 0331 and 0335 merged as PR #208 (`00fa535`) and are completed. **Bean 0337** merged as PR #209 (`7dc0342`) and is completed."
+        "still counts as in flight). Beans 0331 and 0335 merged as PR #208 (`00fa535`) and are completed. **Bean 0337** merged as PR #209 (`7dc0342`) and is completed. **Bean 0283** merged as PR #210 (`30d7c77`) and is completed."
     ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0337)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0338)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
 # step with the matrix at every checkpoint.
 NEXT_EXECUTION_SEQUENCE: list[str] = [
-    "**Start here (2026-11-20):** Bean 0337 merged as HAC PR #209 (`7dc0342`) and is completed, so the blocked-admission lane is closed (Beans 0331 and 0335 merged earlier as PR #208). The harness installs were rebuilt from `main` at `7dc0342` the same day. The next serial item is Bean 0336, then Bean 0283. Run one flow at a time, because the next lanes share the flow package and the Stage 3 admission path. Keep `HOLON_TOKEN_REDUCE=0` until Bean 0283 lands.",
+    "**Start here (2026-11-20):** Bean 0336 merged as HAC PR #212 (`b6e46e0b`) and is completed: the review stage restores the execution branch on exit and re-attaches a HEAD detached at the branch tip, instead of refusing to run the resolver. Bean 0338 merged as HAC PR #211 (`1610809`) and is completed, so a flow that waited out an overlap refreshes its plan branch from `origin/main` before Stage 3 executes. Bean 0337 merged as HAC PR #209 (`7dc0342`) and is completed (Beans 0331 and 0335 merged earlier as PR #208). Bean 0283 merged as HAC PR #210 (`30d7c77`) and is completed. The harness installs were rebuilt from `main` at `b6e46e0b` the same day. Bean 0339 (calibration scores an approved flow as failed after a resolved sync conflict) and then Bean 0264 (module budgets) lead. Run one flow at a time, because these share the ledgers and the flow package.",
     "",
     "**Rule (2026-10-25):** never run concurrent flows whose touched files overlap. The engine enforces this from Bean 0151: a flow whose touch set overlaps an in-flight flow is refused before Stage 3 unless `--allow-overlap` is given. Items inside one lane below run one at a time. Lanes run together only when their touch sets are disjoint.",
     "",
@@ -394,15 +394,16 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
     "",
     "**Rule (2026-10-28) and worktree rule (2026-11-09):** the target suites rely solely on pytest. A flow never runs in the `main` worktree; it runs in a `flow-<slug>` worktree off `origin/main`.",
     "",
-    "**Tooling:** `holon 0.1.0` and `holon-coherence 0.1.0` were reinstalled from `main` (`7dc0342`) on 2026-11-20. `holon --version` prints no commit, so the editable install is the check. Set `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172 lands.",
+    "**Tooling:** `holon 0.1.0` and `holon-coherence 0.1.0` were reinstalled from `main` (`b6e46e0b`) on 2026-11-20. `holon --version` prints no commit, so the editable install is the check. Set `HOLON_STAGE_BUDGET_EXECUTE_MINUTES=10080` until Bean 0172 lands.",
     "",
     "**Serial chain, `holon-agentic-coder` (one flow at a time; these touch the ledgers, `agent_defaults.py`, the planner and the flow package):**",
     "1. ~~**Beans 0331 and 0335**~~ merged as HAC PR #208 (`00fa535`) and completed.",
     "2. ~~**Bean 0337**~~ merged as HAC PR #209 (`7dc0342`) and completed.",
-    "3. **Bean 0336** (Stage 4 review container leaves the worktree detached), in the review-loop lane; unblocked by Bean 0323's merge.",
-    "4. **Bean 0283** (P1; planner entrypoint, `payload_cleaner`), unblocked by the 0321 merge.",
-    "5. **Bean 0322** (P3; `agent_defaults.py`, `agent_runner.py`, `Dockerfile`, `docker-bake.hcl`), then **Bean 0270** after 0322 (model discovery; also blocked on a usable runner).",
-    "6. **Bean 0146**, then **Bean 0197** (`calibration.py`), and **Bean 0181** (`/_` only on branch refs). The 0321 naming change they waited for has landed.",
+    "3. ~~**Bean 0338**~~ merged as HAC PR #211 (`1610809`) and completed.",
+    "4. ~~**Bean 0336**~~ merged as HAC PR #212 (`b6e46e0b`) and completed.",
+    "5. ~~**Bean 0283**~~ merged as HAC PR #210 (`30d7c77`) and completed.",
+    "6. **Bean 0339** (P1; calibration and ledger; leads the chain), then **Bean 0264** (module budgets; the flow-package lane's lead), then **Bean 0322** (P3; `agent_defaults.py`, `agent_runner.py`, `Dockerfile`, `docker-bake.hcl`), then **Bean 0270** after 0322 (model discovery; also blocked on a usable runner).",
+    "7. **Bean 0146**, then **Bean 0197** (`calibration.py`), and **Bean 0181** (`/_` only on branch refs). The 0321 naming change they waited for has landed.",
     "**Review loop and calibration lane (`entrypoint/review_loop.py`, `flow/review/`, `review_report.py`):** unblocked now that 0297 has merged, one item at a time.",
     "- **Bean 0255** (streaming per-issue resolvers, one consolidated commit per iteration), then **Bean 0234** (CI check progress logging; pairs with the completed 0160).",
     "- **Bean 0261** (`review_report.py`: one clean evaluation line), then **Bean 0269** (deferred nits from PR #158).",
@@ -441,14 +442,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "S",
         "domain": "Holon Flow / Stage 3 / Resume",
         "notes": "In progress in the live `resumetip` flow. Seen on the shortref flow: a hand-merged origin/main on the execution branch was ignored on resume, because the executor resumes from the ledger partial_head. Resume from the branch tip when it descends from the recorded partial head. Same resume path as Bean 0331, so one flow. Do not push an execution branch before its ledger row exists.",
-    },
-    "0336": {
-        "title": "A Stage 4 review container left the shared flow worktree on a detached HEAD, so the resolver refused to run",
-        "priority": "**P2**",
-        "impact": "Medium",
-        "sizing": "S",
-        "domain": "Holon Flow / Stage 4 / Worktree",
-        "notes": "Todo. Seen on PR #206 (2026-11-19): the review container left the flow worktree on a detached HEAD while the host worktree was mounted, and the resolver refused to run until it was re-attached by hand. Re-attach or refuse on container exit. Unblocked by Bean 0323's merge (PR #207); same review-loop lane.",
     },
     "0337": {
         "title": "A flow refused at Stage 3 admission still counts as in flight, so two waiting flows block each other",
@@ -512,14 +505,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "(`entrypoint/execution_workspace.py`), which Bean 0321 changed. 0321 merged on 2026-11-20, so this is unblocked; it shares the resume path with Bean 0335, so both go in one flow, which runs as the live `resumetip` flow."
         ),
     },
-    "0283": {
-        "title": "An agent's API error output is written as the plan and reported as a metrics failure",
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "M",
-        "domain": "Planner / Token Reduction",
-        "notes": "Todo. The planner writes an Anthropic API 400 as the plan and then hides it behind a metrics failure, and a failed attempt leaves an untracked plan file. Fix: fail the stage on API error output, leave no plan file behind, and keep `cache_control` blocks consistent in `payload_cleaner`. Touches the planner entrypoint that 0321 also touched; 0321 has merged, so it is unblocked. Workaround until it lands: `HOLON_TOKEN_REDUCE=0`.",
-    },
     "0270": {
         "title": "Discover runner models dynamically through each harness instead of the hardcoded model table",
         "priority": "**P1**",
@@ -563,18 +548,21 @@ OVERRIDES: dict[str, dict[str, str]] = {
             "until PR #152 (Bean 0262) and Beans 0263 and 0264 merge. Unblocks Bean 0189."
         ),
     },
+    "0339": {
+        "title": "Calibration scores an approved flow as failed when Stage 3 recorded a sync conflict that was later resolved",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "S",
+        "domain": "Holon Flow / Calibration / Ledger",
+        "notes": "Confirmed 2026-11-20 on PR #211: the Stage 3 sync_conflict row has ledger_revision 2 and outranks the later halted_for_human row (no revision), so calibration_ev picks it as final: P(success) 0, EV -18.21 for an approved PR. Fits #208 and #209 too. Every conflicted flow's calibration is wrong, corrupting EV feedback.",
+    },
     "0264": {
-        "title": "Read module size budgets from configuration instead of hardcoding paths and numbers in the check",
-        "priority": "**P2**",
-        "impact": "Medium",
+        "title": "Module size budgets force a split: forbid raising a budget, default ceiling for new modules",
+        "priority": "**P1**",
+        "impact": "High",
         "sizing": "M",
-        "domain": "Lint / Configuration",
-        "notes": (
-            "Moves the `flow/` size budgets into `holon-config/hygiene/module_budgets.json` (packages, default "
-            "ceiling, overrides with reasons) read by a generic `check_module_budgets.py`, deleting "
-            "`flow_module_budgets.json`. Agents may change the configuration; raised limits warn instead of failing. "
-            "Hold until Bean 0263 merges."
-        ),
+        "domain": "Lint / Configuration / Admission",
+        "notes": "Rewritten 2026-11-20: a budget forces a split; the budget config is frozen and any change fails lint/CI unless the maintainer explicitly authorised it (intent field + maintainer-only PR label); 200-line default so new modules need no entry; prompts say split; settings move to holon-config with no history prose. Removes flow_module_budgets.json from nearly every touch set, ending most Stage 3 overlap waits. Start after 0336 and 0338 merge.",
     },
     "0263": {
         "title": (
@@ -2180,6 +2168,18 @@ def generate_triage_document(
             ("40. **Blocked admission state (Bean 0337 / HAC PR #209, 2026-11-20)**:"),
             (
                 "    - `0337` (PR #209, `7dc0342`, merged 2026-11-20): a Stage 3 admission refusal for a touch-set overlap records a `blocked` admission state with `blocked_by` and `blocked_since`. Blocked flows are not in flight for anyone else's admission, and admission runs under a per-repository lock, oldest `blocked_since` first."
+            ),
+            ("41. **Planner API-error handling (Bean 0283 / HAC PR #210, 2026-11-20)**:"),
+            (
+                "    - `0283` (PR #210, `30d7c77`, merged 2026-11-20): the planner fails the stage on agent API error output instead of writing it as the plan, a failed plan attempt leaves no untracked plan file, and `payload_cleaner` leaves existing `cache_control` blocks alone and injects only consistent ones. Review approved 3/3 at iteration 1. Calibration: expected value predicted 53.40, actual 73.52 (delta +20.12)."
+            ),
+            ("42. **Plan refresh after an overlap wait (Bean 0338 / HAC PR #211, 2026-11-20)**:"),
+            (
+                "    - `0338` (PR #211, `1610809`, merged 2026-11-20): a flow admitted after a blocked overlap wait merges `origin/main` into its plan branch before Stage 3 executes. Ledger-only conflicts are interleaved by `created_at`; any other conflict stops Stage 3 before dispatch with a resumable checkpoint, and the refreshed commit is recorded. Review approved 3/3 at iteration 2. Its calibration EV (44.16 predicted, -18.21 actual) is wrong because of Bean 0339."
+            ),
+            ("43. **Review keeps the execution branch (Bean 0336 / HAC PR #212, 2026-11-20)**:"),
+            (
+                "    - `0336` (PR #212, `b6e46e0b`, merged 2026-11-20): new `worktree_head.py` with `reattach_branch`/`restore_branch`, wired into the review stage and the review loop. The review restores the execution branch on exit and re-attaches a HEAD detached at the branch tip, instead of refusing the resolver. Review approved 3/3 at iteration 3. Calibration: expected value predicted 55.50, actual 71.68 (delta +16.18). First flow whose plan branch was refreshed onto `main` after an overlap wait, with no merge conflict."
             ),
             "",
             "---",

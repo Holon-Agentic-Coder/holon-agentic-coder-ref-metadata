@@ -184,3 +184,44 @@ def test_a_refusal_that_is_not_an_overlap_still_stops(monkeypatch, tmp_path):
     monkeypatch.setattr(run_holon_flow, "execute_flow_process", lambda cmd, **k: launched.append(cmd) or (1, refusal))
     code = run_holon_flow.run_flow(intent, worktree, "claude-agent", "claude-opus-5-5")
     assert code == 1 and len(launched) == 1
+
+
+def _record_git(monkeypatch):
+    calls = []
+
+    def fake_run(cmd, **kwargs):
+        calls.append(cmd)
+        return run_holon_flow.subprocess.CompletedProcess(cmd, 0, "", "")
+
+    monkeypatch.setattr(run_holon_flow.subprocess, "run", fake_run)
+    return calls
+
+
+def test_a_missing_flow_worktree_beside_main_is_cut_from_origin_main(monkeypatch, tmp_path):
+    (tmp_path / "main").mkdir()
+    calls = _record_git(monkeypatch)
+    resolved = run_holon_flow.resolve_flow_worktree(tmp_path / "flow-review-keeps-branch", "ignored-slug")
+    assert resolved == (tmp_path / "flow-review-keeps-branch").resolve()
+    assert calls[-1][-5:] == [
+        "--no-track",
+        "-b",
+        "flow-review-keeps-branch",
+        str(resolved),
+        "origin/main",
+    ]
+    assert calls[-1][:3] == ["git", "-C", str((tmp_path / "main").resolve())]
+
+
+def test_an_existing_flow_worktree_is_reused_untouched(monkeypatch, tmp_path):
+    (tmp_path / "main").mkdir()
+    (tmp_path / "flow-x").mkdir()
+    calls = _record_git(monkeypatch)
+    assert run_holon_flow.resolve_flow_worktree(tmp_path / "flow-x", "x") == (tmp_path / "flow-x").resolve()
+    assert calls == []
+
+
+def test_a_missing_worktree_that_is_not_a_flow_worktree_is_not_created(monkeypatch, tmp_path):
+    (tmp_path / "main").mkdir()
+    calls = _record_git(monkeypatch)
+    assert run_holon_flow.resolve_flow_worktree(tmp_path / "other", "x") == (tmp_path / "other").resolve()
+    assert calls == []
