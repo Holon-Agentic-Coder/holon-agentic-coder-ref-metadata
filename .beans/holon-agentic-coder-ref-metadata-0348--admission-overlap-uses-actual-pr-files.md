@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0348
 title: "Stage 3 admission blocks on folder or wildcard touch-set entries and on planned rather than actual PR files"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
   - concurrency
   - holon-agentic-coder
 created_at: 2026-11-20T20:40:00+11:00
-updated_at: 2026-11-21T01:20:00+11:00
+updated_at: 2026-11-21T09:07:00Z
 ---
 
 ## Problem
@@ -60,3 +60,18 @@ never overlap a path that does not exist on the base branch with a wildcard or f
 ## Progress
 
 - 2026-11-21: Holon flow `admission-uses-actual-pr-files` started (claude-agent, claude-opus-5-5).
+- 2026-11-21: Flow complete: PR #226 approved 3/3 (iteration 3), calibrated (EV 43.32 predicted, 61.30 actual), CI
+  green, MERGEABLE/CLEAN; awaiting human merge.
+
+## Resolution
+
+- Delivered via [PR #226](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/226) and merged into `main`
+  (`3ee9c4e2`).
+- Key deliverables: Stage 3 admission compares open pull requests by their actual changed files rather than declared
+  touch sets, new files absent on the base branch never overlap folder or wildcard entries, and refusal messages list
+  concrete overlapping files.
+- Traversal across all 5 Holon flow stages
+  (`I-1795184210-admission-uses-actual-pr-files/P-1795184234-CLA-CO5.5/E-1795246866-CLA-CO5.5/_`), 3/3 reviewer
+  consensus approval at iteration 3, `11/11` passing CI checks, and calibration report
+  (`plans/I-1795184210-admission-uses-actual-pr-files/P-1795184234-CLA-CO5.5_calibration.md`; EV 43.32 predicted vs.
+  61.30 actual).
