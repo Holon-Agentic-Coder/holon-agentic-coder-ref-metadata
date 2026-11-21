@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0346
 title: "Merge repository devenv_stow_packages with stale choices.yml and add upgrade regression tests"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - stow
   - tests
 created_at: 2026-11-20T23:52:00+11:00
-updated_at: 2026-11-20T23:52:00+11:00
+updated_at: 2026-11-21T12:35:00+11:00
 ---
 
 ## Problem
@@ -46,3 +46,16 @@ Through the Holon flow on `dev-env`:
      converge succeeds and creates every expected symlink (including `ghostty`).
   2. A verbatim Jinja `templar` test in `tests/test_templating.py` exercising the exact `Resolve active stow packages`
      expression against a stale `choices.yml` package list.
+
+## Resolution
+
+Delivered via [dev-env PR #32](https://github.com/thomashan/dev-env/pull/32) and merged into `main` (`d6b07de`):
+
+- **Key Architectural Deliverables**: Snapshotting `devenv_repo_stow_packages` before loading
+  `~/.config/dev-env/choices.yml`, unioning active Stow packages while excluding inactive Neovim variants, asserting
+  active link manifest coverage in `bootstrap` and `dotfiles` roles, guarding `ansible/playbooks/unlink.yml`, and adding
+  Jinja templar + real `ansible-playbook` / GNU Stow upgrade regression tests in `tests/test_templating.py`.
+- **Verification & Tests**: All unit, templating, and playbook upgrade tests passed successfully under
+  `uv run --extra test pytest`.
+- **Holon Flow Traversal**: All 5 stages (Intent -> Plan -> Execute -> Review Loop -> Calibration) completed
+  successfully on `dev-env`.
