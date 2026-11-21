@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0322
 title: "Completely remove the gemini-agent runner and all gemini runner special-cases"
-status: in-progress
+status: completed
 type: task
 priority: low
 tags:
@@ -9,7 +9,7 @@ tags:
   - cleanup
   - holon-agentic-coder
 created_at: 2026-11-17T14:40:00Z
-updated_at: 2026-11-20T23:44:00+11:00
+updated_at: 2026-11-21T05:24:00Z
 ---
 
 ## Problem
@@ -50,3 +50,14 @@ special-case deprecation or migration branches for `gemini`):
   `if agent_id == "gemini":` / `if norm == "gemini":` migration branches; replaced by fresh flow
   `purge-gemini-agent-runner`.
 - `local-model` in `RUNNER_CAPABILITIES` stays (maintainer decision 2026-11-20, used by Bean 0226).
+
+## Resolution
+
+- Delivered via [PR #222](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/222) and merged into `main`
+  (`e2ba3c2a`).
+- Key deliverables: complete removal of the `gemini-agent` runner, `docker/agent-gemini` image/config, `GEMINI_*` runner
+  env/constants, and all `gemini` special-cases across `sandbox-executor` and its test suite.
+- Traversal across all 5 Holon flow stages
+  (`I-1795178792-purge-gemini-agent-runner/P-1795184239-ANA-G3.8F/E-1795184522-ANA-G3.8F/_`), unanimous ensemble
+  approval, `11/11` passing CI checks, and included calibration report
+  (`plans/I-1795178792-purge-gemini-agent-runner/P-1795184239-ANA-G3.8F_calibration.md`).
