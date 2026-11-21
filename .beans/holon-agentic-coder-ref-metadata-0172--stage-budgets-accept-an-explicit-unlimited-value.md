@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0172
 title: "Stage and turn budgets accept an explicit 'unlimited' value, distinct from unset (default)"
-status: todo
+status: in-progress
 type: feature
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - holon-flow
   - holon-agentic-coder
 created_at: 2026-10-27T14:04:58Z
-updated_at: 2026-10-27T14:04:58Z
+updated_at: 2026-11-21T01:20:00+11:00
 ---
 
 ## Problem
@@ -66,3 +66,12 @@ The turn budgets are inconsistent with this: `HOLON_TURN_STALL_SECONDS=0` alread
 - Run through the Holon flow on holon-agentic-coder. It touches `budgets.py`, `turns.py`/`flow.py` budget plumbing and
   the doctor output, so check for overlap with open flows.
 - Related: Bean 0171 (salvage on a budget breach drops the code changes), Bean 0139 (the original budgets work).
+
+## Audit (2026-11-21)
+
+Still valid. `budgets.py` `_read_positive` (around lines 106-152) still rejects `inf`, zero and values above
+`MAX_BUDGET_SECONDS` (7 days) with the default; no `unlimited` sentinel exists.
+
+## Progress
+
+- 2026-11-21: started via `holon flow` (claude-agent, claude-opus-5-5) in worktree `flow-unlimited-stage-budgets`.

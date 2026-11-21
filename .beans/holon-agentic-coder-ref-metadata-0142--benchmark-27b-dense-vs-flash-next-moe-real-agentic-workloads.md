@@ -14,7 +14,7 @@ tags:
   - performance
   - quality
 created_at: 2026-10-22T15:10:00Z
-updated_at: 2026-10-22T15:10:00Z
+updated_at: 2026-11-21T01:20:00+11:00
 ---
 
 ## Problem
@@ -138,3 +138,8 @@ Bean 0132 / 0129 / 0133 (waiting on a usable runner — this picks the model), B
 must hold constant or vary deliberately), Bean 0140 (the envelope the runs run under), Bean 0137 (runner selection),
 Bean 0138 / 0139 (the failure modes the quality and wall-time metrics capture), and AGENTS.md checklist item 10 (the
 zero-synthetic-data rule this whole design exists to satisfy).
+
+## Audit (2026-11-21)
+
+Still valid. The "three beans blocked waiting for a usable agent runner" premise is stale: Beans 0129, 0132 and 0133 are
+completed. The benchmark itself (27B dense against Flash-Next MoE on real workloads) has not been run.

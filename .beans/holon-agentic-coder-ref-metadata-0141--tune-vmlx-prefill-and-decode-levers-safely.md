@@ -13,7 +13,7 @@ tags:
   - kv-cache
   - qwen3.8
 created_at: 2026-10-22T14:29:12Z
-updated_at: 2026-10-22T14:29:12Z
+updated_at: 2026-11-21T01:20:00+11:00
 ---
 
 Tune the prompt-processing (prefill) and token-generation (decode) levers of the local vMLX stack for **both**
@@ -132,3 +132,8 @@ already-staged config has not been applied yet.**
   output, launch recipes in harness docs) is harness/target work and routes through the flow or its own bean.
 - Bean 0140 (output ceiling must be explicit — caps are cross-checkable via `:8081/health` + backend `/health`), Bean
   0138 (why single-response caps are fatal), Bean 0139 (turn budgets), Bean 0049 (why `local_llm.py` exists).
+
+## Audit (2026-11-21)
+
+Not checkable against the repository (a host-level vMLX tuning bean); still valid as written. Beans 0129, 0132 and 0133
+that it relates to are completed.

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0341
 title: "A flow resumed with --from-stage and no context fails and overwrites the good checkpoint with empty branches"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - resume
   - holon-agentic-coder
 created_at: 2026-11-20T20:40:00+11:00
-updated_at: 2026-11-20T20:40:00+11:00
+updated_at: 2026-11-20T23:01:25+11:00
 ---
 
 ## Problem
@@ -42,3 +42,18 @@ Through the Holon flow on `holon-agentic-coder`:
   `apps/holon-agentic-coder/flow-resume-keeps-checkpoint-intact`.
 - 2026-11-20: Flow completed all 5 stages. PR #217 (3/3 consensus at review iteration 1), calibration in the PR diff,
   predicted EV 43.47, actual 59.47 (+16.00); MERGEABLE/CLEAN, checks green; awaiting human merge.
+- 2026-11-20: PR #217 merged into `main` (`e80b00c`); flow branch and worktree pruned.
+
+## Resolution
+
+Delivered via [PR #217](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/217) and merged into `main`
+(`e80b00c`):
+
+- **Key Architectural Deliverables**:
+  - `--from-stage` without `--checkpoint` loads the existing checkpoint for the intent's slug from the target worktree
+    (`checkpoint_discovery.py`) instead of starting from an empty context.
+  - `resume_guard.py` keeps a run that fails before any stage work from overwriting the existing checkpoint.
+  - `_flow_resume.py` keeps the earlier completed stages and the correct `current_stage` in a resumed run's checkpoint.
+- **Verification & Tests**: Hermetic tests for all three behaviours; PR checks green.
+- **Holon Flow Traversal**: All 5 stages completed (Intent -> Plan -> Execute -> Review Loop -> Calibration). Consensus
+  approval at review iteration 1; predicted EV 43.47, actual EV 59.47 (+16.00).

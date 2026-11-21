@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0189
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:45:00Z
+updated_at: 2026-11-21T01:20:00+11:00
 ---
 
 ## Problem
@@ -49,3 +49,9 @@ deletes its own copy. Related to 0157 (sidecar auto-enable).
 
 - Run through the Holon flow on holon-agentic-coder.
 - A tracked `todo/ab_measure_all_methods.py` imports this package; it is a harness-path leak handled by Bean 0147.
+
+## Audit (2026-11-21)
+
+Still valid and still blocked by Bean 0189. Production code still imports `generate_root_ca`, `proxy_readiness` and
+`PROXY_READY_TIMEOUT_SECONDS` from `sandbox_executor.token_reduction`, now in `cli/__init__.py` (the `cli.py` reference
+above is stale); `token_reduction/` still holds the full diverged copy.

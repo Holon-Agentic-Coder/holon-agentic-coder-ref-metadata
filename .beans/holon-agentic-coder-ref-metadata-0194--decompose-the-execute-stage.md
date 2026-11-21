@@ -10,7 +10,7 @@ tags:
   - holon-agentic-coder
 blocked_by:
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-11-20T12:00:00+11:00
+updated_at: 2026-11-21T01:20:00+11:00
 ---
 
 ## Problem
@@ -44,3 +44,9 @@ empty-diff guard) and 0183.
 
 Blocker Bean 0187 was scrapped (the `flow/` split landed via #147/#163). `run_execute_stage` now lives in
 `flow/stages/execute.py` and is still one function under noqa; there is no `ExecuteStage`.
+
+## Audit (2026-11-21)
+
+Touch set refreshed: `flow/stages/execute.py` (still one `run_execute_stage` under noqa), `flow/partial_salvage.py`,
+`flow/execution_publish.py`, `tests/flow/stages/test_execute.py`, `test_execute_touch_set.py`,
+`test_execute_budget_guard.py`. Open PR #219 edits `flow/stages/execute.py`, so start after it merges.

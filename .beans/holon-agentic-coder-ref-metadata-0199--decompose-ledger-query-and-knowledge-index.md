@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0190
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-11-21T01:20:00+11:00
 ---
 
 ## Problem
@@ -41,3 +41,8 @@ Blocked by 0190. Sequence with 0150 (knowledge index tests).
 ## Notes
 
 - Run through the Holon flow on holon-agentic-coder.
+
+## Audit (2026-11-21)
+
+Still blocked by Bean 0190. Open PR #219 turns `ledger.py` into a `ledger/` package (`lock`, `query`, `reconcile`,
+`rows`), so `ledger/query.py` is the target once it merges; `knowledge/{index,promotion,consult}.py` are unchanged.

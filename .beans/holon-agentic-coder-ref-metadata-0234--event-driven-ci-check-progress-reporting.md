@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0234
 title: "Event-driven CI check progress reporting during Stage 4 review"
-status: in-progress
+status: completed
 type: feature
 priority: normal
 tags:
@@ -11,7 +11,7 @@ tags:
   - logging
   - holon-agentic-coder
 created_at: 2026-11-05T14:25:00Z
-updated_at: 2026-11-20T12:00:00+11:00
+updated_at: 2026-11-20T14:05:06Z
 ---
 
 ## Problem
@@ -75,3 +75,19 @@ The code moved: the poll loop is now `flow/github/ci_wait.py:wait_for_pending_ci
 
 - 2026-11-20: Started holon flow `review-report-ci-log-redaction` (claude-agent, claude-opus-5-5), combined with beans
   0261, 0213, 0234 and 0148.
+- 2026-11-20: Flow `review-report-ci-log-redaction` finished all 5 stages: 3/3 consensus approval at review iteration 3,
+  calibration report in the diff (EV predicted 39.45, actual 59.09, delta +19.64), final-head CI green. PR
+  [#220](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/220) was merged by the maintainer at 14:03Z.
+
+## Resolution
+
+Delivered via [PR #220](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/220) and merged into `main`
+(`9a5454bf`), as part of the combined flow `review-report-ci-log-redaction`:
+
+- **Key Deliverables**: `flow/github/ci_wait.py:wait_for_pending_ci` tracks per-check state and logs only transitions
+  (`CI check '<name>' completed (<state>) — N pending`), with one initial tracking announcement and one final summary.
+  Quiet poll intervals emit nothing.
+- **Verification & Tests**: `apps/sandbox-executor/tests/test_review_ci_wait.py` asserts transition log lines and no
+  duplicate heartbeats on unchanged state.
+- **Holon Flow Traversal**: Intent -> Plan -> Execute -> Review Loop -> Calibration completed (predicted EV 39.45,
+  actual 59.09).

@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0191
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-11-21T01:20:00+11:00
 ---
 
 ## Problem
@@ -43,3 +43,10 @@ Blocked by 0191. Sequence with 0160 and 0179, which change the same loop.
 ## Notes
 
 - Run through the Holon flow on holon-agentic-coder.
+
+## Audit (2026-11-21)
+
+Touch set refreshed: the loop is `flow/review/loop.py` (952 lines, module budget applies),
+`flow/review/{cli,ensemble,resolver,records,verdict}.py` and `flow/stages/review.py`; tests are
+`tests/flow/review/test_loop.py` and `tests/flow/stages/test_review.py`. The `flow/review_loop.py` path above does not
+exist. Still blocked by 0191 (shared call sites).

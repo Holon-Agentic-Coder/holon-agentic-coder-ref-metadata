@@ -10,7 +10,7 @@ tags:
   - proxy
   - holon-agentic-coder
 created_at: 2026-10-26T04:23:42Z
-updated_at: 2026-10-26T04:23:42Z
+updated_at: 2026-11-21T01:20:00+11:00
 ---
 
 ## Problem
@@ -39,3 +39,10 @@ Workaround: `HOLON_TOKEN_REDUCE=0`.
 ## Notes
 
 - Run through the Holon flow on holon-agentic-coder.
+
+## Audit (2026-11-21)
+
+Still valid on `origin/main`, with new locations: `FlowContext.__post_init__` in `flow/context.py` (around line 199)
+calls `detect_holon_coherence()` from `cli/__init__.py` (around line 545), whose tiers 4 (docker image probe) and 5 (CLI
+binary probe) still return true without an explicit opt-in, so `holon flow` can still spawn the sidecar. `cli.py` is now
+the `cli/` package.

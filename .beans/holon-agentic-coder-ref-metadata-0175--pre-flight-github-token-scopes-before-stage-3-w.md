@@ -10,7 +10,7 @@ tags:
   - preflight
   - holon-agentic-coder
 created_at: 2026-10-27T14:59:39Z
-updated_at: 2026-10-27T14:59:39Z
+updated_at: 2026-11-21T01:20:00+11:00
 ---
 
 ## Problem
@@ -46,3 +46,10 @@ exited, and the failure path saves nothing (Bean 0171).
 - Run through the Holon flow on holon-agentic-coder. It overlaps Bean 0171 (the executor failure path) and
   `preflight.py` and `cli.py`.
 - The immediate fix for Bean 0168 is a maintainer action: `gh auth refresh -h github.com -s workflow`.
+
+## Audit (2026-11-21)
+
+Still valid; no scope check exists. The `gh auth token` handoff now lives under `cli/__init__.py` (the `cli.py`
+references above are stale), and the flow-level touch set (`touch_set.py`,
+[PR #194](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/194)) now gives the pre-flight a plan file
+list to inspect for `.github/workflows/**`.

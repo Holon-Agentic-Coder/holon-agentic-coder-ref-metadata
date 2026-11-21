@@ -10,10 +10,8 @@ tags:
   - refactor
   - complexity
   - holon-agentic-coder
-blocked_by:
-  - holon-agentic-coder-ref-metadata-0187
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-11-21T01:20:00+11:00
 ---
 
 ## Problem
@@ -43,3 +41,9 @@ Blocked by 0187; if 0190 moves `stage_conflicts`, run after 0190. Parallel-safe 
 ## Notes
 
 - Run through the Holon flow on holon-agentic-coder.
+
+## Audit (2026-11-21)
+
+Blocker Bean 0187 was scrapped (the `flow/` split landed), so it is unblocked. Files now: `flow/intent_questions.py`,
+`flow/stage_conflicts.py`, `flow/stages/{intent,plan,decomposition,plan_decision,sync_conflict}.py`. Open PR #219
+(Bean 0190) rewrites `flow/intent_questions.py` and `flow/stage_conflicts.py`, so start only after it merges.

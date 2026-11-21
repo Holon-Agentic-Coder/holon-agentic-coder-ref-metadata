@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
 blocked_by:
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-11-20T12:00:00+11:00
+updated_at: 2026-11-21T01:20:00+11:00
 ---
 
 ## Problem
@@ -46,3 +46,11 @@ Blocked by 0187. Sequence **after 0146** (picks the predicted metrics in the sam
 ## Audit (2026-11-20)
 
 Calibration is still one `calibration.py` module (1642 lines); the Bean 0187 blocker is scrapped and no longer applies.
+
+## Audit (2026-11-21)
+
+Partly done: helpers were extracted into `calibration_diff.py`, `calibration_ev.py`, `calibration_execution_owner.py`,
+`calibration_outcome.py` and `calibration_touch_set.py`
+([PR #213](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/213) and earlier), but `calibration.py` is
+still one large module with `parse_actual_metrics` under noqa. Remaining scope: the package split and decomposing the
+metrics parsers. Do not run concurrently with Bean 0146 (same parser).

@@ -13,7 +13,7 @@ tags:
   - concurrency
   - holon-agentic-coder
 created_at: 2026-11-09T12:17:00Z
-updated_at: 2026-11-09T12:20:00Z
+updated_at: 2026-11-21T01:20:00+11:00
 ---
 
 ## Problem
@@ -82,3 +82,9 @@ resolver fixes into a single commit**:
 - Must be executed through the 5-stage Holon flow (`holon flow`).
 - Supersedes the naive single-failure abort approach and pairs directly with Bean 0234 (event-driven CI check progress
   reporting) and Bean 0241 (persistent review loop workspace volume).
+
+## Audit (2026-11-21)
+
+Still valid. Locations moved: the loop is `run_review_loop` in `flow/review/loop.py` and CI waiting is
+`wait_for_pending_ci` in `flow/github/ci_wait.py` (the `sandbox_executor.flow` module reference above means the `flow/`
+package). Overlaps Beans 0192 and 0345 on `flow/review/loop.py`.

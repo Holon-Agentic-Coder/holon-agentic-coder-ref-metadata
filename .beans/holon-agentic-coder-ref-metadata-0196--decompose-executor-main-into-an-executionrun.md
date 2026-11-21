@@ -9,10 +9,9 @@ tags:
   - complexity
   - holon-agentic-coder
 blocked_by:
-  - holon-agentic-coder-ref-metadata-0195
   - holon-agentic-coder-ref-metadata-0190
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-11-21T01:20:00+11:00
 ---
 
 ## Problem
@@ -42,3 +41,10 @@ Blocked by 0195 (git adapter) and 0190 (entrypoint stops importing the engine). 
 ## Notes
 
 - Run through the Holon flow on holon-agentic-coder, alone on `executor.py`.
+
+## Audit (2026-11-21)
+
+Blocker Bean 0195 is completed; only Bean 0190 (open PR #219, which also edits `entrypoint/executor.py`) still blocks.
+The module is still the single `entrypoint/executor.py` (CC under noqa), with several helpers already extracted
+(`executor_test_run.py`, `execution_workspace.py`, `partial_resume.py`, `sync_conflict.py`, `taken_ids.py`,
+`test_measurement.py`).

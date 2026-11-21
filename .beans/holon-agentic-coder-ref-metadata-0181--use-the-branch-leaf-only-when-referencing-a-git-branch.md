@@ -11,7 +11,7 @@ tags:
   - documentation
   - holon-agentic-coder
 created_at: 2026-10-29T01:01:35Z
-updated_at: 2026-10-29T01:01:35Z
+updated_at: 2026-11-21T01:20:00+11:00
 ---
 
 ## Principle (maintainer, 2026-10-29)
@@ -72,3 +72,10 @@ Through the Holon flow on `holon-agentic-coder` (code change), after Bean 0161 /
 - Raised while reviewing PR #103 (Bean 0180, documentation only). PR #103 may adopt the documented rule early; the code
   and ledger changes are this bean's.
 - Related: Bean 0161 (sub-intent implementation), Bean 0180 (nested sub-intent docs).
+
+## Audit (2026-11-21)
+
+Still valid. `/_` is still stripped and re-added ad hoc (`calibration.py` around lines 607 and 1161,
+`cli/commands/execute.py`, `cli/commands/intent.py`, `entrypoint/executor.py` around lines 1049-1135,
+`entrypoint/planner.py`, `entrypoint/taken_ids.py`, `entrypoint/execution_workspace.py`). Any `flow.py` reference above
+now means the `flow/` package.

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0148
 title: "Redact before truncating executor ledger error_context and remaining stderr logs"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - redaction
   - ledger
 created_at: 2026-10-24T01:41:18Z
-updated_at: 2026-10-24T01:41:18Z
+updated_at: 2026-11-20T14:05:06Z
 ---
 
 ## Problem
@@ -60,3 +60,20 @@ log lines; regression tests across the truncation boundary.
 
 - 2026-11-20: Started holon flow `review-report-ci-log-redaction` (claude-agent, claude-opus-5-5), combined with beans
   0261, 0213, 0234 and 0148.
+- 2026-11-20: Flow `review-report-ci-log-redaction` finished all 5 stages: 3/3 consensus approval at review iteration 3,
+  calibration report in the diff (EV predicted 39.45, actual 59.09, delta +19.64), final-head CI green. PR
+  [#220](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/220) was merged by the maintainer at 14:03Z.
+
+## Resolution
+
+Delivered via [PR #220](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/220) and merged into `main`
+(`9a5454bf`), as part of the combined flow `review-report-ci-log-redaction`:
+
+- **Key Deliverables**: executor `error_context` writers redact with `redact_agent_secrets` before truncation, including
+  the 500-character agent stderr cut in `entrypoint/executor.py`. The `CredentialRedactor` gaps
+  (`gho_`/`ghu_`/`ghs_`/`ghr_` tokens, short `ghp_`, short `sk-ant-` keys, URL userinfo, literal
+  `GITHUB_TOKEN`/`HOLON_AGENT_SETTINGS` values) are routed through the same redactor. Redaction lives in `redaction.py`.
+- **Verification & Tests**: `tests/test_redaction.py`, `tests/test_ledger_secret_classes.py` (one class per regression),
+  `tests/test_executor_error_context.py` (token across the truncation boundary).
+- **Holon Flow Traversal**: Intent -> Plan -> Execute -> Review Loop -> Calibration completed (predicted EV 39.45,
+  actual 59.09).
