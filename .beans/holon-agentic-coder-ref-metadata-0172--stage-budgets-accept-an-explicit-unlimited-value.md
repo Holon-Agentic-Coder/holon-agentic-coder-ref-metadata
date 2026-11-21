@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0172
 title: "Stage and turn budgets accept an explicit 'unlimited' value, distinct from unset (default)"
-status: in-progress
+status: completed
 type: feature
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - holon-flow
   - holon-agentic-coder
 created_at: 2026-10-27T14:04:58Z
-updated_at: 2026-11-21T01:20:00+11:00
+updated_at: 2026-11-21T08:55:00Z
 ---
 
 ## Problem
@@ -75,3 +75,23 @@ Still valid. `budgets.py` `_read_positive` (around lines 106-152) still rejects 
 ## Progress
 
 - 2026-11-21: started via `holon flow` (claude-agent, claude-opus-5-5) in worktree `flow-unlimited-stage-budgets`.
+- 2026-11-21: flow complete; PR #225 approved 3/3 at review iteration 2, calibrated (EV 41.0 predicted, 59.32 actual),
+  CI green, CLEAN/MERGEABLE; awaiting human merge.
+
+## Resolution
+
+- **Delivered via PR #225:** Merged into `main` (`4811599793a0604d175e5b1561178f55e5e29537`) on 2026-11-21T08:54:15Z.
+- **Key Deliverables:**
+  - Explicit `unlimited` sentinel support across stage (`HOLON_STAGE_BUDGET_*`) and turn timeout
+    (`HOLON_TURN_TIMEOUT_SECONDS`) variables.
+  - Internal `None` representation with clean container environment propagation and round-tripping.
+  - `holon doctor` and flow summary reporting showing `unlimited` instead of magic numbers.
+  - Full test suite additions (`test_pipeline_unlimited.py`, `test_cli_unlimited_budgets.py`, etc.) and updated
+    documentation (`docs/budgets.md`).
+- **Flow & Quality Metrics:**
+  - Traversed all 5 Holon flow stages
+    (`I-1795184210-unlimited-stage-budgets/P-1795184233-CLA-CO5.5/E-1795246867-CLA-CO5.5/_`).
+  - Achieved 3/3 reviewer consensus approval at iteration 2.
+  - All 11/11 CI checks passing.
+  - Calibration report (`plans/I-1795184210-unlimited-stage-budgets/P-1795184233-CLA-CO5.5_calibration.md`): EV 41.0
+    predicted vs. 59.32 actual.
