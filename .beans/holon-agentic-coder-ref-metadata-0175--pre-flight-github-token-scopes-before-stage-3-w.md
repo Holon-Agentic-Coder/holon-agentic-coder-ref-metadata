@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0175
 title: "Check GitHub token scopes before Stage 3 when the plan touches workflow files"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:

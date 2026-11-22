@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0157
 title: "holon flow auto-enables the mitmproxy sidecar when the image exists, and role containers cannot reach it"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - proxy
   - holon-agentic-coder
 created_at: 2026-10-26T04:23:42Z
-updated_at: 2026-11-21T01:20:00+11:00
+updated_at: 2026-11-23T09:00:00+11:00
 ---
 
 ## Problem

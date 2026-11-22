@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0216
 title: "Holon flow references and drives GitHub Issues (assign on intent, close on merge)"
-status: todo
+status: in-progress
 type: feature
 priority: normal
 tags:
@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - "0333"
 created_at: 2026-10-30T00:00:00Z
-updated_at: 2026-11-19T11:30:00Z
+updated_at: 2026-11-23T00:00:00Z
 ---
 
 ## Problem

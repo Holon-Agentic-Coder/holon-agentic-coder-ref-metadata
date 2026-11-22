@@ -3,7 +3,7 @@
 title:
   "Stage 4 reports 'halted for human review' after consensus approval although the flow continues and the PR is ready to
   merge"
-status: todo
+status: in-progress
 type: bug
 priority: normal
 tags:
@@ -13,7 +13,7 @@ tags:
   - reporting
   - holon-agentic-coder
 created_at: 2026-11-21T01:20:00+11:00
-updated_at: 2026-11-21T01:20:00+11:00
+updated_at: 2026-11-22T22:55:00Z
 ---
 
 ## Problem
@@ -52,3 +52,16 @@ Through the Holon flow on `holon-agentic-coder`:
 - Touches `entrypoint/review_loop.py`, which open PR #219 edits slightly; start after it merges. Overlaps Bean 0345 and
   0192 on `flow/review/loop.py`.
 - Related: Bean 0288 (posting only on a terminal exit), which this bean complements but does not reopen.
+
+## Progress
+
+- 2026-11-21: Started Holon flow `review-approved-and-fresh-tests` (claude-agent, claude-opus-5-5), shared with beans
+  0347 and 0354.
+- 2026-11-23: PR #230 (`flow-review-approved-and-fresh-tests`) is open, CI 11/11 pass, `CLEAN`, last commit `81525dfd`
+  (iteration 5 fix), halted at Stage 4 iter 7 on resolver stall timeout (idle). Unblocked to resume now that PR #235
+  (`134e333`, Bean `0358` Part 1) merged and images were rebuilt.
+
+## Progress
+
+- PR: https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/230 (flow `review-approved-and-fresh-tests`,
+  resumed at Stage 4)

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0192
 title: "Decompose run_review_loop and run_review_stage into a ReviewLoop object with named steps"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:

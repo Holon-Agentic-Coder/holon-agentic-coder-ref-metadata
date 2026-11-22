@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0173
 title: "holon loads layered .env files (specific overrides broad) that every sandbox stage inherits"
-status: todo
+status: in-progress
 type: feature
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - security
   - holon-agentic-coder
 created_at: 2026-10-27T14:07:56Z
-updated_at: 2026-10-27T14:10:09Z
+updated_at: 2026-11-22T23:01:00Z
 ---
 
 ## Problem

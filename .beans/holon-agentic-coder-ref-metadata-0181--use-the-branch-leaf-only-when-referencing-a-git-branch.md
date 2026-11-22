@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0181
 title: "Use the /_ leaf only when referencing a git branch, never on intent, plan or execution ids"
-status: todo
+status: in-progress
 type: bug
 priority: normal
 tags:
@@ -11,7 +11,7 @@ tags:
   - documentation
   - holon-agentic-coder
 created_at: 2026-10-29T01:01:35Z
-updated_at: 2026-11-21T01:20:00+11:00
+updated_at: 2026-11-23T00:00:00Z
 ---
 
 ## Principle (maintainer, 2026-10-29)
@@ -79,3 +79,10 @@ Still valid. `/_` is still stripped and re-added ad hoc (`calibration.py` around
 `cli/commands/execute.py`, `cli/commands/intent.py`, `entrypoint/executor.py` around lines 1049-1135,
 `entrypoint/planner.py`, `entrypoint/taken_ids.py`, `entrypoint/execution_workspace.py`). Any `flow.py` reference above
 now means the `flow/` package.
+
+## Audit (2026-11-23)
+
+`entrypoint/executor.py` became the `entrypoint/executor/` package in PR #234 (`0196`); `/_` stripping/re-adding now
+lives in `entrypoint/executor/run.py` (lines 94 and 242) alongside `calibration.py`, `cli/commands/`,
+`entrypoint/planner.py`, `entrypoint/taken_ids.py`, and `entrypoint/execution_workspace.py`. Overlaps PR #230 on
+`docs/git_flow.md` and `docs/ledger_schema.md`.

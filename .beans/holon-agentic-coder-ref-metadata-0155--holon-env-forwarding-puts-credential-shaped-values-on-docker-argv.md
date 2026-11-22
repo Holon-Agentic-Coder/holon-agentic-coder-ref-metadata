@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0155
 title: "General HOLON_* env forwarding puts credential-shaped non-URL values on the docker argv"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - redaction
   - holon-agentic-coder
 created_at: 2026-10-25T12:06:22Z
-updated_at: 2026-11-20T12:00:00+11:00
+updated_at: 2026-11-23T09:00:00+11:00
 ---
 
 ## Problem

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0191
 title: "One GitHub adapter owns every gh call (PR create/update, CI probe, mergeability, review posting)"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0353
 title: "_ReviewTestGate keeps stale Stage 3 tests_failed after Stage 4 resolver fixes and green CI"
-status: todo
+status: scrapped
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - ci
   - tests
 created_at: 2026-11-21T05:09:38Z
-updated_at: 2026-11-21T05:09:38Z
+updated_at: 2026-11-22T22:55:00Z
 ---
 
 ## Problem
@@ -85,3 +85,9 @@ Through the 5-stage Holon flow on `holon-agentic-coder`:
 - Related beans: `0235`, `0238`, `0267`, `0322`, `0190`.
 
 ## Resolution
+
+Superseded as a duplicate of **Bean 0354**, which tracks the exact same `_ReviewTestGate` stale Stage 3 failure bug in
+`flow/review/local_tests.py` and is currently in progress in `holon-agentic-coder`
+[PR #230](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/230) (`flow-review-approved-and-fresh-tests`,
+implementing `flow/review/head_test_evidence.py` and updated `flow/review/local_tests.py` covering green `github_cli` CI
+on the PR head, local re-measurement on moved heads, unchanged Stage 3 head reuse, and hermetic tests).

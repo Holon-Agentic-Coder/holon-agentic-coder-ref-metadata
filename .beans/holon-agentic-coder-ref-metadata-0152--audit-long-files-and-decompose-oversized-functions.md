@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0152
 title: "Audit long files and decompose oversized functions (flow.py and cli.py first)"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:35:41Z
-updated_at: 2026-11-20T12:00:00+11:00
+updated_at: 2026-11-23T00:00:00Z
 ---
 
 ## Problem
@@ -107,3 +107,25 @@ Done: the `flow.py` split (#147, #163), the `cli.py` split into commands (#117),
 noqa baseline (#115). Remaining: the long functions (`executor.main`, `planner.main`, `setup_token_reduction_proxy`,
 `run_docker_container`, `extract_sse_token_counts`), the committed audit script and re-audit numbers. The
 token-reduction duplication is Bean 0200. The "4434/2757 lines" figures are stale: both files are now packages.
+
+## Audit (2026-11-23)
+
+All `holon-coherence` decomposition children (`0186`, `0203`–`0208`) and HAC children `0185`, `0188`, `0190` (#219),
+`0193` (#228), `0194` (#236), `0195` (#144), `0196` (#234), `0199` (#227), and `0254` (#147) are completed. Remaining
+HAC children: `0265` (`cli/__init__.py` 1,732 lines), `0189` (`launcher/`), `0191` (GitHub adapter), `0192`
+(`ReviewLoop`, `flow/review/loop.py` 936 lines), `0197` (`calibration/` package, `calibration.py` 1,637 lines), `0198`
+(`RunnerSpec` registry), `0200` (remove `token_reduction` copy), plus `entrypoint/planner.py` (649 lines) and the
+committed audit script / re-audit numbers.
+
+## Re-audit (2026-11-23, origin/main)
+
+Measured by an AST pass over `origin/main` (holon-agentic-coder `baf5c65`, holon-coherence `origin/main`). Scope: `src/`
+only.
+
+- holon-agentic-coder: 205 files, 1,797 functions. 77 over 50 lines, 23 over 100, 5 over 200. Longest: `run_review_loop`
+  (768, `flow/review/loop.py`), `planner.main` (318), `entrypoint/review_loop.main` (240), `run_docker_container` (235),
+  `_run_review_stage_body` (226).
+- holon-coherence: 52 files, 501 functions. 15 over 50 lines, 1 over 100, 1 over 200 (`render_dashboard_html`, 379).
+
+Child beans still open: 0189, 0191, 0192, 0197, 0198, 0200, 0265, plus `entrypoint/planner.py` `main`. The committed
+audit script is flow intent 0152 (`audit-function-length-script`).

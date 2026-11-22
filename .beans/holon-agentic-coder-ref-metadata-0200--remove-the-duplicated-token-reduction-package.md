@@ -55,3 +55,11 @@ deletes its own copy. Related to 0157 (sidecar auto-enable).
 Still valid and still blocked by Bean 0189. Production code still imports `generate_root_ca`, `proxy_readiness` and
 `PROXY_READY_TIMEOUT_SECONDS` from `sandbox_executor.token_reduction`, now in `cli/__init__.py` (the `cli.py` reference
 above is stale); `token_reduction/` still holds the full diverged copy.
+
+## Flow attempt (2026-11-23): not dispatched
+
+Blocked by Bean 0189, which is still `todo` with no open PR. Scope item 2 and the touch set name `launcher/sidecar.py`,
+a file 0189 creates; on `main` the CA import sits in `cli/__init__.py`. Token reduction is also imported beyond CA
+generation (`flow/pipeline.py`, `cli/commands/*`, `cli/options.py`, and about 20 tests), so the Stage 2 plan would
+collide with 0189's move. The bean stays `todo` until 0189 is completed, or the maintainer explicitly sequences this
+ahead of it. No intent JSON was dispatched.

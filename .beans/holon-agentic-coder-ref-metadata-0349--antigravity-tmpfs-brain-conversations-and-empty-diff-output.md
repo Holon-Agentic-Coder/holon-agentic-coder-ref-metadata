@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0349
 title: "Mount writable tmpfs for Antigravity brain/conversations and surface agent output on empty_diff"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - docker
   - observability
 created_at: 2026-11-21T11:55:00+11:00
-updated_at: 2026-11-21T11:55:00+11:00
+updated_at: 2026-11-22T00:24:33+11:00
 ---
 
 ## Problem
@@ -45,3 +45,19 @@ updated_at: 2026-11-21T11:55:00+11:00
    and `apps/sandbox-executor/tests/test_executor.py`.
 4. Do not modify `holon-config/hygiene/module_budgets.json`; `uv run task lint`, `uv run task check`, and targeted
    pytest suites pass cleanly.
+
+## Resolution
+
+Delivered via [PR #229](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/229) and merged into `main`
+(`ccb7a6f`):
+
+- **Key Architectural Deliverables**: `get_agent_session_mounts()` keeps `/home/holon/.gemini/antigravity-cli` read-only
+  and overlays writable `--tmpfs` mounts on `brain` and `conversations` via a shared helper
+  (`cli/antigravity_mounts.py`), so background-task wakeups survive. Exit-0 `empty_diff` failures now print a bounded,
+  secret-redacted excerpt of the agent output to stderr (`entrypoint/empty_diff_excerpt.py`) without writing raw output
+  to the ledger.
+- **Verification & Tests**: `test_antigravity_mounts.py` and `test_executor_empty_diff.py` added; `test_cli.py` and
+  `test_pi_mounts.py` updated.
+- **Review & Calibration**: the antigravity resolver failed, so review and calibration were resumed on `claude-agent` /
+  `claude-opus-5-5`.
+- **Calibration (EV)**: predicted 46.80, actual 54.94 (delta +8.14).

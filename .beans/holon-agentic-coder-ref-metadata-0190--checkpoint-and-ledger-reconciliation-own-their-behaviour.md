@@ -2,7 +2,7 @@
 # holon-agentic-coder-ref-metadata-0190
 title:
   "FlowCheckpoint and ledger reconciliation own their behaviour; container entrypoints stop importing the flow engine"
-status: in-progress
+status: completed
 type: task
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
   - holon-agentic-coder
 blocked_by:
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-11-20T20:30:00+11:00
+updated_at: 2026-11-21T18:40:07+11:00
 ---
 
 ## Problem
@@ -58,3 +58,19 @@ precede 0183 (checkpoint storage) and 0196, 0199.
 Blocker Bean 0187 was scrapped; the `flow/` package split it covered landed through PR #147/#163, so this bean is not
 blocked by it. Still open: no `CheckpointStore`/`LedgerReconciler`, and the entrypoints still import
 `sandbox_executor.flow`.
+
+## Resolution
+
+Delivered via [PR #219](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/219) and merged into `main`
+(`df3b0d1`):
+
+- **Key Architectural Deliverables**: `FlowCheckpoint` owns save, load, migrate and its path policy behind a
+  `CheckpointStore` port; ledger reconciliation moves into the `ledger/` package as `LedgerReconciler`; container
+  entrypoints stop importing the host flow engine for these.
+- **Verification & Tests**: consensus 3/3 APPROVED in iterations 13-19. The loop never auto-posted consensus because of
+  the stale local test gate (Bean 0354); the approval was posted by hand as a PR comment.
+- **Holon Flow Traversal**: Stages 1-4 ran. Plan and execution ran on `antigravity-agent` / `gemini-3.8-flash`. The
+  review was resumed on `claude-agent` / `claude-opus-5-5` at the maintainer's request after an antigravity resolver
+  defect. Stage 5 was run by hand with `holon calibrate` (report only): predicted EV 66.11, reported actual -9.11. That
+  actual is misleading because it reflects the stalled review.
+- **Not run**: the Stage 5 reconciliation and knowledge promotion did not run. They are a follow-up under Bean 0355.

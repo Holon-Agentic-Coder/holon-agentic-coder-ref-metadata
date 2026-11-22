@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0189
 title: "Move container launch and role dispatch out of the CLI into a launcher module; break the flow-cli import cycle"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -10,10 +10,8 @@ tags:
   - sandbox
   - holon-agentic-coder
 blocked_by:
-  - holon-agentic-coder-ref-metadata-0187
-  - holon-agentic-coder-ref-metadata-0188
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-11-22T22:55:00Z
 ---
 
 ## Problem
@@ -45,3 +43,10 @@ Sequence with 0155 and 0157, which change the same functions.
 ## Notes
 
 - Run through the Holon flow on holon-agentic-coder.
+
+## Audit (2026-11-23)
+
+Blockers `0187` (scrapped, replaced by `0254`/PR #147) and `0188` (PR #117) are closed; `0190` merged (PR #219). Still
+valid on `main` (`b22258d`): `cli/__init__.py` is 1,732 lines and four lazy `flow` -> `cli` imports remain
+(`flow/context.py:199`, `flow/dispatch.py:34`, `flow/pipeline.py:422`, `flow/review/loop.py:197`). Sequence after `0265`
+(`cli/__init__.py` split) and open PR #230 (which touches `flow/context.py`, `flow/pipeline.py`, `flow/review/loop.py`).

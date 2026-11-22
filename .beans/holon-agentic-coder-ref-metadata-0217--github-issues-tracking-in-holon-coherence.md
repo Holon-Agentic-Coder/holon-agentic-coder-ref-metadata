@@ -34,3 +34,10 @@ are already enabled on the repository. What remains is the label set, the agent 
   `holon-coherence`.
 - Much smaller than the beads version: no image change, no `.beads/`, no sync.
 - Blocked by Bean 0215 (importer). Related: Bean 0333, Bean 0317 (the organisation board takes this repository too).
+
+## Audit (2026-11-23)
+
+Not started: the bean is blocked upstream. Bean 0215 (the importer and its label step) is still `todo` and no importer
+exists in the harness. Bean 0215 is blocked by Bean 0333, whose holon-agentic-coder change (removing the beads pilot and
+writing the GitHub Issues guidance this bean mirrors) has not landed on `main`. No intent was written and no flow run;
+the coherence guidance has no source to mirror yet, and the label/import step needs the maintainer's word.

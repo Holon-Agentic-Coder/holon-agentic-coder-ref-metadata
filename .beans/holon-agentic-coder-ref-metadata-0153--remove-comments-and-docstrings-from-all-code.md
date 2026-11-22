@@ -3,7 +3,7 @@
 title:
   "Remove comments and docstrings from all code (Python, shell, JavaScript, build and CI files); make code
   self-documenting"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
