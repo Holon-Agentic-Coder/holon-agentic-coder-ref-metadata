@@ -74,7 +74,13 @@ only when the resolver cannot produce a passing tree, and then it says exactly w
      Bean 0369.
 5. **Ledger and provenance.** Each sync appends one row to `executions.jsonl` (stage, target SHA, conflicted paths,
    class per path, how resolved, resolver attempt count, test result). `sync_conflict` rows are superseded by a later
-   resolved row (as Bean 0369 treats them).
+   resolved row (as Bean 0369 treats them). 5a. **End of the flow: a conflicting PR reruns the flow (maintainer,
+   2026-11-23).** The pipeline's last step checks the PR against the target branch. If it is `CONFLICTING`/`DIRTY` (the
+   target moved while Stage 4 or 5 ran), the flow does not finish at the merge boundary: it runs `sync_with_target` and
+   re-enters Stage 4 and Stage 5 for the merged head (CI on the new head; review only if the PR's own diff changed;
+   calibration redone), and repeats until the PR is mergeable and clean. "Completed successfully" is never printed for a
+   conflicting PR (seen on PR #252 and PR #248). Until this lands, the harness `holon-flow` skill does the same from
+   outside (Step 4.3).
 6. **Resume.** A resume that finds a merge in progress in the flow worktree adopts it (verifies, completes or aborts and
    redoes) rather than failing on a dirty tree (related: Bean 0375).
 7. **Fail closed, clearly.** If the resolver exhausts its attempts or the suite stays red, the stage fails with the

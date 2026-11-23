@@ -242,8 +242,19 @@ Once the flow finishes:
    gh pr view <pr_number> --json mergeable,mergeStateStatus
    ```
 
-   If `mergeable == "CONFLICTING"`, fetch `origin/main`, merge `origin/main` into the PR execution branch, resolve the
-   ledger conflicts chronologically by `created_at`, commit, and push to origin.
+   **A flow is not finished while its PR conflicts with the target branch (maintainer, 2026-11-23).** If
+   `mergeable == "CONFLICTING"` or `mergeStateStatus == "DIRTY"` at the end of the flow, including when the flow itself
+   printed "completed successfully", do not report it as terminal. Rerun the flow:
+   1. Resolve the conflict through the `resolve-conflict` skill in its own subagent (merge `origin/<target>`; never a
+      rebase or force-push; ledger and KB conflicts mechanically; a code conflict that needs a decision goes back to the
+      parent, which delegates a higher-tier resolve-conflict subagent). Push.
+   2. Rerun the flow from the checkpoint with `scripts/run_holon_flow.py --from-stage review` (launched from the harness
+      root), so Stage 4 and Stage 5 cover the merged head: CI must pass on the new head, the approval carries over only
+      when the PR's own diff is unchanged (otherwise the review runs again), and calibration is redone so the report
+      evaluates the final code.
+   3. Check mergeability again and repeat until the PR is `MERGEABLE` and `CLEAN` with green CI and the calibration
+      report in the diff. If the target branch keeps moving, keep going; report only a conflict you cannot get resolved,
+      never "ready" for a conflicting PR.
 
 ---
 
