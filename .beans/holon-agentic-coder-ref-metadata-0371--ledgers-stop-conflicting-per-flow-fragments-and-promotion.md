@@ -87,6 +87,16 @@ append-only ledgers on `main` keep their meaning and remain the provenance recor
 5. **Migration.** Existing canonical ledgers stay as they are. In-flight branches that still append to the canonical
    files are handled once: promotion/reconcile accepts rows in either place and de-duplicates.
 
+## Also seen: add/add conflicts on KB entry files (2026-11-23, PR #252)
+
+Removing `index.json` (Bean 0373) does not remove every KB conflict. Two flows that hit the same failure mode both
+create `holon-knowledge/kb/failure_modes/KB-failure-<fingerprint>.json` with the same id and content that differs only
+in timestamps (`created_ts`, `updated_ts`); merging `main` then reports an add/add conflict per file (16 on PR #252).
+`resolve_known.py` only strips `created_ts`, so these still need judgement today. In scope for this bean: either write
+KB entries deterministically for a given fingerprint (no wall-clock fields in the file; timestamps live in the ledger
+row), or route new KB entries through the same per-flow pending area and let promotion de-duplicate by id. Until then,
+teach `resolve_known.py` to settle timestamp-only add/add KB files by keeping the target branch's copy.
+
 ## Decisions
 
 - **Promotion trigger: (a), a CI job on each push to `main`** (maintainer, 2026-11-23). Rejected: (b) promotion in the
