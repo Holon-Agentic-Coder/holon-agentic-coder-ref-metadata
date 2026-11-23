@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-23 04:58:48 UTC
+**Last Updated:** 2026-11-23 05:35:07 UTC
 
 ## Executive Summary
 
@@ -17,10 +17,10 @@ Concurrent flows on overlapping files forced repeated syncs and re-reviews earli
 10M+ tokens), so flows that touch the same files still run one after another; only flows with disjoint touch sets run
 together.
 
-- **Total Tracked Beans**: 365 (excluding template)
-- **Completed**: 322 (88.2%)
+- **Total Tracked Beans**: 366 (excluding template)
+- **Completed**: 322 (88.0%)
 - **Scrapped / Superseded**: 9 (2.5%)
-- **Active**: 34 (9.3%), of which 15 are in progress, 18 are todo and 1 are draft
+- **Active**: 35 (9.6%), of which 16 are in progress, 18 are todo and 1 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -966,6 +966,7 @@ Stage 2. Pre-triage audit (2026-11-23): **Bean 0353** scrapped as a duplicate of
 | **P3**   | todo        |  Low   |            XS             | 0231   | Exhausted-budget error string interpolates raw count while payload reports clamped 0               | Flow Engine / Cosmetic      | Queued behind PR #230 (overlaps `flow/review/loop.py` lines 917–918). Cosmetic; bundle with a review-loop flow.                                                                                                                              |
 | **P3**   | todo        |  Low   |            XS             | 0269   | Deferred nits from the holon-agentic-coder PR 158 review loop                                      | Review Loop / Housekeeping  | Wait for PR #230 (overlaps `docs/git_flow.md`) and `0197` (`calibration.py`). Item 2 obsolete; remaining: fold `parse_actual_metrics` exit-code logic onto `record_exit_code` and fix `docs/git_flow.md` checkpoint wording.                 |
 | **P3**   | todo        | Medium |             M             | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                                | vmlx / Performance          | Ready (host-level vMLX tuning on Mac; not a target-repo change). Pairs with `0142`.                                                                                                                                                          |
+| **P1**   | in-progress | Medium |             M             | 0366   | Install zsh on Linux/WSL and unify NVM storage strictly under versions/node                        | General                     |                                                                                                                                                                                                                                              |
 | **P1**   | in-progress |  High  |             M             | 0363   | After merging main, wait for CI before calibrating; restart PR review from the start if CI breaks  | Ledger / Observability      |                                                                                                                                                                                                                                              |
 
 ---
