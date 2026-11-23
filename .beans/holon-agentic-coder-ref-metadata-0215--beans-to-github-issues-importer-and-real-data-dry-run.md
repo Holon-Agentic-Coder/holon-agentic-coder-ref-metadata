@@ -9,8 +9,6 @@ tags:
   - github-issues
   - migration
   - harness
-blocked_by:
-  - "0333"
 created_at: 2026-10-30T00:00:00Z
 updated_at: 2026-11-21T01:20:00+11:00
 ---
@@ -46,4 +44,5 @@ a deterministic importer: bean frontmatter and Markdown body to an issue created
 
 ## Audit (2026-11-21)
 
-Open-bean count refreshed: about 40 active beans, not 50 (after the recent completions). Still blocked by Bean 0333.
+Open-bean count refreshed: about 40 active beans, not 50 (after the recent completions). Bean 0333 completed (PR #258),
+so no blocker remains.

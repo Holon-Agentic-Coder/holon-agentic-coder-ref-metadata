@@ -133,3 +133,9 @@ module map and a one-line responsibility per module.
 have merged, and no other session has `0265` in flight. Disjoint from PR #230 on code (`cli/__init__.py`,
 `tests/test_cli.py`), but Scope item 5 edits `docs/architecture.md` which PR #230 also touches — run immediately after
 PR #230 merges (or defer the `docs/architecture.md` edit).
+
+## Status on main (2026-11-23)
+
+Re-measured on `holon-agentic-coder` `main` (`7225685`): `cli/__init__.py` is 690 lines with 16 top-level definitions,
+down from 2,026 lines. PRs #241, #243, #244, #249 and #251 moved code out. The figures in Problem are historical; Scope
+applies to what remains.

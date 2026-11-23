@@ -36,7 +36,7 @@ one branch per `custom_validator`). Adding or dropping an agent edits all of the
 
 ## Dependencies
 
-Blocked by 0185. Parallel-safe with 0187, 0188, 0195.
+Was blocked by 0185 (completed). Parallel-safe with 0187, 0188, 0195.
 
 ## Notes
 

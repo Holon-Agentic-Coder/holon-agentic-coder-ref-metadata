@@ -9,8 +9,6 @@ tags:
   - complexity
   - review-loop
   - holon-agentic-coder
-blocked_by:
-  - holon-agentic-coder-ref-metadata-0191
 created_at: 2026-10-29T12:20:00Z
 updated_at: 2026-11-23T08:05:48Z
 ---
@@ -38,7 +36,7 @@ and `tests/test_review_loop.py`.
 
 ## Dependencies
 
-Blocked by 0191. Sequence with 0160 and 0179, which change the same loop.
+Its blocker 0191 completed (PR #260). Sequence with 0160 and 0179, which change the same loop.
 
 ## Notes
 

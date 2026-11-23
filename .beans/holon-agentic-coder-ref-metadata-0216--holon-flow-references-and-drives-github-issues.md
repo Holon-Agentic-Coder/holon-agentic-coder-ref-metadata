@@ -9,8 +9,6 @@ tags:
   - github-issues
   - holon-flow
   - holon-agentic-coder
-blocked_by:
-  - "0333"
 created_at: 2026-10-30T00:00:00Z
 updated_at: 2026-11-23T08:05:48Z
 ---

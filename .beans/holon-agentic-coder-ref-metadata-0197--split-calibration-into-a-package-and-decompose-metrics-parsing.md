@@ -9,7 +9,6 @@ tags:
   - complexity
   - calibration
   - holon-agentic-coder
-blocked_by:
 created_at: 2026-10-29T12:20:00Z
 updated_at: 2026-11-23T08:05:48Z
 ---
@@ -36,8 +35,8 @@ Measured: `parse_actual_metrics` **226 lines, CC 61**; `generate_calibration` CC
 
 ## Dependencies
 
-Blocked by 0187. Sequence **after 0146** (picks the predicted metrics in the same parser) and 0162; sequence with 0183
-(calibration moves into a sandbox).
+Was blocked by 0187, now scrapped; no longer applies. Sequence **after 0146** (picks the predicted metrics in the same
+parser) and 0162; sequence with 0183 (calibration moves into a sandbox).
 
 ## Notes
 
