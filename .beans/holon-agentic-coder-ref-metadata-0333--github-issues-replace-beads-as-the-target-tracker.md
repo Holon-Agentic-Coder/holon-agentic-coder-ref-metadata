@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0333
 title: "GitHub Issues replace beads as the target tracker; remove the beads pilot from holon-agentic-coder"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - beads
   - holon-agentic-coder
 created_at: 2026-11-19T11:30:00Z
-updated_at: 2026-11-22T22:55:00Z
+updated_at: 2026-11-23T08:33:00Z
 ---
 
 ## Decision (maintainer, 2026-11-19)
