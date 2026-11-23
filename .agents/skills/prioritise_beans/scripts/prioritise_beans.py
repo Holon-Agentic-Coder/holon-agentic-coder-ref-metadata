@@ -32,13 +32,13 @@ EXECUTIVE_SUMMARY_NARRATIVE: list[str] = [
     (
         "The harness drives every `holon-agentic-coder` change through the 5-stage Holon flow and the `pr-review-loop`, "
         "and the maintainer merges each pull request into `main`. On 2026-11-23 every active bean was audited against "
-        "current `main` (`holon-agentic-coder` `0f0089d`, `holon-coherence` `baf5c65`, `dev-env` `eeb2032`) and merged "
-        "PRs #221–#241 plus `dev-env` PRs #31–#33 and #36–#39: duplicate Bean 0353 was scrapped in favour of Bean 0354, "
+        "current `main` (`holon-agentic-coder` `0f0089d`, `holon-coherence` `baf5c65`, `dev-env` `22ca386`) and merged "
+        "PRs #221–#241 plus `dev-env` PRs #31–#33 and #36–#40: duplicate Bean 0353 was scrapped in favour of Bean 0354, "
         "stale `blocked_by` links and outdated 'in flight in another session' markers (`0322` and `0346` completed; "
         "`0265`, `0270` idle) were cleared, and new beans `0350`–`0352` and `0354`–`0361` were triaged. HAC PRs #243 "
         "(`0155`, `CLEAN`), #244 (`0175`, `UNSTABLE`), and #245 (`0191`, `UNSTABLE`) are open, while `dev-env` "
-        "**Bean 0361** (`PR #33`), **Bean 0351** (`PR #36`), **Bean 0364** (`PR #37`), **Bean 0365** (`PR #38`), and "
-        "**Bean 0366** (`PR #39`) have all merged into `main` (zero open `dev-env` PRs)."
+        "**Bean 0361** (`PR #33`), **Bean 0351** (`PR #36`), **Bean 0364** (`PR #37`), **Bean 0365** (`PR #38`), "
+        "**Bean 0366** (`PR #39`), and **Bean 0370** (`PR #40`) have all merged into `main` (zero open `dev-env` PRs)."
     ),
     "",
     "Concurrent flows on overlapping files forced repeated syncs and re-reviews earlier on (141 review-loop passes, about 10M+ tokens), so flows that touch the same files still run one after another; only flows with disjoint touch sets run together.",
@@ -399,9 +399,11 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "`set -g mouse on`), #37 (**Bean 0364**, `4b1391c3`: define `devenv_user`, skip WSL GUI terminal wizard "
         "prompt, and audit Ansible Jinja2 variables in tests), #38 (**Bean 0365**, `68ddec98`: disable "
         "`expand_argument_vars` on Conda clean-shell command tasks, enforce static `$VAR` command hygiene, and add "
-        "hermetic `ansible-playbook` verification test), and #39 (**Bean 0366**, `eeb2032d`: install `zsh` on "
+        "hermetic `ansible-playbook` verification test), #39 (**Bean 0366**, `eeb2032d`: install `zsh` on "
         "Linux/WSL, unify NVM storage strictly under `versions/node`, eliminate `versions/node/versions` symlink loop, "
-        "and add hermetic Fish migration tests). Open **HAC PRs #243** (`0155`), **#244** (`0175`), and **#245** "
+        "and add hermetic Fish migration tests), and #40 (**Bean 0370**, `22ca3862`: add tracked "
+        "`dotfiles/zsh/.zprofile`, isolate `node` shell checks, fix Fish `follow: true` & Homebrew `path` dirs, and "
+        "add real Ubuntu/WSL converge CI + Docker `make test-ubuntu`). Open **HAC PRs #243** (`0155`), **#244** (`0175`), and **#245** "
         "(`0191`) remain in progress, and new **Bean 0360** logs duplicate `P-` branch creation after an interrupted "
         "Stage 2. Pre-triage audit (2026-11-23): **Bean 0353** scrapped as a duplicate of `0354`; stale blockers "
         "cleared on `0189`, `0197`, `0198`, `0265`, `0270`, `0333`; `0176` re-measured at 144 files; `0181` re-pointed "
@@ -409,7 +411,7 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0366)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0370)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
@@ -417,11 +419,11 @@ MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0366)"
 NEXT_EXECUTION_SEQUENCE: list[str] = [
     (
         "**Start here (2026-11-23):** every active bean was audited against current `main` (`holon-agentic-coder` "
-        "`0f0089d`, `holon-coherence` `baf5c65`, `dev-env` `eeb2032`) and open HAC PRs #243 (`0155`), #244 (`0175`), "
+        "`0f0089d`, `holon-coherence` `baf5c65`, `dev-env` `22ca386`) and open HAC PRs #243 (`0155`), #244 (`0175`), "
         "#245 (`0191`). PR #222 (0322), PR #225 (0172), PR #226 (0348), PR #227 "
         "(0199), PR #228 (0193), PR #229 (0349), PR #230 (0347, 0354), PR #234 (0196), PRs #235 & #237 (0358), PR #236 "
         "(0194), PR #238 (0357), PR #239 (0356), PR #240 (0355), PR #241 (0189), and `dev-env` PRs #31–#33 (0344, "
-        "0346, 0361), #36 (0351), #37 (0364), #38 (0365), and #39 (0366) have merged. Run one flow at a time within "
+        "0346, 0361), #36 (0351), #37 (0364), #38 (0365), #39 (0366), and #40 (0370) have merged. Run one flow at a time within "
         "a lane; lanes run together only when their touch sets are disjoint."
     ),
     "",
@@ -1983,6 +1985,23 @@ def generate_triage_document(
                 "`versions/node/versions` loop cleanup and `current` repair, and added static and hermetic Fish "
                 "migration tests. Consensus 3/3 APPROVED; calibration EV predicted 96.27 / actual 97.16 (delta +0.89); "
                 "6/6 CI green."
+            ),
+            (
+                "72. **dev-env Zsh `.zprofile`, Node/Fish/Homebrew converge fixes, hermetic Ansible/Stow integration tests, "
+                "and Ubuntu/Docker E2E converge testing (Bean 0370 / dev-env PR #40, 2026-11-23)**:"
+            ),
+            (
+                "    - `0370` (dev-env PR #40, `22ca3862`, merged 2026-11-23): added tracked `dotfiles/zsh/.zprofile` "
+                "(non-interactive `.zshrc` sourcing without double-sourcing `zsh -lic`) in `devenv_links`, isolated "
+                "`ansible/roles/node` Bash/Zsh/Fish shell verification under `env -i` + `expand_argument_vars: false` "
+                "accepting canonical `versions/node/v{{ devenv_node_version }}/bin/node`, added `follow: true` in "
+                "`ansible/roles/fish` symlink discovery and `devenv_brew_bin | dirname` on Homebrew module `path:`, "
+                "removed the fake `.zprofile` shim from `tests/test_shell_hooks.py`, added real `ansible-playbook` "
+                "Stow/Node/Fish integration tests in `tests/test_converge_integration.py`, installed `stow` in "
+                "`.github/workflows/test-unit.yml`, and added real Ubuntu/WSL converge CI "
+                "(`.github/workflows/test-converge.yml`) plus `tests/docker/ubuntu.Dockerfile` and `make test-ubuntu`. "
+                "Consensus APPROVED; calibration EV predicted 97.60 / actual 99.09 (delta +1.49); 7/7 CI green "
+                "(including `Ubuntu Converge E2E` in 5m25s)."
             ),
             "",
             "---",
