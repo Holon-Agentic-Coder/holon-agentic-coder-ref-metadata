@@ -1,26 +1,27 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-23 00:51:47 UTC
+**Last Updated:** 2026-11-23 01:26:04 UTC
 
 ## Executive Summary
 
 The harness drives every `holon-agentic-coder` change through the 5-stage Holon flow and the `pr-review-loop`, and the
 maintainer merges each pull request into `main`. On 2026-11-23 every active bean was audited against current `main`
-(`holon-agentic-coder` `8afc215`, `holon-coherence` `baf5c65`, `dev-env` `d6b07de`) and merged PRs #221–#238 plus
-`dev-env` PRs #31–#32: duplicate Bean 0353 was scrapped in favour of Bean 0354, stale `blocked_by` links and outdated
-'in flight in another session' markers (`0322` and `0346` completed; `0265`, `0270`, `0189` idle) were cleared, and new
-beans `0350`–`0352` and `0354`–`0361` were triaged. HAC PRs #230 (`0347` + `0354`) and #239 (`0356`) are open, and
+(`holon-agentic-coder` `192c6e8`, `holon-coherence` `baf5c65`, `dev-env` `d6b07de`) and merged PRs #221–#238 and #240
+plus `dev-env` PRs #31–#32: duplicate Bean 0353 was scrapped in favour of Bean 0354, stale `blocked_by` links and
+outdated 'in flight in another session' markers (`0322` and `0346` completed; `0265`, `0270`, `0189` idle) were cleared,
+and new beans `0350`–`0352` and `0354`–`0361` were triaged. HAC PRs #230 (`0347` + `0354`) and #239 (`0356`) are open,
 `dev-env` PR #33 (**Bean 0361**, `flow-fish-conda-homebrew-hooks`) is calibrated, green (`6/6` CI), and
-`MERGEABLE`/`CLEAN` awaiting human merge.
+`MERGEABLE`/`CLEAN` awaiting human merge, and `dev-env` **Bean 0351** (`flow-dev-env-ansible-wsl-tmux`) is running
+concurrently via `--allow-overlap`.
 
 Concurrent flows on overlapping files forced repeated syncs and re-reviews earlier on (141 review-loop passes, about
 10M+ tokens), so flows that touch the same files still run one after another; only flows with disjoint touch sets run
 together.
 
 - **Total Tracked Beans**: 361 (excluding template)
-- **Completed**: 311 (86.1%)
+- **Completed**: 312 (86.4%)
 - **Scrapped / Superseded**: 9 (2.5%)
-- **Active**: 41 (11.4%), of which 19 are in progress, 21 are todo and 1 are draft
+- **Active**: 40 (11.1%), of which 19 are in progress, 20 are todo and 1 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -300,7 +301,7 @@ narrowed to what remains after PR #213; the blocked-by links to completed or scr
 were cleared. New: **Bean 0347** (Stage 4 says halted for human review although consensus approval was reached and the
 flow carries on to Stage 5). The audit found no bean already done by PRs #209 to #220 beyond those already completed.
 
-**2026-11-22 to 2026-11-23:** twelve target PRs merged across `holon-agentic-coder` and `dev-env`: **Bean 0322** (HAC
+**2026-11-22 to 2026-11-23:** thirteen target PRs merged across `holon-agentic-coder` and `dev-env`: **Bean 0322** (HAC
 #222, `e2ba3c2`: complete removal of `gemini-agent`), **Bean 0172** (HAC #225, `4811599`: `unlimited` stage and turn
 budgets), **Bean 0348** (HAC #226, `3ee9c4e`: admission uses actual PR files), **Bean 0199** (HAC #227, `43d278c`:
 ledger query and knowledge index decomposed), **Bean 0193** (HAC #228, `5fbd2d0`: intent and plan stages decomposed),
@@ -308,12 +309,14 @@ ledger query and knowledge index decomposed), **Bean 0193** (HAC #228, `5fbd2d0`
 0196** (HAC #234, `2ec094e`, plus children #231–#233: `ExecutionRun`), **Bean 0194** (HAC #236, `b22258d`:
 `ExecuteStage`), **Bean 0358** (HAC #235 `134e333` and #237 `032d9d44`: resolver honours turn budgets, foreground test
 prompts, and supervisor live-child-process stall guard), **Bean 0357** (HAC #238, `8afc215a`: `--skip-review` removed),
-plus `dev-env` PRs #31 (**Bean 0344**, `0ba3e94`) and #32 (**Bean 0346**, `d6b07de`). Open **HAC PRs #230** (`0347` +
-`0354`) and **#239** (`0356`) remain in progress, `dev-env` **PR #33** (**Bean 0361**, `flow-fish-conda-homebrew-hooks`)
-is calibrated and `MERGEABLE`/`CLEAN` awaiting human merge, and new **Bean 0360** logs duplicate `P-` branch creation
-after an interrupted Stage 2. Pre-triage audit (2026-11-23): **Bean 0353** scrapped as a duplicate of `0354`; stale
-blockers cleared on `0189`, `0197`, `0198`, `0265`, `0270`, `0333`; `0176` re-measured at 144 files; `0181` re-pointed
-to `entrypoint/executor/run.py`; new beans `0350`–`0352` and `0354`–`0361` triaged.
+**Bean 0355** (HAC #240, `192c6e8`: `holon calibrate` runs full Stage 5), plus `dev-env` PRs #31 (**Bean 0344**,
+`0ba3e94`) and #32 (**Bean 0346**, `d6b07de`). Open **HAC PRs #230** (`0347` + `0354`) and **#239** (`0356`) remain in
+progress, `dev-env` **PR #33** (**Bean 0361**, `flow-fish-conda-homebrew-hooks`) is calibrated and `MERGEABLE`/`CLEAN`
+awaiting human merge, `dev-env` **Bean 0351** (`flow-dev-env-ansible-wsl-tmux`) launched concurrently via
+`--allow-overlap`, and new **Bean 0360** logs duplicate `P-` branch creation after an interrupted Stage 2. Pre-triage
+audit (2026-11-23): **Bean 0353** scrapped as a duplicate of `0354`; stale blockers cleared on `0189`, `0197`, `0198`,
+`0265`, `0270`, `0333`; `0176` re-measured at 144 files; `0181` re-pointed to `entrypoint/executor/run.py`; new beans
+`0350`–`0352` and `0354`–`0361` triaged.
 
 ---
 
@@ -870,6 +873,11 @@ to `entrypoint/executor/run.py`; new beans `0350`–`0352` and `0354`–`0361` t
       (`cli/commands/flow.py`), dropped `skip_review` from flow context and checkpoint while loading legacy checkpoints
       cleanly, removed skip branches from `flow/pipeline.py`, `flow/resume_guard.py`, `flow/stages/children.py` and
       `flow/stages/review.py`, updated `docs/git_flow.md`, with hermetic tests and calibration included in the PR.
+63. **`holon calibrate` runs full Stage 5 (Bean 0355 / HAC PR #240, 2026-11-23)**:
+    - `0355` (HAC PR #240, `192c6e8`, merged 2026-11-23): unified Stage 5 in `flow/stage5.py` so `holon calibrate` runs
+      report generation, ledger reconciliation, and knowledge promotion by default (`--report-only`, `--no-commit`,
+      `--json`, idempotent reruns), backed by hermetic `tests/test_calibrate_full_stage5.py`; consensus 3/3 APPROVED and
+      calibrated.
 
 ---
 
@@ -881,14 +889,13 @@ to `entrypoint/executor/run.py`; new beans `0350`–`0352` and `0354`–`0361` t
 | **P2**   | in-progress | Medium |             S             | 0347   | Stage 4 reports halted for human review after consensus approval although the flow continues and the PR is ready to merge | Holon Flow / Stage 4 / Reporting | In progress in HAC PR #230 (`flow-review-approved-and-fresh-tests`, shared with 0354): CI 11/11 pass, `CLEAN`, halted at Stage 4 iter 7 on resolver stall timeout. Unblocked to resume now that PR #235 landed.                                                                                                                                                            |
 | **P1**   | in-progress |  High  |             M             | 0361   | Restore Fish Conda and Homebrew hooks and add clean-env multi-shell runtime regression tests                              | Dev Environment / Shells         | In progress in `dev-env` PR #33 (`flow-fish-conda-homebrew-hooks`): 3/3 APPROVED, CI 6/6 green (real `env -i` bash/zsh/fish on Ubuntu & macOS), calibrated (EV 92.88 -> 94.53), `MERGEABLE`/`CLEAN`, awaiting human merge.                                                                                                                                                 |
 | **P1**   | todo        |  High  |             S             | 0360   | Resume after an interrupted plan stage creates a duplicate P- branch                                                      | Flow / Stage 2 / Checkpoint      | Queued behind PR #239 (overlaps Stage 2 plan/checkpoint). Record pushed `P-` branch atomically with push or adopt existing pushed `P-` branch on resume.                                                                                                                                                                                                                   |
-| **P1**   | todo        |  High  |             M             | 0351   | Clean up dev-env Ansible tasks, replace apt_repository, skip Linux GUI apps on WSL, and enable tmux mouse                 | Dev Environment / Ansible & WSL  | Bundled remaining `dev-env` work; queued behind `0361` (`dev-env` PR #33, overlaps `ansible/roles/conda/tasks/main.yml`). Replace deprecated `apt_repository` with `deb822_repository`, clean up `command`/`check_mode` tasks, skip Linux GUI terminals (`warp`/`ghostty`) on WSL by default, enable `tmux` `set -g mouse on`, and add hygiene/deprecation/WSL/tmux tests. |
+| **P1**   | in-progress |  High  |             M             | 0351   | Clean up dev-env Ansible tasks, replace apt_repository, skip Linux GUI apps on WSL, and enable tmux mouse                 | Dev Environment / Ansible & WSL  | In progress on `dev-env` (`flow-dev-env-ansible-wsl-tmux`, launched concurrently with PR #33 via `--allow-overlap`): replaces deprecated `apt_repository` with `deb822_repository`, cleans up `command`/`check_mode` tasks, skips Linux GUI terminals (`warp`/`ghostty`) on WSL by default, enables `tmux` `set -g mouse on`, and adds hygiene/deprecation/WSL/tmux tests. |
 | **P1**   | todo        |  High  |             M             | 0333   | GitHub Issues replace beads as the target tracker; remove the beads pilot from holon-agentic-coder                        | Issue Tracking / Decision        | Ready now (disjoint from PR #230; 0321 and 0322 merged). Removes `.beads/config.yaml`, `bd` install in Dockerfile/bake, `test_beads_integration.py`, and beads docs. Unblocks `0215`–`0218` and `0317`.                                                                                                                                                                    |
 | **P1**   | todo        |  High  |             M             | 0270   | Discover runner models dynamically through each harness instead of the hardcoded model table                              | Flow / Architecture              | Ready now (runner/quota block cleared; 0262 and 0322 merged; disjoint from PR #230). Replaces hardcoded `RUNNER_CAPABILITIES` in `agent_defaults.py` with per-harness discovery. Sequence with `0198` and `0350` on `agent_defaults.py`.                                                                                                                                   |
 | **P1**   | todo        |  High  |             M             | 0350   | Enable Claude Code code mode (CLAUDE_CODE_EXPERIMENTAL_CODE_MODE=1) for every Claude run                                  | Claude / Config                  | Ready now (disjoint from PR #230). Direct harness edit (`flow_env.py`, `.claude/settings.json`) plus HAC flow on `agent_runner.py` / `agent_defaults.py` / `role_dispatcher.sh` / `doctor`. Sequence with `0270` and `0198`.                                                                                                                                               |
 | **P1**   | in-progress |  High  |             M             | 0155   | General `HOLON_*` forwarding puts credential-shaped values on the docker argv                                             | Security                         | Ready now (disjoint from PR #230). Send every `HOLON_*` value through the 0600 env-file and widen fuzz assertions to all forwarded names. Touches `cli/__init__.py` / env-file plumbing; sequence with `0265`, `0175`, `0174`.                                                                                                                                             |
 | **P1**   | in-progress |  High  |             S             | 0175   | Check GitHub token scopes before Stage 3 when the plan touches workflow files                                             | Holon Flow / GitHub              | Ready now (disjoint from PR #230). Pre-flight `workflow` scope when touch set hits `.github/workflows/**` and warn in `holon doctor`. Touches `preflight.py`, `cli/__init__.py`, `cli/commands/doctor.py`; sequence with `0265`/`0155`.                                                                                                                                    |
 | **P1**   | in-progress | Medium |             M             | 0174   | Document every environment variable holon reads, in one generated and CI-checked reference                                | Documentation / Config           | Ready now (0172 merged in PR #225; defer `README.md` link while PR #230 is open or merge right after). Precursor to `0173` (layered `.env`).                                                                                                                                                                                                                               |
-| **P1**   | in-progress |  High  |             M             | 0356   | A resumed flow inherits `skip_review` and the agent from its checkpoint instead of the run's own flags                    | Flow / Checkpoint                | In progress in HAC PR #239 (`flow-resume-flags-override-checkpoint`, `CLEAN`). Ensures resumed runs honour per-run CLI switches and `--agent`/`--model` overrides (`0357` merged in PR #238).                                                                                                                                                                              |
 | **P1**   | todo        |  High  |             L             | 0265   | Split `cli/__init__.py` into focused modules (move only), like the `flow/` package                                        | Refactor / Architecture          | Idle; `cli/__init__.py` is 1,732 lines on `main` (`b22258d`), and `0262`–`0264` merged. Code is disjoint from PR #230, but Scope edits `docs/architecture.md` which PR #230 touches — run right after PR #230 merges. Unblocks `0189`.                                                                                                                                     |
 | **P1**   | in-progress |  High  |             M             | 0189   | Launcher module owns container launch and role dispatch; break the `flow` -> `cli` cycle                                  | Refactor / Architecture          | Stale blockers `0187` (scrapped) and `0188` (#117) cleared; `0190` merged (#219). Four lazy `flow` -> `cli` imports remain. Sequence after `0265` and PR #230 (`flow/context.py`, `flow/pipeline.py`, `flow/review/loop.py`); unblocks `0200`.                                                                                                                             |
 | **P1**   | in-progress |  High  |             M             | 0191   | One GitHub adapter owns every `gh` call (PR, CI probe, mergeability, review posting)                                      | GitHub / Architecture            | Queued behind PR #230 (overlaps `flow/github/ci.py`, `flow/review/loop.py`, `flow/stages/review.py`). Unblocked structurally (`flow/` split landed); unblocks `0192`.                                                                                                                                                                                                      |
@@ -923,26 +930,27 @@ to `entrypoint/executor/run.py`; new beans `0350`–`0352` and `0354`–`0361` t
 
 ## Recommended Next Execution Sequence
 
-**Start here (2026-11-23):** every active bean was audited against current `main` (`holon-agentic-coder` `8afc215`,
+**Start here (2026-11-23):** every active bean was audited against current `main` (`holon-agentic-coder` `192c6e8`,
 `holon-coherence` `baf5c65`, `dev-env` `d6b07de`) and open HAC PRs #230 (`0347` + `0354`) and #239 (`0356`), plus
-`dev-env` PR #33 (`0361`). PR #222 (0322), PR #225 (0172), PR #226 (0348), PR #227 (0199), PR #228 (0193), PR #229
-(0349), PR #234 (0196), PRs #235 & #237 (0358), PR #236 (0194), PR #238 (0357), and `dev-env` PRs #31–#32 (0344, 0346)
-have merged. Run one flow at a time within a lane; lanes run together only when their touch sets are disjoint.
+`dev-env` PR #33 (`0361`) and Bean `0351`. PR #222 (0322), PR #225 (0172), PR #226 (0348), PR #227 (0199), PR #228
+(0193), PR #229 (0349), PR #234 (0196), PRs #235 & #237 (0358), PR #236 (0194), PR #238 (0357), PR #240 (0355), and
+`dev-env` PRs #31–#32 (0344, 0346) have merged. Run one flow at a time within a lane; lanes run together only when their
+touch sets are disjoint.
 
 **In-flight (active flows / open PRs):** **HAC PR #230** (`flow-review-approved-and-fresh-tests`, **Beans 0347 + 0354**,
-`UNSTABLE`), **HAC PR #239** (`flow-resume-flags-override-checkpoint`, **Bean 0356**, `CLEAN`), and **`dev-env` PR #33**
+`UNSTABLE`), **HAC PR #239** (`flow-resume-flags-override-checkpoint`, **Bean 0356**, `CLEAN`), **`dev-env` PR #33**
 (`flow-fish-conda-homebrew-hooks`, **Bean 0361**, `3/3` APPROVED, CI `6/6` green, calibrated, `MERGEABLE`/`CLEAN`,
-awaiting human merge).
+awaiting human merge), and **`dev-env` Bean 0351** (`flow-dev-env-ansible-wsl-tmux`, running concurrently with PR #33
+via `--allow-overlap`).
 
-**Ready now in parallel (disjoint from PRs #230/#239, `dev-env` PR #33, and each other):**
+**Ready now in parallel (disjoint from PRs #230/#239, `dev-env` PR #33 / Bean 0351, and each other):**
 
 - **HAC beads removal:** **Bean 0333** (P1, M — removes `.beads/` pilot, unblocks GitHub Issues migration `0215`–`0218`
   and `0317`).
 - **HAC runner/model lane (one at a time):** **Bean 0270** (P1, M — dynamic model discovery), **Bean 0350** (P1, M —
   `CLAUDE_CODE_EXPERIMENTAL_CODE_MODE=1`), **Bean 0198** (P2, M — `RunnerSpec` registry), or **Bean 0225** (P2, M — OS
   keychain Claude token).
-- **HAC calibration lane (one at a time):** **Bean 0355** (P1, M — `holon calibrate` runs full Stage 5) or **Bean 0197**
-  (P2, M — `calibration/` package; overlaps `0355` on `flow/stages/calibrate.py`).
+- **HAC calibration lane:** **Bean 0197** (P2, M — `calibration/` package; `0355` merged in PR #240).
 - **HAC CLI/security/config lane (one at a time):** **Bean 0155** (P1, M — `HOLON_*` via 0600 env-file), **Bean 0175**
   (P1, S — workflow token-scope pre-flight), or **Bean 0174** (P1, M — env var reference; avoid `README.md` link while
   PR #230 is open).
@@ -952,9 +960,6 @@ awaiting human merge).
 
 **Queued behind PR #230 / #239 / `dev-env` PR #33 (file overlap):**
 
-- **`dev-env`:** **Bean 0351** (P1, M — bundled remaining `dev-env` work: Ansible cleanup & `deb822_repository`, WSL GUI
-  terminal skip guard, `tmux` `set -g mouse on`; waits for `0361` / `dev-env` PR #33 on
-  `ansible/roles/conda/tasks/main.yml`).
 - **Stage 2 / Stage 4 / checkpoint / resolver lane:** **Bean 0360** (P1, S — interrupted Stage 2 duplicate `P-` branch),
   **Bean 0359** (P3, XS — PR #230 deferred nit D-1).
 - **CLI split & launcher lane:** **Bean 0265** (`cli/__init__.py` split; code disjoint, overlaps PR #230 only on

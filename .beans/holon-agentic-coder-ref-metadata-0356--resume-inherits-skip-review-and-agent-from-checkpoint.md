@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0356
 title: "A resumed flow inherits skip_review and the agent from its checkpoint instead of the run's own flags"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - stage-4
   - holon-agentic-coder
 created_at: 2026-11-21T23:30:00+11:00
-updated_at: 2026-11-22T22:55:00Z
+updated_at: 2026-11-23T01:25:37Z
 ---
 
 ## Problem
@@ -50,9 +50,13 @@ Through the Holon flow on `holon-agentic-coder`:
 ## Flow (2026-11-23)
 
 - Intent: `todo/intent-0356-resume-flags-override-checkpoint.json`. PR:
-  https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/239 (`resume-flags-override-checkpoint`). Stage 4
-  consensus approved at iteration 1 (3/3); Stage 5 calibrated and the calibration report is in the PR diff. Awaiting
-  human merge.
+  https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/239 (`resume-flags-override-checkpoint`).
+- Re-run (2026-11-23, after the hand-resolved merge of origin/main): main advanced with PR #240 and the execution branch
+  gained a merge commit (cd7a63b5) from another push, so the review loop's ledger pushes were rejected and Stage 4
+  halted at iteration 2 (DIRTY). Reconciled `executions.jsonl` (rows interleaved by `created_at`) and pushed bf776021,
+  then resumed `--from-stage review`. Stage 4 reached consensus approval at iteration 4 (claude-agent /
+  claude-opus-5-5), Stage 5 calibrated (report covers c8ae5770 and is in the PR diff), final head CI passed. PR head
+  374ca56f, CLEAN and MERGEABLE. Awaiting human merge.
 - Overlap: ran with `--allow-overlap` alongside PRs #230 and #238 (shared `cli/commands/flow.py`).
 
 ## Audit (2026-11-23)
@@ -60,3 +64,16 @@ Through the Holon flow on `holon-agentic-coder`:
 Bean `0357` removes `--skip-review` entirely, superseding the `skip_review` inheritance clause here while the
 agent/model override and per-run switch rules remain. Bundle with `0357` or run right after it; waits for PR #230
 (overlaps `flow/checkpoint.py`, `flow/context.py`, `flow/pipeline.py`).
+
+## Resolution
+
+Delivered via [PR #239](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/239) and merged into `main`
+(`4e1e761`):
+
+- **Key Architectural Deliverables**: Per-run switches (`skip_review`, `skip_calibrate`, `skip_push`, `dry_run`) apply
+  only to the run that passes them and are no longer read from the checkpoint; a resume logs any stored skip it drops.
+  `--agent` and `--model` on resume override the checkpoint's agent and model.
+- **Verification & Tests**: Resume checkpoint tests in `apps/sandbox-executor/tests/flow/test_resume_checkpoint.py` and
+  `apps/sandbox-executor/tests/test_cli.py` updated for the new precedence; final head CI passed before merge.
+- **Holon Flow Traversal**: All 5 stages completed. Stage 4 reached consensus approval at iteration 4; Stage 5
+  calibrated (`E-1795390891-CLA-CO5.5`).
