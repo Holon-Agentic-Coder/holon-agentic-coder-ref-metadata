@@ -72,3 +72,10 @@ During the October flow runs this cost real time. Behaviour-changing settings we
 - Inventory command used, for reproduction: grep for
   `(HOLON|GITHUB|GH|CLAUDE|ANTHROPIC|OPENAI|GEMINI|PI|CODEX|OPENCODE|AGY|HTTP|HTTPS|NO|GIT)_[A-Z0-9_]+` across those
   paths, and compare against the `HOLON_*` names in `docs/`, `README.md` and `apps/sandbox-executor/docs`.
+
+- Progress (2026-11-23, flow resume): resumed Stage 3 from checkpoint with claude-agent / claude-opus-5-5 via
+  `run_holon_flow.py --allow-overlap`. Blocked: the executor found no failed execution with partial work, then ran
+  `git checkout -b` for a new E branch off the plan tip, and that failed, leaving the existing E-1795413310 branch (five
+  execution commits, steps 1-5, no executions.jsonl row) and one uncommitted `executions/E-1795413310-CLA-CO5.5.md` in
+  place. Stage 3 halted with no PR opened. Flow log: `todo/flow-document-env-variables-v2.log`. Not resolved by hand;
+  needs the maintainer or a flow-resume fix before the flow can continue.
