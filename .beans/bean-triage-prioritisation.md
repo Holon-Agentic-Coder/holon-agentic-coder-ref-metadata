@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-23 07:10:59 UTC
+**Last Updated:** 2026-11-23 07:30:28 UTC
 
 ## Executive Summary
 
@@ -19,9 +19,9 @@ Concurrent flows on overlapping files forced repeated syncs and re-reviews earli
 together.
 
 - **Total Tracked Beans**: 374 (excluding template)
-- **Completed**: 327 (87.4%)
+- **Completed**: 328 (87.7%)
 - **Scrapped / Superseded**: 9 (2.4%)
-- **Active**: 38 (10.2%), of which 15 are in progress, 22 are todo and 1 are draft
+- **Active**: 37 (9.9%), of which 14 are in progress, 22 are todo and 1 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -954,7 +954,6 @@ migration tests). Open **HAC PRs #243** (`0155`), **#244** (`0175`), and **#245*
 | **P1**   | in-progress |  High  |             L             | 0192   | `run_review_loop` and `run_review_stage` become a `ReviewLoop` object with named steps                              | Review Loop / Refactor      | Blocked by `0191`. `flow/review/loop.py` is 936 lines. Sequence one at a time in the review-loop lane with PR #230, `0255`, and `0231`.                                                                                                      |
 | **P1**   | todo        |  High  |             L             | 0255   | Streaming per-issue resolvers during Stage 4 CI & review with single consolidated commit                            | Review Loop / Concurrency   | Queued behind PR #230 (overlaps `flow/review/loop.py`, `entrypoint/review_loop.py`). One at a time with `0191`, `0192`, `0231`.                                                                                                              |
 | **P1**   | todo        |  High  |             S             | 0215   | Deterministic beans-to-GitHub-Issues importer and real-data dry run                                                 | Issue Tracking / Migration  | Harness work. Blocked by `0333` (remove beads pilot & finalise decision). Converts open beans to GitHub Issues with real-corpus dry run; unblocks `0217`, `0218`, and `0317`.                                                                |
-| **P1**   | in-progress |  High  |             M             | 0173   | holon loads layered .env files (specific overrides broad) that every sandbox stage inherits                         | Holon Flow / Config         | Sequence after `0155`, `0174`, and `0265` (touches `cli/` and `role_dispatcher.sh`).                                                                                                                                                         |
 | **P1**   | in-progress |  High  |             L             | 0176   | Remove every unittest reference from holon-agentic-coder; the suite is pytest only                                  | Tests                       | Re-measured 2026-11-23 on `main` (`b22258d`): **144** tracked files mention `unittest`. Runs alone with zero other HAC PRs in flight (after PR #230 merges).                                                                                 |
 | **P1**   | in-progress |  High  |            XL             | 0152   | Audit long files; decompose oversized functions (flow.py, cli.py first)                                             | Refactor / Concurrency      | Umbrella. Coherence (`0186`, `0203`–`0208`) and HAC (`0185`, `0188`, `0190`, `0193`, `0194`, `0195`, `0196`, `0199`, `0254`) children merged. Remaining: `0265`, `0189`, `0191`, `0192`, `0197`, `0198`, `0200`, `planner.py`, and re-audit. |
 | **P2**   | in-progress | Medium |             M             | 0197   | Split `calibration.py` into a package; decompose metrics parsing and report generation                              | Calibration / Refactor      | Ready now (0146 merged in PR #221; disjoint from PR #230 which edits `calibration_outcome.py`). `calibration.py` is 1,637 lines. Sequence with `0355` on `flow/stages/calibrate.py`.                                                         |

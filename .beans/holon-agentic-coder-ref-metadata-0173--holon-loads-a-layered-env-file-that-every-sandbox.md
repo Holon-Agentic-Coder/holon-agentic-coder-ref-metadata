@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0173
 title: "holon loads layered .env files (specific overrides broad) that every sandbox stage inherits"
-status: in-progress
+status: completed
 type: feature
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - security
   - holon-agentic-coder
 created_at: 2026-10-27T14:07:56Z
-updated_at: 2026-11-22T23:01:00Z
+updated_at: 2026-11-23T07:31:00Z
 ---
 
 ## Problem
@@ -92,3 +92,22 @@ which keeps forwarded values off the docker argv. Nothing persists a user's or a
   - Bean 0157: sidecar auto-enable; with a `.env`, `HOLON_TOKEN_REDUCE` can be set once.
   - Bean 0172: an explicit `unlimited` budget, which would live in this file.
   - Bean 0156: if issue tracking moves to the targets, configuration should be target-native too.
+
+## Resolution
+
+Delivered via [PR #251](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/251) and merged into `main`
+(`e4f34cae`), as flow `layered-env-config-v2` (bean 0173, intent `I-1795409213`; the first attempt `I-1795388470` was
+abandoned and never merged):
+
+- **Key Architectural Deliverables**: `holon` resolves a layered `.env` (built-in defaults, `~/.holon/.env`, project
+  `<repo-root>/.env`, process environment, CLI flags) once per invocation, per-key, with the most specific layer
+  winning. Strict dotenv parsing with a `HOLON_*` allow-list and documented secret mappings (`HOLON_AGENT_OAUTH_TOKEN`
+  to `CLAUDE_CODE_OAUTH_TOKEN`, file-referenced secrets). Effective settings are forwarded to every role container
+  through the 0600 env-file. `holon doctor` (and `--json`) reports each effective setting with its source layer, and
+  secrets are shown only as `set (layer)`. `holon init` scaffolds a commented `.env.example` and git-ignores `.env`.
+  Every supported key is documented in the sandbox-executor README.
+- **Verification & Tests**: hermetic `apps/sandbox-executor/tests/test_config_env.py` and
+  `test_config_env_inheritance.py` (precedence across layers, parsing edge cases, allow-list and rejection, permission
+  checks, redaction, doctor report, container and nested inheritance), plus updated launch characterisation tests.
+- **Holon Flow Traversal**: intent, plan and execute completed; review reached consensus approval over several
+  iterations; calibration report `P-1795410717-CLA-CO5.5_calibration.md` and the Stage 5 ledger rows are on `main`.

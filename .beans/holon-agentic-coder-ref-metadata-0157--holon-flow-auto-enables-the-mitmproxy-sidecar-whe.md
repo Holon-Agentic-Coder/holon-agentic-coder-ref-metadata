@@ -10,7 +10,7 @@ tags:
   - proxy
   - holon-agentic-coder
 created_at: 2026-10-26T04:23:42Z
-updated_at: 2026-11-23T07:10:59Z
+updated_at: 2026-11-23T07:31:00Z
 ---
 
 ## Problem
@@ -63,3 +63,9 @@ Delivered via [PR #248](https://github.com/Holon-Agentic-Coder/holon-agentic-cod
   first pass with `Calibrate stage refused: code conflicts with main` (`holon-knowledge/kb/failure_modes/index.json`,
   `ledger/executions.jsonl`, `ledger/intents.jsonl`), so the calibration report was not refreshed for the head. The PR
   merged before that was resolved. Follow-up: confirm the calibration report and ledger rows on `main`.
+- **Post-merge follow-up (2026-11-23)**: the flow's final calibration report `de8dec8e`
+  (`chore(calibration): add calibration report for P-1795409223-CLA-CO5.5`) was **never merged** to `main`; `main`
+  carries only the squash of PR #248 (`d369f2fd`, from head `7cb5ed45`). It exists only on the flow branch
+  `origin/I-1795409207-flow-no-auto-sidecar-spawn-v2/P-1795409223-CLA-CO5.5/E-1795409586-CLA-CO5.5/_` (head `8b0278da`,
+  with review ledger rows, a comment-only fix and the calibrated tag branch). The flow worktree and its local branches
+  were pruned on 2026-11-23; the remote branches remain.
