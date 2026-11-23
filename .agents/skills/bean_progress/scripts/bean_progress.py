@@ -102,6 +102,10 @@ class WorktreeFlow:
     embedded_bean_nums: list[str] = field(default_factory=list)
     stage_started: datetime | None = None
     flow_started: datetime | None = None
+    checkpoint_time: datetime | None = None
+    last_log: str = ""
+    last_commit_time: datetime | None = None
+    last_commit_subject: str = ""
 
 
 @dataclass
@@ -168,6 +172,7 @@ class InFlightRow:
     rank: tuple[float, ...] = ()
     agent: str = "—"
     model: str = "—"
+    last_activity: str = "—"
 
     def notes_cell(self) -> str:
         """Notes column: live/idle state with PID and session first, then the former status notes."""
@@ -186,6 +191,7 @@ class InFlightRow:
             "time_in_stage": self.time_in_stage,
             "pr_ci": self.pr_ci,
             "total_time": self.total_time,
+            "last_activity": self.last_activity,
             "live_runner": self.live_runner,
             "notes": self.notes_cell(),
         }
@@ -469,6 +475,32 @@ def _git_dirty_count(worktree_dir: Path) -> int:
     return sum(1 for line in proc.stdout.splitlines() if line.strip())
 
 
+def _git_last_commit(worktree_dir: Path) -> tuple[datetime | None, str]:
+    """Commit time and subject of the worktree's HEAD; (None, "") when git cannot tell."""
+    try:
+        res = subprocess.run(
+            ["git", "-C", str(worktree_dir), "log", "-1", "--format=%ct%x09%s"],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=10,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None, ""
+    stamp, _, subject = res.stdout.strip().partition("\t")
+    if res.returncode != 0 or not stamp.isdigit():
+        return None, ""
+    return datetime.fromtimestamp(int(stamp), tz=UTC), subject.strip()
+
+
+def _last_checkpoint_log(ctx: dict[str, Any]) -> str:
+    """The newest line of the checkpoint's flow log, without its leading `[timestamp]`."""
+    logs = ctx.get("logs")
+    if not isinstance(logs, list) or not logs:
+        return ""
+    return re.sub(r"^\[[^\]]*\]\s*", "", str(logs[-1]).strip())
+
+
 def scan_worktrees(repos: list[RepoTarget]) -> list[WorktreeFlow]:
     """Inspect non-`main` worktrees and their Holon flow checkpoints."""
     worktrees: list[WorktreeFlow] = []
@@ -532,6 +564,7 @@ def scan_worktrees(repos: list[RepoTarget]) -> list[WorktreeFlow]:
                 branch_started(intent_branch or plan_branch or exec_branch),
                 ledger_first_created(entry / LEDGER_REL, slug),
             )
+            commit_time, commit_subject = _git_last_commit(entry)
             embedded_beans = WORKTREE_BEAN_RE.findall(entry.name)
             if ckpt_path is not None:
                 embedded_beans.extend(re.findall(r"(?:^|-)(\d{4})(?:-|$)", ckpt_path.stem))
@@ -559,6 +592,10 @@ def scan_worktrees(repos: list[RepoTarget]) -> list[WorktreeFlow]:
                     embedded_bean_nums=sorted(set(embedded_beans)),
                     stage_started=stage_started,
                     flow_started=flow_started,
+                    checkpoint_time=(parse_iso(data.get("timestamp")) or mtime) if ckpt_path else None,
+                    last_log=_last_checkpoint_log(ctx),
+                    last_commit_time=commit_time,
+                    last_commit_subject=commit_subject,
                 )
             )
     return worktrees
@@ -1059,6 +1096,30 @@ def _derive_agent_model(wt: WorktreeFlow | None, live: LiveFlowTree | None) -> t
     return agent or "—", model or "—"
 
 
+def _derive_last_activity(wt: WorktreeFlow | None, live: LiveFlowTree | None, now: datetime) -> str:
+    """What the flow is doing or last did: the live role container, then the newest of HEAD commit and checkpoint.
+
+    The live part comes from the running role container (role, review iteration, resolver). The commit part is the
+    worktree's HEAD (role agents commit step by step, so it is the closest thing to live work progress). The checkpoint
+    part is the last line the flow engine logged when it last saved its checkpoint.
+    """
+    parts: list[str] = []
+    if live and live.kind == "running" and (live.docker_role or live.docker_iteration is not None):
+        fallback = "review" if live.docker_iteration is not None else "role container"
+        role = "resolver" if live.docker_resolve else (live.docker_role or fallback)
+        iteration = f" iter {live.docker_iteration}" if live.docker_iteration is not None else ""
+        parts.append(f"now: {role}{iteration} running")
+    dated: list[tuple[datetime, str]] = []
+    if wt and wt.last_commit_time and wt.last_commit_subject:
+        ago = format_duration(wt.last_commit_time, now)
+        dated.append((wt.last_commit_time, f"commit {ago} ago: {_truncate(wt.last_commit_subject, 70)}"))
+    if wt and wt.checkpoint_time and wt.last_log:
+        ago = format_duration(wt.checkpoint_time, now)
+        dated.append((wt.checkpoint_time, f"checkpoint {ago} ago: {_truncate(wt.last_log, 70)}"))
+    parts.extend(text for _, text in sorted(dated, key=lambda item: item[0], reverse=True))
+    return "; ".join(parts) if parts else "—"
+
+
 def _derive_live_runner(wt: WorktreeFlow | None, live: LiveFlowTree | None) -> str:
     if live:
         model = "live"
@@ -1248,6 +1309,7 @@ def build_in_flight_rows(
                 rank=_attempt_rank(wt, live, pr),
                 agent=_derive_agent_model(wt, live)[0],
                 model=_derive_agent_model(wt, live)[1],
+                last_activity=_derive_last_activity(wt, live, now),
             )
         )
 
@@ -1292,6 +1354,7 @@ def build_in_flight_rows(
                 rank=_attempt_rank(None, live, pr),
                 agent=_derive_agent_model(None, live)[0],
                 model=_derive_agent_model(None, live)[1],
+                last_activity=_derive_last_activity(None, live, now),
             )
         )
 
@@ -1369,9 +1432,22 @@ def render_markdown_table(rows: list[InFlightRow]) -> str:
     if not rows:
         return "No beans are currently in flight."
 
+    headers = [
+        "Bean #",
+        "Target",
+        "Title",
+        "Agent",
+        "Model",
+        "Stage",
+        "Time in Stage",
+        "PR & CI",
+        "Total Time",
+        "Last Activity",
+        "Notes",
+    ]
     lines = [
-        "| Bean # | Target | Title | Agent | Model | Stage | Time in Stage | PR & CI | Total Time | Notes |",
-        "| :----- | :----- | :---- | :---- | :---- | :---- | :------------ | :------ | :--------- | :---- |",
+        "| " + " | ".join(headers) + " |",
+        "| " + " | ".join(":" + "-" * max(len(h) - 1, 4) for h in headers) + " |",
     ]
     for row in rows:
         bean_cell = ", ".join(row.bean_nums) if row.bean_nums else "—"
@@ -1385,6 +1461,7 @@ def render_markdown_table(rows: list[InFlightRow]) -> str:
             row.time_in_stage,
             row.pr_ci,
             row.total_time,
+            row.last_activity,
             row.notes_cell(),
         ]
         lines.append("| " + " | ".join(_escape_cell(c) for c in cells) + " |")
