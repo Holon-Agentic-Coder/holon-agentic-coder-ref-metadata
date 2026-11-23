@@ -28,10 +28,13 @@ Prints JSON: `reset_at`, `resume_at` (reset + 1 min), `seconds_until_resume`, `k
 ## Background watcher (`watch_limits.py`)
 
 `/run_247` needs a live session, so it cannot help once the session's own tokens are gone. `scripts/watch_limits.py`
-runs outside Claude: it tails `.subagent/flow_*.log`, runs the same parser on each limit message, logs it once
-(`resume_at`, or credit exhaustion when no reset is named; no ntfy message) and, with `--relaunch`, relaunches a stopped
-`claude-agent` flow from its checkpoint after `resume_at` (same agent and model, `HOLON_TOKEN_REDUCE=0`, OAuth token
-from the secrets file, never printed). Review loops are conversation-driven, so they are logged only, never resumed.
+runs outside Claude: it tails `.subagent/flow_*.log` and `todo/flow-*.log`, runs the same parser on each limit message,
+logs it once (`resume_at`, or credit exhaustion when no reset is named; no ntfy message) and, with `--relaunch`,
+relaunches a stopped `claude-agent` flow from its checkpoint after `resume_at` (same agent and model,
+`HOLON_TOKEN_REDUCE=0`, `HOLON_TURN_STALL_SECONDS=600`, `--allow-overlap` when the run had it, OAuth token from the
+secrets file, never printed). **Credit reset with no reset time named**: the watcher probes the account with one tiny
+`claude -p` call every `--probe-interval` seconds (default 600) and relaunches the stopped flow as soon as the probe
+answers. Review loops are conversation-driven, so they are logged only, never resumed.
 
 - Try it: `python3 .agents/skills/run_247/scripts/watch_limits.py --once --dry-run`; `--self-test` checks it.
 - Starts itself: `.claude/settings.json` has a `SessionStart` hook that launches `watch_limits.py --relaunch` detached
