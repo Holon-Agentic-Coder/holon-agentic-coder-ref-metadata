@@ -24,7 +24,8 @@ multi-hour containerised lifecycle, **the flow is executed inside a dedicated ba
 1. **Background Subagent Execution (Bean 0212 & Flow Delegation)**: Running `holon flow` across all 5 stages takes
    between 15 minutes and several hours depending on plan complexity and review iterations. The main interactive agent
    **MUST NOT execute the flow inline**. Instead, it delegates to a background `Holon Flow Subagent` (`invoke_subagent`
-   with `TypeName: "self"`, `Role: "Holon Flow Subagent (<slug>)"`, `Model` = the lowest tier per
+   with `TypeName: "self"`, `Role: "bean <id> - holon flow <slug>"` (named per
+   [subagents.md, "Subagent names"](../../subagents.md#subagent-names)), `Model` = the lowest tier per
    `.agents/model-tiers.md`) and immediately returns control to the user.
 2. **Sole Change Path Invariant**: Every target codebase change (`holon-agentic-coder` or `holon-coherence`) MUST
    traverse the 5 containerised stages:
@@ -59,12 +60,14 @@ multi-hour containerised lifecycle, **the flow is executed inside a dedicated ba
      the current stage or checkpoint:
    - **Claude (`claude-agent`)**: `claude-fable-5` $\rightarrow$ `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6`
      $\rightarrow$ `claude-haiku-4-5`.
-   - **Antigravity (`antigravity-agent`)**: `gemini-3.8-pro-high` $\rightarrow$ `gemini-3.8-pro` $\rightarrow$
-     `gemini-3.8-flash-medium` $\rightarrow$ `gemini-3.8-flash`.
+   - **Antigravity (`antigravity-agent`)**: `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$
+     `gemini-3.8-flash` (use `gemini-4-argon` for all Holon coding tasks until tokens run out).
    - **Antigravity AGY Subagent Runtime**: `Model: "inherit"` / `"pro"` $\rightarrow$ `"flash"` $\rightarrow$
      `"flash_lite"`.
-   - **Cross-Runner Fallback**: If an account-wide limit is hit on the active runner, switch `--agent` between
-     `antigravity-agent` $\leftrightarrow$ `claude-agent` and resume execution on the existing flow branch.
+   - **No Cross-Runner Switch**: never switch `--agent` between `claude-agent` and `antigravity-agent` on your own. When
+     the active runner's ladder is exhausted, `scripts/run_holon_flow.py` stops and reports. The maintainer decides
+     whether to switch runner. A reset written without minutes (`resets 10am (UTC)`) counts as a named reset, so the
+     flow waits for it.
 6. **PR Creation & Calibration Report Inclusion**:
    - Once Stage 3 pushes the `E-.../_` execution branch, the PR is opened via `gh pr create` targeting `main`.
    - Stage 5 Calibration creates the `/calibrated` audit branch. The calibration report (`plans/P-*_calibration.md`)
@@ -86,8 +89,8 @@ multi-hour containerised lifecycle, **the flow is executed inside a dedicated ba
 
 Before executing any flow commands, evaluate the **Re-Entrancy Guard**:
 
-- **Re-Entrancy Guard**: If the currently executing agent is _already_ the spawned `Holon Flow Subagent (<slug>)`, **DO
-  NOT spawn another nested subagent**. Proceed directly to
+- **Re-Entrancy Guard**: If the currently executing agent is _already_ the spawned `bean <id> - holon flow <slug>`
+  subagent, **DO NOT spawn another nested subagent**. Proceed directly to
   [Step 1: Validate Prerequisites & Parameters](#step-1-validate-prerequisites--parameters).
 - **Main Interactive Agent Delegation**: When the user (or parent session) requests running a flow (e.g.
   `/holon-flow <intent.json>`):
@@ -98,7 +101,7 @@ Before executing any flow commands, evaluate the **Re-Entrancy Guard**:
      ```json
      {
        "TypeName": "self",
-       "Role": "Holon Flow Subagent (<slug>)",
+       "Role": "bean <id> - holon flow <slug>",
        "Model": "<lowest-tier model, probed per .agents/model-tiers.md>",
        "Prompt": "You are the background Holon Flow Subagent for intent `<intent_path>` (target_worktree: `<target_worktree>`, agent: `<agent>`, model: `<model>`). Execute `.agents/skills/holon_flow/SKILL.md`. Because you are already the spawned Holon Flow Subagent, pass the Step 0 re-entrancy guard and proceed directly to Step 1. Drive the entire 5-stage Holon flow lifecycle (Intent -> Plan -> Execute -> Review Loop -> Calibration). Ensure PR creation, handle model fallback ladders on quota errors, verify that the calibration report is committed and pushed into the PR diff, check mergeability against target branch, and record state in `.subagent/flow_<slug>_state.json`. Do NOT send intermediate messages; call `send_message` to the parent agent ONLY ONCE upon terminal completion (PR approved, calibrated, and awaiting human merge) or an unresolvable blocker."
      }
@@ -121,7 +124,8 @@ Inside the background subagent, perform pre-flight verification:
    worktree itself) that exists and is a clean git repository. Create it from `origin/main` first if it does not exist.
 5. **Determine Runner & Model**:
    - Default agent: `antigravity-agent` (or `claude-agent`)
-   - Default model: `gemini-3.8-flash-medium` (or `claude-fable-5` / `claude-opus-5-5`)
+   - Default model: `gemini-4-argon` (fallback: `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash`, or
+     `claude-fable-5` / `claude-opus-5-5`)
 
 ---
 
@@ -173,9 +177,9 @@ If `holon flow` exits with an error:
 
 1. **Quota / Credit / Session Limit Errors**: If the log contains `session limit`, `insufficient_quota`,
    `RESOURCE_EXHAUSTED`, or HTTP 429:
-   - Identify the next tier down on the fallback ladder (e.g. `gemini-3.8-pro` $\rightarrow$ `gemini-3.8-flash-medium`
+   - Identify the next tier down on the fallback ladder (e.g. `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen`
      $\rightarrow$ `gemini-3.8-flash`, or `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6`).
-   - Switch `--agent` across runners if all tiers on the active runner share an exhausted account quota.
+   - Never switch `--agent` across runners without the maintainer's go-ahead; report the exhausted ladder instead.
    - Resume the flow using the saved checkpoint:
 
      ```bash
@@ -247,9 +251,9 @@ Once the flow finishes:
 
 When Stage 3 admission refuses a plan because its touch set overlaps another flow in flight, `scripts/run_holon_flow.py`
 does not stop and never adds `--allow-overlap` itself. It polls each overlapping pull request named in the refusal
-(`gh pr view <n> --json state`, every `--overlap-poll-seconds`, default 300) until each is merged or closed, then
-resumes the flow from its checkpoint, which runs admission again. An overlap with a local flow that has no pull request
-is re-checked by re-running admission after the same interval. Any other refusal (no touch set declared, discovery
+(`gh pr view <n> --json state`, every `--overlap-poll-seconds`, default 60) until each is merged or closed, then resumes
+the flow from its checkpoint, which runs admission again. An overlap with a local flow that has no pull request is
+re-checked by re-running admission after the same interval. Any other refusal (no touch set declared, discovery
 unavailable) still stops. Pass `--no-wait-on-overlap` to stop on an overlap as before.
 
 ### Push notifications (ntfy.sh)
@@ -259,7 +263,7 @@ and its checkpoint records Stage 5 as completed (`white_check_mark`, through `sc
 stops, fails or waits on a usage limit sends nothing, and neither does the limit watcher. The topic is read from
 `HOLON_NTFY_TOPIC` or `~/.holon/secrets/ntfy-topic` (mode 600, never committed or printed in reports; anyone who knows
 it can read the messages). With no topic configured it silently does nothing. Messages stay on the ntfy server for a
-while, so they carry only the intent slug. Send a manual one with
+while, so they carry only the intent slug and the PR number (no URL or repository name). Send a manual one with
 `python3 .agents/skills/holon_flow/scripts/notify_ntfy.py "Title" "Message" --priority high`; use it after any hand-run
 `holon calibrate` that the maintainer is waiting on, and only once calibration has finished.
 

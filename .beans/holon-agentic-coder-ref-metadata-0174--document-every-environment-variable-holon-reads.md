@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0174
 title: "Document every environment variable holon reads, in one generated and CI-checked reference"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - configuration
   - holon-agentic-coder
 created_at: 2026-10-27T14:08:31Z
-updated_at: 2026-10-27T14:08:31Z
+updated_at: 2026-11-22T23:05:00Z
 ---
 
 ## Problem

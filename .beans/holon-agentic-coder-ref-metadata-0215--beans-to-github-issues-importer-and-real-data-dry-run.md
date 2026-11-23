@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - "0333"
 created_at: 2026-10-30T00:00:00Z
-updated_at: 2026-11-19T11:30:00Z
+updated_at: 2026-11-21T01:20:00+11:00
 ---
 
 ## Problem
@@ -34,7 +34,8 @@ a deterministic importer: bean frontmatter and Markdown body to an issue created
   issues) and citations stay traceable after the harness is archived.
 - Dry run on the **real** `.beans/` corpus (no synthetic data): render every issue payload, label set and dependency
   link to files without calling the API, and report per-field fidelity and anything that could not be mapped.
-- Default scope migrates only open beans (about 50: todo and in-progress). Closed history stays frozen in the harness.
+- Default scope migrates only open beans (about 40: todo, draft and in-progress). Closed history stays frozen in the
+  harness.
 
 ## Notes
 
@@ -42,3 +43,7 @@ a deterministic importer: bean frontmatter and Markdown body to an issue created
   write to public repositories, so the real import runs only on the maintainer's word, after the dry-run report.
 - Creates the label set in each repository before the first import.
 - Related: Bean 0333 (decision and field defaults), Bean 0216 (the flow uses the issue numbers), Bean 0317 (board).
+
+## Audit (2026-11-21)
+
+Open-bean count refreshed: about 40 active beans, not 50 (after the recent completions). Still blocked by Bean 0333.

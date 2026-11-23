@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0197
 title: "Split calibration.py into a calibration package and decompose metrics parsing and report generation"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
 blocked_by:
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-11-20T12:00:00+11:00
+updated_at: 2026-11-23T00:00:00Z
 ---
 
 ## Problem
@@ -46,3 +46,17 @@ Blocked by 0187. Sequence **after 0146** (picks the predicted metrics in the sam
 ## Audit (2026-11-20)
 
 Calibration is still one `calibration.py` module (1642 lines); the Bean 0187 blocker is scrapped and no longer applies.
+
+## Audit (2026-11-21)
+
+Partly done: helpers were extracted into `calibration_diff.py`, `calibration_ev.py`, `calibration_execution_owner.py`,
+`calibration_outcome.py` and `calibration_touch_set.py`
+([PR #213](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/213) and earlier), but `calibration.py` is
+still one large module with `parse_actual_metrics` under noqa. Remaining scope: the package split and decomposing the
+metrics parsers. Do not run concurrently with Bean 0146 (same parser).
+
+## Audit (2026-11-23)
+
+Bean `0146` merged in PR #221 (extracting `calibration_predicted.py`). `calibration.py` is 1,637 lines with
+`parse_actual_metrics` still under noqa. Unblocked and disjoint from PR #230 (which edits `calibration_outcome.py`, not
+`calibration.py` or `flow/stages/calibrate.py`); sequence with `0355` on `flow/stages/calibrate.py`.

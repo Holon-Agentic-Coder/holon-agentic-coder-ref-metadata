@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0213
 title: "Reflect review-loop skill rules into native Review Loop Holon Agent"
-status: todo
+status: completed
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - conflict-resolution
   - holon-agentic-coder
 created_at: 2026-10-30T03:02:00Z
-updated_at: 2026-11-20T12:00:00+11:00
+updated_at: 2026-11-20T14:05:06Z
 ---
 
 ## Problem
@@ -80,3 +80,26 @@ ledger-only conflict interleaving in code (`flow/github/merge.py`, `flow/ledger_
 `task/0213-reflect-review-loop-skill-template` never merged. Remaining: the explicit CONFLICTING/DIRTY gate before
 consensus posting and Stage 5, the ledger-only fast-path procedure, the model fallback ladder, the zero-synthetic rule
 and the `uv run pytest`-only rule in the template.
+
+## Progress
+
+- 2026-11-20: Started holon flow `review-report-ci-log-redaction` (claude-agent, claude-opus-5-5), combined with beans
+  0261, 0213, 0234 and 0148.
+- 2026-11-20: Flow `review-report-ci-log-redaction` finished all 5 stages: 3/3 consensus approval at review iteration 3,
+  calibration report in the diff (EV predicted 39.45, actual 59.09, delta +19.64), final-head CI green. PR
+  [#220](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/220) was merged by the maintainer at 14:03Z.
+
+## Resolution
+
+Delivered via [PR #220](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/220) and merged into `main`
+(`9a5454bf`), as part of the combined flow `review-report-ci-log-redaction`:
+
+- **Key Deliverables**: `holon-config/prompts/review_loop.template.md` now carries the review-loop skill rules: the
+  mandatory target-branch conflict gate (`CONFLICTING`/`DIRTY`) before consensus posting and Stage 5, the ledger-only
+  fast conflict path, increment-scoped reviews, pre-merge Stage 5 calibration, and the `uv run pytest`-only and
+  zero-synthetic-data rules. Conflict gate wiring lands in `flow/review/conflict_gate.py` and
+  `flow/review/conflict_merge.py`.
+- **Verification & Tests**: `tests/test_prompt_templates.py`, `tests/flow/review/test_conflict_gate.py`,
+  `tests/test_ledger_fast_conflict.py`.
+- **Holon Flow Traversal**: Intent -> Plan -> Execute -> Review Loop -> Calibration completed (predicted EV 39.45,
+  actual 59.09).

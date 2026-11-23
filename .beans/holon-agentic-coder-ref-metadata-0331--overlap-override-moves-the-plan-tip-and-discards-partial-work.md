@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0331
 title: "Each --allow-overlap resume moves the plan tip, so Stage 3 partial work is never continued"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - overlap
   - holon-agentic-coder
 created_at: 2026-11-18T12:45:00Z
-updated_at: 2026-11-20T11:40:00+11:00
+updated_at: 2026-11-20T14:30:00+11:00
 ---
 
 ## Problem
@@ -62,6 +62,31 @@ executed three times from scratch, about 45 minutes each, and no attempt continu
   `apps/sandbox-executor/src/sandbox_executor/flow/__init__.py`, `apps/sandbox-executor/tests/flow/test_admission.py`
   and `apps/sandbox-executor/tests/flow/stages/test_execute.py`. Not overridden; resume with `--from-stage execute` in
   `flow-resumetip` after PR #207 merges.
+
+- **2026-11-20:** Flow `resumetip` resumed at Stage 3 with the maintainer-authorised one-time `--allow-overlap` (overlap
+  with the waiting `blockedflow` flow, recorded on the plan branch). Executor (claude-opus-5-5) finished in 13.5 min
+  (4441 tests passed) and pushed `E-1795139222-CLA-CO5.5/_`, but its pre-push sync hit non-ledger conflicts with
+  `origin/main` (PR #207) in `apps/sandbox-executor/flow_module_budgets.json` and
+  `apps/sandbox-executor/src/sandbox_executor/flow/__init__.py`, so Stage 4 stopped. A resolve-conflict subagent merged
+  `origin/main` (additive `__all__` union; budget for `flow/__init__.py` set to its real 514 lines; lint and 898 flow
+  tests pass), then the flow resumed from Stage 4 without the override. PR #208
+  (https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/208) reached 3/3 approval at iteration 2 (iteration 1
+  had one Important finding per reviewer, resolved). Calibration is in the PR: predicted EV 39.61, actual EV -19.01 (ΔEV
+  -58.62). CI is green on head `18c4e10`, and the PR is MERGEABLE/CLEAN and waiting for a human merge.
+
+## Resolution
+
+Delivered via [PR #208](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/208) and merged into `main`
+(`00fa535`), in the same `resumetip` flow as Bean 0335:
+
+- **Override records no longer invalidate partial work**: the `--allow-overlap` admission override is recorded once per
+  plan, not on every resume, and `resolve_partial_head` accepts a partial head that descends from any earlier tip of the
+  same plan branch.
+- **Harness half**: the runner no longer relaunches with `--allow-overlap` on its own (done before this flow).
+- **Verification & Tests**: 4441 tests passed on the executor run; review approved 3/3 at iteration 2; CI green on head
+  `18c4e10`. Calibration: predicted EV 39.61, actual EV -19.01 (delta -58.62).
+- **Holon Flow Traversal**: Stage 4 stopped on a pre-push sync conflict with `origin/main` (PR #207); a resolve-conflict
+  subagent merged `origin/main` and the flow resumed from Stage 4 without the override. All five stages then completed.
 
 ## Notes
 

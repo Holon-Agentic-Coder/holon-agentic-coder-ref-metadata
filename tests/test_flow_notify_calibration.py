@@ -18,6 +18,7 @@ import run_holon_flow  # noqa: E402
 def sent(monkeypatch):
     calls = []
     monkeypatch.setattr(notify_ntfy, "notify", lambda *a, **k: calls.append((a, k)))
+    monkeypatch.setattr(run_holon_flow, "find_flow_pr", lambda worktree, slug: None)
     return calls
 
 
@@ -53,3 +54,23 @@ def test_silent_without_a_checkpoint(tmp_path, sent):
     intent, _ = make_flow(tmp_path, [])
     run_holon_flow._notify_outcome(intent, 0, tmp_path / "missing")
     assert sent == []
+
+
+def test_the_notification_names_the_pull_request(tmp_path, sent, monkeypatch):
+    monkeypatch.setattr(run_holon_flow, "find_flow_pr", lambda worktree, slug: {"number": 217, "headRefName": "x"})
+    intent, worktree = make_flow(tmp_path, ["intent", "plan", "execute", "review", "calibrate"])
+    run_holon_flow._notify_outcome(intent, 0, worktree)
+    title, message = sent[0][0][:2]
+    assert "PR #217" in title
+    assert "PR #217" in message
+
+
+def test_a_failed_pull_request_lookup_still_notifies(tmp_path, sent, monkeypatch):
+    def broken(worktree, slug):
+        raise RuntimeError("gh unavailable")
+
+    monkeypatch.setattr(run_holon_flow, "find_flow_pr", broken)
+    intent, worktree = make_flow(tmp_path, ["intent", "plan", "execute", "review", "calibrate"])
+    run_holon_flow._notify_outcome(intent, 0, worktree)
+    assert len(sent) == 1
+    assert "demo" in sent[0][0][0]

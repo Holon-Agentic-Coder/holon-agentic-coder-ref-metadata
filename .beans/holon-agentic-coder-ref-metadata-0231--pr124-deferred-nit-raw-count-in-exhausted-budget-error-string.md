@@ -10,7 +10,7 @@ tags:
   - deferred-findings
   - review-loop
 created_at: 2026-11-05T06:55:05Z
-updated_at: 2026-11-05T06:55:05Z
+updated_at: 2026-11-22T22:55:00Z
 ---
 
 Deferral bean for the PR #124 review loop (Bean 0170 convergence rule 1: nits on code the increment did not change are
@@ -30,3 +30,13 @@ deferred, not fixed mid-loop).
 ## Notes
 
 - Target: holon-agentic-coder (via a future Holon flow intent, never hand-edited).
+
+## Audit (2026-11-21)
+
+Still valid, location moved: the message is built in `_run_engine_review_loop` in `flow/review/loop.py` (around
+line 933) and still interpolates the raw `context.review_iterations_done`, while the payload uses the clamped
+`first_label - 1`. The `flow.py` reference above is stale.
+
+## Audit (2026-11-23)
+
+Still valid in `flow/review/loop.py` lines 917–918; waits for PR #230 (touches `flow/review/loop.py`).

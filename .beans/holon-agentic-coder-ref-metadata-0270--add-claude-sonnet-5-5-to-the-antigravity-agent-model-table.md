@@ -10,7 +10,7 @@ tags:
   - antigravity
   - holon-agentic-coder
 created_at: 2026-11-10T03:08:00Z
-updated_at: 2026-11-10T03:12:00Z
+updated_at: 2026-11-22T22:55:00Z
 ---
 
 ## Problem
@@ -49,3 +49,8 @@ Do not add Sonnet 5.5 to the table. Remove the hardcoded catalogue and resolve m
 - Must be produced by `holon flow`. The flow is blocked (Antigravity quota ~92h, `claude-agent` `NOT_LOGGED_IN`), so it
   needs a Claude login or an explicit maintainer instruction to hand-author it.
 - Bean 0262 resumes once a runner is usable.
+
+## Audit (2026-11-23)
+
+The 2026-11-10 runner/quota block is cleared (both runners operational), and `0262` and `0322` (PR #222) have merged.
+Unblocked and disjoint from PR #230; sequence with `0198` and `0350` on `agent_defaults.py`.

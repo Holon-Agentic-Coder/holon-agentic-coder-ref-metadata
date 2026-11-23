@@ -37,14 +37,13 @@ FALLBACK_LADDER_CLAUDE = [
 ]
 
 FALLBACK_LADDER_ANTIGRAVITY = [
-    "gemini-3.8-pro-high",
-    "gemini-3.8-pro",
-    "gemini-3.8-flash-medium",
+    "gemini-4-argon",
+    "gemini-4-hydrogen",
     "gemini-3.8-flash",
 ]
 
 # How often an overlap wait re-checks the overlapping pull requests (or, for a local flow with none, re-runs admission).
-OVERLAP_POLL_SECONDS = 300
+OVERLAP_POLL_SECONDS = 60
 OVERLAP_REFUSAL = "Stage 3 refused: the touch set overlaps"
 
 QUOTA_ERROR_PATTERNS = [
@@ -52,6 +51,10 @@ QUOTA_ERROR_PATTERNS = [
     "session limit reached",
     "insufficient_quota",
     "resource_exhausted",
+    "quota exceeded",
+    "quota exhausted",
+    "quota_exhausted",
+    "usage limit",
     "rate_limit_exceeded",
     "too many requests",
     "http 429",
@@ -101,22 +104,24 @@ def resolve_next_model(agent: str, current_model: str) -> tuple[str, str] | None
             # Current model not in ladder, fall back to second tier
             return agent, ladder[1]
 
-        # Cross-runner fallback to antigravity
-        log_warn("Claude ladder exhausted; switching runner to antigravity-agent.")
-        return "antigravity-agent", FALLBACK_LADDER_ANTIGRAVITY[0]
+        # Never switch runner on our own: the maintainer decides (no auto-switch to antigravity/gemini).
+        log_warn("Claude ladder exhausted; not switching runner without the maintainer's go-ahead.")
+        return None
 
     elif "antigravity" in agent.lower() or "gemini" in agent.lower():
         ladder = FALLBACK_LADDER_ANTIGRAVITY
+        base_model = re.sub(r"-(?:xhigh|high|medium|low)$", "", current_model)
+        lookup = current_model if current_model in ladder else base_model
         try:
-            idx = ladder.index(current_model)
+            idx = ladder.index(lookup)
             if idx + 1 < len(ladder):
                 return agent, ladder[idx + 1]
         except ValueError:
             return agent, ladder[1]
 
-        # Cross-runner fallback to claude
-        log_warn("Antigravity ladder exhausted; switching runner to claude-agent.")
-        return "claude-agent", FALLBACK_LADDER_CLAUDE[0]
+        # Never switch runner on our own: the maintainer decides.
+        log_warn("Antigravity ladder exhausted; not switching runner without the maintainer's go-ahead.")
+        return None
 
     return None
 
@@ -186,6 +191,19 @@ def parse_intent_file(intent_path: Path) -> dict[str, str]:
     return data
 
 
+def find_flow_pr(target_worktree: Path, slug: str) -> dict | None:
+    """Return the open pull request (number, headRefName, title, url) whose head branch or title names the slug."""
+    res = subprocess.run(
+        ["gh", "pr", "list", "--state", "open", "--json", "number,headRefName,title,url"],
+        cwd=target_worktree,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    prs = json.loads(res.stdout)
+    return next((pr for pr in prs if slug in pr["headRefName"] or slug in pr["title"].lower()), None)
+
+
 def verify_pr_and_calibration(
     target_worktree: Path,
     slug: str,
@@ -198,26 +216,15 @@ def verify_pr_and_calibration(
 
     log_stage("Verifying Pull Request & Calibration Integrity")
 
-    # Locate PR using gh CLI
     try:
-        res = subprocess.run(
-            ["gh", "pr", "list", "--state", "open", "--json", "number,headRefName,title,url"],
-            cwd=target_worktree,
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        prs = json.loads(res.stdout)
+        pr = find_flow_pr(target_worktree, slug)
     except Exception as exc:
         log_warn(f"Could not query GitHub PRs: {exc}")
         return
-
-    matching_prs = [pr for pr in prs if slug in pr["headRefName"] or slug in pr["title"].lower()]
-    if not matching_prs:
+    if pr is None:
         log_warn(f"No open PR found matching slug '{slug}'.")
         return
 
-    pr = matching_prs[0]
     pr_number = pr["number"]
     pr_url = pr["url"]
     head_branch = pr["headRefName"]
@@ -297,13 +304,19 @@ def execute_flow_process(
 def resolve_flow_worktree(target_worktree: Path, slug: str, dry_run: bool = False) -> Path:
     """Return the worktree the flow runs in; a ``main`` target becomes a dedicated ``flow-<slug>`` worktree.
 
+    A ``flow-<name>`` target that does not exist yet, beside a ``main`` worktree, is created the same way.
+
     The ``main`` worktree must stay on ``main`` and identical to ``origin/main``, but stages 4 and 5 check out the
     execution branch and commit in the target worktree. A sibling ``flow-<slug>`` worktree is cut from ``origin/main``
     (the name and branch ``holon flow`` derives itself) and used instead; it is reused when it already exists.
     """
     target_worktree = target_worktree.resolve()
     if target_worktree.name != "main":
-        return target_worktree
+        main_worktree = target_worktree.parent / "main"
+        if target_worktree.exists() or not target_worktree.name.startswith("flow-") or not main_worktree.exists():
+            return target_worktree
+        # A missing flow-<name> worktree next to the main worktree is cut from origin/main, like a main target.
+        target_worktree, slug = main_worktree, target_worktree.name.removeprefix("flow-")
     clean_slug = re.sub(r"[^a-zA-Z0-9_\-]+", "-", slug.strip()).strip("-") or "flow"
     flow_worktree = target_worktree.parent / f"flow-{clean_slug}"
     if flow_worktree.exists():
@@ -344,10 +357,10 @@ def parse_limit_reset(output: str):
     from datetime import datetime, timedelta
     from zoneinfo import ZoneInfo
 
-    m = re.search(r"resets\s+(\d{1,2}):(\d{2})\s*(am|pm)(?:\s*\(([^)]+)\))?", output, re.I)
+    m = re.search(r"resets\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)(?:\s*\(([^)]+)\))?", output, re.I)
     if not m:
         return None
-    hour, minute, ampm, tz_name = int(m.group(1)), int(m.group(2)), m.group(3).lower(), m.group(4)
+    hour, minute, ampm, tz_name = int(m.group(1)), int(m.group(2) or 0), m.group(3).lower(), m.group(4)
     hour = hour % 12 + (12 if ampm == "pm" else 0)
     try:
         tz = ZoneInfo(tz_name) if tz_name else None
@@ -586,9 +599,14 @@ def _notify_outcome(intent_path: Path, exit_code: int, target_worktree: Path) ->
 
         slug = parse_intent_file(intent_path)["slug"]
         if exit_code == 0 and _calibration_done(target_worktree, slug):
+            try:
+                pr = find_flow_pr(target_worktree, slug)
+            except Exception:  # noqa: BLE001 - the PR number is a nicety; still notify without it
+                pr = None
+            ref = f"PR #{pr['number']}" if pr else "the PR"
             notify(
-                f"Holon flow calibrated: {slug}",
-                "Calibration is done and in the PR. Review and merge it when you are ready.",
+                f"Holon flow calibrated: {ref} ({slug})" if pr else f"Holon flow calibrated: {slug}",
+                f"Calibration is done and in {ref}. Review and merge it when you are ready.",
                 tags="white_check_mark",
             )
     except Exception:  # noqa: BLE001 - a notification must never break a flow
@@ -621,8 +639,8 @@ def main() -> None:
     parser.add_argument(
         "--model",
         type=str,
-        default="gemini-3.8-flash-medium",
-        help="Model tier for the agent runner (default: gemini-3.8-flash-medium).",
+        default=FALLBACK_LADDER_ANTIGRAVITY[0],
+        help="Model tier for the agent runner (default: gemini-4-argon).",
     )
     parser.add_argument(
         "--from-stage",

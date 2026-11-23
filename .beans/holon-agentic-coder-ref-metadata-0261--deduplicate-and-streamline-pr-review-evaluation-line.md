@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0261
 title: "Deduplicate and streamline PR review evaluation line in consensus report"
-status: todo
+status: completed
 type: bug
 priority: normal
 tags:
@@ -11,7 +11,7 @@ tags:
   - token-reduction
   - holon-agentic-coder
 created_at: 2026-11-09T07:42:00Z
-updated_at: 2026-11-09T07:42:00Z
+updated_at: 2026-11-20T14:05:06Z
 ---
 
 ## Problem
@@ -71,3 +71,24 @@ def _evaluation(repo_dir: str, target: str, consensus_data: Mapping[str, Any], d
 
 - `apps/sandbox-executor/src/sandbox_executor/review_report.py`
 - `apps/sandbox-executor/tests/test_review_report.py`
+
+## Progress
+
+- 2026-11-20: Started holon flow `review-report-ci-log-redaction` (claude-agent, claude-opus-5-5), combined with beans
+  0261, 0213, 0234 and 0148.
+- 2026-11-20: Flow `review-report-ci-log-redaction` finished all 5 stages: 3/3 consensus approval at review iteration 3,
+  calibration report in the diff (EV predicted 39.45, actual 59.09, delta +19.64), final-head CI green. PR
+  [#220](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/220) was merged by the maintainer at 14:03Z.
+
+## Resolution
+
+Delivered via [PR #220](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/220) and merged into `main`
+(`9a5454bf`), as part of the combined flow `review-report-ci-log-redaction`:
+
+- **Key Deliverables**: `resolve_report_title()` now falls back to intent `title`, then `slug`, then the target title
+  before the raw branch ref. `_evaluation()` no longer repeats the branch ref as `{title} ({link})`, and the evaluation
+  sentence is streamlined with an 8-character commit SHA.
+- **Verification & Tests**: `apps/sandbox-executor/tests/test_review_report.py` covers the deduplicated subject, slug
+  fallback and concise evaluation line.
+- **Holon Flow Traversal**: Intent -> Plan -> Execute -> Review Loop -> Calibration completed (predicted EV 39.45,
+  actual 59.09).

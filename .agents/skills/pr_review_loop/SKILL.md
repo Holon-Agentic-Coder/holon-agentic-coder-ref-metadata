@@ -343,9 +343,9 @@ resolution step is executed in a dedicated, fresh subagent**.
     interactive session, the main agent MUST NOT execute the loop inline. Running the multi-iteration loop directly in
     the main interactive thread hijacks the user's conversation across dozens of subagent wakeups. Instead, the main
     agent immediately delegates the entire loop lifecycle to a dedicated background **PR Review Loop Orchestrator**
-    subagent (`invoke_subagent` with `TypeName: "self"`, `Model: "inherit"`,
-    `Role: "PR Review Loop Orchestrator (<repo> PR #<N>)"`) and immediately returns control to the user (see
-    [Step 0](#step-0-entrypoint-delegation--spawn-the-background-loop-orchestrator-subagent) and
+    subagent (`invoke_subagent` with `TypeName: "self"`, `Model: "inherit"`, `Role: "#<N> - review loop orchestrator"`,
+    named per [subagents.md, "Subagent names"](../../subagents.md#subagent-names)) and immediately returns control to
+    the user (see [Step 0](#step-0-entrypoint-delegation--spawn-the-background-loop-orchestrator-subagent) and
     [`.agents/coordination.md`](../../coordination.md)).
 
 ---
@@ -358,10 +358,9 @@ Follow these steps when executing the `pr-review-loop` skill:
 
 Before executing any loop setup or iteration steps, evaluate the **Re-Entrancy Guard**:
 
-- **Re-Entrancy Guard**: If the currently executing agent is _already_ the spawned
-  `PR Review Loop Orchestrator (<repo> PR #<N>)` subagent (or a background flow orchestrator subagent executing Stage 4
-  of the Holon flow), **DO NOT spawn another nested loop orchestrator**. Proceed directly to
-  [Step 1: Parse Parameters](#step-1-parse-parameters).
+- **Re-Entrancy Guard**: If the currently executing agent is _already_ the spawned `#<N> - review loop orchestrator`
+  subagent (or a background flow orchestrator subagent executing Stage 4 of the Holon flow), **DO NOT spawn another
+  nested loop orchestrator**. Proceed directly to [Step 1: Parse Parameters](#step-1-parse-parameters).
 - **Main Interactive Agent Delegation**: When the user (or a parent interactive session) invokes
   `/pr-review-loop <PR_URL_OR_NUMBER>`, the main interactive agent **MUST NOT execute the loop inline**. Instead:
   1. Resolve `<repo>`, PR number `<N>`, the target worktree path, and `<max_iterations>` (default `25`).
@@ -372,14 +371,14 @@ Before executing any loop setup or iteration steps, evaluate the **Re-Entrancy G
      ```json
      {
        "TypeName": "self",
-       "Role": "PR Review Loop Orchestrator (<repo> PR #<N>)",
+       "Role": "#<N> - review loop orchestrator",
        "Model": "inherit",
-       "Prompt": "You are the background PR Review Loop Orchestrator (<repo> PR #<N>). Execute `.agents/skills/pr_review_loop/SKILL.md` for `<pr_url_or_number>` (worktree: `<worktree_path>`, max_iterations: `<max_iterations>`). Because you are already the spawned PR Review Loop Orchestrator subagent, pass the Step 0 re-entrancy guard and proceed directly to Step 1. Own the entire loop lifecycle (state tracking in `.subagent/`, Phase A dry-run review, Phase B 3-agent `pr-reviewer` ensemble consensus review, CI check verification, Phase C `pr-review-resolver` when `CHANGES_REQUESTED`, posting the final consensus review to GitHub upon `APPROVED`, and running Stage 5 `holon calibrate` for Holon flow PRs). Do NOT message the parent agent on intermediate iterations; call `send_message` to the parent agent ONLY ONCE upon terminal completion (`APPROVED` + calibrated) or an unresolvable terminal stop (`MAX_ITERATIONS_REACHED` / `DIVERGING`)."
+       "Prompt": "You are the background PR Review Loop Orchestrator (`#<N> - review loop orchestrator`). Execute `.agents/skills/pr_review_loop/SKILL.md` for `<pr_url_or_number>` (worktree: `<worktree_path>`, max_iterations: `<max_iterations>`). Because you are already the spawned PR Review Loop Orchestrator subagent, pass the Step 0 re-entrancy guard and proceed directly to Step 1. Own the entire loop lifecycle (state tracking in `.subagent/`, Phase A dry-run review, Phase B 3-agent `pr-reviewer` ensemble consensus review, CI check verification, Phase C `pr-review-resolver` when `CHANGES_REQUESTED`, posting the final consensus review to GitHub upon `APPROVED`, and running Stage 5 `holon calibrate` for Holon flow PRs). Do NOT message the parent agent on intermediate iterations; call `send_message` to the parent agent ONLY ONCE upon terminal completion (`APPROVED` + calibrated) or an unresolvable terminal stop (`MAX_ITERATIONS_REACHED` / `DIVERGING`)."
      }
      ```
 
-  3. The spawned `PR Review Loop Orchestrator (<repo> PR #<N>)` subagent owns the entire loop lifecycle across all
-     phases and iterations:
+  3. The spawned `#<N> - review loop orchestrator` subagent owns the entire loop lifecycle across all phases and
+     iterations:
      - Maintaining `.subagent/<repo>_pr<N>_state.json`, `<repo>_pr<N>_coordination.json`, and
        `<repo>_pr<N>_loop_history.md` in the harness `.subagent/` directory.
      - Spawning the per-iteration dry-run reviewer and the 3 `pr-reviewer` ensemble subagents, and synthesising the
@@ -486,7 +485,7 @@ Execute the review pass in a clean, isolated subagent context.
 
 ##### 📋 Generic Subagent Contract (Any Coding Agent):
 
-- **Role**: `PR Reviewer (Iteration <iteration>)`
+- **Role**: `#<N> - iter <iteration> dry-run reviewer`
 - **Context Isolation**: Spin off a dedicated child context using your agent's native subagent tool, child task runner,
   or child process to keep parent context clean and prevent prompt degradation.
 - **Capabilities**: Child agent MUST possess file-writing tools (`write_to_file`, `replace_file_content`, or child
@@ -498,8 +497,8 @@ Execute the review pass in a clean, isolated subagent context.
 - **Model**: Inherit the parent agent's model (`inherit`). If credit or quota runs out on `"inherit"` / `"pro"`,
   automatically fall back along `Model: "inherit"` / `"pro"` $\rightarrow$ `"flash"` $\rightarrow$ `"flash_lite"` (and
   similarly step down `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` or
-  `gemini-3.8-pro-high` $\rightarrow$ `gemini-3.8-flash-medium` $\rightarrow$ `gemini-3.8-flash`) and continue the loop
-  from the current iteration without losing completed work.
+  `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash`) and continue the loop from the
+  current iteration without losing completed work.
 - **Prompt Instructions**:
   > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` in **Dry-Run Mode (`--dry-run`)** with
   > **Single-Agent Mode** enabled.
@@ -535,7 +534,7 @@ In the AGY runtime, call `invoke_subagent`:
   "Subagents": [
     {
       "TypeName": "self",
-      "Role": "PR Reviewer (Iteration <iteration>)",
+      "Role": "#<N> - iter <iteration> dry-run reviewer",
       "Model": "inherit",
       "Prompt": "<Prompt Instructions from above>"
     }
@@ -567,7 +566,7 @@ Wait for the subagent to complete and inspect its report.
      or strictly one-at-a-time on a local model runtime** (principle 11); independence, fresh context and blind voting
      are identical in both modes:
      - **Generic Subagent Contract (Any Coding Agent)**:
-       - **Role**: `PR Ensemble Reviewer (Iteration <iteration>)`
+       - **Role**: `#<N> - iter <iteration> ensemble reviewer <k>`
        - **Capabilities**: All 3 ensemble reviewer children and the consensus synthesizer child MUST possess
          file-writing tools (`write_to_file`, `replace_file_content`, or child equivalent). In AGY, use
          `TypeName: "self"`. Any pass that returns a verdict without writing its report artifact to disk is recorded
@@ -617,7 +616,7 @@ Wait for the subagent to complete and inspect its report.
          "Subagents": [
            {
              "TypeName": "self",
-             "Role": "PR Ensemble Reviewer (Iteration <iteration>)",
+             "Role": "#<N> - iter <iteration> ensemble reviewer <k>",
              "Model": "inherit",
              "Prompt": "<Prompt Instructions from above>"
            }
@@ -741,7 +740,7 @@ Execute the resolution pass in a clean, isolated subagent context.
 
 ##### 📋 Generic Subagent Contract (Any Coding Agent):
 
-- **Role**: `PR Review Resolver (Iteration <iteration>)`
+- **Role**: `#<N> - iter <iteration> resolver`
 - **Context Isolation**: Spin off a dedicated child context using your agent's native subagent tool, child task runner,
   or child process to keep parent context clean and apply code fixes safely.
 - **Capabilities**: Child agent MUST possess file-writing and command execution tools (`write_to_file`,
@@ -749,8 +748,8 @@ Execute the resolution pass in a clean, isolated subagent context.
 - **Model**: Inherit the parent agent's model (`inherit`). If credit or quota runs out on `"inherit"` / `"pro"`,
   automatically fall back along `Model: "inherit"` / `"pro"` $\rightarrow$ `"flash"` $\rightarrow$ `"flash_lite"` (and
   similarly step down `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` or
-  `gemini-3.8-pro-high` $\rightarrow$ `gemini-3.8-flash-medium` $\rightarrow$ `gemini-3.8-flash`) and continue the loop
-  from the current iteration without losing completed work.
+  `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash`) and continue the loop from the
+  current iteration without losing completed work.
 - **Target Worktree**: Locate the target repository worktree under `apps/holon-agentic-coder/{branch}`,
   `apps/holon-coherence/{branch}`, or repository root.
 - **Prompt Instructions**:
@@ -796,7 +795,7 @@ In the AGY runtime, call `invoke_subagent`:
   "Subagents": [
     {
       "TypeName": "self",
-      "Role": "PR Review Resolver (Iteration <iteration>)",
+      "Role": "#<N> - iter <iteration> resolver",
       "Model": "inherit",
       "Prompt": "<Prompt Instructions from above>"
     }

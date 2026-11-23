@@ -102,13 +102,13 @@ across model tiers, use `holon flow <intent.json> --from-stage <stage>` or `--ch
   **continue the flow from the current stage** (reusing the already-created `I-.../_`, `P-.../_`, or `E-.../_` branch
   rather than starting over):
   - **Claude (`claude-agent`)**: `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5`.
-  - **Antigravity (`antigravity-agent` CLI)**: `gemini-3.8-pro-high` $\rightarrow$ `gemini-3.8-flash-medium`
-    $\rightarrow$ `gemini-3.8-flash`.
+  - **Antigravity (`antigravity-agent` CLI)**: `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$
+    `gemini-3.8-flash` (default to `gemini-4-argon` for all Holon coding tasks until tokens run out).
   - **Antigravity (`invoke_subagent`)**: `Model: "inherit"` / `"pro"` $\rightarrow$ `"flash"` $\rightarrow$
     `"flash_lite"`.
   - **Cross-Runner Continuation**: If all model tiers under the current runner share an exhausted account/session quota,
     switch `--agent` to the alternate runner (`antigravity-agent` or `claude-agent`) and resume from the failed stage
-    (e.g. `holon plan <intent_branch> --agent antigravity-agent --model gemini-3.8-flash-medium`, followed by
+    (e.g. `holon plan <intent_branch> --agent antigravity-agent --model gemini-4-argon`, followed by
     `holon execute <plan_branch>`, `holon review <execution_branch>`, and `holon calibrate <execution_branch>`).
 - **Ledger-Only Conflicts Do Not Require Test Runs**: When merging or rebasing `origin/main` into a Holon flow branch
   and the conflict is confined entirely to `holon-knowledge/ledger/*.jsonl`, running test suites is not required.

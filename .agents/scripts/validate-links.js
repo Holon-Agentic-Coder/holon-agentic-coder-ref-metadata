@@ -24,6 +24,7 @@ const filesToCheck = [
   path.join(rootDir, '.agents/skills/install_coherence/SKILL.md'),
   path.join(rootDir, '.agents/skills/post_pr_merge/SKILL.md'),
   path.join(rootDir, '.agents/skills/prioritise_beans/SKILL.md'),
+  path.join(rootDir, '.agents/skills/bean_progress/SKILL.md'),
   path.join(rootDir, '.agents/skills/holon_flow/SKILL.md'),
   path.join(rootDir, '.agents/watcher/README.md'),
 ];

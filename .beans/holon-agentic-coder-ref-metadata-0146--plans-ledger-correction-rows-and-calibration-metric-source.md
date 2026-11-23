@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0146
 title: "Define plans-ledger correction rows and make calibration pick the right predicted metrics"
-status: todo
+status: completed
 type: bug
 priority: medium
 tags:
@@ -10,7 +10,7 @@ tags:
   - planner
   - provenance
 created_at: 2026-10-23T16:10:00Z
-updated_at: 2026-10-26T02:33:21Z
+updated_at: 2026-11-21T02:21:00+11:00
 ---
 
 ## Problem
@@ -62,3 +62,31 @@ Overall values:
 | holon-agentic-coder #95 | `cdc6639` | `5a5e766`  | 4.22                  | 25.60             | 4.39      |
 | holon-agentic-coder #94 | `7e84078` | `8496227`  | 4.75                  | 39.84             | 5.07      |
 | holon-coherence #27     | `aec5f7d` | `ed2cf2f`  | 5.84                  | 6.48              | 5.18      |
+
+## Audit (2026-11-21)
+
+Still valid. `calibration.py` `_parse_predicted_from_plans_ledger` (around line 675) still returns the first matching
+`plans.jsonl` row, and no plans-row correction type is documented. Partly done: the "two contradictory terminal summary
+rows" nit is handled by [PR #213](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/213), where
+`calibration_outcome.py` picks the final row in flow order (created_at, then `ledger_revision`). Remaining scope is
+items 1-2 only (correction row definition, and predicted-metric selection).
+
+## Progress
+
+- 2026-11-20 14:16 UTC: flow `plans-correction-row-selection` started (claude-agent, claude-opus-5-5).
+- 2026-11-20 14:44 UTC: flow done; [PR #221](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/221)
+  approved 3/3 at iteration 1, calibrated (EV 41.85 -> 53.76), CI green, CLEAN; awaiting human merge.
+
+## Resolution
+
+Delivered via [PR #221](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/221) and merged into `main`
+(`68ec164`):
+
+- **Key Architectural Deliverables**: new `calibration_predicted.py` selects the predicted metrics for calibration (plan
+  Overall table cross-checked against the plans-ledger row and execution `predicted_metrics`, with a warning on
+  mismatch); `docs/ledger_schema.md` defines the plans-row correction type (`ledger_revision` / `ledger_correction`);
+  `calibration.py` uses the new selection in place of first-match-wins.
+- **Verification & Tests**: `tests/test_calibration_plan_keys.py` covers the selection and correction paths; flow
+  calibration reported predicted EV 41.85 against actual 53.76.
+- **Holon Flow Traversal**: all 5 stages (Intent -> Plan -> Execute -> Review Loop -> Calibration) completed; review
+  approved 3/3 at iteration 1.

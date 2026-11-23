@@ -10,7 +10,7 @@ tags:
   - beads
   - holon-agentic-coder
 created_at: 2026-11-19T11:30:00Z
-updated_at: 2026-11-19T11:30:00Z
+updated_at: 2026-11-22T22:55:00Z
 ---
 
 ## Decision (maintainer, 2026-11-19)
@@ -62,3 +62,16 @@ The follow-up in `todo/beadspil-dockerfile-digest-pin.patch` was dropped on 2026
   and not beside Bean 0322, which also edits the Dockerfile.
 - The intent JSON must not mention bean ids or harness paths.
 - Related: Bean 0156 (investigation, superseded on the tracker choice), Bean 0214 (pilot), Beans 0215-0218 and 0317.
+
+## Audit (2026-11-21)
+
+Still valid on `origin/main`: `.beads/config.yaml` and `tests/test_beads_integration.py` (the pilot from
+[PR #204](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/204)) are still present, and Beans 0215-0218
+and 0317 remain blocked on this decision bean.
+
+## Audit (2026-11-23)
+
+`0321` (PR #206) and `0322` (PR #222) have both merged. Beads pilot files still on `main` (`b22258d`):
+`.beads/config.yaml`, `.gitignore`, `apps/sandbox-executor/Dockerfile`, `apps/sandbox-executor/docker-bake.hcl`,
+`apps/sandbox-executor/tests/test_beads_integration.py`, `docs/agents.md`, `docs/issue_tracking.md`. Unblocked and
+completely disjoint from PR #230.

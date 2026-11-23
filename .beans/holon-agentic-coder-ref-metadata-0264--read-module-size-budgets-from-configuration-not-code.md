@@ -1,109 +1,130 @@
 ---
 # holon-agentic-coder-ref-metadata-0264
-title: "Read module size budgets from configuration instead of hardcoding paths and numbers in the check"
-status: todo
+title:
+  "Module size budgets force a split: forbid raising a budget, default ceiling for new modules, no shared edit per flow"
+status: completed
 type: task
-priority: normal
+priority: high
 tags:
   - flow
   - lint
   - configuration
-  - tests
+  - admission
   - holon-agentic-coder
 created_at: 2026-11-09T10:00:00Z
-updated_at: 2026-11-09T10:00:00Z
+updated_at: 2026-11-20T09:32:35Z
 ---
+
+## Intent of the budget (maintainer, 2026-11-20)
+
+A module budget is a ceiling that forces a big module to be **divided**. It is not a number to raise whenever a file
+gets bigger. When a change would push a module past its budget, the module is split; the budget is never raised to fit.
+
+**The budget is strictly off-limits.** No agent or flow touches the budget configuration in any way (raise, lower, add,
+delete) unless the maintainer has given an explicit instruction for that change.
 
 ## Problem
 
-The per-module size ratchet from Bean 0254 (PR #147) has its settings baked into code and into a one-off data file:
+The per-module size ratchet from Bean 0254 (PR #147) stops a module from growing past its budget, but nothing stops a
+pull request from raising the budget, so flows take the cheapest path to a green lint and edit the JSON:
 
-- `scripts/check_flow_module_budgets.py` hardcodes both paths (`DEFAULT_PACKAGE_DIR` is
-  `apps/sandbox-executor/src/sandbox_executor/flow` and `DEFAULT_BUDGETS` is
-  `apps/sandbox-executor/flow_module_budgets.json`), the JSON shape (`["budgets"]`), and its rules (a module with no
-  entry is a violation, an entry with no module is a violation).
-- The script and its message strings are named for the `flow` package, so applying the same ratchet to another package
-  (`cli/commands/`, `proxy/`, `executor/`, as `AGENTS.md` rule 15 suggests) means copying the script.
-- The 200-line guideline from `AGENTS.md` rule 15 appears nowhere in the check. Every module needs a budget entry at its
-  creation size, so the file holds 28 numbers, 18 of them above 200 lines (the largest, `review/loop.py`, is 962).
-- `tests/flow/test_module_budgets.py` builds temporary packages against the same hardcoded layout.
+- `apps/sandbox-executor/flow_module_budgets.json` has changed in 34 commits. It went from 28 modules and 6,937 budgeted
+  lines to 70 modules and 12,091. Some of that is splitting, as intended, but the number of modules over 200 lines still
+  rose from 18 to 22, and the largest is 952.
+- Its `description` string has become a running log of raises ("raised by 1, 1 and 3 lines for …"), which every flow
+  appends to.
+- Every module needs an entry, so a split must also add rows to the file.
 
-Settings that people tune belong in the repository's Holon configuration directory, which tools read like the metrics
-and prompt files, not in script constants or a bespoke JSON file that sits beside the source.
+Because almost every flow on `flow/` code edits this one file, Stage 3 admission sees it in every touch set and refuses
+or serialises flows that otherwise share nothing (2026-11-20: `review-keeps-worktree-on-branch` waited on PR #210 only
+for this file), and the shared `description` line makes the merges conflict textually (PRs #206, #208, #209).
 
 ## Goal
 
-1. **Define the settings in `holon-config/`**, the repository's existing configuration directory (next to
-   `holon-config/metrics/*.json`, `prompts/` and `world/`, which the code already reads by path). They do not go in
-   `pyproject.toml`. Add `holon-config/hygiene/module_budgets.json`, read with the standard library `json` module (no
-   new dependency), for example:
+Through the Holon flow on `holon-agentic-coder`:
 
-   ```json
-   {
-     "default_max_lines": 200,
-     "packages": ["apps/sandbox-executor/src/sandbox_executor/flow"],
-     "overrides": {
-       "apps/sandbox-executor/src/sandbox_executor/flow/review/loop.py": {
-         "max_lines": 962,
-         "reason": "Review loop engine; to be decomposed by the ReviewLoop extraction"
-       }
-     }
-   }
-   ```
+1. **The budget configuration is frozen: nothing may change it without the maintainer's explicit instruction.** No
+   agent, flow stage, resolver or reviewer may raise, lower, add, delete or reformat any budget, override or the default
+   ceiling on its own judgement, not even to lower a limit after a split. Any difference between the budget
+   configuration and the merge base's copy (`git merge-base HEAD origin/main`) fails the check, unless the change is
+   explicitly authorised:
+   - **In the flow:** the intent carries a `module_budget_change` field quoting the maintainer's instruction. Only then
+     does the flow set `HOLON_ALLOW_MODULE_BUDGET_CHANGE=1` for the check. Without the field, Stage 3 and the Stage 4
+     resolver refuse to commit any change to the budget configuration, and the planner must not list it in the touch
+     set.
+   - **In CI:** the check fails on any change to the budget configuration unless the pull request carries the
+     `module-budget-change` label, which only the maintainer applies (agents never add or remove it).
+   - The one authorised change is this flow itself, which creates the new configuration from the existing budgets at
+     their current values (maintainer instruction, 2026-11-20). Every value is copied unchanged.
+2. **New modules need no entry.** A default ceiling of 200 lines (the guideline in the repository's agent rules) applies
+   to every module without an override, so a split adds no entries. An override that names a missing module, or sits at
+   or below the default, is reported as a `::warning::` for the maintainer, never as a failure, because fixing it would
+   mean touching the configuration.
+3. **Over budget means split.** The check's failure message says to split the module and that the budget may not be
+   changed. The planner, executor and Stage 4 resolver prompts (`holon-config/prompts/`) say the same: when a planned
+   change would push a module past its limit, plan and perform the extraction into new modules as part of the change.
+   Reviewers treat any change to the budget configuration without the authorisation above as a Critical finding.
+4. **Settings in configuration, no history prose.** Move the settings to `holon-config/hygiene/module_budgets.json`
+   (`default_max_lines`, `packages`, `overrides` keyed by repository-relative path, sorted, one per line, plain
+   integers). No free-text history: reasons for changes belong in commit messages and the ledgers. Rename the check to
+   `scripts/check_module_budgets.py`, make it generic over the configured packages with no hardcoded path, package or
+   line count (optional `--config` and `--base` for tests), and delete `apps/sandbox-executor/flow_module_budgets.json`
+   and `scripts/check_flow_module_budgets.py` with every reference to them (lint task, CI, docs). No fallback.
+5. **Tests and docs.** Move the test to `tests/test_module_budgets.py` and cover: the default ceiling for a module with
+   no entry; an override; a new module under 200 lines passing with no entry; any change to the configuration against a
+   base copy failing (a raise, a lower, an added or deleted override, a changed default); the same change passing when
+   explicitly authorised; an override naming a missing module and a redundant override producing warnings, not failures;
+   multiple packages; a custom `--config`. Hermetic flow tests: without the intent field, Stage 3 and the resolver
+   refuse to commit a budget change and the planner leaves the configuration out of the touch set. Update
+   `docs/architecture.md` to state the rule (split; the budget is frozen and changes only on the maintainer's explicit
+   instruction) and where the settings live.
+6. **Constraints:** `uv run pytest`, `uv run task lint` and `uv run task lint-docs` pass; no new dependencies; exactly
+   the three ledgers.
 
-   The exact key names may differ, but the shape must give three things: which packages are checked, one default
-   ceiling, and per-module overrides keyed by repository-relative path, recorded at the modules' current sizes, each
-   with a reason. Keys are sorted, one entry per module.
+## Expected effect
 
-2. **Make the check generic and free of hardcoded values.** Rename it to `scripts/check_module_budgets.py`. It reads
-   `holon-config/hygiene/module_budgets.json` (with an optional `--config` path used by tests), checks every `.py` file
-   under each configured package, and reports one message per violation:
-   - a module above its override, or above the default ceiling when it has no override;
-   - an override naming a missing module (remove it);
-   - an override above the default ceiling is allowed (that is what an override is for), but an override at or below the
-     default ceiling is redundant and reported.
-
-   No path, package name or line count appears in the script.
-
-3. **Agents can change the configuration, with changes made visible.** The settings are ordinary configuration that flow
-   agents and people edit in a PR like any other file: nothing blocks lowering, raising, adding or removing an override,
-   or changing the default ceiling. What the check adds is visibility, not a veto: it compares the configuration with
-   the merge base's copy (`git show <base>:holon-config/hygiene/module_budgets.json`, skipped quietly when there is no
-   base) and prints a `::warning::` line for every effective limit that went up, naming the module, the old and new
-   limit and the number of lines it now allows. Each override carries a short `reason` (a table with `max-lines` and
-   `reason`, or an adjacent comment convention the check can read), and the check reports an override with no reason as
-   a violation so a raise is never silent. Reviewers see the warnings in CI output and the reason in the diff, and
-   decide.
-
-4. **Remove the old pieces.** Delete `apps/sandbox-executor/flow_module_budgets.json` and
-   `scripts/check_flow_module_budgets.py`, update the `lint` task and any CI hygiene step that calls the script, and
-   delete every reference to the old names (code, docs, CI configuration). No fallback to the JSON file.
-
-5. **Tests and docs.** Rework `tests/flow/test_module_budgets.py` (move it to `tests/test_module_budgets.py`, since the
-   check is no longer flow-specific) to cover: the default ceiling, an override, a missing module, a redundant override,
-   an override without a reason, multiple packages, a raised limit producing a warning (and still passing) against a
-   base copy, a lowered limit producing none, and reading a custom `--config`. Update `docs/architecture.md` and the
-   contributing notes to describe where the settings live and how to lower a budget.
-
-6. **Constraints**: `uv run pytest`, `uv run task lint` and `uv run task lint-docs` pass; no new dependencies.
+No flow touches the budget configuration unless the maintainer has asked for that change, so it drops out of touch sets
+and stops causing Stage 3 overlap waits and Stage 4 merge conflicts.
 
 ## Sequencing
 
-- **Do not start yet.** PR #152 (Bean 0262) lowers entries in `flow_module_budgets.json`, and Bean 0263 edits
-  `tests/flow/` and `docs/architecture.md`. Run this after both have merged, to avoid conflicts on the same files.
-- It touches `holon-config/hygiene/`, `scripts/`, `tests/`, the CI hygiene configuration and `docs/`, and no source
-  modules, so it can run alongside beans that change `src/`.
-
-## Trade-offs to note
-
-- The overrides still live in one shared file, so two PRs that change different modules can touch adjacent lines of the
-  same table. Configuration was chosen deliberately over per-module header comments. Sorted keys and one entry per line
-  keep any such conflict trivial, and the default ceiling means most new modules need no entry at all.
-- Letting agents raise limits means the ratchet no longer forbids growth: it records it. Earlier flow intents told
-  agents never to raise a budget; that instruction was a choice made for those runs, not part of this design, and
-  intents written after this bean lands should not repeat it.
-
-## Notes
-
-- Target repository changes in `holon-agentic-coder` must be delivered through the 5-stage Holon flow.
+- Start after the in-flight flows that edit `flow_module_budgets.json` (Beans 0336 and 0338) have merged; this flow
+  deletes that file.
 - The intent JSON must not mention bean IDs or harness paths, because it is copied into `intents.jsonl`.
+
+## Progress
+
+- 2026-11-20 18:52 AEDT: flow `freeze-module-budgets-split` started (claude-agent, claude-opus-5-5) in worktree
+  `flow-freeze-module-budgets-split`.
+- 2026-11-20 20:05 AEDT: flow complete. PR #214 approved 3/3 (re-review after merging origin/main for #213 ledger
+  conflicts), calibration in PR diff (EV predicted 36.32, actual 70.68, +34.36), MERGEABLE/CLEAN, checks green. The 22
+  budgets over 200 lines were copied unchanged; the other 49 fall under the 200-line default. Awaiting human merge.
+
+## History
+
+- 2026-11-09: first written as "read module size budgets from configuration", which let agents raise limits with a
+  warning. Rewritten 2026-11-20 after the maintainer restated the intent: budgets force a split and are never raised.
+  Tightened the same day: the budget configuration is frozen, and any change at all needs the maintainer's explicit
+  instruction.
+
+## Resolution
+
+Delivered via [PR #214](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/214) and merged into `main`
+(`bea601e`):
+
+- **Budgets frozen and moved to configuration**: the settings now live in `holon-config/hygiene/module_budgets.json`
+  (`default_max_lines` 200, `packages`, `overrides` sorted, plain integers). The 22 existing overrides were copied
+  unchanged. Free-text history removed. `apps/sandbox-executor/flow_module_budgets.json` and
+  `scripts/check_flow_module_budgets.py` are deleted.
+- **Generic check**: `scripts/check_module_budgets.py` is generic over the configured packages (optional `--config` and
+  `--base`). Any difference from the merge base's configuration fails unless authorised, through the intent's
+  `module_budget_change` field (flow) or the maintainer-only `module-budget-change` PR label (CI). Overrides naming a
+  missing module, or at or below the default, warn only.
+- **Flow wiring**: `module_budget_guard.py` is wired into Stage 3 admission, the Stage 4 resolver and the review loop.
+  Without the intent field, those stages refuse budget-configuration changes and the planner leaves the file out of the
+  touch set.
+- **Prompts**: planner, executor and review-loop templates say to split an over-budget module, never raise the budget.
+- **Tests and docs**: `tests/test_module_budgets.py` and hermetic flow tests; `docs/architecture.md` states the rule.
+- **Calibration**: EV predicted 36.32, actual 70.68 (+34.36).
+- **Flow**: `freeze-module-budgets-split` (claude-agent, `I-1795161177`), approved 3/3 on re-review after merging
+  `origin/main` for ledger conflicts; all 5 stages completed.

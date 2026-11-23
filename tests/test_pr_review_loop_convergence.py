@@ -16,14 +16,15 @@ class TestPrReviewLoopConvergenceAndDelegation:
 
         assert "### Step 0: Entrypoint Delegation — Spawn the Background Loop Orchestrator Subagent" in text
         assert text.index("### Step 0:") < text.index("### Step 1: Parse Parameters")
-        assert 'Role: "PR Review Loop Orchestrator (<repo> PR #<N>)"' in text
+        assert 'Role: "#<N> - review loop orchestrator"' in text
         assert '"TypeName": "self"' in text
         assert '"Model": "inherit"' in text
         assert "invoke_subagent" in text
         assert "MUST NOT execute the loop inline" in text
 
     def test_pr_review_loop_defines_reentrancy_guard_and_terminal_notification(self) -> None:
-        text = PR_REVIEW_LOOP_SKILL.read_text(encoding="utf-8")
+        # Collapse whitespace so Prettier re-wrapping the prose cannot split a checked phrase.
+        text = " ".join(PR_REVIEW_LOOP_SKILL.read_text(encoding="utf-8").split())
 
         assert "Re-Entrancy Guard" in text
         assert "DO NOT spawn another nested loop orchestrator" in text
@@ -59,5 +60,5 @@ class TestPrReviewLoopConvergenceAndDelegation:
         assert "2-tier subagent delegation architecture" in text
         assert "Tier 1 (Main Interactive Agent -> Background Loop Orchestrator)" in text
         assert "Tier 2 (`PR Review Loop Orchestrator` Subagent -> Per-Pass Reviewer & Resolver Subagents)" in text
-        assert 'Role: "PR Review Loop Orchestrator (<repo> PR #<N>)"' in text
+        assert 'Role: "#<N> - review loop orchestrator"' in text
         assert "Re-Entrancy Guard" in text

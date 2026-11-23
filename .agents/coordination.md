@@ -38,9 +38,9 @@ so that long-running multi-iteration review loops never hijack the user's primar
 
 - **Tier 1 (Main Interactive Agent -> Background Loop Orchestrator)**: The main interactive agent MUST NOT run the
   review loop inline. Instead, it immediately spawns 1 background **PR Review Loop Orchestrator** subagent via
-  `invoke_subagent` (`TypeName: "self"`, `Model: "inherit"`, `Role: "PR Review Loop Orchestrator (<repo> PR #<N>)"`) and
-  returns control to the user immediately. Multiple PR review loops across different PRs can run concurrently in
-  isolated Tier 1 orchestrator subagents without blocking the main agent.
+  `invoke_subagent` (`TypeName: "self"`, `Model: "inherit"`, `Role: "#<N> - review loop orchestrator"`) and returns
+  control to the user immediately. Multiple PR review loops across different PRs can run concurrently in isolated Tier 1
+  orchestrator subagents without blocking the main agent.
 - **Tier 2 (`PR Review Loop Orchestrator` Subagent -> Per-Pass Reviewer & Resolver Subagents)**: The background
   `PR Review Loop Orchestrator` subagent owns the entire loop lifecycle across all iterations (up to
   `max_iterations: 25`). Per iteration, it spawns the isolated dry-run reviewer, the 3 parallel `pr-reviewer` ensemble
@@ -61,7 +61,7 @@ interactive session remains responsive:
 
 - **Interactive Agent Delegation**: The main interactive agent MUST NOT execute `holon flow` inline. Instead, it
   immediately spawns 1 background **Holon Flow Subagent** via `invoke_subagent` (`TypeName: "self"`,
-  `Role: "Holon Flow Subagent (<slug>)"`, `Model: "inherit"`) and returns control to the user immediately (see
+  `Role: "bean <id> - holon flow <slug>"`, `Model: "inherit"`) and returns control to the user immediately (see
   [holon-flow Step 0](skills/holon_flow/SKILL.md#step-0-entrypoint-delegation--spawn-the-background-flow-subagent)).
 - **Subagent Flow Ownership**: The background subagent executes `holon flow` directly, watches checkpoints
   (`.holon/flow/checkpoint-<slug>.json`), applies the automatic model fallback ladder on quota/session exhaustion,
@@ -99,10 +99,10 @@ When executing within the **Antigravity (AGY)** environment:
   child sessions. If credit, quota, or session allowance runs out on the higher-level model (for either **Claude** or
   **Antigravity**), automatically fall back to the next lower tier that has available credit (`Model: "inherit"` /
   `"pro"` $\rightarrow$ `"flash"` $\rightarrow$ `"flash_lite"` in AGY `invoke_subagent`; `claude-opus-5-5` $\rightarrow$
-  `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` in `claude-agent`; `gemini-3.8-pro-high` $\rightarrow$
-  `gemini-3.8-flash-medium` $\rightarrow$ `gemini-3.8-flash` in `antigravity-agent`, or switch `--agent` across
-  `claude-agent` $\leftrightarrow$ `antigravity-agent` if an account-wide session limit is reached) and continue the
-  in-progress flow or review loop from its current stage/iteration without losing completed work.
+  `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` in `claude-agent`; `gemini-4-argon` $\rightarrow$
+  `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash` in `antigravity-agent`, or switch `--agent` across `claude-agent`
+  $\leftrightarrow$ `antigravity-agent` if an account-wide session limit is reached) and continue the in-progress flow
+  or review loop from its current stage/iteration without losing completed work.
 - **Reactive Wakeup (Zero Polling)**: AGY resumes parent execution automatically upon child message arrival or task
   completion. **Never poll, sleep, or loop on task status.**
 

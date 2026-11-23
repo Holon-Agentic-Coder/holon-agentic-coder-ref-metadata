@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0198
 title: "Agent runner registry: one RunnerSpec module per agent instead of shared dicts and an if-chain"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -9,10 +9,8 @@ tags:
   - open-closed
   - agent-runner
   - holon-agentic-coder
-blocked_by:
-  - holon-agentic-coder-ref-metadata-0185
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-11-22T22:55:00Z
 ---
 
 ## Problem
@@ -43,3 +41,15 @@ Blocked by 0185. Parallel-safe with 0187, 0188, 0195.
 ## Notes
 
 - Run through the Holon flow on holon-agentic-coder.
+
+## Audit (2026-11-21)
+
+Blocker Bean 0185 is completed, so this is unblocked. `agent_defaults.py` now also holds `AGENT_TICKERS`
+(claude/antigravity/pi), which the `RunnerSpec` must carry. It edits the same files as Bean 0322 (gemini removal, in
+another session), so start after 0322 lands.
+
+## Audit (2026-11-23)
+
+Bean `0322` merged in PR #222 (`e2ba3c2`), removing `gemini-agent` completely; drop `gemini` from scope (`antigravity`,
+`claude`, `pi`, `codex`, `opencode`). Unblocked and disjoint from PR #230; sequence with `0270` and `0350` on
+`agent_defaults.py` / `agent_runner.py`.

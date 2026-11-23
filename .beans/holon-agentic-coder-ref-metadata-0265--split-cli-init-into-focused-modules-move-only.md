@@ -11,7 +11,7 @@ tags:
   - concurrency
   - holon-agentic-coder
 created_at: 2026-11-09T10:30:00Z
-updated_at: 2026-11-09T10:30:00Z
+updated_at: 2026-11-22T22:55:00Z
 ---
 
 ## Problem
@@ -126,3 +126,10 @@ module map and a one-line responsibility per module.
 - Target repository changes in `holon-agentic-coder` must be delivered through the 5-stage Holon flow.
 - Stage 3 output is large. Set `HOLON_STAGE_BUDGET_EXECUTE_MINUTES` generously.
 - The intent JSON must not mention bean IDs or harness paths, because it is copied into `intents.jsonl`.
+
+## Audit (2026-11-23)
+
+`cli/__init__.py` is 1,732 lines on `main` (`b22258d`). All earlier sequencing dependencies (`0262`, `0263`, `0264`)
+have merged, and no other session has `0265` in flight. Disjoint from PR #230 on code (`cli/__init__.py`,
+`tests/test_cli.py`), but Scope item 5 edits `docs/architecture.md` which PR #230 also touches — run immediately after
+PR #230 merges (or defer the `docs/architecture.md` edit).

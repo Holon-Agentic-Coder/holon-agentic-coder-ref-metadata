@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0166
 title: "Pipeline duration dashboard for CI builds"
-status: todo
+status: completed
 type: feature
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-27T07:57:13Z
-updated_at: 2026-10-27T07:57:13Z
+updated_at: 2026-11-21T11:46:14+11:00
 ---
 
 ## Problem
@@ -59,3 +59,29 @@ baseline, or a link from a slowdown to the commit that caused it.
 - Related flakes: Beans 0154 and 0167 (turn-supervisor reader join). Re-runs should be visible on the dashboard.
 - If it lives in a target repository, build it through the Holon flow, one flow per repository. A harness-side or
   artifact-hosted dashboard can be built directly.
+
+## Audit (2026-11-21)
+
+Still valid. [PR #205](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/205) added the CI Timing Gate
+(`scripts/check_ci_runtime_budget.py`, `.github/actions/ci-timing-gate`), which fails a slow job but records no trend or
+dashboard, so nothing here is delivered.
+
+## Progress
+
+- 2026-11-21: Holon flow `ci-duration-dashboard` started (claude-agent, claude-opus-5-5).
+- 2026-11-21: Flow completed. [PR #223](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/223) has 3/3
+  consensus approval and calibration in the diff (EV 46.65 predicted, 62.09 actual), is CLEAN and mergeable, and awaits
+  human merge.
+
+## Resolution
+
+Delivered via [PR #223](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/223) and merged into `main`
+(`6e93f5e`):
+
+- **Key Architectural Deliverables**: `scripts/ci_durations.py` with helper modules `ci_durations_api.py`,
+  `ci_durations_collect.py`, `ci_durations_stats.py`, `ci_durations_html.py` and `ci_durations_svg.py`;
+  `.github/workflows/ci-durations.yml` runs daily and on `workflow_dispatch`, publishing a self-contained HTML dashboard
+  and JSON as an artifact plus a job summary.
+- **Scope**: covers `holon-agentic-coder` only; `holon-coherence` is not covered.
+- **Holon Flow Traversal**: flow `ci-duration-dashboard` (claude-agent, claude-opus-5-5) completed all 5 stages with 3/3
+  consensus approval and calibration (predicted EV 46.65, actual 62.09).

@@ -1,17 +1,15 @@
 ---
 # holon-agentic-coder-ref-metadata-0176
 title: "Remove every unittest reference from holon-agentic-coder; the suite is pytest only"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
   - tests
   - pytest
   - holon-agentic-coder
-blocked_by:
-  - holon-agentic-coder-ref-metadata-0168
 created_at: 2026-10-28T09:38:48Z
-updated_at: 2026-10-29T23:34:36Z
+updated_at: 2026-11-22T22:55:00Z
 ---
 
 ## Problem
@@ -48,3 +46,14 @@ flow can start.
 - Historical flow records (`holon-knowledge/ledger/*.jsonl`, `plans/P-*.md`, `executions/E-*.md`) are audited and
   append-only; they keep their existing text. The check in step 4 must exclude them.
 - PR #99 itself only rewords the one `hermetic_testing.md` sentence it already touches.
+
+## Audit (2026-11-21)
+
+Blocker Bean 0168 completed (PR #99 merged), so this is unblocked. Re-measured on `origin/main`: 119 tracked files
+mention `unittest` (almost all under `apps/sandbox-executor/tests/`, plus `docs/hermetic_testing.md`,
+`tests/hermetic_fixtures.py`). It touches nearly every test file, so run it alone with no other flow in flight.
+
+## Audit (2026-11-23)
+
+Re-measured on `main` (`b22258d`): **144** tracked files mention `unittest` (up from 119 on 2026-11-21). Must run alone
+after PR #230 merges.

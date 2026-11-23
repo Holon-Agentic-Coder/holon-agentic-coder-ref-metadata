@@ -1,0 +1,93 @@
+---
+# holon-agentic-coder-ref-metadata-0347
+title:
+  "Stage 4 reports 'halted for human review' after consensus approval although the flow continues and the PR is ready to
+  merge"
+status: completed
+type: bug
+priority: normal
+tags:
+  - flow
+  - stage-4
+  - review-loop
+  - reporting
+  - holon-agentic-coder
+created_at: 2026-11-21T01:20:00+11:00
+updated_at: 2026-11-23T02:37:31Z
+---
+
+## Problem
+
+When the Stage 4 ensemble reaches consensus approval, the flow carries on to Stage 5 (calibration) and ends with a pull
+request that is approved and ready for the maintainer to merge. The output says the opposite:
+
+- the log prints `[SAFETY HALT] ... Pipeline halted for human review` (`flow/stages/review.py` around lines 282-295,
+  also `flow/review/cli.py` lines 77-78, `entrypoint/review_loop.py` lines 914-915 and `cli/commands/flow.py` lines
+  336-337);
+- the stage summary shows `review: halted` (`StageStatus.HALTED_FOR_HUMAN` and its label in `flow/context.py`), and the
+  review loop payload and ledger summary carry `status=halted_for_human` and `halted_for_human: true`
+  (`flow/review/loop.py` around lines 810 and 877).
+
+Nothing halts: the stage succeeded. The wording suggests the flow stopped for a human decision, which hides the real
+state: approved, calibrated, waiting only for the maintainer's merge (a rule, not a halt).
+
+## Action
+
+Through the Holon flow on `holon-agentic-coder`:
+
+- Name the outcome for what it is: the log line and stage summary say approved and ready for maintainer merge (for
+  example `review: approved`), not halted. A real halt (a failed gate, a budget stop, no consensus) keeps the halt
+  wording.
+- Use a status that says approved/ready for merge instead of `halted_for_human`. Readers of existing rows must keep
+  working: `calibration_outcome.py` and `flow/checkpoint.py` and `flow/stages/children.py` accept the old
+  `halted_for_human` value in historical ledger rows and checkpoints, and treat the new value as converged.
+- Update the docstring in `flow/stages/review.py` ("halts unconditionally with status HALTED_FOR_HUMAN") and the flow
+  docs.
+- Tests: a consensus approval logs the approved wording and shows no `SAFETY HALT`; a real halt still does; old
+  checkpoints and ledger rows with `halted_for_human` still resume and calibrate.
+
+## Notes
+
+- Keep exactly the three ledgers; rows stay append-only, so the old value is never rewritten.
+- Touches `entrypoint/review_loop.py`, which open PR #219 edits slightly; start after it merges. Overlaps Bean 0345 and
+  0192 on `flow/review/loop.py`.
+- Related: Bean 0288 (posting only on a terminal exit), which this bean complements but does not reopen.
+
+## Progress
+
+- 2026-11-21: Started Holon flow `review-approved-and-fresh-tests` (claude-agent, claude-opus-5-5), shared with beans
+  0347 and 0354.
+- 2026-11-23: PR #230 (`flow-review-approved-and-fresh-tests`) is open, CI 11/11 pass, `CLEAN`, last commit `81525dfd`
+  (iteration 5 fix), halted at Stage 4 iter 7 on resolver stall timeout (idle). Unblocked to resume now that PR #235
+  (`134e333`, Bean `0358` Part 1) merged and images were rebuilt.
+
+## Progress
+
+- PR: https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/230 (flow `review-approved-and-fresh-tests`,
+  resumed at Stage 4)
+- 2026-11-23: Stage 4 resumed; run 1 halted at iteration 12 when the in-container resolver's merge commit `2467c0fb`
+  (origin/main merge) was on the remote but not in the host worktree, so the push was rejected (non-fast-forward).
+  Reconciled by merging the remote tip and pushing `97b06fba` (no rewrite). Resume then stopped before Stage 4 dispatch:
+  the branch conflicts with `origin/main` at `8afc215a` (#238) in `flow/pipeline.py`, `flow/stages/children.py`,
+  `.agents/holon_flow.md`, `docs/git_flow.md` (review-boundary logic, the same code as this bean) and
+  `holon-knowledge/ledger/executions.jsonl`. Stage 4 refuses unresolvable conflicts. Blocked on a conflict resolution
+  decision; the merge was aborted, worktree clean at `97b06fba`.
+
+- 2026-11-23: Resumed from `--from-stage review` after the conflict resolution (PR head `6a6f6e90`). Flow worktree
+  fast-forwarded from `97b06fba` to origin, then the Stage 4 review loop was restarted (checkpoint
+  `.holon/flow/checkpoint-review-approved-and-fresh-tests.json`).
+
+## Resolution
+
+Delivered via [PR #230](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/230) and squash-merged into
+`main` (`f17f4b8`, 2026-11-23). Shipped in the same flow as bean 0354, which covers the other defect in the PR title.
+
+- **Key Architectural Deliverables**: Consensus approval logs the approved wording and stage status (`review: approved`)
+  instead of `halted_for_human`; real halts keep halt wording. Legacy `halted_for_human` ledger rows and checkpoints
+  still resume and calibrate.
+- **Verification & Tests**: PR changes include hermetic tests (`test_review_loop_approved.py`,
+  `test_pipeline_approved.py`, `test_review.py`, `test_calibration_ev.py`). Consensus review
+  `PRR_kwDORMmd1c8AAAABZpBIQA`; Stage 5 calibration included in the squashed merge (its tree matches the calibrated
+  branch tip).
+- **Holon Flow Traversal**: Intent -> Plan -> Execute -> Review Loop -> Calibration completed for flow
+  `review-approved-and-fresh-tests`. Remote flow branches were deleted after merge.

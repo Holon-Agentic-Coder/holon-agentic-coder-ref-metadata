@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0196
 title: "Decompose entrypoint executor main into an ExecutionRun with named steps; split the module into a package"
-status: todo
+status: completed
 type: task
 priority: high
 tags:
@@ -9,10 +9,9 @@ tags:
   - complexity
   - holon-agentic-coder
 blocked_by:
-  - holon-agentic-coder-ref-metadata-0195
   - holon-agentic-coder-ref-metadata-0190
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-10-29T12:20:00Z
+updated_at: 2026-11-22T09:48:30+11:00
 ---
 
 ## Problem
@@ -42,3 +41,26 @@ Blocked by 0195 (git adapter) and 0190 (entrypoint stops importing the engine). 
 ## Notes
 
 - Run through the Holon flow on holon-agentic-coder, alone on `executor.py`.
+
+## Audit (2026-11-21)
+
+Blocker Bean 0195 is completed; only Bean 0190 (open PR #219, which also edits `entrypoint/executor.py`) still blocks.
+The module is still the single `entrypoint/executor.py` (CC under noqa), with several helpers already extracted
+(`executor_test_run.py`, `execution_workspace.py`, `partial_resume.py`, `sync_conflict.py`, `taken_ids.py`,
+`test_measurement.py`).
+
+## Progress
+
+- 2026-11-21: Holon flow `executor-execution-run` started (claude-agent, claude-opus-5-5).
+- 2026-11-21: Flow completed. PR #234 approved 3/3, calibrated (EV predicted 7.55, actual 47.72), CI green, CLEAN and
+  MERGEABLE; awaiting human merge.
+
+## Resolution
+
+Delivered via [PR #234](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/234) and merged into `main`
+(`2ec094e`). Child PRs #231, #232 and #233 landed first.
+
+- `entrypoint/executor.py` (798-line `main`, CC 178) is now the `entrypoint/executor/` package. `ExecutionRun` in
+  `run.py` runs the named steps, and `main` parses arguments and calls `ExecutionRun(...).run()`.
+- Full 5-stage Holon flow (`executor-execution-run`), calibrated. Expected value: predicted 7.55, actual 47.72 (delta
+  +40.17).

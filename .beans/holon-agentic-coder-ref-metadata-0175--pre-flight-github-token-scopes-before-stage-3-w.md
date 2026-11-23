@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0175
 title: "Check GitHub token scopes before Stage 3 when the plan touches workflow files"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - preflight
   - holon-agentic-coder
 created_at: 2026-10-27T14:59:39Z
-updated_at: 2026-10-27T14:59:39Z
+updated_at: 2026-11-23T15:20:00+11:00
 ---
 
 ## Problem
@@ -46,3 +46,34 @@ exited, and the failure path saves nothing (Bean 0171).
 - Run through the Holon flow on holon-agentic-coder. It overlaps Bean 0171 (the executor failure path) and
   `preflight.py` and `cli.py`.
 - The immediate fix for Bean 0168 is a maintainer action: `gh auth refresh -h github.com -s workflow`.
+
+## Audit (2026-11-21)
+
+Still valid; no scope check exists. The `gh auth token` handoff now lives under `cli/__init__.py` (the `cli.py`
+references above are stale), and the flow-level touch set (`touch_set.py`,
+[PR #194](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/194)) now gives the pre-flight a plan file
+list to inspect for `.github/workflows/**`.
+
+## Flow run (2026-11-23)
+
+- Intent: `todo/intent-0175-preflight-github-token-scopes-v2.json` (fresh from current main; the earlier attempt
+  `I-1795388456-preflight-github-token-scopes` never opened a PR and is stale, its `flow-preflight-github-token-scopes`
+  worktree and branches are for cleanup).
+- PR: https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/244
+- Stage 3 first attempt exited with SIGKILL (exit -9) after 2.5 min, probably the Docker VM's 8 GB limit under
+  concurrent flows (not confirmed); resumed from the execute checkpoint. Stage 4 halted on a DIRTY PR (ledger-only
+  conflict), merged origin/main and resumed from review.
+
+## Manual review and calibration (2026-11-23)
+
+- The flow driver had stopped. On head 575655bb the Workspace survival job failed in 2/2480 cases of
+  `test_invalid_envelope_value_never_echoed_by_doctor_or_run_path` (a re-run passed). This was a false positive in the
+  test, not a leak: `run_docker_container` argv holds the random `$HOME/.holon/tmp/holon-pi-agent-<8>` mkdtemp folder,
+  and the test masked only the `--env-file` path. A random suffix could share a 4-letter run with the random credential
+  (it fails about 1-2% of runs; reproduced deterministically). Fixed in f6feb1fc by masking exactly the fixture-owned
+  paths (the check is no looser), with deterministic collision tests; review Nits (surviving mutants) applied in
+  7420e5af, and the calibration-base Nit was rejected.
+- Coordinator merged origin/main (#246) as f65e82bf. Iteration 13: dry run clean, CI 11/11 green, ensemble 3/3 APPROVED
+  0/0/0 at 7420e5af; consensus posted as a comment (approve returns 422 on own PR).
+- Stage 5 `holon calibrate`: report evaluated 7420e5af, committed 705ca34f on the PR branch (calibrated branch
+  fast-forwarded to it). Calibrator still measures the touch set from the pre-merge base 64e0f0f1 (recall 0.15).
