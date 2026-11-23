@@ -65,7 +65,9 @@ Two defects in the tests themselves:
 ## Touch set
 
 `apps/sandbox-executor/tests/test_url_message_fuzz.py`, `apps/sandbox-executor/tests/test_config_fuzz.py` (both
-renamed), a shared seeded-secret helper in the tests, and the files that name them: .
+renamed), a shared seeded-secret helper in the tests. A search of the repository (outside the ledgers, plans and
+execution records) found no other file naming them, so the rename should need no CI or baseline edits; the flow confirms
+this.
 
 ## Related
 
