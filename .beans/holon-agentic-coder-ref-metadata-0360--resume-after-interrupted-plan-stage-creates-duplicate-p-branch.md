@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0360
 title: "Resume after an interrupted plan stage creates a duplicate P- branch"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - stage-2
   - holon-agentic-coder
 created_at: 2026-11-23T00:10:00Z
-updated_at: 2026-11-23T00:10:00Z
+updated_at: 2026-11-23T12:20:00Z
 ---
 
 ## Problem
