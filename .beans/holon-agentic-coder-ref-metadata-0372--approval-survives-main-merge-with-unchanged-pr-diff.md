@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0372
 title: "An approval survives a merge of main that leaves the PR's own diff unchanged; only CI re-runs"
-status: in-progress
+status: completed
 type: feature
 priority: critical
 tags:
@@ -12,7 +12,7 @@ tags:
   - cost
   - holon-agentic-coder
 created_at: 2026-11-23T06:45:00Z
-updated_at: 2026-11-23T06:45:00Z
+updated_at: 2026-11-23T09:12:00Z
 ---
 
 ## Problem
@@ -75,3 +75,37 @@ is unchanged; only CI on the new head must pass.
 
 Holon flow on `holon-agentic-coder`, intent `todo/intent-0372-approval-survives-main-merge.json`. Runs before Bean 0371,
 since it removes most of the re-review cost immediately.
+
+## Progress note (holon flow, 2026-11-23)
+
+- PR #254 (`I-1795416692-approval-survives-main-merge`) is terminal: MERGEABLE/CLEAN on head a1d985dd, all checks green,
+  calibration report `plans/I-1795416692-approval-survives-main-merge/P-1795418641-CLA-CO5.5_calibration.md` in the PR
+  diff. Awaiting human merge into main.
+- Stages: intent ok, plan ok, execute ok, review completed after 7 iterations (3/3 approval at iteration 4; later rounds
+  re-earned after each target-branch merge), calibrate completed.
+- Stopped and resumed several times: review halt on a nit with no resolver pass; conflict gate re-earned the approval
+  after merging main (the bean's carry-over was not yet in effect for mechanical ledger merges); Stage 5 blocked once by
+  the macOS CI Timing Gate (674 s job vs 600 s ceiling, slowdown spread across unrelated tests, not a test failure),
+  cleared on rerun.
+- Conflicts with main resolved mechanically via `resolve-conflict` subagents (ledger rows only) on each target-branch
+  advance (#251-#256).
+- Log: todo/flow-approval-survives-main-merge.log (the runner's own output was largely buffered there).
+
+## Resolution
+
+Delivered via [PR #254](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/254) and merged into `main`
+(`84b70c1`), subject "feat(approval): Stage 4 review is the most expensive part of a flow and is repeated for code
+that... (#254)":
+
+- **Key Architectural Deliverables**: the PR-own diff fingerprint (merge-base to head, `holon-knowledge/**` and Stage 5
+  calibration paths excluded) is stored in the approval record and approval stamp beside the head SHA; the conflict
+  gate, review-loop vote counting and the Stage 5 merged-head gate accept an approval at a new head when the fingerprint
+  is unchanged; carry-overs are logged with both SHAs as one append-only ledger row. CI on the new head is never
+  skipped.
+- **Verification & Tests**: PR #254 checks green at head a1d985dd before the merge (per the progress note above).
+- **Holon Flow Traversal**: all 5 stages completed (intent, plan, execute, review loop, calibration) after several
+  resumes; the review loop reached 3/3 approval at iteration 4, with later rounds re-earned after each target-branch
+  merge.
+- **Post-merge cleanup**: flow worktree `flow-approval-survives-main-merge` and all
+  `I-1795416692-approval-survives-main-merge` branches deleted locally and on origin; no earlier attempts existed.
+  Bundle backup: `todo/stale-worktree-backups/approval-survives-main-merge-2026-11-23.bundle` (verified).
