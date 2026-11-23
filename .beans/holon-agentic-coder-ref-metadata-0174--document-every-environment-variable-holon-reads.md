@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0174
 title: "Document every environment variable holon reads, in one generated and CI-checked reference"
-status: in-progress
+status: completed
 type: task
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - configuration
   - holon-agentic-coder
 created_at: 2026-10-27T14:08:31Z
-updated_at: 2026-11-22T23:05:00Z
+updated_at: 2026-11-23T08:33:00Z
 ---
 
 ## Problem
@@ -79,3 +79,27 @@ During the October flow runs this cost real time. Behaviour-changing settings we
   execution commits, steps 1-5, no executions.jsonl row) and one uncommitted `executions/E-1795413310-CLA-CO5.5.md` in
   place. Stage 3 halted with no PR opened. Flow log: `todo/flow-document-env-variables-v2.log`. Not resolved by hand;
   needs the maintainer or a flow-resume fix before the flow can continue.
+
+## Progress note (flow document-env-variables-v3)
+
+- New flow from current main (intent document-env-variables-v3, claude-agent / claude-opus-5-5). The v2 attempt was left
+  untouched.
+- Intent, plan and execute completed. Review halted once on the conflict gate after main moved (PR #253 merge). Resumed
+  from checkpoint; the new head approved 3/3 with CI green.
+- Calibration included in PR diff. PR #256 is OPEN, MERGEABLE, CLEAN on head b62672ec. Awaiting human merge into main
+  (not merged by the agent).
+
+## Resolution
+
+Delivered via [PR #256](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/256) and merged into `main`
+(`c941d78`):
+
+- **Key Architectural Deliverables**: one generated, CI-checked reference of every `HOLON_*` environment variable the
+  sandbox executor reads, linked from the docs.
+- **Flow history**: the first attempt (`document-env-variables-v2`) halted at Stage 3 with no PR. Its five unmerged
+  execution commits and one uncommitted execution file were backed up to
+  `todo/stale-worktree-backups/document-env-variables-v2-2026-11-23.bundle` and
+  `todo/stale-worktree-backups/document-env-variables-v2-E-1795413310-CLA-CO5.5.uncommitted.md`, then its worktree and
+  branches were removed. The v3 flow worktree and its branches were removed after the merge.
+- **Holon Flow Traversal**: the v3 flow ran intent, plan and execute; review passed 3/3 after a resume from checkpoint;
+  calibration was included in the PR.
