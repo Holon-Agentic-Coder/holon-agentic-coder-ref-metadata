@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0175
 title: "Check GitHub token scopes before Stage 3 when the plan touches workflow files"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - preflight
   - holon-agentic-coder
 created_at: 2026-10-27T14:59:39Z
-updated_at: 2026-11-23T15:20:00+11:00
+updated_at: 2026-11-23T05:53:23Z
 ---
 
 ## Problem
@@ -77,3 +77,20 @@ list to inspect for `.github/workflows/**`.
   0/0/0 at 7420e5af; consensus posted as a comment (approve returns 422 on own PR).
 - Stage 5 `holon calibrate`: report evaluated 7420e5af, committed 705ca34f on the PR branch (calibrated branch
   fast-forwarded to it). Calibrator still measures the touch set from the pre-merge base 64e0f0f1 (recall 0.15).
+
+## Resolution
+
+Delivered via [PR #244](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/244) and merged into `main`
+(`252004a`):
+
+- **Key Architectural Deliverables**: Stage 3 pre-flight checks the GitHub token's OAuth scopes against the plan's touch
+  set and fails fast when `.github/workflows/**` is touched without the `workflow` scope, with the `gh auth refresh`
+  remedy. `holon doctor` reports token type and scopes (never the value) and warns when `workflow` is missing. A
+  rejected Stage 3 push keeps the execution's commits on a recovery ref and reports where they are.
+- **Verification & Tests**: Hermetic tests with mocked `gh` responses cover scope present and missing, touch sets with
+  and without workflow files, and a rejected push keeping its commits.
+- **Holon Flow Traversal**: Intent, plan, execute, review loop (consensus approval, ensemble 3/3) and calibration
+  completed on the v2 flow (`I-1795398772-preflight-github-token-scopes-v2`). The calibration report evaluates
+  `5696afa2`: predicted EV 62.25, actual EV 73.79 (+11.54). Touch-set recall was 14.4%.
+- **Cleanup**: The first-attempt worktree `flow-preflight-github-token-scopes` and the v2 flow worktree were removed
+  with their leaf branches.
