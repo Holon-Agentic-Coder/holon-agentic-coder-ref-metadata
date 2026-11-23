@@ -55,7 +55,16 @@ Return the resulting Markdown table directly to the user verbatim (with a brief 
 | `--beans-dir` | Explicit directory containing bean markdown files      | `<repo-root>/.beans`    |
 | `--json`      | Emit structured JSON array instead of a Markdown table | `false`                 |
 | `--no-gh`     | Skip querying open Pull Requests via `gh pr list`      | `false`                 |
+| `--wide`      | Render every column in one wide table (no detail list) | `false`                 |
 | `--no-ps`     | Skip inspecting running host/Docker processes via `ps` | `false`                 |
+
+### Output layout
+
+The default output is a **compact table** (Bean #, Target, Title, Agent, Model, Stage, In Stage, PR & CI, Total)
+followed by a **"Last activity and notes"** list with one line per bean. The long cells are kept out of the table on
+purpose: a table with them is too wide for a terminal and is then shown as raw text instead of a table. Agent and model
+are shortened in the compact table (`claude`, `fable-5-2`). Pass `--wide` for every column in one table, and `--json`
+for the full fields.
 
 ### Output Table Schema
 

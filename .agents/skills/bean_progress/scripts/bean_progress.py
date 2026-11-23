@@ -1427,11 +1427,25 @@ def merge_rows_per_bean(rows: list[InFlightRow]) -> list[InFlightRow]:
     return kept
 
 
-def render_markdown_table(rows: list[InFlightRow]) -> str:
-    """Render in-flight bean rows as a single GitHub-Flavored Markdown table."""
-    if not rows:
-        return "No beans are currently in flight."
+def _short_agent(agent: str) -> str:
+    return agent.removesuffix("-agent")
 
+
+def _short_model(model: str) -> str:
+    return model.removeprefix("claude-")
+
+
+def _table(headers: list[str], body: list[list[str]]) -> list[str]:
+    lines = [
+        "| " + " | ".join(headers) + " |",
+        "| " + " | ".join(":" + "-" * max(len(h) - 1, 4) for h in headers) + " |",
+    ]
+    lines.extend("| " + " | ".join(_escape_cell(c) for c in cells) + " |" for cells in body)
+    return lines
+
+
+def render_wide_table(rows: list[InFlightRow]) -> str:
+    """Render every column in one table (`--wide`). Too wide for most terminals, which then show it as raw text."""
     headers = [
         "Bean #",
         "Target",
@@ -1445,14 +1459,9 @@ def render_markdown_table(rows: list[InFlightRow]) -> str:
         "Last Activity",
         "Notes",
     ]
-    lines = [
-        "| " + " | ".join(headers) + " |",
-        "| " + " | ".join(":" + "-" * max(len(h) - 1, 4) for h in headers) + " |",
-    ]
-    for row in rows:
-        bean_cell = ", ".join(row.bean_nums) if row.bean_nums else "—"
-        cells = [
-            bean_cell,
+    body = [
+        [
+            ", ".join(row.bean_nums) if row.bean_nums else "—",
             row.target,
             row.title,
             row.agent,
@@ -1464,7 +1473,46 @@ def render_markdown_table(rows: list[InFlightRow]) -> str:
             row.last_activity,
             row.notes_cell(),
         ]
-        lines.append("| " + " | ".join(_escape_cell(c) for c in cells) + " |")
+        for row in rows
+    ]
+    return "\n".join(_table(headers, body))
+
+
+def render_markdown_table(rows: list[InFlightRow], *, wide: bool = False) -> str:
+    """Render the in-flight beans: a compact table that fits a terminal, then one detail line per bean.
+
+    The long cells (last activity, notes) go below the table as a list, because a table with them is too wide to be
+    rendered as a table. `wide=True` keeps everything in a single table.
+    """
+    if not rows:
+        return "No beans are currently in flight."
+    if wide:
+        return render_wide_table(rows)
+
+    headers = ["Bean #", "Target", "Title", "Agent", "Model", "Stage", "In Stage", "PR & CI", "Total"]
+    body: list[list[str]] = []
+    details: list[str] = []
+    for row in rows:
+        bean_cell = ", ".join(row.bean_nums) if row.bean_nums else "—"
+        body.append(
+            [
+                bean_cell,
+                row.target,
+                _truncate(row.title, 36),
+                _short_agent(row.agent),
+                _short_model(row.model),
+                row.stage,
+                row.time_in_stage,
+                row.pr_ci,
+                row.total_time,
+            ]
+        )
+        parts = [p for p in (row.last_activity, row.notes_cell()) if p and p != "—"]
+        if parts:
+            details.append(f"- **{bean_cell}**: " + " | ".join(parts))
+    lines = _table(headers, body)
+    if details:
+        lines += ["", "**Last activity and notes**", "", *details]
     return "\n".join(lines)
 
 
@@ -1517,6 +1565,11 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Skip inspecting live host processes via ps.",
     )
+    parser.add_argument(
+        "--wide",
+        action="store_true",
+        help="Render every column in one wide table instead of a compact table plus a detail list",
+    )
     args = parser.parse_args(argv)
 
     repo_root = Path(args.repo_root)
@@ -1526,7 +1579,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.json:
         print(json.dumps([r.as_dict() for r in rows], indent=2))
     else:
-        print(render_markdown_table(rows))
+        print(render_markdown_table(rows, wide=args.wide))
     return 0
 
 
