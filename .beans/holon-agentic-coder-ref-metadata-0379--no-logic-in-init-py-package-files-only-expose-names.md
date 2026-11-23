@@ -57,8 +57,8 @@ re-export, or are empty.
 
 ## Notes
 
-- `cli/__init__.py` is 690 lines against a 200-line default budget (it has an override); moving its contents out also
-  retires that override.
+- `cli/__init__.py` (690 lines) is not checked by the module budget at all: `holon-config/hygiene/module_budgets.json`
+  lists only the `flow/` package. `flow/__init__.py` is covered and carries a grandfathered override of 562 lines.
 - Large, mechanical, and touches the CLI entry points: run it on its own, not beside flows that edit `cli/` or
   `flow/__init__.py`, and likely as a split flow (cli, entrypoint/executor + cli/commands, flow, enforcement test).
 - The intent JSON must not mention bean ids or harness paths.
