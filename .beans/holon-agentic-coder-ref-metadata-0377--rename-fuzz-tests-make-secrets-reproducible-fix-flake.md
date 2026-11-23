@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0377
 title: "Rename the *_fuzz tests after what they protect, make their random secrets reproducible, fix the flaky case"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:

@@ -75,3 +75,10 @@ and 0317 remain blocked on this decision bean.
 `.beads/config.yaml`, `.gitignore`, `apps/sandbox-executor/Dockerfile`, `apps/sandbox-executor/docker-bake.hcl`,
 `apps/sandbox-executor/tests/test_beads_integration.py`, `docs/agents.md`, `docs/issue_tracking.md`. Unblocked and
 completely disjoint from PR #230.
+
+## Progress (2026-11-23)
+
+Flow `github-issues-replace-beads` completed all 5 stages (intent, plan, execute, review approved, calibrate) on PR
+[#258](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/258). Mergeable and CLEAN, CI green on the final
+head, calibration report `plans/I-1795422760-github-issues-replace-beads/P-1795422777-CLA-CO5.5_calibration.md` in the
+PR diff. Awaiting human merge into main.

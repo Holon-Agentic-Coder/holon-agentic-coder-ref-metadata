@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0376
 title: "The flow resolves file conflicts itself at every stage: an in-flow conflict resolver"
-status: todo
+status: in-progress
 type: feature
 priority: critical
 tags:
