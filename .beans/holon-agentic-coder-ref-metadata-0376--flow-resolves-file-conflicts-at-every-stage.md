@@ -56,9 +56,10 @@ only when the resolver cannot produce a passing tree, and then it says exactly w
    - **end of every stage** before it pushes, and **end of the flow** (5a below). A conflict found at any of these
      points is resolved there by `sync_with_target`, while it is still small, instead of surfacing stages later. Inside
      a stage the merge happens only at a turn boundary, never while a role container is writing the worktree; the next
-     turn's agent is told what the merge changed. A check that finds the target unchanged, or changed without conflict,
-     does not merge (no head move, no CI run, no lost approval): the target is merged in only when there is a conflict
-     to resolve or when a stage is about to push or calibrate.
+     turn's agent is told what the merge changed. **When the target is merged in (maintainer, 2026-11-23):** only when
+     there is a conflict to resolve, or when a stage is about to start, end, push or calibrate. At a turn boundary
+     inside a stage, a target that is unchanged, or changed without conflict, is not merged (no head move, no CI run, no
+     lost approval); the merge waits for the next stage start or end.
 2. **Mechanical classes, no agent** (extend `classify_conflicts`):
    - ledgers: append-merge (as today);
    - KB/WB entry files that differ only in timestamps (add/add): keep the target branch's copy;
