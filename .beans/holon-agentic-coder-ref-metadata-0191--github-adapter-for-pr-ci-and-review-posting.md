@@ -70,3 +70,8 @@ lines, so the module budget (Beans 0264, 0340) applies to any new adapter module
   branch conflicts with `origin/main` in `flow/__init__.py` (plus ledger rows) after main moved (#235-#240). Stage 4
   does not resolve code conflicts; a hand-merge would bypass the flow, so the run is halted pending a maintainer
   decision.
+
+- 2026-11-23: Child 3 (inject one GitHubAdapter at flow entry) recovered manually on maintainer instruction. Removed 47
+  sidecar scratch files committed under todo/ (moved to todo/recovered-0191-sidecar-scratch/), base (parent plan branch)
+  already contained, lint plus module budgets green, full suite 5914 passed. Opened PR #255 against the parent plan
+  branch (siblings #242, #245 used the same base). Review loop pending.
