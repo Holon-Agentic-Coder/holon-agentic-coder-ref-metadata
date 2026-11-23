@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0189
 title: "Move container launch and role dispatch out of the CLI into a launcher module; break the flow-cli import cycle"
-status: in-progress
+status: completed
 type: task
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
 blocked_by:
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-11-22T22:55:00Z
+updated_at: 2026-11-23T02:48:56Z
 ---
 
 ## Problem
@@ -57,3 +57,21 @@ Intent `todo/intent-0189-launcher-breaks-flow-cli-cycle.json`, flow branch
 `I-1795388455-launcher-breaks-flow-cli-cycle`. Plan, execute, review (consensus at iteration 5) and calibrate completed;
 PR: https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/241 (open, awaiting human merge). Resumed twice from
 checkpoint; ledger rows reconciled with origin/main at the merge.
+
+## Resolution
+
+Delivered via [PR #241](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/241) and merged into `main`
+(`0f0089d`):
+
+- **Key Architectural Deliverables**: new `launcher/` package (`role_dispatch`, `containers`, `sidecar`, `sidecar_plan`,
+  `coherence`, `mounts`, `env_files`, `container_env`, `proxy_paths`, `proxy_attach`, `messages`, `pi_mounts`,
+  `antigravity_mounts`) now owns container launch, role dispatch and proxy/sidecar plumbing; `cli/__init__.py` shrinks
+  accordingly and `flow/` imports `launcher` instead of `cli`, so the four lazy `flow` -> `cli` imports are gone.
+- **Verification & Tests**: AST import-cycle test (`tests/test_import_cycle.py`) fails on any `sandbox_executor.flow` ->
+  `sandbox_executor.cli` edge; launch characterisation tests (`tests/test_container_launch_characterisation.py`) and a
+  fake Docker harness (`tests/fake_docker.py`) pin the moved behaviour; existing credential redaction and URL fuzz tests
+  stay green.
+- **Holon Flow Traversal**: all 5 stages (Intent -> Plan -> Execute -> Review Loop -> Calibration) completed; review
+  reached consensus at iteration 5.
+- **Post-merge**: `main` fast-forwarded to the merge commit; `install-holon` rebuilt all images and reinstalled `holon`
+  and `holon-coherence`; flow worktree and remote flow branches removed.

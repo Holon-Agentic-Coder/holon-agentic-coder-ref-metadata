@@ -51,3 +51,11 @@ echo.
   2 with no PR; not resumed because main has moved (PRs #235-#240). Its P- branch and worktree are left for cleanup.
 - Fresh intent: `todo/intent-0155-holon-env-all-via-env-file-v2.json`, run via `holon flow` on holon-agentic-coder with
   claude-agent / claude-opus-5-5 and `--allow-overlap`.
+- Fresh flow (`holon-env-all-via-env-file-v2`): PR https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/243.
+  Plan, execute and calibrate ok; Stage 4 review approved 3/3 (iterations 2 and 3) on the pre-merge head.
+- Blocked: main moved (#241 moved the env routing to `launcher/env_files.py` and `launcher/containers.py`). PR #243 is
+  now CONFLICTING on code in `cli/__init__.py`, `preflight.py` and three tests. The resolve-conflict skill escalates
+  logic conflicts, so the change needs re-planning on current main; the review gate refuses to post consensus while the
+  branch conflicts. Not hand-ported (sole change path).
+- Cleanup: earlier worktree `flow-holon-env-all-via-env-file` and branch `I-1795388466-holon-env-all-via-env-file/*` are
+  left over.

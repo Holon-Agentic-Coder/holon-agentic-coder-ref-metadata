@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-23 02:37:59 UTC
+**Last Updated:** 2026-11-23 02:48:57 UTC
 
 ## Executive Summary
 
@@ -18,9 +18,9 @@ Concurrent flows on overlapping files forced repeated syncs and re-reviews earli
 together.
 
 - **Total Tracked Beans**: 361 (excluding template)
-- **Completed**: 315 (87.3%)
+- **Completed**: 316 (87.5%)
 - **Scrapped / Superseded**: 9 (2.5%)
-- **Active**: 37 (10.2%), of which 16 are in progress, 20 are todo and 1 are draft
+- **Active**: 36 (10.0%), of which 15 are in progress, 20 are todo and 1 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -906,7 +906,6 @@ triaged.
 | **P1**   | in-progress |  High  |             S             | 0175   | Check GitHub token scopes before Stage 3 when the plan touches workflow files                                  | Holon Flow / GitHub             | Ready now (disjoint from PR #230). Pre-flight `workflow` scope when touch set hits `.github/workflows/**` and warn in `holon doctor`. Touches `preflight.py`, `cli/__init__.py`, `cli/commands/doctor.py`; sequence with `0265`/`0155`.                                                                                                 |
 | **P1**   | in-progress | Medium |             M             | 0174   | Document every environment variable holon reads, in one generated and CI-checked reference                     | Documentation / Config          | Ready now (0172 merged in PR #225; defer `README.md` link while PR #230 is open or merge right after). Precursor to `0173` (layered `.env`).                                                                                                                                                                                            |
 | **P1**   | todo        |  High  |             L             | 0265   | Split `cli/__init__.py` into focused modules (move only), like the `flow/` package                             | Refactor / Architecture         | Idle; `cli/__init__.py` is 1,732 lines on `main` (`b22258d`), and `0262`–`0264` merged. Code is disjoint from PR #230, but Scope edits `docs/architecture.md` which PR #230 touches — run right after PR #230 merges. Unblocks `0189`.                                                                                                  |
-| **P1**   | in-progress |  High  |             M             | 0189   | Launcher module owns container launch and role dispatch; break the `flow` -> `cli` cycle                       | Refactor / Architecture         | Stale blockers `0187` (scrapped) and `0188` (#117) cleared; `0190` merged (#219). Four lazy `flow` -> `cli` imports remain. Sequence after `0265` and PR #230 (`flow/context.py`, `flow/pipeline.py`, `flow/review/loop.py`); unblocks `0200`.                                                                                          |
 | **P1**   | in-progress |  High  |             M             | 0191   | One GitHub adapter owns every `gh` call (PR, CI probe, mergeability, review posting)                           | GitHub / Architecture           | Queued behind PR #230 (overlaps `flow/github/ci.py`, `flow/review/loop.py`, `flow/stages/review.py`). Unblocked structurally (`flow/` split landed); unblocks `0192`.                                                                                                                                                                   |
 | **P1**   | in-progress |  High  |             L             | 0192   | `run_review_loop` and `run_review_stage` become a `ReviewLoop` object with named steps                         | Review Loop / Refactor          | Blocked by `0191`. `flow/review/loop.py` is 936 lines. Sequence one at a time in the review-loop lane with PR #230, `0255`, and `0231`.                                                                                                                                                                                                 |
 | **P1**   | todo        |  High  |             L             | 0255   | Streaming per-issue resolvers during Stage 4 CI & review with single consolidated commit                       | Review Loop / Concurrency       | Queued behind PR #230 (overlaps `flow/review/loop.py`, `entrypoint/review_loop.py`). One at a time with `0191`, `0192`, `0231`.                                                                                                                                                                                                         |

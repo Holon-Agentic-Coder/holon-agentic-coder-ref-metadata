@@ -53,3 +53,13 @@ Still valid; no scope check exists. The `gh auth token` handoff now lives under 
 references above are stale), and the flow-level touch set (`touch_set.py`,
 [PR #194](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/194)) now gives the pre-flight a plan file
 list to inspect for `.github/workflows/**`.
+
+## Flow run (2026-11-23)
+
+- Intent: `todo/intent-0175-preflight-github-token-scopes-v2.json` (fresh from current main; the earlier attempt
+  `I-1795388456-preflight-github-token-scopes` never opened a PR and is stale, its `flow-preflight-github-token-scopes`
+  worktree and branches are for cleanup).
+- PR: https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/244
+- Stage 3 first attempt exited with SIGKILL (exit -9) after 2.5 min, probably the Docker VM's 8 GB limit under
+  concurrent flows (not confirmed); resumed from the execute checkpoint. Stage 4 halted on a DIRTY PR (ledger-only
+  conflict), merged origin/main and resumed from review.
