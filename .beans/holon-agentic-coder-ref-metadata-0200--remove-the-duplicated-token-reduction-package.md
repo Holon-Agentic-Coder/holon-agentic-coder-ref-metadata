@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0200
 title: "Remove holon-agentic-coder's diverged token_reduction copy; holon-coherence is the single owner"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:

@@ -32,13 +32,13 @@ EXECUTIVE_SUMMARY_NARRATIVE: list[str] = [
     (
         "The harness drives every `holon-agentic-coder` change through the 5-stage Holon flow and the `pr-review-loop`, "
         "and the maintainer merges each pull request into `main`. On 2026-11-23 every active bean was audited against "
-        "current `main` (`holon-agentic-coder` `0f0089d`, `holon-coherence` `baf5c65`, `dev-env` `a9dacf4`) and merged "
-        "PRs #221–#241 plus `dev-env` PRs #31–#33 and #36: duplicate Bean 0353 was scrapped in favour of Bean 0354, "
+        "current `main` (`holon-agentic-coder` `0f0089d`, `holon-coherence` `baf5c65`, `dev-env` `68ddec9`) and merged "
+        "PRs #221–#241 plus `dev-env` PRs #31–#33 and #36–#38: duplicate Bean 0353 was scrapped in favour of Bean 0354, "
         "stale `blocked_by` links and outdated 'in flight in another session' markers (`0322` and `0346` completed; "
         "`0265`, `0270` idle) were cleared, and new beans `0350`–`0352` and `0354`–`0361` were triaged. HAC PRs #243 "
-        "(`0155`, `CLEAN`), #244 (`0175`, `UNSTABLE`), and #245 (`0191`, `UNSTABLE`) are open, while both `dev-env` "
-        "**Bean 0361** (`dev-env` PR #33) and **Bean 0351** (`dev-env` PR #36) have merged into `main` (zero open "
-        "`dev-env` PRs)."
+        "(`0155`, `CLEAN`), #244 (`0175`, `UNSTABLE`), and #245 (`0191`, `UNSTABLE`) are open, while `dev-env` "
+        "**Bean 0361** (`PR #33`), **Bean 0351** (`PR #36`), **Bean 0364** (`PR #37`), and **Bean 0365** (`PR #38`) "
+        "have all merged into `main` (zero open `dev-env` PRs)."
     ),
     "",
     "Concurrent flows on overlapping files forced repeated syncs and re-reviews earlier on (141 review-loop passes, about 10M+ tokens), so flows that touch the same files still run one after another; only flows with disjoint touch sets run together.",
@@ -381,7 +381,7 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     "**2026-11-21:** every active bean was audited against `origin/main`. Locations moved by the `flow/` and `cli/` package splits were corrected in Beans 0157, 0175, 0181, 0191-0194, 0200, 0231, 0255 and 0269; Bean 0146 and Bean 0197 were narrowed to what remains after PR #213; the blocked-by links to completed or scrapped Beans 0168, 0185, 0187 and 0195 were cleared. New: **Bean 0347** (Stage 4 says halted for human review although consensus approval was reached and the flow carries on to Stage 5). The audit found no bean already done by PRs #209 to #220 beyond those already completed.",
     "",
     (
-        "**2026-11-22 to 2026-11-23:** eighteen target PRs merged across `holon-agentic-coder` and `dev-env`: "
+        "**2026-11-22 to 2026-11-23:** twenty target PRs merged across `holon-agentic-coder` and `dev-env`: "
         "**Bean 0322** (HAC #222, `e2ba3c2`: complete removal of `gemini-agent`), **Bean 0172** (HAC #225, `4811599`: "
         "`unlimited` stage and turn budgets), **Bean 0348** (HAC #226, `3ee9c4e`: admission uses actual PR files), "
         "**Bean 0199** (HAC #227, `43d278c`: ledger query and knowledge index decomposed), **Bean 0193** (HAC #228, "
@@ -394,17 +394,20 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
         "override checkpoint), **Beans 0347 & 0354** (HAC #230, `f17f4b8`: Stage 4 `review: approved` status & fresh "
         "local test gate), **Bean 0189** (HAC #241, `0f0089d`: `launcher/` package breaks `flow` -> `cli` cycle), plus "
         "`dev-env` PRs #31 (**Bean 0344**, `0ba3e94`), #32 (**Bean 0346**, `d6b07de`), #33 (**Bean 0361**, "
-        "`425ff6fe`: Fish Conda/Homebrew hooks & clean-env multi-shell tests), and #36 (**Bean 0351**, `a9dacf46`: "
+        "`425ff6fe`: Fish Conda/Homebrew hooks & clean-env multi-shell tests), #36 (**Bean 0351**, `a9dacf46`: "
         "Ansible `deb822_repository` & task hygiene, unconditional WSL exclusion of Ghostty/Warp, and `tmux` "
-        "`set -g mouse on`). Open **HAC PRs #243** (`0155`), **#244** (`0175`), and **#245** (`0191`) remain in "
-        "progress, and new **Bean 0360** logs duplicate `P-` branch creation after an interrupted Stage 2. Pre-triage "
-        "audit (2026-11-23): **Bean 0353** scrapped as a duplicate of `0354`; stale blockers cleared on `0189`, `0197`, "
-        "`0198`, `0265`, `0270`, `0333`; `0176` re-measured at 144 files; `0181` re-pointed to "
-        "`entrypoint/executor/run.py`; new beans `0350`–`0352` and `0354`–`0361` triaged."
+        "`set -g mouse on`), #37 (**Bean 0364**, `4b1391c3`: define `devenv_user`, skip WSL GUI terminal wizard "
+        "prompt, and audit Ansible Jinja2 variables in tests), and #38 (**Bean 0365**, `68ddec98`: disable "
+        "`expand_argument_vars` on Conda clean-shell command tasks, enforce static `$VAR` command hygiene, and add "
+        "hermetic `ansible-playbook` verification test). Open **HAC PRs #243** (`0155`), **#244** (`0175`), and "
+        "**#245** (`0191`) remain in progress, and new **Bean 0360** logs duplicate `P-` branch creation after an "
+        "interrupted Stage 2. Pre-triage audit (2026-11-23): **Bean 0353** scrapped as a duplicate of `0354`; stale "
+        "blockers cleared on `0189`, `0197`, `0198`, `0265`, `0270`, `0333`; `0176` re-measured at 144 files; `0181` "
+        "re-pointed to `entrypoint/executor/run.py`; new beans `0350`–`0352` and `0354`–`0361` triaged."
     ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0361)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0365)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
@@ -412,12 +415,12 @@ MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0361)"
 NEXT_EXECUTION_SEQUENCE: list[str] = [
     (
         "**Start here (2026-11-23):** every active bean was audited against current `main` (`holon-agentic-coder` "
-        "`0f0089d`, `holon-coherence` `baf5c65`, `dev-env` `a9dacf4`) and open HAC PRs #243 (`0155`), #244 (`0175`), "
+        "`0f0089d`, `holon-coherence` `baf5c65`, `dev-env` `68ddec9`) and open HAC PRs #243 (`0155`), #244 (`0175`), "
         "#245 (`0191`). PR #222 (0322), PR #225 (0172), PR #226 (0348), PR #227 "
         "(0199), PR #228 (0193), PR #229 (0349), PR #230 (0347, 0354), PR #234 (0196), PRs #235 & #237 (0358), PR #236 "
         "(0194), PR #238 (0357), PR #239 (0356), PR #240 (0355), PR #241 (0189), and `dev-env` PRs #31–#33 (0344, "
-        "0346, 0361) and #36 (0351) have merged. Run one flow at a time within a lane; lanes run together only when "
-        "their touch sets are disjoint."
+        "0346, 0361), #36 (0351), #37 (0364), and #38 (0365) have merged. Run one flow at a time within a lane; lanes "
+        "run together only when their touch sets are disjoint."
     ),
     "",
     (
@@ -1940,6 +1943,31 @@ def generate_triage_document(
                 "all 12 Linux Ghostty and Warp tasks on WSL, enabled `set -g mouse on` in `.tmux.conf`, and added "
                 "hygiene, WSL templating, and zero-deprecation `--syntax-check` tests. Consensus 3/3 APPROVED at "
                 "iter 2; calibration EV predicted 92.83 / actual 94.64 (delta +1.81); 6/6 CI green."
+            ),
+            (
+                "69. **dev-env `devenv_user`, WSL wizard prompt skip, and Ansible Jinja2 variable audit "
+                "(Bean 0364 / dev-env PR #37, 2026-11-23)**:"
+            ),
+            (
+                "    - `0364` (dev-env PR #37, `4b1391c3`, merged 2026-11-23): defined `devenv_user` in "
+                "`ansible/group_vars/all.yml`, added `is_wsl()` in `scripts/devenv_wizard.py` to skip the Ghostty/Warp "
+                "prompt and persist `devenv_install_gui_casks: false` on WSL, and added Conda command templating plus "
+                "repo-wide Jinja2 AST variable-audit tests in `tests/test_templating.py` and WSL wizard tests in "
+                "`tests/test_wizard.py`. Consensus 3/3 APPROVED; calibration EV predicted 95.02 / actual 95.95 "
+                "(delta +0.93); 6/6 CI green."
+            ),
+            (
+                "70. **dev-env disable `expand_argument_vars` on Conda clean-shell checks and `ansible-playbook` test "
+                "(Bean 0365 / dev-env PR #38, 2026-11-23)**:"
+            ),
+            (
+                "    - `0365` (dev-env PR #38, `68ddec98`, merged 2026-11-23): set `expand_argument_vars: false` on "
+                "all three clean-shell Conda verification `ansible.builtin.command` tasks in "
+                "`ansible/roles/conda/tasks/main.yml` and switched Fish to `string join : -- $PATH`, enforced static "
+                "`expand_argument_vars: false` hygiene for shell `$VAR` command tasks in `tests/test_toolchain.py`, "
+                "and added a real hermetic `ansible-playbook` verification test under polluted parent `PATH` / "
+                "`CONDA_DEFAULT_ENV` in `tests/test_shell_hooks.py`. Consensus 3/3 APPROVED; calibration EV predicted "
+                "96.27 / actual 97.28 (delta +1.01); 6/6 CI green."
             ),
             "",
             "---",

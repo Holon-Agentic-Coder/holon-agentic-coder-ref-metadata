@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0363
 title: "After merging main, wait for CI before calibrating; restart PR review from the start if CI breaks"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
