@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0355
 title: "holon calibrate runs the full Stage 5 (report, reconciliation, knowledge promotion), like the flow"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - knowledge
   - holon-agentic-coder
 created_at: 2026-11-21T18:45:00+11:00
-updated_at: 2026-11-21T18:45:00+11:00
+updated_at: 2026-11-23T11:51:44+11:00
 ---
 
 ## Problem
@@ -52,3 +52,20 @@ Through the Holon flow on `holon-agentic-coder`:
 - Follow-up for PR #219: its Stage 5 reconciliation and promotion did not run. Once this lands, re-run `holon calibrate`
   for that execution, or run the two missing steps by hand before it merges.
 - Related: Bean 0342 (promotion counts only new items), Bean 0354 (stale local test gate, which caused the hand-run).
+- PR: https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/240 (flow run `calibrate-runs-full-stage-5`;
+  review consensus APPROVED 3/3, calibrated, awaiting human merge).
+
+## Resolution
+
+Delivered via [PR #240](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/240) and merged into `main`
+(`192c6e8`):
+
+- **Key Architectural Deliverables**: Stage 5 is one shared function (`flow/stage5.py`) used by both
+  `run_calibrate_stage` and `holon calibrate`. It runs `run_calibrate`, then `reconcile_records`, then
+  `promote_pending_candidates`, with the same commits on the `/calibrated` branch. `holon calibrate` runs the full Stage
+  5 by default; `--report-only` keeps the old behaviour and says so; `--no-commit` means no commits; `--json` reports
+  the reconciliation outcome and newly promoted count. Re-runs are idempotent.
+- **Verification & Tests**: Hermetic `tests/test_calibrate_full_stage5.py` covers CLI/flow parity, `--report-only`,
+  second-run no-op, and `--no-commit`.
+- **Holon Flow Traversal**: The flow ran through Intent, Plan, Execute, Review Loop (consensus APPROVED 3/3) and
+  Calibration on branch `I-1795388477-calibrate-runs-full-stage-5/...`.

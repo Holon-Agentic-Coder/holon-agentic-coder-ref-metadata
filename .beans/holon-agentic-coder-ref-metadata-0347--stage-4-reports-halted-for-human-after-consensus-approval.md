@@ -72,3 +72,7 @@ Through the Holon flow on `holon-agentic-coder`:
   `.agents/holon_flow.md`, `docs/git_flow.md` (review-boundary logic, the same code as this bean) and
   `holon-knowledge/ledger/executions.jsonl`. Stage 4 refuses unresolvable conflicts. Blocked on a conflict resolution
   decision; the merge was aborted, worktree clean at `97b06fba`.
+
+- 2026-11-23: Resumed from `--from-stage review` after the conflict resolution (PR head `6a6f6e90`). Flow worktree
+  fast-forwarded from `97b06fba` to origin, then the Stage 4 review loop was restarted (checkpoint
+  `.holon/flow/checkpoint-review-approved-and-fresh-tests.json`).
