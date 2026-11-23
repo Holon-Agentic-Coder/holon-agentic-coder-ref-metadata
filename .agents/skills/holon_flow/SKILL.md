@@ -58,7 +58,7 @@ multi-hour containerised lifecycle, **the flow is executed inside a dedicated ba
      for a human to type "continue".
    - **When no reset time is named** (true credit exhaustion), step down the fallback ladder and continue the flow from
      the current stage or checkpoint:
-   - **Claude (`claude-agent`)**: `claude-fable-5` $\rightarrow$ `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6`
+   - **Claude (`claude-agent`)**: `claude-fable-5-2` $\rightarrow$ `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6`
      $\rightarrow$ `claude-haiku-4-5`.
    - **Antigravity (`antigravity-agent`)**: `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$
      `gemini-3.8-flash` (use `gemini-4-argon` for all Holon coding tasks until tokens run out).
@@ -125,7 +125,7 @@ Inside the background subagent, perform pre-flight verification:
 5. **Determine Runner & Model**:
    - Default agent: `antigravity-agent` (or `claude-agent`)
    - Default model: `gemini-4-argon` (fallback: `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash`, or
-     `claude-fable-5` / `claude-opus-5-5`)
+     `claude-fable-5-2` / `claude-opus-5-5`)
 
 ---
 

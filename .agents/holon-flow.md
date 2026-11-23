@@ -59,10 +59,10 @@ stepping down model tiers, always resume through `holon flow <intent.json> --fro
   `RESOURCE_EXHAUSTED`, or HTTP 429/quota errors), **do not stop or block** as long as a lower-tier model or alternate
   configured runner still has available credit. Automatically step down the fallback ladder and **continue the flow from
   the current stage/checkpoint** (reusing any already-pushed `I-.../_`, `P-.../_`, or `E-.../_` branch):
-  - **Claude (`claude-agent`) fallback ladder**: `claude-fable-5` (or `fable`) $\rightarrow$ `claude-opus-5-5` (or
-    `opus`) $\rightarrow$ `claude-sonnet-4-6` (or `sonnet`) $\rightarrow$ `claude-haiku-4-5` (or `haiku`). Fable is the
-    preferred top tier for flow stages (maintainer, 2026-11-05); `holon` passes `--model` through to the runner
-    verbatim, so no engine change is needed.
+  - **Claude (`claude-agent`) fallback ladder**: `claude-fable-5-2` (Fable 5.2; never the bare alias `fable`, which the
+    engine maps to `claude-opus-5-5`) $\rightarrow$ `claude-opus-5-5` (or `opus`) $\rightarrow$ `claude-sonnet-4-6` (or
+    `sonnet`) $\rightarrow$ `claude-haiku-4-5` (or `haiku`). Fable is the preferred top tier for flow stages
+    (maintainer, 2026-11-05); `holon` passes `--model` through to the runner verbatim, so no engine change is needed.
   - **Antigravity (`antigravity-agent` in `holon` CLI) fallback ladder** (maintainer, 2026-11-22): use
     `antigravity-agent` with `gemini-4-argon` for all Holon coding tasks until tokens run out, then fall back along
     `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash` (use bare model IDs without

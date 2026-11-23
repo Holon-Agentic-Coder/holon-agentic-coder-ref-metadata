@@ -15,7 +15,7 @@ Subagent delegation in this ecosystem is primarily targeted towards the **Antigr
   research.
 - **Model Selection & Automatic Credit Fallback**: Set `Model: "inherit"` by default to inherit the parent agent's
   active model configuration. If credit or quota runs out on the higher-level model (`"inherit"` / `"pro"`),
-  automatically fall back to `"flash"` and then `"flash_lite"` (and similarly step down `claude-fable-5` $\rightarrow$
+  automatically fall back to `"flash"` and then `"flash_lite"` (and similarly step down `claude-fable-5-2` $\rightarrow$
   `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` or `gemini-4-argon` $\rightarrow$
   `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash` in `holon` CLI invocations) and continue the flow or review loop
   from the current stage without discarding completed work.

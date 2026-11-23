@@ -30,7 +30,7 @@ COLOR_RESET = "\033[0m"
 
 # Model fallback ladders (.agents/holon-flow.md)
 FALLBACK_LADDER_CLAUDE = [
-    "claude-fable-5",
+    "claude-fable-5-2",
     "claude-opus-5-5",
     "claude-sonnet-4-6",
     "claude-haiku-4-5",
