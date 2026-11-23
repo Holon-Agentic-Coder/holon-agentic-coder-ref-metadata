@@ -31,6 +31,13 @@ sizing. Moved verbatim from `AGENTS.md`.
     `ACT-POST`, tool operations) and lifecycle summaries (`entry_type: "summary"`, such as `E-...`, `REV-...`) MUST be
     interleaved chronologically inside `executions.jsonl` under `LedgerLock`. Auxiliary ledgers fragment the provenance
     trail, break downstream query engines, and are strictly prohibited.
+    - **Per-Flow Pending Fragments and CI Promotion (maintainer, 2026-11-23; Bean 0371)**: Per-flow pending fragments
+      (`holon-knowledge/ledger/pending/<ledger>/<intent-id>.jsonl`) are the same three ledgers split by flow, not
+      auxiliary ledgers: each fragment holds rows of exactly one of `intents`, `plans` or `executions`, in the canonical
+      row format. Once Bean 0371 lands, flows append only to their own fragments and never write the canonical `*.jsonl`
+      files; readers merge canonical rows and all fragments by `created_at`; and only the CI promotion job on push to
+      `main` folds fragments into the canonical ledgers (append-only, idempotent, ledger-only commit). Until then, flows
+      keep writing the canonical files and the conflict rules below apply.
     - **Ledger-Only Conflict Resolution (No Tests Required)**: When syncing or merging `origin/main` into a flow branch
       results in conflicts strictly confined to ledger files (`holon-knowledge/ledger/*.jsonl`), **do NOT run the test
       suites**. Simply interleave or append the JSONL records chronologically by their `created_at` timestamp, verify
