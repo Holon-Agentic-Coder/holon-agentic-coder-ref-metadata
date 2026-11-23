@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-23 05:55:36 UTC
+**Last Updated:** 2026-11-23 06:28:35 UTC
 
 ## Executive Summary
 
@@ -18,10 +18,10 @@ Concurrent flows on overlapping files forced repeated syncs and re-reviews earli
 10M+ tokens), so flows that touch the same files still run one after another; only flows with disjoint touch sets run
 together.
 
-- **Total Tracked Beans**: 369 (excluding template)
-- **Completed**: 325 (88.1%)
+- **Total Tracked Beans**: 370 (excluding template)
+- **Completed**: 326 (88.1%)
 - **Scrapped / Superseded**: 9 (2.4%)
-- **Active**: 35 (9.5%), of which 13 are in progress, 21 are todo and 1 are draft
+- **Active**: 35 (9.5%), of which 14 are in progress, 20 are todo and 1 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -975,10 +975,10 @@ migration tests). Open **HAC PRs #243** (`0155`), **#244** (`0175`), and **#245*
 | **P3**   | todo        |  Low   |            XS             | 0231   | Exhausted-budget error string interpolates raw count while payload reports clamped 0                                | Flow Engine / Cosmetic      | Queued behind PR #230 (overlaps `flow/review/loop.py` lines 917–918). Cosmetic; bundle with a review-loop flow.                                                                                                                              |
 | **P3**   | todo        |  Low   |            XS             | 0269   | Deferred nits from the holon-agentic-coder PR 158 review loop                                                       | Review Loop / Housekeeping  | Wait for PR #230 (overlaps `docs/git_flow.md`) and `0197` (`calibration.py`). Item 2 obsolete; remaining: fold `parse_actual_metrics` exit-code logic onto `record_exit_code` and fix `docs/git_flow.md` checkpoint wording.                 |
 | **P3**   | todo        | Medium |             M             | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                                                 | vmlx / Performance          | Ready (host-level vMLX tuning on Mac; not a target-repo change). Pairs with `0142`.                                                                                                                                                          |
-| **P0**   | todo        |  High  |             M             | 0369   | Stage 5 writes a wrong calibration report: recovered infra failures become bug drag, main's files count as the PR's | Flow / Architecture         |                                                                                                                                                                                                                                              |
+| **P0**   | in-progress |  High  |             M             | 0369   | Stage 5 writes a wrong calibration report: recovered infra failures become bug drag, main's files count as the PR's | Flow / Architecture         |                                                                                                                                                                                                                                              |
+| **P1**   | in-progress | Medium |             M             | 0370   | Fix node/zsh/fish/brew converge bugs and add real e2e Ubuntu converge tests                                         | Build / DevEx               |                                                                                                                                                                                                                                              |
 | **P1**   | todo        |  High  |             M             | 0368   | Submodule gitfile left with container paths breaks host-side git in the flow worktree                               | Flow / Architecture         |                                                                                                                                                                                                                                              |
 | **P1**   | todo        |  High  |             M             | 0367   | Stage 5 never writes a fallback calibration report: retry, then fail the stage                                      | Flow / Architecture         |                                                                                                                                                                                                                                              |
-| **P1**   | in-progress |  High  |             M             | 0363   | After merging main, wait for CI before calibrating; restart PR review from the start if CI breaks                   | Ledger / Observability      |                                                                                                                                                                                                                                              |
 
 ---
 

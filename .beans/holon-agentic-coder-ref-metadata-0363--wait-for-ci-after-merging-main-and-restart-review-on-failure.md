@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0363
 title: "After merging main, wait for CI before calibrating; restart PR review from the start if CI breaks"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
   - calibration
   - holon-agentic-coder
 created_at: 2026-11-23T03:30:00Z
-updated_at: 2026-11-23T03:30:00Z
+updated_at: 2026-11-23T06:28:32Z
 ---
 
 ## Problem
@@ -53,3 +53,18 @@ stands" at 03:26, but the calibration report was already on the PR.
 ## Notes
 
 - Related: bean 0362 (stale-calibration warning lifecycle) and bean 0354 (test gate judges the current head).
+
+## Resolution
+
+Delivered via [PR #250](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/250) and merged into `main`
+(`582c4ab3`):
+
+- **Key Architectural Deliverables**: Stage 5 gates on CI for the exact merged head after the flow merges `origin/main`
+  into the PR branch. Cancelled or superseded runs count as not passed. A failing check on the merged head withdraws the
+  earlier consensus (ledger row appended, PR comment posted) and restarts the Stage 4 review loop at iteration 1. The
+  head-check and rerun logic lives in `flow/github/ci_head_checks.py` and `flow/github/ci_head_reruns.py`; consensus
+  withdrawal in `flow/review/consensus_withdrawal.py`.
+- **Verification & Tests**: Hermetic tests cover merge-then-wait-for-CI, CI failure restarting review at iteration 1,
+  cancelled runs treated as not passed, and the no-merge path running Stage 5 immediately.
+- **Holon Flow Traversal**: All 5 stages (Intent -> Plan -> Execute -> Review Loop -> Calibration) completed;
+  calibration commits `2c8e6fde`, `529651c8` and `68866c7a` are on the flow branch.
