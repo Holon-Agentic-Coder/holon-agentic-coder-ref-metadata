@@ -45,7 +45,20 @@ only when the resolver cannot produce a passing tree, and then it says exactly w
 1. **One conflict routine for every stage.** Replace the per-stage variants with a single
    `sync_with_target(context, stage)` used before Stages 2 to 5, at the end of Stage 3, at the Stage 4 conflict gate and
    before Stage 5: fetch, merge the target branch with a normal merge commit (never a rebase or force-push), classify
-   conflicts, resolve, verify, commit, push.
+   conflicts, resolve, verify, commit, push. 1a. **Check at the most granular place (maintainer, 2026-11-23): at the
+   start, at every turn, and at the end.** The check itself is cheap and needs no agent (`git fetch` plus a
+   `git merge-tree` probe against the target tip, keyed on the target SHA so an unchanged target costs nothing), so it
+   runs at every boundary the engine controls:
+   - **start of the flow** and **start of every stage** (Stages 1 to 5);
+   - **every turn inside a stage**: each executor turn/step boundary in Stage 3, each planner turn in Stage 2 where
+     there are several, each review iteration in Stage 4 (before the reviewers are dispatched and again before the
+     consensus is posted), each resolver turn, and each calibration retry in Stage 5;
+   - **end of every stage** before it pushes, and **end of the flow** (5a below). A conflict found at any of these
+     points is resolved there by `sync_with_target`, while it is still small, instead of surfacing stages later. Inside
+     a stage the merge happens only at a turn boundary, never while a role container is writing the worktree; the next
+     turn's agent is told what the merge changed. A check that finds the target unchanged, or changed without conflict,
+     does not merge (no head move, no CI run, no lost approval): the target is merged in only when there is a conflict
+     to resolve or when a stage is about to push or calibrate.
 2. **Mechanical classes, no agent** (extend `classify_conflicts`):
    - ledgers: append-merge (as today);
    - KB/WB entry files that differ only in timestamps (add/add): keep the target branch's copy;
@@ -87,6 +100,10 @@ only when the resolver cannot produce a passing tree, and then it says exactly w
    conflicted paths, the failing tests and the resolver's last diff saved in the worktree; nothing is pushed.
 
 ## Acceptance criteria
+
+- The conflict probe runs at flow start, at the start and end of every stage, at every turn boundary listed in 1a and at
+  the end of the flow; a test per boundary injects a conflicting target change just before it and asserts the conflict
+  is detected and resolved at that boundary, not later. With an unchanged target the probe makes no merge and no push.
 
 - For each of Stages 2, 3, 4 and 5: a fixture where the target branch gains a conflicting change to a code file the flow
   also changed; the flow resolves it through the resolver role, tests pass, and the stage completes without a human or
