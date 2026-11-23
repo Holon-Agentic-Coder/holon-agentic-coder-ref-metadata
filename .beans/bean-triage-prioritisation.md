@@ -1,26 +1,27 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-23 05:53:35 UTC
+**Last Updated:** 2026-11-23 05:55:36 UTC
 
 ## Executive Summary
 
 The harness drives every `holon-agentic-coder` change through the 5-stage Holon flow and the `pr-review-loop`, and the
 maintainer merges each pull request into `main`. On 2026-11-23 every active bean was audited against current `main`
-(`holon-agentic-coder` `0f0089d`, `holon-coherence` `baf5c65`, `dev-env` `68ddec9`) and merged PRs #221–#241 plus
-`dev-env` PRs #31–#33 and #36–#38: duplicate Bean 0353 was scrapped in favour of Bean 0354, stale `blocked_by` links and
+(`holon-agentic-coder` `0f0089d`, `holon-coherence` `baf5c65`, `dev-env` `eeb2032`) and merged PRs #221–#241 plus
+`dev-env` PRs #31–#33 and #36–#39: duplicate Bean 0353 was scrapped in favour of Bean 0354, stale `blocked_by` links and
 outdated 'in flight in another session' markers (`0322` and `0346` completed; `0265`, `0270` idle) were cleared, and new
 beans `0350`–`0352` and `0354`–`0361` were triaged. HAC PRs #243 (`0155`, `CLEAN`), #244 (`0175`, `UNSTABLE`), and #245
 (`0191`, `UNSTABLE`) are open, while `dev-env` **Bean 0361** (`PR #33`), **Bean 0351** (`PR #36`), **Bean 0364**
-(`PR #37`), and **Bean 0365** (`PR #38`) have all merged into `main` (zero open `dev-env` PRs).
+(`PR #37`), **Bean 0365** (`PR #38`), and **Bean 0366** (`PR #39`) have all merged into `main` (zero open `dev-env`
+PRs).
 
 Concurrent flows on overlapping files forced repeated syncs and re-reviews earlier on (141 review-loop passes, about
 10M+ tokens), so flows that touch the same files still run one after another; only flows with disjoint touch sets run
 together.
 
 - **Total Tracked Beans**: 369 (excluding template)
-- **Completed**: 324 (87.8%)
+- **Completed**: 325 (88.1%)
 - **Scrapped / Superseded**: 9 (2.4%)
-- **Active**: 36 (9.8%), of which 14 are in progress, 21 are todo and 1 are draft
+- **Active**: 35 (9.5%), of which 13 are in progress, 21 are todo and 1 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -300,9 +301,9 @@ narrowed to what remains after PR #213; the blocked-by links to completed or scr
 were cleared. New: **Bean 0347** (Stage 4 says halted for human review although consensus approval was reached and the
 flow carries on to Stage 5). The audit found no bean already done by PRs #209 to #220 beyond those already completed.
 
-**2026-11-22 to 2026-11-23:** twenty target PRs merged across `holon-agentic-coder` and `dev-env`: **Bean 0322** (HAC
-#222, `e2ba3c2`: complete removal of `gemini-agent`), **Bean 0172** (HAC #225, `4811599`: `unlimited` stage and turn
-budgets), **Bean 0348** (HAC #226, `3ee9c4e`: admission uses actual PR files), **Bean 0199** (HAC #227, `43d278c`:
+**2026-11-22 to 2026-11-23:** twenty-one target PRs merged across `holon-agentic-coder` and `dev-env`: **Bean 0322**
+(HAC #222, `e2ba3c2`: complete removal of `gemini-agent`), **Bean 0172** (HAC #225, `4811599`: `unlimited` stage and
+turn budgets), **Bean 0348** (HAC #226, `3ee9c4e`: admission uses actual PR files), **Bean 0199** (HAC #227, `43d278c`:
 ledger query and knowledge index decomposed), **Bean 0193** (HAC #228, `5fbd2d0`: intent and plan stages decomposed),
 **Bean 0349** (HAC #229, `ccb7a6f`: Antigravity writable `brain`/`conversations` tmpfs and `empty_diff` excerpt), **Bean
 0196** (HAC #234, `2ec094e`, plus children #231–#233: `ExecutionRun`), **Bean 0194** (HAC #236, `b22258d`:
@@ -314,17 +315,19 @@ test gate), **Bean 0189** (HAC #241, `0f0089d`: `launcher/` package breaks `flow
 #31 (**Bean 0344**, `0ba3e94`), #32 (**Bean 0346**, `d6b07de`), #33 (**Bean 0361**, `425ff6fe`: Fish Conda/Homebrew
 hooks & clean-env multi-shell tests), #36 (**Bean 0351**, `a9dacf46`: Ansible `deb822_repository` & task hygiene,
 unconditional WSL exclusion of Ghostty/Warp, and `tmux` `set -g mouse on`), #37 (**Bean 0364**, `4b1391c3`: define
-`devenv_user`, skip WSL GUI terminal wizard prompt, and audit Ansible Jinja2 variables in tests), and #38 (**Bean
-0365**, `68ddec98`: disable `expand_argument_vars` on Conda clean-shell command tasks, enforce static `$VAR` command
-hygiene, and add hermetic `ansible-playbook` verification test). Open **HAC PRs #243** (`0155`), **#244** (`0175`), and
-**#245** (`0191`) remain in progress, and new **Bean 0360** logs duplicate `P-` branch creation after an interrupted
-Stage 2. Pre-triage audit (2026-11-23): **Bean 0353** scrapped as a duplicate of `0354`; stale blockers cleared on
-`0189`, `0197`, `0198`, `0265`, `0270`, `0333`; `0176` re-measured at 144 files; `0181` re-pointed to
-`entrypoint/executor/run.py`; new beans `0350`–`0352` and `0354`–`0361` triaged.
+`devenv_user`, skip WSL GUI terminal wizard prompt, and audit Ansible Jinja2 variables in tests), #38 (**Bean 0365**,
+`68ddec98`: disable `expand_argument_vars` on Conda clean-shell command tasks, enforce static `$VAR` command hygiene,
+and add hermetic `ansible-playbook` verification test), and #39 (**Bean 0366**, `eeb2032d`: install `zsh` on Linux/WSL,
+unify NVM storage strictly under `versions/node`, eliminate `versions/node/versions` symlink loop, and add hermetic Fish
+migration tests). Open **HAC PRs #243** (`0155`), **#244** (`0175`), and **#245** (`0191`) remain in progress, and new
+**Bean 0360** logs duplicate `P-` branch creation after an interrupted Stage 2. Pre-triage audit (2026-11-23): **Bean
+0353** scrapped as a duplicate of `0354`; stale blockers cleared on `0189`, `0197`, `0198`, `0265`, `0270`, `0333`;
+`0176` re-measured at 144 files; `0181` re-pointed to `entrypoint/executor/run.py`; new beans `0350`–`0352` and
+`0354`–`0361` triaged.
 
 ---
 
-## Key Milestones Completed (Beans 0080 – 0365)
+## Key Milestones Completed (Beans 0080 – 0366)
 
 1. **Holon Flow and Automation Engine**:
    - `0084`: Fixed CI check name collisions in review gates.
@@ -926,6 +929,14 @@ Stage 2. Pre-triage audit (2026-11-23): **Bean 0353** scrapped as a duplicate of
       `tests/test_toolchain.py`, and added a real hermetic `ansible-playbook` verification test under polluted parent
       `PATH` / `CONDA_DEFAULT_ENV` in `tests/test_shell_hooks.py`. Consensus 3/3 APPROVED; calibration EV predicted
       96.27 / actual 97.28 (delta +1.01); 6/6 CI green.
+71. **dev-env Linux/WSL `zsh` installation and unified NVM `versions/node` storage (Bean 0366 / dev-env PR #39,
+    2026-11-23)**:
+    - `0366` (dev-env PR #39, `eeb2032d`, merged 2026-11-23): added `zsh` to `devenv_packages_core` and `pkg_apt.yml`
+      (skipped as OS-provided in `os_Darwin.yml`), pointed `ansible/roles/node` `creates` and `current` symlink at
+      `~/.local/share/nvm/versions/node/v{{ devenv_node_version }}`, replaced bi-directional `-name "v*"` symlinking in
+      `00-devenv.fish` with one-way `v[0-9]*` migration plus `versions/node/versions` loop cleanup and `current` repair,
+      and added static and hermetic Fish migration tests. Consensus 3/3 APPROVED; calibration EV predicted 96.27 /
+      actual 97.16 (delta +0.89); 6/6 CI green.
 
 ---
 
@@ -967,7 +978,6 @@ Stage 2. Pre-triage audit (2026-11-23): **Bean 0353** scrapped as a duplicate of
 | **P0**   | todo        |  High  |             M             | 0369   | Stage 5 writes a wrong calibration report: recovered infra failures become bug drag, main's files count as the PR's | Flow / Architecture         |                                                                                                                                                                                                                                              |
 | **P1**   | todo        |  High  |             M             | 0368   | Submodule gitfile left with container paths breaks host-side git in the flow worktree                               | Flow / Architecture         |                                                                                                                                                                                                                                              |
 | **P1**   | todo        |  High  |             M             | 0367   | Stage 5 never writes a fallback calibration report: retry, then fail the stage                                      | Flow / Architecture         |                                                                                                                                                                                                                                              |
-| **P1**   | in-progress | Medium |             M             | 0366   | Install zsh on Linux/WSL and unify NVM storage strictly under versions/node                                         | General                     |                                                                                                                                                                                                                                              |
 | **P1**   | in-progress |  High  |             M             | 0363   | After merging main, wait for CI before calibrating; restart PR review from the start if CI breaks                   | Ledger / Observability      |                                                                                                                                                                                                                                              |
 
 ---
@@ -975,11 +985,11 @@ Stage 2. Pre-triage audit (2026-11-23): **Bean 0353** scrapped as a duplicate of
 ## Recommended Next Execution Sequence
 
 **Start here (2026-11-23):** every active bean was audited against current `main` (`holon-agentic-coder` `0f0089d`,
-`holon-coherence` `baf5c65`, `dev-env` `68ddec9`) and open HAC PRs #243 (`0155`), #244 (`0175`), #245 (`0191`). PR #222
+`holon-coherence` `baf5c65`, `dev-env` `eeb2032`) and open HAC PRs #243 (`0155`), #244 (`0175`), #245 (`0191`). PR #222
 (0322), PR #225 (0172), PR #226 (0348), PR #227 (0199), PR #228 (0193), PR #229 (0349), PR #230 (0347, 0354), PR #234
 (0196), PRs #235 & #237 (0358), PR #236 (0194), PR #238 (0357), PR #239 (0356), PR #240 (0355), PR #241 (0189), and
-`dev-env` PRs #31–#33 (0344, 0346, 0361), #36 (0351), #37 (0364), and #38 (0365) have merged. Run one flow at a time
-within a lane; lanes run together only when their touch sets are disjoint.
+`dev-env` PRs #31–#33 (0344, 0346, 0361), #36 (0351), #37 (0364), #38 (0365), and #39 (0366) have merged. Run one flow
+at a time within a lane; lanes run together only when their touch sets are disjoint.
 
 **In-flight (active flows / open PRs):** **HAC PR #243** (`0155`, `CLEAN`), **HAC PR #244** (`0175`, `UNSTABLE`), and
 **HAC PR #245** (`0191`, `UNSTABLE`).

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0366
 title: "Install zsh on Linux/WSL and unify NVM storage strictly under versions/node"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -12,7 +12,8 @@ tags:
   - nvm
   - fish
 created_at: 2026-11-23T05:26:00Z
-updated_at: 2026-11-23T05:26:00Z
+updated_at: 2026-11-23T05:54:00Z
+pr: https://github.com/thomashan/dev-env/pull/39
 ---
 
 ## Problem
@@ -101,5 +102,27 @@ Through the 5-stage Holon flow on `dev-env`:
 - 2026-11-23: Wrote `todo/intent-0366-dev-env-zsh-and-nvm-storage.json` and launched Holon flow
   `dev-env-zsh-and-nvm-storage` off `/Users/thomashan/git/dev-env/main` (`68ddec98`) with `antigravity-agent` /
   `gemini-4-argon`.
+- 2026-11-23: Flow `dev-env-zsh-and-nvm-storage` (`antigravity-agent` / `gemini-4-argon`) completed all 5 stages and
+  opened [PR #39](https://github.com/thomashan/dev-env/pull/39) (head `6d8e2ecf`): Stage 4 consensus 3/3 APPROVED (0
+  critical, 0 important, 0 nit), Stage 5 calibration included in PR diff (predicted EV 96.27, actual 97.16, delta +0.89;
+  touch-set precision/recall 100.0%), all 6 CI checks green (`hygiene`, `make-matrix` `ubuntu-latest` / `macos-latest`,
+  `test-network`, `test-unit` `ubuntu-latest` / `macos-latest`), `MERGEABLE`/`CLEAN`, awaiting human maintainer merge.
 
 ## Resolution
+
+Completed via [dev-env PR #39](https://github.com/thomashan/dev-env/pull/39) (merged into `main` as `eeb2032d` on
+2026-11-23; head `6d8e2ecf`):
+
+- Added `zsh` to `devenv_packages_core` (`ansible/group_vars/all.yml`) and `zsh: zsh` to `ansible/vars/pkg_apt.yml`
+  (installing `zsh` across all Linux/WSL hosts), while skipping `zsh` as OS-provided in `ansible/vars/os_Darwin.yml`.
+- Updated `ansible/roles/node/tasks/main.yml` to ensure `~/.local/share/nvm/versions/node` exists and point both
+  `creates` and the `current` symlink at `~/.local/share/nvm/versions/node/v{{ devenv_node_version }}`.
+- Replaced the bi-directional `-name "v*"` symlink loops in `dotfiles/fish/.config/fish/conf.d/00-devenv.fish` with
+  idempotent one-way migration: removes bogus `$nvm_data/versions` symlink, scans strictly `v[0-9]*`, moves real legacy
+  flat directories into `versions/node/`, removes stale flat symlinks without back-symlinking, and repairs a dangling
+  `current` symlink.
+- Updated `tests/test_manifest.py` (`984` lines `<= 1,000`), added `zsh` mapping and unified node path tests in
+  `tests/test_toolchain.py`, and added the real hermetic Fish migration test in `tests/test_shell_hooks.py`.
+- Traversed all 5 Holon flow stages (`antigravity-agent` / `gemini-4-argon`): Stage 4 consensus 3/3 APPROVED (0
+  critical, 0 important, 0 nit), Stage 5 calibration included in PR diff (predicted EV 96.27, actual 97.16, delta +0.89;
+  touch-set precision/recall 100.0%), all 6 CI checks green.
