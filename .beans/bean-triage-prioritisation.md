@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-23 05:35:07 UTC
+**Last Updated:** 2026-11-23 05:48:23 UTC
 
 ## Executive Summary
 
@@ -18,9 +18,9 @@ Concurrent flows on overlapping files forced repeated syncs and re-reviews earli
 together.
 
 - **Total Tracked Beans**: 366 (excluding template)
-- **Completed**: 322 (88.0%)
+- **Completed**: 323 (88.3%)
 - **Scrapped / Superseded**: 9 (2.5%)
-- **Active**: 35 (9.6%), of which 16 are in progress, 18 are todo and 1 are draft
+- **Active**: 34 (9.3%), of which 15 are in progress, 18 are todo and 1 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -955,7 +955,6 @@ Stage 2. Pre-triage audit (2026-11-23): **Bean 0353** scrapped as a duplicate of
 | **P2**   | todo        |  High  |             L             | 0226   | End-to-end test for the holon flow commands with full teardown                                     | Testing / E2E               | Ready (operator-run local sub-1B model via `local_llm`, never opens a PR, excluded from CI). Reconcile test mode with `0357` (removes `--skip-review`).                                                                                      |
 | **P2**   | in-progress | Medium |             M             | 0181   | Use the `/_` leaf only when referencing a git branch, never on ids                                 | Holon Flow / Ledger         | Queued behind PR #230 (overlaps `docs/git_flow.md` and `docs/ledger_schema.md`). `entrypoint/executor/run.py` (94, 242), `calibration.py`, `cli/commands/`, and `entrypoint/` still strip/re-add `/_`; sequence with `0197`.                 |
 | **P2**   | todo        | Medium |             L             | 0223   | Audit CLI flags vs `HOLON_*` env vars: four-kind decision rule, flag>env precedence                | CLI / Config                | Wait for `0265` (`cli/` split) and `0357` (drops `--skip-review`). Exhaustive inventory of every `add_argument` and `os.getenv`, unified resolution helper, logged source, auto-derived `--help`.                                            |
-| **P2**   | in-progress | Medium |             M             | 0200   | Remove holon-agentic-coder's diverged `token_reduction` copy; holon-coherence is the owner         | Token Reduction             | Unblocked (`0189` merged in PR #241). Remove duplicated `sandbox_executor.token_reduction` code in favour of `holon-coherence`.                                                                                                              |
 | **P2**   | in-progress | Medium |             M             | 0216   | Holon flow references and drives GitHub Issues (assign on intent, close on merge)                  | Holon Flow / Issue Tracking | Blocked by `0333`. Adds optional `work_item` to intent schema, marks issue in progress, adds `Closes #N` to PR body; sequence with `0191` (`flow/github/`).                                                                                  |
 | **P2**   | todo        | Medium |             S             | 0217   | GitHub Issues tracking for holon-coherence: labels, guidance and import                            | Issue Tracking / Coherence  | Blocked by `0215`. Creates labels and imports coherence beans after `0215`; guidance change runs via Holon flow on `holon-coherence`.                                                                                                        |
 | **P2**   | todo        | Medium |             M             | 0218   | Port harness skills and guidance to GitHub Issues and sequence the harness retirement              | Harness Deprecation         | Harness work. Blocked by `0215`, `0216`, and `0217`. Replaces triage matrix and bean-closing steps, then archives harness read-only.                                                                                                         |

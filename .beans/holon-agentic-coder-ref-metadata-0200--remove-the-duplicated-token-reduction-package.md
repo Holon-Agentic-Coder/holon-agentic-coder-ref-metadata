@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0200
 title: "Remove holon-agentic-coder's diverged token_reduction copy; holon-coherence is the single owner"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0189
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-11-23T14:30:00+11:00
+updated_at: 2026-11-23T05:48:20Z
 ---
 
 ## Problem
@@ -95,3 +95,21 @@ Status stays `todo`: no flow was started, no intent was written to `todo/`, and 
 Full removal. Repoint the token-reduce sidecar to holon-coherence's own proxy addon and image
 (`src/holon_coherence/proxy/addon.py` and its proxy `Dockerfile`), re-home `proxy_readiness` and every other remaining
 reference, then delete `token_reduction/` and its tests entirely.
+
+## Resolution
+
+Delivered via [PR #249](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/249) and merged into `main`
+(`c905a98`), with full removal per the maintainer decision of 2026-11-23:
+
+- **Key Architectural Deliverables**: `sandbox_executor/token_reduction/` deleted (including the diverged
+  `mitm_addon.py`, `hybrid_cache`, `payload_cleaner`, `rag_indexer`, `ringer_orchestrator`, `openbrain_memory`). Root CA
+  generation moved to `launcher/root_ca.py` and `launcher/root_ca_openssl.py`; `proxy_readiness` re-homed to
+  `launcher/`; the token-reduce sidecar now uses the holon-coherence proxy image and addon via `launcher/proxy_image.py`
+  and `launcher/sidecar*.py`. Related token-scope and execution-recovery modules added under `flow/`.
+- **Verification & Tests**: `test_token_reduction.py` and `test_context_cleaner.py`, `test_cache_control.py` removed
+  with their modules; replacement launcher, sidecar, root-CA, proxy-env, token-scope and execution-recovery tests added;
+  the URL fuzz test repointed to the moved modules.
+- **Holon Flow Traversal**: Intent, plan (`P-1795409242-CLA-CO5.5`) and execute (`E-1795409573-CLA-CO5.5`) completed and
+  merged after review; calibration recorded in
+  `plans/I-1795409225-remove-token-reduction-copy/P-1795409242-CLA-CO5.5_calibration.md` (EV predicted 30.15; clean
+  actual 58.99; observed -21.01 with bug EV drag 80).
