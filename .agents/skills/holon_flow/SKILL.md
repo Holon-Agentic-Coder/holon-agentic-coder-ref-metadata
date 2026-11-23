@@ -248,10 +248,18 @@ Once the flow finishes:
    1. Resolve the conflict through the `resolve-conflict` skill in its own subagent (merge `origin/<target>`; never a
       rebase or force-push; ledger and KB conflicts mechanically; a code conflict that needs a decision goes back to the
       parent, which delegates a higher-tier resolve-conflict subagent). Push.
-   2. Rerun the flow from the checkpoint with `scripts/run_holon_flow.py --from-stage review` (launched from the harness
-      root), so Stage 4 and Stage 5 cover the merged head: CI must pass on the new head, the approval carries over only
-      when the PR's own diff is unchanged (otherwise the review runs again), and calibration is redone so the report
-      evaluates the final code.
+   2. Rerun the flow from the checkpoint, launched from the harness root, choosing the stage by what the merge did:
+      - **Mechanical merge, PR's own diff unchanged** (ledger/KB only): rerun with
+        `.agents/skills/holon_flow/scripts/run_holon_flow.py --from-stage calibrate`. Stage 5's merged-head gate
+        compares the PR-own fingerprint with the one recorded at approval: when they match it keeps the approval, waits
+        for CI on the merged head and redoes calibration; when they differ, or CI fails, it withdraws the consensus and
+        restarts Stage 4 itself. **Do not use `--from-stage review` here**: it re-enters the review loop and dispatches
+        the reviewers again even though nothing of the PR changed (seen on PR #258, 2026-11-23). Better still, for a
+        ledger-only conflict skip step 1 and let the rerun's own conflict gate do the merge: it resolves ledgers itself
+        and records the carry-over row.
+      - **The PR's own diff changed** (a resolved code conflict), or the approval predates the fingerprint (it was
+        recorded by an engine older than PR #254, so the checkpoint's consensus has no `approval_fingerprint`): rerun
+        with `--from-stage review`; one fresh review records a fingerprinted approval, and later merges carry it over.
    3. Check mergeability again and repeat until the PR is `MERGEABLE` and `CLEAN` with green CI and the calibration
       report in the diff. If the target branch keeps moving, keep going; report only a conflict you cannot get resolved,
       never "ready" for a conflicting PR.
