@@ -54,7 +54,9 @@ QUOTA_ERROR_PATTERNS = [
     "quota exceeded",
     "quota exhausted",
     "quota_exhausted",
-    "usage limit",
+    "usage limit reached",
+    "hit your usage limit",
+    "hit your limit",
     "rate_limit_exceeded",
     "too many requests",
     "http 429",
@@ -83,10 +85,19 @@ def log_stage(msg: str) -> None:
     print(f"\n{COLOR_CYAN}{COLOR_BOLD}=== {msg} ==={COLOR_RESET}\n")
 
 
+QUOTA_SCAN_TAIL_LINES = 200
+
+
 def is_quota_error(text: str) -> bool:
-    """Check if output contains quota, credit, or session limit error indicators."""
-    lower_text = text.lower()
-    return any(pattern in lower_text for pattern in QUOTA_ERROR_PATTERNS)
+    """Check if the end of the output contains quota, credit, or session limit error indicators.
+
+    Only the last ``QUOTA_SCAN_TAIL_LINES`` lines are scanned: a limit error ends the run, so it is near the end, while
+    the top of the output echoes the intent text, which can mention limits in prose. On 2026-11-23 the bare pattern
+    "usage limit" matched an intent's sentence about "named-reset usage limits" and stepped a flow down from opus to
+    sonnet although no limit had been hit (PR #257).
+    """
+    tail = "\n".join(text.splitlines()[-QUOTA_SCAN_TAIL_LINES:]).lower()
+    return any(pattern in tail for pattern in QUOTA_ERROR_PATTERNS)
 
 
 def resolve_next_model(agent: str, current_model: str) -> tuple[str, str] | None:
