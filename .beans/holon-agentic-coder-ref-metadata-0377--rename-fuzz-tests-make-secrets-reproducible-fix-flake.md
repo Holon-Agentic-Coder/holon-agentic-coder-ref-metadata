@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0377
 title: "Rename the *_fuzz tests after what they protect, make their random secrets reproducible, fix the flaky case"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - redaction
   - holon-agentic-coder
 created_at: 2026-11-23T08:45:00Z
-updated_at: 2026-11-23T08:45:00Z
+updated_at: 2026-11-23T11:40:00Z
 ---
 
 ## Problem
@@ -73,3 +73,26 @@ this.
 
 Noted as "not yet a bean" in the 2026-11-23 queue notes. Blocks nothing, but it keeps failing unrelated PRs; with the
 merged-head CI gate (PR #250) a flaky failure on a merged head withdraws an approval and restarts Stage 4.
+
+## Resolution
+
+Delivered via [PR #261](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/261) and merged into `main`
+(`7ab455c`):
+
+- **Root cause of the flaky case**: in the forwarded invalid-value cases (`HOLON_TURN_TIMEOUT_SECONDS`,
+  `HOLON_STAGE_BUDGET_SECONDS`) the run creates the pi-agent session dir with
+  `tempfile.mkdtemp(prefix="holon-pi-agent-")`. Its 8 random characters (and the per-run `pytest-<N>` path) are mounted
+  and echoed; when 4 of them equal a 4-character run of the case's random credential, the leak check reports a false
+  leak twice for one case. The #244 mask over the whole pi-agent path had been hiding this. Product code does not leak.
+- **Reproducing seed (before the fix)**: `CREDENTIAL_TEST_SEED=211`, case
+  `env:HOLON_TURN_TIMEOUT_SECONDS/socks5/user-password/digits6-colon/ipv4/path` (fragment `jvzq` in
+  `holon-pi-agent-w6tcjvzq`); seed 227 is a second reproducer (`gvzj`).
+- **Key Architectural Deliverables**: `test_url_message_fuzz.py` renamed to `test_url_credential_redaction.py` and
+  `test_config_fuzz.py` to `test_malformed_config_never_crashes.py`, with the matching test-function renames; all 79
+  baseline tests kept (one regression test added, 80); every credential and fallback temp name drawn from the new
+  `tests/seeded_secrets.py` (default seed 0, `CREDENTIAL_TEST_SEED=<n>` to reproduce, `random` for stress); failure
+  messages print the seed and case ids. No retry, rerun or loosened 4-character check.
+- **Verification & Tests**: seed sweep 1000..1199 (200 of 200 passed); deterministic test for the HOME-prefix sharing
+  case; `ruff` checks pass.
+- **Holon Flow Traversal**: intent, plan, execute, review loop and calibration completed (execution record
+  `E-1795425615-CLA-CO5.5`).
