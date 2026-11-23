@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0378
 title: "Stale-calibration warning fires on a mechanical merge of main and is not cleared when the fresh report lands"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
