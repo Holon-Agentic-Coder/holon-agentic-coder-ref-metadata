@@ -48,6 +48,12 @@ resolution step is executed in a dedicated, fresh subagent**.
      head: votes are cast against the head under review, so after a fix the ensemble re-reviews the new head until a
      pass produces no new actionable finding. A loop that ends with "no head ever held three clean votes" has not
      converged, and must say so plainly rather than reporting an aggregate verdict across mismatched heads.
+   - **Exception: a merge of the target branch that leaves the PR's own diff unchanged keeps the votes** (maintainer,
+     2026-11-23; Bean 0372). When the only push since the votes is a merge of `origin/<target>` whose conflicts, if any,
+     were ledger/KB files under `holon-knowledge/` resolved mechanically, and `git diff` from the merge-base with the
+     target to the head (excluding `holon-knowledge/**` and calibration reports) is identical before and after, do not
+     re-review. Wait for every CI check on the new head instead; re-review only if CI fails there or the PR's own diff
+     changed (a hand-resolved code conflict, a resolver or agent code push).
 3. **Deterministic Convergence (Never Pause)**: The loop has **no pause state and never asks for guidance mid-flight**.
    The only exits are a clean consensus approval posted to the PR, the **max iteration cap** with a final review posted,
    or the **divergence report** of [principle 12](#12-convergence-rules-bean-0170) (diff size and Nit count both rising

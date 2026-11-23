@@ -56,7 +56,9 @@ below was learned the hard way across PRs #99–#115 and holon-coherence #28–#
 - **A verdict with no report file on disk is not a vote.** If the Write tool is blocked, write via shell heredoc; no
   stub at the primary path when falling back.
 - **Votes count only at the current head.** Any push (yours, the maintainer's, a concurrent session's) invalidates
-  earlier votes; run the sync phase before every pass and re-review the new head.
+  earlier votes; run the sync phase before every pass and re-review the new head. Exception (Bean 0372): a merge of the
+  target branch with only mechanically resolved `holon-knowledge/` conflicts that leaves the PR's own diff unchanged
+  keeps the votes; wait for CI on the new head and re-review only if it fails.
 - **Concurrent-PR ledger conflicts are mechanical**: resolve as `origin/main`'s rows unchanged + this PR's own rows
   appended (per AGENTS.md: interleave chronologically by `created_at`; no test run needed for ledger-only conflicts),
   via a normal merge commit — never a rebase of the flow branch.

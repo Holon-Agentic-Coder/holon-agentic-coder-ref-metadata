@@ -124,3 +124,13 @@ commit's default; add no attribution trailer.
 - Never create a ledger other than `intents.jsonl`, `plans.jsonl` and `executions.jsonl`.
 - Never name harness paths or bean ids in anything written into a target repository.
 - Report outcomes faithfully: if a file was escalated or a check failed, say so.
+
+---
+
+## After the merge: no re-review for a mechanical merge (maintainer, 2026-11-23; Bean 0372)
+
+When every conflict was a ledger/KB file under `holon-knowledge/` resolved mechanically and the PR's own diff
+(merge-base with the target to head, excluding `holon-knowledge/**` and calibration reports) is unchanged by the merge,
+the existing approval stands. Report "approval carries over; waiting for CI on <new head>" and do not ask for a fresh
+review. Only a CI failure on the new head, or a hand-resolved code conflict that changed the PR's own diff, needs a
+re-review.

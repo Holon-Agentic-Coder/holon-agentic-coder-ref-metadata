@@ -3,7 +3,7 @@
 title: "Ledgers stop conflicting: per-flow pending ledger fragments, promoted into the canonical ledgers on main"
 status: todo
 type: feature
-priority: high
+priority: critical
 tags:
   - flow
   - ledger
@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-11-23T06:40:00Z
-updated_at: 2026-11-23T06:45:00Z
+updated_at: 2026-11-23T06:50:00Z
 ---
 
 ## Problem
@@ -56,6 +56,13 @@ append-only ledgers on `main` keep their meaning and remain the provenance recor
    - It authenticates with a dedicated bot token or GitHub App that branch protection allows to push to `main`, scoped
      to contents write on this repository only. Setting up that token and the protection bypass is a maintainer step,
      not something the flow does.
+   - **Batched, not per merge (maintainer, 2026-11-23).** The workflow runs on every push to `main` but promotes only
+     when at least `HOLON_LEDGER_PROMOTE_EVERY` merged flows (default 10) have pending fragments on `main`, plus a daily
+     scheduled run and a manual `workflow_dispatch` so a quiet week still compacts. With per-flow fragments, in-flight
+     PRs never conflict with each other or with a promotion commit (promotion only appends to the canonical files, which
+     flows no longer write, and deletes fragments of already merged flows), so batching changes only how often `main`
+     gets a bot commit, not whether PRs conflict. Fewer promotion commits mean fewer CI runs on `main` and fewer "branch
+     out of date" updates if branch protection requires up-to-date branches.
    - If promotion fails, `main` still works: readers already see pending fragments (point 2), so a failed or delayed
      promotion never loses or hides rows.
 4. **KB index removed, derived on read.** Nothing in production reads `kb/failure_modes/index.json` (only
