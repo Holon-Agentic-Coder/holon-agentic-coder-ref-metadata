@@ -1,0 +1,37 @@
+---
+# holon-agentic-coder-ref-metadata-0381
+title: "Resuming with a bare holon flow leaves token reduction on: every reviewer fails with cache_control.ttl 400"
+status: todo
+type: bug
+priority: high
+tags:
+  - flow
+  - token-reduction
+  - stage-4
+  - holon-agentic-coder
+  - holon-coherence
+created_at: 2026-11-23T12:40:00Z
+updated_at: 2026-11-23T12:40:00Z
+---
+
+## Problem
+
+Resuming a flow by calling `holon flow … --checkpoint …` directly (not through the harness wrapper `run_holon_flow.py`)
+enables the token-reduce sidecar, and every Stage 4 reviewer then fails with `API Error: 400 system.2.cache_control.ttl`
+from the holon-coherence proxy. Seen twice on 2026-11-23: PR #250 (iteration 6, all three reviewers) and PR #251.
+Resuming through the wrapper, which sets `HOLON_TOKEN_REDUCE=0`, worked both times.
+
+Two defects:
+
+1. The proxy rewrites a request into one the API rejects (`system.2.cache_control.ttl`): a holon-coherence bug in how
+   cache-control blocks are added or ordered.
+2. Whether token reduction is on depends on how the flow was launched. PR #248 (Bean 0157) was meant to make the sidecar
+   opt-in only; a bare `holon flow` resume still turned it on.
+
+## Goal
+
+- The proxy never emits a `cache_control` block the API rejects; a regression test replays the failing request shape.
+- Token reduction is off unless explicitly opted into, identically for a fresh run, a `--checkpoint` resume and the
+  wrapper. The checkpoint records the choice and a resume keeps it.
+- When the proxy returns a 4xx for a rewritten request, the role retries once without the proxy and reports the proxy
+  fault instead of failing the stage.
