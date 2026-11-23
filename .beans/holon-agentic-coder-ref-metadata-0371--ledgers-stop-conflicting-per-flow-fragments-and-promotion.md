@@ -42,7 +42,18 @@ append-only ledgers on `main` keep their meaning and remain the provenance recor
    included), so no two flows touch the same path. Row format is unchanged; `LedgerLock` still guards each fragment.
 2. **Readers see one ledger.** `ledger/query.py` and every reader (calibration, admission, in-flight, reconcile, touch
    set, ...) read canonical rows plus all pending fragments, merged by `created_at` with stable ordering and
-   de-duplication by row id. No caller reads a `.jsonl` path directly.
+   de-duplication by row id. No caller reads a `.jsonl` path directly. 2a. **Search covers every pending row, merged or
+   not (maintainer, 2026-11-23).** Unpromoted rows are useful (what other flows are doing, their failures, their
+   findings), so `holon ledger` search/query (`cli/commands/ledger.py`, `ledger/query.py`) reads three sources and
+   labels each row with where it came from:
+   - `canonical`: the three ledger files on the current branch;
+   - `pending`: fragments on the current branch (merged flows not yet promoted, plus this flow's own rows);
+   - `in-flight`: fragments of flows not yet merged, read without a checkout via `git show <ref>:<path>` from open PR
+     head branches and local flow worktrees, discovered the same way `flow/in_flight.py` finds in-flight flows (after a
+     `git fetch`). A flag (`--in-flight` / `--no-in-flight`) controls this; the source label and the branch name appear
+     in the output. Rows are de-duplicated by row id (a promoted row wins over its fragment copy). In-flight rows are
+     unreviewed, so they are for search, admission/overlap checks and the KB/failure-mode lookup only: calibration EV,
+     outcome and touch-set metrics never count rows that are not on the flow's own branch.
 3. **Promotion by CI on every push to `main` (maintainer decision, 2026-11-23: option (a)).** A GitHub Actions workflow
    triggered on `push` to `main` runs `holon ledger promote`: it folds every pending fragment into the canonical ledgers
    in `created_at` order, deletes the promoted fragment files, and pushes one ledger-only commit to `main` as a bot
@@ -91,6 +102,9 @@ append-only ledgers on `main` keep their meaning and remain the provenance recor
 
 ## Acceptance criteria
 
+- `holon ledger` search returns canonical, pending and in-flight rows with a source label and branch; an in-flight row
+  from another open PR appears without checking that branch out, and disappears once its fragment is promoted (shown
+  once, as `canonical`). Calibration ignores in-flight rows (test with a fixture that has all three sources).
 - Two flows started from the same `main`, each writing intent, plan, execution, review and calibration rows, produce PRs
   that merge in either order with no conflict on any file under `holon-knowledge/`.
 - Every ledger reader returns the same rows, in the same order, before and after promotion.
