@@ -58,6 +58,9 @@ multi-hour containerised lifecycle, **the flow is executed inside a dedicated ba
      for a human to type "continue".
    - **When no reset time is named** (true credit exhaustion), step down the fallback ladder and continue the flow from
      the current stage or checkpoint:
+   - **Fable needs a longer stall window (2026-11-23)**: launch `run_holon_flow.py` with `HOLON_TURN_STALL_SECONDS=600`
+     when the model is `claude-fable-5-2`. With the default 90 s every reviewer was cut ("review stall budget of 90 s
+     exceeded") because Fable thinks longer than that before it streams.
    - **Claude (`claude-agent`)**: `claude-fable-5-2` $\rightarrow$ `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6`
      $\rightarrow$ `claude-haiku-4-5`.
    - **Antigravity (`antigravity-agent`)**: `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$
