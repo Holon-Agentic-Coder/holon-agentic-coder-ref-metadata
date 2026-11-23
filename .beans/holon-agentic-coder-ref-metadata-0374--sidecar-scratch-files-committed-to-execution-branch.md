@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0374
 title: "Sidecar wire logs and cache land in the target worktree's todo/ and get committed to the execution branch"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
