@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0373
 title: "Stop committing the KB/WB index.json files; derive the index from the entry files"
-status: in-progress
+status: completed
 type: feature
 priority: critical
 tags:
@@ -10,7 +10,7 @@ tags:
   - cost
   - holon-agentic-coder
 created_at: 2026-11-23T06:45:00Z
-updated_at: 2026-11-23T06:45:00Z
+updated_at: 2026-11-23T07:33:33Z
 ---
 
 ## Problem
@@ -43,3 +43,16 @@ No flow writes a shared index file. The index is derived from the entry files wh
 ## Delivery
 
 Holon flow on `holon-agentic-coder`, intent `todo/intent-0373-derive-kb-index.json`. Small; split out of Bean 0371.
+
+## Resolution
+
+Delivered via [PR #252](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/252) and merged into `main`
+(`a1542449`):
+
+- **Key Architectural Deliverables**: `_update_directory_index` removed; KB/WB writes touch only their own entry file.
+  The three tracked `index.json` files (`kb/failure_modes`, `kb/patterns`, `wisdom/heuristics`) are deleted from git and
+  ignored. A `load_index(subfolder)` helper derives the index by globbing entry files, sorted by `created_ts` then id.
+- **Verification & Tests**: Tests that asserted `index.json` existence now assert the derived index against the last
+  committed content; schema docs describe the index as derived.
+- **Holon Flow Traversal**: Intent, plan, execute and review completed; calibration report committed under
+  `plans/I-1795417357-derive-kb-index/`.

@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-23 07:30:28 UTC
+**Last Updated:** 2026-11-23 07:33:41 UTC
 
 ## Executive Summary
 
@@ -19,9 +19,9 @@ Concurrent flows on overlapping files forced repeated syncs and re-reviews earli
 together.
 
 - **Total Tracked Beans**: 374 (excluding template)
-- **Completed**: 328 (87.7%)
+- **Completed**: 329 (88.0%)
 - **Scrapped / Superseded**: 9 (2.4%)
-- **Active**: 37 (9.9%), of which 14 are in progress, 22 are todo and 1 are draft
+- **Active**: 36 (9.6%), of which 13 are in progress, 22 are todo and 1 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -973,7 +973,6 @@ migration tests). Open **HAC PRs #243** (`0155`), **#244** (`0175`), and **#245*
 | **P3**   | todo        |  Low   |            XS             | 0231   | Exhausted-budget error string interpolates raw count while payload reports clamped 0                                | Flow Engine / Cosmetic      | Queued behind PR #230 (overlaps `flow/review/loop.py` lines 917–918). Cosmetic; bundle with a review-loop flow.                                                                                                                              |
 | **P3**   | todo        |  Low   |            XS             | 0269   | Deferred nits from the holon-agentic-coder PR 158 review loop                                                       | Review Loop / Housekeeping  | Wait for PR #230 (overlaps `docs/git_flow.md`) and `0197` (`calibration.py`). Item 2 obsolete; remaining: fold `parse_actual_metrics` exit-code logic onto `record_exit_code` and fix `docs/git_flow.md` checkpoint wording.                 |
 | **P3**   | todo        | Medium |             M             | 0141   | Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe                                                 | vmlx / Performance          | Ready (host-level vMLX tuning on Mac; not a target-repo change). Pairs with `0142`.                                                                                                                                                          |
-| **P0**   | in-progress | Medium |             M             | 0373   | Stop committing the KB/WB index.json files; derive the index from the entry files                                   | General                     |                                                                                                                                                                                                                                              |
 | **P0**   | in-progress | Medium |             M             | 0372   | An approval survives a merge of main that leaves the PR's own diff unchanged; only CI re-runs                       | Skills / Tooling            |                                                                                                                                                                                                                                              |
 | **P0**   | todo        | Medium |             M             | 0371   | Ledgers stop conflicting: per-flow pending ledger fragments, promoted into the canonical ledgers on main            | CLI / Telemetry             |                                                                                                                                                                                                                                              |
 | **P0**   | in-progress |  High  |             M             | 0369   | Stage 5 writes a wrong calibration report: recovered infra failures become bug drag, main's files count as the PR's | Flow / Architecture         |                                                                                                                                                                                                                                              |
