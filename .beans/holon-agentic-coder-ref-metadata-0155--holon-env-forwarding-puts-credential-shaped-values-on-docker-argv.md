@@ -44,3 +44,10 @@ Done: `add_env()` (`cli/__init__.py`) sends anything `is_secret_env_item()` flag
 password) to the 0600 env-file. Remaining: a bare non-URL secret under an arbitrary `HOLON_*` name is not flagged, and
 the fuzz test still skips the `TIMEOUT`/`BUDGET` names instead of running every forwarded name against argv, probe and
 echo.
+
+## Run (2026-11-23)
+
+- Earlier attempt (intent `holon-env-all-via-env-file`, flow branch `flow-holon-env-all-via-env-file`) stopped at Stage
+  2 with no PR; not resumed because main has moved (PRs #235-#240). Its P- branch and worktree are left for cleanup.
+- Fresh intent: `todo/intent-0155-holon-env-all-via-env-file-v2.json`, run via `holon flow` on holon-agentic-coder with
+  claude-agent / claude-opus-5-5 and `--allow-overlap`.

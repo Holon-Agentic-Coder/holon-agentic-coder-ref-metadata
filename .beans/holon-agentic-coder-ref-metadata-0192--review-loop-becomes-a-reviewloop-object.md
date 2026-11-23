@@ -50,3 +50,18 @@ Touch set refreshed: the loop is `flow/review/loop.py` (952 lines, module budget
 `flow/review/{cli,ensemble,resolver,records,verdict}.py` and `flow/stages/review.py`; tests are
 `tests/flow/review/test_loop.py` and `tests/flow/stages/test_review.py`. The `flow/review_loop.py` path above does not
 exist. Still blocked by 0191 (shared call sites).
+
+## Run log (2026-11-23)
+
+- Intent `todo/intent-0192-review-loop-object.json` (slug `review-loop-object`), intent branch
+  `I-1795388459-review-loop-object/_`, pushed. No PR opened.
+- Plan stage ok: `P-1795395413-CLA-CO5.5/_`.
+- Execute stage blocked (two attempts: E-1795395756 exists on origin at c6cf760 as an unmerged execution branch,
+  E-1795397253 is local only). Confirmed cause: the executor's pre-push sync merges `origin/main` (which has moved past
+  the intent base `b22258dc`, including #239 and #240) and hits a non-ledger conflict in
+  `apps/sandbox-executor/src/sandbox_executor/flow/__init__.py`. The reconcile step raises `ConflictResolutionError` and
+  refuses to push. A checkpoint resume cannot change this base; the fix needs a fresh intent cut from current `main` (or
+  a maintainer decision), not a hand patch.
+- Checkpoint: `apps/holon-agentic-coder/flow-review-loop-object/.holon/flow/checkpoint-review-loop-object.json` at stage
+  execute. Earlier checkpoint backed up under the scratchpad.
+- Status stays `in-progress`; blocked_by 0191 is also still in progress and shares call sites.

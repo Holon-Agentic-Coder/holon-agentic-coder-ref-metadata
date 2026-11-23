@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
 blocked_by:
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-11-21T01:20:00+11:00
+updated_at: 2026-11-23T12:50:00+11:00
 ---
 
 ## Problem
@@ -58,3 +58,15 @@ Touch set refreshed against `origin/main`: the `gh` calls live in
 (`gh pr list`/`pr diff`), `review_target.py` and `calibration.py`; call sites in `flow/review/loop.py` and
 `flow/stages/review.py`. Tests mirror under `tests/flow/github/` and `tests/flow/review/`. `flow/github/pr.py` is 515
 lines, so the module budget (Beans 0264, 0340) applies to any new adapter module.
+
+## Flow progress (2026-11-23)
+
+- Intent `todo/intent-0191-github-adapter-pr-ci-review.json` ran through Stage 2 (plan, resumed after a Stage 2
+  ambiguous-P-branch stop; the stale empty P- branch from the earlier attempt was bypassed by checkpoint edit to execute
+  on the newest pushed P- branch).
+- Planner decomposed the bean into 3 sub-intents. Child 1 (`extract-the-pure-ci-verdict`) executed and opened PR #242
+  (https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/242). Children 2 and 3 have not run.
+- Blocked at Stage 4 (review) on child 1: the review container raised `ConflictResolutionError` because the execution
+  branch conflicts with `origin/main` in `flow/__init__.py` (plus ledger rows) after main moved (#235-#240). Stage 4
+  does not resolve code conflicts; a hand-merge would bypass the flow, so the run is halted pending a maintainer
+  decision.

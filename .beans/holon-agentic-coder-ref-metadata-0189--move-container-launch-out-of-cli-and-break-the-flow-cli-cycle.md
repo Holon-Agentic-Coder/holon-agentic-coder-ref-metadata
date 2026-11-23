@@ -50,3 +50,10 @@ Blockers `0187` (scrapped, replaced by `0254`/PR #147) and `0188` (PR #117) are 
 valid on `main` (`b22258d`): `cli/__init__.py` is 1,732 lines and four lazy `flow` -> `cli` imports remain
 (`flow/context.py:199`, `flow/dispatch.py:34`, `flow/pipeline.py:422`, `flow/review/loop.py:197`). Sequence after `0265`
 (`cli/__init__.py` split) and open PR #230 (which touches `flow/context.py`, `flow/pipeline.py`, `flow/review/loop.py`).
+
+## Flow run (2026-11-23)
+
+Intent `todo/intent-0189-launcher-breaks-flow-cli-cycle.json`, flow branch
+`I-1795388455-launcher-breaks-flow-cli-cycle`. Plan, execute, review (consensus at iteration 5) and calibrate completed;
+PR: https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/241 (open, awaiting human merge). Resumed twice from
+checkpoint; ledger rows reconciled with origin/main at the merge.

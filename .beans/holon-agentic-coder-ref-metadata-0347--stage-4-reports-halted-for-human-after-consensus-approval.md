@@ -3,7 +3,7 @@
 title:
   "Stage 4 reports 'halted for human review' after consensus approval although the flow continues and the PR is ready to
   merge"
-status: in-progress
+status: completed
 type: bug
 priority: normal
 tags:
@@ -13,7 +13,7 @@ tags:
   - reporting
   - holon-agentic-coder
 created_at: 2026-11-21T01:20:00+11:00
-updated_at: 2026-11-22T22:55:00Z
+updated_at: 2026-11-23T02:37:31Z
 ---
 
 ## Problem
@@ -76,3 +76,18 @@ Through the Holon flow on `holon-agentic-coder`:
 - 2026-11-23: Resumed from `--from-stage review` after the conflict resolution (PR head `6a6f6e90`). Flow worktree
   fast-forwarded from `97b06fba` to origin, then the Stage 4 review loop was restarted (checkpoint
   `.holon/flow/checkpoint-review-approved-and-fresh-tests.json`).
+
+## Resolution
+
+Delivered via [PR #230](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/230) and squash-merged into
+`main` (`f17f4b8`, 2026-11-23). Shipped in the same flow as bean 0354, which covers the other defect in the PR title.
+
+- **Key Architectural Deliverables**: Consensus approval logs the approved wording and stage status (`review: approved`)
+  instead of `halted_for_human`; real halts keep halt wording. Legacy `halted_for_human` ledger rows and checkpoints
+  still resume and calibrate.
+- **Verification & Tests**: PR changes include hermetic tests (`test_review_loop_approved.py`,
+  `test_pipeline_approved.py`, `test_review.py`, `test_calibration_ev.py`). Consensus review
+  `PRR_kwDORMmd1c8AAAABZpBIQA`; Stage 5 calibration included in the squashed merge (its tree matches the calibrated
+  branch tip).
+- **Holon Flow Traversal**: Intent -> Plan -> Execute -> Review Loop -> Calibration completed for flow
+  `review-approved-and-fresh-tests`. Remote flow branches were deleted after merge.

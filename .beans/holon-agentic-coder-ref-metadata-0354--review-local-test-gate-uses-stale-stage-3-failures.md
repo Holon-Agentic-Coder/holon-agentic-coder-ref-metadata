@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0354
 title: "Review-loop local test gate keeps reporting stale Stage 3 test failures, so consensus can never close"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - ci
   - holon-agentic-coder
 created_at: 2026-11-21T18:26:00+11:00
-updated_at: 2026-11-22T22:55:00Z
+updated_at: 2026-11-23T02:37:31Z
 ---
 
 ## Problem
@@ -69,3 +69,16 @@ Through the Holon flow on `holon-agentic-coder`:
 - 2026-11-23: Resumed from `--from-stage review` after the conflict resolution (PR head `6a6f6e90`). Flow worktree
   fast-forwarded from `97b06fba` to origin, then the Stage 4 review loop was restarted (checkpoint
   `.holon/flow/checkpoint-review-approved-and-fresh-tests.json`).
+
+## Resolution
+
+Delivered via [PR #230](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/230) and squash-merged into
+`main` (`f17f4b8`, 2026-11-23). Shipped in the same flow as bean 0347, which covers the other defect in the PR title.
+
+- **Key Architectural Deliverables**: The review-loop local test gate judges the current head rather than the stale
+  Stage 3 failure record, so consensus can close once the current tree passes.
+- **Verification & Tests**: PR changes include hermetic tests (`test_review_local_tests.py`, `test_review_ci_wait.py`).
+  Consensus review `PRR_kwDORMmd1c8AAAABZpBIQA`; Stage 5 calibration included in the squashed merge (its tree matches
+  the calibrated branch tip).
+- **Holon Flow Traversal**: Intent -> Plan -> Execute -> Review Loop -> Calibration completed for flow
+  `review-approved-and-fresh-tests`. Remote flow branches were deleted after merge.
