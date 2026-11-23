@@ -94,7 +94,10 @@ only when the resolver cannot produce a passing tree, and then it says exactly w
    re-enters Stage 4 and Stage 5 for the merged head (CI on the new head; review only if the PR's own diff changed;
    calibration redone), and repeats until the PR is mergeable and clean. "Completed successfully" is never printed for a
    conflicting PR (seen on PR #252 and PR #248). Until this lands, the harness `holon-flow` skill does the same from
-   outside (Step 4.3).
+   outside (Step 4.3). 5b. **A merged PR ends the flow.** At every boundary where the engine probes the target it also
+   checks the pull request's state. Once the PR is merged (or closed) the flow stops: no further review iteration,
+   calibration or push to the merged branch. Seen on PR #248 (five more review iterations and a fix commit pushed after
+   the merge) and PR #258 (the rerun was still waiting on CI when auto-merge landed).
 6. **Resume.** A resume that finds a merge in progress in the flow worktree adopts it (verifies, completes or aborts and
    redoes) rather than failing on a dirty tree (related: Bean 0375).
 7. **Fail closed, clearly.** If the resolver exhausts its attempts or the suite stays red, the stage fails with the
