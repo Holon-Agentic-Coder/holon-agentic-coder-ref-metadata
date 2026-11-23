@@ -30,7 +30,9 @@ Subagent delegation in this ecosystem is primarily targeted towards the **Antigr
 ## Subagent names
 
 Every subagent a skill spawns is named `#<PR> - <what it is doing>`. This applies to the AGY `Role`, Claude Code's Agent
-`description`, or whatever your runtime uses. The operator can then tell at a glance which pull request each running
+`description`, or whatever your runtime uses. Claude Code's agent list shows the Agent `name` field, not `description`,
+and `name` allows only `[A-Za-z0-9_-]` (max 64): set it too, as `pr<PR>-<what>` (`pr248-review-loop`) or
+`bean<id>-<what>` (`bean0369-holon-flow`). The operator can then tell at a glance which pull request each running
 subagent belongs to (maintainer, 2026-11-23).
 
 - **With a PR:** `#244 - resolve conflicts`, `#244 - review loop orchestrator`, `#244 - iter 15 dry-run reviewer`,

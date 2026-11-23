@@ -2,7 +2,7 @@
 # holon-agentic-coder-ref-metadata-0369
 title:
   "Stage 5 writes a wrong calibration report: recovered infra failures become bug drag, main's files count as the PR's"
-status: todo
+status: in-progress
 type: bug
 priority: critical
 tags:
@@ -11,7 +11,7 @@ tags:
   - calibration
   - holon-agentic-coder
 created_at: 2026-11-23T05:55:00Z
-updated_at: 2026-11-23T05:55:00Z
+updated_at: 2026-11-23T06:00:00Z
 ---
 
 ## Problem
