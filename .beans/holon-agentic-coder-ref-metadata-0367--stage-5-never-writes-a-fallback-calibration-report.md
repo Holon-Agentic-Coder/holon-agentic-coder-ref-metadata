@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0367
 title: "Stage 5 never writes a fallback calibration report: retry, then fail the stage"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - calibration
   - holon-agentic-coder
 created_at: 2026-11-23T05:50:00Z
-updated_at: 2026-11-23T07:58:00Z
+updated_at: 2026-11-23T10:52:00Z
 ---
 
 ## Problem
@@ -45,3 +45,21 @@ the gitfile was repaired.
 `apps/sandbox-executor/src/sandbox_executor/flow/stage5.py`,
 `apps/sandbox-executor/src/sandbox_executor/calibration.py`, their tests (`tests/test_calibrate_*.py`,
 `tests/test_stage5*.py`).
+
+## Resolution
+
+Delivered via [PR #257](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/257) and merged into `main`
+(`ff98e7e`):
+
+- **Key Architectural Deliverables**: `_fallback_report` and the `on_calibrate_error` hook are removed; the stub text
+  and `fallback_report_written` are gone from `calibration.py`. `run_calibrate` is retried with a bounded, classified
+  retry (`flow/calibrate_retry.py`); an exhausted or non-retryable failure returns `StageStatus.FAILED`, commits and
+  pushes nothing, keeps the checkpoint at CALIBRATE, and still appends the failure ACT-CAL row.
+- **Verification & Tests**: hermetic tests cover fail-closed exhaustion with no report written, transient retry then
+  success, and that no path writes "Fallback calibration generated". Full suite and lint gates green in the execution.
+- **Holon Flow Traversal**: all 5 stages completed (intent, plan, execute, review loop over 4 iterations, calibration
+  with its report on `/calibrated`).
+- **Cleanup**: flow worktree `flow-no-fallback-calibration-report` and its six intent/plan/execution branches removed
+  locally and on origin. Bundle backup of the branches:
+  `todo/stale-worktree-backups/no-fallback-calibration-report-2026-11-23.bundle` (verified; all content is already an
+  ancestor of `origin/main`).

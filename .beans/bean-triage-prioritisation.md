@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-23 09:34:44 UTC
+**Last Updated:** 2026-11-23 10:52:41 UTC
 
 ## Executive Summary
 
@@ -19,9 +19,9 @@ Concurrent flows on overlapping files forced repeated syncs and re-reviews earli
 together.
 
 - **Total Tracked Beans**: 380 (excluding template)
-- **Completed**: 334 (87.9%)
+- **Completed**: 335 (88.2%)
 - **Scrapped / Superseded**: 9 (2.4%)
-- **Active**: 37 (9.7%), of which 4 are in progress, 32 are todo and 1 are draft
+- **Active**: 36 (9.5%), of which 3 are in progress, 32 are todo and 1 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -993,7 +993,6 @@ files; `0181` re-pointed to `entrypoint/executor/run.py`; new beans `0350`–`03
 | **P1**   | todo        |  High  |             M             | 0375   | Stage 3 resume ignores an interrupted execution branch that has commits but no ledger row                    | Ledger / Observability      |                                                                                                                                                                                                                                              |
 | **P1**   | todo        | Medium |             M             | 0374   | Sidecar wire logs and cache land in the target worktree's todo/ and get committed to the execution branch    | General                     |                                                                                                                                                                                                                                              |
 | **P1**   | todo        |  High  |             M             | 0368   | Submodule gitfile left with container paths breaks host-side git in the flow worktree                        | Flow / Architecture         |                                                                                                                                                                                                                                              |
-| **P1**   | in-progress |  High  |             M             | 0367   | Stage 5 never writes a fallback calibration report: retry, then fail the stage                               | Flow / Architecture         |                                                                                                                                                                                                                                              |
 
 ---
 
