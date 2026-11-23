@@ -16,7 +16,7 @@ class TestPrReviewLoopConvergenceAndDelegation:
 
         assert "### Step 0: Entrypoint Delegation — Spawn the Background Loop Orchestrator Subagent" in text
         assert text.index("### Step 0:") < text.index("### Step 1: Parse Parameters")
-        assert 'Role: "PR Review Loop Orchestrator (<repo> PR #<N>)"' in text
+        assert 'Role: "#<N> - review loop orchestrator"' in text
         assert '"TypeName": "self"' in text
         assert '"Model": "inherit"' in text
         assert "invoke_subagent" in text

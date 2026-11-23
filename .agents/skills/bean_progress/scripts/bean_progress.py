@@ -18,7 +18,7 @@ import shlex
 import subprocess
 import sys
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -195,7 +195,7 @@ def parse_iso(text: Any) -> datetime | None:
         dt = datetime.fromisoformat(text.replace("Z", "+00:00"))
     except ValueError:
         return None
-    return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+    return dt if dt.tzinfo else dt.replace(tzinfo=UTC)
 
 
 def branch_started(branch: str | None) -> datetime | None:
@@ -204,7 +204,7 @@ def branch_started(branch: str | None) -> datetime | None:
     if not m:
         return None
     try:
-        return datetime.fromtimestamp(int(m.group(1)), tz=timezone.utc)
+        return datetime.fromtimestamp(int(m.group(1)), tz=UTC)
     except (ValueError, OverflowError, OSError):
         return None
 
@@ -400,6 +400,7 @@ def scan_intents(todo_dir: Path) -> list[IntentMapping]:
             if isinstance(data, dict) and isinstance(data.get("slug"), str) and data["slug"]:
                 slug = data["slug"]
         except (OSError, ValueError):
+            # Unreadable or malformed intent JSON: keep the slug parsed from the file name.
             pass
         intents.append(IntentMapping(path=entry, slug=slug, bean_nums=bean_nums, file_slug=match.group(2)))
     return intents
@@ -517,7 +518,7 @@ def scan_worktrees(repos: list[RepoTarget]) -> list[WorktreeFlow]:
             root_slug = root_slug_of(intent_branch, plan_branch, exec_branch)
             if root_slug:
                 slug = root_slug
-            mtime = datetime.fromtimestamp(ckpt_path.stat().st_mtime, tz=timezone.utc) if ckpt_path else None
+            mtime = datetime.fromtimestamp(ckpt_path.stat().st_mtime, tz=UTC) if ckpt_path else None
             stage_started = (
                 derive_stage_started(data.get("current_stage"), stage_results, data.get("timestamp"), mtime)
                 if ckpt_path
@@ -1146,7 +1147,7 @@ def build_in_flight_rows(
 ) -> list[InFlightRow]:
     """Correlate beans, intents, worktrees, open PRs, and live PIDs into active rows."""
     wt_by_slug = {w.slug: w for w in worktrees}
-    now = now or datetime.now(timezone.utc)
+    now = now or datetime.now(UTC)
 
     # Index active intents by parent intent slug (json slug and file slug), filtering out completed/scrapped beans.
     active_by_slug: dict[str, list[str]] = {}

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent.parent / ".agents" / "skills" / "bean_progress" / "scripts"
@@ -346,7 +346,7 @@ class TestLiveProcessesAndChecks:
         assert json.loads(capsys.readouterr().out) == []
 
 
-NOW = datetime(2026, 11, 23, 12, 0, 0, tzinfo=timezone.utc)
+NOW = datetime(2026, 11, 23, 12, 0, 0, tzinfo=UTC)
 
 
 def _wt(tmp_path: Path, name: str, slug: str, **kw) -> bean_progress.WorktreeFlow:
@@ -372,29 +372,35 @@ def _wt(tmp_path: Path, name: str, slug: str, **kw) -> bean_progress.WorktreeFlo
 
 
 def _pr(number: int, head: str, title: str = "t") -> bean_progress.PullRequestInfo:
-    return bean_progress.PullRequestInfo("HAC", number, title, f"u/{number}", head, "MERGEABLE", False, 0, 0, "1/1 pass")
+    return bean_progress.PullRequestInfo(
+        "HAC", number, title, f"u/{number}", head, "MERGEABLE", False, 0, 0, "1/1 pass"
+    )
 
 
 class TestTimesAndColumns:
     def test_format_duration(self) -> None:
         f = bean_progress.format_duration
         assert f(None, NOW) == "—"
-        assert f(datetime(2026, 11, 23, 11, 48, tzinfo=timezone.utc), NOW) == "12m"
-        assert f(datetime(2026, 11, 23, 10, 55, tzinfo=timezone.utc), NOW) == "1h05m"
-        assert f(datetime(2026, 11, 21, 9, 0, tzinfo=timezone.utc), NOW) == "2d3h"
-        assert f(datetime(2026, 11, 23, 11, 59, 30, tzinfo=timezone.utc), NOW) == "30s"
+        assert f(datetime(2026, 11, 23, 11, 48, tzinfo=UTC), NOW) == "12m"
+        assert f(datetime(2026, 11, 23, 10, 55, tzinfo=UTC), NOW) == "1h05m"
+        assert f(datetime(2026, 11, 21, 9, 0, tzinfo=UTC), NOW) == "2d3h"
+        assert f(datetime(2026, 11, 23, 11, 59, 30, tzinfo=UTC), NOW) == "30s"
 
     def test_stage_started_sources(self) -> None:
-        mtime = datetime(2026, 11, 23, 1, 0, tzinfo=timezone.utc)
+        mtime = datetime(2026, 11, 23, 1, 0, tzinfo=UTC)
         sr = {
             "execute": {"start_time": "2026-11-23T05:00:00Z", "end_time": "2026-11-23T06:00:00Z"},
             "review": {"status": "failed", "start_time": "2026-11-23T07:00:00Z", "end_time": "2026-11-23T08:00:00Z"},
         }
         assert bean_progress.derive_stage_started("review", sr, None, mtime) == parse(sr["review"]["start_time"])
         # current stage has no record: previous stage end
-        assert bean_progress.derive_stage_started("plan", {"intent": {"end_time": "2026-11-23T03:23:20Z"}}, "x", mtime) == parse("2026-11-23T03:23:20Z")
+        assert bean_progress.derive_stage_started(
+            "plan", {"intent": {"end_time": "2026-11-23T03:23:20Z"}}, "x", mtime
+        ) == parse("2026-11-23T03:23:20Z")
         # nothing recorded: checkpoint timestamp then mtime
-        assert bean_progress.derive_stage_started("plan", {}, "2026-11-23T02:00:00Z", mtime) == parse("2026-11-23T02:00:00Z")
+        assert bean_progress.derive_stage_started("plan", {}, "2026-11-23T02:00:00Z", mtime) == parse(
+            "2026-11-23T02:00:00Z"
+        )
         assert bean_progress.derive_stage_started("plan", {}, None, mtime) == mtime
 
     def test_total_time_earliest_of_branch_and_ledger(self, tmp_path: Path) -> None:
@@ -489,7 +495,9 @@ class TestMappingFixes:
         child_head = "I-1795401745-github-adapter-pr-ci-review/P-1795397463-CLA--2-add-the-repository-scoped/E-1/_"
         wts = [
             # checkpoint-derived slug is already the root slug (child branch names the parent)
-            _wt(tmp_path, "flow-github-adapter-pr-ci-review", "github-adapter-pr-ci-review", execution_branch=child_head),
+            _wt(
+                tmp_path, "flow-github-adapter-pr-ci-review", "github-adapter-pr-ci-review", execution_branch=child_head
+            ),
             _wt(tmp_path, "flow-document-env", "document-env"),
             _wt(tmp_path, "flow-runner-spec", "runner-spec"),
         ]
@@ -519,8 +527,18 @@ class TestMappingFixes:
         ]
         live = {
             str(wts[1].path): bean_progress.LiveFlowTree(
-                1, "01:00:00", "running", "Claude Code", str(wts[1].path), "scopes-v2", [], None, "claude-opus-5-5",
-                "review-loop", False, 1,
+                1,
+                "01:00:00",
+                "running",
+                "Claude Code",
+                str(wts[1].path),
+                "scopes-v2",
+                [],
+                None,
+                "claude-opus-5-5",
+                "review-loop",
+                False,
+                1,
             )
         }
         rows = bean_progress.build_in_flight_rows(beans, intents, wts, [], live, now=NOW)
