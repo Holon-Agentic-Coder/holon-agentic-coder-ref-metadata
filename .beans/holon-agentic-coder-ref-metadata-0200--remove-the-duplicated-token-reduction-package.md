@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0189
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-11-21T01:20:00+11:00
+updated_at: 2026-11-23T14:30:00+11:00
 ---
 
 ## Problem
@@ -63,3 +63,35 @@ a file 0189 creates; on `main` the CA import sits in `cli/__init__.py`. Token re
 generation (`flow/pipeline.py`, `cli/commands/*`, `cli/options.py`, and about 20 tests), so the Stage 2 plan would
 collide with 0189's move. The bean stays `todo` until 0189 is completed, or the maintainer explicitly sequences this
 ahead of it. No intent JSON was dispatched.
+
+## Re-audit (2026-11-23, after Bean 0189 merged): blocked, not dispatched
+
+Blocker 0189 is `completed` (PR #241 merged), so the dependency is cleared. The scope premise is not: origin/main still
+runs the local addon at runtime.
+
+- `launcher/sidecar_plan.py` (`_mitm_addon_path`) mounts `token_reduction/mitm_addon.py` into a
+  `mitmproxy/mitmproxy:12.2.3` sidecar (`mitmdump -s /tmp/mitm_addon.py`). Deleting `token_reduction/` removes the addon
+  that `--token-reduce` runs today.
+- `launcher/sidecar.py` imports `proxy_readiness` and `PROXY_READY_TIMEOUT_SECONDS` from the package; `cli/__init__.py`
+  re-exports them. These need re-homing, not deletion.
+- Code outside CA generation imports the package in about 25 places (`cli/options.py`,
+  `cli/commands/{execute,intent,plan}.py`, `flow/pipeline.py`, `launcher/{containers,proxy_attach}.py`,
+  `scripts/ab_measure_all_methods.py`, and tests).
+- holon-coherence already ships its own addon (`src/holon_coherence/proxy/addon.py`, `mitm_addon.py`) and a proxy
+  `Dockerfile`. The bean's "holon-coherence owns token reduction" decision therefore implies repointing the sidecar to
+  that image and addon. The bean does not specify this, and it is a design change.
+
+Decision needed from the maintainer before a flow can be scoped:
+
+1. Repoint the sidecar to the holon-coherence image and addon (contract, image name, mounts, and whether
+   holon-agentic-coder requires it to be present), then delete `token_reduction/`; or
+2. Keep the local addon for now, and narrow this bean to deleting the unused modules and tests (`rag_indexer`,
+   `ringer_orchestrator`, `openbrain_memory`) with their tests.
+
+Status stays `todo`: no flow was started, no intent was written to `todo/`, and no worktree or PR exists for this bean.
+
+## Maintainer decision (2026-11-23)
+
+Full removal. Repoint the token-reduce sidecar to holon-coherence's own proxy addon and image
+(`src/holon_coherence/proxy/addon.py` and its proxy `Dockerfile`), re-home `proxy_readiness` and every other remaining
+reference, then delete `token_reduction/` and its tests entirely.

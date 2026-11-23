@@ -37,9 +37,8 @@ FALLBACK_LADDER_CLAUDE = [
 ]
 
 FALLBACK_LADDER_ANTIGRAVITY = [
-    "gemini-3.8-pro-high",
-    "gemini-3.8-pro",
-    "gemini-3.8-flash-medium",
+    "gemini-4-argon",
+    "gemini-4-hydrogen",
     "gemini-3.8-flash",
 ]
 
@@ -52,6 +51,10 @@ QUOTA_ERROR_PATTERNS = [
     "session limit reached",
     "insufficient_quota",
     "resource_exhausted",
+    "quota exceeded",
+    "quota exhausted",
+    "quota_exhausted",
+    "usage limit",
     "rate_limit_exceeded",
     "too many requests",
     "http 429",
@@ -101,22 +104,24 @@ def resolve_next_model(agent: str, current_model: str) -> tuple[str, str] | None
             # Current model not in ladder, fall back to second tier
             return agent, ladder[1]
 
-        # Cross-runner fallback to antigravity
-        log_warn("Claude ladder exhausted; switching runner to antigravity-agent.")
-        return "antigravity-agent", FALLBACK_LADDER_ANTIGRAVITY[0]
+        # Never switch runner on our own: the maintainer decides (no auto-switch to antigravity/gemini).
+        log_warn("Claude ladder exhausted; not switching runner without the maintainer's go-ahead.")
+        return None
 
     elif "antigravity" in agent.lower() or "gemini" in agent.lower():
         ladder = FALLBACK_LADDER_ANTIGRAVITY
+        base_model = re.sub(r"-(?:xhigh|high|medium|low)$", "", current_model)
+        lookup = current_model if current_model in ladder else base_model
         try:
-            idx = ladder.index(current_model)
+            idx = ladder.index(lookup)
             if idx + 1 < len(ladder):
                 return agent, ladder[idx + 1]
         except ValueError:
             return agent, ladder[1]
 
-        # Cross-runner fallback to claude
-        log_warn("Antigravity ladder exhausted; switching runner to claude-agent.")
-        return "claude-agent", FALLBACK_LADDER_CLAUDE[0]
+        # Never switch runner on our own: the maintainer decides.
+        log_warn("Antigravity ladder exhausted; not switching runner without the maintainer's go-ahead.")
+        return None
 
     return None
 
@@ -352,10 +357,10 @@ def parse_limit_reset(output: str):
     from datetime import datetime, timedelta
     from zoneinfo import ZoneInfo
 
-    m = re.search(r"resets\s+(\d{1,2}):(\d{2})\s*(am|pm)(?:\s*\(([^)]+)\))?", output, re.I)
+    m = re.search(r"resets\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)(?:\s*\(([^)]+)\))?", output, re.I)
     if not m:
         return None
-    hour, minute, ampm, tz_name = int(m.group(1)), int(m.group(2)), m.group(3).lower(), m.group(4)
+    hour, minute, ampm, tz_name = int(m.group(1)), int(m.group(2) or 0), m.group(3).lower(), m.group(4)
     hour = hour % 12 + (12 if ampm == "pm" else 0)
     try:
         tz = ZoneInfo(tz_name) if tz_name else None
@@ -634,8 +639,8 @@ def main() -> None:
     parser.add_argument(
         "--model",
         type=str,
-        default="gemini-3.8-flash-medium",
-        help="Model tier for the agent runner (default: gemini-3.8-flash-medium).",
+        default=FALLBACK_LADDER_ANTIGRAVITY[0],
+        help="Model tier for the agent runner (default: gemini-4-argon).",
     )
     parser.add_argument(
         "--from-stage",

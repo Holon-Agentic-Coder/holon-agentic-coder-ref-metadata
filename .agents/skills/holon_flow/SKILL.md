@@ -59,12 +59,14 @@ multi-hour containerised lifecycle, **the flow is executed inside a dedicated ba
      the current stage or checkpoint:
    - **Claude (`claude-agent`)**: `claude-fable-5` $\rightarrow$ `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6`
      $\rightarrow$ `claude-haiku-4-5`.
-   - **Antigravity (`antigravity-agent`)**: `gemini-3.8-pro-high` $\rightarrow$ `gemini-3.8-pro` $\rightarrow$
-     `gemini-3.8-flash-medium` $\rightarrow$ `gemini-3.8-flash`.
+   - **Antigravity (`antigravity-agent`)**: `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$
+     `gemini-3.8-flash` (use `gemini-4-argon` for all Holon coding tasks until tokens run out).
    - **Antigravity AGY Subagent Runtime**: `Model: "inherit"` / `"pro"` $\rightarrow$ `"flash"` $\rightarrow$
      `"flash_lite"`.
-   - **Cross-Runner Fallback**: If an account-wide limit is hit on the active runner, switch `--agent` between
-     `antigravity-agent` $\leftrightarrow$ `claude-agent` and resume execution on the existing flow branch.
+   - **No Cross-Runner Switch**: never switch `--agent` between `claude-agent` and `antigravity-agent` on your own. When
+     the active runner's ladder is exhausted, `scripts/run_holon_flow.py` stops and reports. The maintainer decides
+     whether to switch runner. A reset written without minutes (`resets 10am (UTC)`) counts as a named reset, so the
+     flow waits for it.
 6. **PR Creation & Calibration Report Inclusion**:
    - Once Stage 3 pushes the `E-.../_` execution branch, the PR is opened via `gh pr create` targeting `main`.
    - Stage 5 Calibration creates the `/calibrated` audit branch. The calibration report (`plans/P-*_calibration.md`)
@@ -121,7 +123,8 @@ Inside the background subagent, perform pre-flight verification:
    worktree itself) that exists and is a clean git repository. Create it from `origin/main` first if it does not exist.
 5. **Determine Runner & Model**:
    - Default agent: `antigravity-agent` (or `claude-agent`)
-   - Default model: `gemini-3.8-flash-medium` (or `claude-fable-5` / `claude-opus-5-5`)
+   - Default model: `gemini-4-argon` (fallback: `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash`, or
+     `claude-fable-5` / `claude-opus-5-5`)
 
 ---
 
@@ -173,9 +176,9 @@ If `holon flow` exits with an error:
 
 1. **Quota / Credit / Session Limit Errors**: If the log contains `session limit`, `insufficient_quota`,
    `RESOURCE_EXHAUSTED`, or HTTP 429:
-   - Identify the next tier down on the fallback ladder (e.g. `gemini-3.8-pro` $\rightarrow$ `gemini-3.8-flash-medium`
+   - Identify the next tier down on the fallback ladder (e.g. `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen`
      $\rightarrow$ `gemini-3.8-flash`, or `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6`).
-   - Switch `--agent` across runners if all tiers on the active runner share an exhausted account quota.
+   - Never switch `--agent` across runners without the maintainer's go-ahead; report the exhausted ladder instead.
    - Resume the flow using the saved checkpoint:
 
      ```bash

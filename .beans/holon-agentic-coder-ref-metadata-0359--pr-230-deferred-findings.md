@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0359
 title: "PR #230 deferred findings"
-status: todo
+status: in-progress
 type: task
 priority: low
 tags:
@@ -10,7 +10,7 @@ tags:
   - review
   - deferred
 created_at: 2026-11-22T09:45:00Z
-updated_at: 2026-11-22T09:45:00Z
+updated_at: 2026-11-23T03:20:00Z
 ---
 
 Deferred findings collected during the `Holon-Agentic-Coder/holon-agentic-coder` PR #230 review loop (outside the

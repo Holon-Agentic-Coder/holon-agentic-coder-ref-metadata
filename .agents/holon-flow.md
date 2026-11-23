@@ -51,8 +51,9 @@ stepping down model tiers, always resume through `holon flow <intent.json> --fro
   the harness** -- they are not a change-authoring surface. Editing `holon-agentic-coder` or `holon-coherence` source in
   a worktree outside the flow bypasses intent provenance, plan metrics, EV accounting, and the execution ledger, and is
   therefore prohibited.
-- Skipping a stage is not permitted. If a stage cannot run (missing image, failed agent, unreachable remote), the change
-  is **blocked**: report the blocker instead of hand-applying the diff as a workaround.
+- Skipping a stage is not permitted: **never pass `--skip-review`**; no case needs it (maintainer, 2026-11-21). If Stage
+  4 or any other stage fails or stalls (missing image, failed agent, unreachable remote), the change is **blocked**:
+  halt and report the blocker instead of bypassing the stage or hand-applying the diff as a workaround.
 - **Automatic Model & Runner Fallback on Credit / Quota Exhaustion**: If a stage or subagent fails due to model credit
   exhaustion, session quota limits, or rate-limit caps (e.g. `You've hit your session limit`, `insufficient_quota`,
   `RESOURCE_EXHAUSTED`, or HTTP 429/quota errors), **do not stop or block** as long as a lower-tier model or alternate
@@ -62,8 +63,10 @@ stepping down model tiers, always resume through `holon flow <intent.json> --fro
     `opus`) $\rightarrow$ `claude-sonnet-4-6` (or `sonnet`) $\rightarrow$ `claude-haiku-4-5` (or `haiku`). Fable is the
     preferred top tier for flow stages (maintainer, 2026-11-05); `holon` passes `--model` through to the runner
     verbatim, so no engine change is needed.
-  - **Antigravity (`antigravity-agent` in `holon` CLI) fallback ladder**: `gemini-3.8-pro-high` (or `gemini-3.8-pro`)
-    $\rightarrow$ `gemini-3.8-flash-medium` $\rightarrow$ `gemini-3.8-flash`.
+  - **Antigravity (`antigravity-agent` in `holon` CLI) fallback ladder** (maintainer, 2026-11-22): use
+    `antigravity-agent` with `gemini-4-argon` for all Holon coding tasks until tokens run out, then fall back along
+    `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash` (use bare model IDs without
+    `-high` because `AntigravityRunner` passes `--effort ${HOLON_AGENT_EFFORT:-medium}`).
   - **Antigravity (`invoke_subagent` in AGY runtime) fallback ladder**: `Model: "inherit"` / `"pro"` $\rightarrow$
     `"flash"` $\rightarrow$ `"flash_lite"`.
   - **Cross-Runner Fallback**: If all model tiers on the active runner (`claude-agent` or `antigravity-agent`) share an

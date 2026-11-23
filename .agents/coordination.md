@@ -99,10 +99,10 @@ When executing within the **Antigravity (AGY)** environment:
   child sessions. If credit, quota, or session allowance runs out on the higher-level model (for either **Claude** or
   **Antigravity**), automatically fall back to the next lower tier that has available credit (`Model: "inherit"` /
   `"pro"` $\rightarrow$ `"flash"` $\rightarrow$ `"flash_lite"` in AGY `invoke_subagent`; `claude-opus-5-5` $\rightarrow$
-  `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` in `claude-agent`; `gemini-3.8-pro-high` $\rightarrow$
-  `gemini-3.8-flash-medium` $\rightarrow$ `gemini-3.8-flash` in `antigravity-agent`, or switch `--agent` across
-  `claude-agent` $\leftrightarrow$ `antigravity-agent` if an account-wide session limit is reached) and continue the
-  in-progress flow or review loop from its current stage/iteration without losing completed work.
+  `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` in `claude-agent`; `gemini-4-argon` $\rightarrow$
+  `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash` in `antigravity-agent`, or switch `--agent` across `claude-agent`
+  $\leftrightarrow$ `antigravity-agent` if an account-wide session limit is reached) and continue the in-progress flow
+  or review loop from its current stage/iteration without losing completed work.
 - **Reactive Wakeup (Zero Polling)**: AGY resumes parent execution automatically upon child message arrival or task
   completion. **Never poll, sleep, or loop on task status.**
 

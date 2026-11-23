@@ -74,8 +74,8 @@ system safety, and clean documentation. Follow these core guidelines in every se
     restarting completed stages:
     - **Claude (`claude-agent` / Claude Code)**: `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6` $\rightarrow$
       `claude-haiku-4-5`.
-    - **Antigravity (`antigravity-agent` in `holon` CLI)**: `gemini-3.8-pro-high` $\rightarrow$
-      `gemini-3.8-flash-medium` $\rightarrow$ `gemini-3.8-flash`.
+    - **Antigravity (`antigravity-agent` in `holon` CLI)**: `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen`
+      $\rightarrow$ `gemini-3.8-flash` (default to `gemini-4-argon` for all Holon coding tasks until tokens run out).
     - **Antigravity (`invoke_subagent` in AGY runtime)**: `Model: "inherit"` / `"pro"` $\rightarrow$ `"flash"`
       $\rightarrow$ `"flash_lite"`.
     - **Cross-Runner Continuation**: If an entire runner's session quota is exhausted across all its model tiers (e.g.
