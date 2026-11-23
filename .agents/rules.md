@@ -17,7 +17,10 @@ code in this repository.
 5. **Documentation**:
    - Update docstrings, READMEs, and inline comments to reflect any changes you make.
    - Maintain the integrity of existing comments that are unrelated to your changes.
-6. **Modular File Sizing & 200-Line Sizing Guideline**:
+6. **No Logic in `__init__.py` (maintainer, 2026-11-23; Bean 0379)**: A package `__init__.py` only exposes public
+   functions and variables: a docstring, imports of the public names and `__all__`. Never define functions, classes or
+   constants there, and never run work at import time; put the code in a named module of the package and re-export it.
+7. **Modular File Sizing & 200-Line Sizing Guideline**:
    - As a general guideline (a recommended best practice, not a rigid hard rule), source files exceeding **200 lines**
      should be decomposed into modular packages and focused, single-responsibility modules (e.g. splitting monolithic
      modules into dedicated subpackages such as `flow/`, `cli/commands/`, `proxy/`, `executor/`, `calibration/`).
