@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-23 11:38:24 UTC
+**Last Updated:** 2026-11-23 12:28:40 UTC
 
 ## Executive Summary
 
@@ -19,9 +19,9 @@ Concurrent flows on overlapping files forced repeated syncs and re-reviews earli
 together.
 
 - **Total Tracked Beans**: 380 (excluding template)
-- **Completed**: 336 (88.4%)
+- **Completed**: 337 (88.7%)
 - **Scrapped / Superseded**: 9 (2.4%)
-- **Active**: 35 (9.2%), of which 3 are in progress, 31 are todo and 1 are draft
+- **Active**: 34 (8.9%), of which 3 are in progress, 30 are todo and 1 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -957,11 +957,10 @@ files; `0181` re-pointed to `entrypoint/executor/run.py`; new beans `0350`–`03
 
 | Priority | Status      | Impact |          Sizing           | Bean # | Title                                                                                                        | Domain                      | Dependencies / Notes                                                                                                                                                                                                                         |
 | :------- | :---------- | :----: | :-----------------------: | :----- | :----------------------------------------------------------------------------------------------------------- | :-------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **P1**   | todo        |  High  |             S             | 0360   | Resume after an interrupted plan stage creates a duplicate P- branch                                         | Flow / Stage 2 / Checkpoint | Ready in Stage 2 plan/checkpoint lane (`PR #239` merged). Record pushed `P-` branch atomically with push or adopt existing pushed `P-` branch on resume.                                                                                     |
+| **P1**   | in-progress |  High  |             S             | 0360   | Resume after an interrupted plan stage creates a duplicate P- branch                                         | Flow / Stage 2 / Checkpoint | Ready in Stage 2 plan/checkpoint lane (`PR #239` merged). Record pushed `P-` branch atomically with push or adopt existing pushed `P-` branch on resume.                                                                                     |
 | **P1**   | todo        |  High  |             M             | 0270   | Discover runner models dynamically through each harness instead of the hardcoded model table                 | Flow / Architecture         | Ready now (runner/quota block cleared; 0262 and 0322 merged; disjoint from PR #230). Replaces hardcoded `RUNNER_CAPABILITIES` in `agent_defaults.py` with per-harness discovery. Sequence with `0198` and `0350` on `agent_defaults.py`.     |
 | **P1**   | todo        |  High  |             M             | 0350   | Enable Claude Code code mode (CLAUDE_CODE_EXPERIMENTAL_CODE_MODE=1) for every Claude run                     | Claude / Config             | Ready now (disjoint from PR #230). Direct harness edit (`flow_env.py`, `.claude/settings.json`) plus HAC flow on `agent_runner.py` / `agent_defaults.py` / `role_dispatcher.sh` / `doctor`. Sequence with `0270` and `0198`.                 |
 | **P1**   | todo        |  High  |             L             | 0265   | Split `cli/__init__.py` into focused modules (move only), like the `flow/` package                           | Refactor / Architecture     | Sequence after PR #243 (`0155`) / #244 (`0175`) which touch `cli/__init__.py`.                                                                                                                                                               |
-| **P1**   | in-progress |  High  |             M             | 0191   | One GitHub adapter owns every `gh` call (PR, CI probe, mergeability, review posting)                         | GitHub / Architecture       | In progress in HAC PR #245 (`UNSTABLE`). Unblocks `0192`.                                                                                                                                                                                    |
 | **P1**   | todo        |  High  |             L             | 0192   | `run_review_loop` and `run_review_stage` become a `ReviewLoop` object with named steps                       | Review Loop / Refactor      | Blocked by `0191`. `flow/review/loop.py` is 936 lines. Sequence one at a time in the review-loop lane with PR #230, `0255`, and `0231`.                                                                                                      |
 | **P1**   | todo        |  High  |             L             | 0255   | Streaming per-issue resolvers during Stage 4 CI & review with single consolidated commit                     | Review Loop / Concurrency   | Queued behind PR #230 (overlaps `flow/review/loop.py`, `entrypoint/review_loop.py`). One at a time with `0191`, `0192`, `0231`.                                                                                                              |
 | **P1**   | todo        |  High  |             S             | 0215   | Deterministic beans-to-GitHub-Issues importer and real-data dry run                                          | Issue Tracking / Migration  | Harness work. Blocked by `0333` (remove beads pilot & finalise decision). Converts open beans to GitHub Issues with real-corpus dry run; unblocks `0217`, `0218`, and `0317`.                                                                |

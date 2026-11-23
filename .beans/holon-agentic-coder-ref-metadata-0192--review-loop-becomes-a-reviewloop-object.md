@@ -68,3 +68,6 @@ exist. Still blocked by 0191 (shared call sites).
 
 > 2026-11-23: stale worktree deleted 2026-11-23; restart from current main. Backup:
 > todo/stale-worktree-backups/flow-review-loop-object-2026-11-23.bundle
+
+- 2026-11-23: unblocked. Its `blocked_by` bean 0191 is completed (parent PR #260 merged into `main` as `7225685d`).
+  Status left as `todo`.

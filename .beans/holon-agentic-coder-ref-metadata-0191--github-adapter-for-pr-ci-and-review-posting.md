@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0191
 title: "One GitHub adapter owns every gh call (PR create/update, CI probe, mergeability, review posting)"
-status: in-progress
+status: completed
 type: task
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
 blocked_by:
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-11-23T12:50:00+11:00
+updated_at: 2026-11-23T23:28:37+11:00
 ---
 
 ## Problem
@@ -100,3 +100,36 @@ test_calibrate_final_head_ci passes a FakeGitHub to _FinalHeadCheck).
 
 2026-11-23 update: the boundary test was resolved by adding GitHubAdapter.rerun_run (whole-run rerun) and routing
 gh_run_rerunner through it. Lint and the full suite pass (6354 passed). Merge commit 5f3076dc pushed to the plan branch.
+
+- 2026-11-23 (holon flow, bean 0191 parent): PR #260 opened for the parent execution branch and driven to review
+  approval and calibration. Stage models: intent/plan/execute on claude-opus-5-5 (children and parent Stage 3); review
+  on claude-fable-5-2 (HOLON_TURN_STALL_SECONDS=600 needed; 90 s stall budget cut the reviewers twice). Calibration ok,
+  final head CI success, PR MERGEABLE/CLEAN. Conflicts cleared by resolve-conflict subagents (ledgers; additive
+  flow/**init**.py **all** union). Awaiting human merge into main; not merged.
+
+## Resolution
+
+Delivered via three child PRs and the parent PR
+[#260](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/260), squash-merged into `main` (`7225685d`):
+
+- **Child 1, extract the pure CI verdict**:
+  [PR #242](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/242). The flow halted at Stage 4 on a code
+  conflict with `main`, then continued once it was resolved.
+- **Child 2, repository-scoped GitHub adapter**:
+  [PR #245](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/245).
+- **Child 3, inject one GitHubAdapter at flow entry**:
+  [PR #255](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/255). Recovered manually on maintainer
+  instruction. The 47 sidecar scratch files committed under `todo/` were removed (kept in
+  `todo/recovered-0191-sidecar-scratch/`).
+- **Parent**: [PR #260](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/260) carried the integrated plan
+  branch into `main`.
+- **Hand-written merge code**: the parent's conflict resolution against `main` was written by hand, not by the flow. It
+  adds `GitHubAdapter.rerun_run` (whole-run rerun) and routes `gh_run_rerunner` through it, so the AST boundary test
+  passes (6354 passed).
+
+Key deliverables: `flow/github/adapter.py` is the only module that runs `gh` for PR, CI, mergeability and review
+posting, keeping the write guard and token redaction. Pure policy modules (`ci_policy`, `mergeability_policy`,
+`review_policy`, `pr_metadata`) hold the decisions, plus a `FakeGitHub` test double and boundary and purity tests.
+
+Verification: lint and the full suite pass on the parent branch; the parent's review loop approved and calibration
+passed with final-head CI green.
