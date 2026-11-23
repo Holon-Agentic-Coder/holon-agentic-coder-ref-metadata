@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0359
 title: "PR #230 deferred findings"
-status: in-progress
+status: completed
 type: task
 priority: low
 tags:
@@ -10,7 +10,7 @@ tags:
   - review
   - deferred
 created_at: 2026-11-22T09:45:00Z
-updated_at: 2026-11-23T03:20:00Z
+updated_at: 2026-11-23T03:43:50Z
 ---
 
 Deferred findings collected during the `Holon-Agentic-Coder/holon-agentic-coder` PR #230 review loop (outside the
@@ -36,13 +36,13 @@ reviewed increment).
 
 ## Resolution
 
-- **Blocked, no flow started (2026-11-23).** The D-1 defect exists only on the open PR #230 head branch
-  (`cli/commands/flow.py`, `_report_review_outcome`, lines 339-356). `origin/main` (032d9d44) has no
-  `_report_review_outcome`: its `_report_flow_summary` checks only `payload["halted_for_human"]`, so the D-1 comparison
-  cannot be made against main. Running a flow now would target code that does not exist on main and would overlap PR
-  #230.
-- Also observed on main: `flow/review/loop.py` sets `halted_for_human = consensus_reached` (line ~861), so an approved
-  review prints `[SAFETY HALT]` on main. That is the PR #230 part (A) defect, not D-1.
-- Next step, once PR #230 lands on main (maintainer merge): re-read `flow.py` on the then-current main, confirm whether
-  the status/payload mismatch still exists, then intent via `holon flow` with a hermetic test for the
-  approved-but-`HALTED_FOR_HUMAN` case. If it does not exist, close this bean as not applicable.
+Delivered via [PR #246](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/246) and merged into `main`
+(`16f4f629`):
+
+- **Key Architectural Deliverables**: `_report_review_outcome` in `cli/commands/flow.py` now decides approval and halt
+  from the same signal, so an approved review that arrives as `HALTED_FOR_HUMAN` with `consensus.approved` is reported
+  as `[REVIEW APPROVED]` rather than `[SAFETY HALT]`. Hermetic test added in `tests/test_review_loop_approved.py`.
+- **Verification & Tests**: hermetic regression test for the approved-but-`HALTED_FOR_HUMAN` case; CI green and review
+  approved before merge.
+- **Holon Flow Traversal**: all 5 stages (Intent -> Plan -> Execute -> Review Loop -> Calibration) completed via
+  `holon flow`; calibration report included in the merged diff.
