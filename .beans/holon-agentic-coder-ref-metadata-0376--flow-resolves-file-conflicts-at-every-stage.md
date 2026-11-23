@@ -57,6 +57,14 @@ only when the resolver cannot produce a passing tree, and then it says exactly w
    of this flow. It resolves each file, runs `uv run task lint` and the affected tests, then the full suite, and commits
    the merge. It may not change files outside the conflict set except tests whose setup the merge invalidated, may not
    touch the frozen module budgets (an over-budget file is split, as elsewhere), and has a bounded number of attempts.
+   **Model ladder: lowest tier first, escalate on evidence, block last (maintainer question, 2026-11-23).** Resolve
+   rather than raise or block. The order is: mechanical rules (no model) → resolver on the lowest tier → the same
+   conflict one tier up when lint or tests fail, or when the resolver reports it cannot decide → fail the stage (block)
+   only when the top tier is exhausted. The gate is the test suite, lint and the scoped re-review, not the model's
+   confidence, so a cheap model is safe to try first. Evidence from 2026-11-23: the lowest tier settled every ledger and
+   KB conflict and correctly escalated the code conflicts; its one attempted code merge (bean 0369, `calibrate.py`)
+   broke a test, and one tier up produced a green tree (5948 passed). Each attempt and its tier are recorded in the
+   ledger row.
 4. **Approval and calibration after a resolved conflict.**
    - Mechanical-only merge: the approval carries over when the PR's own diff fingerprint is unchanged (Bean 0372); only
      CI on the new head must pass (PR #250's merged-head gate).
