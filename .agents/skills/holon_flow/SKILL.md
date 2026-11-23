@@ -89,8 +89,8 @@ multi-hour containerised lifecycle, **the flow is executed inside a dedicated ba
 
 Before executing any flow commands, evaluate the **Re-Entrancy Guard**:
 
-- **Re-Entrancy Guard**: If the currently executing agent is _already_ the spawned `Holon Flow Subagent (<slug>)`, **DO
-  NOT spawn another nested subagent**. Proceed directly to
+- **Re-Entrancy Guard**: If the currently executing agent is _already_ the spawned `bean <id> - holon flow <slug>`
+  subagent, **DO NOT spawn another nested subagent**. Proceed directly to
   [Step 1: Validate Prerequisites & Parameters](#step-1-validate-prerequisites--parameters).
 - **Main Interactive Agent Delegation**: When the user (or parent session) requests running a flow (e.g.
   `/holon-flow <intent.json>`):
