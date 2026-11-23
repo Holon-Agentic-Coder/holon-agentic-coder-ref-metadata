@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0197
 title: "Split calibration.py into a calibration package and decompose metrics parsing and report generation"
-status: in-progress
+status: todo
 type: task
 priority: normal
 tags:
@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
 blocked_by:
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-11-23T00:00:00Z
+updated_at: 2026-11-23T08:05:48Z
 ---
 
 ## Problem
@@ -60,3 +60,6 @@ metrics parsers. Do not run concurrently with Bean 0146 (same parser).
 Bean `0146` merged in PR #221 (extracting `calibration_predicted.py`). `calibration.py` is 1,637 lines with
 `parse_actual_metrics` still under noqa. Unblocked and disjoint from PR #230 (which edits `calibration_outcome.py`, not
 `calibration.py` or `flow/stages/calibrate.py`); sequence with `0355` on `flow/stages/calibrate.py`.
+
+> 2026-11-23: stale worktree deleted 2026-11-23; restart from current main. Backup:
+> todo/stale-worktree-backups/flow-split-calibration-package-2026-11-23.bundle

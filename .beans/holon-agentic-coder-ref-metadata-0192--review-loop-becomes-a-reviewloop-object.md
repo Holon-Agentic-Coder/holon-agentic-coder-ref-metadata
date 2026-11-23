@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0192
 title: "Decompose run_review_loop and run_review_stage into a ReviewLoop object with named steps"
-status: in-progress
+status: todo
 type: task
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - holon-agentic-coder-ref-metadata-0191
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-11-21T01:20:00+11:00
+updated_at: 2026-11-23T08:05:48Z
 ---
 
 ## Problem
@@ -65,3 +65,6 @@ exist. Still blocked by 0191 (shared call sites).
 - Checkpoint: `apps/holon-agentic-coder/flow-review-loop-object/.holon/flow/checkpoint-review-loop-object.json` at stage
   execute. Earlier checkpoint backed up under the scratchpad.
 - Status stays `in-progress`; blocked_by 0191 is also still in progress and shares call sites.
+
+> 2026-11-23: stale worktree deleted 2026-11-23; restart from current main. Backup:
+> todo/stale-worktree-backups/flow-review-loop-object-2026-11-23.bundle

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0216
 title: "Holon flow references and drives GitHub Issues (assign on intent, close on merge)"
-status: in-progress
+status: todo
 type: feature
 priority: normal
 tags:
@@ -12,7 +12,7 @@ tags:
 blocked_by:
   - "0333"
 created_at: 2026-10-30T00:00:00Z
-updated_at: 2026-11-23T00:00:00Z
+updated_at: 2026-11-23T08:05:48Z
 ---
 
 ## Problem
@@ -42,3 +42,6 @@ reference. This also honours the standing rule that harness bean ids never land 
 - The token the flow already uses for pull requests (`repo` scope) covers issue writes; Project status needs the
   `project` scope (Bean 0317).
 - Related: Bean 0333 (decision), Bean 0215 (import gives the issue numbers), Bean 0191 (one GitHub adapter).
+
+> 2026-11-23: stale worktree deleted 2026-11-23; restart from current main. Backup:
+> todo/stale-worktree-backups/flow-flow-references-github-issues-2026-11-23.bundle

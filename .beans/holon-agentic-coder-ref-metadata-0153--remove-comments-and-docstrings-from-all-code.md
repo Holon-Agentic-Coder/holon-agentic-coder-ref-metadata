@@ -3,7 +3,7 @@
 title:
   "Remove comments and docstrings from all code (Python, shell, JavaScript, build and CI files); make code
   self-documenting"
-status: in-progress
+status: todo
 type: task
 priority: normal
 tags:
@@ -13,7 +13,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:42:56Z
-updated_at: 2026-10-25T07:43:50Z
+updated_at: 2026-11-23T08:05:48Z
 ---
 
 ## Problem
@@ -102,3 +102,6 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 - Re-run the baseline count (Python AST pass plus a per-language comment count) after each PR and add the numbers here.
 - Related: Bean 0152 (decompose oversized functions and split modules), Bean 0151 (planner touch sets with a hard block
   on overlapping concurrent flows).
+
+> 2026-11-23: stale worktree deleted 2026-11-23; restart from current main. Backup:
+> todo/stale-worktree-backups/flow-remove-comments-sandbox-shell-2026-11-23.bundle

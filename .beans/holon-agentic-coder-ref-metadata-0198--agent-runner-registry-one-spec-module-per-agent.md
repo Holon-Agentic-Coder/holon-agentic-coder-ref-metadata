@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0198
 title: "Agent runner registry: one RunnerSpec module per agent instead of shared dicts and an if-chain"
-status: in-progress
+status: todo
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - agent-runner
   - holon-agentic-coder
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-11-22T22:55:00Z
+updated_at: 2026-11-23T08:05:48Z
 ---
 
 ## Problem
@@ -53,3 +53,6 @@ another session), so start after 0322 lands.
 Bean `0322` merged in PR #222 (`e2ba3c2`), removing `gemini-agent` completely; drop `gemini` from scope (`antigravity`,
 `claude`, `pi`, `codex`, `opencode`). Unblocked and disjoint from PR #230; sequence with `0270` and `0350` on
 `agent_defaults.py` / `agent_runner.py`.
+
+> 2026-11-23: stale worktree deleted 2026-11-23; restart from current main. Backup:
+> todo/stale-worktree-backups/flow-agent-runner-spec-per-agent-2026-11-23.bundle
