@@ -47,6 +47,14 @@ Through the Holon flow on `holon-agentic-coder`:
   times. A resume that clears a stored `skip_review` by hand edits the checkpoint, as was done for #228.
 - Related: Bean 0341 (resume keeps the checkpoint intact), Bean 0355 (holon calibrate runs the full Stage 5).
 
+## Flow (2026-11-23)
+
+- Intent: `todo/intent-0356-resume-flags-override-checkpoint.json`. PR:
+  https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/239 (`resume-flags-override-checkpoint`). Stage 4
+  consensus approved at iteration 1 (3/3); Stage 5 calibrated and the calibration report is in the PR diff. Awaiting
+  human merge.
+- Overlap: ran with `--allow-overlap` alongside PRs #230 and #238 (shared `cli/commands/flow.py`).
+
 ## Audit (2026-11-23)
 
 Bean `0357` removes `--skip-review` entirely, superseding the `skip_review` inheritance clause here while the

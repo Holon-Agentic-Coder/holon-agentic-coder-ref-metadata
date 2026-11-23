@@ -35,3 +35,14 @@ reviewed increment).
   unit test covering that behaviour.
 
 ## Resolution
+
+- **Blocked, no flow started (2026-11-23).** The D-1 defect exists only on the open PR #230 head branch
+  (`cli/commands/flow.py`, `_report_review_outcome`, lines 339-356). `origin/main` (032d9d44) has no
+  `_report_review_outcome`: its `_report_flow_summary` checks only `payload["halted_for_human"]`, so the D-1 comparison
+  cannot be made against main. Running a flow now would target code that does not exist on main and would overlap PR
+  #230.
+- Also observed on main: `flow/review/loop.py` sets `halted_for_human = consensus_reached` (line ~861), so an approved
+  review prints `[SAFETY HALT]` on main. That is the PR #230 part (A) defect, not D-1.
+- Next step, once PR #230 lands on main (maintainer merge): re-read `flow.py` on the then-current main, confirm whether
+  the status/payload mismatch still exists, then intent via `holon flow` with a hermetic test for the
+  approved-but-`HALTED_FOR_HUMAN` case. If it does not exist, close this bean as not applicable.

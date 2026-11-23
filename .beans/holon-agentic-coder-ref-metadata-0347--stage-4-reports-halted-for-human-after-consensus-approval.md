@@ -65,3 +65,10 @@ Through the Holon flow on `holon-agentic-coder`:
 
 - PR: https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/230 (flow `review-approved-and-fresh-tests`,
   resumed at Stage 4)
+- 2026-11-23: Stage 4 resumed; run 1 halted at iteration 12 when the in-container resolver's merge commit `2467c0fb`
+  (origin/main merge) was on the remote but not in the host worktree, so the push was rejected (non-fast-forward).
+  Reconciled by merging the remote tip and pushing `97b06fba` (no rewrite). Resume then stopped before Stage 4 dispatch:
+  the branch conflicts with `origin/main` at `8afc215a` (#238) in `flow/pipeline.py`, `flow/stages/children.py`,
+  `.agents/holon_flow.md`, `docs/git_flow.md` (review-boundary logic, the same code as this bean) and
+  `holon-knowledge/ledger/executions.jsonl`. Stage 4 refuses unresolvable conflicts. Blocked on a conflict resolution
+  decision; the merge was aborted, worktree clean at `97b06fba`.
