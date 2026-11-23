@@ -179,9 +179,30 @@ delete its `I-*-<slug>/` branches locally and on origin, delete its `flow-<slug>
 `status: todo` with a one-line note ("stale plan deleted after PR #<N> merged; restart from current main"). Keep the
 bean's `todo/intent-*.json`; it is reused for the restart.
 
-Never delete, only report, a worktree that has execution commits (an `E-.../_` branch ahead of its plan), an open PR or
-a live process: that is unmerged work, and the maintainer decides. List what was deleted and what was kept in the
-post-merge report.
+#### 4c. Delete stale worktrees (maintainer, 2026-11-23)
+
+Stale worktrees are cleaned up as well, not only stale plans. A flow worktree is **stale** when all of these hold:
+
+- it has no open pull request;
+- no live process uses it (`ps` shows no `holon flow`, `run_holon_flow.py`, role container or usage-limit waiter naming
+  its slug);
+- `origin/main` has moved since it was cut;
+- nothing has touched it for at least two hours (newest of its last commit and its `.holon/flow/checkpoint-*.json`
+  mtime), so a flow that is merely between stages is never caught.
+
+This covers superseded earlier attempts, interrupted execution branches of paused beans and detached leftovers. For each
+one:
+
+1. **Back up first.** If the worktree has commits that exist on no remote branch, or uncommitted changes, save them
+   before deleting:
+   `git -C apps/<repo> bundle create <harness>/todo/stale-worktree-backups/<slug>-<date>.bundle <its I-*-<slug>/ branches>`,
+   and copy uncommitted files next to it. Name the bundle in the report.
+2. Remove the worktree (`--force`), delete its `I-*-<slug>/` and `flow-<slug>` branches locally and on origin.
+3. Set its bean back to `status: todo` (unless the bean is completed) with a one-line note naming the backup; the bean
+   restarts from current `main` with a fresh `-vN` intent.
+
+Never delete a worktree with an open PR or a live process, and never the `main` worktree. List what was deleted, what
+was backed up and what was kept in the post-merge report.
 
 ---
 
