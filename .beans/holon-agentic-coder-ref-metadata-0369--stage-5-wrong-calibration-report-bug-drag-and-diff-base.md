@@ -2,7 +2,7 @@
 # holon-agentic-coder-ref-metadata-0369
 title:
   "Stage 5 writes a wrong calibration report: recovered infra failures become bug drag, main's files count as the PR's"
-status: in-progress
+status: completed
 type: bug
 priority: critical
 tags:
@@ -11,7 +11,7 @@ tags:
   - calibration
   - holon-agentic-coder
 created_at: 2026-11-23T05:55:00Z
-updated_at: 2026-11-23T06:00:00Z
+updated_at: 2026-11-23T08:00:00Z
 ---
 
 ## Problem
@@ -111,3 +111,34 @@ transient container failure, so most calibrations since the dual-EV and review-l
 - Next: resolve the `calibrate.py` merge through a flow run (or maintainer), then the test
   `test_stage5_self_check_failure_fails_stage_commits_and_pushes_nothing` needs its setup updated for the new
   merged-head gate.
+
+## Progress note (holon flow subagent, 2026-11-23)
+
+- PR #253 (holon-agentic-coder), head 5e0f310: review approved 3/3 (0/0/0 on the final iteration), calibration included
+  in the PR diff (calibrated on execution head 91dc696d), CI green on the final head, mergeable CLEAN. Awaiting human
+  maintainer merge; not merged by the agent.
+- Stage 4 resumed from checkpoint after resolve-conflict merged main; earlier review iteration's 5 findings (R1-F1,
+  R1-F2, R2-F1, R2-F2, R3-F1) fixed by the review resolver in 655092d6. Main was merged again through the conflict gate
+  after PR #251 and #252 merged.
+- Stage 5 ran 10.6 min against a 10 min budget; kept its success result per the runner's warning.
+
+## Resolution
+
+Delivered via [PR #253](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/253) and merged into `main`
+(`606978fb`):
+
+- **Key Architectural Deliverables**: bug drag counts only Stage 3 execution failures (unresolved failed or
+  sync-conflict rows of the plan); review and calibrate rows never move the with-bugs EV, and a later success resolves
+  an earlier failure. The diff base is the merge-base with `origin/main` recomputed after any merge of `main` into the
+  execution branch, so files that arrived only through such a merge are not counted. The Evaluated Commit SHA skips
+  ledger-only `/calibrated` and `_` commits. A fail-closed self-check (bug drag without an unresolved failure, counted
+  files changed on `main` only, evaluated SHA not the approved head, fallback stub text) fails Stage 5 before anything
+  is committed or pushed. The PR #249 calibration report was regenerated in the same PR.
+- **Verification & Tests**: PR #249 end-to-end regression (`test_calibration_regression_merge_main.py`) with golden file
+  `calibration_merge_main_expected.md`; dual-EV matrix over row kind, status and order; diff-base property test;
+  evaluated-SHA and self-check tests; mutation gate on the changed calibration modules. Full suite passed on the flow's
+  execution head.
+- **Holon Flow Traversal**: Intent, plan, execute, and review loop completed (3/3 approvals, 0/0/0 on the final
+  iteration); calibration included in the PR diff and merged. Stage 4 was resumed from checkpoint after
+  `resolve-conflict` merged `main`, and the review resolver fixed five findings (R1-F1, R1-F2, R2-F1, R2-F2, R3-F1) in
+  `655092d6`.
