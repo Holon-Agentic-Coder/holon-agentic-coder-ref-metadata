@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0155
 title: "General HOLON_* env forwarding puts credential-shaped non-URL values on the docker argv"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - redaction
   - holon-agentic-coder
 created_at: 2026-10-25T12:06:22Z
-updated_at: 2026-11-23T09:00:00+11:00
+updated_at: 2026-11-23T03:19:37Z
 ---
 
 ## Problem
@@ -59,3 +59,20 @@ echo.
   branch conflicts. Not hand-ported (sole change path).
 - Cleanup: earlier worktree `flow-holon-env-all-via-env-file` and branch `I-1795388466-holon-env-all-via-env-file/*` are
   left over.
+- Update: PR #243 head merged with current main by the coordinator's resolver (0411fd01); flow fast-forwarded and
+  resumed from review. Review approved 3/3 (iteration 5), calibration ok, final head CI success. Ready for maintainer
+  merge.
+
+## Resolution
+
+Delivered via [PR #243](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/243) and merged into `main`
+(`2cf1869`):
+
+- **Key Architectural Deliverables**: every `HOLON_*` variable the host forwards to a role container now travels in a
+  0600 `--env-file` (`launcher/env_files.py`), so no forwarded value reaches the docker argv or the `Executing:` echo;
+  applied to the main run and the pre-flight probe (`launcher/containers.py`, `preflight.py`).
+- **Verification & Tests**: fuzz matrix runs every forwarded `HOLON_*` name against argv, probe and echo
+  (`tests/test_url_message_fuzz.py`, `tests/test_preflight.py`, `tests/test_container_launch_characterisation.py`).
+- **Holon Flow Traversal**: Intent -> Plan -> Execute -> Review Loop (approved 3/3, iteration 5) -> Calibration
+  completed; final head CI green. Superseded earlier attempt (`holon-env-all-via-env-file`) and its worktree/branches
+  removed.
