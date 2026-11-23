@@ -94,3 +94,20 @@ transient container failure, so most calibrations since the dual-EV and review-l
 `apps/sandbox-executor/tests/test_calibration_regression_merge_main.py` and its golden file
 `apps/sandbox-executor/tests/fixtures/calibration_merge_main_expected.md`,
 `plans/I-1795409225-remove-token-reduction-copy/P-1795409242-CLA-CO5.5_calibration.md`.
+
+## Progress note (flow subagent, 2026-11-23)
+
+- Intent `I-1795413542-calibration-report-correctness` (flow worktree `flow-calibration-report-correctness`).
+- Intent and plan stages done: plan `P-1795413833-CLA-CO5.5`. Stage 3 execute done: `E-1795414090-CLA-CO5.5` (5791 tests
+  passed), head `d87bdc06` (local; a sync-conflict row was recorded in executions.jsonl).
+- Stage 4 review halted before any review ran: `origin/main` now conflicts with the execution branch in `calibrate.py`
+  (PR #250 merged-head CI gate vs this branch's self-check fail-closed) plus the ledgers. A hand-merge attempt was
+  aborted, not committed (patch kept outside the repo); the flow's own review stage refuses unresolved conflicts, so it
+  cannot continue without a flow-produced resolution or a maintainer decision.
+- Also found: the first resume failed in plan because a 17-line untracked stub plan
+  (`plans/I-1795413542-.../P-1795413559-CLA-CO5.5.md`) dirtied the mounted workspace; moved out of the worktree, the
+  plan stage then succeeded.
+- No PR opened yet; Stage 5 not run; PR #249 report not regenerated.
+- Next: resolve the `calibrate.py` merge through a flow run (or maintainer), then the test
+  `test_stage5_self_check_failure_fails_stage_commits_and_pushes_nothing` needs its setup updated for the new
+  merged-head gate.

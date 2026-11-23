@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0372
 title: "An approval survives a merge of main that leaves the PR's own diff unchanged; only CI re-runs"
-status: todo
+status: in-progress
 type: feature
 priority: critical
 tags:

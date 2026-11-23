@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0373
 title: "Stop committing the KB/WB index.json files; derive the index from the entry files"
-status: todo
+status: in-progress
 type: feature
 priority: critical
 tags:
