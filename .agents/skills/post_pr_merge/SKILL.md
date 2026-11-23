@@ -30,7 +30,8 @@ This skill orchestrates the end-to-end post-merge lifecycle across the Holon eco
      Bake and reinstall CLI tools to `~/.local/bin/` so subsequent flows run against latest code.
    - **Step 3: Close Bean with Resolution**: Mark the corresponding bean in `.beans/` as `status: completed` and
      document the merge commit SHA, PR link, and key technical changes.
-   - **Step 4: Clean Up PR Worktree & Remote Refs (`clean-workspace`)**: Safely remove the disposable PR worktree and
+   - **Step 4: Clean Up PR Worktree, Flow Branches & Stale Plans (`clean-workspace`)**: Remove the merged PR's worktree,
+     its earlier attempts and its flow branches (local and remote), delete every stale plan left by other flows, and
      prune stale tracking refs.
    - **Step 5: Refresh Triage & Matrix (`prioritise-beans`)**: Run the triage script to update completion stats and the
      Active Beans Prioritisation Matrix.
@@ -146,6 +147,41 @@ git -C apps/<repo> fetch origin --prune
 ```
 
 _Note: Never touch or remove `apps/<repo>/main`._
+
+#### 4a. The merged flow's branches and earlier attempts
+
+The squash merge leaves the flow's own branches behind; delete them, locally and on origin:
+
+```bash
+# Every branch of the merged intent: I-<ts>-<slug>/_, its P-.../_ and E-.../_ children and /calibrated
+git -C apps/<repo> for-each-ref --format='%(refname:short)' "refs/heads/I-*-<slug>/" | xargs -n1 git -C apps/<repo> branch -D
+git -C apps/<repo> for-each-ref --format='%(refname:lstrip=3)' "refs/remotes/origin/I-*-<slug>/" | xargs -n1 git -C apps/<repo> push origin --delete
+```
+
+Earlier attempts of the same bean (the same slug without its `-vN` suffix, e.g. `flow-layered-env-config` beside the
+merged `flow-layered-env-config-v2`) are superseded by the merge: remove their worktrees (`worktree remove --force` when
+the only leftovers are that attempt's own intent/plan/execution commits or ledger edits) and delete their `I-*-<slug>/`
+branches the same way.
+
+#### 4b. Delete stale plans (maintainer, 2026-11-23)
+
+After every merge, any stale plan is deleted as well, whichever bean it belongs to. A flow worktree holds a **stale
+plan** when all of these hold:
+
+- its branch is an intent or plan branch (`I-.../_` or `I-.../P-.../_`): no execution branch was ever cut from it;
+- it has no open pull request and no live process (`ps` shows no `holon flow` / `run_holon_flow.py` / role container
+  naming its slug);
+- `origin/main` has moved since it was cut (`git merge-base --is-ancestor origin/main HEAD` fails), so the plan was made
+  against code that no longer exists.
+
+For each one: remove the worktree (`--force`: uncommitted ledger rows or a stub plan file are part of the stale plan),
+delete its `I-*-<slug>/` branches locally and on origin, delete its `flow-<slug>` branch, and set its bean back to
+`status: todo` with a one-line note ("stale plan deleted after PR #<N> merged; restart from current main"). Keep the
+bean's `todo/intent-*.json`; it is reused for the restart.
+
+Never delete, only report, a worktree that has execution commits (an `E-.../_` branch ahead of its plan), an open PR or
+a live process: that is unmerged work, and the maintainer decides. List what was deleted and what was kept in the
+post-merge report.
 
 ---
 

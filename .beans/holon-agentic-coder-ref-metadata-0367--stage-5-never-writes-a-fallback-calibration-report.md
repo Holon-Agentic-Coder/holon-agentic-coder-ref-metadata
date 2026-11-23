@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0367
 title: "Stage 5 never writes a fallback calibration report: retry, then fail the stage"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - calibration
   - holon-agentic-coder
 created_at: 2026-11-23T05:50:00Z
-updated_at: 2026-11-23T05:50:00Z
+updated_at: 2026-11-23T07:58:00Z
 ---
 
 ## Problem
