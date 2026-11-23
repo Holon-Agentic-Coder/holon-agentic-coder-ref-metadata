@@ -25,5 +25,19 @@ Subagent delegation in this ecosystem is primarily targeted towards the **Antigr
   contracts so any coding agent (Claude Code, Codex, Pi, OpenCodeInterpreter) can spin off subagents using its native
   delegation mechanism (child process, task tool, or isolated session), while retaining explicit AGY invocation
   parameters for seamless native execution.
+- **Subagent names**: see [Subagent names](#subagent-names).
+
+## Subagent names
+
+Every subagent a skill spawns is named `#<PR> - <what it is doing>`. This applies to the AGY `Role`, Claude Code's Agent
+`description`, or whatever your runtime uses. The operator can then tell at a glance which pull request each running
+subagent belongs to (maintainer, 2026-11-23).
+
+- **With a PR:** `#244 - resolve conflicts`, `#244 - review loop orchestrator`, `#244 - iter 15 dry-run reviewer`,
+  `#244 - iter 15 ensemble reviewer 2`, `#244 - iter 15 resolver`, `#244 - post-merge`.
+- **Before a PR exists** (a flow in Stages 1–3): `bean <id> - <what it is doing>`, for example
+  `bean 0363 - holon flow ci-gate-after-main-merge`. Use the PR number once the PR opens.
+- The PR number comes from the target repository. When the repository is not obvious from context, add it after the
+  number: `#38 dev-env - review loop orchestrator`.
 
 ---

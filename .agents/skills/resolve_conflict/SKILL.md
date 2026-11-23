@@ -22,7 +22,8 @@ list. This skill handles those cheaply and hands back anything that needs a deci
 
 1. **Always a dedicated subagent.** Conflict resolution runs in its own subagent so the merge output and file diffs
    never enter the parent's context. The parent passes only the target (PR number or worktree path) and this file, and
-   gets back a short report.
+   gets back a short report. Name it `#<N> - resolve conflicts` (see
+   [subagents.md, "Subagent names"](../../subagents.md#subagent-names)).
 2. **Lowest tier.** The subagent runs on the lowest model tier of the harness, as defined in
    [`.agents/model-tiers.md`](../../model-tiers.md). This skill names a tier, never a model.
 3. **Escalate, never improvise.** The subagent resolves only the cases below. On anything else it aborts that file's

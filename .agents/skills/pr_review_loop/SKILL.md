@@ -343,9 +343,9 @@ resolution step is executed in a dedicated, fresh subagent**.
     interactive session, the main agent MUST NOT execute the loop inline. Running the multi-iteration loop directly in
     the main interactive thread hijacks the user's conversation across dozens of subagent wakeups. Instead, the main
     agent immediately delegates the entire loop lifecycle to a dedicated background **PR Review Loop Orchestrator**
-    subagent (`invoke_subagent` with `TypeName: "self"`, `Model: "inherit"`,
-    `Role: "PR Review Loop Orchestrator (<repo> PR #<N>)"`) and immediately returns control to the user (see
-    [Step 0](#step-0-entrypoint-delegation--spawn-the-background-loop-orchestrator-subagent) and
+    subagent (`invoke_subagent` with `TypeName: "self"`, `Model: "inherit"`, `Role: "#<N> - review loop orchestrator"`,
+    named per [subagents.md, "Subagent names"](../../subagents.md#subagent-names)) and immediately returns control to
+    the user (see [Step 0](#step-0-entrypoint-delegation--spawn-the-background-loop-orchestrator-subagent) and
     [`.agents/coordination.md`](../../coordination.md)).
 
 ---
@@ -372,7 +372,7 @@ Before executing any loop setup or iteration steps, evaluate the **Re-Entrancy G
      ```json
      {
        "TypeName": "self",
-       "Role": "PR Review Loop Orchestrator (<repo> PR #<N>)",
+       "Role": "#<N> - review loop orchestrator",
        "Model": "inherit",
        "Prompt": "You are the background PR Review Loop Orchestrator (<repo> PR #<N>). Execute `.agents/skills/pr_review_loop/SKILL.md` for `<pr_url_or_number>` (worktree: `<worktree_path>`, max_iterations: `<max_iterations>`). Because you are already the spawned PR Review Loop Orchestrator subagent, pass the Step 0 re-entrancy guard and proceed directly to Step 1. Own the entire loop lifecycle (state tracking in `.subagent/`, Phase A dry-run review, Phase B 3-agent `pr-reviewer` ensemble consensus review, CI check verification, Phase C `pr-review-resolver` when `CHANGES_REQUESTED`, posting the final consensus review to GitHub upon `APPROVED`, and running Stage 5 `holon calibrate` for Holon flow PRs). Do NOT message the parent agent on intermediate iterations; call `send_message` to the parent agent ONLY ONCE upon terminal completion (`APPROVED` + calibrated) or an unresolvable terminal stop (`MAX_ITERATIONS_REACHED` / `DIVERGING`)."
      }
@@ -535,7 +535,7 @@ In the AGY runtime, call `invoke_subagent`:
   "Subagents": [
     {
       "TypeName": "self",
-      "Role": "PR Reviewer (Iteration <iteration>)",
+      "Role": "#<N> - iter <iteration> dry-run reviewer",
       "Model": "inherit",
       "Prompt": "<Prompt Instructions from above>"
     }
@@ -617,7 +617,7 @@ Wait for the subagent to complete and inspect its report.
          "Subagents": [
            {
              "TypeName": "self",
-             "Role": "PR Ensemble Reviewer (Iteration <iteration>)",
+             "Role": "#<N> - iter <iteration> ensemble reviewer <k>",
              "Model": "inherit",
              "Prompt": "<Prompt Instructions from above>"
            }
@@ -796,7 +796,7 @@ In the AGY runtime, call `invoke_subagent`:
   "Subagents": [
     {
       "TypeName": "self",
-      "Role": "PR Review Resolver (Iteration <iteration>)",
+      "Role": "#<N> - iter <iteration> resolver",
       "Model": "inherit",
       "Prompt": "<Prompt Instructions from above>"
     }

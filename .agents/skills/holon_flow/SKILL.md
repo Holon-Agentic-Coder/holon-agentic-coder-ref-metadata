@@ -24,7 +24,8 @@ multi-hour containerised lifecycle, **the flow is executed inside a dedicated ba
 1. **Background Subagent Execution (Bean 0212 & Flow Delegation)**: Running `holon flow` across all 5 stages takes
    between 15 minutes and several hours depending on plan complexity and review iterations. The main interactive agent
    **MUST NOT execute the flow inline**. Instead, it delegates to a background `Holon Flow Subagent` (`invoke_subagent`
-   with `TypeName: "self"`, `Role: "Holon Flow Subagent (<slug>)"`, `Model` = the lowest tier per
+   with `TypeName: "self"`, `Role: "bean <id> - holon flow <slug>"` (named per
+   [subagents.md, "Subagent names"](../../subagents.md#subagent-names)), `Model` = the lowest tier per
    `.agents/model-tiers.md`) and immediately returns control to the user.
 2. **Sole Change Path Invariant**: Every target codebase change (`holon-agentic-coder` or `holon-coherence`) MUST
    traverse the 5 containerised stages:
@@ -100,7 +101,7 @@ Before executing any flow commands, evaluate the **Re-Entrancy Guard**:
      ```json
      {
        "TypeName": "self",
-       "Role": "Holon Flow Subagent (<slug>)",
+       "Role": "bean <id> - holon flow <slug>",
        "Model": "<lowest-tier model, probed per .agents/model-tiers.md>",
        "Prompt": "You are the background Holon Flow Subagent for intent `<intent_path>` (target_worktree: `<target_worktree>`, agent: `<agent>`, model: `<model>`). Execute `.agents/skills/holon_flow/SKILL.md`. Because you are already the spawned Holon Flow Subagent, pass the Step 0 re-entrancy guard and proceed directly to Step 1. Drive the entire 5-stage Holon flow lifecycle (Intent -> Plan -> Execute -> Review Loop -> Calibration). Ensure PR creation, handle model fallback ladders on quota errors, verify that the calibration report is committed and pushed into the PR diff, check mergeability against target branch, and record state in `.subagent/flow_<slug>_state.json`. Do NOT send intermediate messages; call `send_message` to the parent agent ONLY ONCE upon terminal completion (PR approved, calibrated, and awaiting human merge) or an unresolvable blocker."
      }
