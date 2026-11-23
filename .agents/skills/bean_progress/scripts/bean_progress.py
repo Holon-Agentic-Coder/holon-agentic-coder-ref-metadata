@@ -166,9 +166,11 @@ class InFlightRow:
     total_time: str = "—"
     source: str = ""
     rank: tuple[float, ...] = ()
+    agent: str = "—"
+    model: str = "—"
 
     def notes_cell(self) -> str:
-        """Notes column: runner/model/PID/session info first, then the former status notes."""
+        """Notes column: live/idle state with PID and session first, then the former status notes."""
         parts = [p for p in (self.live_runner, self.notes if self.notes != "—" else "") if p]
         return "; ".join(parts) if parts else "—"
 
@@ -178,6 +180,8 @@ class InFlightRow:
             "bean_nums": self.bean_nums,
             "target": self.target,
             "title": self.title,
+            "agent": self.agent,
+            "model": self.model,
             "stage": self.stage,
             "time_in_stage": self.time_in_stage,
             "pr_ci": self.pr_ci,
@@ -1033,10 +1037,6 @@ def _derive_stage(wt: WorktreeFlow | None, live: LiveFlowTree | None, has_pr: bo
     return "Not started"
 
 
-def _compact_model(model: str) -> str:
-    return model.removeprefix("claude-")
-
-
 def _attempt_rank(wt: WorktreeFlow | None, live: LiveFlowTree | None, pr: PullRequestInfo | None) -> tuple[float, ...]:
     live_score = 2.0 if live and live.kind == "running" else 1.0 if live else 0.0
     stage_score = float(STAGE_ORDER.index(wt.current_stage)) if wt and wt.current_stage in STAGE_ORDER else -1.0
@@ -1044,11 +1044,24 @@ def _attempt_rank(wt: WorktreeFlow | None, live: LiveFlowTree | None, pr: PullRe
     return (live_score, 1.0 if pr else 0.0, stage_score, recency)
 
 
+def _derive_agent_model(wt: WorktreeFlow | None, live: LiveFlowTree | None) -> tuple[str, str]:
+    """The flow's runner agent and model: the live process first, then the worktree checkpoint; "—" when unknown."""
+    agent = (live.agent if live else None) or (wt.agent if wt else None) or ""
+    model = (live.model if live else None) or (wt.model if wt else None) or ""
+    if not agent and model:
+        agent = (
+            "claude-agent"
+            if model.startswith("claude-")
+            else "antigravity-agent"
+            if model.startswith("gemini-")
+            else ""
+        )
+    return agent or "—", model or "—"
+
+
 def _derive_live_runner(wt: WorktreeFlow | None, live: LiveFlowTree | None) -> str:
     if live:
-        model = _compact_model(
-            live.model or (wt.model if wt else None) or live.agent or (wt.agent if wt else None) or "unknown"
-        )
+        model = "live"
         elapsed = format_etime(live.etime)
         if live.kind == "polling":
             blockers = (wt.admission.get("blocked_by") or []) if wt else []
@@ -1059,8 +1072,6 @@ def _derive_live_runner(wt: WorktreeFlow | None, live: LiveFlowTree | None) -> s
             return f"waiter · {elapsed} (PID {live.root_pid}, {live.session_owner})"
         return f"{model} · {elapsed} (PID {live.root_pid}, {live.session_owner})"
 
-    if wt and (wt.model or wt.agent):
-        return f"idle ({_compact_model(wt.model or wt.agent or '')})"
     return "idle"
 
 
@@ -1235,6 +1246,8 @@ def build_in_flight_rows(
                 total_time=format_duration(wt.flow_started, now),
                 source=wt.dir_name,
                 rank=_attempt_rank(wt, live, pr),
+                agent=_derive_agent_model(wt, live)[0],
+                model=_derive_agent_model(wt, live)[1],
             )
         )
 
@@ -1277,6 +1290,8 @@ def build_in_flight_rows(
                 total_time=format_duration(branch_started(pr.head_ref_name) if pr else None, now),
                 source=f"live PID {live.root_pid}",
                 rank=_attempt_rank(None, live, pr),
+                agent=_derive_agent_model(None, live)[0],
+                model=_derive_agent_model(None, live)[1],
             )
         )
 
@@ -1355,8 +1370,8 @@ def render_markdown_table(rows: list[InFlightRow]) -> str:
         return "No beans are currently in flight."
 
     lines = [
-        "| Bean # | Target | Title | Stage | Time in Stage | PR & CI | Total Time | Notes |",
-        "| :----- | :----- | :---- | :---- | :------------ | :------ | :--------- | :---- |",
+        "| Bean # | Target | Title | Agent | Model | Stage | Time in Stage | PR & CI | Total Time | Notes |",
+        "| :----- | :----- | :---- | :---- | :---- | :---- | :------------ | :------ | :--------- | :---- |",
     ]
     for row in rows:
         bean_cell = ", ".join(row.bean_nums) if row.bean_nums else "—"
@@ -1364,6 +1379,8 @@ def render_markdown_table(rows: list[InFlightRow]) -> str:
             bean_cell,
             row.target,
             row.title,
+            row.agent,
+            row.model,
             row.stage,
             row.time_in_stage,
             row.pr_ci,

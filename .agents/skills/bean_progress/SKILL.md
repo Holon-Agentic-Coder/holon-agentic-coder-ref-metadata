@@ -59,16 +59,18 @@ Return the resulting Markdown table directly to the user verbatim (with a brief 
 
 ### Output Table Schema
 
-| Column          | Meaning                                                                                                              |
-| :-------------- | :------------------------------------------------------------------------------------------------------------------- |
-| `Bean #`        | Clean 4-digit bean ID(s) (`0347, 0354`), or `—` for unmapped active flows/PRs                                        |
-| `Target`        | Repository target (`HAC`, `Coherence`, `dev-env`, or `harness`)                                                      |
-| `Title`         | Concise bean or flow title                                                                                           |
-| `Stage`         | Active Holon stage (preferring live Docker role / admission wait over stale disk)                                    |
-| `Time in Stage` | How long the bean has been in its current stage (compact: `45s`, `12m`, `1h05m`, `2d3h`; `—` if unknown)             |
-| `PR & CI`       | Open PR link, CI rollup (`pass`/`fail`/`running`), review count, mergeability flags                                  |
-| `Total Time`    | How long the bean has been in flight overall (same format; `—` if unknown)                                           |
-| `Notes`         | Runner first (`opus-5-5 · 31m (PID, session)` live, `idle (opus-5-5)` idle), then blockers, warnings, stale attempts |
+| Column          | Meaning                                                                                                                     |
+| :-------------- | :-------------------------------------------------------------------------------------------------------------------------- |
+| `Bean #`        | Clean 4-digit bean ID(s) (`0347, 0354`), or `—` for unmapped active flows/PRs                                               |
+| `Target`        | Repository target (`HAC`, `Coherence`, `dev-env`, or `harness`)                                                             |
+| `Title`         | Concise bean or flow title                                                                                                  |
+| `Agent`         | The flow's runner agent (`claude-agent`, `antigravity-agent`, ...), from the live process or the checkpoint; `—` if unknown |
+| `Model`         | The flow's model id (`claude-fable-5-2`, `gemini-4-argon`, ...), from the live process or the checkpoint; `—` if unknown    |
+| `Stage`         | Active Holon stage (preferring live Docker role / admission wait over stale disk)                                           |
+| `Time in Stage` | How long the bean has been in its current stage (compact: `45s`, `12m`, `1h05m`, `2d3h`; `—` if unknown)                    |
+| `PR & CI`       | Open PR link, CI rollup (`pass`/`fail`/`running`), review count, mergeability flags                                         |
+| `Total Time`    | How long the bean has been in flight overall (same format; `—` if unknown)                                                  |
+| `Notes`         | Live state first (`live · 31m (PID, session)`, or `idle`), then blockers, warnings, stale attempts                          |
 
 Rows are merged per bean: when several attempts exist (for example a stale first-attempt worktree plus a live `-v2`
 flow), the live or most-advanced attempt is shown and the others are listed in Notes as `stale attempt ...`.
