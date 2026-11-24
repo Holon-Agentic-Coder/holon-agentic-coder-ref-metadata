@@ -174,3 +174,7 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > 2026-11-24: launched `holon-agentic-coder` launcher container/mount/dispatch self-documenting slice
 > (`launcher-containers-self-doc`, intent `todo/intent-0153-launcher-containers-self-doc.json`) via `antigravity-agent`
 > / `gemini-4-neon`.
+
+> 2026-11-24: launched `holon-agentic-coder` CLI flow-helper and lifecycle commands self-documenting slice
+> (`cli-commands-exec-self-doc`, intent `todo/intent-0153-cli-commands-exec-self-doc.json`) via `antigravity-agent` /
+> `gemini-4-neon`.
