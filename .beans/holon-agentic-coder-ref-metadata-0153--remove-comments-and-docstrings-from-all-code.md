@@ -123,3 +123,6 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 
 > 2026-11-24: launched `holon-coherence` container self-documenting slice (`coherence-container-self-doc`, intent
 > `todo/intent-0153-coherence-container-self-doc.json`) via `antigravity-agent` / `gemini-4-argon`.
+
+> 2026-11-24: launched `holon-coherence` parsers/providers self-documenting slice (`coherence-providers-self-doc`,
+> intent `todo/intent-0153-coherence-providers-self-doc.json`) via `antigravity-agent` / `gemini-4-argon`.
