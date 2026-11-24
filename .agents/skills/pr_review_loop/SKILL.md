@@ -503,8 +503,8 @@ Execute the review pass in a clean, isolated subagent context.
 - **Model**: Inherit the parent agent's model (`inherit`). If credit or quota runs out on `"inherit"` / `"pro"`,
   automatically fall back along `Model: "inherit"` / `"pro"` $\rightarrow$ `"flash"` $\rightarrow$ `"flash_lite"` (and
   similarly step down `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` or
-  `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash`) and continue the loop from the
-  current iteration without losing completed work.
+  `gemini-4-neon` $\rightarrow$ `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash`) and
+  continue the loop from the current iteration without losing completed work.
 - **Prompt Instructions**:
   > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` in **Dry-Run Mode (`--dry-run`)** with
   > **Single-Agent Mode** enabled.
@@ -754,8 +754,8 @@ Execute the resolution pass in a clean, isolated subagent context.
 - **Model**: Inherit the parent agent's model (`inherit`). If credit or quota runs out on `"inherit"` / `"pro"`,
   automatically fall back along `Model: "inherit"` / `"pro"` $\rightarrow$ `"flash"` $\rightarrow$ `"flash_lite"` (and
   similarly step down `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` or
-  `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash`) and continue the loop from the
-  current iteration without losing completed work.
+  `gemini-4-neon` $\rightarrow$ `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash`) and
+  continue the loop from the current iteration without losing completed work.
 - **Target Worktree**: Locate the target repository worktree under `apps/holon-agentic-coder/{branch}`,
   `apps/holon-coherence/{branch}`, or repository root.
 - **Prompt Instructions**:

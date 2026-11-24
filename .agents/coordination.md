@@ -69,6 +69,11 @@ interactive session remains responsive:
   `send_message` **only once** upon terminal completion or an unresolvable blocker.
 - **Re-Entrancy Guard**: If the executing agent is already the spawned `Holon Flow Subagent`, it proceeds directly to
   flow execution without spawning another nested subagent.
+- **4-Flow Concurrency Cap & Merge Backfill (maintainer, 2026-11-24)**: On hosted runtimes, up to **4 concurrent
+  `holon-flow` background subagents** may run at once, each in its own dedicated `flow-<slug>` worktree and honouring
+  dependencies, solo-sweep rules, and disjoint touch sets (`run_holon_flow.py` waits out Stage 3 overlaps
+  automatically). Once a target-repo PR merges, backfill open slots up to 4 by launching the next highest-priority ready
+  bean via `holon-flow`.
 
 ### 4. Generic Subagent Protocol (Any Coding Agent)
 
@@ -99,10 +104,10 @@ When executing within the **Antigravity (AGY)** environment:
   child sessions. If credit, quota, or session allowance runs out on the higher-level model (for either **Claude** or
   **Antigravity**), automatically fall back to the next lower tier that has available credit (`Model: "inherit"` /
   `"pro"` $\rightarrow$ `"flash"` $\rightarrow$ `"flash_lite"` in AGY `invoke_subagent`; `claude-opus-5-5` $\rightarrow$
-  `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` in `claude-agent`; `gemini-4-argon` $\rightarrow$
-  `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash` in `antigravity-agent`, or switch `--agent` across `claude-agent`
-  $\leftrightarrow$ `antigravity-agent` if an account-wide session limit is reached) and continue the in-progress flow
-  or review loop from its current stage/iteration without losing completed work.
+  `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` in `claude-agent`; `gemini-4-neon` $\rightarrow$ `gemini-4-argon`
+  $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash` in `antigravity-agent`, or switch `--agent` across
+  `claude-agent` $\leftrightarrow$ `antigravity-agent` if an account-wide session limit is reached) and continue the
+  in-progress flow or review loop from its current stage/iteration without losing completed work.
 - **Reactive Wakeup (Zero Polling)**: AGY resumes parent execution automatically upon child message arrival or task
   completion. **Never poll, sleep, or loop on task status.**
 
@@ -123,7 +128,9 @@ answer and no tool call), and a constrained host can be pushed into swap or cras
 
 The rule:
 
-- **Hosted runtime** -- dispatch independent children concurrently (the default in `pr-reviewer` and `pr-review-loop`).
+- **Hosted runtime** -- dispatch independent children concurrently (the default in `pr-reviewer` and `pr-review-loop`);
+  for target-repo `holon-flow` executions, up to **4 concurrent background flow subagents** are permitted (with
+  automatic highest-priority bean backfill upon PR merge).
 - **Local runtime** -- dispatch LLM-inference children **serially**: launch one child, wait for it to finish, then
   launch the next. Concurrency for LLM work is capped at 1. Serialising changes **only the launch schedule**:
   - Each pass still runs in its **own fresh child context**, with its own prompt, its own report file and its own vote.

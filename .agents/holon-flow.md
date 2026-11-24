@@ -63,10 +63,10 @@ stepping down model tiers, always resume through `holon flow <intent.json> --fro
     engine maps to `claude-opus-5-5`) $\rightarrow$ `claude-opus-5-5` (or `opus`) $\rightarrow$ `claude-sonnet-4-6` (or
     `sonnet`) $\rightarrow$ `claude-haiku-4-5` (or `haiku`). Fable is the preferred top tier for flow stages
     (maintainer, 2026-11-05); `holon` passes `--model` through to the runner verbatim, so no engine change is needed.
-  - **Antigravity (`antigravity-agent` in `holon` CLI) fallback ladder** (maintainer, 2026-11-22): use
-    `antigravity-agent` with `gemini-4-argon` for all Holon coding tasks until tokens run out, then fall back along
-    `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash` (use bare model IDs without
-    `-high` because `AntigravityRunner` passes `--effort ${HOLON_AGENT_EFFORT:-medium}`).
+  - **Antigravity (`antigravity-agent` in `holon` CLI) fallback ladder** (maintainer, 2026-11-24): use
+    `antigravity-agent` with `gemini-4-neon` for all Holon coding tasks until tokens run out, then fall back along
+    `gemini-4-neon` $\rightarrow$ `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash`
+    (use bare model IDs without `-high` because `AntigravityRunner` passes `--effort ${HOLON_AGENT_EFFORT:-medium}`).
   - **Antigravity (`invoke_subagent` in AGY runtime) fallback ladder**: `Model: "inherit"` / `"pro"` $\rightarrow$
     `"flash"` $\rightarrow$ `"flash_lite"`.
   - **Cross-Runner Fallback**: If all model tiers on the active runner (`claude-agent` or `antigravity-agent`) share an

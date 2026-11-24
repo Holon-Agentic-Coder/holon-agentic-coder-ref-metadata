@@ -40,9 +40,9 @@ These apply to every task. Each links to the file that holds the full rule.
   [holon-flow.md](.agents/holon-flow.md).
 - **Never pass `--skip-review`** (to `holon flow` or any wrapper). No case needs it (maintainer, 2026-11-21); if Stage 4
   fails or stalls, halt and report instead of bypassing review. See [holon-flow.md](.agents/holon-flow.md).
-- **Default Holon coding model**: use `antigravity-agent` with `gemini-4-argon` for all Holon coding tasks until tokens
-  run out, then fall back to `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash` (maintainer, 2026-11-22). See
-  [holon-flow.md](.agents/holon-flow.md).
+- **Default Holon coding model**: use `antigravity-agent` with `gemini-4-neon` for all Holon coding tasks until tokens
+  run out, then fall back to `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash`
+  (maintainer, 2026-11-24). See [holon-flow.md](.agents/holon-flow.md).
 - **Never merge a PR that targets `main`**, enable auto-merge or use the merge queue; the human maintainer merges. Stop
   after consensus approval and calibration, and report. See [pr-merging.md](.agents/pr-merging.md).
 - **One worktree per agent**, named for the flow or bean; the `main` worktrees are off-limits (never edit, stage, commit
@@ -56,6 +56,11 @@ These apply to every task. Each links to the file that holds the full rule.
 - **Format before commit**: `npx prettier --write "**/*.md"` in the harness; only changed files in a target worktree.
 - **Subagents** follow [subagents.md](.agents/subagents.md) and the model tiers in
   [model-tiers.md](.agents/model-tiers.md); post-merge steps run through the `post-pr-merge` skill.
+- **Flow concurrency & merge backfill**: up to **4 concurrent `holon-flow` background subagents** may run at once on
+  hosted runtimes (local runtimes stay at 1). Once a target-repo PR merges and `post-pr-merge` completes, automatically
+  pick up and launch the next highest-priority ready bean (honouring `blocked_by`, solo-sweep rules, and disjoint touch
+  sets) to keep up to 4 flows running (maintainer, 2026-11-24). See [coordination.md](.agents/coordination.md) and
+  [pr-merging.md](.agents/pr-merging.md).
 
 ---
 

@@ -26,7 +26,9 @@ multi-hour containerised lifecycle, **the flow is executed inside a dedicated ba
    **MUST NOT execute the flow inline**. Instead, it delegates to a background `Holon Flow Subagent` (`invoke_subagent`
    with `TypeName: "self"`, `Role: "bean <id> - holon flow <slug>"` (named per
    [subagents.md, "Subagent names"](../../subagents.md#subagent-names)), `Model` = the lowest tier per
-   `.agents/model-tiers.md`) and immediately returns control to the user.
+   `.agents/model-tiers.md`) and immediately returns control to the user. Up to **4 concurrent `holon-flow` background
+   subagents** may run at once on hosted runtimes (each in its own `flow-<slug>` worktree; local runtimes stay at 1),
+   with automatic backfill of the next highest-priority ready bean once a PR merges per `post-pr-merge`.
 2. **Sole Change Path Invariant**: Every target codebase change (`holon-agentic-coder` or `holon-coherence`) MUST
    traverse the 5 containerised stages:
    - **Stage 1 (Intent)**: `I-{ts}-{slug}/_` branch created and logged to `holon-knowledge/ledger/intents.jsonl`.
@@ -51,11 +53,14 @@ multi-hour containerised lifecycle, **the flow is executed inside a dedicated ba
 5. **Wait Out a Named Reset, Then the Fallback Ladder (maintainer rule, 2026-11-11)**: If any stage or subagent
    encounters model credit exhaustion, session limits, rate limits, or HTTP 429 errors (`You've hit your session limit`,
    `insufficient_quota`, `RESOURCE_EXHAUSTED`), **do not stop or block**:
-   - **When the error names its reset time** (e.g. `resets 5:40pm (Australia/Melbourne)` — a daily or weekly window),
-     **wait until about one minute after that reset and resume automatically from the checkpoint on the same agent and
-     model**. `scripts/run_holon_flow.py` does this itself (`parse_limit_reset` / `wait_for_limit_reset`), logging it
-     before it sleeps; a hand-driven stage follows the same rule. Never report such a stop as terminal and never wait
-     for a human to type "continue".
+   - **When the error names its reset time** (e.g. `resets 5:40pm (Australia/Melbourne)` or a relative
+     `Resets in 51m58s` as Antigravity prints; a daily or weekly window), **wait until about one minute after that reset
+     and resume automatically from the checkpoint on the same agent and model**. `scripts/run_holon_flow.py` does this
+     itself (`parse_limit_reset` / `wait_for_limit_reset`), logging it before it sleeps; a hand-driven stage follows the
+     same rule. Never report such a stop as terminal and never wait for a human to type "continue".
+   - **A parent or subagent that receives a quota failure naming a reset schedules the resume at once** (`schedule` with
+     the reset plus one minute) in the same turn, before doing anything else; it never waits for the user to say
+     "continue" (maintainer, 2026-11-24).
    - **When no reset time is named** (true credit exhaustion), step down the fallback ladder and continue the flow from
      the current stage or checkpoint:
    - **Fable needs a longer stall window (2026-11-23)**: launch `run_holon_flow.py` with `HOLON_TURN_STALL_SECONDS=600`
@@ -63,8 +68,9 @@ multi-hour containerised lifecycle, **the flow is executed inside a dedicated ba
      exceeded") because Fable thinks longer than that before it streams.
    - **Claude (`claude-agent`)**: `claude-fable-5-2` $\rightarrow$ `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6`
      $\rightarrow$ `claude-haiku-4-5`.
-   - **Antigravity (`antigravity-agent`)**: `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$
-     `gemini-3.8-flash` (use `gemini-4-argon` for all Holon coding tasks until tokens run out).
+   - **Antigravity (`antigravity-agent`)**: `gemini-4-neon` $\rightarrow$ `gemini-4-argon` $\rightarrow$
+     `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash` (use `gemini-4-neon` for all Holon coding tasks until tokens
+     run out).
    - **Antigravity AGY Subagent Runtime**: `Model: "inherit"` / `"pro"` $\rightarrow$ `"flash"` $\rightarrow$
      `"flash_lite"`.
    - **No Cross-Runner Switch**: never switch `--agent` between `claude-agent` and `antigravity-agent` on your own. When
@@ -127,8 +133,8 @@ Inside the background subagent, perform pre-flight verification:
    worktree itself) that exists and is a clean git repository. Create it from `origin/main` first if it does not exist.
 5. **Determine Runner & Model**:
    - Default agent: `antigravity-agent` (or `claude-agent`)
-   - Default model: `gemini-4-argon` (fallback: `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash`, or
-     `claude-fable-5-2` / `claude-opus-5-5`)
+   - Default model: `gemini-4-neon` (fallback: `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$
+     `gemini-3.8-flash`, or `claude-fable-5-2` / `claude-opus-5-5`)
 
 ---
 
@@ -158,9 +164,11 @@ python3 .agents/skills/holon_flow/scripts/run_holon_flow.py <intent_path> \
 For `--agent claude-agent`, `scripts/run_holon_flow.py` builds the container credentials itself (`scripts/flow_env.py`):
 it reads the long-lived OAuth token from `CLAUDE_CODE_OAUTH_TOKEN` or `~/.holon/secrets/claude-oauth-token`, wraps it in
 `HOLON_AGENT_SETTINGS` with the echo padding, and sets `HOLON_TOKEN_REDUCE=0` and `PYTHONUNBUFFERED=1` for the flow
-process. The token is never printed. Nothing needs exporting by hand, and an already-set `HOLON_AGENT_SETTINGS` is left
-alone. When no credentials can be found the runner stops before dispatch with a message naming what is missing, instead
-of letting every Stage 4 reviewer exit with code 1 and no reason.
+process. It also switches on Claude Code's experimental code mode (`CLAUDE_CODE_EXPERIMENTAL_CODE_MODE=1`, in the flow
+process and in the settings `env` the containers read); export `CLAUDE_CODE_EXPERIMENTAL_CODE_MODE=0` before launching
+to switch it off. The token is never printed. Nothing needs exporting by hand, and an already-set `HOLON_AGENT_SETTINGS`
+is left alone. When no credentials can be found the runner stops before dispatch with a message naming what is missing,
+instead of letting every Stage 4 reviewer exit with code 1 and no reason.
 
 #### Monitoring Stage Progress
 
@@ -180,8 +188,9 @@ If `holon flow` exits with an error:
 
 1. **Quota / Credit / Session Limit Errors**: If the log contains `session limit`, `insufficient_quota`,
    `RESOURCE_EXHAUSTED`, or HTTP 429:
-   - Identify the next tier down on the fallback ladder (e.g. `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen`
-     $\rightarrow$ `gemini-3.8-flash`, or `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6`).
+   - Identify the next tier down on the fallback ladder (e.g. `gemini-4-neon` $\rightarrow$ `gemini-4-argon`
+     $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash`, or `claude-opus-5-5` $\rightarrow$
+     `claude-sonnet-4-6`).
    - Never switch `--agent` across runners without the maintainer's go-ahead; report the exhausted ladder instead.
    - Resume the flow using the saved checkpoint:
 

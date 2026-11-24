@@ -37,6 +37,7 @@ FALLBACK_LADDER_CLAUDE = [
 ]
 
 FALLBACK_LADDER_ANTIGRAVITY = [
+    "gemini-4-neon",
     "gemini-4-argon",
     "gemini-4-hydrogen",
     "gemini-3.8-flash",
@@ -358,16 +359,31 @@ def resolve_flow_worktree(target_worktree: Path, slug: str, dry_run: bool = Fals
     return flow_worktree
 
 
+def parse_relative_limit_reset(output: str):
+    """Return the datetime of a relative reset such as "Resets in 51m58s" or "resets in 1h 2m", or None."""
+    from datetime import datetime, timedelta
+
+    m = re.search(r"resets\s+in\s+(?:(\d+)\s*h)?\s*(?:(\d+)\s*m)?\s*(?:(\d+)\s*s)?", output, re.I)
+    if not m or not any(m.groups()):
+        return None
+    hours, minutes, seconds = (int(part or 0) for part in m.groups())
+    return datetime.now().astimezone() + timedelta(hours=hours, minutes=minutes, seconds=seconds)
+
+
 def parse_limit_reset(output: str):
     """Return the datetime of the usage-limit reset named in ``output`` (e.g. "resets 5:40pm (Australia/Melbourne)").
 
-    Returns None when no reset time is named. The next occurrence of that wall-clock time in the named timezone is
-    used (today if still ahead, otherwise tomorrow), so daily windows resolve exactly and a weekly reset that names a
-    time resolves to its next daily occurrence, which is always sooner than doing nothing.
+    Returns None when no reset time is named. A relative reset ("Resets in 51m58s", as Antigravity prints) is that far
+    from now. The next occurrence of a named wall-clock time in the named timezone is used (today if still ahead,
+    otherwise tomorrow), so daily windows resolve exactly and a weekly reset that names a time resolves to its next
+    daily occurrence, which is always sooner than doing nothing.
     """
     from datetime import datetime, timedelta
     from zoneinfo import ZoneInfo
 
+    relative = parse_relative_limit_reset(output)
+    if relative is not None:
+        return relative
     m = re.search(r"resets\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)(?:\s*\(([^)]+)\))?", output, re.I)
     if not m:
         return None
@@ -651,7 +667,7 @@ def main() -> None:
         "--model",
         type=str,
         default=FALLBACK_LADDER_ANTIGRAVITY[0],
-        help="Model tier for the agent runner (default: gemini-4-argon).",
+        help="Model tier for the agent runner (default: gemini-4-neon).",
     )
     parser.add_argument(
         "--from-stage",

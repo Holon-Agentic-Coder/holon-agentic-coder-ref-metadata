@@ -36,6 +36,24 @@ def test_a_pm_reset_with_minutes_keeps_them():
     assert (reset.hour, reset.minute) == (17, 40)
 
 
+@pytest.mark.parametrize(
+    ("text", "expected_seconds"),
+    [
+        ("RESOURCE_EXHAUSTED (code 429): Individual quota reached. Resets in 51m58s.", 51 * 60 + 58),
+        ("Quota reached. Resets in 1h 2m 3s", 3723),
+        ("limit hit, resets in 45s", 45),
+    ],
+)
+def test_a_relative_reset_is_that_far_from_now(text, expected_seconds):
+    reset = run_holon_flow.parse_limit_reset(text)
+    remaining = (reset - datetime.now(reset.tzinfo)).total_seconds()
+    assert expected_seconds - 5 <= remaining <= expected_seconds
+
+
+def test_resets_in_with_no_duration_is_not_a_reset():
+    assert run_holon_flow.parse_limit_reset("it resets in a while") is None
+
+
 def test_no_reset_time_returns_none():
     assert run_holon_flow.parse_limit_reset("insufficient_quota") is None
 
@@ -57,12 +75,17 @@ def test_an_exhausted_antigravity_ladder_never_switches_to_claude():
     assert run_holon_flow.resolve_next_model("antigravity-agent", last) is None
 
 
-def test_antigravity_ladder_starts_with_gemini_4_argon_then_hydrogen_then_flash():
+def test_antigravity_ladder_starts_with_gemini_4_neon_then_argon_hydrogen_flash():
     assert run_holon_flow.FALLBACK_LADDER_ANTIGRAVITY == [
+        "gemini-4-neon",
         "gemini-4-argon",
         "gemini-4-hydrogen",
         "gemini-3.8-flash",
     ]
+    assert run_holon_flow.resolve_next_model("antigravity-agent", "gemini-4-neon") == (
+        "antigravity-agent",
+        "gemini-4-argon",
+    )
     assert run_holon_flow.resolve_next_model("antigravity-agent", "gemini-4-argon") == (
         "antigravity-agent",
         "gemini-4-hydrogen",
@@ -77,6 +100,7 @@ def test_antigravity_ladder_starts_with_gemini_4_argon_then_hydrogen_then_flash(
 @pytest.mark.parametrize(
     ("suffixed_model", "expected_next"),
     [
+        ("gemini-4-neon-medium", ("antigravity-agent", "gemini-4-argon")),
         ("gemini-4-argon-medium", ("antigravity-agent", "gemini-4-hydrogen")),
         ("gemini-4-hydrogen-medium", ("antigravity-agent", "gemini-3.8-flash")),
         ("gemini-3.8-flash-medium", None),
@@ -98,7 +122,7 @@ def test_quota_error_patterns_match_gemini_and_usage_limit_messages(text):
     assert run_holon_flow.is_quota_error(text) is True
 
 
-def test_cli_default_model_is_gemini_4_argon(monkeypatch):
+def test_cli_default_model_is_gemini_4_neon(monkeypatch):
     captured = {}
 
     def fake_run_flow(**kwargs):
@@ -110,4 +134,4 @@ def test_cli_default_model_is_gemini_4_argon(monkeypatch):
     with pytest.raises(SystemExit) as exc_info:
         run_holon_flow.main()
     assert exc_info.value.code == 0
-    assert captured["model"] == "gemini-4-argon"
+    assert captured["model"] == "gemini-4-neon"
