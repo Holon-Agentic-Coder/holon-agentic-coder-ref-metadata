@@ -1,0 +1,147 @@
+---
+# holon-agentic-coder-ref-metadata-0405
+title: "Clean up unnecessary unit tests: the suite has outgrown the pipeline"
+status: in-progress
+type: task
+priority: high
+tags:
+  - tests
+  - ci
+  - performance
+  - holon-agentic-coder
+created_at: 2026-11-24T09:55:00Z
+updated_at: 2026-11-24T23:15:29Z
+---
+
+## Why
+
+Maintainer, 2026-11-24: "the tests are getting quiet long now. ubuntu unit test take 4m, workspace survival takes 7m,
+and macos unit test takes more than 8m. make a bean to clean up all unncessary unit tests".
+
+## Problem
+
+The unit suite of `apps/sandbox-executor` has grown faster than anything prunes it, and every flow waits for it at least
+twice.
+
+| Measure (2026-11-24)                 | Value                                                        |
+| :----------------------------------- | :----------------------------------------------------------- |
+| Test files                           | 243                                                          |
+| Lines of test code                   | about 71,800                                                 |
+| Test functions                       | 3,486 (6,470 collected cases with parametrisation)           |
+| `unit (ubuntu-latest)`               | 204 to 302 s today; about 120 s when the timing gate was set |
+| `unit (macos-latest)`                | 234 to 744 s today; 235 to 370 s when the gate was set       |
+| `Workspace survival (ubuntu-latest)` | 6.5 to 7 minutes                                             |
+| Largest files                        | `test_review_loop.py` 2,579 lines, `test_cli.py` 1,859,      |
+|                                      | `test_calibration.py` 1,780, `test_local_llm.py` 1,327       |
+
+The suite roughly doubled in run time since the gate's thresholds were written into `test-unit.yml`. The macOS job now
+sits at the 600 s ceiling and fails approved pull requests on runner variance (Bean 0404); two flows were stopped by it
+within an hour on 2026-11-24. Every flow adds tests (review findings and surviving mutants each add more) and nothing
+removes any.
+
+## Goal
+
+1. **Measure first.** From the JUnit reports of recent runs on `main`: time per test, per file and per fixture, on both
+   runners; list the slowest 50 tests and the files that carry most of the time. No test is removed on a guess.
+2. **Remove what is unnecessary**, each removal with its reason:
+   - duplicates: tests that assert the same behaviour through the same path (often one per review finding);
+   - tests that only restate the implementation (mock in, same mock out) and cannot fail for a real defect;
+   - parametrised cases that add no new branch;
+   - tests for code that has been deleted or is unreachable;
+   - tests superseded by a broader test that covers the same lines and mutants.
+3. **Make the necessary ones cheap**: real sleeps, real subprocesses, real git repositories and real timeouts in unit
+   tests replaced by fakes or injected clocks (Bean 0167 is one instance); expensive fixtures shared at module or
+   session scope where it is safe; anything that needs Docker, the network or a real repository moved to the integration
+   or stress suite.
+4. **Keep the safety net**: line and branch coverage do not fall, and the mutation score of the touched modules does not
+   fall. A removed test that was the only killer of a mutant is kept or replaced.
+5. **Workspace survival**: say why it takes 7 minutes and whether it must run on every push or only when the paths it
+   protects change.
+6. **Stop the regrowth**: a per-test time limit in the unit suite and a note in the review rules that a finding is
+   answered by strengthening an existing test where one exists, not always by adding one.
+
+## Targets (to confirm after the measurement)
+
+- `unit (ubuntu-latest)` back to about 2 minutes, `unit (macos-latest)` under 5 minutes on a slow runner.
+- The suite's size reported in the pull request so growth is visible.
+
+## Notes
+
+- Large: plan it as a split flow, one package or test area per sub-intent (review loop, CLI, calibration, local LLM,
+  flow stages), each with its own before and after timings. Touch sets are test files, so they rarely overlap feature
+  work but do overlap each other; run the sub-intents in sequence.
+- Module budgets apply to test code as they do to source; do not change the budget file.
+- Related: Bean 0404 (timing ceiling fails on runner variance; this bean removes the cause, 0404 the symptom), Bean 0400
+  (shorten the pipeline), Bean 0168 (unit suite slower on macOS), Bean 0167 (real 50 ms reader join in a test), Bean
+  0386 (tests that fail together in one serial run), Bean 0403 (no full CI for bookkeeping-only commits).
+
+## Measurement (2026-11-24, main at bb71d60c)
+
+- Command: `uv run pytest -n auto --dist worksteal -m "not integration_test and not stress" --durations=120`, run
+  locally on an 18-core macOS machine in a throwaway worktree (since removed).
+- Result: 6,635 passed, 3 skipped, 78 s wall, 1,193 s summed test time.
+- System time 557 s against 394 s user time, so most of the cost is real subprocesses (git repositories, process
+  spawns).
+- Concentration:
+  - 25 cases of 5 s or more carry 21 percent of the time;
+  - 130 of 2 s or more carry 45 percent;
+  - 330 of 1 s or more carry 68 percent;
+  - 565 of 0.5 s or more (8.5 percent of cases) carry 82 percent.
+
+Slowest files:
+
+| File                                                  | Summed seconds | Cases |
+| :---------------------------------------------------- | -------------: | ----: |
+| `tests/flow/stages/test_decomposition.py`             |           94.7 |    79 |
+| `tests/test_calibrate_rerun.py`                       |           77.6 |    42 |
+| `tests/test_approval_fingerprint.py`                  |           68.2 |    13 |
+| `tests/flow/test_dispatch.py`                         |           64.8 |    43 |
+| `tests/test_url_credential_redaction.py`              |           57.2 |    77 |
+| `tests/flow/github/test_merge.py`                     |           38.5 |    58 |
+| `tests/flow/stages/test_plan_decision.py`             |           32.8 |    19 |
+| `tests/flow/stages/test_plan_resume_adopts_branch.py` |           29.4 |    16 |
+| `tests/flow/stages/test_children.py`                  |           29.1 |    26 |
+| `tests/test_resume_tip.py`                            |           23.9 |    13 |
+| `tests/test_executor_run_salvage.py`                  |           21.3 |    13 |
+| `tests/flow/review/test_conflict_gate.py`             |           21.2 |    29 |
+| `tests/flow/test_git_refs.py`                         |           20.3 |    10 |
+| `tests/test_turn_supervisor.py`                       |           19.9 |    47 |
+| `tests/test_calibration_diff_property.py`             |           19.8 |    12 |
+| `tests/flow/stages/test_integration.py`               |           19.6 |     5 |
+
+Slowest single cases:
+
+- Two property tests in `test_approval_fingerprint.py` take 32.8 s and 28.8 s.
+- `test_calibration_diff_property.py::test_counted_files_are_exactly_the_pr_files` takes 15.2 s.
+- The `doctor-*` parametrised cases of `test_url_credential_redaction.py` take 6 to 10.5 s each.
+
+Finding: the pipeline runs the unit selection four times per run: unit on ubuntu, unit on macOS, and twice more inside
+the "Workspace survival" job (`test-stress.yml`: once from the executor's workspace path, once more by the hermetic
+canary guard under a simulated container HOME). That job runs pytest without `-n auto`, which is why it takes 7 minutes.
+A later sub-flow should make that job parallel or run it only when the paths it protects change; it must wait for Bean
+0403's flow because both edit `test-stress.yml`.
+
+## Progress
+
+- 2026-11-24: first flow `unit-suite-slowest-tests-speedup` launched (`claude-agent` / `claude-fable-5-2`), intent
+  `todo/intent-0405-unit-suite-slowest-tests-speedup.json`.
+- Scope: the 13 slowest test files not touched by an open pull request, plus three conftest files.
+- Target: at least 60 percent less summed time for those files, with no production code change and no loss of coverage.
+- Left out for now because open pull requests or running flows touch them: `test_git_refs.py`, `test_conflict_gate.py`,
+  `test_calibration_diff_property.py`.
+
+- 2026-11-25 (post-merge of PR #275, merged as `acbf790e`): first slice delivered. Scope: the 13 slowest files plus
+  three conftest files; no production code change. Six tests removed as duplicates of a test that proves the same, the
+  rest made cheap (shared repository fixtures, fakes for real subprocesses and sleeps). Measured with the same command
+  on the same machine, median of four alternating runs: summed time of the 13 in-scope files 323.3 s to 117.6 s, a fall
+  of 63.6 percent (62.0 percent counting the three test files the plan added). Target of 60 percent met. The 55.5
+  percent figure in an earlier audit is the first measurement of Step 8 (235.0 s to 104.5 s), which missed the threshold
+  and is superseded. Coverage 93.863 to 93.873 percent; mutants killed before are killed after.
+- Still open on this bean (not closed):
+  - Workspace survival job (`test-stress.yml`) still runs the unit selection twice without `-n auto` (about 7 minutes).
+    Make it parallel or run it only when the paths it protects change. Waits for Bean 0403, which also edits that file.
+  - Regrowth rules (goal 6): no per-test time limit in the unit suite and no review-rule note yet.
+  - Test areas left out: `tests/flow/test_git_refs.py` (20.3 s), `tests/flow/review/test_conflict_gate.py` (21.2 s) and
+    `tests/test_calibration_diff_property.py` (19.8 s), deferred because open pull requests or running flows touch them.
+    About 870 s of the 1,193 s summed time sits outside the 13 files.
+  - Targets for the pipeline (ubuntu unit about 2 minutes, macOS unit under 5 minutes) not yet re-measured on `main`.
