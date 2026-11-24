@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-24 07:19:08 UTC
+**Last Updated:** 2026-11-24 07:39:24 UTC
 
 ## Executive Summary
 
@@ -19,10 +19,10 @@ longer blocked by `0333`. Concurrent flows on overlapping files forced repeated 
 review-loop passes, about 10M+ tokens), so flows that touch the same files still run one after another; only flows with
 disjoint touch sets run together.
 
-- **Total Tracked Beans**: 391 (excluding template)
-- **Completed**: 341 (87.2%)
+- **Total Tracked Beans**: 392 (excluding template)
+- **Completed**: 341 (87.0%)
 - **Scrapped / Superseded**: 9 (2.3%)
-- **Active**: 41 (10.5%), of which 10 are in progress, 30 are todo and 1 are draft
+- **Active**: 42 (10.7%), of which 10 are in progress, 31 are todo and 1 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1041,6 +1041,7 @@ logged beans `0389` and `0390` added to triage.
 | **P3**   | todo        | Medium |             M             | 0141   | "Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe"                                           | vmlx / Performance               | Ready (host-level vMLX tuning on Mac; not a target-repo change). Pairs with `0142`.                                                                                                                                                                                                                                                                                                                                           |
 | **P3**   | todo        |  Low   |            XS             | 0231   | "Exhausted-budget error string interpolates raw count while payload reports clamped 0"                          | Flow Engine / Cosmetic           | Queued behind 0376 (overlaps `flow/review/loop.py`). Cosmetic; bundle with a review-loop flow.                                                                                                                                                                                                                                                                                                                                |
 | **P3**   | todo        |  Low   |            XS             | 0269   | "Deferred nits from the holon-agentic-coder PR 158 review loop"                                                 | Review Loop / Housekeeping       | Wait for 0376 (overlaps `docs/git_flow.md`) and 0197 (`calibration.py`). Item 2 obsolete; remaining: fold `parse_actual_metrics` exit-code logic onto `record_exit_code` and fix `docs/git_flow.md` checkpoint wording.                                                                                                                                                                                                       |
+| **P1**   | todo        | Medium |             M             | 0392   | Stage 4 resolver runs repo-wide Prettier and mutates untouched historical plans/ files                          | General                          |                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |             M             | 0391   | Stage 3 stops after an overlap wait when merging main into the plan branch conflicts only in the ledgers        | Ledger / Observability           |                                                                                                                                                                                                                                                                                                                                                                                                                               |
 
 ---
