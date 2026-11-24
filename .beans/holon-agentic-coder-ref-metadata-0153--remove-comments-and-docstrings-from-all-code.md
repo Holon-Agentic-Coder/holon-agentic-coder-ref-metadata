@@ -245,3 +245,8 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > calibrated) completed all 5 stages before transient host DNS interruption (`21:21Z`); needs ledger merge after `#283`
 > merges. Backfilled slot #2 with `git-flow-self-doc` (`todo/intent-0153-git-flow-self-doc.json`) via
 > `antigravity-agent` / `gemini-4-neon`.
+
+> 2026-11-24: `Holon-Agentic-Coder/holon-agentic-coder#293` (`review-meta-self-doc`, head `995bd4c2`, `11/11` CI checks
+> green, calibrated EV `35.20` -> `44.47`) verified ready to merge (`#283` also settled ledgers `91b23ee9`, `MERGEABLE`
+> / `CLEAN`, `11/11` CI `SUCCESS`). Backfilled slot #4 with `local-llm-self-doc`
+> (`todo/intent-0153-local-llm-self-doc.json`) via `antigravity-agent` / `gemini-4-neon`.
