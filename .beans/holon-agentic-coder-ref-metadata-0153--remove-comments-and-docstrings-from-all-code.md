@@ -205,3 +205,6 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > `11/11` CI checks green, Stage 4 3/3 approved, Stage 5 calibrated EV `40.61` -> `51.94`) both verified ready to merge.
 > Backfilled slot #4 with `core-helpers-self-doc` (`todo/intent-0153-core-helpers-self-doc.json`) via
 > `antigravity-agent` / `gemini-4-neon`.
+
+> 2026-11-24: Backfilled slot #1 (vacated by `0376` PR #283) with `git-utils-self-doc`
+> (`todo/intent-0153-git-utils-self-doc.json`) via `antigravity-agent` / `gemini-4-neon`.

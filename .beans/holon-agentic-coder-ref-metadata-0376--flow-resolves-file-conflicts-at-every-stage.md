@@ -11,7 +11,7 @@ tags:
   - cost
   - holon-agentic-coder
 created_at: 2026-11-23T08:40:00Z
-updated_at: 2026-11-23T08:40:00Z
+updated_at: 2026-11-24T12:58:00Z
 ---
 
 ## Problem
@@ -133,3 +133,51 @@ only when the resolver cannot produce a passing tree, and then it says exactly w
 - Beans 0374 and 0375 (interrupted-run defects) share the resume path.
 - Large: likely a split flow (shared routine and mechanical classes; resolver role; per-stage wiring and scoped
   re-review). Once it lands, the harness `resolve-conflict` skill is needed only for hand-authored harness branches.
+
+## Progress note (2026-11-23, flow run)
+
+- Run: `holon flow` via run_holon_flow.py, intent `resolve-conflicts-in-flow`, claude-agent / claude-opus-5-5, split
+  into 5 sequential sub-intents. Log: todo/flow-resolve-conflicts-in-flow.log.
+- Sub-intent 1 `add-the-shared-sync-with-target`: PR #259, merged by the maintainer (2026-11-23T10:56Z).
+- Sub-intent 2 `add-a-containerised-conflict`: PR #262, merged by the maintainer (2026-11-23T12:14Z).
+- Sub-intent 3 `wire-sync-with-target-into-flow`: failed at Stage 2 (plan). The planner container raised
+  ConflictResolutionError: unresolvable code conflict in apps/sandbox-executor/src/sandbox_executor/flow/**init**.py
+  (also ledger conflicts in executions, intents and plans jsonl). Main moved with PR #260 (merged 2026-11-23T12:26Z) and
+  PR #261. The flow worktree is clean with no merge in progress. Sub-intents 4 and 5 not run.
+- Terminal state: BLOCKED. Needs a higher-tier resolve-conflict subagent to merge origin/main into the sub-intent 3
+  branch (flow/**init**.py needs a decision; ledgers are mechanical), then a rerun. Rerun uses --model claude-fable-5-2
+  and HOLON_TURN_STALL_SECONDS=600.
+- 2026-11-24: Sub-intent 3 (PR #265) merged into parent plan branch
+  `I-1795425253-resolve-conflicts-in-flow/P-1795425271-CLA-CO5.5/_` (`1b8894c0`); unblocks sub-intents 4 and 5 (queued
+  for the next free flow slot).
+
+## Measured (self-improvement audit 2026-11-24)
+
+The order matters as well as the resolution: in the period 2026-11-21 to 2026-11-24, 4 review iterations ended with all
+three reviewers APPROVED (0/0/0) and still blocked, because the pull request was `DIRTY`; the conflict was found only
+after the reviewers had run, and each was followed by a merge and another full iteration (median 6.7 minutes). Design
+point 1a (probe before the reviewers are dispatched) would remove them. Also wanted: when the container's ensemble
+verdict differs from the reviewers' verdicts, the log names the reason (today it says only "reviewer container reported
+ensemble verdict CHANGES_REQUESTED"). Merge-resolution defects reviewers had to catch: 4 findings (a dependency listed
+twice after the merge, a 162-character line left by a resolution); the in-flow resolver should run the lint gate of Bean
+0408 on its result.
+
+## Audit evidence, 2026-11-24T12:58Z (self-improvement audit, fifth merge)
+
+- The review loop already probes mergeability at the start of every iteration (`flow/review/loop.py`, step "1.
+  Mergeability inspection", `is_dirty`) but dispatches the reviewer ensemble anyway; a conflict ends the stage only
+  after the reviewers return. PR #273 (sub-intent 4 of this bean, `sync_iteration_mergeability` in
+  `flow/review/sync_points.py`) replaces exactly this step.
+- Cost in this period: PR #272 went `DIRTY` when PR #270 merged (11:31:45Z) and iteration 2 still ran its 26.1 minute
+  ensemble (11:47:34Z to 12:13:42Z) before the `CI SIGNAL SUPPRESSED` halt; it went `DIRTY` again with PR #274
+  (12:45:46Z), and PR #275 (`DIRTY` from the same merge) started iteration 2 at 12:53:13Z on a conflicting head. In each
+  case the conflict was in the three ledger files only, and an agent merged `origin/main` by hand between the halt and
+  the resume (`bc4f11ac` at 12:14:07Z on PR #272).
+- Ranking: PR #273 is the hub of the current waits. Its merge unblocks Bean 0399 (refused since 11:42:16Z on #273) and
+  the flows of Beans 0197 and 0216 (blocked since 04:31Z and 04:27Z), and it removes the DIRTY-review churn above.
+
+- 2026-11-24: All 5 sub-intents (`#259`, `#262`, `#265`, `#273`, `#279`) merged into parent plan branch
+  `I-1795425253-resolve-conflicts-in-flow/P-1795425271-CLA-CO5.5/_`, and parent
+  [PR #283](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/283) (head `077c9bd2`) completed Stage 4
+  consensus review (`3/3` APPROVED at iteration 5) and Stage 5 calibration with `11/11` CI checks `SUCCESS`, `MERGEABLE`
+  / `CLEAN`. Ready for maintainer merge.
