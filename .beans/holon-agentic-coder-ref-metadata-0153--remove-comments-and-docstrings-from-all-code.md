@@ -148,3 +148,12 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > 2026-11-24: launched `holon-coherence` scripts and CI/hygiene/Makefile tests self-documenting slice
 > (`coherence-scripts-self-doc`, intent `todo/intent-0153-coherence-scripts-self-doc.json`) via `antigravity-agent` /
 > `gemini-4-neon`.
+
+> 2026-11-24: launched `holon-coherence` CLI/coherence/host-local/hybrid-cache tests self-documenting slice
+> (`coherence-cli-tests-self-doc`, intent `todo/intent-0153-coherence-cli-tests-self-doc.json`) via `antigravity-agent`
+> / `gemini-4-neon`.
+
+> 2026-11-24: `Holon-Agentic-Coder/holon-coherence#52` (`coherence-scripts-self-doc`, commit
+> `c38beea5ac762922024e9ca1c59758d40576735f`) merged at `2026-11-24T10:56:55Z` (7/7 CI checks green, EV `8.56` ->
+> `8.87`), covering the scripts self-doc slice. `apps/holon-coherence/main` fast-forwarded, `holon-coherence`
+> rebuilt/reinstalled, and `flow-coherence-scripts-self-doc` worktree/branches pruned.
