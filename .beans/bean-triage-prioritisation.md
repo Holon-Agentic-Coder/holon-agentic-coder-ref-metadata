@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-24 11:12:32 UTC
+**Last Updated:** 2026-11-24 11:31:06 UTC
 
 ## Executive Summary
 
@@ -20,9 +20,9 @@ review-loop passes, about 10M+ tokens), so flows that touch the same files still
 disjoint touch sets run together.
 
 - **Total Tracked Beans**: 418 (excluding template)
-- **Completed**: 344 (82.3%)
+- **Completed**: 345 (82.5%)
 - **Scrapped / Superseded**: 9 (2.2%)
-- **Active**: 65 (15.6%), of which 11 are in progress, 52 are todo and 2 are draft
+- **Active**: 64 (15.3%), of which 10 are in progress, 52 are todo and 2 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1057,7 +1057,6 @@ logged beans `0389` and `0390` added to triage.
 | **P2**   | todo        | Medium |             M             | 0198   | "Agent runner registry: one `RunnerSpec` module per agent"                                                         | Runners / Refactor               | Unblocked (0185 completed). Sequence with 0270 and 0350 on `agent_defaults.py` / `agent_runner.py`; 0382 goes first.                                                                                                                                                                                                                                                                                                          |
 | **P2**   | in-progress | Medium |             M             | 0197   | "Split `calibration.py` into a package; decompose metrics parsing and report generation"                           | Calibration / Refactor           | Unblocked (0187 scrapped). Sequence after 0146 (done) and 0162. `calibration.py` is 1,637 lines; no live flow touches it (0378 touches `calibrate_rerun.py`, another module).                                                                                                                                                                                                                                                 |
 | **P2**   | todo        | Medium |             M             | 0352   | "Push GitHub PR events through `gh webhook forward`, with cheap polling as the fallback"                           | GitHub / Efficiency              | Queued behind 0376 (review-loop CI and conflict polling, `run_holon_flow.py`, skills). Needs `cli/gh-webhook` and `admin:repo_hook` scope on maintainer `gh`; stopgap until `gh event listen` is enabled.                                                                                                                                                                                                                     |
-| **P2**   | in-progress |  High  |             L             | 0226   | "End-to-end test for the holon flow commands with full teardown"                                                   | Testing / E2E                    | Ready (operator-run local sub-1B model via `local_llm`, never opens a PR, excluded from CI). Reconcile test mode with `0357` (removes `--skip-review`).                                                                                                                                                                                                                                                                       |
 | **P2**   | todo        | Medium |             M             | 0181   | "Use the `/_` leaf only when referencing a git branch, never on ids"                                               | Holon Flow / Ledger              | Queued behind 0376 (overlaps `docs/git_flow.md` and `docs/ledger_schema.md`). `entrypoint/executor/run.py`, `calibration.py`, `cli/commands/` and `entrypoint/` still strip or re-add `/_`; sequence with 0197.                                                                                                                                                                                                               |
 | **P2**   | todo        | Medium |             L             | 0223   | "Audit CLI flags vs `HOLON_*` env vars: four-kind decision rule, flag>env precedence"                              | CLI / Config                     | Wait for `0265` (`cli/` split) and `0357` (drops `--skip-review`). Exhaustive inventory of every `add_argument` and `os.getenv`, unified resolution helper, logged source, auto-derived `--help`.                                                                                                                                                                                                                             |
 | **P2**   | in-progress | Medium |             M             | 0216   | "Holon flow references and drives GitHub Issues (assign on intent, close on merge)"                                | Holon Flow / Issue Tracking      | Ready now (0333 completed, PR #258). Adds optional `work_item` to the intent schema, marks the issue in progress and adds `Closes #N` to the PR body; sequence with 0191's `flow/github/` layout.                                                                                                                                                                                                                             |

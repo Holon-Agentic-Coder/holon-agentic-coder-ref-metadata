@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0226
 title: "End-to-end test for the holon flow commands, with full teardown of worktrees and local/remote branches"
-status: todo
+status: completed
 type: feature
 priority: normal
 tags:
@@ -10,8 +10,15 @@ tags:
   - holon-flow
   - holon-agentic-coder
 created_at: 2026-11-04T04:30:00Z
-updated_at: 2026-11-04T05:50:00Z
+updated_at: 2026-11-24T11:28:48Z
 ---
+
+## Resolution
+
+`Holon-Agentic-Coder/holon-agentic-coder#269` (`flow-e2e-test-teardown`, merge commit
+`407ad39ac6f03d0d171a205c06de11f8f0063191`, merged `2026-11-24T11:28:48Z`, 11/11 CI checks green, iteration 13 consensus
+approved, Stage 5 calibrated `plans/I-1795496321-flow-e2e-test-teardown/P-1795496340-ANA-G4A_calibration.md`) landed
+cleanly.
 
 ## Problem
 
@@ -87,3 +94,8 @@ The e2e handles that in three layers:
 - Related: 0150 (hermetic tests — the e2e is the deliberate opposite: real pushes, hence the teardown contract), 0224
   and 0225 (credential discovery this test must drive), 0182 (the harness wait helper usable for CI gating inside the
   test), AGENTS.md zero-synthetic-data rule (this is a functional test, not a benchmark; it measures nothing).
+
+## Progress
+
+- 2026-11-24: launched `holon-agentic-coder` flow (`flow-e2e-test-teardown`, intent
+  `todo/intent-0226-flow-e2e-test-teardown.json`) via `antigravity-agent` / `gemini-4-argon`.
