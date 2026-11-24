@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0265
 title: "Split `cli/__init__.py` into focused modules (move only), like the `flow/` package"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - concurrency
   - holon-agentic-coder
 created_at: 2026-11-09T10:30:00Z
-updated_at: 2026-11-22T22:55:00Z
+updated_at: 2026-11-24T12:22:00Z
 ---
 
 ## Problem
@@ -139,3 +139,6 @@ PR #230 merges (or defer the `docs/architecture.md` edit).
 Re-measured on `holon-agentic-coder` `main` (`7225685`): `cli/__init__.py` is 690 lines with 16 top-level definitions,
 down from 2,026 lines. PRs #241, #243, #244, #249 and #251 moved code out. The figures in Problem are historical; Scope
 applies to what remains.
+
+> 2026-11-24: launched `split-cli-init-modules` (intent `todo/intent-0265-split-cli-init-modules.json`) via
+> `antigravity-agent` / `gemini-4-neon`.
