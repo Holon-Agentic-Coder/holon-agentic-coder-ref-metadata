@@ -222,3 +222,8 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > `holon-agentic-coder#287` (waiting cleanly until `#287` merges). Filled active slot #3 in `holon-coherence` with
 > `coherence-final-self-doc` (`todo/intent-0153-coherence-final-self-doc.json`, covering the final 2 Python test files,
 > 3 YAML files, and repo-wide enforcement in `tests/test_repo_self_doc.py`) via `antigravity-agent` / `gemini-4-neon`.
+
+> 2026-11-24: `Holon-Agentic-Coder/holon-agentic-coder#289` (`core-helpers-self-doc`, head `6f14049c`, `11/11` CI checks
+> green, Stage 4 APPROVED at iter 3, Stage 5 calibrated EV `39.15` -> `49.09`) verified ready to merge. Backfilled slot
+> #4 with `executor-pkg-self-doc` (`todo/intent-0153-executor-pkg-self-doc.json`) via `antigravity-agent` /
+> `gemini-4-neon`.
