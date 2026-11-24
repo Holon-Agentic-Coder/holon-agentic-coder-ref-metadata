@@ -157,3 +157,7 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > `c38beea5ac762922024e9ca1c59758d40576735f`) merged at `2026-11-24T10:56:55Z` (7/7 CI checks green, EV `8.56` ->
 > `8.87`), covering the scripts self-doc slice. `apps/holon-coherence/main` fast-forwarded, `holon-coherence`
 > rebuilt/reinstalled, and `flow-coherence-scripts-self-doc` worktree/branches pruned.
+
+> 2026-11-24: launched `holon-coherence` mitmproxy addon and SSE tests self-documenting slice
+> (`coherence-addon-tests-self-doc`, intent `todo/intent-0153-coherence-addon-tests-self-doc.json`) via
+> `antigravity-agent` / `gemini-4-neon`.
