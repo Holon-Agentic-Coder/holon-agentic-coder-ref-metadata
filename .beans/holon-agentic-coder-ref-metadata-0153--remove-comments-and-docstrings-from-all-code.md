@@ -189,3 +189,8 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > 2026-11-24: launched `holon-agentic-coder` entrypoint execution-helper modules self-documenting slice
 > (`entrypoint-exec-self-doc`, intent `todo/intent-0153-entrypoint-exec-self-doc.json`) via `antigravity-agent` /
 > `gemini-4-neon`.
+
+> 2026-11-24: `Holon-Agentic-Coder/holon-agentic-coder#284` (`e2e-self-doc`, head `0e964ec2`, Stage 4 3/3 approved,
+> Stage 5 calibrated, 11/11 CI checks green) recovered after duplicate-run checkout hiccup and verified ready to merge.
+> Backfilled slot #4 with `entrypoint-helpers-self-doc` (`todo/intent-0153-entrypoint-helpers-self-doc.json`) via
+> `antigravity-agent` / `gemini-4-neon`.
