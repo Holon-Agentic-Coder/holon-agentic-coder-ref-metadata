@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-24 23:15:42 UTC
+**Last Updated:** 2026-11-24 23:47:56 UTC
 
 ## Executive Summary
 
@@ -16,10 +16,10 @@ the run. Concurrent flows on overlapping files forced repeated syncs and re-revi
 about 10M+ tokens), so flows that touch the same files still run one after another; only flows with disjoint touch sets
 run together.
 
-- **Total Tracked Beans**: 436 (excluding template)
-- **Completed**: 348 (79.8%)
+- **Total Tracked Beans**: 437 (excluding template)
+- **Completed**: 348 (79.6%)
 - **Scrapped / Superseded**: 10 (2.3%)
-- **Active**: 78 (17.9%), of which 14 are in progress, 62 are todo and 2 are draft
+- **Active**: 79 (18.1%), of which 14 are in progress, 63 are todo and 2 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1079,6 +1079,7 @@ logged beans `0389` and `0390` added to triage.
 | **P3**   | todo        | Medium |             M             | 0141   | "Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe"                                                | vmlx / Performance               | Ready (host-level vMLX tuning on Mac; not a target-repo change). Pairs with `0142`.                                                                                                                                                                                                                                                                                                                                           |
 | **P3**   | todo        |  Low   |            XS             | 0231   | "Exhausted-budget error string interpolates raw count while payload reports clamped 0"                               | Flow Engine / Cosmetic           | Queued behind 0376 (overlaps `flow/review/loop.py`). Cosmetic; bundle with a review-loop flow.                                                                                                                                                                                                                                                                                                                                |
 | **P3**   | todo        |  Low   |            XS             | 0269   | "Deferred nits from the holon-agentic-coder PR 158 review loop"                                                      | Review Loop / Housekeeping       | Wait for 0376 (overlaps `docs/git_flow.md`) and 0197 (`calibration.py`). Item 2 obsolete; remaining: fold `parse_actual_metrics` exit-code logic onto `record_exit_code` and fix `docs/git_flow.md` checkpoint wording.                                                                                                                                                                                                       |
+| **P1**   | todo        |  High  |             M             | 0437   | Stage 3 admission discovery stops the flow when gh pr diff exceeds 300 files                                         | Flow / Architecture              |                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |             M             | 0436   | Sort the three ledgers into chronological order once, and keep them sorted                                           | Ledger / Observability           |                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | **P1**   | in-progress | Medium |             M             | 0435   | dev-env improvements and cross-platform fixes                                                                        | General                          |                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | **P1**   | todo        | Medium |             M             | 0434   | The flow wrapper does not step down the model ladder on a monthly spend limit                                        | Skills / Tooling                 |                                                                                                                                                                                                                                                                                                                                                                                                                               |

@@ -13,7 +13,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:42:56Z
-updated_at: 2026-11-24T20:49:00Z
+updated_at: 2026-11-24T23:48:00Z
 ---
 
 ## Problem
@@ -250,3 +250,9 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > green, calibrated EV `35.20` -> `44.47`) verified ready to merge (`#283` also settled ledgers `91b23ee9`, `MERGEABLE`
 > / `CLEAN`, `11/11` CI `SUCCESS`). Backfilled slot #4 with `local-llm-self-doc`
 > (`todo/intent-0153-local-llm-self-doc.json`) via `antigravity-agent` / `gemini-4-neon`.
+
+> 2026-11-24: `Holon-Agentic-Coder/holon-agentic-coder#276` (`launcher-proxy-self-doc`, merge commit `e1d1ae37`, merged
+> `2026-11-24T23:43:09Z`) merged into `main`. `apps/holon-agentic-coder/main` fast-forwarded, Docker images and
+> `holon`/`holon-coherence` CLIs rebuilt and reinstalled via `install_holon.py`, and `flow-launcher-proxy-self-doc`
+> worktree plus `I-1795524475-launcher-proxy-self-doc/*`, `I-1795524794-launcher-proxy-self-doc/*`, and
+> `flow-launcher-proxy-self-doc` branches pruned.
