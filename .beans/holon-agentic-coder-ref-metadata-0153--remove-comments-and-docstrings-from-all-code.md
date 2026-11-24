@@ -130,3 +130,10 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > 2026-11-24: `Holon-Agentic-Coder/holon-coherence#48` (`coherence-providers-self-doc`, parsers/ + providers/ slice)
 > merged at `981a88a4` (3/3 approved, 7/7 CI green, Stage 5 calibrated), `apps/holon-coherence/main` was fast-forwarded,
 > `holon-coherence` was rebuilt/reinstalled, and `flow-coherence-providers-self-doc` was pruned.
+
+> 2026-11-24: launched `holon-coherence` commands self-documenting slice (`coherence-commands-self-doc`, intent
+> `todo/intent-0153-coherence-commands-self-doc.json`) via `antigravity-agent` / `gemini-4-argon`.
+
+> 2026-11-24: `Holon-Agentic-Coder/holon-coherence#50` (`coherence-proxy-self-doc`, `proxy/` + `tests/proxy/` slice)
+> merged at `4469abc9` (7/7 CI green, Stage 5 calibrated), `apps/holon-coherence/main` fast-forwarded, `holon-coherence`
+> rebuilt/reinstalled, and `flow-coherence-proxy-self-doc` pruned.

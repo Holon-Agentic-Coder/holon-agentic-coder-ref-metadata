@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-24 09:58:12 UTC
+**Last Updated:** 2026-11-24 10:07:19 UTC
 
 ## Executive Summary
 
@@ -19,10 +19,10 @@ longer blocked by `0333`. Concurrent flows on overlapping files forced repeated 
 review-loop passes, about 10M+ tokens), so flows that touch the same files still run one after another; only flows with
 disjoint touch sets run together.
 
-- **Total Tracked Beans**: 405 (excluding template)
-- **Completed**: 342 (84.4%)
+- **Total Tracked Beans**: 406 (excluding template)
+- **Completed**: 343 (84.5%)
 - **Scrapped / Superseded**: 9 (2.2%)
-- **Active**: 54 (13.3%), of which 10 are in progress, 42 are todo and 2 are draft
+- **Active**: 54 (13.3%), of which 11 are in progress, 41 are todo and 2 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1040,7 +1040,7 @@ logged beans `0389` and `0390` added to triage.
 | **P3**   | todo        | Medium |             M             | 0141   | "Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe"                                           | vmlx / Performance               | Ready (host-level vMLX tuning on Mac; not a target-repo change). Pairs with `0142`.                                                                                                                                                                                                                                                                                                                                           |
 | **P3**   | todo        |  Low   |            XS             | 0231   | "Exhausted-budget error string interpolates raw count while payload reports clamped 0"                          | Flow Engine / Cosmetic           | Queued behind 0376 (overlaps `flow/review/loop.py`). Cosmetic; bundle with a review-loop flow.                                                                                                                                                                                                                                                                                                                                |
 | **P3**   | todo        |  Low   |            XS             | 0269   | "Deferred nits from the holon-agentic-coder PR 158 review loop"                                                 | Review Loop / Housekeeping       | Wait for 0376 (overlaps `docs/git_flow.md`) and 0197 (`calibration.py`). Item 2 obsolete; remaining: fold `parse_actual_metrics` exit-code logic onto `record_exit_code` and fix `docs/git_flow.md` checkpoint wording.                                                                                                                                                                                                       |
-| **P1**   | todo        | Medium |             M             | 0405   | Clean up unnecessary unit tests: the suite has outgrown the pipeline                                            | General                          |                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| **P1**   | in-progress | Medium |             M             | 0405   | Clean up unnecessary unit tests: the suite has outgrown the pipeline                                            | General                          |                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | **P1**   | todo        |  High  |             M             | 0404   | The 600 s timing ceiling on the macOS unit job fails pull requests on runner variance                           | Ledger / Observability           |                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | **P1**   | in-progress |  High  |             M             | 0403   | No full CI run for commits that only touch bookkeeping files                                                    | Ledger / Observability           |                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | **P1**   | todo        | Medium |             M             | 0402   | A post-merge image rebuild does not disturb flows that are running or starting                                  | Build / DevEx                    |                                                                                                                                                                                                                                                                                                                                                                                                                               |
