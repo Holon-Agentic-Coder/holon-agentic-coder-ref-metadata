@@ -232,3 +232,7 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > green, Stage 4 APPROVED, Stage 5 calibrated EV `8.29` -> `8.84`) verified ready to merge (completing all Python and
 > workflow/action YAML self-doc slices plus repo-wide enforcement in `holon-coherence`). Backfilled slot #3 with
 > `config-env-self-doc` (`todo/intent-0153-config-env-self-doc.json`) via `antigravity-agent` / `gemini-4-neon`.
+
+> 2026-11-24: `Holon-Agentic-Coder/holon-agentic-coder#291` (`executor-pkg-self-doc`, head `5b386da1`, `11/11` CI checks
+> green, Stage 4 APPROVED, Stage 5 calibrated EV `35.67` -> `48.36`) verified ready to merge. Backfilled slot #4 with
+> `review-meta-self-doc` (`todo/intent-0153-review-meta-self-doc.json`) via `antigravity-agent` / `gemini-4-neon`.
