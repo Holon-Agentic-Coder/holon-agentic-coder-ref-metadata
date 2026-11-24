@@ -1,0 +1,56 @@
+---
+# holon-agentic-coder-ref-metadata-0427
+title: "Strip gh CLI stderr hints from pr_url so consensus review links are not corrupted"
+status: todo
+type: bug
+priority: high
+tags:
+  - flow
+  - stage-4
+  - github
+  - holon-agentic-coder
+created_at: 2026-11-24T13:00:00Z
+updated_at: 2026-11-24T13:00:00Z
+---
+
+## Why
+
+Consensus review comments posted on `holon-agentic-coder#273`, `holon-agentic-coder#274`, and `holon-coherence#55`
+contain broken Markdown links polluted with multi-line `gh event listen` CLI hint text:
+
+```text
+Reviewed [preflight-retry](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/274
+
+hint: if you need to wait for this pull request to be reviewed, merged, or closed before continuing, use this instead of polling:
+    gh event listen --resource https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/274 ...
+```
+
+## Evidence (`2026-11-24T11:05Z–12:47Z` audit)
+
+- `apps/sandbox-executor/src/sandbox_executor/flow/github/adapter_runner.py:46-48`: `GhResult.output` concatenates
+  `f"{self.stdout or ''}\n{self.stderr or ''}".strip()`.
+- `apps/sandbox-executor/src/sandbox_executor/flow/github/adapter.py:246`: `create_or_update_pr` returns
+  `"output": result.output` without a separate clean `pr_url` parsed from `stdout`.
+- `apps/sandbox-executor/src/sandbox_executor/flow/review/loop.py:722-724`:
+  `"pr_url": pr_res.get("pr_url") or (pr_res.get("output") if str(pr_res.get("output", "")).startswith("http") else None)`
+  matches whenever `stdout` begins with `https://...` and passes the entire `stdout + "\n" + stderr` string into
+  `build_pr_review_consensus_report`, corrupting `[slug](<pr_url>)` whenever `gh` emits a `hint:` on `stderr`.
+- `adapter_runner.py:51-53`: `gh_env` sets only `DOCKER_CLI_HINTS=false`, leaving `gh` hint environment flags unset.
+
+## Proposed change
+
+1. Parse a clean single-line `pr_url` (`re.search(r"https://\S+", result.stdout)`) in `GitHubAdapter.open_or_update` /
+   `create_or_update_pr` and return it explicitly as `pr_res["pr_url"]`.
+2. In `loop.py` and `review_report.py`, sanitize `pr_url` to a single HTTP(S) URL line (never accepting multi-line
+   `stderr` text) and add `GH_NO_UPDATE_NOTIFIER=1` / `GH_PROMPT_DISABLED=1` to `gh_env`.
+3. Add a unit test in `tests/flow/github/` and `tests/test_review_loop.py` simulating `gh pr create` returning a URL on
+   `stdout` plus a `hint:` block on `stderr`.
+
+## Expected gain
+
+Clean, clickable PR links in every posted consensus review across `holon-agentic-coder` and `holon-coherence`, with no
+`gh` wrapper noise leaked into GitHub PR threads.
+
+## Cost
+
+Small target-repo change through the Holon flow (`adapter_runner.py`, `adapter.py`, `pr.py`, `review/loop.py`).

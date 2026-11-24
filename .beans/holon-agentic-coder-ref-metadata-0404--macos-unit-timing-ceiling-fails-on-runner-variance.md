@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0404
 title: "The 600 s timing ceiling on the macOS unit job fails pull requests on runner variance"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - flake
   - holon-agentic-coder
 created_at: 2026-11-24T09:35:00Z
-updated_at: 2026-11-24T11:05:00Z
+updated_at: 2026-11-24T13:00:00Z
 ---
 
 ## Problem
@@ -43,6 +43,8 @@ approval in Stage 5 and stopped the flow of Bean 0225; the engine's one automati
 
 ## Notes
 
+- Overlap: Bean 0419 is the same defect (the timing gate failing a green job on a slow runner and withdrawing
+  consensus). This bean owns the fix; Bean 0419 is covered by the same flow.
 - Found on Bean 0225's flow, 2026-11-24. The flow subagent could not tell whether the pull request or the runner was
   slow; the table above shows it is the runner.
 - Related: Bean 0168 (unit suite runs 1.7x slower on macOS), Bean 0400 (shorten the CI pipeline), Bean 0163 (the timing
@@ -71,3 +73,18 @@ approval in Stage 5 and stopped the flow of Bean 0225; the engine's one automati
 - Scope note: any fix for `unit (macos-latest)`'s fixed `--ceiling 600` (judging JUnit test time instead of runner
   wall-clock, raising the ceiling, or retrying ceiling-only noise) should cover all `--ceiling 600` timing-gate jobs
   including `test-stress.yml` (`Workspace survival`).
+
+## Progress
+
+- 2026-11-24: flow `timing-gate-judges-test-time` launched (`claude-agent` / `claude-fable-5-2`), covering this bean and
+  Bean 0419 together. Approach taken, on the agent's recommendation after the maintainer asked for the highest-priority
+  bean to be picked up: the gate judges summed test time from the JUnit report instead of job wall-clock time and treats
+  a slowdown spread across the whole suite as runner variance; the 600 s ceiling value and the workflow file are
+  unchanged. Not in this flow: the engine retrying a timing-only failure before withdrawing an approval (it touches the
+  review and calibrate code that Beans 0376, 0407 and 0399 are changing).
+
+## Fourth occurrence — PR #273 `unit (macos-latest)` ceiling failure (2026-11-24T12:17:52Z)
+
+- `holon-agentic-coder#273` (`route-stage-4-and-stage-5`, Bean `0376` child 4), run `45390444554` on commit `8994dec5`:
+  `unit (macos-latest)` failed `CI Timing Gate (compare with main)` with `Job took 634 s, above the 600 s ceiling` while
+  all pytest cases passed (`test_child_halting_at_its_own_review_is_a_success_and_records_its_pr` `8.5 s` -> `13.7 s`).
