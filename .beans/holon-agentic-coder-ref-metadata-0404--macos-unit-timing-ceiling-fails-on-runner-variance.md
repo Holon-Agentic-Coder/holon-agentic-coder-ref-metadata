@@ -1,0 +1,73 @@
+---
+# holon-agentic-coder-ref-metadata-0404
+title: "The 600 s timing ceiling on the macOS unit job fails pull requests on runner variance"
+status: todo
+type: bug
+priority: high
+tags:
+  - ci
+  - timing-gate
+  - flake
+  - holon-agentic-coder
+created_at: 2026-11-24T09:35:00Z
+updated_at: 2026-11-24T11:05:00Z
+---
+
+## Problem
+
+`unit (macos-latest)` has an absolute ceiling of 600 s in the CI Timing Gate (`test-unit.yml`, `--ceiling 600`), and the
+`timing-regression-accepted` label does not lift it. The job's duration swings by a factor of two to three between runs
+of the same code, and its normal value sits just under the ceiling, so the gate fails pull requests at random:
+
+| Branch (2026-11-24, UTC)        | macOS unit job durations                |
+| :------------------------------ | :-------------------------------------- |
+| `main` (07:42)                  | 565 s                                   |
+| `claude-code-mode-default-on`   | 576 s, 588 s, 549 s                     |
+| `flow-e2e-test-teardown`        | 387 s, **744 s (failed)**, 555 s, 577 s |
+| `ledger-temp-worktree-cleanup`  | 451 s, 598 s, 250 s                     |
+| `claude-token-os-keychain-only` | 234 s, 257 s, **663 s (failed)**        |
+
+The last row is the same pull request (#271): 234 s and 257 s on two heads, then 663 s on a head that added only
+calibration commits. The ubuntu job stayed between 204 s and 302 s throughout. On #271 the failure withdrew a 3/3
+approval in Stage 5 and stopped the flow of Bean 0225; the engine's one automatic rerun failed the same way.
+
+## Goal
+
+- A slow runner does not fail a pull request: judge the gate on test time measured inside the job (the JUnit total)
+  rather than on wall-clock time that includes runner start-up and dependency install, or take the best of the rerun
+  attempts, or set the ceiling from the measured spread instead of a fixed 600 s.
+- Find why the macOS job is bimodal (about 250 s or about 570 s for the same code): runner hardware class, cache hit or
+  miss, or worker count.
+- The engine's timing-noise rerun (`_retry_timing_noise`) covers this case: it should retry a ceiling failure on a head
+  whose code did not change, more than once if needed, before withdrawing an approval.
+
+## Notes
+
+- Found on Bean 0225's flow, 2026-11-24. The flow subagent could not tell whether the pull request or the runner was
+  slow; the table above shows it is the runner.
+- Related: Bean 0168 (unit suite runs 1.7x slower on macOS), Bean 0400 (shorten the CI pipeline), Bean 0163 (the timing
+  gate, completed), Bean 0403 (no full CI for bookkeeping-only commits would have avoided this run entirely).
+
+## Second occurrence (2026-11-24T09:40Z, Bean 0387)
+
+- Pull request #270 (`ledger-temp-worktree-cleanup`): 3/3 approval, then Stage 5 failed with "CI is red on final head
+  6c7be9a after one automatic rerun of the timing gate: unit (macos-latest) (CI Timing Gate, 11.1 min)". The same branch
+  ran that job in 250 s an hour earlier. Two flows were stopped by this gate within one hour, and Stage 5 ran 33 minutes
+  against its 10-minute budget waiting for it.
+- Separate defect seen in the same log: straight after "Not ready to merge. The approval covered 8605f54 and no longer
+  stands" the flow prints "[REVIEW APPROVED] Review Loop reached consensus approval; the PR is ready for the maintainer
+  to merge". The closing banner must follow the final state of the flow, not the Stage 4 result.
+
+- 2026-11-24: the flows of Beans 0403 and 0405 attack the cause (fewer full pipeline runs and a faster unit suite); this
+  bean still needs the maintainer's choice between judging test time and raising the ceiling.
+
+## Third occurrence — Workspace survival (`ubuntu-latest`) also hits `--ceiling 600` (2026-11-24T10:59Z, Bean 0226)
+
+- Pull request #269 (`flow-e2e-test-teardown`, Bean 0226): `Workspace survival (ubuntu-latest)` (`test-stress.yml`)
+  failed at `2026-11-24T10:59:27Z` with `Job took 609 s, above the 600 s ceiling` while reporting
+  `Per-test report: no test grew by more than 50 % and 5 s against its baseline median`.
+- Recent `Workspace survival (ubuntu-latest)` durations were already near saturation: `513 s` on #267 and `554 s` on
+  #268.
+- Scope note: any fix for `unit (macos-latest)`'s fixed `--ceiling 600` (judging JUnit test time instead of runner
+  wall-clock, raising the ceiling, or retrying ceiling-only noise) should cover all `--ceiling 600` timing-gate jobs
+  including `test-stress.yml` (`Workspace survival`).
