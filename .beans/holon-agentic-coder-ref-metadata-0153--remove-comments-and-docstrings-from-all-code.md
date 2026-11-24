@@ -3,7 +3,7 @@
 title:
   "Remove comments and docstrings from all code (Python, shell, JavaScript, build and CI files); make code
   self-documenting"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -13,7 +13,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:42:56Z
-updated_at: 2026-11-23T08:05:48Z
+updated_at: 2026-11-24T05:29:15Z
 ---
 
 ## Problem
@@ -104,4 +104,11 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
   on overlapping concurrent flows).
 
 > 2026-11-23: stale worktree deleted 2026-11-23; restart from current main. Backup:
-> todo/stale-worktree-backups/flow-remove-comments-sandbox-shell-2026-11-23.bundle
+> todo/stale-worktree-backups/flow-remove-comments-sandbox-shell-2026-11-23.bundle 2026-11-24: launched
+> `holon-coherence` build/shell self-documenting slice (`coherence-build-self-doc`, intent
+> `todo/intent-0153-coherence-build-self-doc.json`) via `antigravity-agent` / `gemini-4-argon`.
+
+> 2026-11-24: `holon-coherence` build/shell slice (`coherence-build-self-doc`) delivered via
+> [PR #45](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/45) and merged into `main` (`026b0a25`; 3/3
+> consensus approved, 7/7 CI green, Stage 5 calibrated EV predicted `8.32` / actual `8.33` / delta `+0.01`),
+> `holon-coherence` image & CLI rebuilt, and `flow-coherence-build-self-doc` worktree pruned.
