@@ -212,3 +212,8 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > 2026-11-24: `Holon-Agentic-Coder/holon-agentic-coder#288` (`git-utils-self-doc`, head `baa3cc1b`, `11/11` CI checks
 > green, Stage 4 APPROVED, Stage 5 calibrated EV `42.75` -> `57.21`) verified ready to merge. Backfilled slot #1 with
 > `knowledge-self-doc` (`todo/intent-0153-knowledge-self-doc.json`) via `antigravity-agent` / `gemini-4-neon`.
+
+> 2026-11-24: `Holon-Agentic-Coder/holon-agentic-coder#287` (`ledger-self-doc`, head `72d438b9`, calibrated, 9/11 CI
+> checks `SUCCESS`; re-triggered cancelled `build (macos-latest)` while `unit (macos-latest)` is queued). Backfilled
+> slot #3 with `infra-helpers-self-doc` (`todo/intent-0153-infra-helpers-self-doc.json`) via `antigravity-agent` /
+> `gemini-4-neon`.
