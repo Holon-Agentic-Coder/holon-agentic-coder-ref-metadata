@@ -13,7 +13,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:42:56Z
-updated_at: 2026-11-24T12:47:00Z
+updated_at: 2026-11-24T13:00:00Z
 ---
 
 ## Problem
@@ -166,3 +166,11 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > `ec0cd5a106ec3178c1d4f073c35fe8995399a712`, merged `2026-11-24T11:31:59Z`, 7/7 CI checks green, Stage 5 calibrated)
 > landed cleanly, covering the final Python files in `holon-coherence` for Bean `0153`. `apps/holon-coherence/main`
 > fast-forwarded, `holon-coherence` rebuilt/reinstalled, and `flow-coherence-addon-tests-self-doc` pruned.
+
+- 2026-11-24 (clean-up): stays open. `holon-coherence` Python source and tests, build files and scripts are delivered by
+  PRs #45 to #54 (Python files finished by #54 at 11:31Z). Remaining: every `holon-agentic-coder` slice (the slice
+  `launcher-proxy-self-doc` has a worktree), and any `holon-coherence` Makefile or workflow comments not covered by #45.
+
+> 2026-11-24: launched `holon-agentic-coder` launcher container/mount/dispatch self-documenting slice
+> (`launcher-containers-self-doc`, intent `todo/intent-0153-launcher-containers-self-doc.json`) via `antigravity-agent`
+> / `gemini-4-neon`.
