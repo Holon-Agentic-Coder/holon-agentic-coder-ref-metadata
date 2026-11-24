@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0378
 title: "Stale-calibration warning fires on a mechanical merge of main and is not cleared when the fresh report lands"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - pr-comments
   - holon-agentic-coder
 created_at: 2026-11-23T09:25:00Z
-updated_at: 2026-11-23T09:25:00Z
+updated_at: 2026-11-23T14:57:40Z
 ---
 
 ## Problem
@@ -70,3 +70,15 @@ Confirmed causes:
 
 Bean 0362 / PR #247 (the warning never cleared: first fix), Bean 0372 / PR #254 (PR-own fingerprint), Bean 0369 / PR
 #253 (evaluated SHA), Bean 0376 (end-of-flow rerun; also where "the flow stops when its PR is merged" is recorded).
+
+## Progress
+
+- 2026-11-23: PR #263 (`I-1795432203-stale-calibration-warning-fix/P-1795432220-CLA-CF5.2/E-1795433754-CLA-CF5.2/_`,
+  head `f61ce141`) completed all 5 stages via `cf3b215e-a4cb-41c3-968e-578b183a495f` (`3/3` consensus approved, Stage 5
+  calibration included, `11/11` CI checks passed, `MERGEABLE` + `CLEAN`), awaiting human merge.
+
+## Resolution
+
+- Delivered via [PR #263](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/263) and merged into `main` (`e563254e`).
+- Key deliverables: PR-own diff fingerprint for staleness checks (`calibrate_rerun.py`), suppressing stale warnings when Stage 5 is regenerating, editing any existing warning comment to superseded before the final CI wait (`calibrate_stale_warning.py`), and hermetic tests.
+- Verification & Holon Flow traversal: 3/3 consensus approval, 11/11 CI checks green on calibrated head `84c7bb58`, Stage 5 calibration included.

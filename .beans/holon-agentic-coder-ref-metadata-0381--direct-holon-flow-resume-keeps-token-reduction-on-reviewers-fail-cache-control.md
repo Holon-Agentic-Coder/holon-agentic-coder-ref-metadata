@@ -38,6 +38,8 @@ Two defects:
 
 ## Progress
 
+- 2026-11-24: HAC stale plan `flow-token-reduce-opt-in-resume` deleted after PR #263 merged; restart HAC half from current `main` once `0376` clears (coherence half already merged in PR #44).
+
 - 2026-11-23: Launched `holon-coherence` flow (`todo/intent-0381-coherence-cache-control-ttl.json`, slug
   `fix-cache-control-ttl-order`, subagent `85c68b2a-9084-4a33-8421-26df8066a765`) and `holon-agentic-coder` flow
   (`todo/intent-0381-hac-token-reduce-opt-in.json`, slug `token-reduce-opt-in-resume`, subagent
