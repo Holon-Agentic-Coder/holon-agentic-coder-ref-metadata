@@ -13,7 +13,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:42:56Z
-updated_at: 2026-11-24T10:22:43Z
+updated_at: 2026-11-24T10:33:15Z
 ---
 
 ## Problem
@@ -140,5 +140,11 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > merged at `4469abc9` (7/7 CI green, Stage 5 calibrated), `apps/holon-coherence/main` fast-forwarded, `holon-coherence`
 > rebuilt/reinstalled, and `flow-coherence-proxy-self-doc` pruned.
 
-> 2026-11-24: launched `holon-coherence` top-level core self-documenting slice (`coherence-core-self-doc`, intent
-> `todo/intent-0153-coherence-core-self-doc.json`) via `antigravity-agent` / `gemini-4-neon`.
+> 2026-11-24: `Holon-Agentic-Coder/holon-coherence#51` (`coherence-core-self-doc`, top-level `src/holon_coherence/*.py`
+> slice) merged at `734e557` (7/7 CI green, Stage 5 calibrated EV predicted `8.65` / actual `8.96` / delta `+0.31`),
+> `apps/holon-coherence/main` fast-forwarded, `holon-coherence` rebuilt/reinstalled, and `flow-coherence-core-self-doc`
+> pruned.
+
+> 2026-11-24: launched `holon-coherence` scripts and CI/hygiene/Makefile tests self-documenting slice
+> (`coherence-scripts-self-doc`, intent `todo/intent-0153-coherence-scripts-self-doc.json`) via `antigravity-agent` /
+> `gemini-4-neon`.
