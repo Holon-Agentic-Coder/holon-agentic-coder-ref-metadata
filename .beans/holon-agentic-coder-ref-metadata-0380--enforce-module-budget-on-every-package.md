@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0380
 title: "Enforce the module line budget on every package, including new ones, not just flow/"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-11-23T09:35:00Z
-updated_at: 2026-11-23T09:35:00Z
+updated_at: 2026-11-24T11:34:00Z
 ---
 
 ## Instruction (maintainer, 2026-11-23)
@@ -84,3 +84,14 @@ package added anywhere outside `flow/` has no limit at all.
   tell running flows.
 - Related: Bean 0264 / PR #214 (budget introduced for `flow/`), Bean 0340 (draft: strict default, no overrides), Bean
   0379 (no logic in `__init__.py`), Bean 0197 (split `calibration.py`).
+
+## Measured (self-improvement audit 2026-11-24)
+
+Reviewers raised 25 findings in the period 2026-11-21 to 2026-11-24 that a file already over 1,000 lines grew (for
+example `executor.py` from 1,580 to 1,852 lines, `test_review_loop.py` from 2,679 to 2,723); 12 percent of all 249
+findings, each settled by a resolver pass and a full re-review. A mechanical check before the push (Bean 0408) would
+catch them in Stage 3.
+
+> 2026-11-24: launched the `holon-coherence` half (`coherence-module-line-budget-all-packages`, intent
+> `todo/intent-0380-coherence-module-line-budget-all-packages.json`) via `antigravity-agent` / `gemini-4-neon`. The
+> `holon-agentic-coder` half stays queued behind `0376` and `0265`.
