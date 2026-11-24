@@ -13,7 +13,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:42:56Z
-updated_at: 2026-11-24T07:36:06Z
+updated_at: 2026-11-24T10:22:43Z
 ---
 
 ## Problem
@@ -131,9 +131,14 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > merged at `981a88a4` (3/3 approved, 7/7 CI green, Stage 5 calibrated), `apps/holon-coherence/main` was fast-forwarded,
 > `holon-coherence` was rebuilt/reinstalled, and `flow-coherence-providers-self-doc` was pruned.
 
-> 2026-11-24: launched `holon-coherence` commands self-documenting slice (`coherence-commands-self-doc`, intent
-> `todo/intent-0153-coherence-commands-self-doc.json`) via `antigravity-agent` / `gemini-4-argon`.
+> 2026-11-24: `Holon-Agentic-Coder/holon-coherence#49` (`coherence-commands-self-doc`, `commands/` + `tests/commands/`
+> slice) merged at `9c9310fc` (7/7 CI green, Stage 5 calibrated EV predicted `8.57` / actual `8.36` / delta `-0.21`),
+> `apps/holon-coherence/main` fast-forwarded, `holon-coherence` rebuilt/reinstalled, and
+> `flow-coherence-commands-self-doc` pruned.
 
 > 2026-11-24: `Holon-Agentic-Coder/holon-coherence#50` (`coherence-proxy-self-doc`, `proxy/` + `tests/proxy/` slice)
 > merged at `4469abc9` (7/7 CI green, Stage 5 calibrated), `apps/holon-coherence/main` fast-forwarded, `holon-coherence`
 > rebuilt/reinstalled, and `flow-coherence-proxy-self-doc` pruned.
+
+> 2026-11-24: launched `holon-coherence` top-level core self-documenting slice (`coherence-core-self-doc`, intent
+> `todo/intent-0153-coherence-core-self-doc.json`) via `antigravity-agent` / `gemini-4-neon`.
