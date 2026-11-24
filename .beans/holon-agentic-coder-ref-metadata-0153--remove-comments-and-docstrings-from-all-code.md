@@ -13,7 +13,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:42:56Z
-updated_at: 2026-11-24T13:00:00Z
+updated_at: 2026-11-24T20:49:00Z
 ---
 
 ## Problem
@@ -236,3 +236,7 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > 2026-11-24: `Holon-Agentic-Coder/holon-agentic-coder#291` (`executor-pkg-self-doc`, head `5b386da1`, `11/11` CI checks
 > green, Stage 4 APPROVED, Stage 5 calibrated EV `35.67` -> `48.36`) verified ready to merge. Backfilled slot #4 with
 > `review-meta-self-doc` (`todo/intent-0153-review-meta-self-doc.json`) via `antigravity-agent` / `gemini-4-neon`.
+
+> 2026-11-24: `Holon-Agentic-Coder/holon-agentic-coder#282` (`cli-commands-misc-self-doc`, merge commit `b8093ff6`,
+> merged `2026-11-24T20:46:19Z`) merged into `main`. `apps/holon-agentic-coder/main` fast-forwarded, `holon`
+> rebuilt/reinstalled, and `flow-cli-commands-misc-self-doc` worktree/branches pruned.
