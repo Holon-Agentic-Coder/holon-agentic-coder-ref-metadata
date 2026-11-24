@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0225
 title: "Claude token lives only in the OS keychain; retire ~/.holon/secrets/claude-oauth-token entirely"
-status: todo
+status: completed
 type: feature
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - security
   - holon-agentic-coder
 created_at: 2026-11-04T03:20:00Z
-updated_at: 2026-11-04T04:15:00Z
+updated_at: 2026-11-24T09:57:28Z
 ---
 
 ## Problem
@@ -56,3 +56,24 @@ and no new Python dependencies (subprocess calls to the platform CLIs only).
 - Run through the Holon flow on holon-agentic-coder.
 - Maintainer context (2026-11-04): the file stays persistent (consume-once was rejected); this bean removes the at-rest
   plaintext exposure instead, which was the remaining concern.
+
+## Progress (2026-11-24)
+
+- Flow started from this Claude Code session: intent `todo/intent-0225-claude-token-os-keychain-only.json`, slug
+  `claude-token-os-keychain-only`, `claude-agent` / `claude-fable-5-2`, worktree `flow-claude-token-os-keychain-only`.
+
+## Resolution
+
+Delivered via [PR #271](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/271) and merged into `main`
+(`bb71d60c`):
+
+- **Key Architectural Deliverables**: Claude credential discovery reads only the OS secret store (macOS `security`,
+  Linux `secret-tool`); no file fallback and no `HOLON_AGENT_KEY` route for claude. Pre-flight fails closed with the
+  platform store one-liner and `claude setup-token` hint. One-time migration imports
+  `~/.holon/secrets/claude-oauth-token` into the keychain and deletes the file, or leaves it untouched on write failure.
+  Store one-liners documented in `docs/executor/agent_credentials_requirements.md`.
+- **Verification & Tests**: Hermetic pytest suites for keychain discovery on both platforms, no-entry and
+  no-secret-service hints, migration happy/failed/already-migrated paths, and secret redaction; fake
+  `security`/`secret-tool` seams, no real keychain.
+- **Holon Flow Traversal**: Flow `claude-token-os-keychain-only` (`claude-agent` / `claude-fable-5-2`) ran intent, plan,
+  execute, review and calibration (calibration report recorded under `holon-knowledge/`).
