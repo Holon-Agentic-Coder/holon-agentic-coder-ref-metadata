@@ -194,3 +194,8 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > Stage 5 calibrated, 11/11 CI checks green) recovered after duplicate-run checkout hiccup and verified ready to merge.
 > Backfilled slot #4 with `entrypoint-helpers-self-doc` (`todo/intent-0153-entrypoint-helpers-self-doc.json`) via
 > `antigravity-agent` / `gemini-4-neon`.
+
+> 2026-11-24: `Holon-Agentic-Coder/holon-agentic-coder#285` (`entrypoint-exec-self-doc`, head `0bd75b56`) completed
+> Stage 4 consensus and Stage 5 calibration (`9/11` CI checks `SUCCESS`; re-triggered cancelled `build (macos-latest)`
+> and `unit (macos-latest)`). Backfilled slot #3 with `ledger-self-doc` (`todo/intent-0153-ledger-self-doc.json`) via
+> `antigravity-agent` / `gemini-4-neon`.
