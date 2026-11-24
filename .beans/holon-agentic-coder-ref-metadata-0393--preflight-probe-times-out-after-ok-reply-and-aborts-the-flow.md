@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0393
 title: "Pre-flight probe that replied OK but exited late is classed UNKNOWN and aborts the flow"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - preflight
   - holon-agentic-coder
 created_at: 2026-11-24T08:12:00Z
-updated_at: 2026-11-24T11:34:00Z
+updated_at: 2026-11-24T12:45:46Z
 ---
 
 ## Problem
@@ -59,3 +59,9 @@ confirmed).
 
 > 2026-11-24: launched `preflight-ok-reply-slow-exit-and-retry` (intent
 > `todo/intent-0393-preflight-ok-reply-slow-exit-and-retry.json`) via `antigravity-agent` / `gemini-4-neon`.
+
+## Resolution
+
+Holon-Agentic-Coder/holon-agentic-coder#274 (`preflight-retry`, merge commit `27dd49afc5e83c18abcbdefc2db6b4ca15ba0948`,
+merged `2026-11-24T12:45:46Z`, 11/11 CI checks green, 3/3 consensus approved, Stage 5 calibrated
+`plans/I-1795520307-preflight-retry/P-1795520326-ANA-G4N_calibration.md`, EV `64.18` -> `83.24`, `+19.06`).
