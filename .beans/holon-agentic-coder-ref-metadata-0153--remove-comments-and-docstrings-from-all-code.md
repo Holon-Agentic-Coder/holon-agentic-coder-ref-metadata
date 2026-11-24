@@ -13,7 +13,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:42:56Z
-updated_at: 2026-11-24T05:29:15Z
+updated_at: 2026-11-24T05:56:28Z
 ---
 
 ## Problem
@@ -112,3 +112,14 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > [PR #45](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/45) and merged into `main` (`026b0a25`; 3/3
 > consensus approved, 7/7 CI green, Stage 5 calibrated EV predicted `8.32` / actual `8.33` / delta `+0.01`),
 > `holon-coherence` image & CLI rebuilt, and `flow-coherence-build-self-doc` worktree pruned.
+
+> 2026-11-24: launched `holon-coherence` metrics/ab_testing self-documenting slice (`coherence-metrics-ab-self-doc`,
+> intent `todo/intent-0153-coherence-metrics-ab-self-doc.json`) via `antigravity-agent` / `gemini-4-argon`.
+
+> 2026-11-24: the `holon-coherence` metrics/ab_testing slice (`coherence-metrics-ab-self-doc`) was delivered via
+> [PR #46](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/46) and merged into `main` (`5f7d6bbf`; 3/3
+> consensus approved, 7/7 CI green, Stage 5 calibrated), `holon-coherence` image & CLI rebuilt, and
+> `flow-coherence-metrics-ab-self-doc` pruned.
+
+> 2026-11-24: launched `holon-coherence` container self-documenting slice (`coherence-container-self-doc`, intent
+> `todo/intent-0153-coherence-container-self-doc.json`) via `antigravity-agent` / `gemini-4-argon`.
