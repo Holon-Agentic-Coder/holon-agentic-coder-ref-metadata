@@ -240,3 +240,8 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > 2026-11-24: `Holon-Agentic-Coder/holon-agentic-coder#282` (`cli-commands-misc-self-doc`, merge commit `b8093ff6`,
 > merged `2026-11-24T20:46:19Z`) merged into `main`. `apps/holon-agentic-coder/main` fast-forwarded, `holon`
 > rebuilt/reinstalled, and `flow-cli-commands-misc-self-doc` worktree/branches pruned.
+
+> 2026-11-24: `Holon-Agentic-Coder/holon-agentic-coder#290` (`knowledge-self-doc`, head `57152552`, `P-1795547238`
+> calibrated) completed all 5 stages before transient host DNS interruption (`21:21Z`); needs ledger merge after `#283`
+> merges. Backfilled slot #2 with `git-flow-self-doc` (`todo/intent-0153-git-flow-self-doc.json`) via
+> `antigravity-agent` / `gemini-4-neon`.
