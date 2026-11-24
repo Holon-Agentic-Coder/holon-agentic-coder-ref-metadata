@@ -217,3 +217,8 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > checks `SUCCESS`; re-triggered cancelled `build (macos-latest)` while `unit (macos-latest)` is queued). Backfilled
 > slot #3 with `infra-helpers-self-doc` (`todo/intent-0153-infra-helpers-self-doc.json`) via `antigravity-agent` /
 > `gemini-4-neon`.
+
+> 2026-11-24: `infra-helpers-self-doc` paused at Stage 3 after detecting a real `redaction.py` overlap with open
+> `holon-agentic-coder#287` (waiting cleanly until `#287` merges). Filled active slot #3 in `holon-coherence` with
+> `coherence-final-self-doc` (`todo/intent-0153-coherence-final-self-doc.json`, covering the final 2 Python test files,
+> 3 YAML files, and repo-wide enforcement in `tests/test_repo_self_doc.py`) via `antigravity-agent` / `gemini-4-neon`.
