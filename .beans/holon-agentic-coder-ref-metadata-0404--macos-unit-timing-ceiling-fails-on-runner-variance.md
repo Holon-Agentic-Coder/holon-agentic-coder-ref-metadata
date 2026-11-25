@@ -10,7 +10,7 @@ tags:
   - flake
   - holon-agentic-coder
 created_at: 2026-11-24T09:35:00Z
-updated_at: 2026-11-24T13:00:00Z
+updated_at: 2026-11-25T00:34:00Z
 ---
 
 ## Problem
@@ -88,3 +88,17 @@ approval in Stage 5 and stopped the flow of Bean 0225; the engine's one automati
 - `holon-agentic-coder#273` (`route-stage-4-and-stage-5`, Bean `0376` child 4), run `45390444554` on commit `8994dec5`:
   `unit (macos-latest)` failed `CI Timing Gate (compare with main)` with `Job took 634 s, above the 600 s ceiling` while
   all pytest cases passed (`test_child_halting_at_its_own_review_is_a_success_and_records_its_pr` `8.5 s` -> `13.7 s`).
+- 2026-11-24: pull request #278 (flow `timing-gate-judges-test-time`) is approved, calibrated and green, awaiting the
+  maintainer's merge. Remaining scope found on its own pipeline: the `Workspace survival (ubuntu-latest)` job has its
+  own timing gate with a fixed 600 s ceiling on job wall-clock time and failed twice at 611 s and 602 s with no test
+  grown; #278 does not change that job's gate. Also unexplained: `build (macos-latest)` and `unit (macos-latest)` were
+  cancelled (not failed) once each on #272 and #278 and passed on a rerun.
+
+- 2026-11-25: PR #278 merged into `main` as `0c933519`. Delivered: the CI Timing Gate (`scripts/ci_timing_gate.py`, with
+  `scripts/ci_timing_noise.py`) judges summed JUnit test time, not job wall-clock, and treats a slowdown spread across
+  the whole suite as runner variance. The 600 s ceiling value and the workflow files are unchanged. Still open, not
+  delivered by #278: (1) the `Workspace survival (ubuntu-latest)` fixed 600 s wall-clock ceiling in `test-stress.yml`
+  (see the scope note above); (2) the engine retrying a timing-only failure before withdrawing an approval
+  (`_retry_timing_noise` in `apps/sandbox-executor/src/sandbox_executor/flow/github/ci_final_head.py` predates #278 and
+  #278 did not change it); (3) why the macOS job is bimodal (about 250 s or 570 s on the same code); (4) the cancelled
+  `build (macos-latest)` and `unit (macos-latest)` jobs on #272 and #278, unexplained.
