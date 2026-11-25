@@ -11,7 +11,7 @@ tags:
   - timing
   - holon-agentic-coder
 created_at: 2026-11-24T11:00:00Z
-updated_at: 2026-11-25T05:41:00Z
+updated_at: 2026-11-25T06:05:00Z
 ---
 
 ## Why
@@ -130,3 +130,34 @@ Small: wrapper (`.agents/skills/holon_flow/scripts/run_holon_flow.py`) and loggi
   merge); individual git pushes, conflict merges, per-reviewer latencies inside `4.47 / 3.83 min` ensembles (`#308` i4,
   `#309` i1), and inner tool-vs-model splits inside `4.98 min` Stage 3 (`#309`) and `7.45 / 15.20+ min` Stage 4
   resolvers (`#308`) remain unmeasured.
+
+## Audit evidence, 2026-11-25T05:45Z (self-improvement audit, fifth merge #288 to #299)
+
+- Antigravity flows still write no wrapper log. The ledger rows give iteration times (13 iterations, median 7.5 min) and
+  resolver times (2, median 3.2 min). They give no per-reviewer split, no push times and no idle time.
+- Gaps between checkpoint stages that nothing records: plan end to execute start of 76 to 109 s on all 8 Antigravity
+  flows (median 86 s; Claude flows go straight to admission, 16 to 44 s); execute end to review start of 28.9 min on
+  #308 (03:10:31Z to 03:39:28Z) and 6.0 min on `decomposition-rule-self-doc`; review end to calibrate start of 8.0 min
+  on #308 and 7.5 min on `github-pr-merge-self-doc`.
+- Hand `resolve-conflict` syncs done outside a flow (13 in the period, Bean 0458) leave no timing record at all; only
+  commit times show them.
+
+## Audit evidence, 2026-11-25T06:05Z (self-improvement audit, fifth merge #300–#304)
+
+- Wrapper pre-flight (`lines 1–13` of `todo/flow-ledger-fragments-and-promotion.log` and
+  `todo/flow-calibration-merge-adapted-file.log`) still prints no UTC timestamps, leaving wrapper startup time
+  unmeasured.
+- Stage 4 inner sub-steps remain opaque:
+  - Per-reviewer latencies inside ensembles (`#309` Iter 1 `3.9 min`, Iter 2 `10.1 min`; `#308` Iter 4 `8.4 min`) are
+    not recorded individually.
+  - Inside `#309`'s **`6.58 min`** Markdown-only resolver pass (`05:40:17Z..05:47:06Z`) and `#308`'s **`37+ min`**
+    active Iter 4 resolver (`d7a5f5ec82a1` since `05:25:12Z`), container boot vs LLM turns vs `lint`/`pytest`
+    verification time are unmeasured.
+  - Individual git push latencies and exact `review_local` wall duration (vs logged test rate/verdict) remain
+    unmeasured.
+- On `#309`, Stage 5 calibration work (`05:57:50Z..06:00:26Z`, `2.60 min`) vs `chore(calibration)` push/head settle
+  (`11 s` before `06:00:37Z` CI registration wait) vs `final_head_ci` inner check registration (`18 s`) + polling
+  (`48.93 s`, total `3.98 min` stage) must still be reconstructed by grepping text logs instead of structured step
+  metrics in checkpoint JSON.
+- On `#300–#304` (worktrees already pruned) and live `0407` (idle since `02:41:40Z`), Antigravity flow wrapper logs do
+  not exist on disk, leaving exact pre-flight, admission-poll, push, and inter-stage idle gaps unmeasured.

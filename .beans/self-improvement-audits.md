@@ -5,6 +5,205 @@ first.
 
 ## Entries
 
+### 2026-11-25T06:05:00Z — Fifth-Merge Audit
+
+- **Trigger:** fifth target-repo merge since `2026-11-25T05:41:00Z` (`holon-agentic-coder` PRs `#300`, `#301`, `#302`,
+  `#303`, `#304`; `holon-coherence` unchanged at `#55` merged `2026-11-24T12:44:47Z` with `#56` open;
+  `thomashan/dev-env` unchanged at `#41` merged `2026-11-25T04:03:06Z` with `#42` open). Note a parallel peer audit
+  (`2026-11-25T05:45:00Z` below, uncommitted on disk) covered up to `#300` and created Beans `0458`–`0459`; this audit
+  covers the `#300–#304` merge sweep, `05:20:56Z–06:04:00Z` CI/flow delta, `0371`, `#308`, and `#309` (`0438`)
+  completion without duplicating `0458`–`0459`.
+- **Last merged PR at audit time:** `Holon-Agentic-Coder/holon-agentic-coder#304` (`github-ci-self-doc`, merged
+  `2026-11-25T05:46:57Z`), `Holon-Agentic-Coder/holon-coherence#55` (`2026-11-24T12:44:47Z`), `thomashan/dev-env#41`
+  (`2026-11-25T04:03:06Z`).
+- **End state definition:** pipeline passes on the merged head + Stage 4 review consensus passes; everything else is
+  churn.
+- **Beans created or extended:**
+  - Created: `0460` (Stage 4 resolver runs 7,800+ pytest twice and unconditionally on Markdown/bookkeeping-only fixes),
+    `0461` (`main`-push CI `concurrency.group` silently cancels intermediate `main` commits during burst merges), `0462`
+    (epoch-second `I-`, `P-`, `REV-ITR-`, and `CAL-` IDs collide across concurrent flows), `0463` (Stage 2 planner
+    collapses file-scoped intents into directory touch-set entries that broaden Stage 3 overlap blocking).
+  - Extended: `0407` (`#309` `21.63 min` Stage 4 after `3/3` APPROVED, `#300` `FIND-DIRTY-001` churn iter, `#308` Iter
+    4), `0412` (unmeasured steps in `0371`, `#309`, `#308`, `#300–#304`), `0442` (`#309` Stage 2 timeouts ->
+    `Test - Hygiene` failure + `2.60 min` Stage 5 overhead), `0443` (`#309` `29 s` 4-push Stage 4 burst), `0454` (`6`
+    more `Merge origin/main` full-CI heads `7.35–9.17 min` on `#300–#305`), `0455` (`bean-triage-prioritisation.md`
+    `3.5+ h` stale across `#293–#304`).
+
+#### Step-Level Timing Table (Cadence `#300–#304`, Active `0371` & `#309`, Live Window `05:20:56Z–06:04:00Z`)
+
+> Flows measured: cadence `#300–#304` (`antigravity-agent/gemini-4-neon`, execution summaries `283.2–384.3 s` and full
+> PR/CI histories), plus post-`05:21Z` runs `0371` (`ledger-fragments-and-promotion`) and `#309` (`0438`,
+> `calibration-merge-adapted-file`), alongside live `#308` (`workspace-survival-job-parallel`) and halted `0407`.
+
+| Step                                                     | Count | Median (min) | Longest (min) | Notes / Where                                                                                   |
+| :------------------------------------------------------- | ----: | -----------: | ------------: | :---------------------------------------------------------------------------------------------- |
+| Pre-flight (wrapper start -> Stage 1)                    |     2 | not measured |  not measured | `flow-*.log:1-13` lack UTC timestamps (`0371`, `0438`); Antigravity `#300–#304` no wrapper log  |
+| Stage 1 intent (checkpoints)                             |     2 |         0.34 |          0.34 | `0371` `0.34m`, `0438` `0.34m` (`#300–#304` pruned worktrees; live `#308` `0.53m`)              |
+| Stage 2 plan (checkpoints)                               |     2 |         4.08 |          4.94 | `0438` `3.22m` (incl. `60s` Prettier timeouts), `0371` `4.94m` (incl. `60s` Prettier timeouts)  |
+| Plan end -> Stage 3 start gap                            |     2 |         0.00 |          0.00 | `0371` / `0438` checkpoint `end == start`; `#300–#304` ledger plan->override `1.9–2.7m`         |
+| Stage 3 admission block / overlap wait                   |     2 |       114.8+ |        200.3+ | `0371` refused at `05:32:48Z` on `#305` (`29.2m+` live); `0407` halted since `02:41:40Z`        |
+| Stage 3 execute (checkpoint / ledger summary)            |     6 |         5.31 |          6.41 | `#300` `4.72m`, `#301` `5.29m`, `#302` `6.41m`, `#303` `5.10m`, `#304` `5.97m`, `0438` `5.33m`  |
+| Execute end -> Stage 4 start / PR open                   |     6 |         0.20 |          0.45 | `0438` `0.20m` to `PR create`; `#300–#304` ledger-commit to `PR created` `0.37–0.48m`           |
+| Stage 4 review iteration (wall / ensemble)               |     9 |         7.42 |         10.15 | `#309` i1 `3.9m`/i2 `10.15m`; `#300–#304` `6` iters (`4.78–8.42m`); `#308` i4 `8.4m` (`05:25Z`) |
+| Per-reviewer latency inside ensemble                     |     - | not measured |  not measured | Ledger/checkpoint log ensemble wall only (`0412`)                                               |
+| Stage 4 resolver (`#309` `.md` Prettier / `#308` i4)     |     2 |        22.0+ |         37.5+ | `#309` i1 `6.58m` (`.md` Prettier only, `0460`); `#308` i4 live since `05:25:12Z` (`37.5m+`)    |
+| Stage 4 total (`0438` `#309`)                            |     1 |        21.63 |         21.63 | `05:36:09Z..05:57:47Z` (blocked `17.7m` on unformatted `.md` plan; `1` iter needed, `2` run)    |
+| Conflict check / in-flow target sync                     |     1 |         0.23 |          0.23 | `0438` `#309` `05:47:06Z..05:47:20Z` (`14 s`, `05:47:20Z`)                                      |
+| Stage 4 git pushes & `review_local` wall                 |     - | not measured |  not measured | Individual push and `review_local` durations not split (`0412`)                                 |
+| CI check registration wait (`#309` Iter 2 / Stage 5)     |     2 |         0.16 |          0.30 | `#309` Iter 2 `1 s` (`05:57:32Z..33Z`); Stage 5 `18 s` (`06:00:37Z..55Z`)                       |
+| PR CI wait — full code / `main_merge` (`05:23Z–06:02Z`)  |     8 |         8.63 |          9.95 | `6` `main_merge` (`7.35–9.17m`) + `#309` `4cdc1913` (`7.93m` fail) + `4ded0b14` (`9.95m`)       |
+| PR CI wait — gated bookkeeping heads (`05:23Z–06:02Z`)   |     2 |         0.93 |          0.95 | `#309` `32b8b868` (`0.90m`) and `0c534bf2` (`0.95m`; inner wait `48.93s`)                       |
+| PR CI wait — cancelled burst head (`#309` `26eca98f`)    |     1 |         2.47 |          2.47 | `5` checks cancelled in `7 s`; `Docker Build` ran `2.47m` (`05:47:25Z..05:49:53Z`)              |
+| `main` push CI (`6` pushes `05:20:57Z–05:57:42Z`)        |     6 |         9.43 |         11.43 | `4` passed (`8.13–11.43m`, med `11.01m`); `67bfb621` (`#302`) & `d281e437` (`#303`) cancelled   |
+| Stage 5 calibration work (`#309` `05:57:50Z..06:00:26Z`) |     1 |         2.60 |          2.60 | Inflated by `npx --yes prettier` (`0442`); `#300–#304` `2.60–2.83m` ledger delta                |
+| Stage 5 promotion + reconciliation + ledger commit       |     5 |         ~0.0 |          0.02 | Within final `1–2 s` of Stage 5 work (`#300–#304`, `#309`)                                      |
+| Stage 5 total (`#309`)                                   |     1 |         3.98 |          3.98 | `05:57:47Z..06:01:51Z` (incl. `48.93s` `final_head_ci` on `0c534bf2`)                           |
+| Ready-to-merge queue wait (`#300–#304`)                  |     5 |       256.07 |        276.65 | `#300` `269.03m`, `#301` `275.35m`, `#302` `276.65m`, `#303` `254.60m`, `#304` `256.07m`        |
+| Hand pre-merge sync to merge (`#300–#304`)               |     5 |         1.17 |          8.32 | All `5` merged early (`55 s` to `8.18m` before PR CI completed); `#300` `8.32m`, `#301` `5.75m` |
+| Idle between stop & resume                               |     - | not measured |  not measured | `0407` halted since `02:41:40Z`; `#300–#304` no wrapper logs (`0412`)                           |
+
+**Stage / Wall Time Split (Post-`05:21Z` Active Flows `#309`, `0371`, `#308` live + `#300–#304` sync sweep):**
+
+- **Working (`~1.0 h` wall):** `#309` active stages (`34.5m` total minus CI waits), `0371` Stages 1–2 (`5.28m`), `#308`
+  live Iter 4 resolver container (`37m+` since `05:25:12Z`).
+- **Waiting on CI (`~1.3 h` PR-head wall in window, `121` `hac` runs):** `66` `pull_request` runs across `11` heads
+  (`10/11 = 90.9%` churn; `7/7 = 100%` churn after `05:42Z`), `19` `dynamic` runs, `36` `push` runs on `main` (`2/6`
+  burst pushes `#302`/`#303` `cancelled`).
+- **Waiting on another flow (`~4.1 h` accumulated):** `0371` polling `#305` (`29.2m+`), `0407` blocked in Stage 3 since
+  `02:41:40Z` (`202m+`).
+- **Waiting on maintainer merge:** `#300–#304` cleared after `254.6–276.7m` ready waits; `#305` (`CLEAN`, synced
+  `05:48:38Z`), `#306` (`DIRTY`), `#307` (`DIRTY`), `#308`, `#309` (`CLEAN` at `06:01:51Z`) await merge.
+
+**Churn Counts (`#300–#304` Lifetime + In-Window):**
+
+- **`#300–#304` full lifetimes:** `20` PR-tested CI heads (`4` each): `16/20` (`80.0%`) post-open churn (`10`
+  bookkeeping + `6` `Merge origin/main`), with `4` PR-open heads (`934ae1c9`, `03510f82`, plus reconcile-on-open
+  `b9bb5c99`, `2de5dd7e`). Review iterations: `6` total across `5` PRs (`5` needed + `1` churn on `#300`
+  `FIND-DIRTY-001` `01:06Z`); in-window (`05:20:56Z..06:02Z`), `#309` required `1` iter + `1` churn iter (`6.58m`
+  resolver + `10.15m` Iter 2) solely to Prettier-format `P-1795584464-CLA-CO5.5.md`.
+- **Window CI (`05:20:56Z–06:02:00Z`):** `121` total `hac` runs; `10/11` (`90.9%`) `pull_request` heads were churn (`7`
+  `main_merge` + `3` bookkeeping), only `1/11` (`4cdc1913` on `#309`) carried new code; `2/6` `main` push CI runs
+  (`67bfb621`, `d281e437`) cancelled mid-queue.
+
+#### Ranked Suggestions
+
+1. **`0460` (new, high — Flow / Stage 4):** Skip `uv run task test` in `_verify_before_push`
+   (`entrypoint/review_loop.py`) when resolver edits are Markdown/bookkeeping-only, and stop running the `7,800+`-test
+   suite twice back-to-back on code fixes (agent + `_verify_before_push`). Saves `~3–6 min` per doc-only resolver pass
+   (`#309` `6.58m`) and `~2–3 min` per code resolver pass.
+2. **`0461` (new, high — Pipeline / GitHub Actions):** Fix `push` to `main` `concurrency.group` in
+   `.github/workflows/{test-unit,test-stress,test-hygiene,test-integration,make}.yml` (scope `push` by `github.sha`, not
+   bare `github.ref`) so burst merges (`#301–#304`) stop silently cancelling intermediate `main` `Test - Unit` and
+   `Test - Stress` runs (`67bfb621`, `d281e437`).
+3. **`0463` (new, high — Flow / Stage 2):** Prohibit Stage 2 planner from collapsing concrete file-scoped `intent.json`
+   lists into directory touch-set entries (`planner.template.md`, `entrypoint/planner.py`). `0371` supplied `19`
+   explicit files and `0` folders, yet Stage 2 emitted `.../ledger/` with only an advisory stderr warning.
+4. **`0462` (new, normal — Architecture / Flow):** Add `build_stage_disambiguator` hex suffixes to
+   `intent_creator.py:86`, `build_plan_id` (`ledger/rows.py:122`), `REV-ITR-...` (`flow/review/loop.py:463`), and
+   `CAL-...` (`calibration.py:1316`). Live flows `0371` and `0438` (`#309`) minted identical `I-1795584436-*` and
+   `P-1795584464-CLA-CO5.5`, adding to `5` duplicate `plan_id`s already on `main` (`#300` & `#302` shared
+   `P-1795567904-ANA-G4N`).
+5. **Extensions (`0407`, `0442`, `0443`, `0454`, `0455`, `0412`):** Prioritized evidence strengthens the active fixes
+   for unneeded Iter 2 review (`0407` on `#309`), `npx prettier` Stage 2 failure + Stage 5 overhead (`0442` directly
+   cost `#309` `~17 min`), Stage 4 4-push burst cancellation (`0443` cancelled `26eca98f`), mechanical
+   `Merge origin/main` CI (`0454` ran `6` more `7.35–9.17 min` suites), `post-pr-merge` triage staleness (`0455`), and
+   unmeasured steps (`0412`).
+
+#### Examined and Found in Order
+
+- `hac#300–#304` `main` merges: all `5` merged cleanly, and `post-pr-merge` recorded `0153` updates cleanly (`da742b5`,
+  `51e3135`) without duplicate flow launches across sessions.
+- `hac#309` (`0438`) Stage 5 calibration: `calibration_self_check` + `final_head_ci` settled cleanly (`3.98 min`,
+  `MERGEABLE/CLEAN`, `ΔEV +10.42`, `4` promoted candidates, all `11` CI checks passed on `0c534bf2`).
+- `ci_bookkeeping_gate` on un-cancelled pure bookkeeping heads (`#309` `32b8b868` `0.90 min`, `0c534bf2` `0.95 min`):
+  gating worked accurately once parent heads were not cancelled.
+- `holon-coherence` (`#55`, `#56` open) and `thomashan/dev-env` (`#41`, `#42` open): unchanged since `05:41Z`, no new
+  merge regressions.
+
+### 2026-11-25T05:45:00Z: Fifth-Merge Audit (Claude Code session, incremental from 00:28Z)
+
+- **Trigger:** fifth merge. Since the 00:28Z entry of this session, `holon-agentic-coder` merged #278, #280, #281, #283
+  to #300 (21 PRs). Entries at 02:54Z, 04:02Z and 05:07Z overlap this period; their beans (0442 to 0451) were not
+  duplicated. The 05:41Z entry below was written by the other session while this audit ran; its beans are `0452` to
+  `0455`, so this audit's beans are `0458` and `0459`.
+- **Last merged pull requests at audit time:**
+  - `holon-agentic-coder`: `#300` (`decomposition-rule-self-doc`, merged `2026-11-25T05:30:59Z`)
+  - `holon-coherence`: `#55` (`coherence-module-line-budget-all`, merged `2026-11-24T12:44:47Z`; `#56` open)
+- **Beans created or extended:**
+  - Created: `0458` (ready PRs hand-synced before each merge, 8 of 12 merged before that pipeline ended; complements
+    `0454`, written by the other session at 05:41Z), `0459` (maintainer rules kept only in Claude Code's private memory
+    never reach the Antigravity session).
+  - Extended: `0400` (macOS unit leg is now the critical path), `0411` (`AGENTS.md` says `gemini-4-argon`,
+    `holon-flow.md` and every flow use `gemini-4-neon`), `0412` (unrecorded gaps between stages), `0423` (measured
+    concurrency and cross-session blocking), `0398` (approved PR #305 blocks 0371), `0446` (0407 still refused, no
+    wrapper alive). `0371` and `0383` have uncommitted edits from another session and were left alone.
+- **Outputs:** `todo/self-improvement-audit-2026-11-25a/` (`timing-period.md`, `churn-period.md`, `pipeline-fixes.md`,
+  `sweep.md`, `per-pr.md`, `churn-ledger.md`, scripts).
+
+#### 1. Timing (00:28Z to 05:41Z; ANA = Antigravity `gemini-4-neon`, CLA = Claude Code `claude-opus-5-5`)
+
+| Step                                                |       Count |    Median (min) | Longest (min) | Longest in             |
+| :-------------------------------------------------- | ----------: | --------------: | ------------: | :--------------------- |
+| Pre-flight                                          |           - |    not measured |  not measured | (0412)                 |
+| Stage 1 intent                                      |          10 |             0.3 |           0.3 |                        |
+| Stage 2 plan                                        |          10 |             3.5 |           5.6 | 0407                   |
+| Plan end to Stage 3, ANA (unrecorded)               |           8 |             1.4 |           1.8 | review-report-self-doc |
+| Stage 3 refusal (waiting on another flow)           |           3 |             178 |         181.5 | #308 on #283 HTTP 406  |
+| Stage 3 executor ANA / CLA                          |       8 / 2 |      6.5 / 23.1 |    7.6 / 41.3 | #308                   |
+| Stage 4 review iteration ANA / CLA                  |      13 / 8 |       7.5 / 7.4 |     8.4 / 9.6 | #308                   |
+| Stage 4 resolver ANA / CLA                          |       2 / 5 |       3.2 / 5.2 |    4.2 / 27.2 | #308                   |
+| Stage 4 total (checkpoints)                         |           8 |             8.0 |          22.8 | #308                   |
+| Target sync (#283 path)                             |           7 |             0.1 |           0.2 | #308                   |
+| CI wait, gated heads                                |           3 |             0.8 |           1.1 | #308                   |
+| Stage 5 total (checkpoints)                         |           8 |             4.0 |          12.0 | #308                   |
+| Pipeline wall: code / main-merge / bookkeeping head | 9 / 21 / 33 | 6.5 / 7.9 / 0.9 |             - |                        |
+| Hand pre-merge sync to merge                        |          11 |             5.5 |          34.6 | #292                   |
+| Intent to ready, ANA one-iteration slice            |           8 |            23.4 |          31.2 | #297                   |
+| Ready to maintainer merge (sweep #288 to #299)      |          12 |           335.7 |         523.4 | #288                   |
+
+Stage split: working about 5.4 h across all flows. Waiting on another flow 5.1 h (#308, 0407, 0371). Waiting on CI 0.15
+h. Waiting on the maintainer's merge 94.6 PR-hours (27 ready PRs).
+
+#### 2. Answers
+
+1. **Pipeline fixes worked.** Full pipeline median 10.8 min (p90 24.2) before #272, 7.6 min (p90 8.7) after #278.
+   Bookkeeping heads are gated to 0.9 min (32% of completed heads after #278). `unit (ubuntu)` went from 4.7 to 3.2 min
+   and `unit (macos)` from 8.2 to 7.0 min (#275). Timing-gate failures: 10 macOS and 4 Workspace survival between 16:00Z
+   and 21:10Z, none in the 94 PR and main heads since #278. The last one was at 20:56:19Z. No failure since #278 was
+   noise; the one failure (hygiene, #306) was real.
+2. **#283 worked inside a flow, not outside.** #308 took 7 target syncs and no hand resolution. Its re-reviews after a
+   ledger-only sync are 0407/0449. PRs whose flow had already ended still needed 13 hand `resolve-conflict` merges
+   (02:28Z to 05:23Z, Bean 0458). After #278, review iterations on conflicting heads: none seen.
+3. **Antigravity sweep:** the 12 PRs took 18.9 to 31.2 min from intent to ready when one review iteration was enough (8
+   of 12; #289 63.5, #290 114.4, #292 241.3, #296 731.8). They then waited 265.9 to 523.4 min for the merge. Pipeline
+   heads per PR: median 4.5 (2 bookkeeping and 1 hand sync each). Review iterations: 1 to 5 (median 1). Claude Code
+   flows in the period: #308 intent to first approval 245 min, of which 181.5 waited on #283; working time about 75 min.
+   Per-iteration speed is the same (7.4 against 7.5 min). The difference is the size of the work and Stage 3.
+4. **Churn left:** 65 of 78 PR heads in the period were churn. Main-merge heads use 409 runner-min against 167 for code
+   heads. Review churn: 26% of iterations over #272 to #308, but 1 of 11 in flows started after #278.
+5. **Coordination:** at most 4 flows at once across both sessions. 0407 (Antigravity) has been refused since 02:41:40Z
+   on a directory in its scope. The rule against that exists only in Claude Code's memory. 0371 (Claude Code) was
+   refused at 05:32:48Z on Antigravity's approved #305. No duplicate flow for one bean. Merges cannot be attributed
+   (shared account).
+
+#### 3. Ranked suggestions
+
+1. **`0458` (new, high):** sync ready PRs once in a batch after a merge, not before each merge; skip `MERGEABLE` PRs;
+   wait for green on any synced head. About 12 pipelines (95 min serial) saved per sweep of 12, and no unverified
+   merges.
+2. **`0459` (new, high):** move workspace rules from private memory into `.agents/`, and have the wrapper refuse
+   directory scopes. Saves about 180 min on 0407 alone.
+3. **`0400` (extended):** run the macOS unit leg only where it matters; about 3 min off every code and merge head.
+4. **`0423`, `0398`, `0446` (extended):** a shared registry across sessions, starting stacked on an approved PR, and
+   SPLIT parent admission.
+5. **`0411`, `0412` (extended):** one canonical model ladder; record the unrecorded stage gaps.
+
+#### 4. Examined and found in order
+
+- `ci_bookkeeping_gate` (#272), unit speed-up (#275) and timing gate (#278): working as intended (above).
+- HTTP 406 admission failure on oversized PRs: fixed by #299. No refusal of that kind after 05:20:56Z.
+- Antigravity one-iteration flows: Stage 5 is a steady 3.9 to 4.1 min, already in 0442.
+
 ### 2026-11-25T05:41:00Z — Fifth-Merge Audit
 
 - **Trigger:** fifth target-repo merge since `2026-11-25T05:07:00Z` (`holon-agentic-coder` PRs `#295`, `#296`, `#297`,

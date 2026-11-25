@@ -11,7 +11,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-25T03:08:00Z
-updated_at: 2026-11-25T05:41:00Z
+updated_at: 2026-11-25T06:05:00Z
 ---
 
 ## Problem
@@ -115,3 +115,12 @@ via the Holon flow.
   `45552461815` still ran `108 s`), forcing `c960579d` to run full `7.57 min` CI.
 - Across `#295–#299` full PR lifetimes, `5` code/merge heads (`cb34f2eb`, `01418f78`, `b646d346`, `59d41deb` on `#296`;
   `68f4f9a6` on `#297`) were similarly cancelled by immediate follow-up `chore(review)` ledger commits.
+
+## Audit evidence, 2026-11-25T06:05Z (self-improvement audit, fifth merge #300–#304)
+
+- **`PR #309` (`0438`) reproduced the exact `29 s` quadruple-push Stage 4 pattern (`05:46:52Z..05:47:21Z`):** resolver
+  pushed `89eae143` (`fix(review)` formatting `P-1795584464-CLA-CO5.5.md`) $\rightarrow$ `88adfe30`
+  (`chore(review): ... before target sync` at `05:47:06Z`) $\rightarrow$ `26eca98f` (`sync: merge target main` at
+  `05:47:20Z`) $\rightarrow$ `4ded0b14` (`chore(review) iteration 1` at `05:47:21Z`). That burst immediately **cancelled
+  5 workflows on `26eca98f` at `05:47:32Z` (`7 s`)**, let `Docker Build` (`45555994086`) burn **`148 s`**
+  (`05:47:25Z..05:49:53Z`) for nothing, and forced `4ded0b14` to run full **`9.95 min` CI** (`05:47:30Z..05:57:27Z`).

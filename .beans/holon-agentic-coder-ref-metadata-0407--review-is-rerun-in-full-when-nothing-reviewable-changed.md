@@ -11,7 +11,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T10:55:00Z
-updated_at: 2026-11-25T05:41:00Z
+updated_at: 2026-11-25T06:05:00Z
 ---
 
 ## Why
@@ -286,3 +286,15 @@ record these.
   (`plans/.../P-1795584464-CLA-CO5.5.md`, `Test - Hygiene`), triggering another full re-review cycle once formatted.
 - **`0407` itself (`no-unneeded-full-review`):** reached `178+ min` since `02:41:40Z` halted in Stage 3 (`33.40 min` in
   window).
+
+## Audit evidence, 2026-11-25T06:05Z (self-improvement audit, fifth merge #300–#304)
+
+- **`PR #309` (`0438`, `calibration-merge-adapted-file`):** finished Stage 4 in **`21.63 min`** total
+  (`05:36:09Z..05:57:47Z`, `checkpoint-calibration-merge-adapted-file.json`): after `3/3` `APPROVED (0/0/0)` in Iter 1
+  (`3.9 min`, `05:40:16Z`), formatting a single `.md` plan file cost `6.58 min` resolver + `29 s` 4-push burst +
+  `10.15 min` full Iter 2 re-review (`05:47:26Z..05:57:35Z`) even though no Python/logic code changed.
+- **`PR #300` (`decomposition-rule-self-doc`, merged `05:31:18Z`):** counted **`1` churn review iteration** (`2` total):
+  Iter 1 (`01:06:34Z`) had `3/3` reviewers approved but recorded `FIND-DIRTY-001` due to `main` drift, merging `main`
+  (`ef1e6129`) and running a full Iter 2 (`01:14:30Z`).
+- **`PR #308` (`workspace-survival-job-parallel`):** remains stuck in its Round 2 Iter 4 resolver container
+  (`d7a5f5ec82a1`, running `37+ min` since `05:25:12Z`) triggered by the ledger-only Round 2 re-entry.

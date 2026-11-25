@@ -12,7 +12,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-25T03:08:00Z
-updated_at: 2026-11-25T05:41:00Z
+updated_at: 2026-11-25T06:05:00Z
 ---
 
 ## Problem
@@ -88,3 +88,12 @@ Small: single command-resolution helper in `calibration.py` + unit test, deliver
   (`run 45554742211`, `make lint-md` using `prettier@3.10.1`) to immediately FAIL** at `05:37:23Z`, blocking `3/3`
   `APPROVED (0/0/0)` reviewers at `05:40:16Z` and dispatching a resolver pass (`05:40:17Z`). `formatting.py` and
   `calibration.py` should share one local/cached Prettier binary resolver aligned with CI's version.
+
+## Audit evidence, 2026-11-25T06:05Z (self-improvement audit, fifth merge #300–#304)
+
+- The downstream cost of Stage 2 Prettier timing out twice (`60 s`) on `PR #309` (`0438`) finished settling at
+  `06:01:51Z`: it added a `6.58 min` resolver pass, a `29 s` 4-push burst (`26eca98f` cancelled), `9.95 min` CI on
+  `4ded0b14`, and a `10.15 min` full Iter 2 re-review (`21.63 min` Stage 4 instead of `~4 min`).
+- Stage 5 calibration work on `PR #309` (`05:57:50Z..06:00:26Z`) still spent **`2.60 min` (`156 s`)** running two host
+  `npx --yes prettier` calls (`calibration_diff` / report check) before `final_head_ci` settled at `06:01:45Z`
+  (`48.93 s` CI wait; `3.98 min` Stage 5 total).

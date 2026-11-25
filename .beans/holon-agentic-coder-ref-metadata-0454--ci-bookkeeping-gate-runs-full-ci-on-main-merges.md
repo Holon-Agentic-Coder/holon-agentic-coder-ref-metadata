@@ -11,7 +11,7 @@ tags:
   - merge-conflicts
   - holon-agentic-coder
 created_at: 2026-11-25T05:41:00Z
-updated_at: 2026-11-25T05:41:00Z
+updated_at: 2026-11-25T06:05:00Z
 ---
 
 # `ci_bookkeeping_gate` triggers full 7-workflow CI on mechanical `Merge origin/main` PR pushes
@@ -73,3 +73,16 @@ tests via `holon flow` (`holon-agentic-coder`).
 - Related: Bean `0371` (per-flow ledger fragments prevent most queue merges), Bean `0403` (`ci_bookkeeping_gate`), Bean
   `0407` (approval survives target merge), Bean `0428` (3-dot PR-own diff in `ci_final_head.py`).
 - Audit source: `2026-11-25T05:41Z` fifth-merge self-improvement audit (`#295–#299`).
+
+## Audit evidence, 2026-11-25T06:05Z (self-improvement audit, fifth merge #300–#304)
+
+- **Queue `Merge origin/main` CI runs (`05:23:09Z..05:56:20Z`):** `6` additional mechanical `Merge origin/main` pushes
+  on `#300–#305` triggered full `7`-workflow CI:
+  - `hac#300` (`a4e23b9e`, `05:23:09Z..05:32:13Z`, **`9.07 min`**)
+  - `hac#301` (`cf7c77f6`, `05:32:56Z..05:41:41Z`, **`8.75 min`**)
+  - `hac#302` (`df58b838`, `05:40:15Z..05:49:25Z`, **`9.17 min`**)
+  - `hac#303` (`f1247c9b`, `05:42:51Z..05:50:12Z`, **`7.35 min`**)
+  - `hac#304` (`cbd65bdf`, `05:45:57Z..05:54:27Z`, **`8.50 min`**)
+  - `hac#305` (`f2787749`, `05:48:47Z..05:56:20Z`, **`7.55 min`**)
+- Meanwhile, all `5` merged PRs (`#300–#304`) were merged `55 s` to `8.18 min` before their PR-side `Merge origin/main`
+  CI finished (and PRs `#306–#308` remain `CONFLICTING/DIRTY` pending additional sync cycles).

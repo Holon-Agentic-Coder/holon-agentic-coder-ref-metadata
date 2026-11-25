@@ -11,7 +11,7 @@ tags:
   - prioritise-beans
   - reliability
 created_at: 2026-11-25T05:41:00Z
-updated_at: 2026-11-25T05:41:00Z
+updated_at: 2026-11-25T06:05:00Z
 ---
 
 # `post-pr-merge` rebuilds `holon-coherence` on `hac` merges, collides on burst merges, and skips triage
@@ -71,3 +71,10 @@ Small harness-only change in `.agents/skills/post_pr_merge/SKILL.md` and
 - Related: Bean `0402` (running flows isolated from post-merge image rebuilds), Bean `0388` (stale inline triage
   narrative in `prioritise_beans.py`).
 - Audit source: `2026-11-25T05:41Z` fifth-merge self-improvement audit (`#295–#299`).
+
+## Audit evidence, 2026-11-25T06:05Z (self-improvement audit, fifth merge #300–#304)
+
+- Following burst merges `#300–#304` (`05:31:18Z..05:46:57Z`, `5` merges in `15.65 min`), `git log` shows
+  `.beans/bean-triage-prioritisation.md` has still not been updated since commit `0f0525f` (`2026-11-25T02:30:25Z`,
+  `3.5+ h` stale across `12` merges `#293–#304`), and `flow-no-unneeded-full-review` (`0407`) remains an active worktree
+  without completing triage/backfill parity.
