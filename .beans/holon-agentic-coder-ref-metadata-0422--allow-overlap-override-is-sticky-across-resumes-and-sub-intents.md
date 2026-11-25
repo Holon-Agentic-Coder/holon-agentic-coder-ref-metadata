@@ -10,7 +10,7 @@ tags:
   - admission
   - holon-agentic-coder
 created_at: 2026-11-24T12:58:00Z
-updated_at: 2026-11-25T00:28:00Z
+updated_at: 2026-11-25T03:08:00Z
 ---
 
 ## Problem
@@ -53,3 +53,11 @@ clears it:
 - **14 of 23** active `holon-agentic-coder` flows in the `2026-11-24T12:59Z–2026-11-25T00:19Z` window ran with
   `allow_overlap=True` in their checkpoints, contributing to `main`-merge churn (e.g. `PR #292`: 4 merges, `PR #293`: 3
   merges, `PR #296`: 3 merges plus an unresolvable conflict in `cli/__init__.py` against `PR #276`).
+
+## Audit evidence, 2026-11-25T02:54Z (self-improvement audit, fifth merge)
+
+- **11 of 13** `holon-agentic-coder` checkpoints active in `2026-11-25T00:28Z–02:54Z` (`split-cli-init-modules`,
+  `touch-set-self-doc`, `in-flight-pr-files-fallback`, `decomposition-rule-self-doc`, `preflight-self-doc`,
+  `review-report-self-doc`, `agent-defaults-self-doc`, `github-ci-self-doc`, `git-refs-self-doc`,
+  `github-pr-merge-self-doc`, `github-misc-self-doc`) ran with `allow_overlap=True` (triggered by the `#283` HTTP 406
+  storm; see Bean `0433`).

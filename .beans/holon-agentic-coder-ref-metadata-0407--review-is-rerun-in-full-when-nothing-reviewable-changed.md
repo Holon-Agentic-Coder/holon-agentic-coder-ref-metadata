@@ -11,7 +11,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T10:55:00Z
-updated_at: 2026-11-25T02:34:00Z
+updated_at: 2026-11-25T03:08:00Z
 ---
 
 ## Why
@@ -241,3 +241,13 @@ record these.
 
 > 2026-11-25: launched `holon-agentic-coder` flow (`no-unneeded-full-review`, intent
 > `todo/intent-0407-no-unneeded-full-review.json`) via `antigravity-agent` / `gemini-4-neon`.
+
+## Audit evidence, 2026-11-25T02:54Z (self-improvement audit, fifth merge)
+
+- **`PR #300` (`decomposition-rule-self-doc`):** all 3 reviewers `APPROVED (0/0/0)` at `01:06:34Z`, then post-review
+  mergeability check saw `DIRTY` (ledger conflict against `#280`) and halted Stage 4 (`CHANGES_REQUESTED`); after
+  merging `main` (`ef1e6129`), Stage 4 ran a full `6.0 min` iteration 2 re-review (`01:08:16Z`–`01:14:19Z`) on an
+  unchanged PR-own diff.
+- **`PR #306` (`github-pr-merge-self-doc`):** all 3 reviewers `APPROVED (0/0/0)` at `02:02:59Z`, blocked solely by
+  `FIND-CI-001` (`Test - Hygiene` Prettier check on `executions/E-1795571328-ANA-G4N.md`); after formatting that file
+  only, Stage 4 ran a full `7.6 min` iteration 2 re-review (`02:07:20Z`–`02:14:56Z`).

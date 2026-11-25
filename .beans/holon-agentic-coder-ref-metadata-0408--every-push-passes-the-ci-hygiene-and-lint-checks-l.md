@@ -11,7 +11,7 @@ tags:
   - pipeline
   - holon-agentic-coder
 created_at: 2026-11-24T11:00:00Z
-updated_at: 2026-11-25T00:28:00Z
+updated_at: 2026-11-25T03:08:00Z
 ---
 
 ## Why
@@ -76,3 +76,11 @@ gate, add ruff, `jq` and the growth check. A few seconds per turn.
   `make lint` -> `lint-md` again on `bd5fccc2` (after Stage 4 resolver pass `01418f78`) because the engine-generated
   `executions/E-1795563737-ANA-G4N.md` failed Prettier.
 - **PR #289 (`core-helpers-self-doc`):** failed `Test - Hygiene` on Stage 3 push `80126bd7`.
+
+## Audit evidence, 2026-11-25T02:54Z (self-improvement audit, fifth merge)
+
+- **`PR #306` (`github-pr-merge-self-doc`):** Stage 3 push `2c31f500` (`01:55:03Z`) failed `Test - Hygiene` (run
+  `45529262231`, `make lint` $\rightarrow$ `lint-md` Prettier check) solely on engine-generated
+  `executions/E-1795571328-ANA-G4N.md`. This was the sole CI failure across all `276` workflow runs (`46` heads) in
+  `00:28Z–02:54Z`, yet it blocked 3/3 `APPROVED` reviewers via `FIND-CI-001` and added a `4.2 min` resolver pass, a
+  cancelled CI head, and a `7.6 min` full re-review (`20.2 min` Stage 4 vs `7.0 min` median).

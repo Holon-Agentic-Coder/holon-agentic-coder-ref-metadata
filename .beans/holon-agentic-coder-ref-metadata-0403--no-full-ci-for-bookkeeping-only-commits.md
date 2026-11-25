@@ -10,7 +10,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T08:30:00Z
-updated_at: 2026-11-24T21:12:48Z
+updated_at: 2026-11-25T03:08:00Z
 ---
 
 ## Problem
@@ -57,3 +57,14 @@ pull request had at least two such runs; PR #263 had 11, PR #267 and #268 had 9 
 failed a check anyway: 7 involving `hygiene` (Prettier on engine-written `executions/E-*.md` and calibration reports,
 Bean 0408) and 8 involving `unit` (mostly the macOS timing ceiling, Bean 0404), each of which withdrew or delayed an
 approval of unchanged code. The Stage 4 ledger commit (148 in the logged flows) is the main source.
+
+## Audit evidence, 2026-11-25T02:54Z (self-improvement audit, fifth merge)
+
+- Verified live effect across `22` post-Stage-3 bookkeeping heads in `2026-11-25T00:28Z–02:54Z` (`#278`, `#298`–`#307`,
+  `#296`): `Test - Unit` skipped in `13–23 s`, `Test - Stress` in `9–19 s`, `Test - Integration` in `11–16 s`,
+  `Docker Build` in `9–18 s`, `Run Make` in `11–23 s`, and `Test - Hygiene` finished in `38–62 s`, dropping Stage 5
+  `final_head_ci` wait across `13` runs to a median of `0.82 min` (`max 1.81 min` on `#296`) vs `7.92 min` on
+  `merged_head_ci`.
+- Remaining gap: when Stage 4 pushes `chore(review): record review ledger rows` `9–12 s` after a resolver or
+  conflict-gate push (`#296`, `#305`, `#306`), the earlier head's CI is cancelled before finishing, so the ledger-row
+  push cannot skip CI and runs the full `6–9 min` suite anyway; tracked in Bean `0443`.
