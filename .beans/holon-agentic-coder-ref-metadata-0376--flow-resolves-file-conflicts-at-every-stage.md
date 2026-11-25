@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0376
 title: "The flow resolves file conflicts itself at every stage: an in-flow conflict resolver"
-status: in-progress
+status: completed
 type: feature
 priority: critical
 tags:
@@ -11,7 +11,7 @@ tags:
   - cost
   - holon-agentic-coder
 created_at: 2026-11-23T08:40:00Z
-updated_at: 2026-11-24T12:58:00Z
+updated_at: 2026-11-25T02:27:00Z
 ---
 
 ## Problem
@@ -181,3 +181,20 @@ twice after the merge, a 162-character line left by a resolution); the in-flow r
   [PR #283](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/283) (head `077c9bd2`) completed Stage 4
   consensus review (`3/3` APPROVED at iteration 5) and Stage 5 calibration with `11/11` CI checks `SUCCESS`, `MERGEABLE`
   / `CLEAN`. Ready for maintainer merge.
+
+## Resolution
+
+Delivered via [PR #283](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/283) and merged into `main`
+(`ce2c4c7a`, merged `2026-11-25T02:25:48Z`):
+
+- **Key Architectural Deliverables**: Delivered across 5 sequential sub-intents (`#259`, `#262`, `#265`, `#273`,
+  `#279`): unified `sync_with_target` (`flow/target_sync.py`, `target_sync_hooks.py`, `target_sync_merge.py`,
+  `target_probe.py`), mechanical conflict classes (`flow/conflict_classes*.py` for ledgers, timestamp-only KB/WB
+  entries, delete-vs-touch, and ordered list unions), containerised `conflict-resolver` role
+  (`flow/conflict_resolver_*.py`, `entrypoint/conflict_resolver*.py`) with lowest-tier-first escalation,
+  per-stage/turn-boundary and Stage 4/5 routing (`flow/review/sync_points.py`, `flow/calibrate_target_sync.py`,
+  `flow/stages/calibrate.py`), and end-of-flow re-entry sync (`flow/end_of_flow_sync.py`).
+- **Verification & Tests**: Hermetic unit and integration test suites added across all conflict classes, sync hooks,
+  review sync points, calibration target sync, and end-of-flow sync; `11/11` CI checks passed on head `077c9bd2`.
+- **Holon Flow Traversal**: All 5 stages (Intent -> Plan -> Execute -> Review Loop `3/3` APPROVED at iteration 5 ->
+  Calibration) completed cleanly across all 5 sub-intents and the parent PR `#283`.
