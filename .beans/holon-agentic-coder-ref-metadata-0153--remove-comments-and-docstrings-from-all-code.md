@@ -263,3 +263,7 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > `install_holon.py --holon-only`, and `flow-launcher-containers-self-doc` worktree plus
 > `I-1795530292-launcher-containers-self-doc/*` (local and remote) and `flow-launcher-containers-self-doc` branches
 > pruned. Bean `0153` stays `in-progress` for the remaining slices.
+
+> 2026-11-25: `Holon-Agentic-Coder/holon-agentic-coder#301` (`preflight-self-doc`, head `74a5ce76`, 3/3 consensus
+> approved at iter 1, 11/11 CI `SUCCESS`, Stage 5 calibrated EV `46.47` -> `55.27`, `MERGEABLE`/`CLEAN`) completed all 5
+> stages and is ready to merge.
