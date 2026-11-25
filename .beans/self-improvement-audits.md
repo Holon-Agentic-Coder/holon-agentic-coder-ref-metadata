@@ -5,6 +5,138 @@ first.
 
 ## Entries
 
+### 2026-11-25T00:28:00Z — Fifth-Merge Audit
+
+- **Trigger:** fifth merge since `2026-11-24T12:59:00Z` (`holon-agentic-coder` PRs `#282`, `#272`, `#275`, `#276`,
+  `#277`; plus decomposed child PR `#279` merged into `#283`'s plan branch; `holon-coherence` last merged `#55` at
+  `12:44:47Z`, with `#56` open).
+- **Last merged pull requests at audit time:**
+  - `holon-agentic-coder`: `#277` (`ci-wait-fast-poll-and-early-fail`, merged `2026-11-25T00:18:17Z`)
+  - `holon-coherence`: `#55` (`coherence-module-line-budget-all`, merged `2026-11-24T12:44:47Z`)
+- **Beans created or extended:**
+  - Created: `0438` (Stage 5 `counted_target_only_file` false positive on PR `#283` after merge commit `221f9d73`
+    adapted `test_replan_request.py`), `0439` (Stage 4 resolver has no scope guard and edits unrelated files on
+    timing-gate `FIND-CI` failures), `0440` (harness `.git/hooks/pre-commit` runs Prettier across unstaged working-tree
+    `.md` files), `0441` (Stage 5 `final_head_ci` reports `unknown` on bookkeeping-gated / transient-probe heads).
+  - Extended: `0433` (HTTP 406 recurred on `infra-helpers-self-doc` and `workspace-survival-job-parallel`;
+    cross-referenced companion `0437`), `0412` (`19/24` flows unlogged, `split-cli-init-modules` missing `review`
+    start/end, `+11:00` mixed into `Z` log timestamps, `calibrate.elapsed_seconds` vs `start_time..end_time`), `0407`
+    (timing-gate `FIND-CI` re-reviews on `#276`/`#290`/`#292`, 3 approvals on `#292`, merge withdrawal on `#283`),
+    `0408` (`PR #296` failed `Test - Hygiene` on engine-generated `executions/E-1795563737-ANA-G4N.md` and
+    `Lint with Ruff`; `PR #289` failed hygiene), `0422` (`14/23` `hac` flows ran with `allow_overlap=True`).
+
+#### 1. Per-Step Timing Table (`2026-11-24T12:59:00Z` to `2026-11-25T00:19:32Z`)
+
+Measured across `24` active checkpoints (`23` `holon-agentic-coder` + `1` `holon-coherence`), `5` `todo/flow-*.log`
+files with post-`12:59Z` entries (`ci-skip-bookkeeping-only-pushes`, `launcher-proxy-self-doc`,
+`timing-gate-judges-test-time`, `unit-suite-slowest-tests-speedup`, `workspace-survival-job-parallel`), and GitHub
+PR/CI/commit records (`hac#272`, `#275`–`#297`, `coh#55`–`#56`):
+
+| Step                                                                   | Count | Median (min) | Longest (min) | Longest in                                   |
+| :--------------------------------------------------------------------- | ----: | -----------: | ------------: | :------------------------------------------- |
+| Pre-flight (credential probe, image check, worktree creation)          |     - | not measured |  not measured | missing wrapper timestamps (`0412`)          |
+| Stage 1: intent agent turn (checkpoint)                                |    20 |          0.3 |           1.7 | `entrypoint-exec-self-doc`                   |
+| Stage 2: planner agent turn (checkpoint)                               |    22 |          3.8 |          22.9 | `timing-gate-judges-test-time`               |
+| Stage 3: admission check (`todo/flow-*.log` only; 22 unlogged)         |     1 |          0.1 |           0.1 | `timing-gate-judges-test-time`               |
+| Stage 3: overlap wait / admission refusal (14/23 used `allow_overlap`) |     - | not measured |  not measured | 2 immediate HTTP 406 halts (`0433`, `0437`)  |
+| Stage 3: executor agent turn (checkpoint, incl. local tests)           |    23 |          7.9 |          34.6 | `timing-gate-judges-test-time`               |
+| Stage 3: re-plan after touch-set / entropy breach (2 flows)            |     - | not measured |  not measured | `split-cli-init-modules`, `end-of-flow-sync` |
+| Each push & conflict probe/merge of target                             |     - | not measured |  not measured | folded into surrounding stage (`0412`)       |
+| Stage 4: empty-diff guard + PR create/edit                             |     - | not measured |  not measured | not split in checkpoints (`0412`)            |
+| Stage 4: reviewer ensemble turn (3 reviewers; per-reviewer unlogged)   |    10 |         24.5 |          56.9 | `unit-suite-slowest-tests-speedup` (`#275`)  |
+| Stage 4: resolver turn (incl. push; 1 aborted `-6` pass ran 227.1m)    |     3 |          9.4 |          33.4 | `timing-gate-judges-test-time` (`#278`)      |
+| Stage 4: ledger commit                                                 |     - | not measured |  not measured | not logged individually (`0412`)             |
+| Stage 4: individual review iteration (log)                             |    12 |         26.6 |          56.9 | `unit-suite-slowest-tests-speedup` (`#275`)  |
+| Stage 4: full review stage (checkpoint, all iters + CI/local tests)    |    19 |         17.0 |         122.9 | `timing-gate-judges-test-time` (`#278`)      |
+| CI registration wait (`todo/flow-*.log`)                               |     8 |          0.3 |           3.0 | `unit-suite-slowest-tests-speedup` (budget)  |
+| CI wait (Stage 5 `final_head_ci.ci_wait` in checkpoints)               |    16 |         11.9 |          30.0 | `timing-gate-judges-test-time` (budget)      |
+| CI wait (`todo/flow-*.log`)                                            |     5 |          7.9 |          18.0 | `ci-skip-bookkeeping-only-pushes` (`#272`)   |
+| Stage 5: calibration work + promotion + reconciliation (excl. CI)      |    19 |          0.3 |           2.6 | `config-env-self-doc` (+4 self-doc flows)    |
+| Stage 5: final-head check after CI settled                             |     - | not measured |  not measured | folded into Stage 5 (`0412`)                 |
+| Wait: PR ready (`last_calib`) $\rightarrow$ maintainer merge           |     6 |        132.5 |         615.0 | `holon-agentic-coder#277`                    |
+| Idle: interrupted / stopped run $\rightarrow$ resume (`flow-*.log`)    |     7 |         21.7 |         393.4 | `ci-skip-bookkeeping-only-pushes` (`#272`)   |
+| GitHub: PR open $\rightarrow$ merged (`#272,#275,#276,#277,#282,#279`) |     6 |        621.3 |         658.4 | `holon-agentic-coder#277`                    |
+
+Stage totals across the `24` active checkpoints in the window (Stage 5 split into working vs `final_head_ci` wait;
+inter-stage gaps/idle across unlogged flows `not measured`):
+
+| Stage     | Total (h) | Working (h) | Waiting on CI (h) | Waiting on another flow (h) | Waiting on human (h) | Idle in logs (h) |
+| :-------- | --------: | ----------: | ----------------: | --------------------------: | -------------------: | ---------------: |
+| intent    |      0.13 |        0.13 |              0.00 |                        0.00 |                 0.00 |                - |
+| plan      |      1.71 |        1.71 |              0.00 |                        0.00 |                 0.00 |                - |
+| execute   |      3.34 |        3.34 |              0.00 |                not measured |                 0.00 |                - |
+| review    |     10.44 |       10.44 |  incl. in working |                        0.00 |                 0.00 |             3.07 |
+| calibrate |      3.37 |        0.28 |              3.09 |                        0.00 |                22.61 |             6.92 |
+
+- **Missing timing (`19/24` active flows unlogged in `todo/flow-*.log`):** only `5` flows wrote post-`12:59Z` entries to
+  `todo/flow-*.log`; `split-cli-init-modules` recorded `review: status=failed start=None end=None elapsed=1.161`;
+  `todo/flow-unit-suite-slowest-tests-speedup.log` mixed `+11:00` container timestamps inside `[...Z]` lines (`0412`).
+- **Bookkeeping-gate before/after (`PR #272` merged `21:10:12Z`):** Stage 5 `ci_wait` dropped from `11.9–30.0 min`
+  before `21:10Z` to `0.3–1.9 min` (`16–112 s`) after `21:10Z`, and bookkeeping-only `Test - Unit` workflow runs dropped
+  to `18–25 s`.
+
+#### 2. Churn Counts (`2026-11-24T12:59:00Z` to `2026-11-25T00:19:32Z`)
+
+- **CI pipeline runs:**
+  - Across the **5 cadence merges** (`hac#282`, `#272`, `#275`, `#276`, `#277`): `47` CI heads in the window, of which
+    **37 (79%) were churn** (`30` bookkeeping-only, `7` `main`-merge), with `6` failed heads (`3` `Workspace survival`,
+    `2` `unit (macos-latest)` timing gate on `#276` bookkeeping commits, `1` `build` on `#282`).
+  - Across **all 24 `hac` PRs + `coh#56` in the window**: `136` `hac` CI heads (`26` code, `20` `main`-merge, `90`
+    bookkeeping) + `16` reruns = `152` `hac` runs, of which **126 (83%) were churn**, with `26` failed heads (`20` on
+    bookkeeping/merge heads, `6` on code heads) and `1` failure on `coh#56` (`4` heads: `1` code, `3` bookkeeping).
+- **Review & Stage 3/5 churn:**
+  - `PR #276` (`launcher-proxy-self-doc`): 6 review iterations; `unit (macos-latest)` timing-gate failures on
+    bookkeeping heads (`c1f20b9e`, `f5baea47`) triggered `FIND-CI-002` / `FIND-CI-004` and pushed resolver edits into 8
+    out-of-scope files (`cli/__init__.py`, `config_env_report.py`, `scripts/pre_commit_check.py`, and 5 test files),
+    causing `PR #296` (`split-cli-init-modules`) to collide in `cli/__init__.py` (`23:47:23Z`).
+  - `PR #292` (`config-env-self-doc`): 7 review iterations (3 separate 3/3 approvals) across 30 commits (20 bookkeeping,
+    4 `main`-merges) and out-of-scope resolver edits in `redaction.py`/`test_redaction.py`.
+  - `PR #290` (`knowledge-self-doc`): 4 review iterations driven by `unit (macos-latest)` timing-gate `FIND-CI-002` /
+    `FIND-CI-003` on bookkeeping heads (`9b4d2bd4`, `b15549be`), then `final_head_ci: unknown`.
+  - `PR #283` (`resolve-conflicts-in-flow`): `221f9d73` merge adaptation caused consensus withdrawal (`e1e7150`) and a
+    false-positive Stage 5 `counted_target_only_file` halt (`23:36:28Z`); PR #283's >300-file / >20k-line diff also
+    blocked Stage 3 admission on `infra-helpers-self-doc` (`19:32:54Z`) and `workspace-survival-job-parallel`
+    (`23:26:48Z`).
+  - `PR #275` (`unit-suite-slowest-tests-speedup`): 9 review iterations total; hit `227.1 min` `-6` resolver abort +
+    `94.0 min` idle on `monthly spend limit` (`0434`).
+  - `PR #272` (`ci-skip-bookkeeping-only-pushes`): `393.4 min` idle before `calibrate` failed at `21:10:18Z` (`6 s`
+    after PR #272 merged and deleted the remote branch, `0420`).
+
+#### 3. Ranked Suggestions
+
+1. **Bean `0439` (high, Flow / Architecture / Stage 4 — new):** Enforce a touch-set / scope boundary on Stage 4 resolver
+   commits and filter out `CI Timing Gate` failures from `FIND-CI` resolver dispatch (prevents cross-PR collisions like
+   `PR #276` $\rightarrow$ `PR #296`, silent test-budget weakening, and `9.4–33.4 min` wasted resolver turns +
+   `26.6 min` re-reviews).
+2. **Bean `0438` (high, Flow / Stage 5 — new):** Fix `target_only_paths` in `calibration_self_check.py` to stop using
+   `git log --no-merges` so conflict-merge adaptations of `main`-added files (e.g. `PR #283` `221f9d73` on
+   `test_replan_request.py`) do not trigger false-positive `counted_target_only_file` Stage 5 failures.
+3. **Bean `0440` (high, Harness — new):** Scope `.git/hooks/pre-commit` Prettier checks to staged Markdown files only so
+   concurrent sessions with unstaged `.md` edits do not block `git commit --only` in other sessions.
+4. **Extended `0433` (high, Flow / Stage 3):** Added `infra-helpers-self-doc` (`19:32:54Z`) and
+   `workspace-survival-job-parallel` (`23:26:48Z`) HTTP 406 Stage 3 admission halts on PR `#283` and cross-referenced
+   companion `0437`.
+5. **Extended `0407` & `0408` (critical/high, Flow / Pipeline):** Recorded timing-gate `FIND-CI` re-review churn on
+   `#276`/`#290`/`#292` and merge withdrawal on `#283` in `0407`, plus engine-generated
+   `executions/E-1795563737-ANA-G4N.md` Prettier hygiene failures on `PR #296` and `#289` in `0408`.
+6. **Bean `0441` (normal, Flow / Stage 5 — new):** Fix `ci_final_head.py` so transient non-`github_cli` poll hiccups
+   retry within budget and bookkeeping-gated final heads classify cleanly instead of reporting `unknown` (`PR #290`,
+   `PR #293`).
+7. **Extended `0412` & `0422` (high/normal, Flow / Harness):** Recorded `19/24` unlogged flows, missing `review` failure
+   timestamps (`PR #296`), mixed `+11:00`/`Z` log timestamps, `calibrate` elapsed mismatch in `0412`, and `14/23`
+   `allow_overlap=True` flows in `0422`.
+
+#### 4. Examined and Found in Order
+
+- **PR #272 (`ci_bookkeeping_gate`, Bean `0403`):** Once merged at `21:10:12Z`, bookkeeping-only `Test - Unit` runs
+  dropped to `18–25 s` and Stage 5 `final_head_ci` waits dropped from `11.9–30.0 min` to `0.3–1.9 min` on clean flows
+  (`git-flow-self-doc`, `local-llm-self-doc`, `claude-auth-self-doc`, `config-env-self-doc`).
+- **PR #277 (`ci_wait` fast-poll & early-fail, Bean `0399`):** Merged cleanly at `00:18:17Z`, capping CI wait polling at
+  `15 s` instead of `120 s` backoff.
+- **Self-doc slice flows (`PR #280`, `#281`, `#282`, `#284`–`#288`, `#291`, `#294`, `#295`):** `11` slice PRs passed
+  Stage 4 consensus in `1–2` iterations with `7.6–17.0 min` review stages when not hit by timing-gate `FIND-CI` or
+  `main`-merge churn.
+
 ### 2026-11-24T12:59:00Z — Fifth-Merge Audit (Antigravity verification pass)
 
 - **Trigger:** fifth merge since `2026-11-24T11:05:00Z` (`holon-coherence#53`, `holon-agentic-coder#269`,

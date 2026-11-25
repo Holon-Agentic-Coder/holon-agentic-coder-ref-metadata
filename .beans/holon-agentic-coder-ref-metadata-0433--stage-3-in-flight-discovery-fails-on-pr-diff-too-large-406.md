@@ -11,7 +11,7 @@ tags:
   - github
   - holon-agentic-coder
 created_at: 2026-11-24T18:33:00Z
-updated_at: 2026-11-24T18:33:00Z
+updated_at: 2026-11-25T00:28:00Z
 ---
 
 ## Problem
@@ -49,3 +49,10 @@ every new flow—even when the new flow's touch set is completely disjoint.
 ## Notes
 
 - Target repo change through the Holon flow; wait until `PR #283` merges since both touch `flow/`.
+
+## Audit evidence, 2026-11-25T00:28Z (self-improvement audit, fifth merge)
+
+- Recurred at `2026-11-24T19:32:54Z` on `infra-helpers-self-doc`
+  (`Stage 3 refused: the flows in flight could not be discovered: 'gh pr diff 283' failed: HTTP 406`) and again at
+  `2026-11-24T23:26:48Z` on `workspace-survival-job-parallel` (also logged separately in companion Bean `0437` when PR
+  #283 crossed 300 files). Both should be fixed together in `in_flight.py` via paginated REST `pulls/{number}/files`.
