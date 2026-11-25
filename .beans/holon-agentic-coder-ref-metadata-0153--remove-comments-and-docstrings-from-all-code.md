@@ -297,3 +297,7 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > `holon` images and CLI rebuilt/reinstalled via `install_holon.py --holon-only`, and `flow-cli-commands-exec-self-doc`
 > worktree plus `I-1795532856-cli-commands-exec-self-doc/*` (local and remote) and `flow-cli-commands-exec-self-doc`
 > branches pruned. Bean `0153` stays `in-progress` for the remaining slices.
+
+> 2026-11-25: `Holon-Agentic-Coder/holon-agentic-coder#306` (`github-pr-merge-self-doc`, head `928446ed`, 3/3 consensus
+> approved at iter 2, 11/11 CI `SUCCESS`, Stage 5 calibrated EV `39.38` -> `46.51`, `MERGEABLE`/`CLEAN`) completed all 5
+> stages and is ready to merge. Holding further `Bean 0153` backfills until open PRs merge.
