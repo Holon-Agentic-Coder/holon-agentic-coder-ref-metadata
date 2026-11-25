@@ -13,7 +13,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:42:56Z
-updated_at: 2026-11-25T22:55:00Z
+updated_at: 2026-11-25T22:58:00Z
 ---
 
 ## Problem
@@ -228,10 +228,13 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > #4 with `executor-pkg-self-doc` (`todo/intent-0153-executor-pkg-self-doc.json`) via `antigravity-agent` /
 > `gemini-4-neon`.
 
-> 2026-11-24: `Holon-Agentic-Coder/holon-coherence#56` (`coherence-final-self-doc`, head `faf37e06`, `7/7` CI checks
-> green, Stage 4 APPROVED, Stage 5 calibrated EV `8.29` -> `8.84`) verified ready to merge (completing all Python and
-> workflow/action YAML self-doc slices plus repo-wide enforcement in `holon-coherence`). Backfilled slot #3 with
-> `config-env-self-doc` (`todo/intent-0153-config-env-self-doc.json`) via `antigravity-agent` / `gemini-4-neon`.
+> 2026-11-25: `Holon-Agentic-Coder/holon-coherence#56` (`coherence-final-self-doc`, head `faf37e06`, merge commit
+> `18084f3a`, merged `2026-11-25T22:57:30Z`, 7/7 CI checks green, Stage 4 APPROVED, Stage 5 calibrated EV `8.29` ->
+> `8.84`) merged into `main`, completing all Python and workflow/action YAML self-doc slices plus repo-wide enforcement
+> in `holon-coherence`. `apps/holon-coherence/main` fast-forwarded to `18084f3a`, `holon-coherence` Docker image and CLI
+> rebuilt/reinstalled via `install_coherence.py`, and `flow-coherence-final-self-doc` worktree plus
+> `I-1795548977-coherence-final-self-doc/*` (local and remote) and `flow-coherence-final-self-doc` branches pruned. Bean
+> `0153` stays `in-progress` while `holon-agentic-coder` slices remain.
 
 > 2026-11-24: `Holon-Agentic-Coder/holon-agentic-coder#291` (`executor-pkg-self-doc`, head `5b386da1`, `11/11` CI checks
 > green, Stage 4 APPROVED, Stage 5 calibrated EV `35.67` -> `48.36`) verified ready to merge. Backfilled slot #4 with

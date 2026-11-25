@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-25 22:55:35 UTC
+**Last Updated:** 2026-11-25 22:59:48 UTC
 
 ## Executive Summary
 
@@ -19,7 +19,7 @@ run together.
 - **Total Tracked Beans**: 465 (excluding template)
 - **Completed**: 357 (76.8%)
 - **Scrapped / Superseded**: 10 (2.2%)
-- **Active**: 98 (21.1%), of which 10 are in progress, 86 are todo and 2 are draft
+- **Active**: 98 (21.1%), of which 11 are in progress, 85 are todo and 2 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1049,7 +1049,7 @@ logged beans `0389` and `0390` added to triage.
 | **P1**   | todo        | Medium |             S             | 0416   | Fix relative quota reset tail scanning, seconds parsing, and watcher keychain lookup                                                       | Harness / Run 247 / Credentials  | Quota reset parsing scans the full output in one place and the tail in another, and drops seconds; `watch_limits.py` still reads the deleted plaintext token file. Harness only.                                                                      |
 | **P1**   | in-progress |  High  |             S             | 0419   | CI Timing Gate fails a green unit job on a slow runner and withdraws flow consensus                                                        | CI / Flow                        | The gate compared 360 s against a 229 s baseline and the flow withdrew a consensus that had passed. Fix together with 0404.                                                                                                                           |
 | **P1**   | todo        |  High  |             M             | 0420   | A flow whose pull request is merged while it is running fails instead of finishing cleanly                                                 | Flow / Review                    | PR #270 merged while its flow waited on merged-head CI, and the flow exited 1 on an unverifiable diff. It should finish cleanly.                                                                                                                      |
-| **P2**   | todo        | Medium |             M             | 0400   | Shorten the CI pipeline: the slowest jobs set every wait in the flow                                                                       | Build / DevEx                    | Shorten the CI pipeline: the slowest jobs set every wait in the flow. Overlaps 0404 and 0405 (test suite).                                                                                                                                            |
+| **P2**   | in-progress | Medium |             M             | 0400   | Shorten the CI pipeline: the slowest jobs set every wait in the flow                                                                       | Build / DevEx                    | Shorten the CI pipeline: the slowest jobs set every wait in the flow. Overlaps 0404 and 0405 (test suite).                                                                                                                                            |
 | **P2**   | todo        | Medium |             M             | 0412   | Every flow step is timed and every flow keeps its log: the steps the audit could not measure                                               | Ledger / Observability           | Every flow step is timed and keeps its log, so the self-improvement audit can measure each step.                                                                                                                                                      |
 | **P2**   | todo        | Medium |             L             | 0413   | Coding rules from what the reviewers keep finding, given to the planner and executor up front                                              | Architecture / Quality           | Coding rules drawn from recurring reviewer findings, given to the planner and executor up front.                                                                                                                                                      |
 | **P2**   | todo        |  High  |             L             | 0414   | An edit outside the plan's touch set is caught during the executor turn, not after it                                                      | Architecture / Quality           | An edit outside the plan's touch set should be caught during the executor turn, not after it.                                                                                                                                                         |
