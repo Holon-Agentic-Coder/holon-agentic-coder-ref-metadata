@@ -11,7 +11,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-25T03:08:00Z
-updated_at: 2026-11-25T04:02:00Z
+updated_at: 2026-11-25T05:41:00Z
 ---
 
 ## Problem
@@ -106,3 +106,12 @@ via the Holon flow.
     heads, `29` bookkeeping + `14` `main`-merge across `459` check-runs).
 - **`thomashan/dev-env#42` (`tmux-focus-events-on`):** Stage 5 `ef1fbd76` push (`04:31:59Z`) cancelled `b1dc27bb`'s
   running `Unit Tests` and `Ubuntu Converge E2E` (`2/3` = `66.7%` of `#42` CI heads were bookkeeping churn).
+
+## Audit evidence, 2026-11-25T05:41Z (self-improvement audit, fifth merge #295–#299)
+
+- **`PR #308` hit a third Stage 4 quadruple-push burst in `29 s` (`05:16:12Z..05:16:41Z`):** `ebb688d6` (`fix(review)`,
+  doc-only) $\rightarrow$ `69c4188f` (`before target sync`) $\rightarrow$ `8857f506` (`sync: merge target origin/main`)
+  $\rightarrow$ `c960579d` (`chore(review)`); cancelled `5` workflows on `8857f506` (`7–12 s`, while `Docker Build`
+  `45552461815` still ran `108 s`), forcing `c960579d` to run full `7.57 min` CI.
+- Across `#295–#299` full PR lifetimes, `5` code/merge heads (`cb34f2eb`, `01418f78`, `b646d346`, `59d41deb` on `#296`;
+  `68f4f9a6` on `#297`) were similarly cancelled by immediate follow-up `chore(review)` ledger commits.

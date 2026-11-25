@@ -11,7 +11,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T10:55:00Z
-updated_at: 2026-11-25T04:02:00Z
+updated_at: 2026-11-25T05:41:00Z
 ---
 
 ## Why
@@ -275,3 +275,14 @@ record these.
 - **Stage 3 admission block on `0407` itself (`no-unneeded-full-review`):** remained idle in Stage 3 for the entire
   additional `69.25 min` window (`03:54:45Z..05:04:00Z+`, now `142.33 min` total since `02:41:40.517Z` — see Bean
   `0446`).
+
+## Audit evidence, 2026-11-25T05:41Z (self-improvement audit, fifth merge #295–#299)
+
+- **`PR #308` (`workspace-survival-job-parallel`):** ledger-only Round 2 Stage 4 re-entry reached **`86+ min`**
+  (`04:14:18Z..05:40:24Z+`, through Iter 4 `CHANGES_REQUESTED` `3/3` at `05:21:18Z` and live Iter 4 resolver
+  `05:25:12Z+`), as Reviewer 3 reversed Iter 3 approval (`05:06:12Z`) on unchanged code.
+- **`PR #309` (`0438`, `calibration-merge-adapted-file`):** all `3/3` reviewers `APPROVED (0/0/0)` at `05:40:16Z`, yet
+  Stage 4 blocked and dispatched a resolver (`05:40:17Z`) solely on unformatted Markdown
+  (`plans/.../P-1795584464-CLA-CO5.5.md`, `Test - Hygiene`), triggering another full re-review cycle once formatted.
+- **`0407` itself (`no-unneeded-full-review`):** reached `178+ min` since `02:41:40Z` halted in Stage 3 (`33.40 min` in
+  window).

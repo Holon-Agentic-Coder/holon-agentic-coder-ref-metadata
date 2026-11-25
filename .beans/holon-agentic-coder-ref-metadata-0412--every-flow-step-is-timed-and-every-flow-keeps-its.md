@@ -11,7 +11,7 @@ tags:
   - timing
   - holon-agentic-coder
 created_at: 2026-11-24T11:00:00Z
-updated_at: 2026-11-25T04:02:00Z
+updated_at: 2026-11-25T05:41:00Z
 ---
 
 ## Why
@@ -120,3 +120,13 @@ Small: wrapper (`.agents/skills/holon_flow/scripts/run_holon_flow.py`) and loggi
   and Stage 4 resolvers (`27.02 min` + `4.47 min` on `hac#308`) remain unmeasured.
 - `review_local` drops `TestMeasurement.output_excerpt` and failing test node IDs from logs and `executions.jsonl`
   (tracked separately in Bean `0450`).
+
+## Audit evidence, 2026-11-25T05:41Z (self-improvement audit, fifth merge #295–#299)
+
+- New flows `0371` (`todo/flow-ledger-fragments-and-promotion.log`) and `0438`
+  (`todo/flow-calibration-merge-adapted-file.log`) wrote timestamped stage logs, yet wrapper pre-flight lines
+  (`lines 1–13` in both logs) still carry no UTC timestamps.
+- Antigravity flows (`#295–#301` and `0407`) still leave no `todo/flow-*.log` (e.g., `#301`'s `05:32:48Z` `origin/main`
+  merge); individual git pushes, conflict merges, per-reviewer latencies inside `4.47 / 3.83 min` ensembles (`#308` i4,
+  `#309` i1), and inner tool-vs-model splits inside `4.98 min` Stage 3 (`#309`) and `7.45 / 15.20+ min` Stage 4
+  resolvers (`#308`) remain unmeasured.

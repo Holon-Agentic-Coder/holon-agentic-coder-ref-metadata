@@ -12,7 +12,7 @@ tags:
   - review-loop
   - convergence
 created_at: 2026-11-25T05:07:00Z
-updated_at: 2026-11-25T05:07:00Z
+updated_at: 2026-11-25T05:41:00Z
 ---
 
 # Stage 4 `unchanged_streak` keys on raw `head_sha` and ignores `open` findings, letting target sync / doc-only commits loop indefinitely
@@ -70,3 +70,11 @@ Small: fingerprint-based streak comparison in `flow/review/loop.py` + unit test,
 - Related: Bean `0407` (ledger-only sync shouldn't re-enter Stage 4), Bean `0439` (resolver scope guard), Bean `0450`
   (`review_local` `FIND-CI` churn feeding doc-only resolver commits).
 - Audit source: `2026-11-25T05:07Z` fifth-merge self-improvement audit.
+
+## Audit evidence, 2026-11-25T05:41Z (self-improvement audit, fifth merge #295–#299)
+
+- **`holon-agentic-coder#308` Round 2 Iter 3 (`05:09:01Z..05:16:12Z`, `7.18 min`):** the resolver marked `R1-F1`
+  `"disposition": "applied"` (`ebb688d6`) while modifying **only `executions/E-1795573757-CLA-CO5.5.md`** (zero code or
+  workflow diff) and left `R2-F1` `"open"`. That doc-only commit plus target sync `8857f506` drove Stage 4 into **Iter 4
+  (`05:16:46Z..05:21:18Z`)**, where Reviewer 3 reversed Iter 3 approval (`CHANGES_REQUESTED` `3/3`). Treating
+  `"applied"` with an `executions/*.md`-only change as non-code progress prevents this loop from repeating past Iter 3.

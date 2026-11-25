@@ -12,7 +12,7 @@ tags:
   - ci
   - observability
 created_at: 2026-11-25T05:07:00Z
-updated_at: 2026-11-25T05:07:00Z
+updated_at: 2026-11-25T05:41:00Z
 ---
 
 # Stage 4 `review_local` drops `TestMeasurement.output_excerpt` and preempts pending GitHub CI with slow host test runs
@@ -77,3 +77,17 @@ unit tests, delivered via the Holon flow (`holon-agentic-coder`).
 - Related: Bean `0412` (step timing and structured diagnostics), Bean `0449` (`FIND-CI` doc-only commits resetting
   `unchanged_streak`).
 - Audit source: `2026-11-25T05:07Z` fifth-merge self-improvement audit.
+
+## Audit evidence, 2026-11-25T05:41Z (self-improvement audit, fifth merge #295–#299)
+
+- **`holon-agentic-coder#308` Round 2 Iter 3 & Iter 4:** host `review_local` failed **`4/4` times** on `1` test
+  (`FIND-CI-003` at `05:09:01Z`, `2.82 min`, `1/7755`, `rate 0.99987105`; `FIND-CI-004` at `05:25:12Z`, `3.90 min`,
+  `1/7788`, `rate 0.99987160`) while Linux/macOS CI passed `7788/7788` and container `uv run task test` passed
+  `7757/7757`.
+- Iter 3 resolver log (`todo/flow-workspace-survival-job-parallel.log:878`) identified the host-only failure as
+  `tests/test_ledger_append_only.py::test_repository_ledgers_survive_precheck_and_reconcile_byte_for_byte` (lines
+  `469-488` checksum live `REPO_LEDGER_DIR` before/after running, passing in isolation and CI but failing under host
+  `-n auto` `review_local`).
+- In Iter 4, **GitHub CI on `c960579d` completed `11/11` green at `05:24:25Z`, `47 s` BEFORE host `review_local`
+  reported `failed=True` at `05:25:12Z`**, proving `review_local` does not even re-check GitHub CI completion before
+  emitting `FIND-CI` and dispatching a live resolver (`05:25:12Z..05:40:24Z+`).

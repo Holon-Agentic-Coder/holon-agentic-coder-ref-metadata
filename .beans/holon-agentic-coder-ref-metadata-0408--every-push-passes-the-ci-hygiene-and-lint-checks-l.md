@@ -11,7 +11,7 @@ tags:
   - pipeline
   - holon-agentic-coder
 created_at: 2026-11-24T11:00:00Z
-updated_at: 2026-11-25T03:08:00Z
+updated_at: 2026-11-25T05:41:00Z
 ---
 
 ## Why
@@ -84,3 +84,14 @@ gate, add ruff, `jq` and the growth check. A few seconds per turn.
   `executions/E-1795571328-ANA-G4N.md`. This was the sole CI failure across all `276` workflow runs (`46` heads) in
   `00:28Z–02:54Z`, yet it blocked 3/3 `APPROVED` reviewers via `FIND-CI-001` and added a `4.2 min` resolver pass, a
   cancelled CI head, and a `7.6 min` full re-review (`20.2 min` Stage 4 vs `7.0 min` median).
+
+## Audit evidence, 2026-11-25T05:41Z (self-improvement audit, fifth merge #295–#299)
+
+- **`PR #309` (`0438`, `calibration-merge-adapted-file`):** Stage 3 push `4cdc1913` (`05:36:24Z`) failed
+  `Test - Hygiene` (`run 45554742211`, `make lint` $\rightarrow$ `lint-md` Prettier check) at `05:37:23Z` solely on
+  Stage 2's unformatted `plans/I-1795584436-calibration-merge-adapted-file/P-1795584464-CLA-CO5.5.md` (after
+  `formatting.py` Prettier timed out twice — Bean `0442`), blocking `3/3` `APPROVED (0/0/0)` reviewers at `05:40:16Z`
+  into an unnecessary resolver turn (`05:40:17Z`). This was the sole CI failure across `86` `hac` runs in
+  `05:07Z–05:40:24Z`.
+- **`PR #296` (`split-cli-init-modules`, cadence merge):** full lifetime showed `2` `Hygiene` failures (`5cc97090` Ruff
+  - Prettier, `bd5fccc2` `executions/*.md` Prettier).

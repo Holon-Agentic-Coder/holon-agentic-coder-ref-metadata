@@ -5,6 +5,147 @@ first.
 
 ## Entries
 
+### 2026-11-25T05:41:00Z — Fifth-Merge Audit
+
+- **Trigger:** fifth target-repo merge since `2026-11-25T05:07:00Z` (`holon-agentic-coder` PRs `#295`, `#296`, `#297`,
+  `#298`, `#299`; `holon-coherence` unchanged at `#55` merged `2026-11-24T12:44:47Z` with `#56` open;
+  `thomashan/dev-env` unchanged at `#41` with `#42` open). Note: `hac#300` (`05:31:18Z`) and `hac#301` (`05:38:33Z`)
+  also merged while this audit was running (`05:22:44Z–05:41:00Z`).
+- **Last merged pull requests at audit time:**
+  - `holon-agentic-coder`: `#299` at trigger (`in-flight-pr-files-fallback`, merged `2026-11-25T05:20:56Z`; `#300`
+    `05:31:18Z` and `#301` `05:38:33Z` merged during audit)
+  - `holon-coherence`: `#55` (`coherence-module-line-budget-all`, merged `2026-11-24T12:44:47Z`)
+  - `thomashan/dev-env`: `#41` (`tmux-shift-enter-extkeys`, merged `2026-11-25T04:03:06Z`)
+- **Beans created or extended:**
+  - Created: `0452` (Stage 5 KB promotion persists single-flow Stage 4 review chatter as `KB-failure-*.json` — `2,896`
+    of `3,205` files `< 1 h` apart; `#296` added `21`, `#297` `4`, `#300` `3`, `#308` `6`), `0453` (consolidate `19`
+    duplicated `test_*_self_doc.py` files / `2,199` lines on `main` + `7` open PR copies / `932` lines into one
+    parameterized check), `0454` (`ci_bookkeeping_gate.py` `2-dot` `before..head_sha` compare forces full `7–9 min` CI
+    on mechanical `Merge origin/main` pushes across `#295–#301`), `0455` (`post-pr-merge` calls `install_holon.py`
+    without `--holon-only`, collides across burst merges, and left `bean-triage-prioritisation.md` stale since
+    `02:29:34Z` across `7+` merges).
+  - Extended: `0442` (`formatting.py` Stage 2 `prettier@3.8.4` timed out `2x 30 s` in both `0371` and `0438`/`#309`,
+    leaving `P-1795584464-CLA-CO5.5.md` unformatted and causing immediate `Test - Hygiene` failure on `4cdc1913`),
+    `0450` (`#308` Iter 3 & Iter 4 `review_local` failed `4/4` on `1` host test — Iter 3 named
+    `test_repository_ledgers_survive_precheck_and_reconcile_byte_for_byte` — and Iter 4 failed `47 s` after GitHub CI
+    passed `11/11` on `c960579d`), `0449` (`#308` Iter 3 resolver marked `R1-F1` `"applied"` on `executions/*.md` only,
+    driving Iter 4 where R3 reversed approval), `0443` (`#308` hit 3rd 4-push `29 s` burst cancelling `8857f506`),
+    `0407` (`#308` Round 2 `86+ min` on unchanged code; `#309` Iter 1 `3/3` approved blocked by Prettier failure),
+    `0408` (`#309` `4cdc1913` failed `Test - Hygiene` on plan Prettier; `#296` `2` Hygiene failures), `0412` (wrapper
+    pre-flight `lines 1–13` on `0371`/`0438` un-timestamped; Antigravity PRs `#295–#301` & `0407` unlogged; pushes,
+    per-reviewer, and inner tool-vs-model timings unmeasured).
+
+#### 1. Per-Step Timing Table (`2026-11-25T05:07:00Z` to `2026-11-25T05:40:24Z`)
+
+Measured across `4` active/queued `hac` flows (`workspace-survival-job-parallel` `#308`,
+`ledger-fragments-and-promotion` `0371`, `calibration-merge-adapted-file` `0438`/`#309`, `no-unneeded-full-review`
+`0407`) plus GitHub PR/CI/commit records (`hac#295–#309`, `coh#56`, `dev-env#42`):
+
+| Step                                                                                      | Count | Median (min) | Longest (min) | Longest in                                   |
+| :---------------------------------------------------------------------------------------- | ----: | -----------: | ------------: | :------------------------------------------- |
+| Pre-flight (credential probe, image check, worktree creation)                             |     - | not measured |  not measured | `0371`/`0438` lines 1–13 un-timed (`0412`)   |
+| Stage 1: intent agent turn (`0371`, `0438`; full stage `0.33 m`)                          |     2 |         0.24 |          0.25 | `0371` (`ledger-fragments-and-promotion`)    |
+| Stage 2: planner agent turn (incl. `60 s` Prettier timeouts)                              |     2 |         3.98 |          4.83 | `0371` (`0438`: `3.12 m`; stage `4.93/3.22`) |
+| Stage 3: admission check (`0371` refused vs `#305`, `0438` admitted)                      |     2 |         0.27 |          0.27 | `0371` / `0438` (`0.27 m` each)              |
+| Stage 3: overlap wait / halted block (`0407` `33.40 m` in-win / `178.73 m` tot.; `0371`)  |     2 |        20.50 |         33.40 | `0407` (`178.73 m` total since `02:41:40Z`)  |
+| Stage 3: executor agent turn (`#309`/`0438`; stage `5.33 m`; tool vs model unlogged)      |     1 |         4.98 |          4.98 | `0438` (`calibration-merge-adapted-file`)    |
+| Each git push & conflict probe/merge of target                                            |     - | not measured |  not measured | folded into stage turns (`0412`)             |
+| Stage 4: empty-diff guard + PR create (`#309`/`0438`)                                     |     1 |         0.20 |          0.20 | `0438` (`calibration-merge-adapted-file`)    |
+| Stage 4: reviewer ensemble turn (`3` reviewers; per-reviewer unlogged; `#308` i4, `#309`) |     2 |         4.15 |          4.47 | `hac#308` Round 2 iter 4 (`#309` i1 `3.83`)  |
+| Stage 4: `review_local` host test run (`#308` i3 `05:06:12Z–05:09:01Z`, `#308` i4)        |     2 |         3.36 |          3.90 | `hac#308` Round 2 iter 4 (`#308` i3 `2.82`)  |
+| Stage 4: resolver turn (`#308` i3; live `#308` i4 `15.20+ m`, `#309` i1 `0.12+ m`)        |     1 |         7.45 |          7.45 | `hac#308` Round 2 iter 3 (live i4 `15.20+`)  |
+| Stage 4: target sync + ledger commit after resolver (`#308` i3)                           |     1 |         0.22 |          0.22 | `hac#308` Round 2 iter 3 (`29 s` burst)      |
+| Stage 4: individual review iteration (review+local, excl. resolver; `#308` i3/i4, `#309`) |     3 |         7.63 |          8.43 | `hac#308` Round 2 iter 4 (`#309` i1 `3.93`)  |
+| Stage 5: calibration work, CI registration wait, `final_head_ci`                          |     0 |            - |             - | no flow reached Stage 5 in window            |
+| Pre-merge `Merge origin/main` CI wait (`#297`–`#300`; `#297`/`#298`/`#300` merged early)  |     4 |         8.36 |          9.12 | `hac#300` (`a4e23b9e`; `#297` `8.62 m`)      |
+| Wait: PR ready (last cal) $\rightarrow$ maintainer merge (`#295–#299` cadence)            |     5 |       273.07 |        323.95 | `hac#295` (`#297` `295.98`, `#299` `273.07`) |
+| GitHub: PR open $\rightarrow$ merged (`#295–#299` cadence)                                |     5 |       313.23 |        336.37 | `hac#295` (`#297` `317.95`, `#296` `313.23`) |
+
+Stage totals clipped strictly inside `2026-11-25T05:07:00Z–05:40:24Z` (human wait sums `1.29 h` across merged
+`hac#297–#301` plus `4.45 h` across open ready queue `hac#302–#307`, `coh#56`, `dev-env#42` = `5.75 h`):
+
+| Stage     | Total (h) | Working (h) | Waiting on CI (h) | Waiting on another flow (h) | Waiting on human (h) | Idle (h) |
+| :-------- | --------: | ----------: | ----------------: | --------------------------: | -------------------: | -------: |
+| intent    |      0.01 |        0.01 |              0.00 |                        0.00 |                 0.00 |     0.00 |
+| plan      |      0.14 |        0.14 |              0.00 |                        0.00 |                 0.00 |     0.00 |
+| execute   |      0.78 |        0.09 |              0.00 |                        0.68 |                 0.00 |     0.00 |
+| review    |      0.63 |        0.63 |              0.00 |                        0.00 |                 0.00 |     0.00 |
+| calibrate |      0.00 |        0.00 |              0.00 |                        0.00 |                 5.75 |     0.00 |
+
+- **Missing timing (`0412`):** `0371` and `0438` logs miss UTC timestamps on wrapper pre-flight (`lines 1–13`),
+  Antigravity PRs (`#295–#301`) and `0407` left no `todo/flow-*.log`, and individual git pushes, conflict merges,
+  per-reviewer latencies inside `4.47 / 3.83 min` ensembles, and tool-vs-model splits inside `4.98 min` Stage 3 and
+  `7.45 / 15.20+ min` Stage 4 resolvers remain unmeasured.
+
+#### 2. Churn Counts (`2026-11-25T05:07:00Z` to `2026-11-25T05:40:24Z`, plus `#295–#299` lifetimes)
+
+- **CI pipeline runs:**
+  - Across the **5 cadence merges (`hac#295–#299`, full PR lifetime):** `30` tested CI heads (`198` workflow runs:
+    `#295` `4/28`, `#296` `10/64`, `#297` `6/42`, `#298` `6/36`, `#299` `4/28`), of which **`27` (`90.0%`) were churn**
+    (`21` bookkeeping/conflict + `6` `main_merge` vs `3` resolver code-fix heads). Review iterations across `#295–#299`:
+    **`8` total** (`1+3+2+1+1`): `5` minimum initial + **`3` repeat churn iterations** (`#296` x2 for `Hygiene`
+    `FIND-CI-002` + `Merge main`, `#297` x1).
+  - Across **in-window `hac` CI (`05:07:00Z–05:40:24Z`):** `86` workflow runs across `17` push/PR head events (`70`
+    success, `1` failure on `#309` `4cdc1913` `Test - Hygiene` Prettier, `6` cancelled: `5` on `#308` `8857f506` +
+    `05:09:38Z` `push` `0bd580ea` `Test - Unit`, `9` still in progress). Of `9` PR heads in window (`79e0ab33`,
+    `821656a1`, `ebb688d6`, `69c4188f`, `8857f506`, `c960579d`, `a4e23b9e`, `cf7c77f6`, `4cdc1913`), **`8/9` (`88.9%`)
+    were churn** (`5` `main_merge` + `3` bookkeeping/doc-only incl. `ebb688d6` `executions/*.md`-only fix; only `#309`
+    `4cdc1913` carried new feature/test code).
+- **Stage 2/3/4/5 & Harness churn:**
+  - **Stage 2 `formatting.py` Prettier timeouts $\rightarrow$ `#309` immediate CI fail (`0442`, `0408`, `0407`):**
+    `formatting.py:11` (`prettier@3.8.4`) timed out `2x 30 s` in both `0371` and `0438`, leaving
+    `P-1795584464-CLA-CO5.5.md` unformatted; `#309` (`4cdc1913`) immediately failed `Test - Hygiene` (`make lint-md`),
+    blocking `3/3` `APPROVED (0/0/0)` reviewers at `05:40:16Z` into a full resolver/re-review cycle.
+  - **Stage 5 KB chatter bloat (`0452`):** `3,205` `KB-failure-*.json` files on `main` (`2,896` = `90.4%` with `ACT-*`
+    refs `< 1 h` apart); `#296` added `21`, `#297` `4`, `#300` `3`, `#308` `6`.
+  - **Duplicate `self_doc` test scanners (`0453`):** `#295`, `#297`, `#298`, `#300` added separate copy-pasted scanners;
+    `19` files (`2,199` lines) on `main` + `7` open (`932` lines) duplicate identical AST/allowlist guards.
+  - **Pre-merge `Merge origin/main` CI & queue cascade (`0454`, `0371`):** `#295–#301` (`7/7` PRs) triggered full
+    `7–9 min` CI on `Merge origin/main` despite `pr_own_identical=True`; `#302–#308` remain queued (`#305`–`#308`
+    `DIRTY`/`UNKNOWN`), while `0371` itself blocked at `05:32:48Z` on `#305` (`warning: folder touch set ledger/`).
+  - **`#308` Round 2 `86+ min` loop (`0407`, `0449`, `0450`, `0443`):** Iter 3 doc-only fix (`ebb688d6`) + `29 s` 4-push
+    burst cancelled `8857f506` and triggered Iter 4 (`R3` reversed approval); host `review_local` failed `4/4` on `1`
+    test (`1/7755`, `1/7788`), failing Iter 4 `47 s` after GitHub CI passed `11/11` on `c960579d`.
+  - **Harness burst-merge rebuilds & stale triage (`0455`):** `7` `hac` merges in `39 min` omitted `--holon-only` and
+    left `.beans/bean-triage-prioritisation.md` stale since `02:29:34Z`.
+
+#### 3. Ranked Suggestions
+
+1. **Bean `0452` (high, Stage 5 / Knowledge — new):** Exclude intra-flow Stage 4 `ACT-REV`/`ACT-FIND` rows (or require
+   `>= 2` distinct intents) from `KB-failure-*.json` promotion (`2,896/3,205` single-flow artifacts bloating
+   git/`lint-json` and conflicts; `#296` added `21`).
+2. **Bean `0454` (high, Pipeline / CI Gate — new):** Avoid redundant `7–9 min` full CI in `ci_bookkeeping_gate.py` on
+   mechanical `Merge origin/main` pushes with `pr_own_identical=True` and disjoint `main` changes (after/alongside
+   `0371`; `#295–#301` `7/7` hit full CI).
+3. **Bean `0455` (high, Harness / `post-pr-merge` — new):** Pass `--holon-only` on `hac` merges, coalesce concurrent
+   burst rebuilds, and run/commit `prioritise_beans.py` cleanly (`bean-triage-prioritisation.md` stale `3.1+ h` across
+   `7` merges).
+4. **Bean `0453` (normal, Code Quality / Tests — new):** Consolidate `19` (`2,199` lines) + `7` open (`932` lines)
+   duplicated `test_*_self_doc.py` AST/tokenize scanners into one shared parameterized guard after `#301–#307` drain.
+5. **Extended `0442`, `0450`, `0449`, `0443`, `0407`, `0408`, `0412`:** Fix `formatting.py:11` (`prettier@3.8.4`
+   timeouts causing `#309` `4cdc1913` CI failure despite `3/3` approval), probe finished GitHub CI in `review_local`
+   (`#308` Iter 4 failed `47 s` after green CI) and isolate
+   `test_repository_ledgers_survive_precheck_and_reconcile_byte_for_byte`, count `"applied"` on `executions/*.md`-only
+   diffs as no code change for `unchanged_streak`, batch Stage 4 pushes (`29 s` 4-push burst on `#308`), skip unchanged
+   `end_of_flow_sync` / Markdown-only re-reviews, gate local Markdown before push, and timestamp wrapper pre-flight
+   lines (`lines 1–13`). _(Existing critical/high `0371`, `0446`, `0448`, `0403`/`0405` remain top priorities.)_
+
+#### 4. Examined and Found in Order
+
+- **Cadence `#295–#299` CI & review churn:** `27/30` (`90.0%`) tested PR heads were bookkeeping/conflict (`21`) or
+  `main_merge` (`6`); `#295, #298, #299` passed reviewers in `1` iteration (`#297` `2`, `#296` `3` due to `Hygiene`
+  Prettier + `Merge main`), while every PR waited `255–324 min` (`median 273.07 min`) for maintainer merge and hit queue
+  conflicts.
+- **Live Stage 2 $\rightarrow$ Stage 4 `#309` (`0438`) causality:** Double `30 s` `npx --yes prettier@3.8.4` timeouts in
+  `formatting.py` directly caused unformatted `P-1795584464-CLA-CO5.5.md` $\rightarrow$ `Test - Hygiene` failure
+  $\rightarrow$ blocked `3/3` approved reviewers at `05:40:16Z`.
+- **Stage 5 KB audit on `main`:** Confirmed `2,896/3,205` (`90.4%`) `KB-failure-*.json` files record single-flow `< 1 h`
+  `ACT-*` references generated by `wisdom.py:278-296` + flow-scoped branch targets.
+- **`#308` Iter 3–4 + `0371` admission block:** Confirmed
+  `test_repository_ledgers_survive_precheck_and_reconcile_byte_for_byte` (`test_ledger_append_only.py:469-488`) failed
+  host `review_local` `4/4` while passing CI/container/isolated runs; `0371` (`ledger-fragments-and-promotion`) blocked
+  immediately at `05:32:48Z` overlapping `PR #305`.
+
 ### 2026-11-25T05:07:00Z — Fifth-Merge Audit
 
 - **Trigger:** fifth target-repo merge since `2026-11-25T04:02:00Z` (`holon-agentic-coder` PRs `#290`, `#291`, `#292`,

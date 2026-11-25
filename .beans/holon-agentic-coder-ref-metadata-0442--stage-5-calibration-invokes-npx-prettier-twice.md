@@ -12,7 +12,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-25T03:08:00Z
-updated_at: 2026-11-25T04:02:00Z
+updated_at: 2026-11-25T05:41:00Z
 ---
 
 ## Problem
@@ -76,3 +76,15 @@ Small: single command-resolution helper in `calibration.py` + unit test, deliver
 - **`PR #308` Round 1 re-calibration (`04:10:12Z..04:12:52Z`)** spent **`2.50 min`** (`150 s`, incl. `10 s` re-point),
   and **`thomashan/dev-env#42` Stage 5 calibration (`04:29:23Z..04:31:59Z`)** spent **`2.60 min`** (`156 s`) on
   calibration work before `final_head_ci`.
+
+## Audit evidence, 2026-11-25T05:41Z (self-improvement audit, fifth merge #295–#299)
+
+- **Stage 2 `formatting.py` (`apps/sandbox-executor/src/sandbox_executor/formatting.py:11,48,63`)**, still pinned to
+  `npx --yes prettier@3.8.4`, timed out twice after `30 s` (`60 s` wasted) in both newly launched flows: `0371`
+  (`todo/flow-ledger-fragments-and-promotion.log:45-46`) and `0438`
+  (`todo/flow-calibration-merge-adapted-file.log:45-46`).
+- On `PR #309` (`0438`), those Stage 2 timeouts left
+  `plans/I-1795584436-calibration-merge-adapted-file/P-1795584464-CLA-CO5.5.md` unformatted, causing **`Test - Hygiene`
+  (`run 45554742211`, `make lint-md` using `prettier@3.10.1`) to immediately FAIL** at `05:37:23Z`, blocking `3/3`
+  `APPROVED (0/0/0)` reviewers at `05:40:16Z` and dispatching a resolver pass (`05:40:17Z`). `formatting.py` and
+  `calibration.py` should share one local/cached Prettier binary resolver aligned with CI's version.
