@@ -61,3 +61,10 @@ flow.
 - Target repo change through the Holon flow (`holon-agentic-coder`).
 - Related: Bean `0407` (mechanical `end_of_flow_sync` merges should carry approval without full Stage 4 re-entry), Bean
   `0388` (harness `bean_progress.py` stale stage display), Bean `0412` (step timing and logging).
+
+## Audit evidence, 2026-11-25T05:07Z (self-improvement audit, fifth merge #290–#294)
+
+- **`PR #308` (`workspace-survival-job-parallel`):** `checkpoint-workspace-survival-job-parallel.json` remained frozen
+  at `current_stage: "completed"` (`calibrate.end_time: "2026-11-25T04:14:18Z"`) throughout the entire **`49.6+ min`**
+  Round 2 Stage 4 re-entry (`04:14:18Z..05:04:00Z+`, Iters 1–3, `27.02 min` + `4.47 min` resolver turns, `2`
+  `review_local` runs, live Iter 3).

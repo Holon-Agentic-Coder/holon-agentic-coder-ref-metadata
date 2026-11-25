@@ -110,3 +110,13 @@ Small: wrapper (`.agents/skills/holon_flow/scripts/run_holon_flow.py`) and loggi
   `checkpoint.stage_results` while running (see Bean `0445`).
 - Pre-flight, individual pushes, conflict merges, per-reviewer latencies inside the `3.7 / 9.5 / 4.2 min` ensembles, and
   executor inner tool-vs-model split (`42.1 min` Stage 3) remain unmeasured.
+
+## Audit evidence, 2026-11-25T05:07Z (self-improvement audit, fifth merge #290–#294)
+
+- **`dev-env#42` (`tmux-focus-events-on`) and `0407` (`no-unneeded-full-review`)** left no `todo/flow-*.log` in the
+  window, leaving pre-flight (credential probe, image check, worktree creation) `not measured`.
+- Individual git pushes, conflict probe/merge timings, per-reviewer latencies inside the `4.40 / 4.13 min` (`hac#308`)
+  and `14.85 min` (`dev-env#42`) ensembles, and inner tool-vs-model splits inside Stage 3 (`4.80 min` on `dev-env#42`)
+  and Stage 4 resolvers (`27.02 min` + `4.47 min` on `hac#308`) remain unmeasured.
+- `review_local` drops `TestMeasurement.output_excerpt` and failing test node IDs from logs and `executions.jsonl`
+  (tracked separately in Bean `0450`).

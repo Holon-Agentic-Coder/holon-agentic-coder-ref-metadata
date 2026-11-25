@@ -5,6 +5,157 @@ first.
 
 ## Entries
 
+### 2026-11-25T05:07:00Z — Fifth-Merge Audit
+
+- **Trigger:** fifth target-repo merge since `2026-11-25T04:02:00Z` (`holon-agentic-coder` PRs `#290`, `#291`, `#292`,
+  `#293`, `#294`; `holon-coherence` unchanged at `#55` merged `2026-11-24T12:44:47Z` with `#56` open;
+  `thomashan/dev-env` merged `#41` at `04:03:06Z` and completed flow `#42`). Note: `hac#295` (`04:59:58Z`) and `hac#296`
+  (`05:01:49Z`) also merged while this audit was running (`04:56:57Z–05:07:00Z`).
+- **Last merged pull requests at audit time:**
+  - `holon-agentic-coder`: `#294` at trigger (`core-helpers-test-helpers`, merged `2026-11-25T04:55:29Z`; `#296`
+    `split-cli-init-modules` merged during audit at `2026-11-25T05:01:49Z`)
+  - `holon-coherence`: `#55` (`coherence-module-line-budget-all`, merged `2026-11-24T12:44:47Z`)
+  - `thomashan/dev-env`: `#41` (`tmux-shift-enter-extkeys`, merged `2026-11-25T04:03:06Z`)
+- **Beans created or extended:**
+  - Created: `0448` (`end_of_flow_sync._reenter_review_and_calibrate` leaves stale `calibrate=SUCCESS` + stale `review`,
+    causing nested `Stage 5 rerun` inside Stage 4, bogus `ACT-WITHDRAW`, 4-push CI cancellations, and double Stage 5 on
+    `hac#308`), `0449` (Stage 4 `unchanged_streak` keys on raw `head_sha` and ignores unresolvable `open` findings,
+    letting `hac#308` Round 2 loop `49.6+ min` over `3` iterations on doc-only/sync commits), `0450` (Stage 4
+    `review_local` drops `TestMeasurement.output_excerpt` and preempts pending GitHub CI with `2.8–2.9 min` macOS host
+    runs failing `1/7690`), `0451` (`dev-env` CI lacks `ci_bookkeeping_gate` and runs `test-unit (macos-latest)`
+    serially in `14.4 min`, causing `18.63 min` Stage 5 overruns on `dev-env#41`/`#42`).
+  - Extended: `0407` (`hac#308` Round 2 ledger-only `end_of_flow_sync` `1a6c1ab1` re-entered `49.6+ min` Stage 4 and
+    allowed reviewer reversal; `0407` idled `69.25 min` more = `142.33 min` total), `0443` (`hac#308` hit two `30–39 s`
+    quadruple-push bursts cancelling CI; `15/17` PR heads churn; `dev-env#42` `ef1fbd76` cancelled `b1dc27bb` runs),
+    `0445` (`hac#308` checkpoint stayed frozen at `current_stage: "completed"` across all `49.6+ min` of Round 2),
+    `0442` (`hac#308` Round 1 re-calibration `2.50 min`; `dev-env#42` Stage 5 calibration `2.60 min`), `0412`
+    (`dev-env#42` and `0407` unlogged in `todo/flow-*.log`; pre-flight, pushes, conflict merges, per-reviewer/tool
+    latencies unmeasured). _(Concurrent Claude Code session dirty beans such as `0371`, `0383`, `0405` left untouched.)_
+
+#### 1. Per-Step Timing Table (`2026-11-25T03:54:45Z` to `2026-11-25T05:04:00Z`)
+
+Measured across `2` active `hac` flows (`workspace-survival-job-parallel` `#308` in
+`todo/flow-workspace-survival-job-parallel.log` + git/GitHub; `no-unneeded-full-review` `0407` checkpoint, halted in
+Stage 3), `1` completed `dev-env` flow (`tmux-focus-events-on` `#42` checkpoint), and GitHub PR/CI/commit records
+(`hac#290`–`#308`, `coh#56`, `dev-env#41`–`#42`):
+
+| Step                                                                                        | Count | Median (min) | Longest (min) | Longest in                                   |
+| :------------------------------------------------------------------------------------------ | ----: | -----------: | ------------: | :------------------------------------------- |
+| Pre-flight (credential probe, image check, worktree creation)                               |     - | not measured |  not measured | `dev-env#42` & `0407` unlogged (`0412`)      |
+| Stage 1: intent agent turn (`dev-env#42` total stage `0.28 m`)                              |     1 |         0.18 |          0.18 | `dev-env#42` (`tmux-focus-events-on`)        |
+| Stage 2: planner agent turn (`dev-env#42` total stage `2.53 m`)                             |     1 |         2.45 |          2.45 | `dev-env#42` (`tmux-focus-events-on`)        |
+| Stage 3: admission check (`dev-env#42`)                                                     |     1 |         0.05 |          0.05 | `dev-env#42` (`tmux-focus-events-on`)        |
+| Stage 3: overlap wait / admission refusal (`0407` blocked `03:54:45Z–05:04:00Z+`)           |     1 |        69.25 |         69.25 | `no-unneeded-full-review` (`142.33 m` tot.)  |
+| Stage 3: executor agent turn (tool vs model split unlogged)                                 |     1 |         4.80 |          4.80 | `dev-env#42` (`tmux-focus-events-on`)        |
+| Each push & conflict probe/merge of target                                                  |     - | not measured |  not measured | folded into surrounding stage (`0412`)       |
+| Stage 4: empty-diff guard + PR create/edit (`dev-env#42`, `hac#308` r2)                     |     2 |         0.19 |          0.20 | `dev-env#42` (`tmux-focus-events-on`)        |
+| Stage 4: reviewer ensemble turn (`3` reviewers; per-reviewer unlogged; r2i3 `2.55+ m`)      |     4 |         6.84 |         14.85 | `dev-env#42` iter 1 (`hac#308`: `4.13–9.28`) |
+| Stage 4: local test run after reviewers (`review_local` on `1a6c1ab1`, `31fdc482`)          |     2 |         2.85 |          2.87 | `hac#308` Round 2 iter 2                     |
+| Stage 4: resolver turn (incl. push; tool vs model split unlogged)                           |     2 |        15.75 |         27.02 | `hac#308` Round 2 iter 1 (`FIND-CI` blind)   |
+| Stage 4: conflict gate + nested `Stage 5 rerun` + ledger (`hac#308` `0.80 m` / `#42`)       |     2 |         0.46 |          0.80 | `hac#308` r1i2 (incl. `0.25 m` Stg5 rerun)   |
+| Stage 4: individual review iteration (review pass only; full r2i1+res `34.48 m`)            |     4 |         8.34 |         14.98 | `dev-env#42` iter 1 (`hac#308`: `7.05–9.40`) |
+| CI wait (Stage 5 `merged_head_ci` on `3357edd2`)                                            |     1 |         7.97 |          7.97 | `hac#308` Round 1 post-sync                  |
+| Stage 5: calibration work + reconciliation + promotion (excl. CI waits)                     |     2 |         2.55 |          2.60 | `dev-env#42` (`hac#308`: `2.50 m`)           |
+| CI registration wait (Stage 5 `final_head_ci`: `1 s` `#308`, `18 s` `#42`)                  |     2 |         0.16 |          0.30 | `dev-env#42` (`tmux-focus-events-on`)        |
+| CI wait (Stage 5 `final_head_ci`: `65 s` `#308`, `926.88 s` `ef1fbd76` `#42`)               |     2 |         8.27 |         15.45 | `dev-env#42` (serial macOS `862.45 s`)       |
+| Stage 5: final-head check & exit                                                            |     2 |         0.10 |          0.12 | `hac#308` (`f727226d`)                       |
+| End-of-flow sync check + `origin/main` merge (`04:14:18Z–04:14:26Z`)                        |     1 |         0.13 |          0.13 | `hac#308` Round 2 entry (`1a6c1ab1`)         |
+| Pre-merge `Merge origin/main` CI wait (`#290`–`#293` completed; `#294`–`#295` merged early) |     4 |         8.08 |          8.67 | `holon-agentic-coder#292`                    |
+| Wait: PR ready (last calibration) $\rightarrow$ maintainer merge (`#290`–`#294`)            |     5 |       338.43 |        482.95 | `holon-agentic-coder#291` (`#41`: `235.0`)   |
+| GitHub: PR open $\rightarrow$ merged (`#290`–`#294`)                                        |     5 |       494.13 |        516.15 | `holon-agentic-coder#290` (`#292`: `504.6`)  |
+
+Stage totals across in-window events (`03:54:45Z`–`05:04:00Z`; human/merge wait sums in-window `03:54:45Z`/ready
+$\rightarrow$ `mergedAt`/`05:04Z` across `hac#290`–`#296` + `dev-env#41`–`#42` = `5.86 h`, `#290`–`#294` alone =
+`3.25 h`):
+
+| Stage     | Total (h) | Working (h) | Waiting on CI (h) | Waiting on another flow (h) | Waiting on human (h) | Idle (h) |
+| :-------- | --------: | ----------: | ----------------: | --------------------------: | -------------------: | -------: |
+| intent    |      0.00 |        0.00 |              0.00 |                        0.00 |                 0.00 |     0.00 |
+| plan      |      0.04 |        0.04 |              0.00 |                        0.00 |                 0.00 |     0.00 |
+| execute   |      1.24 |        0.08 |              0.00 |                        1.15 |                 0.00 |     0.00 |
+| review    |      1.21 |        1.21 |              0.00 |                        0.00 |                 0.00 |     0.00 |
+| calibrate |      0.51 |        0.10 |              0.41 |                        0.00 |                 5.86 |     0.00 |
+
+- **Missing timing (`0412`):** `dev-env#42` and `0407` left no `todo/flow-*.log`; pre-flight (credential probe, image
+  check, worktree creation), individual git pushes, conflict merges, per-reviewer latencies inside `4.13 / 4.40 / 14.85`
+  min ensembles, and Stage 3 / resolver tool-vs-model splits remain unmeasured.
+
+#### 2. Churn Counts (`2026-11-25T03:54:45Z` to `2026-11-25T05:05:00Z`)
+
+- **CI pipeline runs:**
+  - Across the **5 cadence merges** (`hac#290`–`#294`, full PR lifetime): `47` tested CI heads (`459` check-runs), of
+    which **`43` (`91.5%`) were churn** (`29` bookkeeping, `14` `main`-merge, vs `4` code heads; `#290` `11`, `#291`
+    `4`, `#292` `19`, `#293` `8`, `#294` `5` heads).
+  - Across **in-window `hac` CI activity** (`03:54:45Z`–`05:05:00Z`): `144` workflow runs across `24` head SHAs (`112`
+    success, `23` cancelled, `9` in progress): `7` `main` push heads (`ae2c5b41`..`4c6232cb`, with `daf3fa74` &
+    `099025f8` cancelled mid-run on `Test - Unit`/`Test - Stress` by subsequent merges) and `17` PR heads (`#291`–`#295`
+    - `12` heads on `#308`). Of the `17` PR heads, **`15` (`88.2%`) were churn** (`7` `main`-merge, `8` bookkeeping, vs
+      `2` code-push heads `3595c1f1` & `54321e50` which themselves only edited `executions/E-*.md` after
+      `review_local`).
+  - Across **`dev-env#42`** (`04:14:12Z`–`04:48:00Z`): `15` workflow runs across `3` heads (`2/3 = 66.7%` bookkeeping
+    churn; `2` cancelled on `b1dc27bb` when `ef1fbd76` pushed). **Zero** CI check failures occurred in `hac` or
+    `dev-env` during the window; all cancellations were self-inflicted head replacements/merges.
+- **Review, Stage 3/5, and Queue churn:**
+  - **Queue conflict cascade (`0371`):** after `#290`–`#296` merged (`4c6232cb`), **`12/12` open `hac` PRs**
+    (`#297`–`#308`) sit `CONFLICTING`/`DIRTY`; `git merge-tree` confirms all `17` non-merged `flow-*` worktrees conflict
+    **solely** on `holon-knowledge/ledger/*.jsonl`.
+  - **Nested `Stage 5 rerun` + false consensus withdrawal (`0448`):** `end_of_flow_sync._reenter_review_and_calibrate`
+    left stale `calibrate=SUCCESS` + stale `review` in `context`, triggering a `0.25 min` `Stage 5 rerun` inside Stage 4
+    (`04:01:58Z`), false `ACT-WITHDRAW` (`04:02:08Z`), a `4`-push CI-cancelling burst (`39 s`), and `12.08 min` of
+    double Stage 5 work/CI wait on `hac#308`.
+  - **Ledger-only `End-of-flow sync` re-review + frozen checkpoint (`0407`, `0445`):** `hac#308` merged ledger-only
+    `origin/main` (`1a6c1ab1`, `04:14:22Z`) and re-entered full Stage 4 (`49.6+ min` still live in Iter 3) while
+    `checkpoint.current_stage` stayed stuck at `"completed"`, allowing reviewers to reverse Round 1 approval on
+    unchanged code.
+  - **Infinite `unchanged_streak` loop + blind `review_local` (`0449`, `0450`):** `hac#308` Round 2 ran `2` macOS host
+    `review_local` passes (`2.82 + 2.87 min`, failing `1/7690` unseen in Linux CI) with `output_excerpt` dropped from
+    `FIND-CI`, driving `27.02 min` + `4.47 min` doc-only resolver churn (`3595c1f1`, `54321e50`) and target merge
+    `bd581a65` that reset raw-`head_sha` `unchanged_streak`, dispatching Iter 3 (`05:01:27Z+`).
+  - **Stage 4 quadruple-push bursts (`0443`):** `hac#308` hit `2` quadruple-push bursts (`39 s` at `04:01:29Z`, `30 s`
+    at `05:00:49Z`), cancelling `03b6dbe7`, `b95c09b7`, `3595c1f1`, and `bd581a65`.
+  - **`dev-env` bookkeeping & serial macOS CI (`0451`):** `dev-env#42` waited `15.45 min` (`926.88 s`) on bookkeeping
+    head `ef1fbd76` (`18.68 min` Stage 5 vs `10 min` budget) because `dev-env` lacks `ci_bookkeeping_gate` and runs
+    `203` macOS unit tests serially (`862.45 s` vs `2.3 min` Ubuntu).
+  - **Stage 3 `SPLIT` admission block (`0446`, `0407`):** `0407` stayed idle an additional `69.25 min` (`142.33 min`
+    total). **Container rebuild churn (`0402`):** `5` post-merge 8-image Docker Bake rebuilds ran during live Stage 4.
+
+#### 3. Ranked Suggestions
+
+1. **Extended `0407` & `0445` (critical/high, Flow / End-of-Flow Sync):** Skip full Stage 4 re-entry when
+   `end_of_flow_sync` merges zero code diff (`hac#308` Round 2 `49.6+ min` still live; reviewer reversal on unchanged
+   code) and clear `checkpoint.current_stage == "completed"` before re-entry.
+2. **Bean `0448` (high, Flow / Stage 4 / Stage 5 — new):** Clear stale `context.stage_results["calibrate"]` (and
+   supersede prior `review`) in `end_of_flow_sync._reenter_review_and_calibrate` so `review_calibration_freshness`
+   cannot run nested Stage 5 inside Stage 4 (`hac#308` false `ACT-WITHDRAW`, 4-push cancellation burst, `12.08 min`
+   double Stage 5).
+3. **Bean `0449` (high, Flow / Stage 4 / Convergence — new):** Key `unchanged_streak` in `flow/review/loop.py:568-578`
+   on `(reviewer_finding_sigs, PR-own code diff fingerprint)` instead of raw `head_sha`, and halt when actionable
+   findings stay `open` with zero code diff (`hac#308` Round 2 `49.6+ min` loop across `3` iterations).
+4. **Bean `0450` (high, Flow / Stage 4 / `review_local` — new):** Preserve `TestMeasurement.output_excerpt` and failing
+   test names in `local_tests.py` / `review_report.py`, and wait briefly for `pending > 0` GitHub CI instead of eager
+   host `7,690`-test runs on objected iterations (`hac#308` `2` host runs failing `1/7690`, driving `27.02 min` +
+   `4.47 min` blind resolver churn).
+5. **Bean `0451` (high, Pipeline / `dev-env` — new):** Port `ci_bookkeeping_gate` and `pytest -n auto --dist worksteal`
+   to `thomashan/dev-env` workflows (`dev-env#42` `15.45 min` `final_head_ci` wait on `ef1fbd76`, `18.68 min` Stage 5;
+   `dev-env#41` `d6fb465c` `15.1 min`).
+6. **Extended `0443`, `0442`, `0412` (high/normal):** Batch Stage 4 pushes (`hac#308` `2` quadruple-push bursts,
+   `dev-env#42` `b1dc27bb` cancelled), avoid double `npx prettier` (`2.50–2.60 min` calibration in `#308`/`#42`), and
+   close remaining logging/timing gaps (`dev-env#42`/`0407` unlogged, per-reviewer/tool splits unmeasured). _(Existing
+   `0371` critical and `0446` high remain urgent for the `12/12` `CONFLICTING` PR cascade and `142.33 min` `0407`
+   block.)_
+
+#### 4. Examined and Found in Order
+
+- **Zero CI failures in window (`hac` & `dev-env`):** All `112` completed `hac` workflow runs and `13` completed
+  `dev-env` runs passed; all `25` cancellations (`23` `hac`, `2` `dev-env`) were self-inflicted head
+  replacements/merges.
+- **Mechanical ledger-only queue cascade confirmed:** `git merge-tree` across all `17` non-merged `hac` `flow-*`
+  worktrees against `origin/main` (`4c6232cb`) showed zero non-ledger code conflicts; all conflicts lie in
+  `holon-knowledge/ledger/*.jsonl`.
+- **`dev-env` end-to-end flow healthy except Stage 5 CI wait:** `dev-env#42` completed Stage 1–3 cleanly in `7.75 min`
+  (`04:06:16Z..04:14:01Z`) and passed reviewers in 1 iteration (`14.98 min`), with `15.45 min` of its `41.73 min`
+  runtime spent waiting on serial macOS unit CI over a bookkeeping-only commit (`ef1fbd76`).
+
 ### 2026-11-25T04:02:00Z — Fifth-Merge Audit
 
 - **Trigger:** fifth merge since `2026-11-25T02:54:00Z` (`holon-agentic-coder` PRs `#285`, `#286`, `#287`, `#288`,

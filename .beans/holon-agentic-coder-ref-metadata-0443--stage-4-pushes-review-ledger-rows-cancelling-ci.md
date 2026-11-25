@@ -91,3 +91,18 @@ via the Holon flow.
   - `03:51:41Z` `11721091` (`fix(review)`) $\rightarrow$ `03:51:57Z` (`+16 s`) `a27a4ce4` (`chore(review)`); `5`
     workflows cancelled (`10–24 s`, `Docker Build` `108 s`). (`2b840055` `Test - Unit` was also cancelled at `371 s`
     when `0b986f9b` arrived.)
+
+## Audit evidence, 2026-11-25T05:07Z (self-improvement audit, fifth merge #290–#294)
+
+- **`PR #308` (`workspace-survival-job-parallel`) hit two quadruple-push bursts in Stage 4:**
+  - `04:01:29Z..04:02:08Z` (`39 s`): `60964f80` $\rightarrow$ `03b6dbe7` $\rightarrow$ `b95c09b7` $\rightarrow$
+    `3357edd2` (Round 1 Iter 2 ledger + nested Stage 5 rerun + consensus withdrawal; cancelled CI on `03b6dbe7` and
+    `b95c09b7`).
+  - `05:00:49Z..05:01:19Z` (`30 s`): `54321e50` $\rightarrow$ `aab5fe10` $\rightarrow$ `bd581a65` $\rightarrow$
+    `37ecf4f7` (Round 2 Iter 2 resolver + ledger + target-sync `main` merge + ledger; cancelled CI on `bd581a65`;
+    earlier `3595c1f1` at `04:48:55Z` was also cancelled by follow-up `31fdc482`).
+  - Overall in-window `hac` CI (`03:54:45Z..05:05:00Z`): `15/17` (`88.2%`) PR heads were churn (`8` bookkeeping, `7`
+    `main`-merge), contributing to `23` cancelled workflow runs (`#290–#294` full lifetime: `43/47` = `91.5%` churn
+    heads, `29` bookkeeping + `14` `main`-merge across `459` check-runs).
+- **`thomashan/dev-env#42` (`tmux-focus-events-on`):** Stage 5 `ef1fbd76` push (`04:31:59Z`) cancelled `b1dc27bb`'s
+  running `Unit Tests` and `Ubuntu Converge E2E` (`2/3` = `66.7%` of `#42` CI heads were bookkeeping churn).

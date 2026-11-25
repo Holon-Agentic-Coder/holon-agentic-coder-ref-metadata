@@ -70,3 +70,9 @@ Small: single command-resolution helper in `calibration.py` + unit test, deliver
   (`156 s`)** (`calibrate` total `12.69 min` vs `10 min` budget), and Stage 2 in
   `todo/flow-workspace-survival-job-parallel.log:45-46` also hit **two `30 s` `npx --yes prettier@3.8.4` timeouts**
   (`60 s` wasted in Stage 2).
+
+## Audit evidence, 2026-11-25T05:07Z (self-improvement audit, fifth merge #290–#294)
+
+- **`PR #308` Round 1 re-calibration (`04:10:12Z..04:12:52Z`)** spent **`2.50 min`** (`150 s`, incl. `10 s` re-point),
+  and **`thomashan/dev-env#42` Stage 5 calibration (`04:29:23Z..04:31:59Z`)** spent **`2.60 min`** (`156 s`) on
+  calibration work before `final_head_ci`.

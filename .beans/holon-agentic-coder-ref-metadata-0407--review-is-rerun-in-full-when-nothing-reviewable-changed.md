@@ -265,3 +265,13 @@ record these.
 - **Stage 3 admission block on `0407` itself (`no-unneeded-full-review`):** remained blocked in Stage 3 for the entire
   `60.75 min` window (`02:41:40Z`–`03:54:45Z+`, `73.08 min` total) on `apps/sandbox-executor/tests/` and `budgets.py`
   (see Bean `0446`).
+
+## Audit evidence, 2026-11-25T05:07Z (self-improvement audit, fifth merge #290–#294)
+
+- **`PR #308` (`workspace-survival-job-parallel`):**
+  - At `04:14:22Z`, `End-of-flow sync round 2/3` merged another **ledger-only** `origin/main` update (`1a6c1ab1`) and
+    unconditionally re-entered full Stage 4 (`49.6+ min` in window `04:14:18Z..05:04:00Z+`, still live in Iter 3 at
+    `05:01:27Z+`), allowing reviewers to reverse their Round 1 Iter 2 approval on unchanged PR code.
+- **Stage 3 admission block on `0407` itself (`no-unneeded-full-review`):** remained idle in Stage 3 for the entire
+  additional `69.25 min` window (`03:54:45Z..05:04:00Z+`, now `142.33 min` total since `02:41:40.517Z` — see Bean
+  `0446`).
