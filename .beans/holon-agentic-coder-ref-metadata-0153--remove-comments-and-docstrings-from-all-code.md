@@ -13,7 +13,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:42:56Z
-updated_at: 2026-11-25T04:58:00Z
+updated_at: 2026-11-25T05:03:00Z
 ---
 
 ## Problem
@@ -363,3 +363,10 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > `flow-review-meta-self-doc` / `flow-git-flow-self-doc` worktrees plus `I-1795552034-review-meta-self-doc/*`,
 > `I-1795560404-git-flow-self-doc/*` (local and remote), and `flow-*` branches pruned. Bean `0153` stays `in-progress`
 > for the remaining slices.
+
+> 2026-11-25: `Holon-Agentic-Coder/holon-agentic-coder#295` (`local-llm-self-doc`, merge commit `099025f8`, merged
+> `2026-11-25T04:59:58Z`) merged into `main`. `apps/holon-agentic-coder/main` fast-forwarded to `origin/main`
+> (`4c6232cb`, which already includes `099025f8` and `#296`), `holon` images and CLI rebuilt/reinstalled via
+> `install_holon.py --holon-only`, and `flow-local-llm-self-doc` worktree plus `I-1795561357-local-llm-self-doc/*`
+> (local and remote) and `flow-local-llm-self-doc` branches pruned. Bean `0153` stays `in-progress` for the remaining
+> slices.
