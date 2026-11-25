@@ -11,7 +11,7 @@ tags:
   - wsl
   - tmux
 created_at: 2026-11-24T23:12:00Z
-updated_at: 2026-11-24T23:14:00Z
+updated_at: 2026-11-25T00:10:00Z
 ---
 
 Generic ongoing umbrella bean for improvements, bug fixes, and cross-platform parity updates to the `dev-env` repository
@@ -20,10 +20,10 @@ Windows/WSL.
 
 ## Tracked Changes
 
-| Item | Summary                                                                                            | Intent File                                                           | PR / Status   |
-| ---- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------- |
-| 1    | Restore `Shift+Enter` newline forwarding in `tmux` for Claude Code + PTY regression test           | `todo/intent-0435-tmux-shift-enter-extkeys.json`                      | `in-progress` |
-| 2    | Enable `tmux` `focus-events` (`set -g focus-events on`) for Neovim `autoread`/`FocusGained` + test | TBD (queued after Item 1 to avoid `dotfiles/tmux/.tmux.conf` overlap) | `todo`        |
+| Item | Summary                                                                                            | Intent File                                                           | PR / Status                                                                                                                |
+| ---- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| 1    | Restore `Shift+Enter` newline forwarding in `tmux` for Claude Code + PTY regression test           | `todo/intent-0435-tmux-shift-enter-extkeys.json`                      | [PR #41](https://github.com/thomashan/dev-env/pull/41) (`MERGEABLE`/`CLEAN`, 7/7 CI `SUCCESS`, calibrated; ready to merge) |
+| 2    | Enable `tmux` `focus-events` (`set -g focus-events on`) for Neovim `autoread`/`FocusGained` + test | TBD (queued after Item 1 to avoid `dotfiles/tmux/.tmux.conf` overlap) | `todo`                                                                                                                     |
 
 ## Item 1: `Shift+Enter` Multiline Newline Regression & Automated PTY Test (macOS & Windows/WSL)
 
