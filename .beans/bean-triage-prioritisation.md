@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-24 23:47:56 UTC
+**Last Updated:** 2026-11-25 00:20:39 UTC
 
 ## Executive Summary
 
@@ -17,9 +17,9 @@ about 10M+ tokens), so flows that touch the same files still run one after anoth
 run together.
 
 - **Total Tracked Beans**: 437 (excluding template)
-- **Completed**: 348 (79.6%)
+- **Completed**: 349 (79.9%)
 - **Scrapped / Superseded**: 10 (2.3%)
-- **Active**: 79 (18.1%), of which 14 are in progress, 63 are todo and 2 are draft
+- **Active**: 78 (17.8%), of which 13 are in progress, 63 are todo and 2 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1026,7 +1026,6 @@ logged beans `0389` and `0390` added to triage.
 | **P1**   | todo        |  High  |             L             | 0395   | Stage 3 works during an overlap wait instead of idling until the blocking pull request merges                        | Flow / Architecture              | Stage 3 works during an overlap wait instead of idling until the blocking pull request merges. Large; queue after the live flows on the same stage files.                                                                                                                                                                                                                                                                     |
 | **P1**   | todo        | Medium |             M             | 0396   | A flow run survives the agent session that started it                                                                | Skills / Tooling                 | A flow run should survive the agent session that started it; detach the run from the session.                                                                                                                                                                                                                                                                                                                                 |
 | **P1**   | todo        |  High  |             M             | 0397   | A resume adopts a completed, pushed execution branch instead of executing Stage 3 again                              | Ledger / Observability           | Resume adopts a completed, pushed execution branch instead of executing Stage 3 again. Related to 0375 and 0360.                                                                                                                                                                                                                                                                                                              |
-| **P1**   | in-progress |  High  |             M             | 0399   | CI waits react within seconds of a check finishing instead of polling every two minutes                              | Build / DevEx                    | CI waits react within seconds of a check finishing instead of polling every two minutes.                                                                                                                                                                                                                                                                                                                                      |
 | **P1**   | in-progress |  High  |             L             | 0403   | No full CI run for commits that only touch bookkeeping files                                                         | Build / DevEx                    | In progress. No full CI run for commits that only touch bookkeeping files.                                                                                                                                                                                                                                                                                                                                                    |
 | **P1**   | in-progress |  High  |             M             | 0404   | The 600 s timing ceiling on the macOS unit job fails pull requests on runner variance                                | Build / DevEx                    | The 600 s timing ceiling on the macOS unit job fails pull requests on runner variance; fix the ceiling or shrink the suite (0405).                                                                                                                                                                                                                                                                                            |
 | **P1**   | in-progress | Medium |             M             | 0405   | Clean up unnecessary unit tests: the suite has outgrown the pipeline                                                 | Build / DevEx                    | In progress. Remove unnecessary unit tests: ubuntu about 4 min, workspace survival about 7 min, macOS over 8 min.                                                                                                                                                                                                                                                                                                             |
