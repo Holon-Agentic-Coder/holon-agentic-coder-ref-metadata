@@ -11,7 +11,7 @@ tags:
   - scope
   - holon-agentic-coder
 created_at: 2026-11-25T00:28:00Z
-updated_at: 2026-11-25T00:28:00Z
+updated_at: 2026-11-25T04:02:00Z
 ---
 
 ## Problem
@@ -62,3 +62,21 @@ Medium: Stage 4 resolver guard and `FIND-CI` filter in `sandbox_executor`, deliv
 - Related: Bean `0414` (Stage 3 touch-set enforcement), Bean `0419` (CI timing gate false failures), Bean `0407` (no
   full re-review when nothing reviewable changed), Bean `0392` (resolver repo-wide Prettier).
 - Target repo change through the Holon flow (`holon-agentic-coder`).
+
+## Audit evidence, 2026-11-25T04:02Z (self-improvement audit, fifth merge)
+
+- **`PR #287` (`ledger-self-doc`, merged `03:21:48Z`):** `9f75f261` failed `unit (macos-latest)` at
+  `CI Timing Gate (compare with main)` (`18:16Z–18:27Z`). Stage 4 resolver commit `ba6b525a` (`FIND-CI-001`) edited **7
+  files outside `ledger/` scope**: `cli/__init__.py`, `config_env_report.py`, `redaction.py`,
+  `tests/test_approval_fingerprint.py`, `tests/test_calibration_diff_property.py`,
+  `tests/test_url_credential_redaction.py`, and `scripts/pre_commit_check.py`.
+- **`PR #290` (`knowledge-self-doc`):** `9b4d2bd4` and `b15549be` failed `unit (macos-latest)` at
+  `CI Timing Gate (compare with main)`. Stage 4 resolver commits `a06586a6` (`FIND-CI-002`) and `0b7f019c`
+  (`FIND-CI-003`) edited **12 files outside `knowledge/` scope**: `cli/__init__.py`, `config_env_report.py`,
+  `redaction.py`, `config_env.py`, `tests/flow/conftest.py`, `tests/test_approval_fingerprint.py`,
+  `tests/test_calibration_diff_property.py`, `tests/test_credential_hermeticity.py`,
+  `tests/test_executor_agent_output_redaction.py`, `tests/test_turn_supervisor.py`,
+  `tests/test_url_credential_redaction.py`, and `scripts/pre_commit_check.py`.
+- **Downstream collision in window:** When `#287` merged (`03:21:48Z`), `#290`'s `Merge origin/main` commit `a344ce2f`
+  (`03:50:30Z`) hit **9 code/test merge conflicts** on those shared out-of-scope files (plus 3 ledgers), and both `#287`
+  and `#290` appeared in Bean `0407`'s Stage 3 `blocked_by` list on `apps/sandbox-executor/tests/`.

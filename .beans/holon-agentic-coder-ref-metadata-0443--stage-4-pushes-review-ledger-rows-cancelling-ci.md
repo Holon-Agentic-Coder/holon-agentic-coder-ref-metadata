@@ -11,7 +11,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-25T03:08:00Z
-updated_at: 2026-11-25T03:08:00Z
+updated_at: 2026-11-25T04:02:00Z
 ---
 
 ## Problem
@@ -75,3 +75,19 @@ via the Holon flow.
 - Target repo change through the Holon flow (`holon-agentic-coder`).
 - Related: Bean `0383` (Stage 4/5 inline commits & one push per step), Bean `0394` (Rec. 6), Bean `0403`
   (`ci_bookkeeping_gate`).
+
+## Audit evidence, 2026-11-25T04:02Z (self-improvement audit, fifth merge)
+
+- **`PR #308` (`workspace-survival-job-parallel`):** `3/3` code/merge pushes in `02:54Z–03:54:45Z` were cancelled
+  `9–16 s` later by follow-up `chore(review): record review ledger rows` pushes (`16` cancelled workflow runs in window;
+  `317 s` of `Docker Build` wasted), defeating `ci_bookkeeping_gate` on all `3` ledger commits:
+  - `03:16:12Z` `0b986f9b` (`fix(review)`) $\rightarrow$ `03:16:25Z` (`+13 s`) `8f533e24` (`chore(review)`); `5`
+    workflows cancelled (`9–23 s`, `Docker Build` `98 s`), forcing full CI on `8f533e24` (`Unit`: `542 s`, `Stress`:
+    `396 s`).
+  - Conflict gate **triple push in `20 s`**: `03:26:07Z` `5cb52b05` (`before conflict merge`) $\rightarrow$ `03:26:16Z`
+    (`+9 s`) `b14bd3dd` (`sync: merge target origin/main`) $\rightarrow$ `03:26:27Z` (`+11 s`) `24d23329`
+    (`chore(review)`); `5` workflows on `b14bd3dd` cancelled (`14–28 s`, `Docker Build` `111 s`), forcing
+    `merged_head_ci` to wait `8.75 min` (`525 s`) on `24d23329`.
+  - `03:51:41Z` `11721091` (`fix(review)`) $\rightarrow$ `03:51:57Z` (`+16 s`) `a27a4ce4` (`chore(review)`); `5`
+    workflows cancelled (`10–24 s`, `Docker Build` `108 s`). (`2b840055` `Test - Unit` was also cancelled at `371 s`
+    when `0b986f9b` arrived.)

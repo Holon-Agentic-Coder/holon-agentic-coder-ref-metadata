@@ -11,7 +11,7 @@ tags:
   - timing
   - holon-agentic-coder
 created_at: 2026-11-24T11:00:00Z
-updated_at: 2026-11-25T03:08:00Z
+updated_at: 2026-11-25T04:02:00Z
 ---
 
 ## Why
@@ -100,3 +100,13 @@ Small: wrapper (`.agents/skills/holon_flow/scripts/run_holon_flow.py`) and loggi
   so `calibrate.elapsed_seconds` (`3.9–12.6 min`) diverges from `start_time..end_time` (`2.6 min` across `11` flows).
 - Pre-flight, individual pushes, target conflict merges, per-reviewer latencies inside the `~7.0 min` ensemble, and
   executor inner tool-vs-model split remain unmeasured.
+
+## Audit evidence, 2026-11-25T04:02Z (self-improvement audit, fifth merge)
+
+- **`1 of 2` active flows (`no-unneeded-full-review`)** left **no** `todo/flow-*.log` in the `02:54Z–03:54:45Z` window.
+- **`todo/flow-workspace-survival-job-parallel.log`:** wrapper pre-flight lines (`lines 1–11`, `88–98`) still lack UTC
+  timestamps; `calibrate.end_time` (`03:37:54Z`) again preceded `final_head_ci` wait (`03:38:05Z–03:39:13Z`); and
+  `End-of-flow sync` re-entry (`03:39:20Z–03:54:45Z+`) is unrecorded in `checkpoint.context.logs` and
+  `checkpoint.stage_results` while running (see Bean `0445`).
+- Pre-flight, individual pushes, conflict merges, per-reviewer latencies inside the `3.7 / 9.5 / 4.2 min` ensembles, and
+  executor inner tool-vs-model split (`42.1 min` Stage 3) remain unmeasured.

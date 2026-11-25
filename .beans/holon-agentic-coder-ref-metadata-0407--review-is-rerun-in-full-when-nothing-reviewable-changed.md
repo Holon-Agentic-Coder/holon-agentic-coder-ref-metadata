@@ -11,7 +11,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T10:55:00Z
-updated_at: 2026-11-25T03:08:00Z
+updated_at: 2026-11-25T04:02:00Z
 ---
 
 ## Why
@@ -251,3 +251,17 @@ record these.
 - **`PR #306` (`github-pr-merge-self-doc`):** all 3 reviewers `APPROVED (0/0/0)` at `02:02:59Z`, blocked solely by
   `FIND-CI-001` (`Test - Hygiene` Prettier check on `executions/E-1795571328-ANA-G4N.md`); after formatting that file
   only, Stage 4 ran a full `7.6 min` iteration 2 re-review (`02:07:20Z`–`02:14:56Z`).
+
+## Audit evidence, 2026-11-25T04:02Z (self-improvement audit, fifth merge)
+
+- **`PR #308` (`workspace-survival-job-parallel`):**
+  - After 1-file resolver fixes (`0b986f9b` `stress_support.py` stderr fix; `11721091` `test_stress_support.py` git
+    identity fix), Stage 4 logged `"proceeding to re-review in full"` and ran full 3-reviewer iterations (`9.55 min` on
+    `8f533e24`, and `2.73+ min` in progress at cutoff on `a27a4ce4`).
+  - At `03:39:20Z`, `End-of-flow sync round 1/3` (`end_of_flow_sync.py:199`) merged a **ledger-only** `origin/main`
+    update (`adaf72a8`, `558646ae`, zero code diff) and unconditionally re-entered full Stage 4 (`15.3+ min` in window:
+    `7.13 min` review + local tests, `5.17 min` resolver, `2.73+ min` iter 2), instead of preserving approval via PR-own
+    fingerprint as `conflict_gate` did earlier on `b14bd3dd`.
+- **Stage 3 admission block on `0407` itself (`no-unneeded-full-review`):** remained blocked in Stage 3 for the entire
+  `60.75 min` window (`02:41:40Z`–`03:54:45Z+`, `73.08 min` total) on `apps/sandbox-executor/tests/` and `budgets.py`
+  (see Bean `0446`).

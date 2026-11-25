@@ -12,7 +12,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-25T03:08:00Z
-updated_at: 2026-11-25T03:08:00Z
+updated_at: 2026-11-25T04:02:00Z
 ---
 
 ## Problem
@@ -63,3 +63,10 @@ Small: single command-resolution helper in `calibration.py` + unit test, deliver
 
 - Target repo change through the Holon flow (`holon-agentic-coder`).
 - Related: Bean `0048` (dropped `@3.8.4` pin), Bean `0383` (Stage 5 timing & budget), Bean `0408` (local hygiene gate).
+
+## Audit evidence, 2026-11-25T04:02Z (self-improvement audit, fifth merge)
+
+- **`PR #308` (`workspace-survival-job-parallel`):** Stage 5 calibration work (`03:35:18Z–03:37:54Z`) took **`2.60 min`
+  (`156 s`)** (`calibrate` total `12.69 min` vs `10 min` budget), and Stage 2 in
+  `todo/flow-workspace-survival-job-parallel.log:45-46` also hit **two `30 s` `npx --yes prettier@3.8.4` timeouts**
+  (`60 s` wasted in Stage 2).
