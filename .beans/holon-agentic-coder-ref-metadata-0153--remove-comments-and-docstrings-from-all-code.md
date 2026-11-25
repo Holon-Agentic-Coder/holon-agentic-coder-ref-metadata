@@ -13,7 +13,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:42:56Z
-updated_at: 2026-11-25T05:03:00Z
+updated_at: 2026-11-25T05:14:20Z
 ---
 
 ## Problem
@@ -370,3 +370,11 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > `install_holon.py --holon-only`, and `flow-local-llm-self-doc` worktree plus `I-1795561357-local-llm-self-doc/*`
 > (local and remote) and `flow-local-llm-self-doc` branches pruned. Bean `0153` stays `in-progress` for the remaining
 > slices.
+
+> 2026-11-25: `Holon-Agentic-Coder/holon-agentic-coder#297` (`claude-auth-self-doc`, merge commit `0bd580ea`, merged
+> `2026-11-25T05:09:36Z`) and `Holon-Agentic-Coder/holon-agentic-coder#298` (`touch-set-self-doc`, merge commit
+> `5e08904f`, merged `2026-11-25T05:12:10Z`) merged into `main`. `apps/holon-agentic-coder/main` fast-forwarded to
+> `5e08904f`, `holon` images and CLI rebuilt/reinstalled via `install_holon.py --holon-only`, and
+> `flow-claude-auth-self-doc` / `flow-touch-set-self-doc` worktrees plus `I-1795563579-claude-auth-self-doc/*`,
+> `I-1795565481-touch-set-self-doc/*` (local and remote), and `flow-*` branches pruned. Bean `0153` stays `in-progress`
+> for the remaining slices.
