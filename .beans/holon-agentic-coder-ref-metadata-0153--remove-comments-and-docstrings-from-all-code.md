@@ -283,3 +283,7 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > 2026-11-25: `Holon-Agentic-Coder/holon-agentic-coder#304` (`github-ci-self-doc`, head `0f32de55`, 3/3 consensus
 > approved at iter 1, 11/11 CI `SUCCESS`, Stage 5 calibrated EV `33.95` -> `42.06`, `MERGEABLE`/`CLEAN`) completed all 5
 > stages and is ready to merge. Backfilled active flow slot with `github-misc-self-doc`.
+
+> 2026-11-25: `Holon-Agentic-Coder/holon-agentic-coder#305` (`git-refs-self-doc`, head `11334f7a`, 3/3 consensus
+> approved at iter 2, 11/11 CI `SUCCESS`, Stage 5 calibrated EV `41.01` -> `48.79`, `MERGEABLE`/`CLEAN`) completed all 5
+> stages and is ready to merge. Holding further `Bean 0153` backfills until open PRs merge.
