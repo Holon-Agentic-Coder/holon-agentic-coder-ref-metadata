@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0407
 title: "The full review ensemble is re-run when nothing reviewable changed"
-status: todo
+status: in-progress
 type: feature
 priority: critical
 tags:
@@ -11,7 +11,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T10:55:00Z
-updated_at: 2026-11-25T00:28:00Z
+updated_at: 2026-11-25T02:34:00Z
 ---
 
 ## Why
@@ -238,3 +238,6 @@ record these.
   (`9b4d2bd4`, `b15549be`) triggered `FIND-CI-002` / `FIND-CI-003` and 4 review iterations.
 - **PR #283 (`resolve-conflicts-in-flow`):** conflict-merge commit `221f9d73` caused consensus withdrawal on `e1e7150`
   (`PR-own change changed since approval`) after adapting a test added on `main`.
+
+> 2026-11-25: launched `holon-agentic-coder` flow (`no-unneeded-full-review`, intent
+> `todo/intent-0407-no-unneeded-full-review.json`) via `antigravity-agent` / `gemini-4-neon`.
