@@ -3,7 +3,7 @@
 title:
   "Remove comments and docstrings from all code (Python, shell, JavaScript, build and CI files); make code
   self-documenting"
-status: in-progress
+status: todo
 type: task
 priority: normal
 tags:
@@ -13,7 +13,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:42:56Z
-updated_at: 2026-11-25T06:59:30Z
+updated_at: 2026-11-25T22:55:00Z
 ---
 
 ## Problem
@@ -417,3 +417,6 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > images and CLI rebuilt/reinstalled via `install_holon.py --holon-only` (`holon --help` exit 0), and
 > `flow-github-misc-self-doc` worktree plus `I-1795570995-github-misc-self-doc/*` (local and remote) and
 > `flow-github-misc-self-doc` branches pruned. Bean `0153` stays `in-progress` for the remaining slices.
+
+Note (2026-11-25): stale plan `infra-helpers-self-doc` deleted after PR #309 merged; restart from current main via the
+kept `todo/intent-0153-infra-helpers-self-doc.json`.

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0407
 title: "The full review ensemble is re-run when nothing reviewable changed"
-status: in-progress
+status: todo
 type: feature
 priority: critical
 tags:
@@ -11,7 +11,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T10:55:00Z
-updated_at: 2026-11-25T06:05:00Z
+updated_at: 2026-11-25T22:55:00Z
 ---
 
 ## Why
@@ -298,3 +298,6 @@ record these.
   (`ef1e6129`) and running a full Iter 2 (`01:14:30Z`).
 - **`PR #308` (`workspace-survival-job-parallel`):** remains stuck in its Round 2 Iter 4 resolver container
   (`d7a5f5ec82a1`, running `37+ min` since `05:25:12Z`) triggered by the ledger-only Round 2 re-entry.
+
+Note (2026-11-25): stale plan `no-unneeded-full-review` deleted after PR #309 merged; restart from current main via the
+kept `todo/intent-0407-no-unneeded-full-review.json`.

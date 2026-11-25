@@ -10,7 +10,7 @@ tags:
   - calibration
   - holon-agentic-coder
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-11-23T08:05:48Z
+updated_at: 2026-11-25T22:55:00Z
 ---
 
 ## Problem
@@ -62,3 +62,11 @@ Bean `0146` merged in PR #221 (extracting `calibration_predicted.py`). `calibrat
 
 > 2026-11-23: stale worktree deleted 2026-11-23; restart from current main. Backup:
 > todo/stale-worktree-backups/flow-split-calibration-package-2026-11-23.bundle
+
+## Progress (2026-11-24)
+
+- Flow started from this Claude Code session: intent `todo/intent-0197-split-calibration-package.json`, slug
+  `split-calibration-package`, `claude-agent` / `claude-fable-5-2`, worktree `flow-split-calibration-package`.
+
+Note (2026-11-25): stale plan `split-calibration-package` deleted after PR #309 merged; restart from current main via
+the kept `todo/intent-0197-split-calibration-package.json`.

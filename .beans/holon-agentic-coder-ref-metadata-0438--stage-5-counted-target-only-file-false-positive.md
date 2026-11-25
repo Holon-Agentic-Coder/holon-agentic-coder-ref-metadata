@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0438
 title: "Stage 5 counted_target_only_file fails calibration after a conflict-merge adapts a main file"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - conflict-resolution
   - holon-agentic-coder
 created_at: 2026-11-25T00:28:00Z
-updated_at: 2026-11-25T00:28:00Z
+updated_at: 2026-11-25T22:52:00Z
 ---
 
 ## Problem
@@ -60,3 +60,19 @@ Small: single-function fix and unit test in `sandbox_executor`, delivered via th
 
 - Target repo change through the Holon flow (`holon-agentic-coder`).
 - Related: Bean `0428` (3-dot PR-own diff semantics), Bean `0376` (`PR #283` in-flow conflict resolution).
+
+## Resolution
+
+Delivered via [PR #309](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/309) and merged into `main`
+(`a144e65c`):
+
+- **Key Architectural Deliverables**: `target_only_paths` in `calibration_self_check.py` now counts a path as the pull
+  request's own when the PR side changed it relative to the merge base, including edits made inside merge commits
+  (three-dot diff of merge base against head), instead of relying on `git log --no-merges`. A file changed only on the
+  target branch and never touched by the PR is still reported. Other self-check conditions are unchanged.
+- **Verification & Tests**: Hermetic regression tests in `tests/test_calibration_self_check.py` on real temporary git
+  repositories cover (a) a target-added file adapted by a merge commit on the execution branch reports no violation, (b)
+  a target-only file never touched by the PR is still reported, and (c) a clean merge with no adaptation reports no
+  violation.
+- **Holon Flow Traversal**: Flow ran Intent -> Plan -> Execute -> Review Loop -> Calibration; calibration report
+  committed on the flow branch (`E-1795584671-CLA-CO5.5`).
