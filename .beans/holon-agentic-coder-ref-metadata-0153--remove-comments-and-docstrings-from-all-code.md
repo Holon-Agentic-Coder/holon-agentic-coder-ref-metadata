@@ -13,7 +13,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:42:56Z
-updated_at: 2026-11-25T02:14:30Z
+updated_at: 2026-11-25T02:49:30Z
 ---
 
 ## Problem
@@ -301,3 +301,9 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 > 2026-11-25: `Holon-Agentic-Coder/holon-agentic-coder#306` (`github-pr-merge-self-doc`, head `928446ed`, 3/3 consensus
 > approved at iter 2, 11/11 CI `SUCCESS`, Stage 5 calibrated EV `39.38` -> `46.51`, `MERGEABLE`/`CLEAN`) completed all 5
 > stages and is ready to merge. Holding further `Bean 0153` backfills until open PRs merge.
+
+> 2026-11-25: `Holon-Agentic-Coder/holon-agentic-coder#284` (`e2e-self-doc`, merge commit `1a5c69d6`, merged
+> `2026-11-25T02:47:53Z`) merged into `main`. `apps/holon-agentic-coder/main` fast-forwarded to `1a5c69d6`, `holon`
+> images and CLI rebuilt/reinstalled via `install_holon.py --holon-only`, and `flow-e2e-self-doc` worktree plus
+> `I-1795536007-e2e-self-doc/*` (local and remote) and `flow-e2e-self-doc` branches pruned. Bean `0153` stays
+> `in-progress` for the remaining slices.
