@@ -104,6 +104,24 @@ Push the branch you merged into; never push to `main`, never force-push. Re-chec
 PR is clean when it reads `MERGEABLE` (`UNSTABLE` only means checks are re-running). The commit message is the merge
 commit's default; add no attribution trailer.
 
+### Step 5b: Notify via ntfy (maintainer, 2026-11-25)
+
+Once the merge commit is pushed with zero escalations and `gh pr view` confirms `MERGEABLE`, send a push notification to
+the maintainer via the harness helper:
+
+```bash
+uv run python .agents/skills/holon_flow/scripts/notify_ntfy.py \
+  "PR #<N> Conflicts Resolved" \
+  "<repo>#<N> (<slug>) conflicts resolved (<mergeStateStatus>): <pr_url>" \
+  --priority high --tags white_check_mark
+```
+
+- The helper reads `HOLON_NTFY_TOPIC` or `~/.holon/secrets/ntfy-topic` and silently no-ops if unconfigured; **never**
+  print, log, or commit the topic or secret.
+- Do **not** send an `ntfy` notification if a conflict was escalated or the merge was aborted.
+- Avoid duplicates: if the parent coordinator waits for CI and sends the final ready-to-merge `ntfy` itself, it
+  instructs the subagent to skip Step 5b; otherwise the subagent sends it here.
+
 ---
 
 ## 📋 Report Back (to the parent, five lines at most)
@@ -112,7 +130,7 @@ commit's default; add no attribution trailer.
 - Files resolved mechanically and files resolved by hand (path and one phrase each).
 - Files escalated, with the reason.
 - Verification done (JSON check, additions-only diff, lint, tests).
-- The pushed commit and the resulting `mergeable` / `mergeStateStatus`.
+- The pushed commit, the resulting `mergeable` / `mergeStateStatus`, and whether the `ntfy` notification was sent.
 
 ---
 
