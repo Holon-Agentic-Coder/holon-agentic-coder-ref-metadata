@@ -2,7 +2,7 @@
 # holon-agentic-coder-ref-metadata-0433
 title:
   "Stage 3 in-flight PR discovery fails when an open PR diff exceeds 20,000 lines (HTTP 406 PullRequest.diff too_large)"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - github
   - holon-agentic-coder
 created_at: 2026-11-24T18:33:00Z
-updated_at: 2026-11-25T03:08:00Z
+updated_at: 2026-11-25T05:23:00Z
 ---
 
 ## Problem
@@ -65,3 +65,15 @@ every new flow—even when the new flow's touch set is completely disjoint.
   `workspace-survival-job-parallel` idled `181.5 min` (`23:26:48Z`–`02:28:17Z`) waiting for `#283` to merge. `PR #299`
   (`in-flight-pr-files-fallback`, delivering this fix) reached consensus approval and Stage 5 calibration at `00:49:18Z`
   and awaits maintainer merge.
+
+## Resolution
+
+Delivered via [PR #299](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/299) and merged into `main`
+(`599630f8`, `2026-11-25T05:20:56Z`):
+
+- **Deliverables**: Added the HTTP 406 (`too_large`) paginated REST `/pulls/{number}/files` fallback in
+  `apps/sandbox-executor/src/sandbox_executor/flow/pr_changed_files.py` and wired it into
+  `apps/sandbox-executor/src/sandbox_executor/flow/in_flight.py`, with unit tests in
+  `apps/sandbox-executor/tests/flow/test_in_flight.py`.
+- **Holon Flow Traversal**: All 5 stages (Intent -> Plan -> Execute -> Review Loop -> Calibration) completed on
+  `I-1795566347-in-flight-pr-files-fallback`.
