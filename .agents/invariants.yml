@@ -1,0 +1,246 @@
+invariants:
+  - id: "sole-change-path"
+    agents_rules:
+      - "Sole change path"
+    status: "missing"
+    open_beans:
+      - "0575"
+    runs_at:
+      - "on-demand"
+    checks: []
+  - id: "self-explaining-code"
+    agents_rules:
+      - "Self-explaining code (invariant)"
+    status: "missing"
+    open_beans:
+      - "0558"
+      - "0574"
+    runs_at:
+      - "flow-gate"
+    checks: []
+  - id: "clock-read-utc-timestamps"
+    agents_rules:
+      - "Clock-read UTC timestamps only"
+    status: "enforced"
+    open_beans: []
+    runs_at:
+      - "pre-commit"
+      - "ci"
+    checks:
+      - "script:.agents/scripts/check_beans.py"
+      - "script:.agents/scripts/check_failure_ledger.py"
+      - "script:.agents/scripts/timestamps.py"
+      - "hook:.agents/hooks/pre-commit"
+      - "workflow:.github/workflows/test-hygiene.yml#hygiene"
+      - "test:tests/test_check_beans.py::test_bean_0550_invented_times_fail_before_cleanup"
+      - "test:tests/test_failure_ledger.py::test_today_s_invented_ledger_times_fail_before_cleanup"
+  - id: "bean-format"
+    agents_rules: []
+    status: "enforced"
+    open_beans: []
+    runs_at:
+      - "pre-commit"
+      - "ci"
+    checks:
+      - "script:.agents/scripts/check_beans.py"
+      - "hook:.agents/hooks/pre-commit"
+      - "workflow:.github/workflows/test-hygiene.yml#hygiene"
+      - "test:tests/test_check_beans.py::test_bean_status_name_id_and_required_fields"
+      - "test:tests/test_check_beans.py::test_collection_flags_duplicate_gap_and_missing_blocker"
+  - id: "forbidden-flow-flags"
+    agents_rules:
+      - "Never pass `--skip-review`"
+    status: "enforced"
+    open_beans: []
+    runs_at:
+      - "flow-gate"
+    checks:
+      - "test:tests/test_flow_gates.py::test_skip_review_is_refused_even_with_authorisation"
+      - "test:tests/test_flow_gates.py::test_run_flow_refuses_skip_review_before_any_work"
+      - "test:tests/test_flow_gates.py::test_the_command_line_refuses_skip_review"
+  - id: "budget-authorisation"
+    agents_rules: []
+    status: "partial"
+    open_beans:
+      - "0570"
+    runs_at:
+      - "flow-gate"
+    checks:
+      - "test:tests/test_flow_gates.py::test_budget_scope_without_the_field_is_refused"
+      - "test:tests/test_flow_gates.py::test_maintainer_flags_are_refused_without_authorisation"
+  - id: "default-holon-coding-model"
+    agents_rules:
+      - "Default Holon coding model"
+    status: "missing"
+    open_beans:
+      - "0575"
+    runs_at:
+      - "on-demand"
+    checks: []
+  - id: "never-merge-into-main"
+    agents_rules:
+      - "Never merge a PR that targets `main`"
+    status: "missing"
+    open_beans:
+      - "0575"
+    runs_at:
+      - "on-demand"
+    checks: []
+  - id: "main-worktrees-untouched"
+    agents_rules: []
+    status: "enforced"
+    open_beans: []
+    runs_at:
+      - "agent-hook"
+      - "on-demand"
+    checks:
+      - "script:.agents/scripts/check_main_worktrees.py"
+      - "test:tests/test_check_main_worktrees.py::test_tracked_modification_is_reported"
+      - "test:tests/test_git_guard.py::test_cwd_inside_main_worktree_blocks_mutation"
+  - id: "git-safety"
+    agents_rules:
+      - "One worktree per agent"
+      - "Git safety in every subagent brief"
+    status: "partial"
+    open_beans:
+      - "0566"
+    runs_at:
+      - "agent-hook"
+    checks:
+      - "script:.agents/scripts/git_guard.py"
+      - "script:.agents/bin/git"
+      - "test:tests/test_git_guard.py::test_blocked_forms"
+      - "test:tests/test_git_guard.py::test_project_settings_register_the_hook"
+      - "test:tests/test_git_guard.py::test_wrapper_refuses_forbidden_forms"
+  - id: "no-attribution-trailers"
+    agents_rules: []
+    status: "partial"
+    open_beans:
+      - "0567"
+    runs_at:
+      - "commit-msg"
+      - "ci"
+    checks:
+      - "script:.agents/scripts/check_commit_trailers.py"
+      - "hook:.agents/hooks/commit-msg"
+      - "workflow:.github/workflows/test-hygiene.yml#hygiene"
+      - "test:tests/test_check_commit_trailers.py::test_attribution_trailers_detected"
+      - "test:tests/test_check_commit_trailers.py::test_installed_hook_rejects_a_commit_with_trailer"
+  - id: "tests-only-via-uv-run-pytest"
+    agents_rules:
+      - "Tests"
+    status: "missing"
+    open_beans:
+      - "0575"
+    runs_at:
+      - "on-demand"
+    checks: []
+  - id: "three-append-only-ledgers"
+    agents_rules: []
+    status: "missing"
+    open_beans:
+      - "0563"
+    runs_at:
+      - "on-demand"
+    checks: []
+  - id: "no-harness-references-in-targets"
+    agents_rules:
+      - "Target repositories"
+    status: "missing"
+    open_beans:
+      - "0564"
+    runs_at:
+      - "on-demand"
+    checks: []
+  - id: "intent-scope-lists-files-only"
+    agents_rules: []
+    status: "partial"
+    open_beans:
+      - "0565"
+    runs_at:
+      - "flow-gate"
+    checks:
+      - "test:tests/test_flow_scope_files.py::test_run_flow_refuses_a_directory_scope_before_any_stage"
+      - "test:tests/test_flow_scope_files.py::test_a_trailing_slash_entry_is_a_directory"
+  - id: "format-before-commit"
+    agents_rules:
+      - "Format before commit"
+    status: "enforced"
+    open_beans: []
+    runs_at:
+      - "pre-commit"
+      - "ci"
+    checks:
+      - "hook:.agents/hooks/pre-commit"
+      - "workflow:.github/workflows/test-hygiene.yml#hygiene"
+  - id: "subagents-follow-model-tiers"
+    agents_rules:
+      - "Subagents"
+    status: "partial"
+    open_beans:
+      - "0575"
+    runs_at:
+      - "on-demand"
+    checks:
+      - "test:tests/test_lowest_model.py::test_picks_smallest_family_then_lowest_effort"
+  - id: "flow-concurrency"
+    agents_rules:
+      - "Flow concurrency & merge backfill"
+    status: "missing"
+    open_beans:
+      - "0575"
+    runs_at:
+      - "on-demand"
+    checks: []
+  - id: "coordinator-failure-ledger"
+    agents_rules:
+      - "Coordinator failure ledger"
+    status: "partial"
+    open_beans:
+      - "0575"
+    runs_at:
+      - "pre-commit"
+      - "ci"
+    checks:
+      - "script:.agents/scripts/check_failure_ledger.py"
+      - "test:tests/test_failure_ledger.py::test_append_only"
+  - id: "self-improvement-audit"
+    agents_rules:
+      - "Self-improvement audit"
+    status: "partial"
+    open_beans:
+      - "0575"
+    runs_at:
+      - "pre-commit"
+      - "ci"
+    checks:
+      - "test:tests/test_check_beans.py::test_audit_entries_must_be_newest_first"
+  - id: "every-review-finding-actioned"
+    agents_rules: []
+    status: "missing"
+    open_beans:
+      - "0572"
+    runs_at:
+      - "flow-gate"
+    checks: []
+  - id: "new-invariant-lands-with-its-check"
+    agents_rules:
+      - "New invariants"
+    status: "enforced"
+    open_beans: []
+    runs_at:
+      - "ci"
+    checks:
+      - "test:tests/test_invariant_registry.py::test_every_hard_rule_maps_to_a_registry_entry"
+      - "test:tests/test_invariant_registry.py::test_every_referenced_check_exists"
+      - "test:tests/test_invariant_registry.py::test_missing_and_partial_entries_name_an_open_bean"
+  - id: "hooks-installed"
+    agents_rules: []
+    status: "partial"
+    open_beans:
+      - "0575"
+    runs_at:
+      - "on-demand"
+    checks:
+      - "script:.agents/scripts/install_git_hooks.py"
+      - "test:tests/test_invariant_registry.py::test_installer_is_idempotent_and_installs_every_hook"

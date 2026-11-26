@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0562
 title: "Every invariant has an explicit, automatic check (umbrella)"
-status: todo
+status: in-progress
 type: task
 priority: critical
 tags:
@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-11-26T23:09:56Z
-updated_at: 2026-11-26T23:09:56Z
+updated_at: 2026-11-26T23:23:49Z
 ---
 
 ## Instruction (maintainer, 2026-11-27 local)
@@ -53,3 +53,8 @@ No invariant relies on an agent reading and obeying a rule. Each one has a check
   and passes on the cleaned state.
 - Self-explaining code invariant in anything written: no docstrings, no comments except `# why:`.
 - Target-repository work goes through `holon flow`; the intent never names harness paths or bean ids.
+
+## Progress
+
+Done: 0556, 0561, 0568, 0569, 0571, 0573 (registry; gaps listed in 0575). In progress: 0566, 0567, 0570. Open: 0558,
+0563, 0564, 0565, 0572, 0575.

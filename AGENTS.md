@@ -79,6 +79,9 @@ These apply to every task. Each links to the file that holds the full rule.
 - **Coordinator failure ledger**: every coordinator failure (halt, park, wasted run, false readiness, wrong brief) is
   appended to [.agents/ledger/coordinator-failures.jsonl](.agents/ledger/coordinator-failures.jsonl) with its preventive
   rule before moving on (maintainer, 2026-11-27). See [coordination.md](.agents/coordination.md).
+- **New invariants**: a new invariant lands together with its automatic check and its entry in
+  [.agents/invariants.yml](.agents/invariants.yml); `tests/test_invariant_registry.py` fails on a hard rule with no
+  entry, a check that does not exist, or a missing or partial entry with no open bean (maintainer, 2026-11-27).
 - **Self-improvement audit**: at the start of every session and after every fifth merge, a dedicated subagent runs a
   comprehensive audit for self-improvement (pipeline, flow, coding standards, architecture standards, harness) and logs
   one bean per suggestion; the brief says plainly that it is a self-improvement audit (maintainer, 2026-11-24). See
@@ -89,7 +92,8 @@ These apply to every task. Each links to the file that holds the full rule.
 ## 🚀 Incoming Agent Checklist
 
 1. **Verify your environment**: check the working directory and locate `.beans`. If `apps/holon-agentic-coder/` or
-   `apps/holon-coherence/` is missing, follow the checkout steps in [README.md](README.md).
+   `apps/holon-coherence/` is missing, follow the checkout steps in [README.md](README.md). Install the git hooks with
+   `python3 .agents/scripts/install_git_hooks.py` (idempotent).
 2. **Run the self-improvement audit**: spawn the audit subagent described in
    [.agents/self-improvement-audit.md](.agents/self-improvement-audit.md) and carry on; do not wait for it.
 3. **Read the coordinator failure ledger**: read

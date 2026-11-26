@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0573
 title: "Invariant registry: every hard rule maps to an automatic check"
-status: todo
+status: completed
 type: task
 priority: critical
 tags:
@@ -9,7 +9,7 @@ tags:
   - invariants
   - tests
 created_at: 2026-11-26T23:09:56Z
-updated_at: 2026-11-26T23:09:56Z
+updated_at: 2026-11-26T23:23:49Z
 ---
 
 ## Instruction (maintainer, 2026-11-27 local)
@@ -37,3 +37,13 @@ An invariant is not done until its check exists.
   and passes on the cleaned state.
 - Self-explaining code invariant in anything written: no docstrings, no comments except `# why:`.
 - Target-repository work goes through `holon flow`; the intent never names harness paths or bean ids.
+
+## Resolution
+
+`.agents/invariants.yml` maps every AGENTS.md hard rule and the maintainer invariants to their checks, where they run
+and a status. `tests/test_invariant_registry.py` (loader and checks in `.agents/scripts/invariant_registry.py`) fails on
+an unmapped hard rule, a dangling rule name, a check that does not resolve (test id, hook, workflow job, script) and a
+missing or partial entry without an open bean; each failure mode has a reconstructed-violation test. AGENTS.md gained
+the "New invariants" hard rule and the installer step; `.agents/scripts/install_git_hooks.py` installs the hooks
+idempotently. Remaining gaps are tracked in Bean 0575 and the child beans named per entry. Server-side rulesets
+(non_fast_forward) are prepared but not created.
