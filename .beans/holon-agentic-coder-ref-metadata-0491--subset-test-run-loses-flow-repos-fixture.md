@@ -1,14 +1,14 @@
 ---
 # holon-agentic-coder-ref-metadata-0491
 title: "Running a subset of unit test files loses the flow_repos fixture"
-status: in-progress
+status: todo
 type: bug
 priority: normal
 tags:
   - tests
   - holon-agentic-coder
 created_at: 2026-11-26T07:10:00Z
-updated_at: 2026-11-26T13:33:00Z
+updated_at: 2026-11-26T13:41:00Z
 ---
 
 ## Problem
@@ -44,3 +44,8 @@ shadows `tests.flow`), then fix it in the Holon flow.
 Launched 2026-11-26 as flow `flow-fixtures-any-test-file` (claude-agent, claude-opus-5-5), worktree
 `flow-flow-fixtures-any-test-file`, log `todo/flow-flow-fixtures-any-test-file.log`. Intent scope: the three conftest
 files plus one new regression test. The slug was truncated to 32 characters (Bean 0426).
+
+**Parked 2026-11-26T13:39Z:** Stage 3 refused the flow: the touch set overlaps the waiting
+`single-runner-per-checkpoint` flow on `apps/sandbox-executor/tests/conftest.py`. Intent kept as
+`todo/intent-0491-flow-fixtures-any-test-file-subset.json`; relaunch (checkpoint resume) once that flow merges. See Bean
+0519 for the vanishing worktree after a refusal.

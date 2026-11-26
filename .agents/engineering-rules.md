@@ -65,3 +65,15 @@ sizing. Moved verbatim from `AGENTS.md`.
     module to be divided, never a number to raise. A change that would push a module over budget splits the module.
     Never raise, lower, add or delete a budget entry (or label a PR `module-budget-change`) without the maintainer's
     explicit instruction for that change; an unauthorised budget change is a Critical review finding.
+17. **Tests Isolate Their Own Setup; No Shared Directory conftest** (maintainer, 2026-11-26): "all test should isolate
+    as much set up as possible so different tests don't rely on the same conftest.py". A test module owns its setup. A
+    fixture or stub that only some tests need lives in the test module, or in a small helper module (plain install
+    function plus a non-autouse fixture) that the module imports and applies with `pytest.mark.usefixtures`. A
+    `conftest.py` holds only universal safety guards (hermetic git config, ambient credentials, home, network and `gh`
+    write guards, checkout write guards), stays under 200 lines, and a directory `conftest.py` below `tests/` is not
+    added. No autouse fixture unless every test needs it, and no `pytest_plugins` in a test module (it applies to every
+    module collected after it). A new fixture never goes into a shared `conftest.py`; a flow that needs one adds it to
+    the module under test or an imported helper, so conftests stop being touch-set magnets. A new autouse fixture, or a
+    new fixture in a directory `conftest.py`, is an Important review finding; an autouse fixture that hides a real call
+    (a stub that makes a test pass) is Critical. The existing conftests are split by the series in the harness bean for
+    `conftest.py` (0540).

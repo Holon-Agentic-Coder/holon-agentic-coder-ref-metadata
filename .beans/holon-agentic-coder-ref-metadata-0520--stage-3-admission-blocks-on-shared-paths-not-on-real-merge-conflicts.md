@@ -49,3 +49,14 @@ the hub-file refusals (3 of the 4 refusals above) into admissions. Cost: one `me
 
 Related: 0481, 0519, 0410, 0502, 0508, 0151. The `conftest.py` split in the question is already the shape of 0410; this
 bean makes the engine stop needing it first.
+
+## Design gap (2026-11-26, found before launch)
+
+At Stage 3 admission the candidate flow has a plan but no code, so a `git merge-tree` of its base against an in-flight
+PR head cannot show whether its future edits conflict; it only shows whether the in-flight PR still applies to main. A
+real trial merge is possible only once the executor's commits exist, i.e. at PR time. Options for the maintainer: (a)
+optimistic admission: admit despite shared paths (keep refusing only for declared exclusive files such as budget
+config), run the trial merge at PR time against `origin/main` and every open flow PR head, and send real conflicts to
+the conflict resolver; (b) keep path-based admission but narrow it (shared docs, conftest and registries excluded or
+split, see Bean 0540). The admission fix that is implementable now (judge in-flight from the remote, ignore stale local
+refs) was launched separately under Bean 0519.

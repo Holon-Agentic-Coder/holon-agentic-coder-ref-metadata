@@ -2,7 +2,7 @@
 # holon-agentic-coder-ref-metadata-0518
 title:
   "Review loop writes its git identity into the shared repository config, so host-side commits are authored by the agent"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -23,6 +23,11 @@ worktree, and because worktrees share one config file, the identity leaks to eve
 resolution merge made on the host for PR #340 (`da5880ad`) was authored as "Holon Review Loop Agent" instead of the
 maintainer. Any harness subagent or the maintainer committing in a holon-agentic-coder worktree now does the same. The
 global identity (`~/.gitconfig`) is unaffected.
+
+## Status
+
+in-progress 2026-11-27: flow review-loop-git-identity-env (intent todo/intent-0518-review-loop-git-identity-env.json,
+log todo/flow-review-loop-git-identity-env.log).
 
 ## Proposed fix
 

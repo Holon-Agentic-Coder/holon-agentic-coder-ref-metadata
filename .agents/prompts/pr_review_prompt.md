@@ -45,6 +45,9 @@ The PR description is never a trigger; only changed files are. An unactivated ro
 - 🟢 **NIT / OPTIONAL**: style, naming, author discretion.
 - ✅ **APPROVED / PASS**: explicit confirmation of a well-made change with nothing to fix.
 
+Standing test-setup finding (engineering rule 17): a new autouse fixture, a new fixture in a directory `conftest.py`, or
+`pytest_plugins` in a test module is 🟡 IMPORTANT; setup belongs in the test module or an explicitly imported helper.
+
 Be constructive, cite file and line, and show the fix. Generic advice is a defect in the review, not in the PR. Use
 Australian English (`initialise`, `optimisation`).
 

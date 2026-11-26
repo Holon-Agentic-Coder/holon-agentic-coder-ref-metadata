@@ -112,3 +112,11 @@ I-1795665991-no-unneeded-full-review, on apps/sandbox-executor/src/sandbox_execu
   intent and plan commits survive as unreferenced objects). Resuming needs a maintainer or coordinator decision on a
   fresh launch without a checkpoint.
 - No PR yet, so the `module-budget-change` label has not been requested. Bug logged as bean 0519.
+
+- 2026-11-26T20:59:26Z: resumed: holon flow `module-budget-default-350` (step 2, default 350) from checkpoint (execute
+  stage), runner claude-agent / claude-opus-5-5. Blocker PR #342 merged (57a8aa38, 2026-11-26T20:58:42Z).
+  Module-budget-change label: required for CI on the PR; noted here, not applied by the agent.
+- 2026-11-26T21:00:28Z: parked: Stage 3 admission refused on overlap with PR #349 (branch
+  I-1795704651-kb-wisdom-deterministic-files) on apps/sandbox-executor/src/sandbox_executor/knowledge/wisdom.py.
+  Worktree flow-module-budget-default-350 and checkpoint kept; resume from checkpoint (--checkpoint, never relaunch
+  without it) once PR #349 merges or releases wisdom.py.

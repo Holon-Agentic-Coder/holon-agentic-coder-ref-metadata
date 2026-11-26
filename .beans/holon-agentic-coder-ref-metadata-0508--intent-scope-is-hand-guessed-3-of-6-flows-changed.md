@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0508
 title: "Intent scope is hand-guessed: 3 of 6 flows changed files they did not list"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -10,8 +10,13 @@ tags:
   - scope
   - holon-agentic-coder
 created_at: 2026-11-26T10:50:00Z
-updated_at: 2026-11-26T10:50:00Z
+updated_at: 2026-11-26T14:23:00Z
 ---
+
+## Flow
+
+In progress: flow intent-scope-check (claude-agent, claude-opus-5-5), log todo/flow-intent-scope-check.log, launched
+2026-11-26T14:22Z; ships the check as a separate `holon intent-check` command.
 
 ## Problem
 

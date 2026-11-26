@@ -74,3 +74,8 @@ long as the base is unsorted, the rule "interleave by `created_at`" and the rule
   `todo/intent-0436-ledgers-sorted-chronologically.json`, log `todo/flow-ledgers-sorted-chronologically.log`,
   claude-agent / claude-opus-5-5). Scope: normalise script, three canonical ledgers, three reconcilers; writers left out
   (follow-up).
+
+- 2026-11-26T14:08Z: flow `ledgers-sorted-chronologically` produced PR #342: 3/3 consensus at review iteration 6 (after
+  a code conflict in `flow/__init__.py` resolved via resolve-conflict and a rerun from review), calibrated,
+  MERGEABLE/CLEAN, green CI. Awaiting maintainer merge. Not in scope and still open: writers of `created_at` (many
+  review modules) to canonical `Z` form; keep the bean open for that remainder.

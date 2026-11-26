@@ -66,3 +66,5 @@ Note (2026-11-26): resumed from checkpoint
 at resume. Log `todo/flow-flow-references-github-issues.log`. parked 2026-11-26: resume from checkpoint hit Stage 3
 touch-set overlap with PR #342 (`I-1795694671-ledgers-sorted-chronologically`) on `docs/git_flow.md`; resume from
 checkpoint once #342 merges or releases the file.
+
+Note (2026-11-26): resumed from checkpoint after PR #342 merged (20:58Z). No live runner for the slug at resume.

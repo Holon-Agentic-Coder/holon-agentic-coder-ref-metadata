@@ -10,7 +10,7 @@ tags:
   - holon-agentic-coder
   - concurrency
 created_at: 2026-11-23T15:20:54Z
-updated_at: 2026-11-26T10:57:00Z
+updated_at: 2026-11-26T20:59Z
 ---
 
 ## Problem
@@ -79,3 +79,16 @@ reason in its log.
   apps/sandbox-executor/tests/flow/conftest.py. PR #334 itself merged at 13:01Z, so that blocker is gone. Checkpoint
   kept (stage execute); no runner live. Resume with `--checkpoint` once split-calibration-package merges or releases
   conftest.py.
+- resumed 2026-11-26 14:29Z from checkpoint (stage execute, `--checkpoint`, claude-agent / claude-opus-5-5,
+  no-wait-on-overlap). Blocker split-calibration-package has completed (checkpoint stage completed); its PR #347 is open
+  and does not touch conftest.py. Log `todo/flow-single-runner-per-checkpoint.log`.
+- parked 2026-11-26 14:50Z: resume 14:29Z admitted Stage 3 and executed (E-1795703416), but execute failed: the
+  execution touched apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports.py and launcher/run_tracking.py outside
+  the plan touch set; re-plan (P-1795704471) widened the touch set and Stage 3 then refused on a touch-set overlap with
+  open PR #342 (I-1795694671-ledgers-sorted-chronologically) on flow/lazy_exports.py. Checkpoint kept (stage execute,
+  worktree flow-single-runner-per-checkpoint); no runner or container live. Resume with `--checkpoint` once PR #342
+  merges or releases lazy_exports.py.
+
+- resumed 2026-11-26T20:59Z from checkpoint (stage execute, `--checkpoint`, claude-agent / claude-opus-5-5,
+  no-wait-on-overlap): blocker PR #342 (lazy_exports.py) merged 2026-11-26 20:58Z. Log
+  `todo/flow-single-runner-per-checkpoint.log`.

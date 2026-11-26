@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0519
 title: "Flow worktree, checkpoint and intent/plan branches vanish after a Stage 3 overlap refusal"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - checkpoint
   - holon-agentic-coder
 created_at: 2026-11-27T00:10:00+11:00
-updated_at: 2026-11-27T00:10:00+11:00
+updated_at: 2026-11-26T14:23:25.786Z
 ---
 
 ## Problem
@@ -75,3 +75,23 @@ refuse while a runner holds the worktree.
   followed by a relaunch that recreated them, or it was transient.
 - Candidate for the still-open question: a post-merge pass running while a rerun is alive removes the worktree under it.
   #340 and #343 had reruns started 21 s and 33 s before they merged (bean 0522).
+
+## Progress
+
+- in-progress 2026-11-26: admission part (remote-aware in-flight check, fetch --prune before each Stage 3 check, refusal
+  names how each blocker was found) launched as flow `admission-remote-in-flight` (intent
+  todo/intent-0519-admission-remote-in-flight.json, worktree apps/holon-agentic-coder/flow-admission-remote-in-flight,
+  claude-agent / claude-opus-5-5). Bean 0520 (trial merge) not implemented.
+- parked 2026-11-26: flow `admission-remote-in-flight` (plan I-1795703012 / P-1795703035, checkpoint kept in the flow
+  worktree) refused at Stage 3 admission: the touch set overlaps open PR #342 (branch
+  I-1795694671-ledgers-sorted-chronologically, the flow in its PR) on
+  apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports.py. Resume from checkpoint (--checkpoint) once #342
+  merges or releases that file. Note: the plan's touch set lists 14 files, nine of them outside the intent scope (incl.
+  lazy_exports.py); logged as bean 0541.
+
+- resumed 2026-11-26 from checkpoint (claude-agent / claude-opus-5-5, --no-wait-on-overlap): PR #342 merged 20:58:42Z,
+  but Stage 3 refused again on a touch-set overlap with the parked flow `module-budget-default-350` (branch
+  I-1795698612-module-budget-default-350/P-1795698637-CLA-CO5.5/_, blocked since 13:18:56Z on #342) on
+  apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports.py. parked 2026-11-26 20:59Z: blocked by parked flow
+  module-budget-default-350 on lazy_exports.py; resume from checkpoint once that flow's worktree releases the file (its
+  blocker #342 has merged, so it needs its own resume or its stale waiting state cleared).

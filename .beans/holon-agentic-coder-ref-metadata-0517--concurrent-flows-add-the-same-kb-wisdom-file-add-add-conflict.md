@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0517
 title: "Concurrent flows add the same knowledge-base or wisdom file, so their PRs conflict add/add"
-status: todo
+status: in-progress
 type: bug
 priority: normal
 tags:
@@ -42,3 +42,8 @@ Whichever PR merges second needs a conflict pass, a push and a CI cycle.
   is only the fallback.
 - Cost per conflict: a resolver pass, a push, a CI cycle and a rerun, see bean 0522 (about 12 to 26 min plus a full
   review).
+
+## In progress
+
+Flow kb-wisdom-deterministic-files launched 2026-11-27 (claude-agent, claude-opus-5-5); log
+todo/flow-kb-wisdom-deterministic-files.log.
