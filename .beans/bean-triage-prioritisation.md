@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-26 10:40:26 UTC
+**Last Updated:** 2026-11-26 10:41:09 UTC
 
 ## Executive Summary
 
@@ -17,9 +17,9 @@ about 10M+ tokens), so flows that touch the same files still run one after anoth
 run together.
 
 - **Total Tracked Beans**: 505 (excluding template)
-- **Completed**: 367 (72.7%)
+- **Completed**: 368 (72.9%)
 - **Scrapped / Superseded**: 13 (2.6%)
-- **Active**: 125 (24.8%), of which 17 are in progress, 106 are todo and 2 are draft
+- **Active**: 124 (24.6%), of which 16 are in progress, 106 are todo and 2 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1134,7 +1134,6 @@ logged beans `0389` and `0390` added to triage.
 | **P1**   | todo        |  High  |             M             | 0430   | The review-loop resolver turn has no turn budget, and a spinning test run defeats the stall budget                                                            | Flow / Architecture              |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             L             | 0429   | Validate .beans/ header ID, title uniqueness, and filename consistency in pre_commit_check.py                                                                 | Architecture / Quality           |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             M             | 0428   | Use PR-own 3-dot diff instead of 2-dot diff in ci_final_head and touch-set inspection                                                                         | Flow / Architecture              |                                                                                                                                                                                                                                                       |
-| **P1**   | in-progress |  High  |             M             | 0427   | Strip gh CLI stderr hints from pr_url so consensus review links are not corrupted                                                                             | Flow / Architecture              |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             M             | 0426   | Fix run_holon_flow slug truncation, bean-progress truncated-slug attribution, and subagent intent rewrites                                                    | Flow / Architecture              |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             L             | 0425   | Review iterations on claude-fable-5-2 take three times as long as on claude-opus-5-5                                                                          | Architecture / Quality           |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             L             | 0424   | A transient DNS or Docker failure ends the review stage and throws away finished reviewer work                                                                | Architecture / Quality           |                                                                                                                                                                                                                                                       |
