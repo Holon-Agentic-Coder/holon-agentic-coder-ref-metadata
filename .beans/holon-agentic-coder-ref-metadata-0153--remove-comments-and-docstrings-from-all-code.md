@@ -13,7 +13,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:42:56Z
-updated_at: 2026-11-26T22:58:00Z
+updated_at: 2026-11-26T22:58:29Z
 ---
 
 ## Problem
@@ -432,3 +432,7 @@ kept `todo/intent-0153-infra-helpers-self-doc.json`.
 > (`secret-bundle-private-files`, merged `d3c68686`) added two docstrings to
 > `apps/sandbox-executor/src/sandbox_executor/agent_runner.py` (the owner-only directory and file writers) against this
 > bean's self-explaining invariant. Remove them in the `holon-agentic-coder` clean-up slice.
+
+Note (2026-11-26): [PR #351](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/351) (`2f29d8c`, beans
+0390/0472) added 76 docstring lines (non-test `.py`, triple-quote delimiters included) and 11 comment lines against the
+self-explaining-code invariant. Measured from `gh pr diff 351`; clean-up needed.
