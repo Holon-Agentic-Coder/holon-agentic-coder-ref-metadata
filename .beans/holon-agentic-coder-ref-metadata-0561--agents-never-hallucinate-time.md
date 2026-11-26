@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0561
 title: "Agents never hallucinate time: timestamps come from the clock, and a test proves it"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-11-26T23:07:49Z
-updated_at: 2026-11-26T23:07:49Z
+updated_at: 2026-11-26T23:19:28Z
 ---
 
 ## Instruction (maintainer, 2026-11-27 local)
@@ -73,3 +73,15 @@ three append-only ledgers and KB records, as a hygiene test; the engine writes t
 - A new bean, ledger row or audit entry with a future or invented time is rejected at commit and in CI.
 - Rule present in AGENTS.md, rules.md, subagents.md and the timestamp-writing skills.
 - Related: Bean 0556, Bean 0559, CF ledger.
+
+## Resolution
+
+Done. `.agents/scripts/timestamps.py` (shared rules), `check_beans.py` (bean frontmatter, ids, status, blocked_by,
+timestamps vs clock and vs the writing commit via git blame, audit entries) and `check_failure_ledger.py` (row format,
+order, not future, not after its commit, append-only with a created_at-only correction allowance for stamps that
+postdate their commit). Wired into `.agents/hooks/pre-commit` (install by copying into the git hooks directory) and the
+hygiene workflow. Tests: `tests/test_check_beans.py`, `tests/test_failure_ledger.py` (fixtures from the 2026-11-26
+evidence fail before the clean-up and pass after). Legacy beans (values before 2026-11-26) keep their old formats;
+strict rules apply to values from 2026-11-26 on. Rule added to AGENTS.md, rules.md and the subagent preamble. Remaining:
+the same checks on the target repositories' ledgers via a holon flow; skills that write timestamps inherit the rule
+through the preamble.

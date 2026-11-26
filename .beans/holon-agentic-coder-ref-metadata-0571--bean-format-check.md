@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0571
 title: "Check: bean files have sequential ids, valid status and frontmatter"
-status: todo
+status: completed
 type: task
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - beans
   - invariants
 created_at: 2026-11-26T23:09:56Z
-updated_at: 2026-11-26T23:09:56Z
+updated_at: 2026-11-26T23:19:28Z
 ---
 
 ## Instruction (maintainer, 2026-11-27 local)
@@ -36,3 +36,10 @@ timestamps valid (with 0561).
   and passes on the cleaned state.
 - Self-explaining code invariant in anything written: no docstrings, no comments except `# why:`.
 - Target-repository work goes through `holon flow`; the intent never names harness paths or bean ids.
+
+## Resolution
+
+Done for the harness. `check_beans.py` enforces file name and id match, sequential ids (legacy gaps 0456, 0457,
+0553-0555 listed as known), no duplicates, valid status, required fields, `blocked_by` targets exist, and timestamps
+(see bean 0561). Runs in `uv run pytest` (real-repo test), `.agents/hooks/pre-commit` and the hygiene workflow. Three
+legacy beans fixed (0031 id comment, 0222 missing stamps, 0256 updated before created).

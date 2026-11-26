@@ -1,0 +1,9 @@
+#!/bin/sh
+root="$(git rev-parse --show-toplevel)"
+echo "Running Prettier formatting check..."
+npx prettier --check "**/*.md" || {
+  echo "Prettier check failed. Run 'npx prettier --write \"**/*.md\"' and try again."
+  exit 1
+}
+python3 "$root/.agents/scripts/check_beans.py" || exit 1
+python3 "$root/.agents/scripts/check_failure_ledger.py" || exit 1

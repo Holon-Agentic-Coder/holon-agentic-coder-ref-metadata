@@ -40,6 +40,8 @@ Every subagent brief includes this block verbatim. It overrides any conflicting 
 - Never check out, edit, build or measure in a `main` worktree.
 - Never force-push or rebase a flow branch, and never push to `main`.
 - No co-author or attribution trailers on commits unless the user's own instructions require them.
+- Clock-read UTC timestamps only: read every timestamp you write from `date -u +%Y-%m-%dT%H:%M:%SZ` at write time; never
+  type, estimate, round or copy one, and never label a local time `Z`.
 
 ---
 

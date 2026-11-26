@@ -31,6 +31,11 @@ code in this repository.
    - Monolithic files create cross-agent merge conflicts, serialization bottlenecks, and bloated review passes. Keep
      functions focused and split collaborators, handlers, dispatchers, options, and models into dedicated files where
      sensible.
+8. **Clock-read UTC timestamps only (bean 0561)**: every timestamp an agent writes (bean `created_at`/`updated_at`,
+   ledger rows, audit entries, checkpoints) comes from `date -u +%Y-%m-%dT%H:%M:%SZ` (or `datetime.now(timezone.utc)`)
+   at write time; never typed, estimated, rounded, copied from another record or written as local time labelled `Z`.
+   `.agents/scripts/check_beans.py` and `check_failure_ledger.py` reject future, malformed, misordered or post-commit
+   values at commit and in CI.
 
 ---
 

@@ -61,6 +61,11 @@ These apply to every task. Each links to the file that holds the full rule.
 - **Target repositories** never reference harness paths (`.beans/`, `todo/`, `.agents/`); keep exactly three append-only
   ledgers (`intents`, `plans`, `executions`); no synthetic data for benchmarks; keep updates dense and token-cheap. See
   [engineering-rules.md](.agents/engineering-rules.md).
+- **Clock-read UTC timestamps only**: every timestamp an agent writes (bean `created_at`/`updated_at`, ledger rows,
+  audit entries, checkpoints) comes from `date -u +%Y-%m-%dT%H:%M:%SZ` (or `datetime.now(timezone.utc)`) at write time;
+  never typed, estimated, rounded, copied from another record or written as local time labelled `Z`.
+  `.agents/scripts/check_beans.py` and `check_failure_ledger.py` reject future, malformed, misordered or post-commit
+  values at commit and in CI. See [rules.md](.agents/rules.md).
 - **Format before commit**: `npx prettier --write "**/*.md"` in the harness; only changed files in a target worktree.
 - **Subagents** follow [subagents.md](.agents/subagents.md) and the model tiers in
   [model-tiers.md](.agents/model-tiers.md); post-merge steps run through the `post-pr-merge` skill.

@@ -38,6 +38,11 @@ jobs:
       - name: Run Prettier Check
         run: npx prettier --check "**/*.md"
 
+      - name: Validate bean files, audit entries and failure ledger (ids, status, timestamps)
+        run: |
+          python3 .agents/scripts/check_beans.py
+          python3 .agents/scripts/check_failure_ledger.py
+
       - name: Validate Markdown Links
         run: node .agents/scripts/validate-links.js
 
