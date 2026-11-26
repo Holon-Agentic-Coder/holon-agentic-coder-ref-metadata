@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0427
 title: "Strip gh CLI stderr hints from pr_url so consensus review links are not corrupted"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - github
   - holon-agentic-coder
 created_at: 2026-11-24T13:00:00Z
-updated_at: 2026-11-26T09:56:00Z
+updated_at: 2026-11-26T10:41:00Z
 ---
 
 ## Why
@@ -65,3 +65,20 @@ Small target-repo change through the Holon flow (`adapter_runner.py`, `adapter.p
 - 2026-11-26: in-progress, flow `pr-url-without-gh-hints` (worktree flow-pr-url-without-gh-hints, claude-agent
   claude-opus-5-5). Scope narrowed to `flow/github/pr.py`, `adapter_runner.py` and a new test, so it is disjoint from
   the live review-loop and issue-tracking flows; the `loop.py` consumer already prefers `pr_res["pr_url"]`.
+- 2026-11-26: PR #330 approved (3/3 consensus, review iteration 2), calibrated, MERGEABLE/CLEAN, all checks green;
+  awaiting maintainer merge.
+
+## Resolution
+
+Delivered via [PR #330](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/330) and merged into `main`
+(`a71b8a6b`, 2026-11-26T10:39:00Z):
+
+- **Key Architectural Deliverables**: `create_or_update_pr` (`flow/github/pr.py`) returns an explicit single-line
+  `pr_url` parsed from `gh` stdout only (`https://\S+`), never the stdout+stderr concatenation; `gh_env`
+  (`flow/github/adapter_runner.py`) also sets `GH_PROMPT_DISABLED=1` and `GH_NO_UPDATE_NOTIFIER=1`.
+  `flow/review/loop.py` drops the fallback to the combined `output` (outside the intent scope, the same consumer-side
+  edit as bean 0502; the change is a 2-line simplification).
+- **Verification & Tests**: new `apps/sandbox-executor/tests/flow/github/test_pr_url.py` simulating a URL on stdout with
+  a `hint:` block on stderr; module budgets untouched.
+- **Holon Flow Traversal**: Intent -> Plan -> Execute completed; Stage 4 review reached 3/3 consensus at iteration 2
+  (one nit, R1-F1, applied); calibration recorded; PR checks green before merge.

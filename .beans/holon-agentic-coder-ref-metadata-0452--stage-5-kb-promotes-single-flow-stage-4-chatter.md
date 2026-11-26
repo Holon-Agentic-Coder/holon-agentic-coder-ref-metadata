@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0452
 title: "Stage 5 KB promotion persists single-flow Stage 4 review chatter as permanent KB-failure entries"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
   - merge-conflicts
   - holon-agentic-coder
 created_at: 2026-11-25T05:41:00Z
-updated_at: 2026-11-25T05:41:00Z
+updated_at: 2026-11-26T10:40:20Z
 ---
 
 # Stage 5 KB promotion persists single-flow Stage 4 review chatter as permanent `KB-failure` entries
@@ -74,3 +74,18 @@ tests, delivered via `holon flow` (`holon-agentic-coder`).
 - Target repo change through `holon flow` (`holon-agentic-coder`).
 - Related: Bean `0371` (per-flow pending ledger fragments and KB conflict reduction).
 - Audit source: `2026-11-25T05:41Z` fifth-merge self-improvement audit (`#295–#299`).
+
+## Resolution
+
+Delivered via [PR #331](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/331) and merged into `main`
+(`310ea9f`):
+
+- **Key Architectural Deliverables**: Stage 5 promotion no longer writes a permanent `KB-failure` file for an action
+  signature whose trials all come from one flow's own Stage 4 review rows (`ACT-REV` / `ACT-FIND`). The predicate lives
+  in `knowledge/promotion_rules.py` so `knowledge/wisdom.py` does not grow. Repeated failures from separate flows or
+  from non-review actions still promote as before.
+- **Verification & Tests**: `apps/sandbox-executor/tests/test_failure_promotion_review_chatter.py` covers single-flow
+  review chatter (no artifact) and cross-flow recurrence (still promoted). Module budgets were not touched.
+- **Holon Flow Traversal**: Intent, plan, execute, review loop and calibration (calibrated branch and calibration report
+  `687e7da9`) completed. Follow-up: pruning the existing single-flow `KB-failure-*.json` clutter is tracked as
+  bean 0506.

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0401
 title: "The CI registration wait ends unknown when the pull request head lags the pushed head"
-status: todo
+status: in-progress
 type: bug
 priority: normal
 tags:
@@ -33,3 +33,8 @@ three minutes for nothing.
 - Logged from Bean 0394 (no unnecessary waiting in the holon flow), on the maintainer's word of 2026-11-24.
 - Code: `flow/github/ci_final_head.py`, `flow/github/ci.py` (`CI_REGISTRATION_TIMEOUT_SECONDS = 180`,
   `CI_REGISTRATION_POLL_SECONDS = 15`).
+
+## Progress
+
+- 2026-11-26: flow ci-final-head-wait-on-pushed-commit launched (intent
+  todo/intent-0401-ci-final-head-wait-on-pushed-commit.json, log todo/flow-ci-final-head-wait-on-pushed-commit.log).
