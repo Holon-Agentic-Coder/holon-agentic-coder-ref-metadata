@@ -5,6 +5,29 @@ first.
 
 ## Entries
 
+### 2026-11-26T21:10:00Z — Fifth-Merge Audit
+
+- **Trigger:** fifth merge (`holon-agentic-coder` #347 `20:57:28Z`, #342 `20:58:25Z` commit, #346 `21:02:00Z`, #348
+  `21:02:43Z`, #349 `21:03:27Z`).
+- **Last merged pull requests at audit time:** `Holon-Agentic-Coder/holon-agentic-coder#349`
+  (`kb-wisdom-deterministic-files`, merged `2026-11-26T21:03:27Z`); `holon-coherence#56` unchanged. #350 open and
+  mergeable.
+- **Hub file `flow/lazy_exports.py`:** named in 3 Stage 3 refusals on #342 and 1 on a parked flow; 4 flows parked about
+  29 flow-hours in total; 4 execute discards today for editing it outside the touch set (bean 0543).
+- **Parked flows blocking each other:** `admission-remote-in-flight` behind parked `module-budget-default-350`;
+  `module-budget-default-350` behind the just-resumed `single-runner-per-checkpoint` (bean 0544).
+- **Backfill picks:** 4 of 5 flows parked at first Stage 3; pick decisions are not logged, so idle slot cost is **not
+  measured** (bean 0545).
+- **Main-push CI:** #346 gate present on all 5 workflows from `aa085c38`. On the three pushes of the 21:02 to 21:03
+  burst (`aa085c38`, `46a1185b`, `2c865160`) hygiene skipped its JSON and markdown checks, but unit, integration and
+  stress ran in full (Bookkeeping gate succeeded, did not skip); the runs overlapped as designed by 0461 (per-SHA
+  groups). No pure merge-origin/main push has occurred since #346, so its skip is not yet confirmed; #337 behaviour
+  unchanged since the 13:40Z entry. Recheck on the next such push.
+- **WB add/add after #349:** no PR has merged after #349 yet; #349 and #350 file lists contain no `WB-heuristic` file.
+  Not yet confirmed; recheck after the next merge.
+- **Not measured:** per-step timing of parks, admission waits and idle slots (beans 0412, 0496, 0545).
+- **Beans created:** `0543`, `0544`, `0545`.
+
 ### 2026-11-26T13:40:00Z — Fifth-Merge Audit
 
 - **Trigger:** fifth merge (`holon-agentic-coder` #341 `12:58:39Z`, #334 `13:01:37Z`, #340 `13:04:23Z`, #343

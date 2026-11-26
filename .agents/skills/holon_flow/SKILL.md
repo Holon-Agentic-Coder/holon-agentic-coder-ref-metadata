@@ -132,7 +132,11 @@ Inside the background subagent, perform pre-flight verification:
    GitHub's 255-character ref limit (see `.agents/rules.md`, "Git ref names are limited to 255 characters").
 4. **Verify Target Worktree**: Ensure `--target-worktree` is a dedicated `flow-<slug>` worktree (never the `main`
    worktree itself) that exists and is a clean git repository. Create it from `origin/main` first if it does not exist.
-5. **Determine Runner & Model**:
+5. **Intent check (bean 0508, PR #348)**: with the target worktree at current `origin/main`, run
+   `holon intent-check <intent_path> --target-worktree <target_worktree>`. Add each companion file it lists as missing
+   to the intent's scope (files only, never directories), or record in the bean why not. Proposed companions and
+   warnings are advisory.
+6. **Determine Runner & Model**:
    - Default agent: `antigravity-agent` (or `claude-agent`)
    - Default model: `gemini-4-neon` (fallback: `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$
      `gemini-3.8-flash`, or `claude-fable-5-2` / `claude-opus-5-5`)
