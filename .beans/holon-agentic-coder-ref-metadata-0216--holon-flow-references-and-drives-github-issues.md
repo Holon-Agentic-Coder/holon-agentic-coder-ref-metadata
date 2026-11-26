@@ -59,3 +59,10 @@ Note (2026-11-26): in-progress. Flow `flow-references-github-issues` launched fr
 `run_holon_flow.py` (target `apps/holon-agentic-coder/main`, `claude-agent` / `claude-opus-5-5`, log
 `todo/flow-flow-references-github-issues.log`). Scope files `issues.py`, `test_issues.py`, `test_intent_work_item.py`
 are new files to be created.
+
+Note (2026-11-26): resumed from checkpoint
+`apps/holon-agentic-coder/flow-flow-references-github-issues/.holon/flow/checkpoint-flow-references-github-issues.json`
+(blocker flow `no-unneeded-full-review` merged as PRs #316-#334 and its worktree is gone). No live runner for the slug
+at resume. Log `todo/flow-flow-references-github-issues.log`. parked 2026-11-26: resume from checkpoint hit Stage 3
+touch-set overlap with PR #342 (`I-1795694671-ledgers-sorted-chronologically`) on `docs/git_flow.md`; resume from
+checkpoint once #342 merges or releases the file.

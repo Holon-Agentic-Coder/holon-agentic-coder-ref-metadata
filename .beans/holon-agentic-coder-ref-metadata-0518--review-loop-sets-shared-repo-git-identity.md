@@ -32,3 +32,17 @@ global identity (`~/.gitconfig`) is unaffected.
 - One-off: remove the two keys from the shared config once no flow depends on them (check first that flows still set
   their own identity).
 - Related: earlier hits on git identity: , 0019, 0118, 0131, 0213.
+
+## Audit evidence (2026-11-26T13:40Z)
+
+- Duration: not new. The host repository already holds commits whose author and committer are `Holon Review Loop Agent`
+  made on the host (timezone +11:00): 210 of 738 such commits, the first `10da7fe5`
+  (`Merge remote-tracking branch 'origin/main'`) on 2026-11-20, then every day since (229 commits on 11-20, 157 on
+  11-21, 142 on 11-23, 71 on 11-26). 77 flow logs show `git config --global user.name Holon Review Loop Agent` run by
+  the container. `.git/config` was last rewritten at 00:25 today, so it is live.
+- What it affected: every host-side sync and merge commit of a flow (`sync: merge target origin/main at ...`,
+  `Merge remote-tracking branch`, `chore(review): record review ledger rows`) is attributed to the agent, as are harness
+  conflict merges made in a flow worktree (#340, `da5880ad`). The maintainer's global identity is still in
+  `~/.gitconfig` but the repository setting wins. Audit trail by author is unusable for the whole period.
+- The log line says `--global`, so the container's HOME (or a mounted config) resolves to the shared repository config.
+  Fix the cause (do not mount or point HOME at a file inside the repository) and not only the symptom.

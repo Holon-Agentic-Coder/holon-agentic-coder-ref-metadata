@@ -67,3 +67,11 @@ review re-run was still live in it (its log ends
 already gone before its own cleanup step. So something other than the post-merge cleanup step removes flow worktrees:
 find every `git worktree remove`/`rm -rf` path in the wrapper, the engine and the harness skills, and make each one
 refuse while a runner holds the worktree.
+
+## Audit evidence (2026-11-26T13:40Z)
+
+- Today `apps/holon-agentic-coder/flow-module-budget-default-350` exists with its checkpoint and the `I-1795698612-*`
+  branches, parked at 13:18:56Z on PR #342 (a live refusal, not the stale-ref case). So the original disappearance was
+  followed by a relaunch that recreated them, or it was transient.
+- Candidate for the still-open question: a post-merge pass running while a rerun is alive removes the worktree under it.
+  #340 and #343 had reruns started 21 s and 33 s before they merged (bean 0522).

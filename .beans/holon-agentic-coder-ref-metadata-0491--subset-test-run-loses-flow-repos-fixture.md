@@ -1,14 +1,14 @@
 ---
 # holon-agentic-coder-ref-metadata-0491
 title: "Running a subset of unit test files loses the flow_repos fixture"
-status: todo
+status: in-progress
 type: bug
 priority: normal
 tags:
   - tests
   - holon-agentic-coder
 created_at: 2026-11-26T07:10:00Z
-updated_at: 2026-11-26T10:57:00Z
+updated_at: 2026-11-26T13:33:00Z
 ---
 
 ## Problem
@@ -38,3 +38,9 @@ orders) points to conftest discovery as the cause, so the fix should cover both 
 
 Bisect the file list to the pair that triggers it (conftest discovery order or a module that imports a test module and
 shadows `tests.flow`), then fix it in the Holon flow.
+
+## Flow
+
+Launched 2026-11-26 as flow `flow-fixtures-any-test-file` (claude-agent, claude-opus-5-5), worktree
+`flow-flow-fixtures-any-test-file`, log `todo/flow-flow-fixtures-any-test-file.log`. Intent scope: the three conftest
+files plus one new regression test. The slug was truncated to 32 characters (Bean 0426).

@@ -28,3 +28,17 @@ Whichever PR merges second needs a conflict pass, a push and a CI cycle.
 - give `resolve_known.py` a deterministic rule for add/add on KB/WB JSON (union of evidence, later `updated_ts` wins) so
   the conflict is settled mechanically without a subagent.
 - Related: Bean 0244 (KB/WB facts append-only, completed), Bean 0371 (ledger fragments), Bean 0506 (KB-failure clutter).
+
+## Audit evidence (2026-11-26T13:40Z)
+
+- Frequency: three of the five merges in the window (#341 at 12:58Z, #340 at 13:04Z, #343 at 13:04Z, with #345 clean)
+  add or rewrite `holon-knowledge/wisdom/heuristics/WB-heuristic-84a6ddeb.json`, five minutes apart, so each of the last
+  two conflicted with the one before (add/add). 661 `holon-knowledge/kb|wisdom` json path touches in 59 main commits
+  since 11-25.
+- Cause is not hash collision: the file is the "Universal heuristic: main" wisdom entry whose payload carries run
+  counters (`total_executions` 23, Wilson bound 0.857). Every flow's Stage 5 promotion rewrites it with a different
+  counter, so any two concurrent PRs conflict. The real fix is to stop writing counter-bearing KB/WB files in the flow
+  PR: derive them on `main` in the existing Promote Ledger workflow, as the ledgers now are. The `resolve_known.py` rule
+  is only the fallback.
+- Cost per conflict: a resolver pass, a push, a CI cycle and a rerun, see bean 0522 (about 12 to 26 min plus a full
+  review).

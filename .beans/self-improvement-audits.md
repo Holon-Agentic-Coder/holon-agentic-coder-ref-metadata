@@ -5,6 +5,32 @@ first.
 
 ## Entries
 
+### 2026-11-26T13:40:00Z — Fifth-Merge Audit
+
+- **Trigger:** fifth merge (`holon-agentic-coder` #341 `12:58:39Z`, #334 `13:01:37Z`, #340 `13:04:23Z`, #343
+  `13:04:41Z`, #345 `13:32:07Z`).
+- **Last merged pull requests at audit time:** `Holon-Agentic-Coder/holon-agentic-coder#345`
+  (`resume-adopts-unrecorded-branch`, merged `2026-11-26T13:32:07Z`); `holon-coherence#56` unchanged.
+- **Inputs:** flow logs of the five flows and of the parked `module-budget-default-350` and
+  `single-runner-per-checkpoint`, `gh pr view` file lists, gate decisions in the main-push unit jobs (#334, #340, #343,
+  #345), commit authors in the shared repository, `.git/config`, `git worktree list`.
+- **Admission and parking:** 4 refusals on 11-26 are about hub paths and one wide open PR (#342, 34 files, 79 min open);
+  `module-budget-default-350` parked on it, `single-runner-per-checkpoint` parked 3 times. Structural fix: trial merge
+  instead of path overlap, plus auto-resume (beans 0520, 0523). 0519 got today's state.
+- **Conflicts after merge-queue merges:** #340 and #343 were rerun with `--from-stage review` 21 and 33 s before they
+  merged, restarting a full review with "last reviewed head unknown" and orphaning processes (bean 0522).
+- **KB add/add:** 3 of 5 merges touch `WB-heuristic-84a6ddeb.json` (a counter-bearing wisdom entry); bean 0517 extended
+  with the cause and the fix on main.
+- **Git identity:** leaked since at least 2026-11-20; 210 host-side commits carry the agent identity (bean 0518
+  extended).
+- **Main-push gates:** #333 in order; #337 skips (#345, 19 s) but #334, #340 and #343 ran in full because the head job
+  was still running (bean 0521).
+- **Beans created:** `0520`, `0521`, `0522`, `0523`. **Extended:** `0517`, `0518`, `0519`.
+- **Timing (PR open to merge; commits / posted reviews):** #341 58 min (19 / 1); #334 138 min (31 / 2); #340 71 min (17
+  / 1); #343 40 min (18 / 1); #345 34 min (15 / 1); median 58 min, longest 138 min. Stage splits (working, CI,
+  other-flow wait, human, idle) per step are **not measured**.
+- **Not measured:** per-step times of reruns and parked waits (beans 0412, 0496 still open).
+
 ### 2026-11-26T12:20:00Z — Fifth-Merge Audit
 
 - **Trigger:** fifth merge (`holon-agentic-coder` #332 `10:55:07Z`, #333 `10:51:16Z`, #336 `11:34:34Z`, #335

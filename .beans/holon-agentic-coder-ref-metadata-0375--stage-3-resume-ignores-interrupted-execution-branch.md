@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0375
 title: "Stage 3 resume ignores an interrupted execution branch that has commits but no ledger row"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - resume
   - holon-agentic-coder
 created_at: 2026-11-23T07:36:00Z
-updated_at: 2026-11-26T12:45:00Z
+updated_at: 2026-11-26T13:34:00Z
 ---
 
 ## Problem
@@ -57,3 +57,22 @@ manually on the maintainer's instruction; bean 0174 restarted as a fresh `-v3` i
 
 2026-11-26: flow `resume-adopts-unrecorded-branch` (claude-agent, claude-opus-5-5) started; log
 `todo/flow-resume-adopts-unrecorded-branch.log`.
+
+2026-11-26: PR #345 approved by the 3-reviewer ensemble (iteration 2), calibrated, `MERGEABLE`/`CLEAN`; awaiting the
+maintainer merge.
+
+## Resolution
+
+Delivered via [PR #345](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/345) and merged into `main`
+(`1567b6b`):
+
+- **Key Architectural Deliverables**: new `flow/unrecorded_branch_adoption.py` detects an execution branch of the
+  current plan with commits past the plan tip and no `executions.jsonl` row and adopts it on Stage 3 resume;
+  `flow/partial_head.py` and `flow/partial_salvage.py` commit uncommitted tracked changes as labelled partial work
+  first; `flow/stages/execute.py` calls the new detection and updates the checkpoint's execution branch and id to the
+  adopted branch; a checkout blocked by a dirty worktree reports the blocking file names.
+- **Verification & Tests**: `tests/flow/stages/test_execute_resume_unrecorded_branch.py` (commits without row; commits
+  without row plus dirty tracked file; second resume after a new execution id) and `tests/test_partial_salvage.py`. Rows
+  with a success or failure summary keep their existing behaviour.
+- **Holon Flow Traversal**: flow `resume-adopts-unrecorded-branch` (claude-agent, claude-opus-5-5) ran through plan,
+  execute, review (ensemble approval at iteration 2) and calibration before the maintainer merge.

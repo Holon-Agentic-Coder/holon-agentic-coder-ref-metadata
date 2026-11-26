@@ -36,3 +36,5 @@ branches remain on origin.
 - Logged from Bean 0394 (no unnecessary waiting in the holon flow), on the maintainer's word of 2026-11-24.
 - Mirrors Bean 0360 (a resume adopts a pushed plan branch).
 - Related: Bean 0390 (the ambiguity guard that fired when two branches appeared during one dispatch).
+- 2026-11-26: prerequisite Bean 0375 delivered via PR #345, merged into `main` (`1567b6b`). Ready to start from current
+  `main`.

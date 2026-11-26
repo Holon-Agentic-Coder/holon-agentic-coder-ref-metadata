@@ -32,3 +32,6 @@ old base. Nothing in the flow or the harness flagged them; the coordinator first
 - 2026-11-26T12:10Z: after #335, #337, #338, #339 merged, re-checked open PRs #334, #340, #341 and the parked flow
   worktrees against `main` (merge-tree and budget limits): no conflicts; no source module over its limit. #334 adds test
   modules over 400 lines (tests are not budgeted).
+- 2026-11-26T13:35Z: after #345 merged, re-checked open PRs #342, #344, #346 and the live and parked flow worktrees
+  against `main` (`git merge-tree`, budget file touch): all clean merges; none changes
+  `holon-config/hygiene/module_budgets.json`, and no budget file changed on `main` since #326. No budget impact.
