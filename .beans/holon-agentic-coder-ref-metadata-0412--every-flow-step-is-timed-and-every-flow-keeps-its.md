@@ -161,3 +161,22 @@ Small: wrapper (`.agents/skills/holon_flow/scripts/run_holon_flow.py`) and loggi
   metrics in checkpoint JSON.
 - On `#300–#304` (worktrees already pruned) and live `0407` (idle since `02:41:40Z`), Antigravity flow wrapper logs do
   not exist on disk, leaving exact pre-flight, admission-poll, push, and inter-stage idle gaps unmeasured.
+
+## Audit evidence (2026-11-26T03:50Z, fifth-merge audit)
+
+- Still unmeasured in `2026-11-25T22:49:00Z..2026-11-26T03:50:09Z`:
+  - Wrapper pre-flight timestamps before `Pipeline run initiated` (`run_holon_flow.py`).
+  - Per-reviewer latency inside the Stage 4 ensemble and the inner `review_local` reviewer-turn vs CI-wait split.
+  - Individual Stage 4 git push and conflict-merge durations.
+  - Missing flow logs for `holon-coherence#56` and `thomashan/dev-env#42`–`#44`, plus the final `36+ min` of
+    `todo/flow-macos-unit-only-when-relevant.log` (`03:01:05Z..03:37:15Z+` buffered under `0385`).
+
+## Audit evidence, 2026-11-26 (flow time audit)
+
+Instrumentation gaps from section 4 of `todo/flow-time-audit-2026-11-26.md`:
+
+- Wrapper log lines carry no timestamps.
+- Per-reviewer timing is missing; only the ensemble end is logged.
+- Executor and resolver test runs and pushes inside agent turns are not logged.
+- `executions.jsonl` rows have no turn durations or token counts.
+- No flow log exists for the antigravity flows #296 to #307 or for #316 (0-byte log; Bean 0385).

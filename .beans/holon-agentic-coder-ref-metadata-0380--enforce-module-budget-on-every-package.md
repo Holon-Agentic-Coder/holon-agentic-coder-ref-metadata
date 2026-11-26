@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-11-23T09:35:00Z
-updated_at: 2026-11-24T12:44:47Z
+updated_at: 2026-11-26T05:06:00Z
 ---
 
 ## Instruction (maintainer, 2026-11-23)
@@ -97,3 +97,12 @@ catch them in Stage 3.
 > `holon-agentic-coder` half stays queued behind `0376` and `0265`. Holon-Agentic-Coder/holon-coherence#55
 > (`coherence-module-line-budget-all`, merge commit `70dc5e90206bc2ac725a30281868ee0334c14d5c`, merged
 > `2026-11-24T12:44:47Z`, 7/7 CI checks green, 3/3 consensus approved, Stage 5 calibrated) landed cleanly.
+
+- 2026-11-24 (clean-up): stays open. The `holon-coherence` half is delivered by PR #55 (merged 12:44:47Z). Remaining:
+  the `holon-agentic-coder` half (discovery-based coverage, `exclude` list, frozen overrides), queued behind `0376` and
+  `0265`.
+
+> 2026-11-26: launched the `holon-agentic-coder` half as flow `module-line-budget-all-packages` (intent
+> `todo/intent-0380-module-line-budget-all-packages.json`, `claude-agent` / `claude-opus-5-5`, runner log
+> `todo/flow-module-line-budget-all-packages.log`). The `holon-coherence` half is already merged as
+> Holon-Agentic-Coder/holon-coherence#55.

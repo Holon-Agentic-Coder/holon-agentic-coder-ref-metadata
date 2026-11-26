@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0197
 title: "Split calibration.py into a calibration package and decompose metrics parsing and report generation"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - calibration
   - holon-agentic-coder
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-11-25T22:55:00Z
+updated_at: 2026-11-26T04:00:00Z
 ---
 
 ## Problem
@@ -70,3 +70,20 @@ Bean `0146` merged in PR #221 (extracting `calibration_predicted.py`). `calibrat
 
 Note (2026-11-25): stale plan `split-calibration-package` deleted after PR #309 merged; restart from current main via
 the kept `todo/intent-0197-split-calibration-package.json`.
+
+## Audit evidence (2026-11-26T03:50Z, fifth-merge audit)
+
+- `PR #310` (`0371` sub-intent 1) and `PR #311` (`0371` sub-intent 2) were both blocked in Iteration 1 by all reviewers
+  specifically because `calibration.py` (`1,634` lines, over `1,000`) grew by `+1` to `+2` lines and
+  `test_calibration.py` (`1,780` lines) grew by `+16` lines.
+
+## Progress (2026-11-26)
+
+- Flow started from this Claude Code session on origin/main 4e358955: intent
+  `todo/intent-0197-split-calibration-package.json`, slug `split-calibration-package`, `claude-agent` /
+  `claude-opus-5-5` (`claude-fable-5-2` is over its monthly spend limit), worktree `flow-split-calibration-package`
+  (created by the runner), log `todo/flow-split-calibration-package.log`.
+- 2026-11-26 (flow `split-calibration-package`, runner on `claude-agent` / `claude-opus-5-5`): Stage 3 admission refused
+  on overlap with local flow `no-unneeded-full-review` (PR #316 when it opened). Current run is intent `I-1795669744` /
+  plan `P-1795669767`. Resume with `--checkpoint` after the overlap clears. Bug bean 0477 logs the fresh-restart
+  relaunch.

@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-26 05:53:24 UTC
+**Last Updated:** 2026-11-26 06:14:11 UTC
 
 ## Executive Summary
 
@@ -16,10 +16,10 @@ the run. Concurrent flows on overlapping files forced repeated syncs and re-revi
 about 10M+ tokens), so flows that touch the same files still run one after another; only flows with disjoint touch sets
 run together.
 
-- **Total Tracked Beans**: 482 (excluding template)
-- **Completed**: 360 (74.7%)
+- **Total Tracked Beans**: 484 (excluding template)
+- **Completed**: 360 (74.4%)
 - **Scrapped / Superseded**: 10 (2.1%)
-- **Active**: 112 (23.2%), of which 12 are in progress, 98 are todo and 2 are draft
+- **Active**: 114 (23.6%), of which 12 are in progress, 100 are todo and 2 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1074,6 +1074,8 @@ logged beans `0389` and `0390` added to triage.
 | **P3**   | todo        | Medium |             M             | 0141   | "Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe"                                                                      | vmlx / Performance               | Ready (host-level vMLX tuning on Mac; not a target-repo change). Pairs with `0142`.                                                                                                                                                                   |
 | **P3**   | todo        |  Low   |            XS             | 0231   | "Exhausted-budget error string interpolates raw count while payload reports clamped 0"                                                     | Flow Engine / Cosmetic           | Queued behind 0376 (overlaps `flow/review/loop.py`). Cosmetic; bundle with a review-loop flow.                                                                                                                                                        |
 | **P3**   | todo        |  Low   |            XS             | 0269   | "Deferred nits from the holon-agentic-coder PR 158 review loop"                                                                            | Review Loop / Housekeeping       | Wait for 0376 (overlaps `docs/git_flow.md`) and 0197 (`calibration.py`). Item 2 obsolete; remaining: fold `parse_actual_metrics` exit-code logic onto `record_exit_code` and fix `docs/git_flow.md` checkpoint wording.                               |
+| **P1**   | todo        |  High  |             M             | 0486   | CI's frozen budget-config check fails an authorised module budget change, so its flow loops in review                                      | Ledger / Observability           |                                                                                                                                                                                                                                                       |
+| **P1**   | todo        | Medium |             M             | 0485   | A flow's module_budget_change intent field does not clear the CI hygiene budget gate                                                       | Build / DevEx                    |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        | Medium |             M             | 0484   | An untracked plans/I-*/ directory from an earlier attempt makes the planner refuse the workspace as uncommitted                            | General                          |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             L             | 0483   | Measure runner and model wall time on comparable flows to choose the default                                                               | Architecture / Quality           |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             M             | 0482   | Estimate a performance change's saving from history before launching its flow                                                              | Flow / Architecture              |                                                                                                                                                                                                                                                       |

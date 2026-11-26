@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0216
 title: "Holon flow references and drives GitHub Issues (assign on intent, close on merge)"
-status: todo
+status: in-progress
 type: feature
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - holon-flow
   - holon-agentic-coder
 created_at: 2026-10-30T00:00:00Z
-updated_at: 2026-11-25T22:55:00Z
+updated_at: 2026-11-26T04:10:00Z
 ---
 
 ## Problem
@@ -51,3 +51,8 @@ reference. This also honours the standing rule that harness bean ids never land 
 
 Note (2026-11-25): stale plan `flow-references-github-issues` deleted after PR #309 merged; restart from current main
 via the kept `todo/intent-0216-flow-references-github-issues.json`.
+
+Note (2026-11-26): in-progress. Flow `flow-references-github-issues` launched from origin/main 4e358955 via
+`run_holon_flow.py` (target `apps/holon-agentic-coder/main`, `claude-agent` / `claude-opus-5-5`, log
+`todo/flow-flow-references-github-issues.log`). Scope files `issues.py`, `test_issues.py`, `test_intent_work_item.py`
+are new files to be created.

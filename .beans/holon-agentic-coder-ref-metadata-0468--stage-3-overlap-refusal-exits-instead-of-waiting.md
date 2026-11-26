@@ -45,3 +45,10 @@ resumes from the checkpoint, without `--allow-overlap` and without stopping.
   (allow-overlap sticky across resumes).
 - The overlap itself is real: the intent scope names `.github/workflows/README.md`, which the ledger-fragments flow also
   touches. The flow was run with the same touch set, so no `--allow-overlap` was used.
+
+## Update, 2026-11-26
+
+The same macos-unit-only-when-relevant run later resumed from its checkpoint on its own and completed Stage 3 to Stage 5
+(PR #315), after PR #310 merged. So the overlap wait does resume in at least this case. The first exit (2026-11-25
+23:03Z) is still unexplained; the flow log holds only the final line (Bean 0385). Keep this open for investigation of
+why the wrapper exited at the first refusal.
