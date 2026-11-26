@@ -36,3 +36,34 @@ A refused Stage 3 leaves the worktree, the I-/P- branches and the checkpoint in 
 - Identify what removed the worktree and branches (check the holon CLI failure path and the clean-branches / post-merge
   skills for `worktree remove` or `branch -D` of `I-*` refs).
 - A test or wrapper guard that refuses to delete a parked flow's worktree or checkpoint.
+
+## Diagnosis (maintainer, 2026-11-26)
+
+The Stage 3 overlap check is not checking against the remote each time: it read a stale local branch. When the fresh
+`module-budget-default-350` flow was admitted (about 13:05Z), PR #334 (`I-1795665991-no-unneeded-full-review`) had
+already merged at 13:01:37Z and its remote branches were being deleted, but the local
+`I-1795665991-no-unneeded-full-review*` branches (33 of them, removed by the #334 post-merge run a few minutes later)
+and their remote-tracking refs were still in the shared repository, so admission counted a merged flow as in flight and
+refused on `budgets.py`.
+
+## Fix (admission)
+
+- Before every admission check, `git fetch --prune origin` so deleted remote branches drop out, and judge "in flight"
+  from the remote: an `I-*` branch counts only if it still exists on origin **and** (its PR is open, or a live runner
+  holds its worktree). A local branch or worktree alone, or a branch whose PR is merged or closed, never blocks.
+- Log, with the refusal, how the blocker was found (ref name, local or remote, PR number and state), so a stale match is
+  visible at once.
+- Add a test: a merged PR whose local branch still exists does not block admission.
+
+## Still open
+
+Why the refused flow's own worktree, checkpoint and branches disappeared is not explained by the above. Candidates: the
+wrapper's cleanup on an early Stage 3 exit, or a concurrent post-merge run's stale-plan sweep (a plan-only worktree with
+no PR matches that rule). Check both.
+
+Second case, same day: the worktree `flow-agent-runner-spec-per-agent` (PR #343, merged 13:04:41Z) disappeared while a
+review re-run was still live in it (its log ends
+`cannot change to .../flow-agent-runner-spec-per-agent: No such file or directory`); the #343 post-merge run found it
+already gone before its own cleanup step. So something other than the post-merge cleanup step removes flow worktrees:
+find every `git worktree remove`/`rm -rf` path in the wrapper, the engine and the harness skills, and make each one
+refuse while a runner holds the worktree.
