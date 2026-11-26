@@ -3,7 +3,7 @@
 title:
   "Remove comments and docstrings from all code (Python, shell, JavaScript, build and CI files); make code
   self-documenting"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -423,3 +423,7 @@ Neither repository's ruff config requires docstrings: `select` is `E W F I UP B 
 
 Note (2026-11-25): stale plan `infra-helpers-self-doc` deleted after PR #309 merged; restart from current main via the
 kept `todo/intent-0153-infra-helpers-self-doc.json`.
+
+> 2026-11-27: launched `holon-agentic-coder` self-explaining code gate slice (`self-explaining-code-gate`, intent
+> `todo/intent-0153-self-explaining-code-gate.json`; diff-scoped hygiene check, lint/pre-commit/CI wiring and prompt
+> invariant) via `claude-agent` / `claude-opus-5-5`, flow branch `flow-self-explaining-code-gate`.
