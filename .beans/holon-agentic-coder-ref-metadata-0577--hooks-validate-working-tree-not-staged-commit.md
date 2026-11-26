@@ -10,7 +10,7 @@ tags:
   - invariants
   - ci
 created_at: 2026-11-26T23:31:46Z
-updated_at: 2026-11-26T23:31:46Z
+updated_at: 2026-11-26T23:48:01Z
 ---
 
 ## Problem
@@ -62,3 +62,9 @@ The hook also runs the validator from the working tree, so an uncommitted valida
   seen by `git_guard.py --hook`, so `--no-verify` and `HOLON_GIT_GUARD_BYPASS` there are caught only if the matcher is
   extended to REPL (and the guard parses the script text). Not used in this incident, but the same gap; covered by the
   CI gate above.
+
+## Second symptom (2026-11-26T23:48:01Z)
+
+Because the hook validates the whole working tree, one agent's uncommitted bad file blocks every other agent's commit:
+the PR #357 post-merge commit was refused for a millisecond `updated_at` in another flow's uncommitted bean 0489.
+Validating only the staged blobs (this bean) fixes both symptoms.
