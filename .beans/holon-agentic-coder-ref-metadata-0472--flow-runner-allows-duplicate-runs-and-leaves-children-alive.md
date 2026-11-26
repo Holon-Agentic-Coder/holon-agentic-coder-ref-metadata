@@ -40,3 +40,10 @@ Observed on intent 0405 (`workspace-survival-job-parallel`, resume from `review`
 
 - The duplicates were started by the harness agent, not by a flow bug alone. The runner should still refuse them.
 - Related: 0432 (dead resolver edits block target sync), 0443, 0449.
+
+## Audit evidence (2026-11-26T03:50Z, fifth-merge audit)
+
+- `thomashan/dev-env#43` (`ubuntu-wsl-ghostty-terminfo`) contains **4 separate plan commits** from **2 distinct intent
+  IDs** (`I-1795646837-ubuntu-wsl-ghostty-terminfo` and `I-1795646845-ubuntu-wsl-ghostty-terminfo`, created 8 s apart at
+  `22:47Z`–`22:58Z`: `P-1795646862-ANA-G4N`, `P-1795646869-ANA-G4N`, `P-1795647050-ANA-G4A`, `P-1795647322-ANA-G3.8F`)
+  committed into the same PR branch (`dev-env#43`), leaving orphan plan files on `main` when merged.

@@ -40,6 +40,10 @@ unknown ids are passed to the claude CLI verbatim.
 
 ## Resolution
 
-- Delivered via [PR #267](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/267) and merged into `main` (`9f57492d`).
-- Key deliverables: added `claude-fable-5-2` capability entry with aliases `fable` / `claude-fable` (removing `fable` from Opus), displayed canonical resolved model IDs in `holon doctor` and log lines, and added alias-family regression tests (`test_model_alias_families.py`).
-- Verification & Holon Flow traversal: 3/3 consensus approval, 11/11 CI checks green on calibrated head `ec6bc115`, Stage 5 calibration included (`plans/I-1795444112-fable-model-registry-entry/P-1795444541-ANA-G4A_calibration.md`).
+- Delivered via [PR #267](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/267) and merged into `main`
+  (`9f57492d`).
+- Key deliverables: added `claude-fable-5-2` capability entry with aliases `fable` / `claude-fable` (removing `fable`
+  from Opus), displayed canonical resolved model IDs in `holon doctor` and log lines, and added alias-family regression
+  tests (`test_model_alias_families.py`).
+- Verification & Holon Flow traversal: 3/3 consensus approval, 11/11 CI checks green on calibrated head `ec6bc115`,
+  Stage 5 calibration included (`plans/I-1795444112-fable-model-registry-entry/P-1795444541-ANA-G4A_calibration.md`).

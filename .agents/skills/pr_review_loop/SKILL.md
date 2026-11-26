@@ -475,8 +475,8 @@ reality, so reviewers never evaluate a diff that no longer exists. Nothing here 
      - Run `git fetch origin main` and `git merge origin/main`.
      - Resolve the conflicts immediately:
        - **Ledger-Only Conflicts**: If conflicts are strictly confined to ledgers (`holon-knowledge/ledger/*.jsonl`),
-         follow the **Ledger-Only Conflict Resolution** procedure: interleave or append the JSON lines chronologically
-         by `created_at`, verify valid JSON syntax, and skip running test suites.
+         follow the **Ledger-Only Conflict Resolution** procedure: keep main's rows unchanged in main's order and append
+         only the branch's own rows by `created_at`, verify valid JSON syntax, and skip running test suites.
        - **Code/Doc Conflicts**: If conflicts involve non-ledger files, resolve them cleanly, format with Prettier, run
          tests (`uv run pytest`), and commit.
      - Push the resolved merge commit to `origin <branch_name>`.
@@ -641,9 +641,9 @@ Wait for the subagent to complete and inspect its report.
          1. Run `git fetch origin main` and `git merge origin/main`.
          2. Resolve the conflicts immediately:
             - **Ledger-Only Conflicts**: If conflicts are strictly confined to ledgers
-              (`holon-knowledge/ledger/*.jsonl`), follow the **Ledger-Only Conflict Resolution** procedure: interleave
-              or append the JSON lines chronologically by `created_at`, verify valid JSON syntax, and skip running test
-              suites.
+              (`holon-knowledge/ledger/*.jsonl`), follow the **Ledger-Only Conflict Resolution** procedure: keep main's
+              rows unchanged in main's order and append only the branch's own rows by `created_at`, verify valid JSON
+              syntax, and skip running test suites.
             - **Code/Doc Conflicts**: If conflicts involve non-ledger files, resolve them cleanly, format with Prettier,
               run tests (`uv run pytest`), and commit.
          3. Push the resolved merge commit to `origin <branch_name>`.

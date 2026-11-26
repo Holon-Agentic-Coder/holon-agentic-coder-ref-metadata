@@ -5,13 +5,13 @@ title:
   output"
 status: todo
 type: bug
-priority: medium
+priority: normal
 tags:
   - tests
   - hygiene
   - holon-agentic-coder
 created_at: 2026-11-23T12:40:00Z
-updated_at: 2026-11-23T12:40:00Z
+updated_at: 2026-11-24T13:00:00Z
 ---
 
 ## Problem

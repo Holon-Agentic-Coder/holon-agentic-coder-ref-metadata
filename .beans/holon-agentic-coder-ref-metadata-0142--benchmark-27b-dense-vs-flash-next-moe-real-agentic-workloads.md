@@ -14,7 +14,7 @@ tags:
   - performance
   - quality
 created_at: 2026-10-22T15:10:00Z
-updated_at: 2026-11-23T00:00:00+11:00
+updated_at: 2026-11-22T13:00:00Z
 ---
 
 ## Problem

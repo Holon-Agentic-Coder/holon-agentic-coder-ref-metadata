@@ -17,6 +17,7 @@ import re
 import shlex
 import subprocess
 import sys
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -155,6 +156,29 @@ class LiveFlowTree:
 
 
 @dataclass
+class Blocker:
+    """One entry of a flow's `admission.blocked_by`, resolved to a name the maintainer can act on."""
+
+    kind: str
+    pr: int | None
+    bean: str | None
+    slug: str | None
+    files: list[str]
+    gone: bool
+    name: str
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "kind": self.kind,
+            "pr": self.pr,
+            "bean": self.bean,
+            "slug": self.slug,
+            "files": self.files,
+            "gone": self.gone,
+        }
+
+
+@dataclass
 class InFlightRow:
     """Rendered table row and machine-readable JSON fields."""
 
@@ -173,6 +197,8 @@ class InFlightRow:
     agent: str = "—"
     model: str = "—"
     last_activity: str = "—"
+    stage_compact: str = ""
+    blockers: list[Blocker] = field(default_factory=list)
 
     def notes_cell(self) -> str:
         """Notes column: live/idle state with PID and session first, then the former status notes."""
@@ -194,6 +220,7 @@ class InFlightRow:
             "last_activity": self.last_activity,
             "live_runner": self.live_runner,
             "notes": self.notes_cell(),
+            "blocked_by": [b.as_dict() for b in self.blockers],
         }
 
 
@@ -704,6 +731,35 @@ def fetch_open_prs(repos: list[RepoTarget], *, no_gh: bool = False) -> list[Pull
     return prs
 
 
+def make_pr_state_lookup(repos: list[RepoTarget]) -> Callable[[str, int], str | None]:
+    """Lookup of one pull request's state (`OPEN`, `MERGED`, `CLOSED`) via `gh pr view`, cached per number."""
+    github = {r.name: r.github_repo for r in repos}
+    cache: dict[tuple[str, int], str | None] = {}
+
+    def lookup(repo_name: str, number: int) -> str | None:
+        key = (repo_name, number)
+        if key in cache:
+            return cache[key]
+        state: str | None = None
+        repo = github.get(repo_name)
+        if repo:
+            try:
+                proc = subprocess.run(
+                    ["gh", "pr", "view", str(number), "--repo", repo, "--json", "state", "--jq", ".state"],
+                    capture_output=True,
+                    text=True,
+                    timeout=15,
+                )
+                if proc.returncode == 0 and proc.stdout.strip():
+                    state = proc.stdout.strip().upper()
+            except (OSError, subprocess.SubprocessError):
+                state = None
+        cache[key] = state
+        return state
+
+    return lookup
+
+
 def scan_processes(*, no_ps: bool = False) -> list[ProcessInfo]:
     """Read running host processes via `ps -eo pid=,ppid=,etime=,stat=,command=`."""
     if no_ps:
@@ -1033,7 +1089,101 @@ def _match_pr_for_unit(
     return None
 
 
-def _derive_stage(wt: WorktreeFlow | None, live: LiveFlowTree | None, has_pr: bool) -> str:
+STAGE_CELL_LIMIT = 40
+GONE_SUFFIX = "; blocker gone, not resumed"
+
+
+def _blocker_slug(entry: dict[str, Any]) -> str | None:
+    """Slug of the flow behind a blocker: from its branch (`I-<ts>-<slug>/`), else its `flow-<slug>` worktree."""
+    for key in ("plan_branch", "branch", "head"):
+        m = BRANCH_SLUG_RE.match(str(entry.get(key) or ""))
+        if m:
+            return m.group(1)
+    name = Path(str(entry.get("worktree") or "")).name
+    return name.removeprefix("flow-") if name.startswith("flow-") and len(name) > 5 else None
+
+
+def resolve_blockers(
+    admission: dict[str, Any],
+    repo_name: str,
+    *,
+    prs: Iterable[PullRequestInfo] = (),
+    bean_for_slug: Callable[[str], list[str]] | None = None,
+    pr_state: Callable[[str, int], str | None] | None = None,
+) -> list[Blocker]:
+    """Name each distinct entry of `admission.blocked_by` and say whether it is gone (merged, closed, removed)."""
+    raw = admission.get("blocked_by")
+    if not isinstance(raw, list):
+        return []
+    open_prs = [p for p in prs if p.repo_name == repo_name]
+    found: dict[tuple[str, Any], Blocker] = {}
+    for entry in raw:
+        if not isinstance(entry, dict):
+            continue
+        number = entry.get("number")
+        number = number if isinstance(number, int) and not isinstance(number, bool) else None
+        kind = str(entry.get("kind") or ("pull_request" if number is not None else "local_flow"))
+        slug = _blocker_slug(entry)
+        beans = bean_for_slug(slug) if (bean_for_slug and slug) else []
+        bean = "+".join(sorted(set(beans))) or None
+        files = [str(f) for f in entry.get("files") or []]
+        if kind == "pull_request" and number is not None:
+            state = (
+                None
+                if any(p.number == number for p in open_prs)
+                else (pr_state(repo_name, number) if pr_state else None)
+            )
+            gone = state in {"MERGED", "CLOSED"}
+            blocker = Blocker("pull_request", number, bean, slug, files, gone, f"#{number}")
+            key: tuple[str, Any] = ("pr", number)
+        else:
+            flow_pr = None
+            if slug:
+                slug_re = re.compile(rf"^I-\d+-{re.escape(slug)}/")
+                flow_pr = next((p for p in open_prs if slug_re.match(p.head_ref_name)), None)
+            worktree = str(entry.get("worktree") or "")
+            gone = flow_pr is None and bool(worktree) and not Path(worktree).exists()
+            if flow_pr is not None:
+                name = f"#{flow_pr.number} (bean {bean})" if bean else f"#{flow_pr.number}"
+            elif bean:
+                name = f"bean {bean}, no PR yet"
+            else:
+                name = f"flow {slug or Path(worktree).name or 'unknown'}, no PR yet"
+            number = flow_pr.number if flow_pr else None
+            blocker = Blocker("local_flow", number, bean, slug, files, gone, name)
+            key = ("pr", number) if number is not None else ("flow", slug or worktree or name)
+        if key not in found:
+            found[key] = blocker
+        else:
+            found[key].files = list(dict.fromkeys(found[key].files + files))
+    return list(found.values())
+
+
+def _blocked_stage(wt: WorktreeFlow, blockers: list[Blocker] | None, live: LiveFlowTree | None) -> str:
+    """`Stage 3 (Blocked: ...)` naming every blocker; flags blockers that are all gone while no runner is live."""
+    if blockers is None:
+        blockers = resolve_blockers(wt.admission, wt.repo_name)
+    if not blockers:
+        return "Stage 3 (Blocked: overlap)"
+    names = ", ".join(b.name for b in blockers)
+    suffix = GONE_SUFFIX if live is None and all(b.gone for b in blockers) else ""
+    return f"Stage 3 (Blocked: {names}{suffix})"
+
+
+def _compact_stage(stage: str, blockers: list[Blocker], live: LiveFlowTree | None) -> str:
+    """Narrow the Stage cell: first blocker plus `+N more` once the full text passes the cell limit."""
+    if len(stage) <= STAGE_CELL_LIMIT or len(blockers) < 2:
+        return stage
+    suffix = GONE_SUFFIX if live is None and all(b.gone for b in blockers) else ""
+    return f"Stage 3 (Blocked: {blockers[0].name} +{len(blockers) - 1} more{suffix})"
+
+
+def _derive_stage(
+    wt: WorktreeFlow | None,
+    live: LiveFlowTree | None,
+    has_pr: bool,
+    blockers: list[Blocker] | None = None,
+) -> str:
     if live and live.docker_role == "review-loop":
         mode = "Resolve" if live.docker_resolve else "Review"
         iter_part = f" iter {live.docker_iteration}" if live.docker_iteration is not None else ""
@@ -1041,10 +1191,7 @@ def _derive_stage(wt: WorktreeFlow | None, live: LiveFlowTree | None, has_pr: bo
     if live and live.docker_role == "executor":
         return "Stage 3 (Executing)"
     if live and wt and wt.admission.get("state") == "blocked":
-        blockers = wt.admission.get("blocked_by") or []
-        nums = [f"#{b['number']}" for b in blockers if isinstance(b, dict) and b.get("number") is not None]
-        blocker_str = ", ".join(nums) if nums else "overlap"
-        return f"Stage 3 (Blocked: {blocker_str})"
+        return _blocked_stage(wt, blockers, live)
 
     if wt is None:
         return "Stage 4 (Review)" if has_pr else "Not started"
@@ -1060,10 +1207,7 @@ def _derive_stage(wt: WorktreeFlow | None, live: LiveFlowTree | None, has_pr: bo
         return "Stage 5 (Calibrated)"
 
     if wt.admission.get("state") == "blocked" and exec_status != "success":
-        blockers = wt.admission.get("blocked_by") or []
-        nums = [f"#{b['number']}" for b in blockers if isinstance(b, dict) and b.get("number") is not None]
-        blocker_str = ", ".join(nums) if nums else "overlap"
-        return f"Stage 3 (Blocked: {blocker_str})"
+        return _blocked_stage(wt, blockers, live)
 
     if wt.current_stage == "review" and rev_status == "failed":
         iter_part = f" iter {wt.review_iterations_done}" if wt.review_iterations_done else ""
@@ -1216,6 +1360,7 @@ def build_in_flight_rows(
     prs: list[PullRequestInfo],
     live_by_key: dict[str, LiveFlowTree],
     now: datetime | None = None,
+    pr_state: Callable[[str, int], str | None] | None = None,
 ) -> list[InFlightRow]:
     """Correlate beans, intents, worktrees, open PRs, and live PIDs into active rows."""
     wt_by_slug = {w.slug: w for w in worktrees}
@@ -1245,6 +1390,9 @@ def build_in_flight_rows(
     def is_slug_completed_only(slug: str) -> bool:
         nums = _lookup(all_by_slug, slug)
         return bool(nums) and all(n in beans and beans[n].status in EXCLUDED_STATUSES for n in nums)
+
+    def beans_for_slug(slug: str) -> list[str]:
+        return list(_lookup(active_by_slug, slug) or _lookup(all_by_slug, slug))
 
     used_beans: set[str] = set()
     used_worktrees: set[str] = set()
@@ -1288,10 +1436,19 @@ def build_in_flight_rows(
         else:
             title = wt.slug.replace("-", " ")
 
-        stage = _derive_stage(wt, live, pr is not None)
+        blockers = (
+            resolve_blockers(wt.admission, wt.repo_name, prs=prs, bean_for_slug=beans_for_slug, pr_state=pr_state)
+            if wt.admission.get("state") == "blocked"
+            else []
+        )
+        stage = _derive_stage(wt, live, pr is not None, blockers)
+        stage_compact = _compact_stage(stage, blockers, live) if stage.startswith("Stage 3 (Blocked") else stage
         live_runner = _derive_live_runner(wt, live)
         pr_ci = _derive_pr_ci(pr)
         notes = _derive_notes(group_beans, wt, pr, live)
+        if stage_compact != stage:
+            full = "Blocked by " + ", ".join(b.name for b in blockers)
+            notes = full if notes == "—" else f"{full}; {notes}"
         bucket = 0 if (live and live.kind == "running") else 1 if live else 2
         rows.append(
             InFlightRow(
@@ -1310,6 +1467,8 @@ def build_in_flight_rows(
                 agent=_derive_agent_model(wt, live)[0],
                 model=_derive_agent_model(wt, live)[1],
                 last_activity=_derive_last_activity(wt, live, now),
+                stage_compact=stage_compact,
+                blockers=blockers if stage.startswith("Stage 3 (Blocked") else [],
             )
         )
 
@@ -1501,7 +1660,7 @@ def render_markdown_table(rows: list[InFlightRow], *, wide: bool = False) -> str
                 _truncate(row.title, 36),
                 _short_agent(row.agent),
                 _short_model(row.model),
-                row.stage,
+                row.stage_compact or row.stage,
                 row.time_in_stage,
                 row.pr_ci,
                 row.total_time,
@@ -1534,7 +1693,9 @@ def collect_progress(
     prs = fetch_open_prs(repos, no_gh=no_gh)
     processes = scan_processes(no_ps=no_ps)
     live_by_key = match_live_flows(processes, worktrees, intents)
-    return build_in_flight_rows(beans, intents, worktrees, prs, live_by_key)
+    return build_in_flight_rows(
+        beans, intents, worktrees, prs, live_by_key, pr_state=None if no_gh else make_pr_state_lookup(repos)
+    )
 
 
 def main(argv: list[str] | None = None) -> int:

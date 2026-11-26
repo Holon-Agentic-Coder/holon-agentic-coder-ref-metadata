@@ -13,7 +13,7 @@ tags:
   - kv-cache
   - qwen3.8
 created_at: 2026-10-22T14:29:12Z
-updated_at: 2026-11-21T01:20:00+11:00
+updated_at: 2026-11-20T14:20:00Z
 ---
 
 Tune the prompt-processing (prefill) and token-generation (decode) levers of the local vMLX stack for **both**

@@ -60,10 +60,10 @@ below was learned the hard way across PRs #99–#115 and holon-coherence #28–#
   target branch with only mechanically resolved `holon-knowledge/` conflicts that leaves the PR's own diff unchanged
   keeps the votes; wait for CI on the new head and re-review only if it fails.
 - **Concurrent-PR ledger conflicts are mechanical**: resolve as `origin/main`'s rows unchanged + this PR's own rows
-  appended (per AGENTS.md: interleave chronologically by `created_at`; no test run needed for ledger-only conflicts),
-  via a normal merge commit — never a rebase of the flow branch.
-- **Quota/credit exhaustion is not a stop**: follow AGENTS.md's fallback ladder (model tier down, then the other runner)
-  and resume from the checkpoint/saved state.
+  appended (main's order untouched, only this PR's rows appended by `created_at` among themselves; no test run needed
+  for ledger-only conflicts), via a normal merge commit — never a rebase of the flow branch.
+- **Quota/credit exhaustion is not a stop**: follow AGENTS.md's fallback ladder (model tier down on the same runner; ask
+  the maintainer before switching runner) and resume from the checkpoint/saved state.
 - **Tier your subagents**: mechanical passes (CI gating, ledger verification, report collation, finish-only salvage) run
   at a lower model tier; keep the top tier for blind reviewers and resolvers, stepping down only when the ladder demands
   it.

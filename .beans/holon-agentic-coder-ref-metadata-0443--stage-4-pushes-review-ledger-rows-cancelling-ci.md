@@ -124,3 +124,12 @@ via the Holon flow.
   `05:47:20Z`) $\rightarrow$ `4ded0b14` (`chore(review) iteration 1` at `05:47:21Z`). That burst immediately **cancelled
   5 workflows on `26eca98f` at `05:47:32Z` (`7 s`)**, let `Docker Build` (`45555994086`) burn **`148 s`**
   (`05:47:25Z..05:49:53Z`) for nothing, and forced `4ded0b14` to run full **`9.95 min` CI** (`05:47:30Z..05:57:27Z`).
+
+## Audit evidence, 2026-11-26T03:50Z (fifth-merge audit)
+
+- Across `48` distinct `holon-agentic-coder` SHAs in `2026-11-25T22:49:00Z..2026-11-26T03:50:09Z`, **`26` SHAs
+  (`54.2%`)** were cancelled mid-CI (`24` of them `fix(review)` or `chore(calibration)` heads immediately superseded
+  `10–20 s` later by `chore(review)` / calibration ledger commits on `#308`, `#310`–`#314`).
+- Combined with `0450`, cancelling the resolver CI head forced Stage 4 to fall back to `local_tests` on `9` review
+  iterations (`#310` iters `2–7`, `#311` iters `2–3`, `#312` iter `2`), while `Docker Build` still ran to `success` on
+  all `26/26` cancelled SHAs (`39.93 runner-min`, Bean `0475`).

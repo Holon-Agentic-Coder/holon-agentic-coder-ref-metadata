@@ -96,3 +96,16 @@ Delivered via [PR #261](https://github.com/Holon-Agentic-Coder/holon-agentic-cod
   case; `ruff` checks pass.
 - **Holon Flow Traversal**: intent, plan, execute, review loop and calibration completed (execution record
   `E-1795425615-CLA-CO5.5`).
+
+## Progress
+
+- 2026-11-23: flow `name-and-seed-redaction-tests` merged as PR #261 (merged by the maintainer, 11:36 UTC). Stages on
+  claude-agent/claude-opus-5-5: intent ok, plan ok, execute ok (102.7 min), review approved (iteration 1 nit
+  FIND-R1-001-01, PR body lacked root cause and seed), calibrate ok; final head CI green.
+- Root cause: the forwarded invalid-value cases create a `holon-pi-agent-<random>` dir under the isolated HOME; when 4
+  characters of its random name match a 4-character run of the case credential, the leak check reports a false leak.
+- Reproducing seed: `CREDENTIAL_TEST_SEED=211` (case
+  `env:HOLON_TURN_TIMEOUT_SECONDS/socks5/user-password/digits6-colon/ipv4/path`, fragment `jvzq`); seed 227 is a second
+  one. Sweep: seeds 1000..1199, 200 of 200 passed.
+- Gap: the PR body does not state the root cause or the seed the intent requires; they are only in
+  `executions/E-1795425615-CLA-CO5.5.md`.

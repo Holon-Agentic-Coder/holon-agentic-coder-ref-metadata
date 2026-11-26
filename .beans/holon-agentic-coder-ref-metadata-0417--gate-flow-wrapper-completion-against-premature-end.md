@@ -1,55 +1,58 @@
 ---
-# holon-agentic-coder-ref-metadata-0416
-title: "Fix relative quota reset tail scanning, seconds parsing, and watcher keychain lookup"
-status: todo
+# holon-agentic-coder-ref-metadata-0417
+title: "Gate flow wrapper completion against premature end"
+status: completed
 type: bug
 priority: high
 tags:
   - harness
   - holon-flow
-  - run-247
-  - credentials
   - reliability
 created_at: 2026-11-24T11:05:00Z
-updated_at: 2026-11-24T11:05:00Z
+updated_at: 2026-11-25T05:30:00Z
 ---
 
 ## Why
 
-The harness flow wrapper and limit watcher parse quota reset messages inconsistently and `watch_limits.py` still reads a
-deleted plaintext secret file after Bean 0225 moved the Claude OAuth token to the OS keychain.
+`run_holon_flow.py` ends a flow without checking that the flow delivered what it promised, and the state file that a
+resuming agent reads is left to the driving subagent's prose. A flow can therefore be reported finished while it has no
+pull request, no calibration report or a conflicting pull request.
 
 ## Evidence
 
-Inspected in the self-improvement audit of `2026-11-24T11:05Z`:
+Reconstructed on 2026-11-24 from the self-improvement audit of 11:05Z, which names this bean as "Make
+`run_holon_flow.py`'s `verify_pr_and_calibration` fail non-zero on missing PR/calibration/conflicting PR and write
+`.subagent/flow_<slug>_state.json` deterministically instead of trusting `flash_lite` prose". The file's first version
+was a copy of Bean 0416 and carried none of this text.
 
-1. **Full-output vs tail scan mismatch (`.agents/skills/holon_flow/scripts/run_holon_flow.py`)**:
-   `is_quota_error(output)` scans only the last `QUOTA_SCAN_TAIL_LINES = 200` lines (to ignore intent prose, commit
-   `90fe069`), whereas `parse_limit_reset(output)` and `parse_relative_limit_reset(output)` (lines 362–400) run
-   `re.search` over the **entire** `output` from the start. An earlier reset string in intent prose or a previous
-   attempt overrides the latest error at the tail.
-2. **Seconds dropped in `limit_reset.py` (`.agents/skills/run_247/scripts/limit_reset.py`, lines 86–98)**: `parse_reset`
-   uses `re.search` from the start of the message and its relative regex `in ... h ... m` omits seconds (`s`).
-   Antigravity messages like `"Resets in 51m58s"` drop `58s`, and `"Resets in 45s"` returns `None` (misclassified as
-   credit exhaustion).
-3. **Stale plaintext token path & Claude-only relaunch (`.agents/skills/run_247/scripts/watch_limits.py`, lines 10,
-   46, 133)**: `TOKEN_FILE` still reads `~/.holon/secrets/claude-oauth-token` directly (deleted at `2026-11-24T09:56Z`
-   when PR #271 / Bean 0225 moved it to the OS keychain; Bean 0406 fixed only `flow_env.py`), and `watch_limits.py`
-   still excludes `antigravity-agent` flows from automatic relaunch.
+- `.agents/skills/holon_flow/scripts/run_holon_flow.py`, `verify_pr_and_calibration`: when no open pull request matches
+  the slug it only calls `log_warn("No open PR found ...")` and returns, and a GitHub query failure is also only a
+  warning. The wrapper then exits 0.
+- The same function checks the calibration report in the pull request diff, but a missing report does not change the
+  exit code, and a conflicting pull request is only logged with `log_error`, so the exit code is unchanged.
+- The `.subagent/flow_<slug>_state.json` files are written by the driving subagent, not by the wrapper.
 
 ## Proposed change
 
-1. Make `parse_limit_reset` in `run_holon_flow.py` scan only the tail (matching `QUOTA_SCAN_TAIL_LINES`) and take the
-   **last** matching reset expression.
-2. Add seconds (`s`/`sec`/`seconds`) support and last-match semantics to `limit_reset.py`'s `parse_reset`.
-3. Reuse `flow_env.py`'s OS-keychain-aware token resolution in `watch_limits.py`, support `antigravity-agent` relaunch
-   alongside `claude-agent`, and add unit tests in `tests/test_flow_fallback.py` and `limit_reset.py --self-test`.
+1. `verify_pr_and_calibration` returns a result and the wrapper exits non-zero when there is no pull request for the
+   slug, when the calibration report is absent from the pull request diff, or when the pull request is conflicting or
+   not mergeable. A merged pull request (Bean 0420) is a clean finish.
+2. The wrapper writes `.subagent/flow_<slug>_state.json` itself, deterministically, with the outcome and the pull
+   request number, so a replacement driver does not depend on a model's summary.
+3. Tests in `tests/test_flow_fallback.py` or a new test file cover each failing case.
 
-## Expected gain
+## Notes
 
-Prevents early/missed quota wakeups and broken `watch_limits.py` relaunches after the keychain migration.
+- Related: Bean 0420 (a flow whose pull request merges while running), Bean 0396 (a flow survives its session), Bean
+  0416 (same wrapper script, different defect).
+- Harness-only change; no target repository is touched.
 
-## Cost
+## Resolution
 
-Small harness-only change in `.agents/skills/holon_flow/scripts/run_holon_flow.py`, `.agents/skills/run_247/scripts/`,
-and `tests/`.
+`verify_pr_and_calibration` now returns a result (ok, problems, pr, calibration, mergeable, merge state, checks) and
+`run_flow` exits 1 when the flow exits 0 but the PR is missing or unqueryable, closed unmerged, lacks the calibration
+report in its diff, or is CONFLICTING/DIRTY; a merged PR is a clean finish. Pending checks are waited for (bounded 45
+min, 30 s poll, via `gh pr checks`) and still-pending at the bound fails. The wrapper writes
+`.subagent/flow_<slug>_state.json` itself (status, PR number/url, stage reached, consensus, calibration EV when logged,
+merge state, next action). Dry runs are unchanged. Tests (fakes only, no gh) in `tests/test_flow_completion.py`. Full
+suite: 179 passed.

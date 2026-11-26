@@ -65,3 +65,9 @@ macOS tests pass under `-n auto`).
 - Target repo change through the Holon flow (`thomashan/dev-env`).
 - Reference implementation: `apps/holon-agentic-coder/main/.github/actions/bookkeeping-gate/action.yml`.
 - Audit source: `2026-11-25T05:07Z` fifth-merge self-improvement audit.
+
+## Audit evidence (2026-11-26T03:50Z, fifth-merge audit)
+
+- `thomashan/dev-env#43` (`ubuntu-wsl-ghostty-terminfo`): `Unit Tests` (`macos-latest`) ran **`20.00 min`** on
+  `ce2ae608`, **`20.18 min`** again on Stage 5 bookkeeping commit `13844ea7`, and **`20.03 min`** on `main` push
+  `77a7910d`.

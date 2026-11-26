@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0407
 title: "The full review ensemble is re-run when nothing reviewable changed"
-status: todo
+status: in-progress
 type: feature
 priority: critical
 tags:
@@ -11,7 +11,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T10:55:00Z
-updated_at: 2026-11-25T22:55:00Z
+updated_at: 2026-11-26T05:25:00Z
 ---
 
 ## Why
@@ -301,3 +301,18 @@ record these.
 
 Note (2026-11-25): stale plan `no-unneeded-full-review` deleted after PR #309 merged; restart from current main via the
 kept `todo/intent-0407-no-unneeded-full-review.json`.
+
+## Flow
+
+- 2026-11-26: `holon flow` run `no-unneeded-full-review` launched (claude-agent, claude-opus-5-5) in worktree
+  `flow-no-unneeded-full-review` off origin/main 4e358955; log `todo/flow-no-unneeded-full-review.log`. Intent scope
+  narrowed to listed test files.
+
+## Audit evidence, 2026-11-26 (flow time audit)
+
+Flow time audit (`todo/flow-time-audit-2026-11-26.md`), PRs #308 to #316 (claude-agent, opus): 22 blocked review
+iterations; 8 of them were blocked by Nits only (no Critical, no Important, no CI failure), for example #310 iterations
+3 and 7, #312 iteration 2, #313 iteration 1, #315 iterations 1 and 2, #316 iteration 1. A blocked iteration costs about
+10.8 min (reviewers 3.9, host `review_local` 2.3, resolver 4.5) and forces a further full approving iteration that is
+bound by CI (about 9.5 min). Median 3 iterations per flow (max 9 on #308, 8 on #310). A scoped check of the resolver's
+Nit fixes (point 4) would save about 10 min per Nit-only iteration.

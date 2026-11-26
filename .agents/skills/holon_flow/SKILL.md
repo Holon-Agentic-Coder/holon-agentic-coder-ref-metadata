@@ -84,8 +84,9 @@ multi-hour containerised lifecycle, **the flow is executed inside a dedicated ba
      and pushing to `origin`) so it appears in the PR diff.
 7. **Canonical 3-Ledger Conflict Resolution**: Target repositories maintain strictly three ledgers under
    `holon-knowledge/ledger/` (`intents.jsonl`, `plans.jsonl`, `executions.jsonl`). When concurrent PR merges cause
-   ledger conflicts against `origin/main`, do not run test suites: interleave the JSONL records chronologically by their
-   `created_at` timestamp, commit, and push.
+   ledger conflicts against `origin/main`, do not run test suites: keep main's ledger file exactly as on main, in main's
+   order, append only the branch's own rows (ordered by `created_at` among themselves), never move or re-sort a row
+   already on main, then commit and push.
 8. **Human-Only Merge Boundary (Bean 0034 / Rule 8)**: Agents MUST NEVER merge a PR that targets `main` (`gh pr merge`
    is strictly forbidden). The subagent completes when Stage 5 calibration is included in the PR, confirms the PR is
    clean and mergeable, and notifies the parent agent that the PR is ready for human merge.
@@ -162,13 +163,15 @@ python3 .agents/skills/holon_flow/scripts/run_holon_flow.py <intent_path> \
 #### Claude credentials are built in
 
 For `--agent claude-agent`, `scripts/run_holon_flow.py` builds the container credentials itself (`scripts/flow_env.py`):
-it reads the long-lived OAuth token from `CLAUDE_CODE_OAUTH_TOKEN` or `~/.holon/secrets/claude-oauth-token`, wraps it in
-`HOLON_AGENT_SETTINGS` with the echo padding, and sets `HOLON_TOKEN_REDUCE=0` and `PYTHONUNBUFFERED=1` for the flow
-process. It also switches on Claude Code's experimental code mode (`CLAUDE_CODE_EXPERIMENTAL_CODE_MODE=1`, in the flow
-process and in the settings `env` the containers read); export `CLAUDE_CODE_EXPERIMENTAL_CODE_MODE=0` before launching
-to switch it off. The token is never printed. Nothing needs exporting by hand, and an already-set `HOLON_AGENT_SETTINGS`
-is left alone. When no credentials can be found the runner stops before dispatch with a message naming what is missing,
-instead of letting every Stage 4 reviewer exit with code 1 and no reason.
+it reads the long-lived OAuth token from `CLAUDE_CODE_OAUTH_TOKEN`, then the legacy file
+`~/.holon/secrets/claude-oauth-token` if it still exists, then the OS keychain entry (service `holon`, account
+`claude-oauth-token`), which is where the engine keeps it since pull request #271, wraps it in `HOLON_AGENT_SETTINGS`
+with the echo padding, and sets `HOLON_TOKEN_REDUCE=0` and `PYTHONUNBUFFERED=1` for the flow process. It also switches
+on Claude Code's experimental code mode (`CLAUDE_CODE_EXPERIMENTAL_CODE_MODE=1`, in the flow process and in the settings
+`env` the containers read); export `CLAUDE_CODE_EXPERIMENTAL_CODE_MODE=0` before launching to switch it off. The token
+is never printed. Nothing needs exporting by hand, and an already-set `HOLON_AGENT_SETTINGS` is left alone. When no
+credentials can be found the runner stops before dispatch with a message naming what is missing, instead of letting
+every Stage 4 reviewer exit with code 1 and no reason.
 
 #### Monitoring Stage Progress
 
@@ -278,14 +281,16 @@ Once the flow finishes:
 
 ---
 
-### Stage 3 overlap refusals are waited out
+### Stage 3 overlap refusals are parked, not waited out (maintainer, 2026-11-26)
 
-When Stage 3 admission refuses a plan because its touch set overlaps another flow in flight, `scripts/run_holon_flow.py`
-does not stop and never adds `--allow-overlap` itself. It polls each overlapping pull request named in the refusal
-(`gh pr view <n> --json state`, every `--overlap-poll-seconds`, default 60) until each is merged or closed, then resumes
-the flow from its checkpoint, which runs admission again. An overlap with a local flow that has no pull request is
-re-checked by re-running admission after the same interval. Any other refusal (no touch set declared, discovery
-unavailable) still stops. Pass `--no-wait-on-overlap` to stop on an overlap as before.
+When Stage 3 admission refuses a plan because its touch set overlaps another flow in flight (or the flow otherwise waits
+on another flow's PR), the flow does not hold a slot. Never add `--allow-overlap`. Run the wrapper with
+`--no-wait-on-overlap` so it stops on the refusal, then park the flow: keep its worktree, branches and checkpoint, note
+on its bean `parked <date>: blocked by <PR/flow> on <files>; resume from checkpoint when <condition>`, stop only this
+flow's own processes, and end the subagent. Report the parked flow to the parent at once so the slot is reused. Resume
+only from the checkpoint (`--checkpoint`) once the blocker merges or releases the files; never relaunch without
+`--checkpoint`, which re-runs intent and plan and leaves duplicate `I-*` branches. Any other refusal (no touch set
+declared, discovery unavailable) also stops and is reported.
 
 ### Push notifications (ntfy.sh)
 
@@ -300,6 +305,13 @@ while, so they carry only the intent slug and the PR number (no URL or repositor
 
 ### Step 5: Terminal Completion & Notification
 
+0. **Wrapper gate and state file**: `run_holon_flow.py` itself exits non-zero when the flow exits 0 but the PR is
+   missing, the calibration report is absent from the PR diff, or the PR is CONFLICTING/DIRTY, and waits (bounded, 45
+   min, via `gh pr checks`) for pending checks before reporting success. It writes `.subagent/flow_<slug>_state.json`
+   itself at the end (status, PR number/url, stage reached, consensus, calibration EV when logged, merge state, next
+   action); the driver only reads it and may add fields. A merged PR is a clean finish. Dry runs skip all of this. A
+   "spend limit" message is a quota error: with no reset time the wrapper steps down the ladder, with a named reset it
+   waits.
 1. **Write State Artifact**: Record completion summary to `.subagent/flow_<slug>_state.json`:
 
    ```json

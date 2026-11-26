@@ -54,3 +54,8 @@ Clean, clickable PR links in every posted consensus review across `holon-agentic
 ## Cost
 
 Small target-repo change through the Holon flow (`adapter_runner.py`, `adapter.py`, `pr.py`, `review/loop.py`).
+
+## Audit evidence (2026-11-26T03:50Z, fifth-merge audit)
+
+- Still active across every target repository in this window: `gh event listen` stderr hints remain embedded inside the
+  Markdown link URL of consensus review comments on `holon-agentic-coder#310`–`#313` and `thomashan/dev-env#42`–`#43`.

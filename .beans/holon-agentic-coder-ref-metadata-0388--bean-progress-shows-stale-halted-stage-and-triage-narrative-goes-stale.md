@@ -3,13 +3,13 @@
 title: "Bean progress shows a stale 'Halted' stage while a role is live, and the triage narrative goes stale"
 status: todo
 type: bug
-priority: medium
+priority: normal
 tags:
   - harness
   - bean-progress
   - prioritise-beans
 created_at: 2026-11-23T12:40:00Z
-updated_at: 2026-11-23T12:40:00Z
+updated_at: 2026-11-24T13:00:00Z
 ---
 
 ## Problem

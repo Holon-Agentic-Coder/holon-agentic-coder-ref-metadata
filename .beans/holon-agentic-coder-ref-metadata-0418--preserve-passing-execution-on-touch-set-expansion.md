@@ -3,7 +3,7 @@
 title: "Preserve passing executions on touch-set expansion and decompose re-plan failures"
 status: todo
 type: feature
-priority: medium
+priority: normal
 tags:
   - flow
   - stage-2
@@ -11,7 +11,7 @@ tags:
   - touch-set
   - holon-agentic-coder
 created_at: 2026-11-24T11:05:00Z
-updated_at: 2026-11-24T11:05:00Z
+updated_at: 2026-11-24T13:00:00Z
 ---
 
 ## Why
@@ -53,3 +53,10 @@ Medium change in `apps/sandbox-executor/src/sandbox_executor/flow/pipeline.py` a
 ## Notes
 
 - Complementary to Bean 0414 (in-turn write guard) and Bean 0376 (in-flow conflict resolution in Stage 2).
+
+## Audit evidence (`2026-11-26T03:50Z`, fifth-merge audit)
+
+- `ledger-fragments-and-promotion` (`0371`, `todo/flow-ledger-fragments-and-promotion.log`): all `4` sub-intents
+  (`#310`–`#313`) lost `39.85 min` of Stage 3 work + `10.57 min` of Stage 2 re-planning to post-turn `touch_set_guard`
+  discards (`15.57 min`, `2.63 min`, `9.12 min`, `12.53 min`), even on `#311` where `7958 passed, 0 failed`
+  (`rate 1.000`) had just completed.

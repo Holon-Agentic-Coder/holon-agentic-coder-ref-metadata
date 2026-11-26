@@ -79,6 +79,10 @@ Bean 0362 / PR #247 (the warning never cleared: first fix), Bean 0372 / PR #254 
 
 ## Resolution
 
-- Delivered via [PR #263](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/263) and merged into `main` (`e563254e`).
-- Key deliverables: PR-own diff fingerprint for staleness checks (`calibrate_rerun.py`), suppressing stale warnings when Stage 5 is regenerating, editing any existing warning comment to superseded before the final CI wait (`calibrate_stale_warning.py`), and hermetic tests.
-- Verification & Holon Flow traversal: 3/3 consensus approval, 11/11 CI checks green on calibrated head `84c7bb58`, Stage 5 calibration included.
+- Delivered via [PR #263](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/263) and merged into `main`
+  (`e563254e`).
+- Key deliverables: PR-own diff fingerprint for staleness checks (`calibrate_rerun.py`), suppressing stale warnings when
+  Stage 5 is regenerating, editing any existing warning comment to superseded before the final CI wait
+  (`calibrate_stale_warning.py`), and hermetic tests.
+- Verification & Holon Flow traversal: 3/3 consensus approval, 11/11 CI checks green on calibrated head `84c7bb58`,
+  Stage 5 calibration included.

@@ -3,13 +3,13 @@
 title: "The flow log file stays empty until the run ends, so a running flow cannot be followed"
 status: todo
 type: bug
-priority: medium
+priority: normal
 tags:
   - harness
   - holon-flow
   - logging
 created_at: 2026-11-23T12:40:00Z
-updated_at: 2026-11-23T12:40:00Z
+updated_at: 2026-11-24T13:00:00Z
 ---
 
 ## Problem
@@ -28,3 +28,8 @@ launch the wrapper with `nohup`/redirects that buffer again. Progress and failur
 - The skill tells flow subagents one way to launch and log, so no second layer of buffering is added.
 - A killed run leaves everything it printed up to that point in the log.
 - Harness-only change (`.agents/skills/holon_flow/`).
+
+## Notes
+
+- Overlap: Bean 0412 (every flow step timed, every flow keeps its log). This bean owns the log flushing; Bean 0412 owns
+  the step timings and the log for every flow.

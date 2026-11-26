@@ -12,7 +12,7 @@ tags:
   - ci
   - observability
 created_at: 2026-11-25T05:07:00Z
-updated_at: 2026-11-25T05:41:00Z
+updated_at: 2026-11-26T05:25:00Z
 ---
 
 # Stage 4 `review_local` drops `TestMeasurement.output_excerpt` and preempts pending GitHub CI with slow host test runs
@@ -91,3 +91,21 @@ unit tests, delivered via the Holon flow (`holon-agentic-coder`).
 - In Iter 4, **GitHub CI on `c960579d` completed `11/11` green at `05:24:25Z`, `47 s` BEFORE host `review_local`
   reported `failed=True` at `05:25:12Z`**, proving `review_local` does not even re-check GitHub CI completion before
   emitting `FIND-CI` and dispatching a live resolver (`05:25:12Z..05:40:24Z+`).
+
+## Audit evidence, 2026-11-26T03:50Z (fifth-merge audit)
+
+- `todo/flow-ledger-fragments-and-promotion.log` (`2026-11-25T22:49Z..2026-11-26T03:30Z`): `review_local` emitted **`9`
+  more blind `CI checks failed in iteration N: local_tests` findings** (`#310` iters `2–7` = `6`, `#311` iters `2–3` =
+  `2`, `#312` iter `2` = `1`) with zero failing test node ID or traceback, after `0443` cancelled the prior head's CI.
+  In every case the resolver ran `uv run task test` (`7,934–8,012 passed, 7 skipped`) and found no failure, adding
+  `~2–5 min` churn per iteration.
+
+## Audit evidence, 2026-11-26 (flow time audit)
+
+Flow time audit (`todo/flow-time-audit-2026-11-26.md`), PRs #308 to #316: 16 host `review_local` runs, 2.1 to 3.9 min
+each (41 min total, median 2.3 min per flow, p90 13.9). Every one on a claude-agent flow reported `failed=True` at rate
+0.99987 (one host-only test, Bean 0469), while GitHub CI on the same head was green. Each became a
+`FIND-CI ... local_tests` finding; the resolver dispositions read "no code change needed" or "not reproducible" (for
+example #308 iterations 1 to 4, #310 iterations 2 to 7), so each run also cost part of a resolver turn. Fixing Bean 0469
+alone removes the false findings; this bean's point of waiting for pending CI instead of a host run removes the 2.3 min
+per objecting iteration.

@@ -79,10 +79,9 @@ system safety, and clean documentation. Follow these core guidelines in every se
       tokens run out).
     - **Antigravity (`invoke_subagent` in AGY runtime)**: `Model: "inherit"` / `"pro"` $\rightarrow$ `"flash"`
       $\rightarrow$ `"flash_lite"`.
-    - **Cross-Runner Continuation**: If an entire runner's session quota is exhausted across all its model tiers (e.g.
-      Claude OAuth session limit), switch `--agent` to the alternate runner (`antigravity-agent` or `claude-agent`) and
-      continue the flow from the current stage (`holon plan <intent_branch>`, `holon execute <plan_branch>`,
-      `holon review <execution_branch>`, or `holon calibrate <execution_branch>`).
+    - **No Cross-Runner Switch** (maintainer, 2026-11-23): if an entire runner's ladder is exhausted or stuck (e.g.
+      Claude OAuth session limit), stay on that runner's ladder and ask the maintainer before switching `--agent`
+      between `antigravity-agent` and `claude-agent`. Never switch on your own; report and wait for the go-ahead.
   - Never poll or sleep in a loop; AGY wakes the parent agent automatically when child tasks finish.
 - Generic coding agents (such as Claude Code, Codex, Pi, OpenCodeInterpreter) can execute child tasks using their native
   subagent or child process delegation mechanisms following the same prompt contracts.
@@ -130,15 +129,15 @@ system safety, and clean documentation. Follow these core guidelines in every se
 - **Strict 3-Ledger Triad**: All Holon provenance and lifecycle events are strictly confined to three canonical ledgers:
   `intents.jsonl`, `plans.jsonl`, and `executions.jsonl`.
 - **NEVER Create Auxiliary Ledgers**: Never create `actions.jsonl`, `reviews.jsonl`, or any secondary ledger file.
-- **Interleaved Actions**: All discrete action records (`entry_type: "action"`) and lifecycle summaries
+- **Recorded Actions**: All discrete action records (`entry_type: "action"`) and lifecycle summaries
   (`entry_type: "summary"`) must be appended exclusively to `executions.jsonl` under advisory file locking
   (`LedgerLock`).
 - **Ledger-Only Conflict Resolution (No Tests Required)**: When resolving merge conflicts between a flow branch and
-  `origin/main` where only files under `holon-knowledge/ledger/` conflict, do NOT run the test suite. Simply sort and
-  interleave the JSONL records chronologically by `created_at` timestamp, ensure all lines are valid JSON, commit, and
-  push.
+  `origin/main` where only files under `holon-knowledge/ledger/` conflict, do NOT run the test suite. Keep main's ledger
+  file exactly as on main, in main's order, and append only the branch's own rows (ordered by `created_at` among
+  themselves); never move or re-sort a row already on main. Ensure all lines are valid JSON, commit, and push.
 - **Mandatory Target-Branch Conflict Resolution**: Prior to posting an approved consensus review to GitHub or running
   Stage 5 calibration, agents and orchestrators MUST check `gh pr view <pr> --json mergeable,mergeStateStatus`. If
   `mergeable == "CONFLICTING"` or `mergeStateStatus == "DIRTY"`, the agent must immediately merge `origin/main` into the
-  PR branch, resolve the conflicts (interleaving ledger entries chronologically), and push to `origin`. Never leave
-  merge conflicts for the human maintainer.
+  PR branch, resolve the conflicts (ledgers: main's rows unchanged, the branch's own rows appended), and push to
+  `origin`. Never leave merge conflicts for the human maintainer.

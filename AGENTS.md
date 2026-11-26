@@ -25,6 +25,8 @@ entirety before performing any operations or modifying any code.
 - [.agents/pr-merging.md](.agents/pr-merging.md) - Human-only PR merging, post-merge protocol.
 - [.agents/engineering-rules.md](.agents/engineering-rules.md) - Benchmarks, tokens, isolation, tests, ledgers.
 - [.agents/subagents.md](.agents/subagents.md) - Subagent invocation, Antigravity runtime.
+- [.agents/self-improvement-audit.md](.agents/self-improvement-audit.md) - Self-improvement audit at session start and
+  every fifth merge.
 - [.agents/skills/](.agents/skills/) - Project-specific agent skills.
 - [todo/](todo/) - Git-ignored scratchpad for local notes; never committed.
 
@@ -59,8 +61,14 @@ These apply to every task. Each links to the file that holds the full rule.
 - **Flow concurrency & merge backfill**: up to **4 concurrent `holon-flow` background subagents** may run at once on
   hosted runtimes (local runtimes stay at 1). Once a target-repo PR merges and `post-pr-merge` completes, automatically
   pick up and launch the next highest-priority ready bean (honouring `blocked_by`, solo-sweep rules, and disjoint touch
-  sets) to keep up to 4 flows running (maintainer, 2026-11-24). See [coordination.md](.agents/coordination.md) and
+  sets) to keep up to 4 flows running (maintainer, 2026-11-24). A blocked flow (Stage 3 overlap refusal or waiting on
+  another flow's PR) does not hold a slot: park it, backfill at once, and resume parked flows from their checkpoint
+  ahead of new beans (maintainer, 2026-11-26). See [coordination.md](.agents/coordination.md) and
   [pr-merging.md](.agents/pr-merging.md).
+- **Self-improvement audit**: at the start of every session and after every fifth merge, a dedicated subagent runs a
+  comprehensive audit for self-improvement (pipeline, flow, coding standards, architecture standards, harness) and logs
+  one bean per suggestion; the brief says plainly that it is a self-improvement audit (maintainer, 2026-11-24). See
+  [self-improvement-audit.md](.agents/self-improvement-audit.md).
 
 ---
 
@@ -68,10 +76,12 @@ These apply to every task. Each links to the file that holds the full rule.
 
 1. **Verify your environment**: check the working directory and locate `.beans`. If `apps/holon-agentic-coder/` or
    `apps/holon-coherence/` is missing, follow the checkout steps in [README.md](README.md).
-2. **Pick up a task**: list [.beans/](.beans/) for your assignment, or log a new bean if none exists.
-3. **Load constraints**: [.agents/rules.md](.agents/rules.md), then the task lifecycle in
+2. **Run the self-improvement audit**: spawn the audit subagent described in
+   [.agents/self-improvement-audit.md](.agents/self-improvement-audit.md) and carry on; do not wait for it.
+3. **Pick up a task**: list [.beans/](.beans/) for your assignment, or log a new bean if none exists.
+4. **Load constraints**: [.agents/rules.md](.agents/rules.md), then the task lifecycle in
    [.agents/workflows.md](.agents/workflows.md).
-4. **Report**: summarise changes concisely and point to the updated files.
+5. **Report**: summarise changes concisely and point to the updated files.
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0374
 title: "Sidecar wire logs and cache land in the target worktree's todo/ and get committed to the execution branch"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -11,7 +11,8 @@ tags:
   - isolation
   - holon-agentic-coder
 created_at: 2026-11-23T07:05:00Z
-updated_at: 2026-11-23T07:05:00Z
+updated_at: 2026-11-23T20:58:10Z
+pr: https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/266
 ---
 
 ## Problem
@@ -48,3 +49,32 @@ Confirmed cause (2026-11-23), two defects:
 
 Bean 0191 (blocked by this on child 3; recovery decision pending with the maintainer). Until this lands, always launch
 `run_holon_flow.py` from the harness root, never from inside a flow worktree.
+
+- 2026-11-23: All 5 Holon flow stages completed on
+  [PR #266](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/266) (`MERGEABLE`, `CLEAN`, 11/11 CI green,
+  3/3 ensemble APPROVED, Stage 5 calibration report included in PR diff); awaiting human merge (`status: in-progress`).
+- 2026-11-23: Post-#264 `--from-stage calibrate` rerun completed on head `f6f26f35` (covering conflict-gate merge
+  `c7bbf41e`, Predicted EV `68.51` -> Actual EV `79.55`, `ΔEV +11.04`, calibration included in PR diff); after rerunning
+  the queue-cancelled `Run Make / build (macos-latest)` job (`run 45196866528`), all `11/11` CI checks passed and PR
+  #266 is `MERGEABLE` + `CLEAN`, ready for human merge.
+
+## Resolution
+
+Delivered via [PR #266](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/266) and merged into `main`
+(`e0251206`):
+
+- **Key Architectural Deliverables**:
+  - Moved default sidecar wire-log and LLM cache paths out of repository worktrees to per-user state directories under
+    `~/.holon/` (`launcher/proxy_paths.py`, `launcher/sidecar_plan.py`), preserving `WIRE_LOG_DIR` / `CACHE_DIR`
+    overrides and removing all `todo/` references from target code/docs (`apps/sandbox-executor/README.md`,
+    `docs/budgets.md`).
+  - Hardened Stage 3 partial salvage (`flow/partial_salvage.py`) and executor completion commits
+    (`entrypoint/execution_workspace.py`, `entrypoint/executor/run.py`, `entrypoint/executor/outcome.py`) to exclude
+    sidecar scratch/cache/wire-log files using filesystem scanning without extra git commands on clean worktrees.
+- **Verification & Tests**: Added hermetic tests in `tests/test_sidecar_scratch_location.py`,
+  `tests/test_execution_commit_excludes_scratch.py`, `tests/test_partial_salvage.py`, and
+  `tests/test_launcher_sidecar.py`; all `11/11` CI checks passed on final head `f6f26f35`.
+- **Holon Flow Traversal**: All 5 stages completed (`3/3` ensemble APPROVED; post-#264 conflict-gate merge `c7bbf41e`
+  carried approval over by PR-own fingerprint; Stage 5 calibration report
+  `plans/I-1795437183-sidecar-scratch-outside-worktree/P-1795440538-ANA-G4A_calibration.md` included in diff with
+  Predicted EV `68.51` -> Actual EV `79.55`, `ΔEV +11.04`).

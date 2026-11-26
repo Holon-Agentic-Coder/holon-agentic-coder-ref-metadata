@@ -31,22 +31,20 @@ from typing import Any
 EXECUTIVE_SUMMARY_NARRATIVE: list[str] = [
     (
         "The harness drives every `holon-agentic-coder` change through the 5-stage Holon flow and the "
-        "`pr-review-loop`, and the maintainer merges each pull request into `main`. On 2026-11-23 the whole bean set "
-        "(388 files) was re-audited against the live state: `holon-agentic-coder` `main` is `7225685` (the PR #260 "
-        "merge), `holon-coherence` `main` is `baf5c65`, and `dev-env` `main` is `22ca386`. Only one "
-        "holon-agentic-coder PR is open, PR #263 (`0378`, `DIRTY`). Earlier that day, duplicate Bean 0353 was "
-        "scrapped in favour of Bean 0354 and stale `blocked_by` links were cleared. Since the morning checkpoint, 21 "
-        "holon-agentic-coder PRs (#242 to #262) merged, completing 16 beans (`0155`, `0157`, `0173`, `0174`, `0175`, "
-        "`0191`, `0200`, `0333`, `0359`, `0362`, `0363`, `0367`, `0369`, `0372`, `0373` and `0377`). Child PRs #259 "
-        "and #262 of `0376` merged into its plan branch, not `main`. Live flows now: `0376` (in progress), `0378` (in "
-        "progress, PR #263 open) and `0360` (in progress, flow started 12:20 UTC). `0374` is in progress too. "
-        "Dependency fixes: `0192` is no longer blocked by `0191`, and `0215` and `0216` are no longer blocked by "
-        "`0333`."
+        "`pr-review-loop`, and the maintainer merges each pull request into `main`. On 2026-11-24 the "
+        "bean set was re-audited: `holon-agentic-coder` `main` moved to PR #270 (`0387`, merge commit "
+        "`bfbd9f4`), after PR #269 (`0226`, merge commit `407ad39`) earlier the same morning. Beans "
+        "`0387` and `0389` completed today, and Bean `0406` (harness, uncommitted on "
+        "`docs/harness-20261123`) is complete. Beans `0415` to `0421` were logged since the last run (`0415` and `0421` closed after the maintainer raised Docker memory to 32 GB); "
+        "`0419` is the CI timing gate failure that withdrew PR #270's consensus. Maintainer priority for "
+        "today: cutting pipeline time first, with `0403` and `0405` in flight; `0407` (P0) stops "
+        "re-running the full review when nothing reviewable changed; `0255` (P0) makes the resolver start "
+        "on the first pipeline failure and fix every failure of the run."
     ),
     (
-        "Concurrent flows on overlapping files forced repeated syncs and re-reviews earlier on (141 review-loop "
-        "passes, about 10M+ tokens), so flows that touch the same files still run one after another; only flows with "
-        "disjoint touch sets run together."
+        "Concurrent flows on overlapping files forced repeated syncs and re-reviews earlier on (141 "
+        "review-loop passes, about 10M+ tokens), so flows that touch the same files still run one after "
+        "another; only flows with disjoint touch sets run together."
     ),
 ]
 
@@ -417,73 +415,59 @@ EXECUTIVE_SUMMARY_UPDATE: list[str] = [
     ),
     "",
     (
-        "**2026-11-23 (later):** 21 holon-agentic-coder PRs (#242 to #262) merged, completing 16 beans (see milestone "
-        "73). PRs #259 and #262 are child merges into the `0376` plan branch and have not reached `main`. PR #263 "
-        "(`0378`) is the only open holon-agentic-coder PR and is `DIRTY`. Bean `0374` moved to in progress. Eight "
-        "beans were logged: `0381` to `0388` (bare-resume token reduction, the `fable` alias, Stage 5 double CI wait, "
-        "the 90 s stall budget, the empty flow log, serial test order dependence, the leftover temp ledger worktree "
-        "and the stale bean_progress and triage narrative)."
+        "**2026-11-23 (post-#266):** PR #266 (Bean `0374`, sidecar scratch outside worktrees) merged to `main` "
+        "(`e0251206`), bringing merged HAC PRs today to 24 and completed beans in this wave to 18. Open HAC PRs: "
+        "#263 (`0378`) and #267 (`0382`) refreshing ledger conflicts via `--from-stage calibrate`, plus #265 (`0376` "
+        "child 3, waiting on the 600 s macOS CI timing ceiling decision). Backfilled Bean `0381` across both "
+        "`holon-coherence` and `holon-agentic-coder`. Newly logged beans `0389` and `0390` added to triage."
     ),
 ]
 
-MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0377)"
+MILESTONES_HEADING = "## Key Milestones Completed (Beans 0080 – 0406, plus 0360, 0374)"
 
 # Hand-authored replacement for the generated "Recommended Next Execution
 # Sequence" section, used whenever active beans exist. Inline data: keep it in
 # step with the matrix at every checkpoint.
 NEXT_EXECUTION_SEQUENCE: list[str] = [
     (
-        "**Checkpoint (2026-11-23, after PR #260):** `holon-agentic-coder` `main` is `7225685`. The only open "
-        "holon-agentic-coder PR is #263 (`0378`, `DIRTY`, checks green). Live flows: `0376` (parent flow still "
-        "running; child PRs #259 and #262 merged into its plan branch), `0378` (PR #263), `0360` (flow started "
-        "12:20 UTC) and `0374` (flow started). Run one flow at a time within a lane; lanes run together only when "
-        "their touch sets are disjoint."
+        "**Checkpoint (2026-11-24):** pipeline time is the first priority: `0403` and `0405` are in "
+        "flight to cut it, and nothing that changes the review loop starts until they land. Run one flow "
+        "at a time within a lane; lanes run together only when their touch sets are disjoint."
     ),
     "",
-    "**Ready now, ranked (priority, then size; overlap checked against the live flows):**",
+    ("**Ordered sequence (one line of reasoning each):**"),
     (
-        "1. **0215** (P1, S, harness-only): GitHub Issues importer. `0333` is done, so no blocker. Overlap: none. "
-        "Unblocks `0217`, `0218` and the `0317` import."
+        "1. **0403 and 0405** (in flight, P1): cut pipeline time first, because every flow waits on CI "
+        "and the bookkeeping-only skip and test trim shorten all of them."
     ),
     (
-        "2. **0382** (P1, S, bug): `fable` aliases Opus in `agent_defaults.py`; add `claude-fable-5-2`. Overlap: "
-        "none live; goes before `0350` and `0270` on the same file."
+        "2. **0404 with 0419** (P1, fix together): the timing gates fail green jobs on slow runners, "
+        "which forces re-runs and withdrawn consensus, so they cost pipeline time directly."
     ),
     (
-        "3. **0384** (P1, S, bug): 90 s stall budget cuts Fable 5.2 reviewers. Overlap: `0376` (review loop); "
-        "start after `0376` lands."
+        "3. **0371** (P0, needs the maintainer's bot token or GitHub App first): ledger conflicts drive "
+        "most churn, and it touches only ledgers, so it can run in its own lane beside the review-loop "
+        "work."
     ),
     (
-        "4. **0350** (P1, M): `CLAUDE_CODE_EXPERIMENTAL_CODE_MODE=1` in `flow_env.py` (harness) and "
-        "`agent_runner.py` / `agent_defaults.py` (HAC). Overlap: none live."
+        "4. **0376** (P0, in progress): it is already running and owns the in-flow conflict resolver, so "
+        "it finishes before any other review-loop change."
     ),
     (
-        "5. **0270** (P1, M): dynamic runner model discovery in `agent_defaults.py`. Overlap: none live; after "
-        "`0382` and `0350`."
+        "5. **0407** (P0): stop re-running the full ensemble when nothing reviewable changed; it changes "
+        "the review loop, so it runs alone after 0376 lands and not together with 0255."
     ),
     (
-        "6. **0381** (P1, M, bug): bare `holon flow` resume enables token reduction and every reviewer fails with "
-        "a 400. Overlap: `0374` (sidecar enablement, in progress); start after `0374` lands."
+        "6. **0255** (P0): the resolver starts on the first pipeline failure and fixes every failure of "
+        "the run; it goes after 0407 so the skip rule is in place before the resolver changes the loop."
     ),
-    "",
     (
-        "**Queued behind the live flows:** `0375` (P1, S; after `0360`, same checkpoint and resume path), `0368` "
-        "and `0383` (P1, M; both touch `flow/stages/calibrate.py`, so after `0376` and `0378`), `0192` and `0255` "
-        "(P1, L; review loop, after `0376`), `0265` (P1, L; `cli/__init__.py` still holds the token-reduction "
-        "proxy setup, so after `0381` and `0374`), `0379` and `0380` (P1; after `0265`), `0176` (P1, L; repo-wide "
-        "unittest removal, run alone)."
+        "7. **0409** (P1): a rejected finding or a no-change resolver pass should not start another full "
+        "review; it builds on 0407 and 0255, so it follows them."
     ),
-    "",
     (
-        "**Blocked or waiting on a person:** `0371` (P0, L; bot token or GitHub App, a maintainer step). `0340` "
-        "is a draft awaiting the maintainer's decision. `0217` waits for `0215`; `0218` and `0317` wait for "
-        "`0215` and the chain behind it."
-    ),
-    "",
-    (
-        "**Rules:** never run concurrent flows whose touched files overlap; no stage before merge halts for human "
-        "review; target suites use `uv run pytest` only; flows run in dedicated `flow-<slug>` worktrees off "
-        "`origin/main`. `HOLON_STAGE_BUDGET_*` accepts `unlimited` (Bean 0172)."
+        "8. **0197 and 0216** (in progress, P2): held behind the pipeline-time flows, so they start only "
+        "after 0403, 0404, 0405 and 0419 land and the faster pipeline is live."
     ),
 ]
 
@@ -492,13 +476,20 @@ NEXT_EXECUTION_SEQUENCE: list[str] = [
 # judgement rather than a truncated first paragraph. Insertion order is the
 # matrix row order (priority blocks, hand-curated within each block).
 OVERRIDES: dict[str, dict[str, str]] = {
+    "0407": {
+        "priority": "**P0**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Flow / Architecture",
+        "notes": "Maintainer finding: the full review ensemble re-runs when nothing reviewable changed (mechanical merge, pipeline failure). Only the pipeline pass and the consensus pass matter.",
+    },
     "0376": {
         "title": "The flow resolves file conflicts itself at every stage: an in-flow conflict resolver",
         "priority": "**P0**",
         "impact": "High",
         "sizing": "L",
         "domain": "Flow / Merge conflicts / Stages",
-        "notes": "In progress, blocked: child PRs #259 (`sync_with_target`) and #262 (containerised conflict-resolver role) merged into its plan branch; sub-intent 3 failed at Stage 2 on an unresolvable `flow/__init__.py` conflict and needs a higher-tier resolve before a rerun. Owns conflict handling, stages and the review loop: flows that touch those files wait for it.",
+        "notes": "In progress, paused on PR #265: child PRs #259 (`sync_with_target`) and #262 (containerised conflict-resolver role) merged into its plan branch; PR #265 (sub-intent 3) passed Stage 4 (`3/3` APPROVED), Stage 5 calibration, and 6,584 unit tests on both OSes, but failed `unit (macos-latest)` CI Timing Gate twice on the 600 s ceiling (`658 s` and `728 s`). Awaits maintainer routing decision before sub-intents 4–5.",
     },
     "0371": {
         "title": "Ledgers stop conflicting: per-flow pending ledger fragments, promoted into the canonical ledgers on main",
@@ -508,13 +499,21 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "domain": "Flow / Ledger / Merge conflicts",
         "notes": "Todo, blocked on a maintainer step: the bot token or GitHub App allowed to push to `main` past branch protection. Ledger and KB-index conflicts hit PRs #244, #248, #250, #251 and #252 on 2026-11-23.",
     },
+    "0255": {
+        "title": '"Streaming per-issue resolvers during Stage 4 CI & review with single consolidated commit"',
+        "priority": "**P0**",
+        "impact": "High",
+        "sizing": "L",
+        "domain": "Review Loop / Concurrency",
+        "notes": "Maintainer 2026-11-24: the resolver starts on the first pipeline failure and fixes every failure of the run. Changes the review loop with 0376 and 0407, so run in sequence, never together; also overlaps 0192 on `flow/review/loop.py`.",
+    },
     "0378": {
         "title": "Stale-calibration warning fires on a mechanical merge of main and is not cleared when the fresh report lands",
         "priority": "**P1**",
         "impact": "High",
         "sizing": "S",
         "domain": "Flow / Stage 5 / Calibration",
-        "notes": "In progress. PR #263 is open and `DIRTY` (merge conflict with `main`), with 11 of 11 checks green. Touches `calibrate_rerun.py` and `calibrate_stale_warning.py`. Land it before other Stage 5 changes.",
+        "notes": "In progress: PR #263 (`3/3` APPROVED, Stage 5 calibrated) hit a ledger-only conflict on `executions.jsonl` after PR #266 merged; refreshing via `--from-stage calibrate`. Touches `calibrate_rerun.py`, `calibrate_stale_warning.py`, and `flow/stages/calibrate.py`.",
     },
     "0360": {
         "title": '"Resume after an interrupted plan stage creates a duplicate P- branch"',
@@ -522,7 +521,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "High",
         "sizing": "S",
         "domain": "Flow / Stage 2 / Checkpoint",
-        "notes": "In progress: flow started 2026-11-23 12:20 UTC. Touches `flow/stages/plan*.py` and `checkpoint.py`. Record the pushed `P-` branch atomically with the push, or adopt an existing pushed `P-` branch on resume.",
+        "notes": "Completed via PR #264 (`f49340f`). Stage 2 records pushed `P-` branches and resumes adopt existing pushed `P-` branches.",
     },
     "0374": {
         "title": "Sidecar wire logs and cache land in the target worktree's todo/ and get committed to the execution branch",
@@ -530,7 +529,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "High",
         "sizing": "S",
         "domain": "Flow / Sidecar / Isolation",
-        "notes": "In progress: flow started. Touches `launcher/sidecar_plan.py` and the proxy path defaults, moving wire logs and the cache out of `<git root>/todo/`. Bean 0191 child 3's execution branch tracked 47 scratch files.",
+        "notes": "Completed via PR #266 (`e0251206`). Sidecar defaults moved to `~/.holon/` and Stage 3 commits exclude scratch files.",
     },
     "0382": {
         "title": "The model alias 'fable' resolves to claude-opus-5-5; add claude-fable-5-2 to the model registry",
@@ -538,7 +537,112 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "High",
         "sizing": "S",
         "domain": "Models / Runner",
-        "notes": "Ready now. `agent_defaults.py` maps `fable` to `claude-opus-5-5`, so `--model fable` runs Opus silently. Adds `claude-fable-5-2`. Shares `agent_defaults.py` with 0270 and 0350: go first.",
+        "notes": "In progress: PR #267 (`3/3` APPROVED, Stage 5 calibrated) hit a ledger-only conflict after PR #266 merged; refreshing via `--from-stage calibrate`. Shares `agent_defaults.py` with `0270` and `0350`.",
+    },
+    "0391": {
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Ledger / Observability",
+        "notes": "Stage 3 stops after an overlap wait when merging main into the plan branch conflicts only in the ledgers. Settle ledger conflicts mechanically; overlaps 0376.",
+    },
+    "0392": {
+        "priority": "**P1**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Build / DevEx",
+        "notes": "Stage 4 resolver runs repo-wide Prettier and mutates untouched historical plans; scope formatting to the touched files.",
+    },
+    "0393": {
+        "priority": "**P1**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Build / DevEx",
+        "notes": "A pre-flight probe that replied OK but exited late is classed UNKNOWN and aborts the flow before Stage 3.",
+    },
+    "0394": {
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Build / DevEx",
+        "notes": "Umbrella epic: ranked recommendations for removing unnecessary waits, ordered by time saved; concrete items are 0395, 0399, 0400 and 0403.",
+    },
+    "0395": {
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "L",
+        "domain": "Flow / Architecture",
+        "notes": "Stage 3 works during an overlap wait instead of idling until the blocking pull request merges. Large; queue after the live flows on the same stage files.",
+    },
+    "0396": {
+        "priority": "**P1**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Skills / Tooling",
+        "notes": "A flow run should survive the agent session that started it; detach the run from the session.",
+    },
+    "0397": {
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Ledger / Observability",
+        "notes": "Resume adopts a completed, pushed execution branch instead of executing Stage 3 again. Related to 0375 and 0360.",
+    },
+    "0399": {
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Build / DevEx",
+        "notes": "CI waits react within seconds of a check finishing instead of polling every two minutes.",
+    },
+    "0403": {
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "L",
+        "domain": "Build / DevEx",
+        "notes": "In progress. No full CI run for commits that only touch bookkeeping files.",
+    },
+    "0404": {
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Build / DevEx",
+        "notes": "The 600 s timing ceiling on the macOS unit job fails pull requests on runner variance; fix the ceiling or shrink the suite (0405).",
+    },
+    "0405": {
+        "priority": "**P1**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Build / DevEx",
+        "notes": "In progress. Remove unnecessary unit tests: ubuntu about 4 min, workspace survival about 7 min, macOS over 8 min.",
+    },
+    "0408": {
+        "priority": "**P1**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Build / DevEx",
+        "notes": "Run the CI hygiene and lint checks (Prettier, ruff, JSON and JSONL validity, file growth) locally before every push; a CI-caught failure costs a full pipeline.",
+    },
+    "0409": {
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "L",
+        "domain": "Flow / Architecture",
+        "notes": "A finding the resolver rejected, or a resolver pass that changed nothing, must not start another full review.",
+    },
+    "0410": {
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Flow / Architecture",
+        "notes": "Remove the conflict magnets: generated README and env docs, and a module budget file that does not serialise flows. Flows waited 39.8 hours on each other in the period.",
+    },
+    "0411": {
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Flow / Architecture",
+        "notes": "Harness instructions contradict each other on runner switching, model ladders and file size; subagents get different answers.",
     },
     "0215": {
         "title": '"Deterministic beans-to-GitHub-Issues importer and real-data dry run"',
@@ -562,7 +666,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "High",
         "sizing": "M",
         "domain": "Claude / Config",
-        "notes": "Ready now. Harness edit (`flow_env.py`, `.claude/settings.json`) plus HAC `agent_runner.py` / `agent_defaults.py`. Sequence after 0382 on `agent_defaults.py`, before 0270.",
+        "notes": "In progress in parallel Claude Code session (`flow-claude-code-mode-default-on`). Harness edit (`flow_env.py`, `.claude/settings.json`) plus HAC `agent_runner.py` / `agent_defaults.py`. Sequence with `0382` on `agent_defaults.py`, before `0270`.",
     },
     "0270": {
         "title": '"Discover runner models dynamically through each harness instead of the hardcoded model table"',
@@ -578,7 +682,7 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "High",
         "sizing": "M",
         "domain": "Flow / Token reduction / Stage 4",
-        "notes": "Ready, but overlaps in-progress 0374 (sidecar enablement under `holon flow`): start after 0374 lands. A bare `holon flow ... --checkpoint` resume enables the token-reduce proxy and every reviewer fails with a 400.",
+        "notes": "In progress across both repos (backfilled after PR #266 merged): `holon-coherence` (`fix-cache-control-ttl-order`) and `holon-agentic-coder` (`token-reduce-opt-in-resume`), disjoint from `0376`, `0378`, `0382`, and `0350`.",
     },
     "0375": {
         "title": "Stage 3 resume ignores an interrupted execution branch that has commits but no ledger row",
@@ -586,7 +690,15 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "impact": "High",
         "sizing": "S",
         "domain": "Flow / Stage 3 / Resume",
-        "notes": "Ready after 0360 (both on the checkpoint and resume path). Stage 3 resume must adopt an interrupted execution branch that has commits but no `executions.jsonl` row.",
+        "notes": "Ready (`0360` merged in PR #264), overlaps `0376` on `flow/stages/execute.py`: start after `0376` lands (or wait on admission). Stage 3 resume must adopt an interrupted execution branch that has commits but no `executions.jsonl` row.",
+    },
+    "0390": {
+        "title": "Two runners can drive the same flow checkpoint at once; nothing locks a flow or a bean against a second launch",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "S",
+        "domain": "Flow / Concurrency",
+        "notes": "Queued after `0381` (`flow/checkpoint.py`) and `0376`. Exclusive checkpoint/worktree lock in `holon flow` plus atomic bean claim and duplicate-launch guard in `run_holon_flow.py`.",
     },
     "0368": {
         "title": "Submodule gitfile left with container paths breaks host-side git in the flow worktree",
@@ -628,14 +740,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "domain": "Review Loop / Refactor",
         "notes": "Unblocked: 0191 completed (PR #260). Overlaps 0376 on `flow/review/loop.py`: start after 0376 lands.",
     },
-    "0255": {
-        "title": '"Streaming per-issue resolvers during Stage 4 CI & review with single consolidated commit"',
-        "priority": "**P1**",
-        "impact": "High",
-        "sizing": "L",
-        "domain": "Review Loop / Concurrency",
-        "notes": "Overlaps 0376 and 0192 on `flow/review/loop.py`. Start after both.",
-    },
     "0152": {
         "title": '"Audit long files; decompose oversized functions (flow.py, cli.py first)"',
         "priority": "**P1**",
@@ -660,6 +764,80 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "domain": "Lint / Module budgets",
         "notes": "Maintainer instruction (2026-11-23) authorises the `module_budgets.json` change via `module_budget_change`. Queue after 0376 (new `flow/` modules must fit their budgets) and 0265 (`cli/__init__.py`).",
     },
+    "0416": {
+        "title": "Fix relative quota reset tail scanning, seconds parsing, and watcher keychain lookup",
+        "priority": "**P1**",
+        "impact": "Medium",
+        "sizing": "S",
+        "domain": "Harness / Run 247 / Credentials",
+        "notes": "Quota reset parsing scans the full output in one place and the tail in another, and drops seconds; `watch_limits.py` still reads the deleted plaintext token file. Harness only.",
+    },
+    "0417": {
+        "title": "Gate flow wrapper completion against premature end",
+        "priority": "**P1**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Harness / Holon Flow",
+        "notes": "`verify_pr_and_calibration` only warns on a missing pull request, missing calibration report or conflicting pull request, and the wrapper exits 0. Make it fail non-zero and write the flow state file itself. Harness only.",
+    },
+    "0419": {
+        "title": "CI Timing Gate fails a green unit job on a slow runner and withdraws flow consensus",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "S",
+        "domain": "CI / Flow",
+        "notes": "The gate compared 360 s against a 229 s baseline and the flow withdrew a consensus that had passed. Fix together with 0404.",
+    },
+    "0420": {
+        "title": "A flow whose pull request is merged while it is running fails instead of finishing cleanly",
+        "priority": "**P1**",
+        "impact": "High",
+        "sizing": "M",
+        "domain": "Flow / Review",
+        "notes": "PR #270 merged while its flow waited on merged-head CI, and the flow exited 1 on an unverifiable diff. It should finish cleanly.",
+    },
+    "0400": {
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Build / DevEx",
+        "notes": "Shorten the CI pipeline: the slowest jobs set every wait in the flow. Overlaps 0404 and 0405 (test suite).",
+    },
+    "0412": {
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Ledger / Observability",
+        "notes": "Every flow step is timed and keeps its log, so the self-improvement audit can measure each step.",
+    },
+    "0413": {
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "L",
+        "domain": "Architecture / Quality",
+        "notes": "Coding rules drawn from recurring reviewer findings, given to the planner and executor up front.",
+    },
+    "0414": {
+        "priority": "**P2**",
+        "impact": "High",
+        "sizing": "L",
+        "domain": "Architecture / Quality",
+        "notes": "An edit outside the plan's touch set should be caught during the executor turn, not after it.",
+    },
+    "0401": {
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "S",
+        "domain": "Build / DevEx",
+        "notes": "The CI registration wait ends unknown when the pull request head lags the pushed head.",
+    },
+    "0402": {
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Build / DevEx",
+        "notes": "A post-merge image rebuild must not disturb flows that are running or starting.",
+    },
     "0386": {
         "title": "Review tests fail when run together serially, and test_backgrounded_sleep hangs with redirected output",
         "priority": "**P2**",
@@ -683,6 +861,14 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "S",
         "domain": "Harness / Reporting",
         "notes": "Ready. Harness-only: the bean_progress stale 'Halted' cell and this matrix's hand-written narrative, which goes stale after a day of merges.",
+    },
+    "0389": {
+        "title": "Four bean-progress tests fail on the committed harness after the table column rework",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "S",
+        "domain": "Harness / Tests",
+        "notes": "Ready. Harness-only fix in `tests/test_bean_progress.py` to match the compact table columns, `--wide`, and details list.",
     },
     "0198": {
         "title": '"Agent runner registry: one `RunnerSpec` module per agent"',
@@ -795,6 +981,21 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "sizing": "S (analysis) + L (splits)",
         "domain": "Lint / Refactoring",
         "notes": "Draft (unblocked since PR #214 froze `module_budgets.json`, awaits maintainer decision). Decide ceiling, line counting, covered packages, and split order; each override removal needs explicit authorisation.",
+    },
+    "0418": {
+        "title": "Preserve passing executions on touch-set expansion and decompose re-plan failures",
+        "priority": "**P2**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Flow / Touch Sets",
+        "notes": "A passing Stage 3 run is discarded when a small out-of-touch-set companion edit trips the guard. Keep the passing branch and re-plan only the expansion. Complements 0414.",
+    },
+    "0398": {
+        "priority": "**P3**",
+        "impact": "Medium",
+        "sizing": "M",
+        "domain": "Flow / Architecture",
+        "notes": "Draft, low priority: a flow blocked only by an approved pull request can start from that pull request's head. Waits on a maintainer decision.",
     },
     "0387": {
         "title": "The flow leaves a detached temp ledger worktree registered in the repository",
@@ -2133,8 +2334,59 @@ def generate_triage_document(
                 "containerised conflict-resolver role) merged into its plan branch; the parent flow is still running."
             ),
             (
-                "- Open: PR #263 (`0378`, `DIRTY`, checks green). `0360` started its flow at 12:20 UTC. `0374` is in "
-                "progress. Logged: `0368`, `0371`, `0374` to `0388`."
+                "- Open: PR #263 (`0378`), PR #265 (`0376` child 3), PR #266 (`0374`). Logged earlier: `0368`, `0371`, "
+                "`0374` to `0388`."
+            ),
+            ("74. **Interrupt-safe Stage 2 plan resume (Bean 0360 / HAC PR #264, `f49340f9`, merged 2026-11-23):**"),
+            (
+                "    - `0360` (PR #264, `f49340f9`): Stage 2 records pushed plan branches reliably and resumes adopt "
+                "existing pushed `P-.../_` branches instead of duplicating plans (`flow/stages/plan_resume.py`). "
+                "Consensus 3/3 APPROVED; 11/11 CI green; Stage 5 calibration EV predicted `42.34` / actual `58.86` "
+                "(delta `+16.52`, Bug EV Drag `0.00`). Post-merge rebuilt Docker images, reinstalled `holon`, pruned "
+                "`flow-resume-adopts-pushed-plan-branch`, refreshed PR #266 (`0374`) calibration, and backfilled "
+                "slot #4 with `0382`."
+            ),
+            (
+                "75. **Sidecar scratch stays outside worktrees (Bean 0374 / HAC PR #266, `e0251206`, merged 2026-11-23):**"
+            ),
+            (
+                "    - `0374` (PR #266, `e0251206`): moved sidecar wire-log and LLM cache defaults to per-user state "
+                "directories under `~/.holon/` (`launcher/proxy_paths.py`, `launcher/sidecar_plan.py`) and hardened "
+                "Stage 3 salvage and completion commits against staging scratch files (`flow/partial_salvage.py`, "
+                "`entrypoint/execution_workspace.py`, `entrypoint/executor/run.py`, `outcome.py`). Consensus 3/3 "
+                "APPROVED; 11/11 CI green; Stage 5 calibration EV predicted `68.51` / actual `79.55` "
+                "(delta `+11.04`). Post-merge synced `apps/holon-agentic-coder/main`, rebuilt Docker images and "
+                "`holon`, pruned `flow-sidecar-scratch-outside-worktree`, refreshed PR #263 (`0378`) and PR #267 "
+                "(`0382`), and backfilled Bean `0381` across `holon-coherence` and `holon-agentic-coder`."
+            ),
+            (
+                "76. **Calibrate stale warnings and the Fable 5.2 registry entry (Beans 0378, 0382 / HAC PRs #263 and #267, `e563254e` and `9f57492d`):**"
+            ),
+            (
+                "    - `0378` (PR #263, `e563254e`): PR-own diff fingerprint for staleness checks, stale-warning suppression while Stage 5 regenerates, and hermetic tests. Consensus 3/3 APPROVED; 11/11 CI green."
+            ),
+            (
+                "    - `0382` (PR #267, `9f57492d`): added the `claude-fable-5-2` registry entry with aliases `fable` and `claude-fable` (removed from Opus), canonical model IDs in `holon doctor`, and alias-family regression tests. Consensus 3/3 APPROVED; 11/11 CI green."
+            ),
+            (
+                "    - `0406` (harness, uncommitted on `docs/harness-20261123`): `flow_env.py` falls back to the OS secret store for the Claude token; 22 tests pass in `tests/test_flow_env.py`."
+            ),
+            (
+                "77. **Flow ledger worktree cleanup, end-to-end test teardown and bean-progress test refresh "
+                "(Beans 0387, 0226, 0389 / HAC PRs #270 and #269, 2026-11-24):**"
+            ),
+            (
+                "- `0387` (PR #270, `bfbd9f4`, merged 2026-11-24): the ledger step removes its temporary "
+                "`holon-flow-ledger-*` worktree in a `finally`, and a new `flow/ledger_worktree.py` prunes stale "
+                "ledger worktrees at the start of each step."
+            ),
+            (
+                "- `0226` (PR #269, `407ad39`, merged 2026-11-24 11:28Z): the flow's end-to-end test teardown "
+                "landed cleanly after iteration 13 consensus."
+            ),
+            (
+                "- `0389` (harness, 2026-11-24): `tests/test_bean_progress.py` expectations aligned with the "
+                "current bean-progress output; the script itself was unchanged."
             ),
             "",
             "---",

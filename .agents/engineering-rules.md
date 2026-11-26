@@ -40,16 +40,18 @@ sizing. Moved verbatim from `AGENTS.md`.
       keep writing the canonical files and the conflict rules below apply.
     - **Ledger-Only Conflict Resolution (No Tests Required)**: When syncing or merging `origin/main` into a flow branch
       results in conflicts strictly confined to ledger files (`holon-knowledge/ledger/*.jsonl`), **do NOT run the test
-      suites**. Simply interleave or append the JSONL records chronologically by their `created_at` timestamp, verify
-      that all lines parse cleanly as valid JSON, commit the resolved merge, and push.
+      suites**. Keep `origin/main`'s ledger file exactly as it is on main, in main's order, and append only the rows the
+      branch adds (ordered by `created_at` among themselves); never move or re-sort a row already on main (the one-time
+      chronological sort is a separate, deliberate change tracked in the harness beans). Verify that all lines parse
+      cleanly as valid JSON, commit the resolved merge, and push.
     - **Mandatory Target-Branch Conflict Resolution Before Review & Calibration**: Prior to posting an approved
       consensus review to GitHub or executing Stage 5 calibration, agents and loop orchestrators **MUST** verify that
       the PR is clean and mergeable against the target branch (`gh pr view <pr> --json mergeable,mergeStateStatus`). If
       `mergeable == "CONFLICTING"` or `mergeStateStatus == "DIRTY"` (which frequently occurs when concurrent PRs merge
       new entries into `holon-knowledge/ledger/`), the agent **MUST immediately fetch `origin/main`, merge `origin/main`
-      into the PR execution branch, resolve the conflicts (interleaving ledger entries chronologically), commit, and
-      push to origin**. Never post an approved review, never calibrate, and never report a PR as ready to merge while it
-      is in a conflicting state against the target branch.
+      into the PR execution branch, resolve the conflicts (ledgers: main's rows unchanged in main's order, then the
+      branch's own rows appended), commit, and push to origin**. Never post an approved review, never calibrate, and
+      never report a PR as ready to merge while it is in a conflicting state against the target branch.
 15. **Modular File Sizing & 200-Line Sizing Guideline**: Source files exceeding **200 lines** should generally be
     decomposed into modular packages and focused single-responsibility modules (e.g. `flow/`, `cli/commands/`, `proxy/`,
     `executor/`, `calibration/`). This is a recommended guideline and best practice rather than a rigid hard rule,
@@ -58,3 +60,8 @@ sizing. Moved verbatim from `AGENTS.md`.
     files where sensible.
 
 ---
+
+16. **Module Budgets Force a Split** (maintainer, 2026-11-20): a module line budget is a ceiling that forces a big
+    module to be divided, never a number to raise. A change that would push a module over budget splits the module.
+    Never raise, lower, add or delete a budget entry (or label a PR `module-budget-change`) without the maintainer's
+    explicit instruction for that change; an unauthorised budget change is a Critical review finding.

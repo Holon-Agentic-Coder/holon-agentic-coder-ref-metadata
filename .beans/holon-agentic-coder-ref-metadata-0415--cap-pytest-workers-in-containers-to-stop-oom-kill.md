@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0415
 title: "Cap pytest workers inside containers to stop OOM SIGKILL (-9) failures"
-status: todo
+status: scrapped
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - tests
   - holon-agentic-coder
 created_at: 2026-11-24T11:05:00Z
-updated_at: 2026-11-24T11:05:00Z
+updated_at: 2026-11-24T13:00:00Z
 ---
 
 ## Why
@@ -47,3 +47,9 @@ Prevents 30+ minute Stage 3 executor failures and manual resume cycles under 4-w
 ## Cost
 
 Small change in `holon-config/prompts/` and `apps/sandbox-executor/src/sandbox_executor/entrypoint/executor/outcome.py`.
+
+## Resolution
+
+Scrapped 2026-11-24. The maintainer said: "you don't need 415 since I've increased the docker ram". Docker Desktop's
+memory was raised from 8 GB to 32 GB at about 12:50Z on 2026-11-24, which removes the cause of the out-of-memory kills
+this bean addressed. Overlaps with Bean 0421, which recorded the same cause and is also closed.

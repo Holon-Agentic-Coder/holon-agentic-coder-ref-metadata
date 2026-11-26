@@ -10,8 +10,8 @@ tags:
   - subagents
   - harness
   - holon-agentic-coder
-created_at: 2026-11-21T12:06:00+11:00
-updated_at: 2026-11-24T07:42:58Z
+created_at: 2026-11-21T01:06:00Z
+updated_at: 2026-11-24T13:00:00Z
 ---
 
 ## Problem
@@ -69,3 +69,8 @@ flow, subagents, and anything else. Nothing sets the variable today.
 - 2026-11-24: Maintainer-instructed host-side cleanup exception on PR #268 (`ce56b34d`): reverted 36 unrelated
   historical `plans/` files back to `origin/main` (touched by Stage 4 resolver's repo-wide Prettier and
   `prettier-ignore` edits in iterations 2–3) and relaunched from `--from-stage review` (follow-up Bean `0392`).
+
+- 2026-11-24 (clean-up): stays open. Target containers (Action 3) are delivered by PR #268. Remaining: Action 4 (check
+  the other Claude entry points: review-loop skills, post-merge, resolve-conflict, holon-coherence, dev-env profile),
+  Action 5 (verification run: variable visible in the runner environment, token and duration comparison, how to switch
+  it off), and committing the harness half (Actions 1 and 2, still uncommitted on this branch).

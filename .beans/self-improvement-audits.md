@@ -5,6 +5,153 @@ first.
 
 ## Entries
 
+### 2026-11-26T03:50:00Z — Fifth-Merge Audit
+
+- **Trigger:** fifth merge (`7` target-repo merges since `2026-11-25T22:49:00Z`: `holon-agentic-coder` `#309`
+  `22:51:23Z`, `#308` `00:03:10Z`, `#310` `00:38:28Z`, `#311` `02:02:27Z`, `#312` `02:48:42Z`, `#313` `03:30:27Z`;
+  `holon-coherence` `#56` `22:57:30Z`; plus `thomashan/dev-env` `#43` `00:03:54Z` and `#42` `03:46:21Z`, and closed
+  `#44` `23:28:48Z`).
+- **Last merged pull requests at audit time:**
+  - `Holon-Agentic-Coder/holon-agentic-coder#313` (`feat(add): Add .github/workflows/promote-ledger.yml`, merged
+    `2026-11-26T03:30:27Z`; `#314` open in Stage 4)
+  - `Holon-Agentic-Coder/holon-coherence#56` (`coherence-final-self-doc`, merged `2026-11-25T22:57:30Z`)
+  - `thomashan/dev-env#42` (`tmux-focus-events-on`, merged `2026-11-26T03:46:21Z`, after `#43` `00:03:54Z`;
+    `flow-warp-shift-enter-tmux-cj` live in Stage 4)
+- **End state definition:** pipeline passes on the merged head + Stage 4 review consensus passes; everything else is
+  churn.
+- **Beans created or extended:**
+  - Created: `0475` (`docker-build.yml` lacks `concurrency`, running to `success` on `26/26` cancelled PR SHAs =
+    `39.93 runner-min` wasted), `0476` (local-flow overlap polling relaunches `holon flow` every `60 s` `200+` times,
+    falsely logs `"Overlap cleared"`, and bloats `checkpoint.context.logs` to `275 KB`).
+  - Extended: `0443` (`26/48` `hac` SHAs cancelled), `0450` (`9` blind `local_tests` findings across `#310`–`#312` and
+    `#308`), `0414` & `0418` (`4/4` sub-intents of `0371` failed initial Stage 3; `3/4` on `touch_set_guard`), `0384`
+    (`0371` sub-intent 2 `#311` Stage 3 `claude-opus-5-5` cut by `90 s` stall budget after `20.93 min`), `0451` & `0458`
+    (`dev-env#43` `20.18 min` Stage 5 CI; `dev-env#42` merged `29 s` after `842a47cf` while `Unit Tests` takes
+    `15–20 min`), `0472` (`dev-env#43` committed `4` plans across `2` intent IDs onto one PR), `0412` (unmeasured steps
+    and missing `coherence`/`dev-env` flow logs), `0427` (`gh event listen` hint still in `#310`–`#313` and
+    `dev-env#42`–`#43`), `0197` (`calibration.py` +1/+2 lines triggered Stage 4 `CHANGES_REQUESTED` on `#310` & `#311`),
+    `0465` & `0467` (uncommitted harness work + stray `=2026-11-24T08:00:00Z` + `5/5` post-merge harness commits).
+
+#### Step-Level Timing Table (`2026-11-25T22:49:00Z..2026-11-26T03:50:09Z`)
+
+> Flows measured: `0371` (`ledger-fragments-and-promotion`: parent overlap wait + 4 sub-intents `#310`–`#313` + parent
+> integration + live `#314`), `0405-s2` (`#308` resume Iter 4–5 + Stage 5 + merge), `0438` (`#309` merge), `0400`
+> (`macos-unit-only-when-relevant` Stage 1–2 + live local-flow overlap wait), `holon-coherence#56` (merge + `main` CI),
+> and `thomashan/dev-env#42`–`#44` (GitHub PR/CI history).
+
+| Step                                                    | Count | Median (min) | Longest (min) | Notes / Where                                                                                  |
+| :------------------------------------------------------ | ----: | -----------: | ------------: | :--------------------------------------------------------------------------------------------- |
+| Pre-flight (wrapper start -> Stage 1)                   |     - | not measured |  not measured | Wrapper lines before `Pipeline run initiated` still lack UTC timestamps (`0412`)               |
+| Stage 1 intent (checkpoints)                            |     5 |         0.28 |          0.33 | `0371` sub-intents `1..4` (`0.27–0.31m`), `0400` (`0.33m`); `dev-env` not measured (`0412`)    |
+| Stage 2 plan — initial (checkpoints / logs)             |     5 |         4.00 |          5.49 | `0371` sub1–4 (`3.30–4.03m`), `0400` (`5.49m`)                                                 |
+| Stage 2 plan — re-plan after `touch_set_guard`          |     4 |         2.56 |          3.15 | `0371` sub1–4 (`2.29m`, `2.52m`, `2.61m`, `3.15m`; total `10.57m` churn)                       |
+| Stage 3 admission check — admitted                      |    10 |         0.07 |          0.12 | `0371` parent + sub1–4 initial & re-plan + `0371` post-merge (`sum 0.70m`)                     |
+| Stage 3 admission check — refused (per poll round)      |   202 |         0.08 |          0.13 | `0371` (`2x 0.10m`) + `0400` (`200+` logged rounds `0.05–0.13m`, `sum 16.20m+` pure churn)     |
+| Stage 3 overlap wait per flow (wall)                    |     2 |       138.71 |        274.70 | `0371` parent (`2.72m` on `0175`), `0400` (`274.70m+` live `23:02:33Z..03:37:15Z+`, `0476`)    |
+| Stage 3 execute — failed / discarded                    |     5 |        12.53 |         20.93 | `0371` sub1–4 (`15.57m` TS, `20.93m` 90s stall, `2.63m` TS, `9.12m` TS, `12.53m` TS = `60.8m`) |
+| Stage 3 execute — succeeded (sub-intents)               |     4 |         4.56 |          4.91 | `0371` sub1–4 (`4.25m`, `4.88m`, `4.04m`, `4.91m`; `sum 18.08m`)                               |
+| Execute end -> PR create                                |     4 |         0.21 |          0.22 | `0371` sub1–4 (`0.18–0.22m`)                                                                   |
+| Stage 4 review ensemble + inner CI wait                 |    18 |         4.12 |         10.28 | `17` iters on `#310`–`#313` + `#308` i5 (`10.27m`); inner `review_local` CI split unmeasured   |
+| Per-reviewer latency inside ensemble                    |     - | not measured |  not measured | Engine logs only ensemble completion (`0412`)                                                  |
+| Stage 4 resolver turn + verify + commit                 |    14 |         3.73 |         30.22 | `13` iters on `#310`–`#313` (`2.07–6.32m`, `med 3.60m`) + `#308` i4 (`30.22m`)                 |
+| Stage 4 review iteration total                          |    19 |         9.38 |         30.22 | `17` iters `#310`–`#313` (`5.70–11.90m`) + `#308` i4 (`30.22m`) & i5 (`10.27m`)                |
+| Stage 4 git pushes & conflict/sync merges               |     - | not measured |  not measured | Individual push and conflict-merge durations not logged separately (`0412`)                    |
+| CI check registration wait (Stage 4 / Stage 5)          |     9 |         0.03 |          0.28 | `5` Stage 4 waits (`0.02–0.03m`) + `4` Stage 5 waits (`0.28m` each)                            |
+| PR CI wall — `hac` full code / merge                    |    14 |         8.83 |         10.17 | `14` completed SHAs (`#308`–`#314`, driven by `Test - Unit` `med 8.8m` / `Test - Stress`)      |
+| PR CI wall — `hac` bookkeeping-gated                    |     5 |         1.33 |          1.38 | `#308` (`1eac4196`), `#310`–`#313` calibration heads (`64–83 s` in `Test - Hygiene`)           |
+| PR CI wall — `hac` cancelled SHAs (`Docker Build` leak) |    26 |         1.82 |          9.77 | `26/26` cancelled SHAs ran `Docker Build` to `success` (`med 1.78m`, `sum 39.93m`, `0475`)     |
+| `main` push CI — `hac` / `coherence` / `dev-env`        |     4 |         9.76 |         20.03 | `hac` `#309` (`10.67m`) & `#308` (`8.85m`); `coherence#56` (`1.97m`); `dev-env#43` (`20.03m`)  |
+| PR CI wall — `dev-env` (`#42`, `#43`, `#44`)            |     7 |        14.90 |         20.18 | `3` full passes (`14.90–20.18m`), `1` partial (`11.72m`), `2` cancelled (`0.40–0.67m`), `1` IP |
+| Stage 5 calibration + reconcile + promote work          |     5 |         0.77 |          0.91 | `#310`–`#313` (`0.75–0.78m`) + `#308` (`0.91m`); Prettier passed locally without timeout       |
+| Stage 5 final-head CI wait (bookkeeping)                |     5 |         1.09 |          1.35 | `#310`–`#313` (`0.82–1.35m`) + `#308` (`1.09m`)                                                |
+| Stage 5 total (`#310`–`#313`, `#308`)                   |     5 |         2.00 |          2.20 | `#310`–`#313` (`1.57–2.10m`) + `#308` (`2.00m`)                                                |
+| Ready-to-merge queue wait (target PRs -> `main`)        |     5 |        32.48 |       1617.70 | `hac#309` (`2.88m`), `#308` (`8.75m`), `dev-env#43` (`32.48m`), `#42` (`1394.4m`), `coh#56`    |
+| Sub-intent merge into parent plan (`#310`–`#313`)       |     4 |         0.18 |          0.18 | Auto-merged `11 s` after Stage 5 completed                                                     |
+| Hand pre-merge sync to merge (`dev-env#42`)             |     1 |         0.48 |          0.48 | `842a47cf` pushed `03:45:52Z`, merged `29 s` later (`03:46:21Z`) before `Unit Tests` (`0458`)  |
+| Idle between stop & resume                              |     - | not measured |  not measured | `0400` log buffered after `03:01:05Z` (`0385`); `coherence#56` / `dev-env#42–44` have no logs  |
+
+**Stage / Wall Time Split (`2026-11-25T22:49:00Z..2026-11-26T03:50:09Z`):**
+
+- **Working (`~4.5 h` across concurrent flows):** `0371` parent & `#310`–`#313` Stages 1–5 + `#314` Stage 4 (`~4.0 h`
+  active work minus CI/overlap waits, including `60.78 min` discarded Stage 3 + `10.57 min` Stage 2 re-plans), `#308`
+  resume (`~42.9 min`), `0400` Stage 1–2 (`5.82 min`) + `200+` failed admission launches (`16.2 min+`), `dev-env#43` &
+  `#44` active stages (no wrapper logs).
+- **Waiting on CI (`346` runs across 3 repos):** `hac` `298` runs (`206` `success`, `89` `cancelled`, `1` `failure` in
+  `#311` `Test - Integration` `d65b84d7`, `2` `in_progress`); `coherence` `5` runs (`5` `success`, `1.97 min` wall);
+  `dev-env` `43` runs (`30` `success`, `10` `cancelled`, `3` `in_progress`; `Unit Tests` `macos-latest`
+  `14.9–20.2 min`).
+- **Waiting on another flow (`~4.6 h`):** `0371` parent waited `2.72 min` on `0175`; `0400` (`macos-unit`) blocked
+  `274.7+` min (`23:02:33Z..03:37:15Z+`) polling local flow `0371` every `60 s`.
+- **Waiting on human merge:** `hac#309` (`2.88 min`), `hac#308` (`8.75 min`), `dev-env#43` (`32.48 min`), `dev-env#42`
+  (`23.2 h`), `holon-coherence#56` (`27.0 h`).
+
+**Churn Counts (`hac` in Window):**
+
+- `26/48` (`54.2%`) `hac` SHAs were cancelled mid-CI (`24` by `0443` `chore(review)` double-pushes or fast follow-ups),
+  yet `Docker Build` ran to `success` on all `26/26` (`39.93 runner-min` pure churn).
+- `0371` sub-intents `1..4` ran `17` review iterations (`#310`: `8`, `#311`: `4`, `#312`: `3`, `#313`: `2`); `9` of
+  those (`#310` iters `2–7`, `#311` iters `2–3`, `#312` iter `2`, plus `#308` iter `4`) carried `FIND-CI` `local_tests`
+  failures (`0450`) triggered while `0443` cancelled/delayed GitHub CI, and `4/4` sub-intents lost `60.78 min` Stage 3 +
+  `10.57 min` Stage 2 re-plan work to initial `touch_set_guard` / `90 s` stall failures.
+
+#### Ranked Suggestions
+
+1. **`0475` (new, high — Pipeline / GitHub Actions):** Add `concurrency` (`cancel-in-progress` on `pull_request`,
+   `github.sha`-scoped on `push`) to `.github/workflows/docker-build.yml`. Eliminates `~40 runner-min` per 5 h wasted on
+   `26/26` cancelled SHAs.
+2. **`0476` (new, high — Flow / Wrapper & Engine):** Fix local-flow Stage 3 overlap polling in `run_holon_flow.py` (no
+   false `"Overlap cleared"`, back off / inspect local blocker before re-spawning `holon flow`) and bound `context.logs`
+   in flow checkpoints. Eliminates `200+` redundant launches (`~16–20 min` CPU/IO churn) and stops `275 KB+` checkpoint
+   bloat.
+3. **High-impact extensions (`0443`, `0450`, `0414`, `0418`, `0384`, `0451`):**
+   - `0443` + `0450`: combined, they cancelled `26/48` `hac` SHAs and caused `9` blind `local_tests` Stage 4 churn
+     iterations across `#310`–`#312` and `#308`.
+   - `0414` + `0418`: `4/4` sub-intents of `0371` failed initial Stage 3 (`3/4` on `touch_set_guard`), discarding
+     `37.22 min` of execution + `10.57 min` of Stage 2 re-plans.
+   - `0384`: `90 s` stall budget killed Stage 3 `claude-opus-5-5` on `#311` (`20.93 min` lost).
+   - `0451`: `dev-env#43` Stage 5 calibration commit `13844ea7` ran another `20.18 min` full CI pass (`Unit Tests`).
+4. **Other extensions (`0458`, `0472`, `0427`, `0197`, `0412`, `0465`, `0467`):** `dev-env#42` merged `29 s` after
+   `842a47cf` before `Unit Tests` (`0458`), `dev-env#43` accumulated `4` plan commits from `2` intent IDs (`0472`),
+   `gh event listen` hints still corrupt review URLs (`0427`), `calibration.py` growth still blocks Iter 1 (`0197`),
+   unmeasured steps and buffered logs persist (`0412`), and uncommitted harness files + `5/5` post-merge commits persist
+   (`0465`, `0467`).
+
+#### Examined and Found in Order
+
+- `ci_bookkeeping_gate` on uncancelled `holon-agentic-coder` Stage 5 calibration heads (`1eac4196`, `e34e0be7`,
+  `d80fcea3`, `fb12d695`, `0acbcd18`): all `5` settled in `64–83 s` (`~1.1–1.4 min` total CI).
+- `holon-coherence#56`: merged cleanly (`22:57:30Z`) and `main` push CI passed all `5` workflows in `1.97 min`.
+- `post-pr-merge` sub-intent handling: correctly skipped per-sub-intent runs on `#310`–`#313` (which target the parent
+  plan branch) and synced `hac#309`, `coh#56`, `hac#308`, `dev-env#43`, and `dev-env#42` cleanly.
+- `hac#309` (`22:51:23Z`) and `hac#308` (`00:03:10Z`) `main` push CI: both passed all `6` workflows cleanly (`10.67 min`
+  and `8.85 min`).
+
+#### Unmeasured Steps
+
+- Pre-flight wrapper setup duration (no UTC timestamps in `run_holon_flow.py` header lines).
+- Per-reviewer latency inside the Stage 4 ensemble and `review_local` reviewer-turn vs CI-wait split inside Stage 4.
+- Individual Stage 4 git push and conflict-merge durations.
+- Flow logs for `holon-coherence#56` and `thomashan/dev-env#42`–`#44` (missing), and final `36+ min` of
+  `todo/flow-macos-unit-only-when-relevant.log` (`03:01:05Z..03:37:15Z+`, buffered under `0385`).
+
+### 2026-11-25T22:49:00Z — Session-Start Audit
+
+- **Trigger:** session start (2026-11-26 local). Evidence window: since the `2026-11-25T06:05:00Z` entry.
+- **Last merged pull requests at audit time:** `Holon-Agentic-Coder/holon-agentic-coder#307` (merged
+  `2026-11-25T06:54:51Z`, after `#305` `06:12:01Z` and `#306` `06:51:27Z`); `holon-coherence#55`
+  (`2026-11-24T12:44:47Z`, `#56` open); `thomashan/dev-env` unchanged. Open: `hac#308` (CONFLICTING, 39 commits) and
+  `hac#309` (MERGEABLE).
+- **Beans created:** `0465` (uncommitted harness beans and audit instruction), `0466` (flow aborts when Docker is
+  briefly down), `0467` (per-merge record commits are 60 of 92 harness commits).
+- **Extended or already covered:** `0458` (#305 to #307 sat 4.3 to 4.8 h between approval `01:49Z`, `02:15Z`, `02:02Z`
+  and merge, each with a final `origin/main` sync commit at `05:48Z`, `06:13Z`, `06:53Z` right before merge); `0412`
+  (the 37 `0153` self-doc flows wrote only one `todo/flow-*-self-doc.log`, so per-step timing is not measured); the
+  DNS/resolver bean and `0432` (`hac#308` review halted at iteration 4 on ENOTFOUND, then target sync blocked by
+  uncommitted tracked changes).
+- **Examined and in order:** #305 to #307 had 0 failed checks and 1 consensus review each; all 15 pipeline runs on their
+  branches succeeded.
+- **Not measured:** per-step timing for #305 to #309 (no flow logs); no timing table was built.
+
 ### 2026-11-25T06:05:00Z — Fifth-Merge Audit
 
 - **Trigger:** fifth target-repo merge since `2026-11-25T05:41:00Z` (`holon-agentic-coder` PRs `#300`, `#301`, `#302`,

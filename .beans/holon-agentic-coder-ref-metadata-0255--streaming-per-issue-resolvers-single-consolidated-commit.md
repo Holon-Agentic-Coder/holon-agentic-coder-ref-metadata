@@ -3,7 +3,7 @@
 title: "Streaming per-issue resolvers during Stage 4 CI & review with single consolidated commit"
 status: todo
 type: feature
-priority: high
+priority: critical
 tags:
   - flow
   - review-loop
@@ -13,7 +13,7 @@ tags:
   - concurrency
   - holon-agentic-coder
 created_at: 2026-11-09T12:17:00Z
-updated_at: 2026-11-21T01:20:00+11:00
+updated_at: 2026-11-24T11:12:00Z
 ---
 
 ## Problem
@@ -88,3 +88,40 @@ resolver fixes into a single commit**:
 Still valid. Locations moved: the loop is `run_review_loop` in `flow/review/loop.py` and CI waiting is
 `wait_for_pending_ci` in `flow/github/ci_wait.py` (the `sandbox_executor.flow` module reference above means the `flow/`
 package). Overlaps Beans 0192 and 0345 on `flow/review/loop.py`.
+
+## Maintainer direction (2026-11-24)
+
+Maintainer's words: "in the review process, we shouldn't wait for the whole pipeline to finish. we should start on a new
+iteration to fix the issue. that way we don't have to idle. while we're on the next iteration to fix the pipeline it
+should also refer back to the complete pipeline failures so that we fix ALL the failing tests from the previous
+iteration."
+
+This confirms the decision above and makes two points binding:
+
+1. **Never idle on a pipeline that has already failed.** The first failed check starts the fixing work at once; the flow
+   does not wait for the remaining checks before the resolver begins (the fail-early rule of Beans 0383 and 0394).
+2. **The fix covers the whole run, not only the first failure.** While the resolver works, the flow keeps collecting the
+   results of that same pipeline run, and the resolver is given every failure of the run (each failed check, its failing
+   tests and their output) before its fix is pushed. One push answers all the failures of the previous iteration, so the
+   next pipeline run is not spent rediscovering the second and third failure.
+
+Consequences to design for (agent's notes):
+
+- **Do not cut the evidence short.** A push to the branch cancels the pipeline run in progress (`cancel-in-progress` is
+  on for pull requests), which would throw away the failures not yet reported. The resolver's push therefore waits until
+  the run it is fixing has finished or every one of its jobs has reported, whichever is first. The work starts early;
+  only the push waits.
+- **`fail-fast` stays off** on the test matrices for the same reason: a failed leg must not cancel its siblings, or the
+  complete list of failures is never produced (this settles the `fail-fast` question left open in Bean 0400).
+- **The failure list is carried in the checkpoint**, per head: check name, job, failing test ids and the tail of the
+  log. A resumed flow, and the next iteration, read it from there and do not depend on the run still being retrievable.
+- **Reproduce locally where possible.** The resolver runs the failing tests it was given in its own worktree, so it can
+  confirm each fix before the push and does not need the pipeline to find out.
+- **Noise is told apart from failures first**: a timing-gate or runner failure is not handed to the resolver as a defect
+  (Beans 0404 and 0407); it is rerun.
+- **Reviewer findings join the same push**: findings that arrive while the resolver is working are added to its list, as
+  the decision above already says, so one consolidated commit answers reviewers and pipeline together.
+
+Measured motivation (self-improvement audit, 2026-11-24): the review stage carried 9.2 hours of idle time in three days;
+33 pipeline heads failed and each cost at least one more full run of about 8 minutes; the median pull request took 6
+pipeline runs.

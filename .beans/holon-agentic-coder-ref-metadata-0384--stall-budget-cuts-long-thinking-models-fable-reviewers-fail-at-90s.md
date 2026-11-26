@@ -35,3 +35,11 @@ cause was noticed: the failure reads as "the reviewer ensemble did not complete"
   the variable to raise, and the review loop does not count it as a review iteration.
 - A resume that would repeat a round that failed identically (same head, same budget) refuses with that message instead
   of running it again.
+
+## Audit evidence (2026-11-26T03:50Z, fifth-merge audit)
+
+- Not only Fable Stage 4 reviewers: on `2026-11-26T01:04:45Z`, `0371` sub-intent 2 (`#311`) Stage 3 executor on
+  `claude-agent / claude-opus-5-5` was killed by
+  `Stopping agent turn: execute stall budget of 90 s exceeded after 90.5 s` after **`20.93 min`**
+  (`todo/flow-ledger-fragments-and-promotion.log:1782-1820`), forcing a manual resume with
+  `HOLON_TURN_STALL_SECONDS=600`.

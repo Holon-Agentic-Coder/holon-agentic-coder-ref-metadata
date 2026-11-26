@@ -35,8 +35,9 @@ This skill orchestrates the end-to-end post-merge lifecycle across the Holon eco
      prune stale tracking refs.
    - **Step 5: Refresh Triage & Matrix (`prioritise-beans`)**: Run the triage script to update completion stats and the
      Active Beans Prioritisation Matrix.
-   - **Step 6: Commit Harness State & Recommend Next Task**: Commit all updated bean files and triage matrices to the
-     current operational harness branch and recommend the next priority bean.
+   - **Step 6: Commit Harness State, Recommend & Backfill Next Task**: Commit all updated bean files and triage matrices
+     to the current operational harness branch, report next priority beans, and automatically launch the next
+     highest-priority ready bean via `holon-flow` whenever active concurrent flows are under 4 on hosted runtimes.
 
 ---
 
@@ -222,7 +223,7 @@ npx prettier --write .beans/bean-triage-prioritisation.md
 
 ---
 
-### Step 6: Commit Harness State & Recommend Next Task
+### Step 6: Commit Harness State, Recommend & Backfill Next Task
 
 1. Stage and commit harness changes:
    ```bash
@@ -231,4 +232,32 @@ npx prettier --write .beans/bean-triage-prioritisation.md
    git push origin <current_harness_branch>
    ```
 2. Review the Active Beans Matrix in `.beans/bean-triage-prioritisation.md`.
-3. Provide the user with a concise summary of the post-merge actions completed and recommend the next top-priority bean.
+3. **Backfill up to 4 concurrent `holon-flow` subagents (hosted runtimes; maintainer, 2026-11-24)**: first list parked
+   flows (beans noted `parked <date>`) whose blocker was this PR or whose files this PR released, and recommend resuming
+   them from checkpoint (`--checkpoint`) before any new bean (maintainer, 2026-11-26). Then count currently active
+   background `holon-flow` subagents that are executing, reviewing or calibrating (parked or blocked flows do not count;
+   `< 4` on hosted runtimes; local runtimes remain capped at 1). Pick up the highest-priority ready bean from the
+   refreshed triage (honouring `blocked_by`, solo-sweep rules, and pairwise-disjoint touch sets with active flows; at
+   most one bean touching a shared hotspot such as `flow.py` or `cli.py` per target) and launch it in the background via
+   the `holon-flow` skill.
+4. Provide the user with a concise summary of the post-merge actions completed, note any newly launched backfill flow
+   (or why none could start), and recommend the next top-priority beans.
+
+---
+
+### Step 7: Self-Improvement Audit Check
+
+Count the pull requests merged into `main` of `holon-agentic-coder` and `holon-coherence` since the newest entry in
+`.beans/self-improvement-audits.md` (the first entry under `## Entries`):
+
+```bash
+gh pr list --repo <owner>/holon-agentic-coder --state merged --base main --json number,mergedAt
+gh pr list --repo <owner>/holon-coherence --state merged --base main --json number,mergedAt
+```
+
+1. Count the merges with `mergedAt` after that entry's timestamp, across both repositories. If the log has no entry,
+   count all merges of the last 7 days.
+2. In the final report, state either "self-improvement audit due (N merges since the last audit)" when N is 5 or more,
+   or "N of 5 merges since the last audit".
+3. This skill does not run the audit. The receiving agent launches it per
+   [`.agents/self-improvement-audit.md`](../../self-improvement-audit.md).

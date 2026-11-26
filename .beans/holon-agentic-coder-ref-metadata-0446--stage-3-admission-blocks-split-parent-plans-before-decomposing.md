@@ -11,7 +11,7 @@ tags:
   - decomposition
   - holon-agentic-coder
 created_at: 2026-11-25T04:02:00Z
-updated_at: 2026-11-25T04:02:00Z
+updated_at: 2026-11-25T05:45:00Z
 ---
 
 ## Problem
@@ -57,3 +57,10 @@ Small: guard in `flow/stages/execute.py` + unit test, delivered via the Holon fl
 - Target repo change through the Holon flow (`holon-agentic-coder`).
 - Related: Bean `0348` (PR #226 actual PR files), Bean `0407` (`no-unneeded-full-review`), Bean `0395` (Stage 3 overlap
   work).
+
+## Audit evidence, 2026-11-25T05:45Z (self-improvement audit, fifth merge #288 to #299)
+
+- 0407 is still refused at 05:41Z, about 180 min after 02:41:40Z. No wrapper is alive to relaunch it, so it stays
+  stopped until someone relaunches it by hand.
+- Proposed change 3 (scope lists files) has no home in the harness today. The rule exists only in Claude Code's private
+  memory, so the Antigravity session that wrote the 0407 intent could not see it (Bean 0459).

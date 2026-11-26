@@ -71,9 +71,19 @@ interactive session remains responsive:
   flow execution without spawning another nested subagent.
 - **4-Flow Concurrency Cap & Merge Backfill (maintainer, 2026-11-24)**: On hosted runtimes, up to **4 concurrent
   `holon-flow` background subagents** may run at once, each in its own dedicated `flow-<slug>` worktree and honouring
-  dependencies, solo-sweep rules, and disjoint touch sets (`run_holon_flow.py` waits out Stage 3 overlaps
-  automatically). Once a target-repo PR merges, backfill open slots up to 4 by launching the next highest-priority ready
-  bean via `holon-flow`.
+  dependencies, solo-sweep rules, and disjoint touch sets. Once a target-repo PR merges, backfill open slots up to 4 by
+  launching the next highest-priority ready bean via `holon-flow`.
+  - **Slots must always be doing work (maintainer, 2026-11-26)**: only flows that are executing, reviewing or
+    calibrating count toward the 4; check this on every progress report and after every merge.
+  - **Park blocked flows**: a flow refused at Stage 3 admission on a touch-set overlap, or otherwise waiting on another
+    flow's PR, does not hold a slot. Stop only that flow's own wrapper/poll loop, keep its worktree, branches and
+    checkpoint, note on its bean
+    `parked <date>: blocked by <PR/flow> on <files>; resume from checkpoint when <condition>`, and end its subagent.
+  - **Backfill at once** with the next highest-priority ready bean whose touch set is disjoint from every live and
+    parked flow.
+  - **Resume from checkpoint**: once the blocker merges or releases the files, resume the parked flow with
+    `--checkpoint` (never a fresh launch, which re-runs intent and plan and leaves duplicate `I-*` branches). Resuming
+    takes the next free slot ahead of new beans.
 
 ### 4. Generic Subagent Protocol (Any Coding Agent)
 
@@ -105,9 +115,10 @@ When executing within the **Antigravity (AGY)** environment:
   **Antigravity**), automatically fall back to the next lower tier that has available credit (`Model: "inherit"` /
   `"pro"` $\rightarrow$ `"flash"` $\rightarrow$ `"flash_lite"` in AGY `invoke_subagent`; `claude-opus-5-5` $\rightarrow$
   `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` in `claude-agent`; `gemini-4-neon` $\rightarrow$ `gemini-4-argon`
-  $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash` in `antigravity-agent`, or switch `--agent` across
-  `claude-agent` $\leftrightarrow$ `antigravity-agent` if an account-wide session limit is reached) and continue the
-  in-progress flow or review loop from its current stage/iteration without losing completed work.
+  $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash` in `antigravity-agent`; never switch `--agent`
+  across runners on your own: if an account-wide session limit exhausts the runner's ladder, stay on it and ask the
+  maintainer before switching) and continue the in-progress flow or review loop from its current stage/iteration without
+  losing completed work.
 - **Reactive Wakeup (Zero Polling)**: AGY resumes parent execution automatically upon child message arrival or task
   completion. **Never poll, sleep, or loop on task status.**
 
@@ -151,3 +162,15 @@ The rule:
 - Review the subagent's report upon reactive resumption.
 - In multi-turn workflows, inspect output artifacts (e.g. `.subagent/<repo>_pr<N>_dry_run_review_iter_*.md`, namespaced
   per the `pr-review-loop` skill's artifact convention) and verify commits before proceeding to subsequent phases.
+
+### 7. Skill Subagents and Delegation (maintainer rules)
+
+- **Harness operations run through their skills in subagents, never inline** (maintainer, 2026-11-23): flows
+  (`holon-flow`), conflict resolution (`resolve-conflict`), review loops and calibration (`pr-review-loop`). A quick
+  manual check does not excuse skipping the skill. When a resolve-conflict subagent escalates a code conflict, spawn a
+  new one a tier up with the decision in its prompt; the main session only decides and delegates.
+- **Name every subagent**: description `#<PR> - <what>` (or `bean <id> - <what>` before a PR exists), and set its name
+  field too (`pr<PR>-<what>` or `bean<id>-<what>`, letters, digits, `_` and `-` only).
+- **Keep the main thread for coordination** (maintainer, 2026-11-24): diagnosing failures, measuring, reading across
+  several files and editing or testing harness code go to subagents on the lowest tier that fits. Inline only: status
+  checks, briefing subagents, single small edits and replies.

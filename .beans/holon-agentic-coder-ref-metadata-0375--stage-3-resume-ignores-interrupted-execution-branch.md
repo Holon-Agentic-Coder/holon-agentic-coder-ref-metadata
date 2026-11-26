@@ -10,7 +10,7 @@ tags:
   - resume
   - holon-agentic-coder
 created_at: 2026-11-23T07:36:00Z
-updated_at: 2026-11-23T07:36:00Z
+updated_at: 2026-11-24T13:00:00Z
 ---
 
 ## Problem
@@ -47,3 +47,8 @@ row at all.
 
 Bean 0374 (scratch files committed by the same interrupted runs). Workaround used on 2026-11-23: bean 0191 recovered
 manually on the maintainer's instruction; bean 0174 restarted as a fresh `-v3` intent from current `main`.
+
+## Notes
+
+- Overlap: Bean 0397 (resume adopts a completed, pushed execution branch) is the same resume lookup for the complete
+  case. This bean owns the shared branch-adoption code.

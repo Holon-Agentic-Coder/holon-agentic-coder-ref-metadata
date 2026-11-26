@@ -10,7 +10,7 @@ tags:
   - touch-set
   - holon-agentic-coder
 created_at: 2026-11-24T11:00:00Z
-updated_at: 2026-11-24T13:00:00Z
+updated_at: 2026-11-26T05:25:00Z
 ---
 
 ## Why
@@ -64,3 +64,30 @@ Medium engine change in Stage 3 and the planner prompt.
   execution (`21.3 min`) was discarded by `touch_set_guard` over 18 out-of-set files (`flow/__init__.py`,
   `lazy_exports_sync.py`, and 16 test files), forcing a `4.7 min` Stage 2 re-plan (`P-1795518467-ANA-G4N`) and a
   `25.2 min` Stage 3 re-execution.
+
+## Audit evidence (`2026-11-26T03:50Z`, fifth-merge audit)
+
+- In `ledger-fragments-and-promotion` (`0371`, `todo/flow-ledger-fragments-and-promotion.log`), **`3` of `4` sequential
+  sub-intents** had a completed Stage 3 execution discarded post-turn by `touch_set_guard`, plus sub-intent 2 hit it on
+  resume: `#310` (`15.57 min` discarded over `2` test files + `2.29 min` re-plan), `#311` (`2.63 min` resume discarded
+  over `3` files + `2.52 min` re-plan), `#312` (`9.12 min` discarded over `3` files + `2.61 min` re-plan), `#313`
+  (`12.53 min` discarded over `env_registry.py` and `docs/environment_variables.md` + `3.15 min` re-plan) —
+  **`39.85 min`** discarded Stage 3 and **`10.57 min`** re-planning in one flow.
+
+## Audit evidence, 2026-11-26 (flow time audit)
+
+Flow time audit (`todo/flow-time-audit-2026-11-26.md`), PRs #296 to #316: 6 of 9 claude-agent flows had their first
+executor turn discarded for a touch-set breach, then re-planned and executed again.
+
+| Flow (PR)       |             Discarded executor turn | Re-plan | Files outside the touch set (from the log)       |
+| :-------------- | ----------------------------------: | ------: | :----------------------------------------------- |
+| #310 child 1    |                            15.4 min | 2.0 min | (see flow log)                                   |
+| #311 child 2    | 2.5 min (+20.8 min executor exit 1) | 2.3 min | `calibration_e...`                               |
+| #312 child 3    |                             9.0 min | 2.4 min | `ledger/promote...`                              |
+| #313 child 4    |                            12.4 min | 2.9 min | `env_registry...`                                |
+| #315 macos      |                            12.3 min | 1.8 min | `tests/test_ci_bookkeeping_gate.py` and one more |
+| #316 review-key |                            15.6 min | 2.3 min | (see checkpoint log)                             |
+
+Total 81 min (median 11.4 min per flow, 11 % of all active flow time): the second largest structural sink after the
+review loop. The kept executions took 3.9 to 5.0 min each, so the discarded turn usually costs 2 to 3 times the real
+work.

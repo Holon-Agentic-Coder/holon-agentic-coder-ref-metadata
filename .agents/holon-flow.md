@@ -56,9 +56,9 @@ stepping down model tiers, always resume through `holon flow <intent.json> --fro
   halt and report the blocker instead of bypassing the stage or hand-applying the diff as a workaround.
 - **Automatic Model & Runner Fallback on Credit / Quota Exhaustion**: If a stage or subagent fails due to model credit
   exhaustion, session quota limits, or rate-limit caps (e.g. `You've hit your session limit`, `insufficient_quota`,
-  `RESOURCE_EXHAUSTED`, or HTTP 429/quota errors), **do not stop or block** as long as a lower-tier model or alternate
-  configured runner still has available credit. Automatically step down the fallback ladder and **continue the flow from
-  the current stage/checkpoint** (reusing any already-pushed `I-.../_`, `P-.../_`, or `E-.../_` branch):
+  `RESOURCE_EXHAUSTED`, or HTTP 429/quota errors), **do not stop or block** as long as a lower-tier model on the same
+  runner still has available credit. Automatically step down the fallback ladder and **continue the flow from the
+  current stage/checkpoint** (reusing any already-pushed `I-.../_`, `P-.../_`, or `E-.../_` branch):
   - **Claude (`claude-agent`) fallback ladder**: `claude-fable-5-2` (Fable 5.2; never the bare alias `fable`, which the
     engine maps to `claude-opus-5-5`) $\rightarrow$ `claude-opus-5-5` (or `opus`) $\rightarrow$ `claude-sonnet-4-6` (or
     `sonnet`) $\rightarrow$ `claude-haiku-4-5` (or `haiku`). Fable is the preferred top tier for flow stages
@@ -69,12 +69,29 @@ stepping down model tiers, always resume through `holon flow <intent.json> --fro
     (use bare model IDs without `-high` because `AntigravityRunner` passes `--effort ${HOLON_AGENT_EFFORT:-medium}`).
   - **Antigravity (`invoke_subagent` in AGY runtime) fallback ladder**: `Model: "inherit"` / `"pro"` $\rightarrow$
     `"flash"` $\rightarrow$ `"flash_lite"`.
-  - **Cross-Runner Fallback**: If all model tiers on the active runner (`claude-agent` or `antigravity-agent`) share an
-    exhausted account-wide session limit, automatically switch `--agent` to the other runner (`antigravity-agent` or
-    `claude-agent`) at its highest available tier with credit and continue the remaining flow stages on the existing
-    flow branch.
+  - **No Cross-Runner Switch** (maintainer, 2026-11-23): on a stuck or exhausted runner, stay on that runner's ladder
+    and ask the maintainer before switching `--agent` between `claude-agent` and `antigravity-agent`. Never switch on
+    your own; report the exhausted ladder and wait for the go-ahead.
 - The only permitted exception is an explicit, unambiguous user instruction to make a specific edit outside the flow,
   and that exception must be named in the commit message and in the bean summary.
+
+## Flow principles (maintainer, 2026-11-24)
+
+These rules are partly implemented in the engine; the rest is tracked in the harness beans.
+
+- **Fail early** (hard rule): "failures should be recognised as soon as possible and actions should be taken as soon as
+  possible. this is a hard rule. fail early". A failure is acted on the moment it can be known, in every stage; nothing
+  waits for the rest of a pipeline or the end of a stage once the outcome is already a failure.
+- **Resolve a conflict the moment it is found**: "as soon as you find a conflict resolve it straight away". Whichever
+  stage finds it resolves it at once; it is never deferred to posting time or the next stage.
+- **Only success postings wait for the pipeline**: "only sucess posting is waiting for the pipeline to pass. every
+  failure is existed or posted early." The consensus approval and the "calibration done" result wait; every failure
+  exits or is posted early.
+- **At the end of the review only two things matter**: the pipeline passes and the consensus passes. Everything else is
+  churn, and a step stays on the critical path only if it helps reach those two.
+- **On a pipeline failure, fix at once and in one push**: do not idle on a run that has already failed; start the next
+  fixing iteration on the first failed check, and give the resolver every failure of that run so one push answers them
+  all.
 
 **Harness exception & operational branches (control plane only).** The `holon-agentic-coder-ref-metadata` control plane
 itself (`.beans/`, `.agents/`, `AGENTS.md`) is the coordination harness rather than a flow-managed target repository.
@@ -92,3 +109,30 @@ merges for regular harness updates; merging harness branches into `main` is an i
    `holon flow <intent.json>` runner directly** (or `--from-stage` / `--checkpoint` when resuming); never use ad-hoc
    wrapper scripts like `holon-stage.sh` or manual disconnected stage commands. See
    [🔒 Sole Change Path: The Holon Flow](#-sole-change-path-the-holon-flow).
+
+---
+
+## Intent Authoring and Running Rules
+
+Maintainer rules that every session follows when writing or running a flow:
+
+- **Intent `scope` lists files, never directories** (maintainer, 2026-11-20): name each source and test file, plus new
+  files by name or their exact parent package file. A directory becomes planner touch-set globs, and Stage 3 admission
+  then refuses every unrelated concurrent flow. `run_holon_flow.py` refuses an intent whose scope has such an entry.
+- **Intent text names no harness paths, bean ids or review ids** (maintainer, 2026-10-29), not even in a "never
+  reference X" constraint: `holon intent` copies it verbatim into the target's append-only `intents.jsonl`. Say
+  "harness-specific directories and task-tracker ids". Grep the JSON for `.beans`, `todo/`, `.agents` and bean ids
+  before launching.
+- **Slugs are descriptive and at most 32 characters** (maintainer, 2026-11-20; see the ref-length rule in
+  [rules.md](rules.md)).
+- **Never stop a running flow on your own judgment** (maintainer, 2026-10-28), even when the plan splits into
+  sub-intents that look undeliverable. Monitor and report; stopping needs an explicit maintainer instruction. Never
+  delete the branches a flow produced unasked: completed runs are audit evidence.
+- **No stage before the merge halts for a human** (maintainer, 2026-10-26). A `halted_for_human` before the merge is a
+  bug: log it, never work around it by hand.
+- **Diagnose a failed flow, stage or subagent immediately** (maintainer, 2026-11-12): read the log, checkpoint and
+  worktree, reproduce if cheap, and report a confirmed root cause with the fix; never report the failure and ask whether
+  to look. Separate confirmed from suspected.
+- **A flow whose PR conflicts with `main` at the end is not done** (maintainer, 2026-11-23): resolve it and rerun
+  (`--from-stage calibrate` after a mechanical ledger merge, `--from-stage review` if the PR's own diff changed) until
+  the PR is MERGEABLE and CLEAN. Never report it ready while it conflicts.

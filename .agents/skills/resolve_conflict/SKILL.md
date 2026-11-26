@@ -55,14 +55,15 @@ squashed or force-pushed. For any other branch, still prefer the merge unless th
 ### Step 3: Resolve the append-only files mechanically
 
 ```bash
-python3 .agents/skills/resolve_conflict/scripts/resolve_known.py --repo <worktree>
+python3 .agents/skills/resolve_conflict/scripts/resolve_known.py --repo <worktree>   # merging origin/main into the branch; add --base-stage 2 for the reverse direction
 ```
 
 It handles, and stages:
 
-- **`holon-knowledge/ledger/*.jsonl`** (`intents`, `plans`, `executions`): keeps every row from both sides, base branch
-  order first, this branch's own rows interleaved by `created_at`. Nothing is de-duplicated or dropped, and no file is
-  ever created beyond the three ledgers.
+- **`holon-knowledge/ledger/*.jsonl`** (`intents`, `plans`, `executions`): keeps every row from both sides: the base
+  branch's rows exactly in main's order, then this branch's own rows appended (ordered by `created_at` among
+  themselves); a row already on main is never moved. Nothing is de-duplicated or dropped, and no file is ever created
+  beyond the three ledgers.
 - **`holon-knowledge/kb/**/index.json`**: union of `entries` by `kb_id`, the later `updated_ts`.
 
 Any other conflicted path prints `NEEDS-JUDGEMENT <path>`.
