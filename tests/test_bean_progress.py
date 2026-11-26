@@ -738,3 +738,124 @@ class TestBlockedStage:
         ]
         other = bean_progress.InFlightRow(["0001"], "HAC", "t", "Not started", "—", "idle", "—", 3)
         assert other.as_dict()["blocked_by"] == []
+
+
+def _live(wt: bean_progress.WorktreeFlow, pid: int, slug: str) -> bean_progress.LiveFlowTree:
+    return bean_progress.LiveFlowTree(
+        pid,
+        "00:10:00",
+        "running",
+        "Claude Code",
+        str(wt.path),
+        slug,
+        [],
+        None,
+        "claude-opus-5-5",
+        "executor",
+        False,
+        None,
+    )
+
+
+def _closed(number: int, head: str, state: str) -> bean_progress.PullRequestInfo:
+    return bean_progress.PullRequestInfo("HAC", number, "t", f"u/{number}", head, "", False, 0, 0, "", state)
+
+
+class TestMultiRowFlows:
+    """One row per live flow or PR of a bean, stale-row handling, and decomposed flows."""
+
+    def _beans(self, tmp_path: Path, nums: list[str], status: str = "in-progress") -> dict:
+        beans_dir = tmp_path / ".beans"
+        beans_dir.mkdir(exist_ok=True)
+        for n in nums:
+            _make_bean(beans_dir, n, f"b{n}", f"title: Bean {n}\nstatus: {status}\n")
+        return bean_progress.scan_beans(beans_dir)
+
+    def _three_flows(self, tmp_path: Path):
+        beans = self._beans(tmp_path, ["0405"])
+        slugs = ["tests-a", "tests-b", "tests-c"]
+        intents = [bean_progress.IntentMapping(tmp_path / f"{s}.json", s, ["0405"], s) for s in slugs]
+        wts = [_wt(tmp_path, f"flow-{s}", s) for s in slugs]
+        return beans, intents, wts
+
+    def test_two_concurrent_flows_of_one_bean_get_two_rows(self, tmp_path: Path) -> None:
+        beans, intents, wts = self._three_flows(tmp_path)
+        wts = wts[:2]
+        prs = [_pr(325, "I-1-tests-a/P-1/E-1/_"), _pr(327, "I-2-tests-b/P-1/E-1/_")]
+        wts[0].execution_branch, wts[1].execution_branch = prs[0].head_ref_name, prs[1].head_ref_name
+        rows = bean_progress.build_in_flight_rows(beans, intents, wts, prs, {}, now=NOW)
+        assert [r.bean_nums for r in rows] == [["0405"], ["0405"]]
+        assert {r.slug for r in rows} == {"tests-a", "tests-b"}
+        assert sorted("#325" in r.pr_ci or "#327" in r.pr_ci for r in rows) == [True, True]
+        text = bean_progress.render_markdown_table(rows)
+        assert "- **0405** `tests-a`" in text and "- **0405** `tests-b`" in text
+
+    def test_live_concurrent_flow_is_never_a_stale_attempt(self, tmp_path: Path) -> None:
+        beans, intents, wts = self._three_flows(tmp_path)
+        live = {str(w.path): _live(w, i + 1, w.slug) for i, w in enumerate(wts)}
+        rows = bean_progress.build_in_flight_rows(beans, intents, wts, [], live, now=NOW)
+        assert len(rows) == 3
+        assert all("stale attempt" not in r.notes_cell() for r in rows)
+        assert [r.source for r in rows] == sorted(r.source for r in rows)  # adjacent, deterministic
+
+    def test_dead_idle_attempt_still_collapses_into_stale_note(self, tmp_path: Path) -> None:
+        beans, intents, wts = self._three_flows(tmp_path)
+        live = {str(wts[0].path): _live(wts[0], 1, wts[0].slug)}
+        rows = bean_progress.build_in_flight_rows(beans, intents, wts, [], live, now=NOW)
+        assert len(rows) == 1
+        assert rows[0].notes_cell().count("stale attempt") == 2
+
+    def test_merged_pr_pending_post_merge(self, tmp_path: Path) -> None:
+        beans = self._beans(tmp_path, ["0404", "0419"])
+        intents = [bean_progress.IntentMapping(tmp_path / "a.json", "done-flow", ["0404"], "done-flow")]
+        head = "I-3-done-flow/P-1/E-1/_"
+        wts = [_wt(tmp_path, "flow-done-flow", "done-flow", execution_branch=head, current_stage="calibrate")]
+        merged = [_closed(321, head, "MERGED"), _closed(330, "I-9-x/bean-0419/_", "MERGED")]
+        rows = bean_progress.build_in_flight_rows(beans, intents, wts, [], {}, now=NOW, closed_prs=merged)
+        by_bean = {r.bean_nums[0]: r for r in rows}
+        assert by_bean["0404"].stage == bean_progress.MERGED_STAGE
+        assert "#321" in by_bean["0404"].pr_ci and "merged" in by_bean["0404"].pr_ci
+        assert by_bean["0419"].stage == bean_progress.MERGED_STAGE  # no flow at all, found by bean number
+        assert "post-pr-merge" in by_bean["0419"].notes_cell()
+
+    def test_closed_pr_with_dead_runner_and_completed_bean_omitted(self, tmp_path: Path) -> None:
+        beans = self._beans(tmp_path, ["0404"])
+        intents = [bean_progress.IntentMapping(tmp_path / "a.json", "gone", ["0404"], "gone")]
+        wts = [_wt(tmp_path, "flow-gone", "gone")]
+        closed = [_closed(7, "I-4-gone/P-1/E-1/_", "CLOSED")]
+        (row,) = bean_progress.build_in_flight_rows(beans, intents, wts, [], {}, now=NOW, closed_prs=closed)
+        assert row.stage == bean_progress.CLOSED_STAGE
+        beans["0404"].status = "completed"
+        assert bean_progress.build_in_flight_rows(beans, intents, wts, [], {}, now=NOW, closed_prs=closed) == []
+
+    def test_non_flow_worktree_is_ignored(self, tmp_path: Path) -> None:
+        app = tmp_path / "apps" / "holon-agentic-coder"
+        (app / "main").mkdir(parents=True)
+        (app / "audit-tmp").mkdir()
+        (app / "flow-real").mkdir()
+        (app / "other" / ".holon" / "flow").mkdir(parents=True)
+        (app / "other" / ".holon" / "flow" / "checkpoint-other.json").write_text("{}", encoding="utf-8")
+        repo = bean_progress.RepoTarget("HAC", app, True)
+        names = {w.dir_name for w in bean_progress.scan_worktrees([repo])}
+        assert names == {"flow-real", "other"}
+
+    def test_decomposed_flow_shows_child_n_of_m_and_child_prs(self, tmp_path: Path) -> None:
+        beans = self._beans(tmp_path, ["0201"])
+        intents = [bean_progress.IntentMapping(tmp_path / "s.json", "big", ["0201"], "big")]
+        root = "I-100-big"
+        child = f"{root}/P-5-CLA--4-route-ci/P-6/E-7/_"
+        children = [{"index": i, "slug": f"c{i}", "pr_number": 310 + i, "merged": i < 4} for i in range(1, 6)]
+        wts = [_wt(tmp_path, "flow-big", "big", execution_branch=child, intent_branch=f"{root}/P-5-CLA--4-route-ci/_")]
+        wts[0].children = children
+        prs = [_pr(340, child)]
+        (row,) = bean_progress.build_in_flight_rows(beans, intents, wts, prs, {}, now=NOW)
+        assert row.stage == "Stage 3 (child 4 of 5: route-ci)"
+        assert "#340" in row.pr_ci and "merged #311 #312 #313" in row.pr_ci
+        # parent PR into main, once it exists, is shown instead of the child PR
+        parent = _pr(350, f"{root}/P-5/_")
+        (row2,) = bean_progress.build_in_flight_rows(beans, intents, wts, [prs[0], parent], {}, now=NOW)
+        assert "#350" in row2.pr_ci
+        # unknown count -> "child N"
+        wts[0].children = []
+        (row3,) = bean_progress.build_in_flight_rows(beans, intents, wts, [], {}, now=NOW)
+        assert row3.stage == "Stage 3 (child 4: route-ci)"

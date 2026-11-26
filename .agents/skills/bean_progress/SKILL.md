@@ -82,8 +82,36 @@ for the full fields.
 | `Last Activity` | What the flow is doing or last did: the live role container (`now: review iter 2 running`), then the newest of the worktree's HEAD commit (`commit 2m ago: <subject>`; role agents commit step by step, so this is the closest thing to live work progress) and the last line of the latest checkpoint's flow log (`checkpoint 8m ago: execute: ok (...)`)                              |
 | `Notes`         | Live state first (`live · 31m (PID, session)`, or `idle`), then blockers, warnings, stale attempts                                                                                                                                                                                                                                                                                      |
 
-Rows are merged per bean: when several attempts exist (for example a stale first-attempt worktree plus a live `-v2`
-flow), the live or most-advanced attempt is shown and the others are listed in Notes as `stale attempt ...`.
+**One row per live flow or PR.** A bean with several concurrent flows (for example three test batches of one bean, each
+with its own PR) gets one row each: the same `Bean #` repeated, rows adjacent, and in the notes list each line is
+prefixed with the flow slug. A flow whose runner is live, or that has an open (or merged/closed) PR, is never labelled a
+stale attempt. Only a dead attempt with no runner and no PR (for example a first-attempt worktree next to a live `-v2`
+flow) is folded into the best row's Notes as `stale attempt ...`. A bean with no flow keeps its single row.
+
+Only `flow-*` worktrees, or worktrees holding a `.holon/flow` checkpoint, count as flows; any other worktree (such as a
+temporary audit worktree) is ignored.
+
+### Split (decomposed) flows
+
+When a plan was decomposed into child sub-intents (child branches `I-<ts>-<slug>/P-...--N-<child-slug>/...`, child PRs
+merged into the parent plan branch, one parent PR into main), the parent flow is one row. Stage reads
+`Stage 3 (child 4 of 5: <child-slug>)` (the active child's real stage; a non-generic sub-state follows a semicolon, e.g.
+`Stage 4 (child 4 of 5: <child-slug>; Review iter 2)`). M comes from the parent checkpoint's `children_progress`; when
+it is unknown the cell reads `child 4: <child-slug>`. `PR & CI` shows the active child's open PR followed by
+`merged #316 #318 #320` for the child PRs already merged; once the parent PR into main exists it is shown instead of the
+child PR.
+
+### Stale rows
+
+| Row shows                                                 | Meaning                                                              | Act                                                                                      |
+| :-------------------------------------------------------- | :------------------------------------------------------------------- | :--------------------------------------------------------------------------------------- |
+| Stage `Merged — post-merge pending`, PR cell `#n merged`  | PR is MERGED on GitHub (read via `gh`) but the bean is not completed | Run the `post-pr-merge` skill; the row disappears once the bean is completed             |
+| Stage `PR closed — dead worktree`                         | Flow PR was closed unmerged and no runner is live                    | Decide: re-run the flow or scrap the bean; then `clean_branches` removes the worktree    |
+| Stage `Stage 3 (Blocked: ...; blocker gone, not resumed)` | Blockers merged or vanished, no runner resumed the flow              | Park or backfill (see `.agents/coordination.md`); resume the flow if it should still run |
+| `stale attempt ...` in Notes                              | An earlier attempt of the same bean with no runner and no PR         | Ignore it; remove with `clean_branches`                                                  |
+| `idle` with a Stage but no PR for long                    | Runner died mid-flow                                                 | Resume or investigate the flow                                                           |
+
+A merged PR with a completed bean never appears (completed beans are always excluded).
 
 ### Mapping rules
 

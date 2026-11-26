@@ -211,3 +211,18 @@ Measured on main `412bed21` (report: `todo/test-suite-audit-2026-11-26.md`, raw 
 - Batch 5 flow started 2026-11-26 (intent `todo/intent-0405-tests-cpu-bound-redaction-ledger.json`, worktree
   `flow-tests-cpu-bound-redaction-ledger`, claude-agent / claude-opus-5-5, `--no-wait-on-overlap`, log
   `todo/flow-tests-cpu-bound-redaction-ledger.log`).
+- Batch 1 outcome (2026-11-26 09:19): flow completed all 5 stages, PR #325
+  (`I-1795676983-tests-constant-time-tmp-dirs/...`), MERGEABLE/CLEAN at the wrapper exit, 3/3 ensemble consensus
+  APPROVED (one review iteration with two findings, fixed), calibration
+  `plans/I-1795676983-tests-constant-time-tmp-dirs/P-1795677012-CLA-CO5.5_calibration.md` in the PR diff. Left for the
+  maintainer to merge.
+- Saving, measured by the flow on a shared Linux container: empty-test run 2.5x faster (5x required), median unit test
+  1.5x at `-n 2` and 1.14x at `-n 3` (3x required). The acceptance thresholds are NOT met; the flow did not claim them.
+  Full-suite figures are noisy (load average 7 to 33).
+- CI on the execution head 68fc39e4: `unit (ubuntu-latest)` 169 s and `unit (macos-latest)` 506 s for the
+  `Run unit tests` step, against 185 to 220 s and 537 to 621 s on two main runs (45786178112, 45785970686). Two baseline
+  runs only, so the saving is indicative, not measured to the 40 s / 38 s claimed.
+- The final PR head 205da7f6 (calibration commit only) skipped the unit steps (bookkeeping-only push, bean 0403), so the
+  green unit check there is the 68fc39e4 run. The PR body is the auto-generated summary and lacks the before/after CI
+  comparison the intent asks for.
+- Bug from this batch: bean 0501 (wrapper log stays empty until exit).
