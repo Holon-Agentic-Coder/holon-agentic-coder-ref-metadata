@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0407
 title: "The full review ensemble is re-run when nothing reviewable changed"
-status: in-progress
+status: completed
 type: feature
 priority: critical
 tags:
@@ -11,7 +11,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T10:55:00Z
-updated_at: 2026-11-26T05:25:00Z
+updated_at: 2026-11-26T13:06:00Z
 ---
 
 ## Why
@@ -321,3 +321,37 @@ Nit fixes (point 4) would save about 10 min per Nit-only iteration.
   parent branch). Parent PR #334 into main: 3/3 APPROVED (Stage 4 at restart 1 of 3), calibration committed and in the
   PR diff, hygiene passing, MERGEABLE/CLEAN at head 3a93c72e at 12:12Z. Maintainer merge pending. Bugs logged:
   bean 0513.
+
+## Resolution
+
+Delivered via [PR #334](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/334) (decomposed parent of flow
+`no-unneeded-full-review`) and merged into `main` (`20687d43`). The five child pull requests merged into the parent's
+plan branch first:
+
+- **[PR #316](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/316)** (`b123517b`): approval keyed to the
+  PR's reviewable own diff (shared bookkeeping path filter). A merge of `main` or bookkeeping commits no longer
+  withdraws an approval (goal 1).
+- **[PR #318](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/318)** (`108d0da6`): split verdict. Stage
+  4 records `consensus_on_diff` and `pipeline_green` separately; losing one does not erase the other (goal 5).
+- **[PR #322](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/322)** (`8f284d07`): scoped delta review
+  (new `flow/review/delta_review.py`). After a resolver fix, a resolved code conflict or a test fix, only the delta and
+  the findings it answers are reviewed; unchanged reviewed code is not re-reviewed (goal 4).
+- **[PR #324](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/324)** (`22b72b60`): post-approval CI
+  routing by failure class. Noise (timing gate, runner or infrastructure, cancelled) is rerun with the approval
+  standing; a real failing test goes to the resolver, and only its fix is reviewed (goal 2).
+- **[PR #328](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/328)** (`d047a533`): scope and count
+  reporting. Each flow summary and calibration report counts full reviews, scoped reviews, pipeline runs, reruns and
+  non-defect churn (goal 6).
+- **Parent [PR #334](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/334)**: the children were merged
+  into its branch; the parent itself was approved 3/3 at its restart 1 and merged. A budget breach in `sandbox_executor`
+  was fixed by moving code into new modules; no budget override was changed (`holon-config/hygiene/module_budgets.json`
+  is byte-identical between the pre- and post-merge `main`).
+
+Verification: the parent was MERGEABLE/CLEAN with hygiene passing at head 3a93c72e before merge (flow log);
+`install-holon` rebuilt the images and reinstalled `holon` and `holon-coherence` after the merge (review loop and engine
+code changed). Flow `no-unneeded-full-review` was decomposed into five children and ran from 04:06Z to 12:12Z
+(claude-agent, claude-opus-5-5). Bean 0407's own Stage 3 admission and scope issues were tracked separately in Beans
+0414, 0446 and 0508.
+
+Holon Flow Traversal: Intent, Plan (decomposed into five children), Execute, Review Loop (split verdict, scoped delta
+review, post-approval CI routing) and Calibration completed for the parent and all five children.

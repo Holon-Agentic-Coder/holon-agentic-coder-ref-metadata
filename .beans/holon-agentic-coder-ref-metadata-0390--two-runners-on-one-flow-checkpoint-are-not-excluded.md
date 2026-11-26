@@ -70,3 +70,7 @@ reason in its log.
   (`I-1795665991-no-unneeded-full-review`, flow worktree `flow-no-unneeded-full-review`) on
   `apps/sandbox-executor/tests/flow/conftest.py`. Parked again; checkpoint kept (stage execute), no runner live. Resume
   with `--checkpoint` once PR #334 merges or releases conftest.py.
+
+- resumed 2026-11-26 13:03Z from checkpoint (stage execute, `--checkpoint`, claude-agent / claude-opus-5-5): PR #334
+  (the blocker) merged at 13:01Z, so the conftest.py overlap is released. Flow running; log
+  `todo/flow-single-runner-per-checkpoint.log`.
