@@ -92,3 +92,8 @@ improvements, comprehensive timing around all the steps are to be done").
 
 The main agent passes the ranked suggestions to the maintainer and regenerates the triage matrix. It does not start work
 on a suggestion without the usual priority order or the maintainer's word.
+
+## Coordinator failure ledger
+
+The audit also reads `.agents/ledger/coordinator-failures.jsonl` and flags repeats (the same category recurring, or a
+rule already recorded being broken again) as high-priority beans.

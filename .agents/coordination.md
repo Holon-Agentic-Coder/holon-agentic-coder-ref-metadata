@@ -174,3 +174,13 @@ The rule:
 - **Keep the main thread for coordination** (maintainer, 2026-11-24): diagnosing failures, measuring, reading across
   several files and editing or testing harness code go to subagents on the lowest tier that fits. Inline only: status
   checks, briefing subagents, single small edits and replies.
+
+### 8. Coordinator failure ledger
+
+`.agents/ledger/coordinator-failures.jsonl` records the coordinator's own mistakes (maintainer, 2026-11-27); the target
+repositories' ledgers stay for flows and never reference harness paths. It is append-only, one JSON object per line;
+corrections are new lines with `supersedes`. Fields: `id` (`CF-0001`...), `created_at` (ISO UTC), `session_date`,
+`category` (brief, readiness-check, overlap-scheduling, intent-scope, measurement, conflict-handling, bookkeeping,
+verification), `failure`, `my_part`, `cost`, `rule`, `refs`. Append an entry for every halt, park, wasted run, false
+readiness or wrong brief before moving on. Check every brief, readiness check and launch against its rules. Validate
+with `uv run python .agents/scripts/check_failure_ledger.py`.

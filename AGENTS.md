@@ -65,6 +65,9 @@ These apply to every task. Each links to the file that holds the full rule.
   another flow's PR) does not hold a slot: park it, backfill at once, and resume parked flows from their checkpoint
   ahead of new beans (maintainer, 2026-11-26). See [coordination.md](.agents/coordination.md) and
   [pr-merging.md](.agents/pr-merging.md).
+- **Coordinator failure ledger**: every coordinator failure (halt, park, wasted run, false readiness, wrong brief) is
+  appended to [.agents/ledger/coordinator-failures.jsonl](.agents/ledger/coordinator-failures.jsonl) with its preventive
+  rule before moving on (maintainer, 2026-11-27). See [coordination.md](.agents/coordination.md).
 - **Self-improvement audit**: at the start of every session and after every fifth merge, a dedicated subagent runs a
   comprehensive audit for self-improvement (pipeline, flow, coding standards, architecture standards, harness) and logs
   one bean per suggestion; the brief says plainly that it is a self-improvement audit (maintainer, 2026-11-24). See
@@ -78,10 +81,13 @@ These apply to every task. Each links to the file that holds the full rule.
    `apps/holon-coherence/` is missing, follow the checkout steps in [README.md](README.md).
 2. **Run the self-improvement audit**: spawn the audit subagent described in
    [.agents/self-improvement-audit.md](.agents/self-improvement-audit.md) and carry on; do not wait for it.
-3. **Pick up a task**: list [.beans/](.beans/) for your assignment, or log a new bean if none exists.
-4. **Load constraints**: [.agents/rules.md](.agents/rules.md), then the task lifecycle in
+3. **Read the coordinator failure ledger**: read
+   [.agents/ledger/coordinator-failures.jsonl](.agents/ledger/coordinator-failures.jsonl) and apply its rules to every
+   brief, readiness check and launch.
+4. **Pick up a task**: list [.beans/](.beans/) for your assignment, or log a new bean if none exists.
+5. **Load constraints**: [.agents/rules.md](.agents/rules.md), then the task lifecycle in
    [.agents/workflows.md](.agents/workflows.md).
-5. **Report**: summarise changes concisely and point to the updated files.
+6. **Report**: summarise changes concisely and point to the updated files.
 
 ---
 
