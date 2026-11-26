@@ -91,3 +91,9 @@ claude-opus-5-5, log `todo/flow-module-budget-default-350.log`, intent `todo/int
 I-1795665991-no-unneeded-full-review, on apps/sandbox-executor/src/sandbox_executor/budgets.py); flow
 `module-budget-default-350` kept its worktree `flow-module-budget-default-350` and checkpoint; resume from checkpoint
 (--checkpoint, never relaunch without it) once that flow merges or releases budgets.py.
+
+- 2026-11-26T12:10Z: PR #335 merged to `main` (`f0d6c56d`).
+  `apps/sandbox-executor/src/sandbox_executor/flow/github/ci_final_head.py` is now 368 lines (wc -l on `main`), above
+  the step-2 default of 350. Add it to the step-2 split set (`module-budget-default-350`, parked; resume from
+  checkpoint). The step-2 set on `main` is then: `knowledge/wisdom.py` 353, `sandbox_executor/budgets.py` 359,
+  `flow/git_refs.py` 380, `cli/commands/flow.py` 398, `flow/github/ci_final_head.py` 368.

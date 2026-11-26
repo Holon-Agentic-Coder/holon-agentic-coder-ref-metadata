@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0436
 title: "Sort the three ledgers into chronological order once, and keep them sorted"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - conflicts
   - holon-agentic-coder
 created_at: 2026-11-24T23:15:00Z
-updated_at: 2026-11-24T23:15:00Z
+updated_at: 2026-11-26T12:05:00Z
 ---
 
 ## Why
@@ -69,3 +69,8 @@ long as the base is unsorted, the rule "interleave by `created_at`" and the rule
 - Progress (2026-11-25): `resolve_known.py` now appends: main's ledger file is kept byte for byte and only the branch's
   new rows are appended, sorted by `created_at` (UTC, `Z` or `+00:00`); the flow prompt string was reworded to match;
   tests in `tests/test_resolve_known.py`.
+
+- Flow started 2026-11-26T12:04Z: `ledgers-sorted-chronologically` (intent
+  `todo/intent-0436-ledgers-sorted-chronologically.json`, log `todo/flow-ledgers-sorted-chronologically.log`,
+  claude-agent / claude-opus-5-5). Scope: normalise script, three canonical ledgers, three reconcilers; writers left out
+  (follow-up).

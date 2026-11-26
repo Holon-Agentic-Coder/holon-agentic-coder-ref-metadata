@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0510
 title: "Main-push CI re-runs every workflow for merges whose tree the PR head already tested"
-status: in-progress
+status: completed
 type: task
 priority: medium
 tags:
@@ -9,7 +9,7 @@ tags:
   - pipeline
   - holon-agentic-coder
 created_at: 2026-11-26T10:50:00Z
-updated_at: 2026-11-26T10:50:00Z
+updated_at: 2026-11-26T12:10:00Z
 ---
 
 ## Problem
@@ -36,3 +36,18 @@ interaction between two merges is only caught on the next PR, so keep one schedu
 
 - In progress (2026-11-26): flow main-push-ci-skip-tested-tree (claude-agent, claude-opus-5-5), log
   todo/flow-main-push-ci-skip-tested-tree.log.
+
+## Resolution
+
+Delivered via [PR #337](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/337) and merged into `main`
+(`762642ab`):
+
+- **Key Architectural Deliverables**: on `push` to `main`, the unit and Workspace survival jobs skip their expensive
+  steps when the pushed tree equals the merged PR head's tree and the same job already succeeded on that head (new
+  `scripts/ci_main_push_gate.py`, rule `main-push-tested-tree`). Every other case runs the full job. The unit and stress
+  workflows gain a daily scheduled run. No write permission was added.
+- **Verification & Tests**: `tests/test_ci_main_push_gate.py`, `tests/test_ci_bookkeeping_chain.py`,
+  `tests/test_ci_bookkeeping_wiring.py`.
+- **Holon Flow Traversal**: flow `main-push-ci-skip-tested-tree` completed all 5 stages.
+- **Watch**: on the first main pushes, confirm that the tree-already-tested skip appears for a squash merge of an
+  up-to-date head, and that a push after `main` moved still runs the full jobs.

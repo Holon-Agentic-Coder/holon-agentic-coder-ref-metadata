@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0462
 title: "Epoch-second stage and plan IDs collide across concurrent flows"
-status: todo
+status: in-progress
 type: bug
 priority: normal
 tags:
@@ -11,7 +11,7 @@ tags:
   - concurrency
   - holon-agentic-coder
 created_at: 2026-11-25T06:05:00Z
-updated_at: 2026-11-25T06:05:00Z
+updated_at: 2026-11-26T11:53:00Z
 ---
 
 # Epoch-second stage and plan IDs collide across concurrent flows
@@ -72,3 +72,9 @@ Small: reuse existing `build_stage_disambiguator` helper across 4 ID constructio
 - Target repo change through `holon flow` (`holon-agentic-coder`).
 - Related: Bean `0278` (completed for `build_review_id`), Bean `0371` (per-flow pending ledger fragments keyed by root
   intent id).
+
+## Flow (2026-11-26)
+
+In progress via flow `plan-id-unique-across-flows` (claude-agent, claude-opus-5-5), narrowed to plan-id uniqueness; the
+`REV-ITR-*` and `CAL-*` sites in `flow/review/loop.py` and `calibration.py` are left for a follow-up once those files
+are free of live flows.

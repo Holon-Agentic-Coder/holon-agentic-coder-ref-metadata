@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0484
 title: "An untracked plans/I-*/ directory from an earlier attempt makes the planner refuse the workspace as uncommitted"
-status: in-progress
+status: completed
 type: bug
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - planner
   - worktree
 created_at: 2026-11-26T06:00:00Z
-updated_at: 2026-11-26T11:13:00Z
+updated_at: 2026-11-26T12:10:00Z
 ---
 
 ## Problem
@@ -44,3 +44,15 @@ Pick one, or both:
 
 - In progress (2026-11-26): flow `planner-ignores-aborted-plan-dir` (claude-agent, claude-opus-5-5); scope
   `entrypoint/execution_workspace.py` plus a new test file.
+
+## Resolution
+
+Delivered via [PR #339](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/339) and merged into `main`
+(`8ef1bfba`):
+
+- **Key Architectural Deliverables**: `validate_mounted_workspace` (`entrypoint/execution_workspace.py`) no longer
+  counts untracked files under the engine-owned `plans/I-*/` directory as uncommitted changes. Every other uncommitted
+  change is still refused with the same message.
+- **Verification & Tests**: `tests/test_execution_workspace_untracked_plans.py`.
+- **Holon Flow Traversal**: flow `planner-ignores-aborted-plan-dir` completed all 5 stages. Its worktree and `I-*`
+  branches were removed locally and on origin.

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0401
 title: "The CI registration wait ends unknown when the pull request head lags the pushed head"
-status: in-progress
+status: completed
 type: bug
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - stage-5
   - holon-agentic-coder
 created_at: 2026-11-24T08:30:00Z
-updated_at: 2026-11-24T08:30:00Z
+updated_at: 2026-11-26T12:10:00Z
 ---
 
 ## Problem
@@ -40,3 +40,18 @@ three minutes for nothing.
   todo/intent-0401-ci-final-head-wait-on-pushed-commit.json, log todo/flow-ci-final-head-wait-on-pushed-commit.log).
 - 2026-11-26: PR #335 open, review approved 3/3, Stage 5 calibration included, MERGEABLE/CLEAN; awaiting maintainer
   merge.
+
+## Resolution
+
+Delivered via [PR #335](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/335) and merged into `main`
+(`f0d6c56d`):
+
+- **Key Architectural Deliverables**: the final-head check in `flow/github/ci_final_head.py` probes the check runs of
+  the pushed commit itself instead of waiting for the pull request head to catch up. When no checks have registered, it
+  retries once with a fresh read; the unknown reason names which case occurred. An unknown result is reported at once as
+  a failure to verify.
+- **Verification & Tests**: `tests/flow/github/test_ci_final_head_registration.py`,
+  `tests/test_calibrate_final_head_ci.py`.
+- **Holon Flow Traversal**: flow `ci-final-head-wait-on-pushed` completed all 5 stages (review 3/3 approved, calibration
+  included). Flow worktree and its `I-*` branches removed locally and on origin.
+- **Follow-up**: `ci_final_head.py` is 368 lines on `main`, over the 350 step-2 budget; bean 0489 records it.

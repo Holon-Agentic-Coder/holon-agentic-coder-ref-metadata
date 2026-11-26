@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0431
 title: "The Claude token is visible in the process listing of a role container"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - sandbox
   - holon-agentic-coder
 created_at: 2026-11-24T15:55:00Z
-updated_at: 2026-11-26T11:15:00Z
+updated_at: 2026-11-26T12:10:00Z
 ---
 
 ## Problem
@@ -51,3 +51,18 @@ next leak in the chain: the token is handed to the container in a way that puts 
 
 In progress 2026-11-26: flow settings-token-off-argv (claude-agent, claude-opus-5-5) moves inline settings JSON carrying
 the token into a private temp file so it leaves argv. Same defect as 0471.
+
+PR #338 open 2026-11-26: 3/3 approved (4 iterations), calibrated, MERGEABLE/CLEAN, 11 checks green; awaiting maintainer
+merge. Rotate the exposed token after merge.
+
+## Resolution
+
+Delivered via [PR #338](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/338) and merged into `main`
+(`5440e923`), the same fix as bean 0471: the claude runner passes the settings file path, never the token-bearing JSON,
+on the command line.
+
+- **Echo padding**: reviewed and kept as is by the PR (the settings content keeps its padding entry).
+- **Scope note**: `preflight.py`, `preflight_secret_args.py` and `test_preflight.py` were changed outside the intent
+  scope.
+- **ACTION FOR THE MAINTAINER**: rotate the Claude OAuth token now that the fix is merged; the exposure observed on
+  2026-11-24 and 2026-11-26 is not closed until it is rotated.

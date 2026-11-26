@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0444
 title: "Stage 5 calibrate_sync._fetch_execution_branch fails on transient SSH error without retry"
-status: todo
+status: in-progress
 type: bug
 priority: normal
 tags:
@@ -11,7 +11,7 @@ tags:
   - git
   - holon-agentic-coder
 created_at: 2026-11-25T03:08:00Z
-updated_at: 2026-11-25T03:08:00Z
+updated_at: 2026-11-26T11:47:00Z
 ---
 
 ## Problem
@@ -55,3 +55,10 @@ Small: tiny retry wrapper in `calibrate_sync.py` + unit test, delivered via the 
 
 - Target repo change through the Holon flow (`holon-agentic-coder`).
 - Related: Bean `0424` (Stage 4 transient DNS/Docker retries), Bean `0393` (preflight retry).
+
+## Flow
+
+In progress 2026-11-26: flow `fetch-execution-branch-retry` (intent
+`todo/intent-0444-fetch-execution-branch-retry.json`, log `todo/flow-fetch-execution-branch-retry.log`). Scope:
+`flow/calibrate_sync.py` (the bean's `stages/calibrate.py` path is stale), new `flow/calibrate_fetch_retry.py`, new test
+file.

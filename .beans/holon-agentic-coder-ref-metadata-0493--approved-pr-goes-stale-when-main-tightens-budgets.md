@@ -28,3 +28,7 @@ old base. Nothing in the flow or the harness flagged them; the coordinator first
   the flow from review for each PR that fails.
 - The `post-pr-merge` skill lists open PRs that the merge makes stale and resyncs them.
 - Long term: CI requires the PR branch to be up to date with `main` for hygiene, or runs a merge-queue style check.
+
+- 2026-11-26T12:10Z: after #335, #337, #338, #339 merged, re-checked open PRs #334, #340, #341 and the parked flow
+  worktrees against `main` (merge-tree and budget limits): no conflicts; no source module over its limit. #334 adds test
+  modules over 400 lines (tests are not budgeted).
