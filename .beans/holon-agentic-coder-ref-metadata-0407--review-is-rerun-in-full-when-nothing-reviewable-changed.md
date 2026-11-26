@@ -316,3 +316,8 @@ iterations; 8 of them were blocked by Nits only (no Critical, no Important, no C
 10.8 min (reviewers 3.9, host `review_local` 2.3, resolver 4.5) and forces a further full approving iteration that is
 bound by CI (about 9.5 min). Median 3 iterations per flow (max 9 on #308, 8 on #310). A scoped check of the resolver's
 Nit fixes (point 4) would save about 10 min per Nit-only iteration.
+
+- 2026-11-26 11:30-12:12Z: flow finished. Decomposed into 5 child PRs (#316, #318, #322, #324, #328; all merged into the
+  parent branch). Parent PR #334 into main: 3/3 APPROVED (Stage 4 at restart 1 of 3), calibration committed and in the
+  PR diff, hygiene passing, MERGEABLE/CLEAN at head 3a93c72e at 12:12Z. Maintainer merge pending. Bugs logged:
+  bean 0513.

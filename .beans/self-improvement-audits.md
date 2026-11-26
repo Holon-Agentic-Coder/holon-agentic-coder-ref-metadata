@@ -5,6 +5,32 @@ first.
 
 ## Entries
 
+### 2026-11-26T12:20:00Z — Fifth-Merge Audit
+
+- **Trigger:** fifth merge (`holon-agentic-coder` #332 `10:55:07Z`, #333 `10:51:16Z`, #336 `11:34:34Z`, #335
+  `12:04:42Z`, #339 `12:05:00Z`, #337 and #338 `12:06:00Z`).
+- **Last merged pull requests at audit time:** `Holon-Agentic-Coder/holon-agentic-coder#338` (`settings-token-off-argv`,
+  merged `2026-11-26T12:06:00Z`); `holon-coherence#56` unchanged.
+- **Inputs:** `gh run list` and job logs for the 9 main pushes since 10:51Z, intent files against PR file lists (#332,
+  #333, #335 to #339), `todo/flow-no-unneeded-full-review.log`, admission lines of the flow logs of 11-26, bean 0436 and
+  its flow log.
+- **#333 per-SHA concurrency:** in order; no cancelled main run after 10:51Z, all 9 pushes completed green.
+- **#337 tree gate:** one main push since (`5440e92`), `decision=RUN rule=main-push-tree-mismatch`, full runs. Three
+  merges in 80 s each ran a full CI set (about 25 runner-minutes). Bean 0514.
+- **Scope escapes:** #332, #335, #337, #338 changed unlisted files; #333, #336, #339 exact; with the earlier audit 7 of
+  13 flows (bean 0508 extended, keep high). 0407 children lost about 67 min of discarded Stage 3 turns (bean 0414
+  extended).
+- **0407 decomposed flow (04:06Z to 11:43Z+):** per child 46, 84, 80, 91 and 87 min; 21 child review iterations (2, 4,
+  4, 6, 5) plus 4 parent, about 284 min of review; approval withdrawn at 11:29:45Z by a ledger-only head and Stage 4
+  restarted (bean 0513 extended with the table). Step-level times still not measured (0412, 0496).
+- **Backfill pickers:** none of the 11-26 flows parked on an overlap since 04:06Z (every Stage 3 admission read
+  "overlaps no flow in flight"); 5 flows plus `ledgers-sorted-chronologically` ran together. Risk of 0436 now running:
+  bean 0515.
+- **Beans created:** `0514` (coalesce a burst of main pushes), `0515` (ledger reorder lands against every merge,
+  resolvers undo it). **Extended:** `0508`, `0513`, `0414`.
+- **Examined and in order:** #333 concurrency; #337 gate fails safe (full run on mismatch, no error); #335 and #339
+  matched or nearly matched scope and were approved in few iterations.
+
 ### 2026-11-26T10:50:00Z — Fifth-Merge Audit
 
 - **Trigger:** fifth merge (`holon-agentic-coder` #325 `09:25:03Z`, #327 `09:38:33Z`, #326 `09:51:19Z`, #329

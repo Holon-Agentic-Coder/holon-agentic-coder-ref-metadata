@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0506
 title: "Prune the existing single-flow Stage 4 KB-failure clutter from holon-knowledge"
-status: todo
+status: in-progress
 type: task
 priority: medium
 tags:
@@ -11,6 +11,9 @@ tags:
 created_at: 2026-11-26T10:40:20Z
 updated_at: 2026-11-26T10:40:20Z
 ---
+
+Flow: prune-single-flow-kb-failures (todo/flow-prune-single-flow-kb-failures.log). Parked at Stage 4 on bean 0516
+(review prompt too long for a 2,923-path deletion PR).
 
 ## Problem
 

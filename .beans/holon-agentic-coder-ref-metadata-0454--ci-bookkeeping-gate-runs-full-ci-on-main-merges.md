@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0454
 title: "ci_bookkeeping_gate triggers full 7-workflow CI on mechanical Merge origin/main PR pushes"
-status: todo
+status: in-progress
 type: feature
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - merge-conflicts
   - holon-agentic-coder
 created_at: 2026-11-25T05:41:00Z
-updated_at: 2026-11-25T06:05:00Z
+updated_at: 2026-11-26T12:41:00Z
 ---
 
 # `ci_bookkeeping_gate` triggers full 7-workflow CI on mechanical `Merge origin/main` PR pushes
@@ -86,3 +86,8 @@ tests via `holon flow` (`holon-agentic-coder`).
   - `hac#305` (`f2787749`, `05:48:47Z..05:56:20Z`, **`7.55 min`**)
 - Meanwhile, all `5` merged PRs (`#300–#304`) were merged `55 s` to `8.18 min` before their PR-side `Merge origin/main`
   CI finished (and PRs `#306–#308` remain `CONFLICTING/DIRTY` pending additional sync cycles).
+
+## Flow (2026-11-26)
+
+Running as flow ci-skip-clean-main-merge-pushes (intent todo/intent-0454-ci-skip-clean-main-merge-pushes.json, log
+todo/flow-ci-skip-clean-main-merge-pushes.log).

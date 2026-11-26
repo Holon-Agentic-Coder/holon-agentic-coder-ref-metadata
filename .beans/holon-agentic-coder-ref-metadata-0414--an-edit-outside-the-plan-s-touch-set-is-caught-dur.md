@@ -91,3 +91,11 @@ executor turn discarded for a touch-set breach, then re-planned and executed aga
 Total 81 min (median 11.4 min per flow, 11 % of all active flow time): the second largest structural sink after the
 review loop. The kept executions took 3.9 to 5.0 min each, so the discarded turn usually costs 2 to 3 times the real
 work.
+
+## Update 2026-11-26T12:20Z (audit)
+
+Flow 0407 (PR #334): 4 of 5 children discarded a finished executor turn for out-of-touch-set files (15.6, 11.8, 26.0 and
+13.3 min, about 67 min, plus 3 re-plans of 2.5 to 3 min). The escapes were `flow/__init__.py` re-exports, an app README
+and a test fixture, always companions of a listed file. Classify these companions (re-export of a new public name,
+README of the touched app, fixture of a listed test) and accept them without a Stage 2 round trip; see 0508 for the
+intent-side fix.

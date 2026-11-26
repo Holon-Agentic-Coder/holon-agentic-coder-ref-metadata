@@ -11,7 +11,7 @@ tags:
   - concurrency
   - holon-agentic-coder
 created_at: 2026-11-25T06:05:00Z
-updated_at: 2026-11-26T11:53:00Z
+updated_at: 2026-11-26T13:02:11Z
 ---
 
 # Epoch-second stage and plan IDs collide across concurrent flows
@@ -78,3 +78,6 @@ Small: reuse existing `build_stage_disambiguator` helper across 4 ID constructio
 In progress via flow `plan-id-unique-across-flows` (claude-agent, claude-opus-5-5), narrowed to plan-id uniqueness; the
 `REV-ITR-*` and `CAL-*` sites in `flow/review/loop.py` and `calibration.py` are left for a follow-up once those files
 are free of live flows.
+
+Plan ids are now unique across flows: [PR #341](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/341)
+merged into `main` (`91c2afe`, 2026-11-26). Bean stays in-progress for the `REV-ITR-*` and `CAL-*` id follow-up.

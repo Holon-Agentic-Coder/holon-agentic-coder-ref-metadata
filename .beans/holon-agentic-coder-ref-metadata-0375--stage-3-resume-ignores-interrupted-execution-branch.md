@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0375
 title: "Stage 3 resume ignores an interrupted execution branch that has commits but no ledger row"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - resume
   - holon-agentic-coder
 created_at: 2026-11-23T07:36:00Z
-updated_at: 2026-11-24T13:00:00Z
+updated_at: 2026-11-26T12:45:00Z
 ---
 
 ## Problem
@@ -52,3 +52,8 @@ manually on the maintainer's instruction; bean 0174 restarted as a fresh `-v3` i
 
 - Overlap: Bean 0397 (resume adopts a completed, pushed execution branch) is the same resume lookup for the complete
   case. This bean owns the shared branch-adoption code.
+
+## Flow
+
+2026-11-26: flow `resume-adopts-unrecorded-branch` (claude-agent, claude-opus-5-5) started; log
+`todo/flow-resume-adopts-unrecorded-branch.log`.
