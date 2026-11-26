@@ -145,3 +145,13 @@ PR #346 (merged `aa085c3`) takes `scripts/ci_bookkeeping_api.py` to 383 lines (`
 default of 350. The parked step-2 plan was made before #346 and does not cover it. When step 2 resumes, its review loop
 will hit a hygiene failure on that file. The fix is to split it (move-only), not an override. Add it to the step-2 split
 set.
+
+- 2026-11-26T22:58Z: resumed: holon flow `module-budget-default-350` (step 2, default 350) from checkpoint (execute
+  stage), runner claude-agent / claude-opus-5-5, `--no-wait-on-overlap`, log `todo/flow-module-budget-default-350.log`.
+  PR #351 (blocker) merged; main contains 2f29d8c. Post-merge reinstall of holon finished (no install process live for
+  two checks). Module-budget-change label: required for CI on the PR, noted here, not applied by the agent.
+- 2026-11-26T22:59Z: parked again: Stage 3 admission refused on overlap with PR #357 (flow `self-explaining-code-gate`,
+  branch I-1795732927-self-explaining-code-gate/..., still open) on `scripts/pre_commit_check.py`. Worktree
+  `flow-module-budget-default-350` and checkpoint kept; resume from checkpoint (`--checkpoint`, never relaunch without
+  it) once PR #357 merges or releases `scripts/pre_commit_check.py`. PR #357 touches a file in this step's decomposition
+  set.
