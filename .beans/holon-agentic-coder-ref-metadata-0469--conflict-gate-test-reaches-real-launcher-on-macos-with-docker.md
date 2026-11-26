@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0469
 title: "test_conflict_gate code-conflict test reaches the real launcher and exits on macOS when docker is on PATH"
-status: in-progress
+status: completed
 type: bug
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - hermetic
   - macos
 created_at: 2026-11-25T23:10:00Z
-updated_at: 2026-11-25T23:10:00Z
+updated_at: 2026-11-26T22:35:00Z
 ---
 
 ## Problem
@@ -60,3 +60,19 @@ a144e65c) is green on ubuntu and macos.
 Launched 2026-11-27 as flow-conflict-gate-launcher-abort (claude-agent, claude-opus-5-5); intent
 todo/intent-0469-conflict-gate-launcher-abort.json. Scope: flow/conflict_resolver_role.py plus its two tests; the
 conftest guard from proposed fix 3 is left out.
+
+## Resolution
+
+Delivered via [PR #355](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/355) and merged into `main`
+(`c5435c1e`):
+
+- **Key Architectural Deliverables**: the conflict resolver role dispatch treats a `SystemExit` from the container
+  launcher as an `agent_failed` verdict (same as any other exception), so a launcher abort no longer kills the flow. The
+  code-conflict test replaces the role dispatch with a stub, so it never reaches the real launcher on a macOS host with
+  docker on PATH.
+- **Verification & Tests**: `test_conflict_gate.py` and `test_conflict_resolver_role.py` updated; passes on a macOS host
+  with docker on PATH and an empty home directory.
+- **Scope left out**: the conftest guard from proposed fix 3 (hermetic guard that fails fast on unmocked
+  `run_docker_container`) was not delivered here; it is left for the conftest split, bean 0540.
+- **Holon Flow Traversal**: flow `conflict-gate-launcher-abort` (intent, plan, execute, review, calibrate) completed;
+  the PR was merged by the maintainer.

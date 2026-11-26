@@ -3,7 +3,7 @@
 title:
   "Review-loop git identity overlays os.environ for the whole run, so the resolver's pre-push tests see the review-loop
   author"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -13,7 +13,7 @@ tags:
   - tests
   - holon-agentic-coder
 created_at: 2026-11-26T21:21Z
-updated_at: 2026-11-27T10:20Z
+updated_at: 2026-11-26T22:34Z
 ---
 
 ## Problem
@@ -69,3 +69,17 @@ review failed identically.
   (https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/354), 3/3 APPROVED at iteration 1 (approved head
   ffc6ec12), calibration report included in the PR diff (EV 63.44), MERGEABLE/CLEAN, all CI green. Awaiting the
   maintainer's merge; the bean closes after the post-merge step.
+
+## Resolution
+
+Delivered via [PR #354](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/354) and merged into `main`
+(`0ecd970`):
+
+- **Key Architectural Deliverables**: the review-loop identity is applied per git commit (`review_git_env()` in
+  `flow/review/git_identity.py`, used by the resolver's commit) instead of being overlaid on `os.environ` for the whole
+  run in `main()` (`entrypoint/review_loop.py`). The resolver's pre-push tests therefore keep the executor identity.
+- **Verification & Tests**: regression coverage in `tests/test_review_loop_git_identity.py`. Post-merge,
+  `test_review_loop_git_identity.py`, `test_executor_run_salvage.py` and `test_flow_repo_templates.py` passed in a
+  detached worktree off `origin/main` (25 passed).
+- **Holon Flow Traversal**: flow `review-identity-env-scope` completed all 5 stages. Stage 4 approved 3/3 at iteration 1
+  (approved head `ffc6ec12`), calibration included.
