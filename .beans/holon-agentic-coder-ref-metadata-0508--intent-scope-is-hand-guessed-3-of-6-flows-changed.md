@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0508
 title: "Intent scope is hand-guessed: 3 of 6 flows changed files they did not list"
-status: in-progress
+status: completed
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - scope
   - holon-agentic-coder
 created_at: 2026-11-26T10:50:00Z
-updated_at: 2026-11-26T14:23:00Z
+updated_at: 2026-11-26T21:05:39Z
 ---
 
 ## Flow
@@ -62,3 +62,11 @@ module), which the proposed `holon intent check` can list deterministically.
 ## Notes
 
 Related: 0492, 0502, 0414, 0481 (engine-side touch-set handling).
+
+## Resolution
+
+Delivered via [PR #348](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/348) and merged into `main`
+(`46a1185`): `holon intent-check <intent.json> [--target-worktree] [--json]` reports missing companion files
+(scope-graph imports and co-change), proposes companions, and warns about listed files no acceptance criterion names.
+Trial on intent 0540 ran clean. Pre-launch step added to `.agents/skills/holon_flow/SKILL.md`. Import-graph and
+co-change heuristics only; the planner's touch set (beans 0502 and 0541) is a separate check.

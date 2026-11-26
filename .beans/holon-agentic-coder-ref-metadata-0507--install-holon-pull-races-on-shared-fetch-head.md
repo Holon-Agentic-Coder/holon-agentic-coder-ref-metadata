@@ -10,7 +10,7 @@ tags:
   - post-merge
   - holon-agentic-coder
 created_at: 2026-11-26T10:40:20Z
-updated_at: 2026-11-26T10:40:20Z
+updated_at: 2026-11-26T21:05:39Z
 ---
 
 ## Problem
@@ -29,3 +29,14 @@ which points to a concurrent fetch from a running flow rewriting it mid-pull.
   `git merge --ff-only origin/main` after `git fetch origin main` (no `FETCH_HEAD` dependency on the pull's merge
   candidates).
 - Consider trimming `FETCH_HEAD` or running the pull with `--no-write-fetch-head` where supported.
+
+## Evidence (folded from bean 0542, 2026-11-26)
+
+- PR #342 merged (`57a8aa38`); the first `install_holon.py` run failed in `sync_git_worktree` at
+  `git pull --ff-only origin main` with "There are no candidates for merging among the refs that you just fetched",
+  although the main worktree was already at `origin/main` and clean. A manual pull printed "Already up to date"; a
+  second run completed all builds and CLI installs.
+- Cause still unconfirmed; both symptoms look like the shared `FETCH_HEAD` race above. Fix candidates are the same:
+  retry once, or `git fetch origin main` then `git merge --ff-only origin/main`.
+- Post-merge install for PR #348 (2026-11-26) ran clean on the first attempt, after the other install (#346) had
+  finished.

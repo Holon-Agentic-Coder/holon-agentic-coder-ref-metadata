@@ -1,14 +1,14 @@
 ---
 # holon-agentic-coder-ref-metadata-0542
 title: "install_holon sync step failed once with 'no candidates for merging', then passed unchanged"
-status: todo
+status: scrapped
 type: bug
 priority: normal
 tags:
   - harness
   - install
 created_at: 2026-11-26T20:59:53Z
-updated_at: 2026-11-26T20:59:53Z
+updated_at: 2026-11-26T21:05:39Z
 ---
 
 ## Problem
@@ -23,3 +23,8 @@ installs.
 
 Find why the pull can report no merge candidates right after a fetch (concurrent install, fetch race, or the
 `FETCH_HEAD` handling). Make the sync step retry or fail with the fetched state printed. Cause not confirmed.
+
+## Resolution
+
+Scrapped: duplicate of bean 0507 (same `install_holon` sync pull failure, `FETCH_HEAD`/"no candidates" race). Evidence
+appended to bean 0507.

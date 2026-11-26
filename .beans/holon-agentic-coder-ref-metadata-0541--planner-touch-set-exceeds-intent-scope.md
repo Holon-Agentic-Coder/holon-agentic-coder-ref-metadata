@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0541
 title: "Planner touch set exceeds the intent scope (no check between intent scope and plan touch set)"
-status: todo
+status: scrapped
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - admission
   - holon-agentic-coder
 created_at: 2026-11-26T14:28:39.444Z
-updated_at: 2026-11-26T14:28:39.444Z
+updated_at: 2026-11-26T21:05:39Z
 ---
 
 ## Problem
@@ -38,3 +38,7 @@ admission), so a scope-limited flow is not parked by an overlap its intent never
 ## Evidence
 
 Flow log: todo/flow-admission-remote-in-flight.log (Stage 3 refusal at 2026-11-26T14:28:21Z).
+
+## Resolution
+
+Scrapped: duplicate of bean 0502 (plan touch set exceeds intent scope). Evidence appended to bean 0502.

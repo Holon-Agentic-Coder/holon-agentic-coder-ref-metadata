@@ -11,7 +11,7 @@ tags:
   - review-loop
   - holon-agentic-coder
 created_at: 2026-11-26T13:06:00Z
-updated_at: 2026-11-26T13:06:00Z
+updated_at: 2026-11-26T21:06:00Z
 ---
 
 ## Problem
@@ -26,8 +26,14 @@ global identity (`~/.gitconfig`) is unaffected.
 
 ## Status
 
-in-progress 2026-11-27: flow review-loop-git-identity-env (intent todo/intent-0518-review-loop-git-identity-env.json,
-log todo/flow-review-loop-git-identity-env.log).
+Delivered via [PR #350](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/350) and merged into `main`
+(`cc1f256`, 2026-11-26T21:04:13Z): the review loop sets its identity per command and never writes the shared repository
+config. Flow `review-loop-git-identity-env` (intent todo/intent-0518-review-loop-git-identity-env.json, log
+todo/flow-review-loop-git-identity-env.log) cleaned up after the merge.
+
+Remaining step (bean stays in-progress, awaiting maintainer go-ahead): remove `user.name` and `user.email` (Holon Review
+Loop Agent) from the shared `apps/holon-agentic-coder/.git/config`. Not done by the agent; check first that no flow
+depends on them. install-holon was rerun after the merge.
 
 ## Proposed fix
 

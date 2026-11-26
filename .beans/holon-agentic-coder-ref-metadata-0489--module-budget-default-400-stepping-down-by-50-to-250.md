@@ -11,7 +11,7 @@ tags:
   - refactoring
   - holon-agentic-coder
 created_at: 2026-11-26T06:30:00Z
-updated_at: 2026-11-26T09:53:35Z
+updated_at: 2026-11-26T21:05:09Z
 blocked_by:
   - "0380"
 ---
@@ -127,3 +127,21 @@ After PR #347 split `calibration.py` into the `calibration/` package, `holon-con
 carries an override `calibration.py: 1608` for a file that no longer exists. Removing a dead override is a budget-file
 change, so it belongs to this bean's authorised schedule: drop it in the next budget step (step 2 if its plan can take
 it, otherwise step 3), and have the budget check flag overrides whose file is gone.
+
+- 2026-11-26T21:04Z: resumed: holon flow `module-budget-default-350` (step 2, default 350) from checkpoint (execute
+  stage), runner claude-agent / claude-opus-5-5, log `todo/flow-module-budget-default-350.log`. Blocker PR #349 merged
+  (2c865160, 2026-11-26T21:03:27Z); PR #346 merged (aa085c38). Module-budget-change label: required for CI on the PR;
+  noted here, not applied by the agent. Worktree was behind main (3e83fadc vs 2c865160); the flow engine owns any sync.
+- 2026-11-26T21:05Z: parked again: Stage 3 admission refused on overlap with local flow `single-runner-per-checkpoint`
+  (branch I-1795685390-single-runner-per-checkpoint/P-1795704471-CLA-CO5.5/_, worktree
+  flow-single-runner-per-checkpoint, still running) on apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports.py.
+  Worktree flow-module-budget-default-350 and checkpoint kept; resume from checkpoint (--checkpoint, never relaunch
+  without it) once that flow merges or releases lazy_exports.py. Also: wisdom.py overlap with #349 cleared (PR #349
+  merged 2026-11-26T21:03:27Z).
+
+## Note (post-merge of PR #346, 2026-11-26T21:05:09Z)
+
+PR #346 (merged `aa085c3`) takes `scripts/ci_bookkeeping_api.py` to 383 lines (`wc -l` on `main`), above the step-2
+default of 350. The parked step-2 plan was made before #346 and does not cover it. When step 2 resumes, its review loop
+will hit a hygiene failure on that file. The fix is to split it (move-only), not an override. Add it to the step-2 split
+set.

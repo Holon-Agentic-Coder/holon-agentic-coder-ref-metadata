@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0454
 title: "ci_bookkeeping_gate triggers full 7-workflow CI on mechanical Merge origin/main PR pushes"
-status: in-progress
+status: completed
 type: feature
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - merge-conflicts
   - holon-agentic-coder
 created_at: 2026-11-25T05:41:00Z
-updated_at: 2026-11-26T12:41:00Z
+updated_at: 2026-11-26T21:05:09Z
 ---
 
 # `ci_bookkeeping_gate` triggers full 7-workflow CI on mechanical `Merge origin/main` PR pushes
@@ -91,3 +91,22 @@ tests via `holon flow` (`holon-agentic-coder`).
 
 Running as flow ci-skip-clean-main-merge-pushes (intent todo/intent-0454-ci-skip-clean-main-merge-pushes.json, log
 todo/flow-ci-skip-clean-main-merge-pushes.log).
+
+## Resolution
+
+Delivered via [PR #346](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/346) and merged into `main`
+(`aa085c3`):
+
+- **Key Architectural Deliverables**: new `scripts/ci_merge_push_gate.py`, called from `decide()` in
+  `scripts/ci_bookkeeping_gate.py`. A synchronize push whose new head is a clean two-parent merge of the base into the
+  previous head skips the heavy jobs only on positive evidence (previous head green, merged-in base commit green on
+  `main`, merge result identical to git's, pull request files disjoint from base changes). Anything else, any API error
+  or any doubt runs the full job; the hygiene job always runs in full. `scripts/ci_bookkeeping_api.py` extended. Step 1
+  of the plan (bean 0371, ledger-only merge pushes) is completed.
+- **Verification & Tests**: hermetic `apps/sandbox-executor/tests/test_ci_merge_push_gate.py` plus wiring and gate test
+  updates.
+- **Holon Flow Traversal**: flow `ci-skip-clean-main-merge-pushes` ran Intent -> Plan -> Execute -> Review ->
+  Calibration (calibration report included in the pull request).
+- **Verification pending (live)**: the skip has not yet been observed on a live push. Watch the next `Merge origin/main`
+  push to an open pull request for the merge-push skip decision on the gate's output line, and confirm it skips only the
+  bookkeeping-clean case.
