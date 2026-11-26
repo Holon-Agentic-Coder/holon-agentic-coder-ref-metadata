@@ -69,13 +69,13 @@ These apply to every task. Each links to the file that holds the full rule.
 - **Format before commit**: `npx prettier --write "**/*.md"` in the harness; only changed files in a target worktree.
 - **Subagents** follow [subagents.md](.agents/subagents.md) and the model tiers in
   [model-tiers.md](.agents/model-tiers.md); post-merge steps run through the `post-pr-merge` skill.
-- **Flow concurrency & merge backfill**: up to **4 concurrent `holon-flow` background subagents** may run at once on
+- **Flow concurrency & merge backfill**: up to **8 concurrent `holon-flow` background subagents** may run at once on
   hosted runtimes (local runtimes stay at 1). Once a target-repo PR merges and `post-pr-merge` completes, automatically
   pick up and launch the next highest-priority ready bean (honouring `blocked_by`, solo-sweep rules, and disjoint touch
-  sets) to keep up to 4 flows running (maintainer, 2026-11-24). A blocked flow (Stage 3 overlap refusal or waiting on
-  another flow's PR) does not hold a slot: park it, backfill at once, and resume parked flows from their checkpoint
-  ahead of new beans (maintainer, 2026-11-26). See [coordination.md](.agents/coordination.md) and
-  [pr-merging.md](.agents/pr-merging.md).
+  sets) to keep up to 8 flows running (maintainer, 2026-11-24; raised from 4 to 8 on 2026-11-27 because flows run with
+  much less friction). A blocked flow (Stage 3 overlap refusal or waiting on another flow's PR) does not hold a slot:
+  park it, backfill at once, and resume parked flows from their checkpoint ahead of new beans (maintainer, 2026-11-26).
+  See [coordination.md](.agents/coordination.md) and [pr-merging.md](.agents/pr-merging.md).
 - **Coordinator failure ledger**: every coordinator failure (halt, park, wasted run, false readiness, wrong brief) is
   appended to [.agents/ledger/coordinator-failures.jsonl](.agents/ledger/coordinator-failures.jsonl) with its preventive
   rule before moving on (maintainer, 2026-11-27). See [coordination.md](.agents/coordination.md).

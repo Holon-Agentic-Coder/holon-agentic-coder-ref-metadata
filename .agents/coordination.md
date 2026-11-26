@@ -69,10 +69,10 @@ interactive session remains responsive:
   `send_message` **only once** upon terminal completion or an unresolvable blocker.
 - **Re-Entrancy Guard**: If the executing agent is already the spawned `Holon Flow Subagent`, it proceeds directly to
   flow execution without spawning another nested subagent.
-- **4-Flow Concurrency Cap & Merge Backfill (maintainer, 2026-11-24)**: On hosted runtimes, up to **4 concurrent
-  `holon-flow` background subagents** may run at once, each in its own dedicated `flow-<slug>` worktree and honouring
-  dependencies, solo-sweep rules, and disjoint touch sets. Once a target-repo PR merges, backfill open slots up to 4 by
-  launching the next highest-priority ready bean via `holon-flow`.
+- **8-Flow Concurrency Cap & Merge Backfill (maintainer, 2026-11-24; 8 since 2026-11-27)**: On hosted runtimes, up to
+  **8 concurrent `holon-flow` background subagents** may run at once, each in its own dedicated `flow-<slug>` worktree
+  and honouring dependencies, solo-sweep rules, and disjoint touch sets. Once a target-repo PR merges, backfill open
+  slots up to 8 by launching the next highest-priority ready bean via `holon-flow`.
   - **Slots must always be doing work (maintainer, 2026-11-26)**: only flows that are executing, reviewing or
     calibrating count toward the 4; check this on every progress report and after every merge.
   - **Park blocked flows**: a flow refused at Stage 3 admission on a touch-set overlap, or otherwise waiting on another
@@ -144,7 +144,7 @@ answer and no tool call), and a constrained host can be pushed into swap or cras
 The rule:
 
 - **Hosted runtime** -- dispatch independent children concurrently (the default in `pr-reviewer` and `pr-review-loop`);
-  for target-repo `holon-flow` executions, up to **4 concurrent background flow subagents** are permitted (with
+  for target-repo `holon-flow` executions, up to **8 concurrent background flow subagents** are permitted (with
   automatic highest-priority bean backfill upon PR merge).
 - **Local runtime** -- dispatch LLM-inference children **serially**: launch one child, wait for it to finish, then
   launch the next. Concurrency for LLM work is capped at 1. Serialising changes **only the launch schedule**:

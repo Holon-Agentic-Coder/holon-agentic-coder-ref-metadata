@@ -236,7 +236,7 @@ npx prettier --write .beans/bean-triage-prioritisation.md
    git push origin <current_harness_branch>
    ```
 2. Review the Active Beans Matrix in `.beans/bean-triage-prioritisation.md`.
-3. **Backfill up to 4 concurrent `holon-flow` subagents (hosted runtimes; maintainer, 2026-11-24)**: first list parked
+3. **Backfill up to 8 concurrent `holon-flow` subagents (hosted runtimes; maintainer, 2026-11-24)**: first list parked
    flows (beans noted `parked <date>`) whose blocker was this PR or whose files this PR released, and recommend resuming
    them from checkpoint (`--checkpoint`) before any new bean (maintainer, 2026-11-26). Then count currently active
    background `holon-flow` subagents that are executing, reviewing or calibrating (parked or blocked flows do not count;
