@@ -251,3 +251,12 @@ invariants:
     checks:
       - "script:.agents/scripts/install_git_hooks.py"
       - "test:tests/test_invariant_registry.py::test_installer_is_idempotent_and_installs_every_hook"
+  - id: "review-loop-child-suite-contract"
+    agents_rules: []
+    status: "enforced"
+    open_beans: []
+    runs_at:
+      - "ci"
+    checks:
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_review_environment_child_suite_contract.py::test_canary_tests_pass_under_the_environment_the_review_loop_hands_its_pre_push_suite"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_review_environment_child_suite_contract.py::test_canary_tests_fail_when_the_review_identity_leaks_into_that_environment"
