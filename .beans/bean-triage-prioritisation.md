@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-26 21:06:05 UTC
+**Last Updated:** 2026-11-26 21:06:13 UTC
 
 ## Executive Summary
 
@@ -17,9 +17,9 @@ about 10M+ tokens), so flows that touch the same files still run one after anoth
 run together.
 
 - **Total Tracked Beans**: 543 (excluding template)
-- **Completed**: 382 (70.3%)
+- **Completed**: 383 (70.5%)
 - **Scrapped / Superseded**: 16 (2.9%)
-- **Active**: 145 (26.7%), of which 18 are in progress, 125 are todo and 2 are draft
+- **Active**: 144 (26.5%), of which 17 are in progress, 125 are todo and 2 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1092,7 +1092,6 @@ logged beans `0389` and `0390` added to triage.
 | **P1**   | todo        |  High  |             L             | 0520   | Stage 3 admission blocks on shared file paths, not on a real merge conflict; one open PR parks several flows                                                  | Architecture / Quality           |                                                                                                                                                                                                                                                       |
 | **P1**   | in-progress |  High  |             M             | 0519   | Flow worktree, checkpoint and intent/plan branches vanish after a Stage 3 overlap refusal                                                                     | Flow / Architecture              |                                                                                                                                                                                                                                                       |
 | **P1**   | in-progress |  High  |             L             | 0518   | Review loop writes its git identity into the shared repository config, so host-side commits are authored by the agent                                         | Architecture / Quality           |                                                                                                                                                                                                                                                       |
-| **P1**   | in-progress |  High  |             L             | 0517   | Concurrent flows add the same knowledge-base or wisdom file, so their PRs conflict add/add                                                                    | Architecture / Quality           |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        | Medium |             M             | 0516   | Review ensemble fails with 'Prompt is too long' on a pull request that deletes thousands of files                                                             | Build / DevEx                    |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             L             | 0515   | Ledger reorder (0436) conflicts with every merge to main and the resolvers keep main order, silently undoing it                                               | Architecture / Quality           |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        | Medium |             M             | 0514   | Main-push tree gate skips nothing when merges arrive back to back; coalesce a burst to the newest tip                                                         | Build / DevEx                    |                                                                                                                                                                                                                                                       |

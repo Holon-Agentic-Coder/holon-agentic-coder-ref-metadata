@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0517
 title: "Concurrent flows add the same knowledge-base or wisdom file, so their PRs conflict add/add"
-status: in-progress
+status: completed
 type: bug
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - merge-conflicts
   - holon-agentic-coder
 created_at: 2026-11-26T12:40:00Z
-updated_at: 2026-11-26T12:40:00Z
+updated_at: 2026-11-26T21:06:00Z
 ---
 
 ## Problem
@@ -43,7 +43,18 @@ Whichever PR merges second needs a conflict pass, a push and a CI cycle.
 - Cost per conflict: a resolver pass, a push, a CI cycle and a rerun, see bean 0522 (about 12 to 26 min plus a full
   review).
 
-## In progress
+## Resolution
 
-Flow kb-wisdom-deterministic-files launched 2026-11-27 (claude-agent, claude-opus-5-5); log
-todo/flow-kb-wisdom-deterministic-files.log.
+Delivered via [PR #349](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/349) and merged into `main`
+(`2c86516`):
+
+- **Key Architectural Deliverables**: new `knowledge/stable_envelope.py` builds promoted KB and WB files from the id and
+  context only (no wall clock, no execution counters, no counter-bearing advisory text) and writes them
+  exclusive-create, so an existing file is never rewritten. `persist_kb_fact` and `persist_wb_rule` route through it.
+  Run counters stay in the action index and ledgers. Legacy files on `main` remain readable by `load_index`.
+- **Verification & Tests**: byte-independence tests against a shifting clock and counters, a never-rewrite test, and a
+  legacy-read test in `test_wisdom.py`; guardrail run of 558 tests passed.
+- **Holon Flow Traversal**: intent, plan, execution, review and calibration completed
+  (`executions/E-1795704929-CLA-CO5.5.md`, calibration commit `30136ba4` on the flow branch).
+
+The `resolve_known.py` fallback in the proposed fix was not needed.
