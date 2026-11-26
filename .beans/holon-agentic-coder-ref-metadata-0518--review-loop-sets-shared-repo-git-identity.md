@@ -57,3 +57,10 @@ depends on them. install-holon was rerun after the merge.
   `~/.gitconfig` but the repository setting wins. Audit trail by author is unusable for the whole period.
 - The log line says `--global`, so the container's HOME (or a mounted config) resolves to the shared repository config.
   Fix the cause (do not mount or point HOME at a file inside the repository) and not only the symptom.
+
+## Shared config cleared (2026-11-26 21:08Z)
+
+The maintainer removed `user.name`/`user.email` (Holon Review Loop Agent) from `apps/holon-agentic-coder/.git/config`;
+`git config --get user.name` now resolves to the global identity. Flows 0216 and 0390 were started before PR #350's
+reinstall and may still write the keys back during their review stage: re-check the shared config after both finish,
+then close this bean.

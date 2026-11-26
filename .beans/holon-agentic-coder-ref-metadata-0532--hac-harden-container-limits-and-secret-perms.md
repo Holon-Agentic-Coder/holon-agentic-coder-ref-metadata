@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0532
 title: "Add Docker resource limits, read-only intent mount, 0o600 secret permissions, and Dockerfile pinning"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -54,3 +54,14 @@ direct IP requests), unpack secret bundles with process umask instead of `0o600`
 
 - Target repository: `holon-agentic-coder` (evaluated at `HEAD f1e18bcd`).
 - Source: 2026-11 ecosystem architecture & source-code review (`docs/ecosystem-audit-report-2026-11.md`).
+
+## Flow (2026-11-27)
+
+flow slug secret-bundle-private-files (claude-agent, claude-opus-5-5) covers only the secret bundle part of item 2
+(0o600 files, 0o700 directories, redacted warning in agent_runner.py). Left open: container resource limits and
+read-only intent mount (touch launcher/containers.py, parked with 0390), local_llm modes (the container user needs
+them), git.py terminators (tests assert exact git args), Dockerfile pin (needs a vendor checksum).
+
+parked 2026-11-27: Stage 4 halted before push (pre-push tests test_flow_repo_templates history and
+test_executor_run_salvage fail on the review-loop identity leak); PR #356 open. Resume from checkpoint (--checkpoint,
+--from-stage review) once the review identity fix merges.

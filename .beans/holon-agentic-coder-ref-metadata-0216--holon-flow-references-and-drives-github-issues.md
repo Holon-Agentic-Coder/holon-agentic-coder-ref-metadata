@@ -67,4 +67,7 @@ at resume. Log `todo/flow-flow-references-github-issues.log`. parked 2026-11-26:
 touch-set overlap with PR #342 (`I-1795694671-ledgers-sorted-chronologically`) on `docs/git_flow.md`; resume from
 checkpoint once #342 merges or releases the file.
 
-Note (2026-11-26): resumed from checkpoint after PR #342 merged (20:58Z). No live runner for the slug at resume.
+Note (2026-11-26): resumed from checkpoint after PR #342 merged (20:58Z). No live runner for the slug at resume. parked
+2026-11-26: Stage 3 touch-set overlap with open PR #351 (I-1795685390-single-runner-per-checkpoint) on
+apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports.py; re-plan after a Stage 3 scope drift (P-1795727982) hit
+it. Resume from checkpoint when #351 merges or releases the file.

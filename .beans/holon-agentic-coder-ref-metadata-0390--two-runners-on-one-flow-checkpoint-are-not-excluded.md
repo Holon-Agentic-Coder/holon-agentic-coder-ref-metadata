@@ -92,3 +92,10 @@ reason in its log.
 - resumed 2026-11-26T20:59Z from checkpoint (stage execute, `--checkpoint`, claude-agent / claude-opus-5-5,
   no-wait-on-overlap): blocker PR #342 (lazy_exports.py) merged 2026-11-26 20:58Z. Log
   `todo/flow-single-runner-per-checkpoint.log`.
+
+- parked 2026-11-26T21:21Z: resumed run executed Stage 3 (E-1795726850, touch set admitted, PR #342 merged) and Stage 4
+  ran one review iteration (CHANGES_REQUESTED, 5 open findings). The resolver then halted at its pre-push tests on bean
+  0547 (review-loop identity overlay in os.environ reaches the test run; deterministic). Checkpoint kept at stage
+  review; no runner live. Resolver's uncommitted fixes remain in the flow worktree (patch copy:
+  /private/tmp/claude-501/-Users-thomashan-git-holon-agentic-coder-ref-metadata/f956a41e-6830-4ee3-9257-8c114a4af5b9/scratchpad/resolver-uncommitted-0390.patch).
+  Resume with `--from-stage review` once 0547 is merged and the branch has merged origin/main.

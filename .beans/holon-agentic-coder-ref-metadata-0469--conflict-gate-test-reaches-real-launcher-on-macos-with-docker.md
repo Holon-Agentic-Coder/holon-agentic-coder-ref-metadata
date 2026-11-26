@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0469
 title: "test_conflict_gate code-conflict test reaches the real launcher and exits on macOS when docker is on PATH"
-status: todo
+status: in-progress
 type: bug
 priority: normal
 tags:
@@ -54,3 +54,9 @@ a144e65c) is green on ubuntu and macos.
 2. Make `_dispatch` catch `SystemExit` too (`except (Exception, SystemExit)`) so a launcher abort becomes an
    `agent_failed` verdict instead of killing the flow.
 3. Add a hermetic guard that fails fast if a test spawns docker or reaches `run_docker_container` unmocked.
+
+## Flow
+
+Launched 2026-11-27 as flow-conflict-gate-launcher-abort (claude-agent, claude-opus-5-5); intent
+todo/intent-0469-conflict-gate-launcher-abort.json. Scope: flow/conflict_resolver_role.py plus its two tests; the
+conftest guard from proposed fix 3 is left out.

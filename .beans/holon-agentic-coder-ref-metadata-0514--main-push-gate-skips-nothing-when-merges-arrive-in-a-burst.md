@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0514
 title: "Main-push tree gate skips nothing when merges arrive back to back; coalesce a burst to the newest tip"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -11,6 +11,11 @@ tags:
 created_at: 2026-11-26T12:20:00Z
 updated_at: 2026-11-26T12:20:00Z
 ---
+
+## Flow
+
+In progress: flow `main-push-superseded-skip` (intent `todo/intent-0514-main-push-superseded-skip.json`, claude-agent
+claude-opus-5-5), 2026-11-27.
 
 ## Evidence
 
