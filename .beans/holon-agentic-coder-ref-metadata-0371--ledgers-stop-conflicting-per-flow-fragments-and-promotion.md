@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0371
 title: "Ledgers stop conflicting: per-flow pending ledger fragments, promoted into the canonical ledgers on main"
-status: todo
+status: completed
 type: feature
 priority: critical
 tags:
@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-11-23T06:40:00Z
-updated_at: 2026-11-23T06:50:00Z
+updated_at: 2026-11-26T04:02:30Z
 ---
 
 ## Problem
@@ -134,3 +134,55 @@ Through the 5-stage Holon flow on `holon-agentic-coder` (then `holon-coherence`)
 decisions above. Keep the intent text free of harness paths and bean ids. Update rule 14 in
 `.agents/engineering-rules.md` and the `resolve-conflict` skill in the harness to match. Likely overlaps with bean 0369
 (calibration reads the ledger), so run it after 0369 merges or with `--allow-overlap` and a narrow scope.
+
+## Measured (self-improvement audit 2026-11-24)
+
+What ledger conflicts cost in the period 2026-11-21 to 2026-11-24 (scripts in the git-ignored
+`todo/self-improvement-audit-2026-11-24/`):
+
+- 57 of 422 pipeline runs were on heads produced by a merge of `main` into the flow branch; the conflict gate merges
+  only when the pull request is `CONFLICTING` or `DIRTY`, and with append-only canonical ledgers almost every merge of
+  another pull request makes it so.
+- 17 full review iterations (127 minutes) ran because of a conflict with `main` or a merge of `main`; 12 Stage 4 runs
+  ended "CI signal suppressed: pull request has merge conflicts".
+- 12 Stage 3 starts stopped "merging origin/main ... after the admission wait conflicts in holon-knowledge/ledger/" (10
+  in `intents.jsonl`, 2 in `executions.jsonl`; Bean 0391).
+- One hygiene failure was an invalid ledger after a merge (`jq: parse error`, run 45182713288, PR #263).
+
+This bean would remove most of these; it is the largest single source of churn after bookkeeping-only pipeline runs
+(Bean 0403).
+
+## Audit evidence, 2026-11-24T12:58Z (self-improvement audit, fifth merge)
+
+- PR #272 (Bean 0403) was put into conflict three times in 105 minutes (merges of PR #269, #270 and #274); every overlap
+  with those PRs was `holon-knowledge/ledger/{intents,plans,executions}.jsonl` only.
+- PR #275 (Bean 0405) was opened at 12:39:51Z and was `DIRTY` within six minutes, again on the three ledgers only (PR
+  #274 merged at 12:45:46Z).
+- Each conflict cost a halted Stage 4, a hand merge of `origin/main` by an agent and a relaunch, plus up to one full
+  review iteration on the conflicting head (26 minutes on PR #272).
+
+## Resolution
+
+Delivered via [PR #314](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/314) and merged into `main`
+(`4e35895`), with its child PRs [#310](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/310) (`ba5e090`),
+[#311](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/311) (`0a7f690`),
+[#312](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/312) (`153b608`) and
+[#313](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/313) (`89ad0fd`) merged into the plan branch
+first:
+
+- **Key Architectural Deliverables**: per-flow pending ledger fragments under
+  `holon-knowledge/ledger/pending/<ledger>/<root-intent-id>.jsonl`; every ledger append routed through the ledger
+  package (#311); a merged reader (`ledger/fragments.py`, `ledger/merged.py`, `ledger/order.py`) used by every
+  canonical-ledger reader, with canonical rows winning on duplicate ids (#310); `holon ledger promote` with
+  `HOLON_LEDGER_PROMOTE_EVERY` batching, idempotent and additions-only (#312); `.github/workflows/promote-ledger.yml` on
+  push to `main`, daily schedule and `workflow_dispatch`, a green no-op until the `HOLON_LEDGER_BOT_TOKEN` secret exists
+  (#313).
+- **Out of scope (separate flows)**: removal of `kb/failure_modes/index.json`, the one-time chronological re-sort of the
+  canonical ledgers, and the hygiene check on moved ledger rows.
+- **Verification & Tests**: unit, CLI and property tests for promotion; a guard test that fails if any append writes a
+  canonical ledger file; a two-branch test that merges in either order with no conflict under `holon-knowledge/`; a
+  structural parsed-YAML test for the workflow.
+- **Holon Flow Traversal**: all 5 stages (Intent -> Plan -> Execute -> Review Loop -> Calibration) completed for the
+  parent and each child intent; review iterations were run on each child PR before merge.
+- **Still a maintainer step**: the `HOLON_LEDGER_BOT_TOKEN` secret and the branch-protection bypass for `main` are not
+  yet set, so promotion stays a no-op until they are.
