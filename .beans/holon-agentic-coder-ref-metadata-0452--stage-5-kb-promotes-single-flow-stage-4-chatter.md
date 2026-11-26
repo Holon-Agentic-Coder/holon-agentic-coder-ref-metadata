@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0452
 title: "Stage 5 KB promotion persists single-flow Stage 4 review chatter as permanent KB-failure entries"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:

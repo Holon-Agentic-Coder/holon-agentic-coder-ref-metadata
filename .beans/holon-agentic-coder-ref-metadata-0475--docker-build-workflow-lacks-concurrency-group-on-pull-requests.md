@@ -11,7 +11,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-26T03:50:00Z
-updated_at: 2026-11-26T09:55:00Z
+updated_at: 2026-11-26T10:12:00Z
 ---
 
 # Docker Build workflow lacks a concurrency group and completes on every cancelled PR head
@@ -86,3 +86,8 @@ Delivered via [PR #329](https://github.com/Holon-Agentic-Coder/holon-agentic-cod
   `I-1795685858-docker-build-concurrency-group`. The bean's optional README or trigger-test update was not needed.
 - **Post-merge**: flow worktree and its `I-1795685858-docker-build-concurrency-group` branches removed locally and on
   origin. No install-holon run was needed (workflow-only change).
+- 2026-11-26 10:10Z: flow `flow-docker-build-concurrency-group` completed. PR #329 (`.github/workflows/docker-build.yml`
+  only) was approved 3/3 at review, calibration report included (EV 37.57, final head CI success) and the PR reached
+  MERGEABLE/CLEAN. The maintainer (thomashan) merged PR #329 at 09:54Z while the flow was in calibration. Post-merge
+  closure (bean to completed, worktree and branch prune) is pending via the post-pr-merge skill.
+- Bug logged: bean 0504 (run log stays empty while the flow runs).

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0385
 title: "The flow log file stays empty until the run ends, so a running flow cannot be followed"
-status: todo
+status: completed
 type: bug
 priority: normal
 tags:
@@ -33,3 +33,17 @@ launch the wrapper with `nohup`/redirects that buffer again. Progress and failur
 
 - Overlap: Bean 0412 (every flow step timed, every flow keeps its log). This bean owns the log flushing; Bean 0412 owns
   the step timings and the log for every flow.
+
+## More evidence (2026-11-26)
+
+Seen on almost every flow run on 2026-11-26 (beans 0496, 0501, 0504 were logged as duplicates and scrapped): the
+wrapper's redirected log stays 0 bytes until the flow exits, for runs of 30-80 minutes, so nobody can monitor a running
+flow from its log. The wrapper has no unbuffered or flush handling for the child's output.
+
+## Resolution (2026-11-26)
+
+Cause: the wrapper read the child line by line (child already had `PYTHONUNBUFFERED=1`), but its own `print` calls went
+to a block-buffered stdout once redirected to a file, so nothing reached the log until exit. Fix in `run_holon_flow.py`:
+`enable_line_buffering()` reconfigures stdout and stderr line-buffered at the start of `main`, and the child-output loop
+and the command echo print with `flush=True`. Hermetic test: `tests/test_flow_log_streaming.py`. Takes effect on the
+next launch. Duplicates 0496, 0501 and 0504 were scrapped earlier.

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0496
 title: "run_holon_flow.py writes nothing to its log file until the flow exits"
-status: todo
+status: scrapped
 type: bug
 priority: normal
 tags:
@@ -31,3 +31,7 @@ flow process, not for the wrapper), and make the wrapper flush each stage line a
 transition reaches the log file before the flow exits.
 
 Found 2026-11-26 while running the batch 3 flow (bean 0405).
+
+## Scrapped (coordinator, 2026-11-26)
+
+Duplicate of Bean 0385 (flow log file stays empty until the run ends). Its evidence is folded into 0385.

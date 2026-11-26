@@ -69,6 +69,13 @@ QUOTA_ERROR_PATTERNS = [
 ]
 
 
+def enable_line_buffering() -> None:
+    """Make stdout and stderr line-buffered so each wrapper line reaches a redirected log as it is printed."""
+    for stream in (sys.stdout, sys.stderr):
+        with contextlib.suppress(AttributeError, ValueError, OSError):
+            stream.reconfigure(line_buffering=True)  # type: ignore[union-attr]
+
+
 def log_info(msg: str) -> None:
     print(f"{COLOR_BOLD}INFO:{COLOR_RESET} {msg}")
 
@@ -396,7 +403,7 @@ def execute_flow_process(
         print(f"  [DRY-RUN] {' '.join(cmd)}")
         return 0, ""
 
-    print(f"\n{COLOR_BOLD}Executing command:{COLOR_RESET} {' '.join(cmd)}\n")
+    print(f"\n{COLOR_BOLD}Executing command:{COLOR_RESET} {' '.join(cmd)}\n", flush=True)
     proc = subprocess.Popen(
         cmd,
         stdout=subprocess.PIPE,
@@ -409,7 +416,7 @@ def execute_flow_process(
     output_lines: list[str] = []
     assert proc.stdout is not None
     for line in proc.stdout:
-        print(line, end="")
+        print(line, end="", flush=True)
         output_lines.append(line)
 
     proc.wait()
@@ -910,6 +917,9 @@ def main() -> None:
     )
 
     args = parser.parse_args()
+
+    # Redirected to a file, stdout is block-buffered and the log stays empty until exit; flush every line instead.
+    enable_line_buffering()
 
     outcome: dict = {}
     exit_code = run_flow(

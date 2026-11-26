@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0501
 title: "holon flow wrapper log stays empty until the flow exits"
-status: todo
+status: scrapped
 type: bug
 priority: normal
 tags:
@@ -32,3 +32,7 @@ Second occurrence 2026-11-26 (batch 5, `tests-cpu-bound-redaction-ledger`): the 
 Find where the wrapper's output is buffered (the wrapper's own stdout is not flushed, or the flow's output is captured
 and written at the end) and flush each stage transition and `holon flow` line as it happens. Check with a short
 background run that the log grows during Stage 3.
+
+## Scrapped (coordinator, 2026-11-26)
+
+Duplicate of Bean 0385 (flow log file stays empty until the run ends). Its evidence is folded into 0385.

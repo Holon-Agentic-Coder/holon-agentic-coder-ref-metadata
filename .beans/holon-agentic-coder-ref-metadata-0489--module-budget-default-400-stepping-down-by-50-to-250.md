@@ -86,3 +86,8 @@ lines on `main` (measured 2026-11-26; the flow's own count matches).
 2026-11-26T09:55:25Z: in-progress, holon flow `module-budget-default-350` (step 2, default 350), runner claude-agent /
 claude-opus-5-5, log `todo/flow-module-budget-default-350.log`, intent `todo/intent-0489-module-budget-default-350.json`
 (scope adds the new split modules).
+
+2026-11-26T10:01:04Z: parked: Stage 3 admission refused (touch set overlaps local flow `no-unneeded-full-review`, branch
+I-1795665991-no-unneeded-full-review, on apps/sandbox-executor/src/sandbox_executor/budgets.py); flow
+`module-budget-default-350` kept its worktree `flow-module-budget-default-350` and checkpoint; resume from checkpoint
+(--checkpoint, never relaunch without it) once that flow merges or releases budgets.py.
