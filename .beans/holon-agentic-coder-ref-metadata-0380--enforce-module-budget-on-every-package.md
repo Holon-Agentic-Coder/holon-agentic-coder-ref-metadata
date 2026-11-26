@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0380
 title: "Enforce the module line budget on every package, including new ones, not just flow/"
-status: in-progress
+status: completed
 type: task
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-11-23T09:35:00Z
-updated_at: 2026-11-26T05:06:00Z
+updated_at: 2026-11-26T07:51:00Z
 ---
 
 ## Instruction (maintainer, 2026-11-23)
@@ -106,3 +106,27 @@ catch them in Stage 3.
 > `todo/intent-0380-module-line-budget-all-packages.json`, `claude-agent` / `claude-opus-5-5`, runner log
 > `todo/flow-module-line-budget-all-packages.log`). The `holon-coherence` half is already merged as
 > Holon-Agentic-Coder/holon-coherence#55.
+
+> 2026-11-26 (resume with 400 default, maintainer: "resume #317 with the new budget value"): the engine has no supported
+> way to amend an intent on resume. `holon flow <intent> --checkpoint ...` discards the intent file (`intent_data = {}`)
+> and uses the checkpoint's `intent_data`; the plan, execution branch and intents row keep the 200-line goal. The
+> running flow was left untouched (resolver iteration 10, merge in progress in its worktree). Nothing was stopped or
+> hand-patched. Logged as bean 0490. `todo/intent-0380-module-line-budget-all-packages.v2.json` is ready for a fresh
+> flow if the maintainer prefers that (new PR, `#317` closed) or for 0490's amend path.
+
+## Resolution
+
+Delivered via [PR #317](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/317) and merged into `main`
+(`a819f2f1`, merged 2026-11-26T07:50:13Z). The `holon-coherence` half is delivered by
+[holon-coherence#55](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/55) (merge `70dc5e90`, 2026-11-24).
+
+- **Key Architectural Deliverables**: budget coverage by discovery (`packages` list replaced by a reasoned `exclude`
+  list); existing oversized modules frozen at their current line counts, ratchet-only; new modules get the 200-line
+  default with no override; budget logic in `scripts/module_budget_config.py` and `scripts/module_budget_freeze.py`.
+- **Verification & Tests**: `apps/sandbox-executor/tests/flow/test_module_budget_discovery.py` covers discovery of a new
+  package; `test_module_budgets.py` extended for ratchet behaviour.
+- **Holon Flow Traversal**: flow `module-line-budget-all-packages` reached Stage 5 (execution branch
+  `E-1795669728-CLA-CO5.5` carries a `calibrated` ref) and was merged. The 200-line default was used; the `.v2` intent
+  with the 400-line default was not used, because `holon flow --checkpoint` ignores an amended intent file (bean 0490).
+- **Follow-up**: the 400-line default with a step-down of 50 per pull request to 250 is bean 0489 (next; its
+  `blocked_by` 0380 is now clear).

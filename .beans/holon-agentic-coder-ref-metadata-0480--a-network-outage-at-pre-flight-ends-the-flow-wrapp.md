@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0480
 title: "A network outage at pre-flight ends the flow wrapper and the flow idles until someone relaunches it"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - resilience
   - holon-agentic-coder
 created_at: 2026-11-26T05:25:00Z
-updated_at: 2026-11-26T05:25:00Z
+updated_at: 2026-11-26T07:10:00Z
 ---
 
 ## Problem
@@ -62,3 +62,18 @@ Small in the wrapper and `preflight.py` (classification and backoff loop); the s
 
 - Not a duplicate of Bean 0393 (completed: 3 quick retries and the slow-exit OK case) or Bean 0466 (Docker probe only).
 - One-off trigger (the outage), structural cost (no wait-and-resume).
+
+## Progress
+
+- 2026-11-26: in-progress. Flow `flow-preflight-outage-wait-resume` (intent
+  `todo/intent-0480-preflight-outage-wait-resume.json`, slug `preflight-outage-wait-resume`), pre-flight scope only
+  (wait and resume in `sandbox_executor/cli/preflight.py` via a new `preflight_outage.py`). Wrapper-side and stage-level
+  parts are not in this flow.
+- 2026-11-26 07:10Z: flow `flow-preflight-outage-wait-resume` (intent slug `preflight-outage-wait-resume`) completed
+  Stages 1 to 5 with exit 0. PR #320, head 2ea483bb, consensus APPROVED 3/3 at review iteration 2 (iteration 1
+  CHANGES_REQUESTED, fixed by the resolver), calibration report in the PR diff (EV 65.24), MERGEABLE/CLEAN. Human merge
+  pending. Scope: `cli/preflight.py`, new `preflight_outage.py`, new test file. The resolver also added a public
+  `is_model_error` to `sandbox_executor/preflight.py` (+4 lines, 548 to 552), outside the intent scope; it will trip the
+  frozen override once the module-budget PR lands, so rebase or adjust before merging that one. Still open after this
+  PR: the wrapper side (distinct exit code for a relaunch-later outcome, skipping the model probe in the overlap poll)
+  and stage-level outages (Bean 0424 territory).

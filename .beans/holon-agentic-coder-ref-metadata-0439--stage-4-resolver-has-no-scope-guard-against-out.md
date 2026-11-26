@@ -80,3 +80,10 @@ Medium: Stage 4 resolver guard and `FIND-CI` filter in `sandbox_executor`, deliv
 - **Downstream collision in window:** When `#287` merged (`03:21:48Z`), `#290`'s `Merge origin/main` commit `a344ce2f`
   (`03:50:30Z`) hit **9 code/test merge conflicts** on those shared out-of-scope files (plus 3 ledgers), and both `#287`
   and `#290` appeared in Bean `0407`'s Stage 3 `blocked_by` list on `apps/sandbox-executor/tests/`.
+
+## Recurrence, 2026-11-26
+
+- Flow `preflight-outage-wait-resume` (PR #320): the Stage 4 resolver edited
+  `apps/sandbox-executor/src/sandbox_executor/preflight.py`, which is outside the intent's three-file scope, to expose
+  `is_model_error`. That file is 548 lines on main, so the frozen module-budget override will reject the growth once the
+  all-packages budget lands.

@@ -10,7 +10,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T09:55:00Z
-updated_at: 2026-11-26T00:05:00Z
+updated_at: 2026-11-26T07:10:00Z
 ---
 
 ## Why
@@ -164,3 +164,35 @@ A later sub-flow should make that job parallel or run it only when the paths it 
   - Test areas still left out: `tests/flow/test_git_refs.py` (20.3 s), `tests/flow/review/test_conflict_gate.py` (21.2
     s) and `tests/test_calibration_diff_property.py` (19.8 s), deferred while open pull requests touched them (PR #310
     and its neighbours). About 870 s of the 1,193 s summed time sits outside the 13 files of the first slice.
+
+## Test suite audit 2026-11-26
+
+Measured on main `412bed21` (report: `todo/test-suite-audit-2026-11-26.md`, raw data in
+`todo/test-suite-audit-2026-11-26/`; no code changed, no flow launched).
+
+- Suite: 8,311 unit cases (+25 percent since 2026-11-24), 19 integration, 2 stress. CI on the last three main pushes:
+  unit ubuntu 159 to 255 s (2 workers), unit macOS 478 to 530 s (3 workers), Workspace survival 207 to 321 s. Workers
+  end within 4 s of each other: wall is summed test time / workers, no single test sets it.
+- Two causes carry the time. (1) git processes: 45,157 per unit run, about 25 ms each on macOS and 5 ms on ubuntu;
+  git-using files are 1,195 of 1,424 s summed on macOS. (2) A quadratic per-test fixture cost: the autouse fixtures'
+  `tmp_path_factory.mktemp` lists the whole worker base temp each call; 4,200 empty tests take 56.4 s, 5.7 s with a
+  constant-time numbered dir; median unit test 26 ms to 3 ms in an A/B at `-n 3`.
+- Coverage per test: 866 identical-coverage groups, mostly cheap data cases; only about 25 s macOS summed is worth
+  folding, and no clean deletions beyond folds were found.
+- Plan, eight test-only batches with draft intents `todo/intent-0405-tests-*.json`: constant-time temp dirs (about 40 /
+  38 / 35 s off ubuntu / macOS / Workspace survival), stage-pipeline git cut (11 / 45 / 11), worktree/executor (7.5 / 30
+  / 7.5), calibration (7 / 25 / 7, after the calibration split), CPU-bound matrices (10 / 14 / 10), review and
+  decomposition (4 / 18 / 4, after `no-unneeded-full-review`), self-doc consolidation in two parts (about 1 s, -2,400
+  lines). Projected: ubuntu 250 to 170 s, macOS 512 to 339 s, Workspace survival 247 to 172 s. Running the git-heavy
+  pipeline tests only on ubuntu would take macOS to about 100 to 150 s (maintainer decision, Bean 0400).
+- Bug found: running a subset of files loses the `flow_repos` fixture (Bean 0491).
+
+- Batch 1 flow started 2026-11-26 (intent `todo/intent-0405-tests-constant-time-tmp-dirs.json`, worktree
+  `flow-tests-constant-time-tmp-dirs`, claude-agent / claude-opus-5-5, log
+  `todo/flow-tests-constant-time-tmp-dirs.log`).
+- Batch 3 flow started 2026-11-26 (intent `todo/intent-0405-tests-fewer-git-worktree-exec.json`, worktree
+  `flow-tests-fewer-git-worktree-exec`, claude-agent / claude-opus-5-5, `--no-wait-on-overlap`, log
+  `todo/flow-tests-fewer-git-worktree-exec.log`).
+- Batch 5 flow started 2026-11-26 (intent `todo/intent-0405-tests-cpu-bound-redaction-ledger.json`, worktree
+  `flow-tests-cpu-bound-redaction-ledger`, claude-agent / claude-opus-5-5, `--no-wait-on-overlap`, log
+  `todo/flow-tests-cpu-bound-redaction-ledger.log`).

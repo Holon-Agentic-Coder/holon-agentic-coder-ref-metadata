@@ -52,6 +52,9 @@ reference. This also honours the standing rule that harness bean ids never land 
 Note (2026-11-25): stale plan `flow-references-github-issues` deleted after PR #309 merged; restart from current main
 via the kept `todo/intent-0216-flow-references-github-issues.json`.
 
+parked 2026-11-26: Stage 3 overlap with PR #318 (context.py, docs/environment_variables.md); resume from checkpoint when
+#318 merges.
+
 Note (2026-11-26): in-progress. Flow `flow-references-github-issues` launched from origin/main 4e358955 via
 `run_holon_flow.py` (target `apps/holon-agentic-coder/main`, `claude-agent` / `claude-opus-5-5`, log
 `todo/flow-flow-references-github-issues.log`). Scope files `issues.py`, `test_issues.py`, `test_intent_work_item.py`

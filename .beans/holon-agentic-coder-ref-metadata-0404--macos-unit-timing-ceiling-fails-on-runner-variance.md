@@ -10,7 +10,7 @@ tags:
   - flake
   - holon-agentic-coder
 created_at: 2026-11-24T09:35:00Z
-updated_at: 2026-11-25T00:34:00Z
+updated_at: 2026-11-26T07:12:00Z
 ---
 
 ## Problem
@@ -102,3 +102,18 @@ approval in Stage 5 and stopped the flow of Bean 0225; the engine's one automati
   (`_retry_timing_noise` in `apps/sandbox-executor/src/sandbox_executor/flow/github/ci_final_head.py` predates #278 and
   #278 did not change it); (3) why the macOS job is bimodal (about 250 s or 570 s on the same code); (4) the cancelled
   `build (macos-latest)` and `unit (macos-latest)` jobs on #272 and #278, unexplained.
+
+## Flow launch, 2026-11-26
+
+- 2026-11-26: flow `timing-gate-runner-variance` launched (`claude-agent` / `claude-opus-5-5`), covering the items still
+  open here and in the other bean: the bounded rerun of a timing-gate-only failure on unchanged code in the final-head
+  check (`ci_final_head.py`), and the CI timing section of `docs/git_flow.md`. Main already judges summed JUnit test
+  time and the Workspace survival job runs at `--ceiling 900` with `--junit`, so no workflow file changes. Bimodal
+  runner cause and the cancelled-job question stay open.
+
+- 2026-11-26: flow `timing-gate-runner-variance` completed: PR #321 (head `b3ef0e4`) is OPEN, MERGEABLE/CLEAN, 11 of 11
+  checks green, review approved (consensus score 1, ensemble of 3, two passes), calibration report in the PR diff,
+  final-head CI success. Delivered: the final-head timing-noise rerun is bounded and covers unchanged-code heads
+  (`ci_final_head.py`), the Workspace survival bare `Timing gate` step is recognised as a timing gate
+  (`ci_failure_detail.py`, outside the intent scope, see bean 0492), and `docs/git_flow.md` states the rule. Awaiting
+  the maintainer's merge.
