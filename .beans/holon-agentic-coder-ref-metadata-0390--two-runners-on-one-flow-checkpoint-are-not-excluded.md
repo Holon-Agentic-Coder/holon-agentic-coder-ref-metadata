@@ -74,3 +74,8 @@ reason in its log.
 - resumed 2026-11-26 13:03Z from checkpoint (stage execute, `--checkpoint`, claude-agent / claude-opus-5-5): PR #334
   (the blocker) merged at 13:01Z, so the conftest.py overlap is released. Flow running; log
   `todo/flow-single-runner-per-checkpoint.log`.
+- parked 2026-11-26 13:04Z: resume attempt at 13:03Z refused by Stage 3 on a touch-set overlap with the older waiting
+  flow `split-calibration-package` (I-1795669744, worktree flow-split-calibration-package, blocked since 05:16Z) on
+  apps/sandbox-executor/tests/flow/conftest.py. PR #334 itself merged at 13:01Z, so that blocker is gone. Checkpoint
+  kept (stage execute); no runner live. Resume with `--checkpoint` once split-calibration-package merges or releases
+  conftest.py.

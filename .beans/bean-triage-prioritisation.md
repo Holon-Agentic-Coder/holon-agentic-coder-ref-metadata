@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-26 13:05:37 UTC
+**Last Updated:** 2026-11-26 13:06:47 UTC
 
 ## Executive Summary
 
@@ -17,9 +17,9 @@ about 10M+ tokens), so flows that touch the same files still run one after anoth
 run together.
 
 - **Total Tracked Beans**: 516 (excluding template)
-- **Completed**: 376 (72.9%)
+- **Completed**: 377 (73.1%)
 - **Scrapped / Superseded**: 14 (2.7%)
-- **Active**: 126 (24.4%), of which 20 are in progress, 104 are todo and 2 are draft
+- **Active**: 125 (24.2%), of which 19 are in progress, 104 are todo and 2 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1052,7 +1052,6 @@ logged beans `0389` and `0390` added to triage.
 | **P2**   | todo        | Medium |             M             | 0402   | A post-merge image rebuild does not disturb flows that are running or starting                                                                                | Build / DevEx                    | A post-merge image rebuild must not disturb flows that are running or starting.                                                                                                                                                                       |
 | **P2**   | todo        | Medium |             M             | 0386   | Review tests fail when run together serially, and test_backgrounded_sleep hangs with redirected output                                                        | Tests / Hygiene                  | Ready; run alone. Order-dependent review tests, and `test_backgrounded_sleep` hangs when output is redirected, so a serial run takes about 25 minutes.                                                                                                |
 | **P2**   | todo        | Medium |             S             | 0388   | Bean progress shows a stale 'Halted' stage while a role is live, and the triage narrative goes stale                                                          | Harness / Reporting              | Ready. Harness-only: the bean_progress stale 'Halted' cell and this matrix's hand-written narrative, which goes stale after a day of merges.                                                                                                          |
-| **P2**   | in-progress | Medium |             M             | 0198   | "Agent runner registry: one `RunnerSpec` module per agent"                                                                                                    | Runners / Refactor               | Unblocked (0185 completed). Sequence with 0270 and 0350 on `agent_defaults.py` / `agent_runner.py`; 0382 goes first.                                                                                                                                  |
 | **P2**   | in-progress | Medium |             M             | 0197   | "Split `calibration.py` into a package; decompose metrics parsing and report generation"                                                                      | Calibration / Refactor           | Unblocked (0187 scrapped). Sequence after 0146 (done) and 0162. `calibration.py` is 1,637 lines; no live flow touches it (0378 touches `calibrate_rerun.py`, another module).                                                                         |
 | **P2**   | todo        | Medium |             M             | 0352   | "Push GitHub PR events through `gh webhook forward`, with cheap polling as the fallback"                                                                      | GitHub / Efficiency              | Queued behind 0376 (review-loop CI and conflict polling, `run_holon_flow.py`, skills). Needs `cli/gh-webhook` and `admin:repo_hook` scope on maintainer `gh`; stopgap until `gh event listen` is enabled.                                             |
 | **P2**   | todo        | Medium |             M             | 0181   | "Use the `/_` leaf only when referencing a git branch, never on ids"                                                                                          | Holon Flow / Ledger              | Queued behind 0376 (overlaps `docs/git_flow.md` and `docs/ledger_schema.md`). `entrypoint/executor/run.py`, `calibration.py`, `cli/commands/` and `entrypoint/` still strip or re-add `/_`; sequence with 0197.                                       |

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0198
 title: "Agent runner registry: one RunnerSpec module per agent instead of shared dicts and an if-chain"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - agent-runner
   - holon-agentic-coder
 created_at: 2026-10-29T12:20:00Z
-updated_at: 2026-11-26T12:17:00Z
+updated_at: 2026-11-26T13:06:00Z
 ---
 
 ## Problem
@@ -61,3 +61,20 @@ Bean `0322` merged in PR #222 (`e2ba3c2`), removing `gemini-agent` completely; d
 
 - 2026-11-26: flow `agent-runner-spec-per-agent` launched (claude-agent / claude-opus-5-5), scoped to
   `agent_defaults.py`, `agent_runner.py`, a new `runners/` package and their tests; model table (0270) untouched.
+
+## Resolution
+
+Delivered via [PR #343](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/343) and merged into `main`
+(`f1e18bc`):
+
+- **Key Architectural Deliverables**: `sandbox_executor/runners/` package with one frozen `RunnerSpec` module per agent
+  (antigravity, claude, pi, codex, opencode; gemini already gone via 0322). `AGENT_IMAGE_MAPPING`, `AGENT_TICKERS` and
+  `DEFAULT_MODELS` are derived views of the specs with unchanged keys and values. `StandardAgentRunner.validate` calls
+  `spec.check_credentials()`; no per-agent branch remains. `HOLON_AGENT_KEY` stays the only non-entrypoint credential
+  variable.
+- **Verification & Tests**: `test_runner_specs.py` asserts each spec has a `docker-bake.hcl` image and a dispatcher
+  case; `test_agent_defaults.py`, `test_agent_runner.py` and `test_claude_credential.py` updated. Behaviour (messages,
+  exit codes, accepted env vars, session dirs) unchanged.
+- **Holon Flow Traversal**: Intent, plan and execute recorded; calibration branch `E-1795695582-CLA-CO5.5/calibrated`
+  exists. The flow was resumed from checkpoint at review, and a review iteration was still running on the merged PR when
+  post-merge ran.

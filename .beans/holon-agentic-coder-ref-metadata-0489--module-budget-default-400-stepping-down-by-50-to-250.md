@@ -97,3 +97,18 @@ I-1795665991-no-unneeded-full-review, on apps/sandbox-executor/src/sandbox_execu
   the step-2 default of 350. Add it to the step-2 split set (`module-budget-default-350`, parked; resume from
   checkpoint). The step-2 set on `main` is then: `knowledge/wisdom.py` 353, `sandbox_executor/budgets.py` 359,
   `flow/git_refs.py` 380, `cli/commands/flow.py` 398, `flow/github/ci_final_head.py` 368.
+
+## Flow log (2026-11-27, parked)
+
+- Retired the stale attempt (worktree `flow-module-budget-default-350`, local and remote
+  `I-1795686809-module-budget-default-350/*` branches; no PR, nothing unique beyond its plan).
+- Launched a fresh step-2 flow from `todo/intent-0489-module-budget-default-350.json` (six modules, plus
+  `ci_final_head_seams.py` and `ci_final_head_rerun.py` for `ci_final_head.py`; `module_budget_change` kept). Intent and
+  plan stages passed (plan EV 36.6).
+- Stage 3 refused on a touch-set overlap with flow `I-1795665991-no-unneeded-full-review` on `budgets.py`. Run stopped
+  with `--no-wait-on-overlap`; `--allow-overlap` not used. Parked:
+  `parked 2026-11-27: blocked by flow no-unneeded-full-review (PR #334, merged 2026-11-26) on budgets.py`.
+- The blocker has since merged, but the flow worktree and its checkpoint no longer exist (I-/P- branches also gone; the
+  intent and plan commits survive as unreferenced objects). Resuming needs a maintainer or coordinator decision on a
+  fresh launch without a checkpoint.
+- No PR yet, so the `module-budget-change` label has not been requested. Bug logged as bean 0519.
