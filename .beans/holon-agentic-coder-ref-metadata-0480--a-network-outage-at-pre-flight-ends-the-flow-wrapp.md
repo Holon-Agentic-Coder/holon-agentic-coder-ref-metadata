@@ -11,7 +11,7 @@ tags:
   - resilience
   - holon-agentic-coder
 created_at: 2026-11-26T05:25:00Z
-updated_at: 2026-11-26T07:10:00Z
+updated_at: 2026-11-26T08:49:00Z
 ---
 
 ## Problem
@@ -77,3 +77,24 @@ Small in the wrapper and `preflight.py` (classification and backoff loop); the s
   frozen override once the module-budget PR lands, so rebase or adjust before merging that one. Still open after this
   PR: the wrapper side (distinct exit code for a relaunch-later outcome, skipping the model probe in the overlap poll)
   and stage-level outages (Bean 0424 territory).
+- 2026-11-26 08:49Z: PR #320 merged into `main` (`0cd63e0`, 08:46:12Z). `install-holon` rebuilt the images and
+  reinstalled `holon` and `holon-coherence`. Flow worktree, its branches and `origin` branches removed.
+
+## Resolution
+
+Partly delivered via [PR #320](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/320), merged into `main`
+(`0cd63e0`):
+
+- **Pre-flight outage wait** (`sandbox_executor/cli/preflight.py`, new `preflight_outage.py`): a pre-flight UNKNOWN
+  caused by DNS, connection refused or reset, network unreachable, Docker daemon or probe timeout is re-run with backoff
+  (30 s doubling to a 300 s cap, giving up after 3600 s cumulative). Auth, quota, expired-key, not-logged-in,
+  model-name, missing-CLI and unsupported-runner results never wait. A public `is_model_error` was added to
+  `sandbox_executor/preflight.py`.
+- **Verification**: hermetic `test_preflight_outage.py`. Flow `flow-preflight-outage-wait-resume` completed Stages 1 to
+  5 (consensus APPROVED 3/3 at review iteration 2).
+
+Still open (bean stays `in-progress`):
+
+- Wrapper side: `run_holon_flow.py` exits with a distinct "relaunch from checkpoint later" code when the wait gives up,
+  and the Stage 3 overlap poll skips the model probe when the previous launch passed it under an hour ago.
+- Stage-level outages (Bean 0424 territory).
