@@ -10,7 +10,7 @@ tags:
   - flake
   - holon-agentic-coder
 created_at: 2026-11-24T09:35:00Z
-updated_at: 2026-11-26T07:12:00Z
+updated_at: 2026-11-26T08:49:03Z
 ---
 
 ## Problem
@@ -117,3 +117,9 @@ approval in Stage 5 and stopped the flow of Bean 0225; the engine's one automati
   (`ci_final_head.py`), the Workspace survival bare `Timing gate` step is recognised as a timing gate
   (`ci_failure_detail.py`, outside the intent scope, see bean 0492), and `docs/git_flow.md` states the rule. Awaiting
   the maintainer's merge.
+
+- 2026-11-26: PR #321 merged into `main` as `903aafe4`; bean 0419 closed by it. Delivered: the final-head timing-noise
+  rerun is bounded and covers unchanged-code heads (`ci_final_head.py`, `ci_timing_rerun.py`); the Workspace survival
+  bare `Timing gate` step is recognised (`ci_failure_detail.py`); `docs/git_flow.md` states the rule. Still open, so the
+  bean stays `in-progress`: (1) the bimodal macOS runner cause (about 250 s or 570 s on the same code); (2) the
+  cancelled `build (macos-latest)` and `unit (macos-latest)` jobs on #272 and #278, unexplained.

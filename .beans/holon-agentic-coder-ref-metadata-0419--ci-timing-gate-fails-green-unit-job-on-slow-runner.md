@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0419
 title: "CI Timing Gate fails a green unit job on a slow runner and withdraws flow consensus"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - flow
   - holon-agentic-coder
 created_at: 2026-11-24T11:45:00Z
-updated_at: 2026-11-26T07:12:00Z
+updated_at: 2026-11-26T08:49:03Z
 ---
 
 ## Problem
@@ -102,3 +102,15 @@ health is not yet confirmed.
   (`ci_final_head.py`), the Workspace survival bare `Timing gate` step is recognised as a timing gate
   (`ci_failure_detail.py`, outside the intent scope, see bean 0492), and `docs/git_flow.md` states the rule. Awaiting
   the maintainer's merge.
+
+## Resolution
+
+Delivered via [PR #321](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/321) and merged into `main`
+(`903aafe4`):
+
+- **Key Architectural Deliverables**: the final-head timing-noise rerun is bounded and covers unchanged-code heads
+  (`ci_final_head.py`, `ci_timing_rerun.py`), so a timing-gate-only failure with green tests is retried before consensus
+  is withdrawn; `docs/git_flow.md` records the rule. The summed-JUnit gate itself came earlier with PR #278.
+- **Verification & Tests**: 11 of 11 checks green on the final head; review consensus (ensemble of 3, two passes).
+- **Holon Flow Traversal**: flow `timing-gate-runner-variance` completed Intent -> Plan -> Execute -> Review Loop ->
+  Calibration; the maintainer merged the pull request.

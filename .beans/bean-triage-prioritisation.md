@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-26 08:48:16 UTC
+**Last Updated:** 2026-11-26 08:49:03 UTC
 
 ## Executive Summary
 
@@ -17,9 +17,9 @@ about 10M+ tokens), so flows that touch the same files still run one after anoth
 run together.
 
 - **Total Tracked Beans**: 494 (excluding template)
-- **Completed**: 362 (73.3%)
+- **Completed**: 363 (73.5%)
 - **Scrapped / Superseded**: 10 (2.0%)
-- **Active**: 122 (24.7%), of which 13 are in progress, 107 are todo and 2 are draft
+- **Active**: 121 (24.5%), of which 12 are in progress, 107 are todo and 2 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1045,7 +1045,6 @@ logged beans `0389` and `0390` added to triage.
 | **P1**   | todo        |  High  |            XL             | 0152   | "Audit long files; decompose oversized functions (flow.py, cli.py first)"                                                                  | Refactor / Concurrency           | Umbrella. Coherence (0186, 0203 to 0208) and HAC (0185, 0188, 0190, 0193 to 0196, 0199, 0254) children merged. Remaining: 0265, 0192, 0197, 0198 and a re-audit of `planner.py`.                                                                      |
 | **P1**   | todo        |  High  |             M             | 0379   | No logic in **init**.py: package files only expose public names                                                                            | Architecture / Hygiene           | Queued behind 0265: `cli/__init__.py`, `cli/commands/__init__.py`, `flow/__init__.py` and `entrypoint/executor/__init__.py` are edited by both. Four package `__init__.py` files hold logic.                                                          |
 | **P1**   | todo        | Medium |             S             | 0416   | Fix relative quota reset tail scanning, seconds parsing, and watcher keychain lookup                                                       | Harness / Run 247 / Credentials  | Quota reset parsing scans the full output in one place and the tail in another, and drops seconds; `watch_limits.py` still reads the deleted plaintext token file. Harness only.                                                                      |
-| **P1**   | in-progress |  High  |             S             | 0419   | CI Timing Gate fails a green unit job on a slow runner and withdraws flow consensus                                                        | CI / Flow                        | The gate compared 360 s against a 229 s baseline and the flow withdrew a consensus that had passed. Fix together with 0404.                                                                                                                           |
 | **P1**   | todo        |  High  |             M             | 0420   | A flow whose pull request is merged while it is running fails instead of finishing cleanly                                                 | Flow / Review                    | PR #270 merged while its flow waited on merged-head CI, and the flow exited 1 on an unverifiable diff. It should finish cleanly.                                                                                                                      |
 | **P2**   | in-progress | Medium |             M             | 0400   | Shorten the CI pipeline: the slowest jobs set every wait in the flow                                                                       | Build / DevEx                    | Shorten the CI pipeline: the slowest jobs set every wait in the flow. Overlaps 0404 and 0405 (test suite).                                                                                                                                            |
 | **P2**   | todo        | Medium |             M             | 0412   | Every flow step is timed and every flow keeps its log: the steps the audit could not measure                                               | Ledger / Observability           | Every flow step is timed and keeps its log, so the self-improvement audit can measure each step.                                                                                                                                                      |
