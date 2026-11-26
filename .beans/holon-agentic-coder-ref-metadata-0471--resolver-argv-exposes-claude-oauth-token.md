@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0471
 title: "Resolver container argv carries the Claude OAuth token, visible to every local user via ps and docker top"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - stage-4
   - claude-agent
 created_at: 2026-11-25T23:35:26Z
-updated_at: 2026-11-25T23:35:26Z
+updated_at: 2026-11-26T11:15:00Z
 ---
 
 ## Problem
@@ -33,3 +33,8 @@ when anyone lists processes, so it must be treated as exposed.
 
 - Observed 2026-11-26 (local time) by `docker top` on a live resolver container for bean 0405.
 - Related: 0432 (resolver turn failures), bean "claude-agent OAuth route" memory note (token via HOLON_AGENT_SETTINGS).
+
+## Flow
+
+In progress 2026-11-26: flow settings-token-off-argv (claude-agent, claude-opus-5-5) moves inline settings JSON carrying
+the token into a private temp file so it leaves argv.

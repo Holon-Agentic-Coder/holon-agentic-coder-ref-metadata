@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0484
 title: "An untracked plans/I-*/ directory from an earlier attempt makes the planner refuse the workspace as uncommitted"
-status: todo
+status: in-progress
 type: bug
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - planner
   - worktree
 created_at: 2026-11-26T06:00:00Z
-updated_at: 2026-11-26T06:00:00Z
+updated_at: 2026-11-26T11:13:00Z
 ---
 
 ## Problem
@@ -41,3 +41,6 @@ Pick one, or both:
 - Related: bean 0360 (resume after interrupted plan stage creates duplicate plan branch) and bean 0374 (sidecar scratch
   files committed to execution branch) touch the same abort and resume paths.
 - Do not delete any `plans/I-*/` directory by hand. Verify it is untracked and from an aborted attempt first.
+
+- In progress (2026-11-26): flow `planner-ignores-aborted-plan-dir` (claude-agent, claude-opus-5-5); scope
+  `entrypoint/execution_workspace.py` plus a new test file.

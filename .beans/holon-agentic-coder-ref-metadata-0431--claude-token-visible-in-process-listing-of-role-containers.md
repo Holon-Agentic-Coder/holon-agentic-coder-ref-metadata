@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0431
 title: "The Claude token is visible in the process listing of a role container"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - sandbox
   - holon-agentic-coder
 created_at: 2026-11-24T15:55:00Z
-updated_at: 2026-11-24T15:55:00Z
+updated_at: 2026-11-26T11:15:00Z
 ---
 
 ## Problem
@@ -46,3 +46,8 @@ next leak in the chain: the token is handed to the container in a way that puts 
 - Found by the diagnosis subagent for Bean 0430 (resolver turn with no budget); reported, not exploited.
 - Until fixed: avoid pasting `docker top` or `ps` output of role containers into logs, beans or reports.
 - Related: Bean 0225 (token in the OS keychain, completed), Bean 0406 (wrapper reads the keychain).
+
+## Flow
+
+In progress 2026-11-26: flow settings-token-off-argv (claude-agent, claude-opus-5-5) moves inline settings JSON carrying
+the token into a private temp file so it leaves argv. Same defect as 0471.

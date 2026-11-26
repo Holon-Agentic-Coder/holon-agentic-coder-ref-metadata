@@ -10,7 +10,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T09:55:00Z
-updated_at: 2026-11-26T10:57:00Z
+updated_at: 2026-11-26T11:37:00Z
 ---
 
 ## Why
@@ -252,3 +252,9 @@ Measured on main `412bed21` (report: `todo/test-suite-audit-2026-11-26.md`, raw 
   In-scope git processes 12,177 to 8,832 (-27.5 percent); summed time 125.8 s to 113.7 s (-9.6 percent under load, about
   -17 percent estimated on quieter runs). The 40 percent target is missed; the maintainer merged it as a partial result.
   Per-job CI saving not measured yet. Install step skipped (test-only change). Bean stays in-progress.
+
+## Batch 7 (self-doc consolidation)
+
+- 2026-11-26 (post-merge of PR #336, merged as `6d68e5dc`): batch 7 delivered by bean 0453 / PR #336 (26 standalone
+  `test_*_self_doc.py` files consolidated into one data-driven test; test-only change). Install step skipped. Bean stays
+  in-progress.

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0453
 title: "Consolidate 19+ duplicated test_*_self_doc.py AST and allowlist scanners into one parameterized check"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -11,7 +11,7 @@ tags:
   - self-doc
   - holon-agentic-coder
 created_at: 2026-11-25T05:41:00Z
-updated_at: 2026-11-26T10:53:00Z
+updated_at: 2026-11-26T11:37:00Z
 ---
 
 # Consolidate `19+` duplicated `test_*_self_doc.py` AST and allowlist scanners into one parameterized check
@@ -65,3 +65,17 @@ Small refactor flow (`apps/sandbox-executor/tests/`) run after the active `0153`
 
 - 2026-11-26: flow `consolidate-self-doc-tests` launched (claude-agent, claude-opus-5-5); log
   `todo/flow-consolidate-self-doc-tests.log`.
+
+## Resolution
+
+Delivered via [PR #336](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/336) and merged into `main`
+(`6d68e5dc`):
+
+- **Key Architectural Deliverables**: the 26 standalone `test_*_self_doc.py` files are replaced by one shared helper
+  `apps/sandbox-executor/tests/self_doc_scanner.py` (AST docstring collector, tokenize comment scanner, allowlist
+  matcher) and one data-driven test module `test_self_doc_modules.py` over the governed module list. No production code
+  changed.
+- **Verification & Tests**: test-only change (+431 / -3,138 lines across the 26 removed files and the two new ones,
+  excluding flow ledger and plan files). Merged after CI and review.
+- **Holon Flow Traversal**: flow `consolidate-self-doc-tests` (claude-agent, claude-opus-5-5) reached merge with its
+  plan and calibration artifacts in the merged diff. Install step skipped (test-only change).

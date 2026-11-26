@@ -38,3 +38,5 @@ three minutes for nothing.
 
 - 2026-11-26: flow ci-final-head-wait-on-pushed-commit launched (intent
   todo/intent-0401-ci-final-head-wait-on-pushed-commit.json, log todo/flow-ci-final-head-wait-on-pushed-commit.log).
+- 2026-11-26: PR #335 open, review approved 3/3, Stage 5 calibration included, MERGEABLE/CLEAN; awaiting maintainer
+  merge.
