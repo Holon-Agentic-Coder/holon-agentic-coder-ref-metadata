@@ -26,7 +26,7 @@ multi-hour containerised lifecycle, **the flow is executed inside a dedicated ba
    **MUST NOT execute the flow inline**. Instead, it delegates to a background `Holon Flow Subagent` (`invoke_subagent`
    with `TypeName: "self"`, `Role: "bean <id> - holon flow <slug>"` (named per
    [subagents.md, "Subagent names"](../../subagents.md#subagent-names)), `Model` = the lowest tier per
-   `.agents/model-tiers.md`) and immediately returns control to the user. Up to **4 concurrent `holon-flow` background
+   `.agents/model-tiers.md`) and immediately returns control to the user. Up to **8 concurrent `holon-flow` background
    subagents** may run at once on hosted runtimes (each in its own `flow-<slug>` worktree; local runtimes stay at 1),
    with automatic backfill of the next highest-priority ready bean once a PR merges per `post-pr-merge`.
 2. **Sole Change Path Invariant**: Every target codebase change (`holon-agentic-coder` or `holon-coherence`) MUST
