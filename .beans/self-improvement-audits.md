@@ -5,6 +5,28 @@ first.
 
 ## Entries
 
+### 2026-11-26T23:51:36Z — Fifth-Merge Audit
+
+- **Trigger:** fifth merge (`holon-agentic-coder` #353 `23:01:29Z`, #358 `23:23:01Z`, #357 `23:44:54Z`, #359
+  `23:50:00Z`; #344 merged earlier in the window).
+- **Last merged pull requests at audit time:** `Holon-Agentic-Coder/holon-agentic-coder#359`
+  (`review-env-child-suite-contract`); `holon-coherence#56` unchanged.
+- **Coordinator ledger (CF-0014 to CF-0022):** repeats flagged high priority: `brief` x6 over the ledger (CF-0012 to
+  0015, 0018, 0019), `verification` x4, `readiness-check` x3, `bookkeeping` x3.
+- **Hook gaps:** working tree vs staged and whole-tree blocking are covered by 0577. The PreToolUse matcher covering
+  only `Bash` (not the REPL shell) was only a side note in 0566 and 0577: new bean 0578.
+- **Self-explaining after #357:** #358 (merged before the gate) added three docstrings and a comment; #359 (after) added
+  none, 3 `# why:` comments. #357's 22 triple-quoted lines are test fixtures. Blind window for in-flight PRs: bean 0582.
+- **Invented timestamps:** cause is hand-typed time fields; check detects only at commit. Helper: bean 0579.
+- **Slots:** created-to-merged times: #353 102 min, #357 50 min, #358 14 min, #359 36 min; #358, #357, #359 merged
+  within 27 min, so three slots freed at once and post-merge/reinstall serialise behind them. Idle per slot is **not
+  measured** (existing beans 0545, 0412, 0576).
+- **Coordinator errors in briefs:** wrong slug (CF-0019), editing a staged shared file (CF-0022), shared-index sweeps:
+  beans 0580, 0581.
+- **Examined, in order:** #359 passed the gate cleanly; CF-0020 check now enforced and the current working-tree
+  timestamps are valid.
+- **Beans created:** `0578`, `0579`, `0580`, `0581`, `0582`.
+
 ### 2026-11-26T22:59:59Z — Fifth-Merge Audit
 
 - **Trigger:** fifth merge (`holon-agentic-coder` #352 `22:31:45Z`, #354 `22:32:39Z`, #355 `22:33:28Z`, #356
