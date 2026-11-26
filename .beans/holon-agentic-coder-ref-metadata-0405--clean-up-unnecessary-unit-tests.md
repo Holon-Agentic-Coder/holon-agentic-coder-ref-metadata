@@ -10,7 +10,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T09:55:00Z
-updated_at: 2026-11-26T08:49:24Z
+updated_at: 2026-11-26T09:27:00Z
 ---
 
 ## Why
@@ -226,6 +226,11 @@ Measured on main `412bed21` (report: `todo/test-suite-audit-2026-11-26.md`, raw 
   green unit check there is the 68fc39e4 run. The PR body is the auto-generated summary and lacks the before/after CI
   comparison the intent asks for.
 - Bug from this batch: bean 0501 (wrapper log stays empty until exit).
+- 2026-11-26 (post-merge of PR #325, merged as `0fc9efa4`): batch 1 delivered (constant-time per-test temp dirs;
+  test-only change, no production code). Local empty-test run 2.5x faster (5x target), median unit test 1.14 to 1.5x (3x
+  target) on a noisy host: thresholds still NOT met. Single CI run on `main` shows unit ubuntu 169 s (185 to 220 s
+  before) and unit macOS 506 s (537 to 621 s before). Two baseline runs only, so indicative. Install step skipped
+  (test-only change). Re-measure on `main` over the next pushes before counting batch 1 as met. Bean stays in-progress.
 
 ## Batch 2 flow
 
