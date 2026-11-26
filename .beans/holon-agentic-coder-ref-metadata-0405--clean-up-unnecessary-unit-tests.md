@@ -191,6 +191,8 @@ Measured on main `412bed21` (report: `todo/test-suite-audit-2026-11-26.md`, raw 
   `flow-tests-constant-time-tmp-dirs`, claude-agent / claude-opus-5-5, log
   `todo/flow-tests-constant-time-tmp-dirs.log`).
 - Batch 3 flow started 2026-11-26 (intent `todo/intent-0405-tests-fewer-git-worktree-exec.json`, worktree
+  `flow-tests-fewer-git-worktree-exec`, claude-agent / claude-opus-5-5, `--no-wait-on-overlap`, log
+  `todo/flow-tests-fewer-git-worktree-exec.log`).
   - Result 2026-11-26: flow completed; PR #323 (`I-1795677070-tests-fewer-git-worktree-exec`) APPROVED 3/3 on 907a29c2
     (iteration 1), calibrated
     (`plans/I-1795677070-tests-fewer-git-worktree-exec/P-1795677093-CLA-CO5.5_calibration.md`), MERGEABLE/CLEAN at head
@@ -199,8 +201,6 @@ Measured on main `412bed21` (report: `todo/test-suite-audit-2026-11-26.md`, raw 
     closed by cutting tests. CI on the head: unit macOS 553 s pytest (job 593 s, against 543 s on 907a29c2 and a 506 s
     main median); ubuntu unit and Workspace survival skipped by the bookkeeping gate (carried over the 907a29c2 real
     success: 263 s and 210 s); no CI saving shown yet. Bug logged: bean 0496 (flow log empty until exit).
-    `flow-tests-fewer-git-worktree-exec`, claude-agent / claude-opus-5-5, `--no-wait-on-overlap`, log
-    `todo/flow-tests-fewer-git-worktree-exec.log`).
 - 2026-11-26 (post-merge of PR #323, merged as `b7b3bef`): batch 3 delivered. Test-only change; no production code
   changed. Git processes in the 15 in-scope files 8,819 to 5,669 (-35.7 percent); summed test time 91 s to 58 s (-36
   percent). The 40 percent target is missed, recorded as such. CI saving not yet visible: the first post-merge runs on
