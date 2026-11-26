@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0461
 title: "Main-push CI concurrency group silently cancels intermediate main commits during burst merges"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - reliability
   - holon-agentic-coder
 created_at: 2026-11-25T06:05:00Z
-updated_at: 2026-11-25T06:05:00Z
+updated_at: 2026-11-26T10:52:52Z
 ---
 
 # Main-push CI concurrency group silently cancels intermediate main commits during burst merges
@@ -87,3 +87,20 @@ Small: 5 YAML workflow concurrency expressions (`+` any workflow YAML unit test)
 
 - Target repo change through `holon flow` (`holon-agentic-coder`).
 - Related: Bean `0454` (`ci_bookkeeping_gate` on `Merge origin/main`), Bean `0458` (waiting for PR CI before merge).
+
+In progress 2026-11-26: flow main-push-ci-concurrency-per-sha (log todo/flow-main-push-ci-concurrency-per-sha.log).
+
+## Resolution
+
+Delivered via [PR #333](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/333) and merged into `main`
+(`06137f5`):
+
+- **Key Architectural Deliverables**: the `concurrency` block of `test-unit.yml`, `test-stress.yml`, `test-hygiene.yml`,
+  `test-integration.yml` and `make.yml` now groups `pull_request` runs by workflow and head branch, and every other
+  event by workflow, ref and commit SHA, matching `docker-build.yml`. A `main` push is no longer evicted from the
+  one-deep pending queue by a later push. `cancel-in-progress` is unchanged (`pull_request` only). No job, step,
+  trigger, permission or environment variable changed.
+- **Verification & Tests**: workflow-only change (5 files, +20/-5); no application code touched, so `install-holon` was
+  not needed. Final-head CI was green before merge.
+- **Holon Flow Traversal**: all 5 stages completed (intent ok, plan ok, execute ok, review approved, calibrate ok with
+  the calibration report covering execution head `8bb210bd199f`).

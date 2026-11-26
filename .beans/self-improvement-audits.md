@@ -5,6 +5,26 @@ first.
 
 ## Entries
 
+### 2026-11-26T10:50:00Z — Fifth-Merge Audit
+
+- **Trigger:** fifth merge (`holon-agentic-coder` #325 `09:25:03Z`, #327 `09:38:33Z`, #326 `09:51:19Z`, #329
+  `09:54:27Z`, #331 `10:37:55Z`, #330 `10:39:00Z`).
+- **Last merged pull requests at audit time:** `Holon-Agentic-Coder/holon-agentic-coder#330` (`pr-url-without-gh-hints`,
+  merged `2026-11-26T10:39:00Z`); `holon-coherence#56` unchanged.
+- **Inputs:** flow logs `todo/flow-<slug>.log` of the six flows, GitHub job times for `main` pushes (unit, survival),
+  intent files against PR file lists, `todo/flow-time-audit-2026-11-26.md`, `todo/test-suite-audit-2026-11-26.md`.
+- **Per-flow measurements** (review iterations / pipeline heads / commits; 0 failed unit runs in all): #325 3 / 8 / 19;
+  #326 9 / 14 / 22 (7 iterations at 3/3 APPROVED blocked by hygiene); #327 2 / 7 / 17 (plus a Stage 3 to Stage 2 round
+  trip, about 33 min); #329 1 / 3 / 9; #330 2 / 5 / 13; #331 3 / 7 / 15. Step-level times for pre-flight, pushes, merges
+  and CI waits remain **not measured** (beans 0412, 0496).
+- **CI saving on main** (medians before/after #323): macOS unit 560 to 445 s, ubuntu unit 238 to 171 s, Workspace
+  survival 268 to 269 s (no change).
+- **Beans created:** `0508` (intent scope guessed by hand, 3 of 6 flows), `0509` (verify CI saving on main after a
+  performance flow; survival unchanged), `0510` (main-push CI re-runs everything for already-tested trees).
+  **Extended:** `0497`, `0502`, `0403`, `0447`.
+- **Examined and in order:** #329 approved in one iteration with an exact scope match; no unit CI failure on any PR
+  head; no reviewer finding left unresolved at merge.
+
 ### 2026-11-26T08:55:00Z — Fifth-Merge Audit
 
 - **Trigger:** fifth merge (`holon-agentic-coder` #314 `04:02:07Z`, #319 `06:11:39Z`, #317 `07:50:13Z`, #320

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0453
 title: "Consolidate 19+ duplicated test_*_self_doc.py AST and allowlist scanners into one parameterized check"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -11,7 +11,7 @@ tags:
   - self-doc
   - holon-agentic-coder
 created_at: 2026-11-25T05:41:00Z
-updated_at: 2026-11-25T05:41:00Z
+updated_at: 2026-11-26T10:53:00Z
 ---
 
 # Consolidate `19+` duplicated `test_*_self_doc.py` AST and allowlist scanners into one parameterized check
@@ -60,3 +60,8 @@ Small refactor flow (`apps/sandbox-executor/tests/`) run after the active `0153`
   disjoint.
 - Related: Bean `0153` (self-documenting code & Goal 4 global check), Bean `0405` (clean up unnecessary unit tests).
 - Audit source: `2026-11-25T05:41Z` fifth-merge self-improvement audit (`#295–#299`).
+
+## Progress
+
+- 2026-11-26: flow `consolidate-self-doc-tests` launched (claude-agent, claude-opus-5-5); log
+  `todo/flow-consolidate-self-doc-tests.log`.

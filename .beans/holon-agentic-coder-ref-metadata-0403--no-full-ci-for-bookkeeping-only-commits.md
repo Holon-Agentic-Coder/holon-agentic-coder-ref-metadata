@@ -68,3 +68,9 @@ approval of unchanged code. The Stage 4 ledger commit (148 in the logged flows) 
 - Remaining gap: when Stage 4 pushes `chore(review): record review ledger rows` `9–12 s` after a resolver or
   conflict-gate push (`#296`, `#305`, `#306`), the earlier head's CI is cancelled before finishing, so the ledger-row
   push cannot skip CI and runs the full `6–9 min` suite anyway; tracked in Bean `0443`.
+
+## Evidence (audit 2026-11-26T10:50Z)
+
+Heads that ran full CI per PR (unit workflow runs, all green): #325 8 (19 commits), #326 14 (22), #327 7 (17), #329 3
+(9), #330 5 (13), #331 7 (15): 44 heads, 0 failed unit runs, so every extra head was bookkeeping or review-resolver
+churn. Each head also runs six other workflows.

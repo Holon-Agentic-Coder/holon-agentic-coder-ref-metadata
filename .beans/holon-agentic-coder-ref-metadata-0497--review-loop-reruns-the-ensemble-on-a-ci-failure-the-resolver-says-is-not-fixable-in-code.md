@@ -51,3 +51,10 @@ semantics.
 Three reviewers APPROVED with 0 open findings on each of 7 iterations; the consensus stayed CHANGES_REQUESTED and the
 loop hit its 7/7 cap because `hygiene (ubuntu-latest)` stayed red: the `module-budget-change` label, which only the
 maintainer applies, was not set. Same class as bean 0486.
+
+## Recurrence (audit 2026-11-26T10:50Z)
+
+#326: 9 review iterations; iterations 2 to 8 (7 iterations, about 55 min, 08:55Z to 09:50Z) had 3/3 APPROVED with 0
+findings while the container verdict stayed CHANGES_REQUESTED because `hygiene (ubuntu-latest)` was red on every head. 7
+of the 20 review iterations across the six flows were this churn; #325 and #331 each also lost an iteration to
+`local_tests` CI failures.

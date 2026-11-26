@@ -55,3 +55,8 @@ delivered via the Holon flow (`holon-agentic-coder`).
 
 - Target repo change through the Holon flow (`holon-agentic-coder`) after `PR #308` merges.
 - Related: Bean `0405` (`workspace-survival-job-parallel`, slice 2), Bean `0400` (shorten the CI pipeline).
+
+## Evidence (audit 2026-11-26T10:50Z)
+
+After the unit-suite batches (#323, #325, #327) unit ubuntu fell from median 238 s to 171 s, but Workspace survival
+stayed at 269 s (268 s before), so it is now the longest ubuntu job. See bean 0509.
