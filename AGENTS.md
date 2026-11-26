@@ -40,6 +40,9 @@ These apply to every task. Each links to the file that holds the full rule.
   flow, driven with `holon flow <intent.json>`; never hand-patch a target repository outside it. The harness files in
   this repository (`.beans/`, `.agents/`, `AGENTS.md`) stay directly editable. See
   [holon-flow.md](.agents/holon-flow.md).
+- **Self-explaining code (invariant)**: no docstrings and no explanatory comments in any language; names carry the
+  intent, and the only allowed comment is a `# why:` comment recording a reason the code cannot show (maintainer,
+  2026-11-27). Every intent states it in its goal. See [rules.md](.agents/rules.md).
 - **Never pass `--skip-review`** (to `holon flow` or any wrapper). No case needs it (maintainer, 2026-11-21); if Stage 4
   fails or stalls, halt and report instead of bypassing review. See [holon-flow.md](.agents/holon-flow.md).
 - **Default Holon coding model**: use `antigravity-agent` with `gemini-4-neon` for all Holon coding tasks until tokens

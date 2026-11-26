@@ -126,10 +126,13 @@ Inside the background subagent, perform pre-flight verification:
 1. **Verify Global `holon` Binary**: Ensure `holon` is available in `PATH` (`which holon` $\rightarrow$
    `~/.local/bin/holon`).
 2. **Verify Docker Daemon**: Ensure Docker is running (`docker info`).
-3. **Verify Intent JSON**: Read and parse `<intent_path>`. Ensure `slug`, `goal`, and `description` are present. Give
-   the intent a descriptive `slug` of up to 32 characters (lowercase, hyphen-separated); the engine rejects longer root
-   slugs, and since the short branch names of PR #206 two levels of nested child intents with 32-character slugs fit
-   GitHub's 255-character ref limit (see `.agents/rules.md`, "Git ref names are limited to 255 characters").
+3. **Verify Intent JSON**: Read and parse `<intent_path>`. Ensure `slug`, `goal`, and `description` are present, and
+   that the `goal` contains this sentence verbatim: "Code is self-explaining: no docstrings and no comments except '#
+   why:' comments that record a reason the code cannot show." (self-explaining-code invariant, maintainer, 2026-11-27);
+   add it if missing. Give the intent a descriptive `slug` of up to 32 characters (lowercase, hyphen-separated); the
+   engine rejects longer root slugs, and since the short branch names of PR #206 two levels of nested child intents with
+   32-character slugs fit GitHub's 255-character ref limit (see `.agents/rules.md`, "Git ref names are limited to 255
+   characters").
 4. **Verify Target Worktree**: Ensure `--target-worktree` is a dedicated `flow-<slug>` worktree (never the `main`
    worktree itself) that exists and is a clean git repository. Create it from `origin/main` first if it does not exist.
 5. **Intent check (bean 0508, PR #348)**: with the target worktree at current `origin/main`, run

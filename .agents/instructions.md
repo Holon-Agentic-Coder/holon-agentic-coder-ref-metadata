@@ -13,8 +13,9 @@ system safety, and clean documentation. Follow these core guidelines in every se
    over-engineering solutions.
 3. **Be Communicative**: Inform the user (or parent agent) of your plan before executing complex steps. Use artifacts to
    outline detailed multi-step plans.
-4. **Preserve Context**: Maintain original documentation, comments, and structure unless explicitly tasked with changing
-   them. Do not delete comments or rename files without justification.
+4. **Preserve Context**: Maintain original documentation and structure unless explicitly tasked with changing them. Do
+   not rename files without justification. Code comments follow the self-explaining-code invariant in
+   [rules.md](rules.md); only `# why:` comments are kept.
 5. **Avoid Absolute Paths**: Never use absolute file paths in code references, comments, tasks, or documentation. Always
    use paths relative to the project root (e.g. `.agents/instructions.md`) to ensure portability across developer
    workspaces.

@@ -77,3 +77,9 @@ sizing. Moved verbatim from `AGENTS.md`.
     new fixture in a directory `conftest.py`, is an Important review finding; an autouse fixture that hides a real call
     (a stub that makes a test pass) is Critical. The existing conftests are split by the series in the harness bean for
     `conftest.py` (0540).
+18. **Self-Explaining Code** (maintainer, 2026-11-27): code carries no docstrings and no explanatory comments in any
+    language; names state intent, and the only allowed comment is a `# why:` comment recording a reason the code cannot
+    show (full text: rule 5 in [rules.md](rules.md)). Machine directives (shebangs, encoding lines, `# noqa`, `# type:`,
+    `# pragma`, `# fmt:`, shellcheck) stay. Every intent the coordinator writes carries this sentence in its goal: "Code
+    is self-explaining: no docstrings and no comments except '# why:' comments that record a reason the code cannot
+    show." The review flags a docstring or a non-`# why:` explanatory comment added in the diff as an Important finding.

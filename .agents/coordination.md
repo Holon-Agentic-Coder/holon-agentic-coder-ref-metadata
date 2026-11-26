@@ -84,6 +84,10 @@ interactive session remains responsive:
   - **Resume from checkpoint**: once the blocker merges or releases the files, resume the parked flow with
     `--checkpoint` (never a fresh launch, which re-runs intent and plan and leaves duplicate `I-*` branches). Resuming
     takes the next free slot ahead of new beans.
+  - **Intent goal carries the invariant (maintainer, 2026-11-27)**: every intent written for a backfilled or new flow
+    includes this sentence in its `goal`: "Code is self-explaining: no docstrings and no comments except '# why:'
+    comments that record a reason the code cannot show." Before reporting a PR ready, scan its diff for docstrings and
+    non-`# why:` comments.
 
 ### 4. Generic Subagent Protocol (Any Coding Agent)
 

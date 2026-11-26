@@ -14,12 +14,16 @@ code in this repository.
    unless explicitly requested.
 4. **Consistency**: Follow the existing indentation, styling, naming conventions (camelCase, snake_case, etc.), and file
    structures of the project.
-5. **Documentation**:
-   - Update docstrings, READMEs, and inline comments to reflect any changes you make.
-   - Maintain the integrity of existing comments that are unrelated to your changes.
+5. **Self-Explaining Code (invariant)**: Code is self-explaining (maintainer invariant, 2026-11-27): names state the
+   intent of every statement; a block that cannot be named where it is gets extracted into a function whose name says
+   what it does. No docstrings and no explanatory comments in any language (Python, shell, Makefile, Dockerfile, YAML,
+   JS). The only allowed comment is a `# why:` comment that records a reason the code cannot show (a constraint, an
+   incident, a non-obvious decision) — never what the code does. Machine directives are not comments in this sense and
+   stay allowed: shebangs, encoding lines, `# noqa`, `# type:`, `# pragma`, `# fmt:`, shellcheck directives. Keep README
+   and `docs/*.md` files current with your changes; that is documentation, not code comments.
 6. **No Logic in `__init__.py` (maintainer, 2026-11-23; Bean 0379)**: A package `__init__.py` only exposes public
-   functions and variables: a docstring, imports of the public names and `__all__`. Never define functions, classes or
-   constants there, and never run work at import time; put the code in a named module of the package and re-export it.
+   functions and variables: imports of the public names and `__all__`. Never define functions, classes or constants
+   there, and never run work at import time; put the code in a named module of the package and re-export it.
 7. **Modular File Sizing & 200-Line Sizing Guideline**:
    - As a general guideline (a recommended best practice, not a rigid hard rule), source files exceeding **200 lines**
      should be decomposed into modular packages and focused, single-responsibility modules (e.g. splitting monolithic
