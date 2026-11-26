@@ -441,13 +441,13 @@ class TestTimesAndColumns:
         assert rows[0].total_time == "2d3h"
         md = bean_progress.render_markdown_table(rows)
         header = md.splitlines()[0]
-        assert header == "| Bean # | Target | Title | Agent | Model | Stage | In Stage | PR & CI | Total |"
+        assert header == "| Bean # | Target | Title | Agent | Model | Stage | In Stage | Live | PR & CI | Total |"
         line = md.splitlines()[2]
         assert "| 12m |" in line and "| 2d3h |" in line
         assert "idle" in md.split("**Last activity and notes**")[1]
         wide_header = bean_progress.render_markdown_table(rows, wide=True).splitlines()[0]
         assert wide_header == (
-            "| Bean # | Target | Title | Agent | Model | Stage | Time in Stage | PR & CI | Total Time "
+            "| Bean # | Target | Title | Agent | Model | Stage | Time in Stage | Live | PR & CI | Total Time "
             "| Last Activity | Notes |"
         )
         wt2 = _wt(tmp_path, "flow-bar", "bar")
@@ -789,6 +789,31 @@ class TestMultiRowFlows:
         assert sorted("#325" in r.pr_ci or "#327" in r.pr_ci for r in rows) == [True, True]
         text = bean_progress.render_markdown_table(rows)
         assert "- **0405** `tests-a`" in text and "- **0405** `tests-b`" in text
+
+    def test_live_column_dots_and_json(self, tmp_path: Path) -> None:
+        beans, intents, wts = self._three_flows(tmp_path)
+        live = {str(wts[0].path): _live(wts[0], 1, wts[0].slug)}
+        pr = _pr(325, "I-2-tests-b/P-1/E-1/_")
+        wts[1].execution_branch = pr.head_ref_name
+        rows = bean_progress.build_in_flight_rows(beans, intents, wts, [pr], live, now=NOW)
+        by_slug = {r.slug: r for r in rows}
+        assert by_slug[wts[0].slug].live is True and by_slug[wts[1].slug].live is False
+        md = bean_progress.render_markdown_table(rows)
+        header = [c.strip() for c in md.splitlines()[0].split("|")]
+        assert header[header.index("In Stage") + 1] == "Live"
+        lines = md.splitlines()[2 : 2 + len(rows)]
+        assert sum("🟢" in ln for ln in lines) == 1 and sum("🔴" in ln for ln in lines) == 1 and len(rows) == 2
+        data = {r["flow"]: r["live"] for r in (r.as_dict() for r in rows)}
+        assert data[wts[0].slug] is True and data[wts[1].slug] is False
+
+    def test_not_started_bean_is_red(self, tmp_path: Path) -> None:
+        beans_dir = tmp_path / ".beans"
+        beans_dir.mkdir()
+        _make_bean(beans_dir, "0500", "x", "title: X\nstatus: in-progress\n")
+        beans = bean_progress.scan_beans(beans_dir)
+        rows = bean_progress.build_in_flight_rows(beans, [], [], [], {}, now=NOW)
+        assert rows[0].stage == "Not started" and rows[0].live is False
+        assert "🔴" in bean_progress.render_markdown_table(rows) and rows[0].as_dict()["live"] is False
 
     def test_live_concurrent_flow_is_never_a_stale_attempt(self, tmp_path: Path) -> None:
         beans, intents, wts = self._three_flows(tmp_path)

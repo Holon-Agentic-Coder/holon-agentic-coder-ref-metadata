@@ -195,6 +195,7 @@ class InFlightRow:
     live_runner: str
     notes: str
     sort_bucket: int
+    live: bool = False
     time_in_stage: str = "—"
     total_time: str = "—"
     source: str = ""
@@ -225,6 +226,7 @@ class InFlightRow:
             "pr_ci": self.pr_ci,
             "total_time": self.total_time,
             "last_activity": self.last_activity,
+            "live": self.live,
             "live_runner": self.live_runner,
             "notes": self.notes_cell(),
             "blocked_by": [b.as_dict() for b in self.blockers],
@@ -1664,6 +1666,7 @@ def build_in_flight_rows(
                 stage=stage,
                 pr_ci=pr_ci,
                 live_runner=live_runner,
+                live=bool(live and live.kind == "running"),
                 notes=notes,
                 sort_bucket=bucket,
                 time_in_stage="—" if stale_stage or stage == "Not started" else format_duration(wt.stage_started, now),
@@ -1714,6 +1717,7 @@ def build_in_flight_rows(
                 stage=_derive_stage(None, live, pr is not None),
                 pr_ci=_derive_pr_ci(pr),
                 live_runner=_derive_live_runner(None, live),
+                live=live.kind == "running",
                 notes=_derive_notes(group_beans, None, pr, live),
                 sort_bucket=0 if live.kind == "running" else 1,
                 total_time=format_duration(branch_started(pr.head_ref_name) if pr else None, now),
@@ -1864,6 +1868,7 @@ def render_wide_table(rows: list[InFlightRow]) -> str:
         "Model",
         "Stage",
         "Time in Stage",
+        "Live",
         "PR & CI",
         "Total Time",
         "Last Activity",
@@ -1878,6 +1883,7 @@ def render_wide_table(rows: list[InFlightRow]) -> str:
             row.model,
             row.stage,
             row.time_in_stage,
+            _live_dot(row),
             row.pr_ci,
             row.total_time,
             row.last_activity,
@@ -1886,6 +1892,10 @@ def render_wide_table(rows: list[InFlightRow]) -> str:
         for row in rows
     ]
     return "\n".join(_table(headers, body))
+
+
+def _live_dot(row: InFlightRow) -> str:
+    return "🟢" if row.live else "🔴"
 
 
 def render_markdown_table(rows: list[InFlightRow], *, wide: bool = False) -> str:
@@ -1899,7 +1909,7 @@ def render_markdown_table(rows: list[InFlightRow], *, wide: bool = False) -> str
     if wide:
         return render_wide_table(rows)
 
-    headers = ["Bean #", "Target", "Title", "Agent", "Model", "Stage", "In Stage", "PR & CI", "Total"]
+    headers = ["Bean #", "Target", "Title", "Agent", "Model", "Stage", "In Stage", "Live", "PR & CI", "Total"]
     body: list[list[str]] = []
     details: list[str] = []
     cells = [", ".join(r.bean_nums) if r.bean_nums else "—" for r in rows]
@@ -1913,6 +1923,7 @@ def render_markdown_table(rows: list[InFlightRow], *, wide: bool = False) -> str
                 _short_model(row.model),
                 row.stage_compact or row.stage,
                 row.time_in_stage,
+                _live_dot(row),
                 row.pr_ci,
                 row.total_time,
             ]
