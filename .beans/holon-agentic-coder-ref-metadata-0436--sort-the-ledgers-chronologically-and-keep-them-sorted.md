@@ -10,7 +10,7 @@ tags:
   - conflicts
   - holon-agentic-coder
 created_at: 2026-11-24T23:15:00Z
-updated_at: 2026-11-26T12:05:00Z
+updated_at: 2026-11-26T20:59:53Z
 ---
 
 ## Why
@@ -79,3 +79,7 @@ long as the base is unsorted, the rule "interleave by `created_at`" and the rule
   a code conflict in `flow/__init__.py` resolved via resolve-conflict and a rerun from review), calibrated,
   MERGEABLE/CLEAN, green CI. Awaiting maintainer merge. Not in scope and still open: writers of `created_at` (many
   review modules) to canonical `Z` form; keep the bean open for that remainder.
+
+- 2026-11-26T20:58Z: PR #342 merged into `main` (`57a8aa38`). `scripts/normalise_ledgers.py --check` exits 0 on `main`;
+  the three conflict reconcilers keep the base's rows in place and insert only the incoming rows. Bean stays in-progress
+  for the remaining scope: `created_at` writers in the review modules (canonical `Z` form).

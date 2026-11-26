@@ -120,3 +120,10 @@ I-1795665991-no-unneeded-full-review, on apps/sandbox-executor/src/sandbox_execu
   I-1795704651-kb-wisdom-deterministic-files) on apps/sandbox-executor/src/sandbox_executor/knowledge/wisdom.py.
   Worktree flow-module-budget-default-350 and checkpoint kept; resume from checkpoint (--checkpoint, never relaunch
   without it) once PR #349 merges or releases wisdom.py.
+
+## Note (coordinator, 2026-11-26 21:05Z)
+
+After PR #347 split `calibration.py` into the `calibration/` package, `holon-config/hygiene/module_budgets.json` still
+carries an override `calibration.py: 1608` for a file that no longer exists. Removing a dead override is a budget-file
+change, so it belongs to this bean's authorised schedule: drop it in the next budget step (step 2 if its plan can take
+it, otherwise step 3), and have the budget check flag overrides whose file is gone.
