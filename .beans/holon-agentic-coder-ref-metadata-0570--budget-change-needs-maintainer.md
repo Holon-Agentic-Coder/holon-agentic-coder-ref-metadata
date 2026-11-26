@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0570
 title: "Check: module budget changes only with explicit maintainer authorisation"
-status: todo
+status: in-progress
 type: task
 priority: critical
 tags:
@@ -10,7 +10,7 @@ tags:
   - invariants
   - holon-agentic-coder
 created_at: 2026-11-26T23:09:56Z
-updated_at: 2026-11-26T23:09:56Z
+updated_at: 2026-11-26T23:15:08Z
 ---
 
 ## Instruction (maintainer, 2026-11-27 local)
@@ -43,3 +43,11 @@ authorisation themselves.
   and passes on the cleaned state.
 - Self-explaining code invariant in anything written: no docstrings, no comments except `# why:`.
 - Target-repository work goes through `holon flow`; the intent never names harness paths or bean ids.
+
+## Progress
+
+2026-11-26T23:15:08Z: harness half done: auto-injection removed; an intent whose scope lists `module_budgets.json`
+without a non-empty `module_budget_change` is refused (exit 2); tests in `tests/test_flow_gates.py`. The
+module-budget-default-350 and default-400 intents already carry the maintainer's quoted instruction. Old 0380 coherence
+intents lack the field and would now be refused (already done flows). Remaining: target CI label-actor check (maintainer
+applies `module-budget-change`) needs a `holon flow`.

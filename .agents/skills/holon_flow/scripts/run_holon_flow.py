@@ -20,6 +20,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from flow_env import AuthRouteMissing, build_flow_env  # noqa: E402
+from flow_gates import budget_change_refusal, forbidden_flag_refusal  # noqa: E402
 
 # Terminal formatting
 COLOR_BOLD = "\033[1m"
@@ -584,6 +585,8 @@ def run_flow(
     from_stage: str | None = None,
     checkpoint: Path | None = None,
     allow_overlap: bool = False,
+    skip_preflight: bool = False,
+    skip_review: bool = False,
     auto_fallback: bool = True,
     dry_run: bool = False,
     wait_on_overlap: bool = True,
@@ -591,6 +594,12 @@ def run_flow(
     outcome: dict | None = None,
 ) -> int:
     """Run holon flow with optional automatic fallback ladder on quota errors."""
+    flag_refusal = forbidden_flag_refusal(
+        {"skip_review": skip_review, "skip_preflight": skip_preflight, "allow_overlap": allow_overlap}
+    )
+    if flag_refusal:
+        log_error(flag_refusal)
+        return 2
     intent_data = parse_intent_file(intent_path)
     slug = intent_data["slug"]
     directories = directory_scope_entries(intent_data.get("scope"), target_worktree)
@@ -610,12 +619,10 @@ def run_flow(
         slug = truncated_slug
         modified = True
 
-    touches_budgets = "0380" in intent_path.name or "module_budgets.json" in str(intent_data.get("scope", []))
-    if touches_budgets and "module_budget_change" not in intent_data:
-        intent_data["module_budget_change"] = (
-            "Budget should be enforced to all packages, including new packages, not just to flow."
-        )
-        modified = True
+    budget_refusal = budget_change_refusal(intent_data)
+    if budget_refusal:
+        log_error(budget_refusal)
+        return 2
 
     if modified:
         temp_intent_path = intent_path.parent / f"intent-modified-{slug}.json"
@@ -644,6 +651,8 @@ def run_flow(
             cmd.extend(["--checkpoint", str(current_checkpoint)])
         if current_allow_overlap:
             cmd.append("--allow-overlap")
+        if skip_preflight:
+            cmd.append("--skip-preflight")
 
         log_stage(f"Launching Holon Flow: {slug} (Agent: {current_agent}, Model: {current_model})")
 
@@ -899,6 +908,10 @@ def main() -> None:
         action="store_true",
         help="Admit Stage 3 even when the plan's touch set overlaps a flow in flight or is undeclared.",
     )
+    parser.add_argument("--skip-review", action="store_true", help="Always refused; never allowed.")
+    parser.add_argument(
+        "--skip-preflight", action="store_true", help="Refused unless the maintainer authorisation is present."
+    )
     parser.add_argument(
         "--no-wait-on-overlap",
         action="store_true",
@@ -930,6 +943,8 @@ def main() -> None:
         from_stage=args.from_stage,
         checkpoint=args.checkpoint,
         allow_overlap=args.allow_overlap,
+        skip_preflight=args.skip_preflight,
+        skip_review=args.skip_review,
         auto_fallback=not args.no_fallback,
         dry_run=args.dry_run,
         wait_on_overlap=not args.no_wait_on_overlap,

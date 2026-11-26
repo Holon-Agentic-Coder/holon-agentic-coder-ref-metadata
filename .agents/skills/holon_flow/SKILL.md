@@ -288,6 +288,17 @@ Once the flow finishes:
 
 ---
 
+### Forbidden flags and budget changes are refused by the wrapper
+
+`scripts/flow_gates.py` is checked by `run_holon_flow.py` before any work starts (exit 2).
+
+- `--skip-review` is always refused and never forwarded.
+- `--skip-preflight` and `--allow-overlap` are refused unless the maintainer authorised them: the environment variable
+  `HOLON_MAINTAINER_AUTH` must equal the token in `~/.config/holon-maintainer/auth-token`, a file outside this
+  repository that only the maintainer creates. Agents never create, read out or export that token.
+- An intent whose scope lists `module_budgets.json` is refused unless it carries a non-empty `module_budget_change`
+  field holding the maintainer's quoted instruction. The wrapper never injects the field.
+
 ### Stage 3 overlap refusals are parked, not waited out (maintainer, 2026-11-26)
 
 When Stage 3 admission refuses a plan because its touch set overlaps another flow in flight (or the flow otherwise waits

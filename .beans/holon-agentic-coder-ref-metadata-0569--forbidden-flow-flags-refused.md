@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0569
 title: "Check: flow wrapper refuses --skip-review and other forbidden flags"
-status: todo
+status: completed
 type: task
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - holon-flow
   - invariants
 created_at: 2026-11-26T23:09:56Z
-updated_at: 2026-11-26T23:09:56Z
+updated_at: 2026-11-26T23:15:08Z
 ---
 
 ## Instruction (maintainer, 2026-11-27 local)
@@ -36,3 +36,11 @@ permission.
   and passes on the cleaned state.
 - Self-explaining code invariant in anything written: no docstrings, no comments except `# why:`.
 - Target-repository work goes through `holon flow`; the intent never names harness paths or bean ids.
+
+## Resolution
+
+2026-11-26T23:15:08Z: `flow_gates.py` plus `run_holon_flow.py`: `--skip-review` always refused (exit 2, never
+forwarded); `--skip-preflight` and `--allow-overlap` refused unless `HOLON_MAINTAINER_AUTH` matches the token in
+`~/.config/holon-maintainer/auth-token` (outside the repo; documented in the holon_flow skill). Tests in
+`tests/test_flow_gates.py` (proven failing with the gates disabled). Remaining, not done: `holon flow` itself logging a
+bypass flag into the execution ledger needs a target-repo flow.
