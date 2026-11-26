@@ -10,8 +10,8 @@ tags:
   - harness
   - holon-agentic-coder
   - holon-coherence
-created_at: 2026-11-27T00:20:00Z
-updated_at: 2026-11-27T00:30:00Z
+created_at: 2026-11-26T22:54:22Z
+updated_at: 2026-11-26T22:54:22Z
 ---
 
 ## Instruction (maintainer, 2026-11-27)

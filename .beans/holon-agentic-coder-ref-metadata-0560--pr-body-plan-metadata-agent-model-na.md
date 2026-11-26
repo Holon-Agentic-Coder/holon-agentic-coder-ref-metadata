@@ -9,8 +9,8 @@ tags:
   - github
   - pr-metadata
   - holon-agentic-coder
-created_at: 2026-11-27T00:45:00Z
-updated_at: 2026-11-27T00:45:00Z
+created_at: 2026-11-26T23:04:48Z
+updated_at: 2026-11-26T23:04:48Z
 ---
 
 ## Instruction (maintainer, 2026-11-27)

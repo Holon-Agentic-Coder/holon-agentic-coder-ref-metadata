@@ -1,5 +1,5 @@
 ---
-# holon-agentic-coder-ref-metadata-1lh8
+# holon-agentic-coder-ref-metadata-0031
 title: Align CI/CD workflows across all projects with agentic-knowledge-base convention
 status: completed
 type: task

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0557
 title: "Flow-engine PRs must pass the suites run under the review loop's own environment (the #350 regression class)"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -10,8 +10,8 @@ tags:
   - tests
   - readiness
   - holon-agentic-coder
-created_at: 2026-11-27T00:30:00Z
-updated_at: 2026-11-27T00:30:00Z
+created_at: 2026-11-26T22:59:59Z
+updated_at: 2026-11-26T22:59:59Z
 ---
 
 ## Problem (repeat category `readiness-check`: CF-0003, CF-0006)

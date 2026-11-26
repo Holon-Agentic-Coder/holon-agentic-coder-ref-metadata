@@ -9,8 +9,8 @@ tags:
   - review-loop
   - worktree
   - holon-agentic-coder
-created_at: 2026-11-27T00:00:00Z
-updated_at: 2026-11-27T00:00:00Z
+created_at: 2026-11-26T22:54:22Z
+updated_at: 2026-11-26T22:54:22Z
 ---
 
 ## Problem

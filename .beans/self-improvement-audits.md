@@ -5,7 +5,7 @@ first.
 
 ## Entries
 
-### 2026-11-27T00:30:00Z — Fifth-Merge Audit
+### 2026-11-26T22:59:59Z — Fifth-Merge Audit
 
 - **Trigger:** fifth merge (`holon-agentic-coder` #352 `22:31:45Z`, #354 `22:32:39Z`, #355 `22:33:28Z`, #356
   `22:56:12Z`, #351 `22:56:30Z`); #350 `21:04:13Z` examined as the regression source.

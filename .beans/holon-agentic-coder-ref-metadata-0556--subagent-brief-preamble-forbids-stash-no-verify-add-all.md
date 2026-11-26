@@ -8,8 +8,8 @@ tags:
   - harness
   - subagents
   - coordinator-failures
-created_at: 2026-11-27T00:30:00Z
-updated_at: 2026-11-27T01:00:00Z
+created_at: 2026-11-26T22:59:59Z
+updated_at: 2026-11-26T23:01:15Z
 ---
 
 ## Problem (repeat category, high priority)

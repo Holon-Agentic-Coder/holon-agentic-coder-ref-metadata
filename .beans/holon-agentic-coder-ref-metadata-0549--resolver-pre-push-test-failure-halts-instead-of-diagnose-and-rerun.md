@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0549
 title: "Failed tests: record in the ledger, diagnose, fix and re-run in a loop until they pass"
-status: todo
+status: in-progress
 type: feature
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
   - ledger
   - holon-agentic-coder
 created_at: 2026-11-26T22:27:00Z
-updated_at: 2026-11-27T00:10:00Z
+updated_at: 2026-11-26T23:16:17Z
 ---
 
 ## Instruction (maintainer, 2026-11-27)

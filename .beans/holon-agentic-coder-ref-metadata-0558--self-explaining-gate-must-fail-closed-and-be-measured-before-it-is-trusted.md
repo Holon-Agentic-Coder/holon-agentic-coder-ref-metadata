@@ -9,8 +9,8 @@ tags:
   - coding-standards
   - self-explaining-code
   - holon-agentic-coder
-created_at: 2026-11-27T00:30:00Z
-updated_at: 2026-11-27T00:30:00Z
+created_at: 2026-11-26T22:59:59Z
+updated_at: 2026-11-26T22:59:59Z
 ---
 
 ## Evidence
