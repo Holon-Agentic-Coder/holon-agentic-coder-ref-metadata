@@ -10,7 +10,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T09:55:00Z
-updated_at: 2026-11-26T09:27:00Z
+updated_at: 2026-11-26T09:40:00Z
 ---
 
 ## Why
@@ -211,6 +211,14 @@ Measured on main `412bed21` (report: `todo/test-suite-audit-2026-11-26.md`, raw 
 - Batch 5 flow started 2026-11-26 (intent `todo/intent-0405-tests-cpu-bound-redaction-ledger.json`, worktree
   `flow-tests-cpu-bound-redaction-ledger`, claude-agent / claude-opus-5-5, `--no-wait-on-overlap`, log
   `todo/flow-tests-cpu-bound-redaction-ledger.log`).
+  - Result 2026-11-26: PR #327 (`I-1795679415-tests-cpu-bound-redaction-ledger`) APPROVED 3/3 on 64a2ed9 (iteration 2),
+    calibrated on dface60f (calibrate rerun after main merged in), CI green, MERGEABLE/CLEAN; maintainer merged it
+    2026-11-26 09:38:33Z. Measured saving 27.8 percent (summed scope time 68.16 s to 49.24 s, 370 to 373 cases, git
+    processes 1,319 to 1,193): NOT the 35 percent the intent requires. The whole unit selection still shows 9 failures
+    in `test_stress_support.py` (out of scope per the notes). Bugs logged: bean 0503 (review approved unmet acceptance
+    criteria); bean 0501 (log empty, second occurrence).
+  - 2026-11-26 (post-merge of PR #327, merged as `58c66198`): test-only change; install step skipped. Batch 5 CI figures
+    are not yet measured on `main`: re-measure with the next pushes. Bean stays in-progress.
 - Batch 1 outcome (2026-11-26 09:19): flow completed all 5 stages, PR #325
   (`I-1795676983-tests-constant-time-tmp-dirs/...`), MERGEABLE/CLEAN at the wrapper exit, 3/3 ensemble consensus
   APPROVED (one review iteration with two findings, fixed), calibration
