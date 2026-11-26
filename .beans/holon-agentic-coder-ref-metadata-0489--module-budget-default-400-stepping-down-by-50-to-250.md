@@ -1,0 +1,66 @@
+---
+# holon-agentic-coder-ref-metadata-0489
+title: "Module line budget: default 400 for now, then step down by 50 per pull request to 250, decomposing at each step"
+status: in-progress
+type: task
+priority: high
+tags:
+  - hygiene
+  - module-budget
+  - architecture
+  - refactoring
+  - holon-agentic-coder
+created_at: 2026-11-26T06:30:00Z
+updated_at: 2026-11-26T08:31:01Z
+blocked_by:
+  - "0380"
+---
+
+## Instruction (maintainer, 2026-11-26)
+
+"Bump up the budget to 400 for now. There will be multiple PRs that will decrease the budget by 50. Each time the budget
+is hit you will make a change to decompose the files, until the budget of 250 is achieved."
+
+This is the maintainer's explicit authorisation to change `holon-config/hygiene/module_budgets.json` for this schedule
+only; each flow's intent carries it in the `module_budget_change` field, and each pull request needs the
+`module-budget-change` label (applied by the maintainer) for CI to accept the change (Bean 0486).
+
+## Plan
+
+One pull request per step, each a separate holon flow, in order:
+
+| Step | Default budget | Work in the pull request                                                               |
+| :--- | -------------: | :------------------------------------------------------------------------------------- |
+| 1    |            400 | Raise the default from 200 to 400; drop every override at or below 400 (now redundant) |
+| 2    |            350 | Lower the default to 350; decompose every module between 351 and 400 lines             |
+| 3    |            300 | Lower the default to 300; decompose every module between 301 and 350 lines             |
+| 4    |            250 | Lower the default to 250; decompose every module between 251 and 300 lines (target)    |
+
+- A step that would touch too many modules for one flow is split into several flows (decomposition first, then the
+  budget change), each with a file-level scope.
+- Decomposition is move-only where possible (like the `flow/` and `cli/` splits), keeps public imports working, and puts
+  no logic in `__init__.py` (Bean 0379).
+- Every step re-measures: module count over the new default before and after, and the largest remaining modules.
+- Overrides only ratchet down at every step; none is ever raised or added.
+
+## Open question for the maintainer
+
+Modules far over 400 (for example `calibration.py` about 1,600 lines, `review_ensemble.py` about 990, `env_registry.py`
+about 930, `turns.py` about 890) keep frozen ratchet-down overrides from Bean 0380. Should each step also bring them
+under the new default, or do they stay on their overrides and get their own decomposition beans (for example Bean 0197
+for `calibration.py`)? Default assumed here: they stay on overrides and are handled by their own beans.
+
+## Dependencies
+
+- Starts after Bean 0380 (PR #317: discovery-based coverage, overrides frozen at current size) merges, since step 1
+  edits the configuration that pull request introduces, and after Bean 0486 (CI honours the label).
+- Related: Bean 0340 (revisit the 200-line default), Bean 0197 (split `calibration.py`).
+
+## Flow
+
+in-progress 2026-11-26T08:31:01Z: holon flow `module-budget-default-400` (step 1, default 400), runner claude-agent /
+claude-opus-5-5, log `todo/flow-module-budget-default-400.log`, intent `todo/intent-0489-module-budget-default-400.json`
+(scope adds docs/architecture.md, which states the 200-line default).
+
+PR #326 opened by flow `module-budget-default-400` (2026-11-26T08:42:18Z). Needs the maintainer's `module-budget-change`
+label for CI hygiene to accept the budget change; not applied by the agent.

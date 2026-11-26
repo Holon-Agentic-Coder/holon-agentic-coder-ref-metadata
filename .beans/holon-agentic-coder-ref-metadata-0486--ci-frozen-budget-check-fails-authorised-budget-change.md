@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0486
 title: "CI's frozen budget-config check fails an authorised module budget change, so its flow loops in review"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -33,3 +33,12 @@ iteration (see Bean 0407, Bean 0409).
 ## Notes
 
 - Found 2026-11-26 while checking why #317 was on review iteration 8.
+
+## Resolution (2026-11-26)
+
+Not a code gap. `main` already wires the label: `.github/workflows/test-hygiene.yml` sets `MODULE_BUDGET_CHANGE_LABEL`
+from the `module-budget-change` label and exports `HOLON_ALLOW_MODULE_BUDGET_CHANGE=1`. The label did not exist in the
+repository and was not on #317. The coordinator created it and the maintainer's decision applied it on 2026-11-26. The
+next hygiene run reported the change as a notice and failed only on two new modules over the 200-line default
+(`scripts/macos_relevance.py`, `scripts/macos_relevance_rules.py`), which the 400-line default (Bean 0489, applied in
+#317) resolves. Open follow-up: the flow's review loop has no channel for maintainer decisions (see Bean 0485 notes).

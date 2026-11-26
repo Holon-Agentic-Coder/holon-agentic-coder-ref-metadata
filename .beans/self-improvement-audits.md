@@ -5,6 +5,31 @@ first.
 
 ## Entries
 
+### 2026-11-26T08:55:00Z — Fifth-Merge Audit
+
+- **Trigger:** fifth merge (`holon-agentic-coder` #314 `04:02:07Z`, #319 `06:11:39Z`, #317 `07:50:13Z`, #320
+  `08:46:12Z`, #321 `08:47:03Z`, #323 `08:47:39Z`; child PRs #310-#313 already counted in the `03:50Z` entry).
+- **Last merged pull requests at audit time:** `Holon-Agentic-Coder/holon-agentic-coder#323`
+  (`tests-fewer-git-worktree-exec`, merged `2026-11-26T08:47:39Z`); `holon-coherence#56` unchanged since the previous
+  entry.
+- **Inputs:** `todo/flow-time-audit-2026-11-26.md` and `todo/test-suite-audit-2026-11-26.md` (their beans 0478-0496 not
+  duplicated); GitHub reviews and workflow runs for the six PRs; `todo/flow-module-line-budget-all-packages.log`.
+- **Per-PR measurements (GitHub):** reviews approving 3/3 / workflow runs (success, failure, cancelled): #314 1 / 30
+  (24, 0, 6); #319 1 / 42 (31, 0, 11); #317 1 (after 12 loop iterations) / 100 (70, 14, 16); #320 2 / 66 (43, 3, 20);
+  #321 2 / 66 (45, 3, 18); #323 1 / 30 (21, 2, 7). Review-loop timing of #317: iterations 1-9 cover 05:16:53Z-06:22:10Z
+  (65 min) and all 9 were blocked by one unfixable-by-code hygiene failure; ensemble about 3.7 min per iteration (log).
+  Step-level timing for the other five flows is **not measured** at step level in this audit (logs for #314/#319 stage
+  steps are covered by the flow time audit and bean 0412; `flow-tests-fewer-git-worktree-exec.log` stayed empty, bean
+  0496).
+- **Beans created:** `0497` (review loop re-runs the ensemble on a CI failure the resolver reports as not fixable in
+  code; #317 about 85 min), `0498` (a unit test measures the live tree against the live budget file; failed
+  #320/#321/#323 in 9 jobs after #317 merged), `0499` (calibration report records CI runs, review iterations and churn
+  class per flow).
+- **Examined and in order:** #323 reached 3/3 in one iteration with the template-repo test change (git processes -35.7
+  percent, 40 percent target honestly recorded as missed); #314 (+10,112 lines, 210 files) and #319 approved in one
+  iteration; #320/#321 second approvals trace to 0493/0494, not new beans; the `gh event listen` hint still appears in
+  every review body (0427); stray `=2026-11-24T08:00:00Z` still untracked (0465).
+
 ### 2026-11-26T03:50:00Z — Fifth-Merge Audit
 
 - **Trigger:** fifth merge (`7` target-repo merges since `2026-11-25T22:49:00Z`: `holon-agentic-coder` `#309`

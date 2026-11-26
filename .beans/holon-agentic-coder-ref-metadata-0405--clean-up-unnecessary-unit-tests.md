@@ -226,3 +226,8 @@ Measured on main `412bed21` (report: `todo/test-suite-audit-2026-11-26.md`, raw 
   green unit check there is the 68fc39e4 run. The PR body is the auto-generated summary and lacks the before/after CI
   comparison the intent asks for.
 - Bug from this batch: bean 0501 (wrapper log stays empty until exit).
+
+## Batch 2 flow
+
+- 2026-11-26: batch 2 flow started for intent `tests-fewer-git-stage-pipeline` (flow-tests-fewer-git-stage-pipeline off
+  origin/main, claude-agent / claude-opus-5-5, log todo/flow-tests-fewer-git-stage-pipeline.log).

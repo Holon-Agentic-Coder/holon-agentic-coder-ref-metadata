@@ -32,3 +32,11 @@ required check is red. The maintainer decides whether the label is added by hand
 
 - Found while driving PR #317 (2026-11-26). The label was not applied by the agent: the label is the maintainer's
   CI-side authorisation channel.
+
+## Correction (coordinator, 2026-11-26)
+
+The claim that CI does not read the label is wrong: `test-hygiene.yml` on `main` already passes the
+`module-budget-change` label to `scripts/check_module_budgets.py` (see Bean 0486 resolution). What remains true and is
+this bean's scope: the Stage 4 review loop has no input path for a maintainer decision (no PR comment or label is read),
+so a decision such as "use a 400-line default" can only reach a running flow by stopping it and resuming with an amended
+intent.
