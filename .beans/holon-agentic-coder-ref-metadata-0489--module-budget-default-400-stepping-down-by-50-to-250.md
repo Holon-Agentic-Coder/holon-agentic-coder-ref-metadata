@@ -11,7 +11,7 @@ tags:
   - refactoring
   - holon-agentic-coder
 created_at: 2026-11-26T06:30:00Z
-updated_at: 2026-11-26T08:31:01Z
+updated_at: 2026-11-26T09:53:35Z
 blocked_by:
   - "0380"
 ---
@@ -64,3 +64,21 @@ claude-opus-5-5, log `todo/flow-module-budget-default-400.log`, intent `todo/int
 
 PR #326 opened by flow `module-budget-default-400` (2026-11-26T08:42:18Z). Needs the maintainer's `module-budget-change`
 label for CI hygiene to accept the budget change; not applied by the agent.
+
+flow `module-budget-default-400` completed 2026-11-26T09:51:05Z: PR #326 (head 532f3834, base main), MERGEABLE/CLEAN,
+label `module-budget-change` applied by the maintainer (not by the agent), review consensus APPROVED on iteration 8
+(iterations 1-7 blocked on the label, same as bean 0497), calibration included (EV predicted 64.59 in state file).
+Overrides 61 -> 24: 37 removed (all at or below 400), 24 kept (all above 400, unchanged). Next step's decomposition set:
+5 modules at 351-400 (knowledge/wisdom.py 353, budgets.py 359, flow/git_refs.py 380, scripts/pre_commit_check.py 381,
+cli/commands/flow.py 398). Scope note: the flow also edited holon-config/prompts/planner.template.md (stale "default
+200" text), outside the intent scope. Status stays in-progress until the maintainer merges.
+
+Step 1 merged: PR #326 merged into `main` (`67f6ea89`, 2026-11-26T09:51:19Z). Default raised 200 to 400; overrides 61 to
+24 (37 removed, all at or below 400; the 24 kept are all above 400 and unchanged). The flow also edited
+`holon-config/prompts/planner.template.md` (stale "default 200" wording), outside the intent scope. Post-merge:
+`install-holon` rebuilt all images and reinstalled `holon` and `holon-coherence`; the flow worktree and the intent's
+branches were removed.
+
+Step 2 set (default 350, decompose the modules between 351 and 400): `knowledge/wisdom.py` 353,
+`sandbox_executor/budgets.py` 359, `flow/git_refs.py` 380, `scripts/pre_commit_check.py` 381, `cli/commands/flow.py` 398
+lines on `main` (measured 2026-11-26; the flow's own count matches).
