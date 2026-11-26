@@ -10,7 +10,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T09:55:00Z
-updated_at: 2026-11-24T23:15:29Z
+updated_at: 2026-11-26T00:05:00Z
 ---
 
 ## Why
@@ -145,3 +145,22 @@ A later sub-flow should make that job parallel or run it only when the paths it 
     `tests/test_calibration_diff_property.py` (19.8 s), deferred because open pull requests or running flows touch them.
     About 870 s of the 1,193 s summed time sits outside the 13 files.
   - Targets for the pipeline (ubuntu unit about 2 minutes, macOS unit under 5 minutes) not yet re-measured on `main`.
+- 2026-11-24: second slice launched, flow `workspace-survival-job-parallel` (`claude-agent` / `claude-opus-5-5`, since
+  `claude-fable-5-2` is over its monthly spend limit): cut the Workspace survival job's time (two stress tests that each
+  re-run the unit suite, run one after the other) without weakening either guarantee. Bean 0403 has landed (#272), so
+  the shared `test-stress.yml` is free.
+- 2026-11-26 (post-merge of PR #308, merged as `a8cfaf80`): second slice delivered. The two stress tests of the
+  Workspace survival job now run concurrently (`-n auto --dist worksteal` in `test-stress.yml`), each with its own HOME,
+  workspace, TMPDIR and basetemp (`tests/stress_support.py`; `tests/test_stress_support.py` proves they share none of
+  them). The canary child runs only the modules picked by the rule in `tests/stress_selection.py`, and each child uses
+  every usable CPU. Negative controls show both guards still trip. Local measurement in the CI shape: serial 276 s,
+  concurrent median about 160 s (about 42 percent less). The CI job itself is not yet re-measured on `main` (run
+  45725903403 in progress at merge time). The timing gate and the 'Assert the stress suite really ran' step are
+  unchanged.
+- Still open on this bean (stays in-progress):
+  - Regrowth rules (goal 6): no per-test time limit in the unit suite and no review-rule note yet.
+  - Re-measure the pipeline targets on `main` (ubuntu unit about 2 minutes, macOS unit under 5 minutes) once the
+    post-merge runs finish.
+  - Test areas still left out: `tests/flow/test_git_refs.py` (20.3 s), `tests/flow/review/test_conflict_gate.py` (21.2
+    s) and `tests/test_calibration_diff_property.py` (19.8 s), deferred while open pull requests touched them (PR #310
+    and its neighbours). About 870 s of the 1,193 s summed time sits outside the 13 files of the first slice.

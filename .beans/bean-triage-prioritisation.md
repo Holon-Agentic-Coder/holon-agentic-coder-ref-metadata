@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-25 22:59:48 UTC
+**Last Updated:** 2026-11-26 00:04:54 UTC
 
 ## Executive Summary
 
@@ -16,10 +16,10 @@ the run. Concurrent flows on overlapping files forced repeated syncs and re-revi
 about 10M+ tokens), so flows that touch the same files still run one after another; only flows with disjoint touch sets
 run together.
 
-- **Total Tracked Beans**: 465 (excluding template)
-- **Completed**: 357 (76.8%)
-- **Scrapped / Superseded**: 10 (2.2%)
-- **Active**: 98 (21.1%), of which 11 are in progress, 85 are todo and 2 are draft
+- **Total Tracked Beans**: 470 (excluding template)
+- **Completed**: 357 (76.0%)
+- **Scrapped / Superseded**: 10 (2.1%)
+- **Active**: 103 (21.9%), of which 12 are in progress, 89 are todo and 2 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1075,6 +1075,11 @@ logged beans `0389` and `0390` added to triage.
 | **P3**   | todo        | Medium |             M             | 0141   | "Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe"                                                                      | vmlx / Performance               | Ready (host-level vMLX tuning on Mac; not a target-repo change). Pairs with `0142`.                                                                                                                                                                   |
 | **P3**   | todo        |  Low   |            XS             | 0231   | "Exhausted-budget error string interpolates raw count while payload reports clamped 0"                                                     | Flow Engine / Cosmetic           | Queued behind 0376 (overlaps `flow/review/loop.py`). Cosmetic; bundle with a review-loop flow.                                                                                                                                                        |
 | **P3**   | todo        |  Low   |            XS             | 0269   | "Deferred nits from the holon-agentic-coder PR 158 review loop"                                                                            | Review Loop / Housekeeping       | Wait for 0376 (overlaps `docs/git_flow.md`) and 0197 (`calibration.py`). Item 2 obsolete; remaining: fold `parse_actual_metrics` exit-code logic onto `record_exit_code` and fix `docs/git_flow.md` checkpoint wording.                               |
+| **P1**   | todo        | Medium |             M             | 0472   | Flow runner does not refuse a second run on the same intent and does not reap its children after a halt                                    | General                          |                                                                                                                                                                                                                                                       |
+| **P1**   | todo        | Medium |             M             | 0471   | Resolver container argv carries the Claude OAuth token, visible to every local user via ps and docker top                                  | General                          |                                                                                                                                                                                                                                                       |
+| **P1**   | in-progress | Medium |             M             | 0470   | Fix Warp Shift+Enter swallowed by tmux C-j binding                                                                                         | General                          |                                                                                                                                                                                                                                                       |
+| **P1**   | todo        | Medium |             M             | 0469   | test_conflict_gate code-conflict test reaches the real launcher and exits on macOS when docker is on PATH                                  | General                          |                                                                                                                                                                                                                                                       |
+| **P1**   | todo        | Medium |             M             | 0468   | run_holon_flow.py exits on a Stage 3 overlap refusal instead of waiting it out                                                             | Skills / Tooling                 |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             L             | 0467   | Per-merge record commits make up 60 of the last 92 harness commits                                                                         | Architecture / Quality           |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        | Medium |             M             | 0466   | A flow stage that needs Docker aborts the moment the daemon is down instead of waiting                                                     | Build / DevEx                    |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             L             | 0465   | Harness beans, skills and the audit instruction sit uncommitted in the working tree                                                        | Architecture / Quality           |                                                                                                                                                                                                                                                       |
