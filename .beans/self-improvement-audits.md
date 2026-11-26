@@ -5,6 +5,25 @@ first.
 
 ## Entries
 
+### 2026-11-27T00:30:00Z — Fifth-Merge Audit
+
+- **Trigger:** fifth merge (`holon-agentic-coder` #352 `22:31:45Z`, #354 `22:32:39Z`, #355 `22:33:28Z`, #356
+  `22:56:12Z`, #351 `22:56:30Z`); #350 `21:04:13Z` examined as the regression source.
+- **Last merged pull requests at audit time:** `Holon-Agentic-Coder/holon-agentic-coder#351`
+  (`single-runner-per-checkpoint`); `holon-coherence#56` unchanged. #357 (self-explaining gate) open.
+- **Coordinator ledger:** repeats flagged: `brief` x4 (CF-0012 to CF-0015), `readiness-check` x2 (CF-0003, CF-0006),
+  `bookkeeping` x2, `verification` x2.
+- **#350 regression:** CI and review ran the suite in a plain environment; the env overlay only bites under the review
+  loop's child pytest run. Three flows halted (beans 0547, 0548, fixed by #354).
+- **Self-explaining invariant:** all 6 PRs added docstrings (107 opener lines) and about 325 non-`# why:` `#` lines
+  (upper bound; includes markdown headings). #357 covers code languages, diff-scoped, but fails open without a merge
+  base and reports no counts.
+- **Subagent breaches today:** `git stash`, `--no-verify`, `git add -A`, main-worktree measuring; `--no-verify` is in no
+  harness rule file.
+- **Not measured:** time lost per resolver halt; per-step timing of flows #351 to #356 (beans 0412, 0496).
+- **Examined, in order:** #352, #355, #356 each merged in 1 flow with no resolver halt recorded.
+- **Beans created:** `0556`, `0557`, `0558`, `0559`.
+
 ### 2026-11-26T21:10:00Z — Fifth-Merge Audit
 
 - **Trigger:** fifth merge (`holon-agentic-coder` #347 `20:57:28Z`, #342 `20:58:25Z` commit, #346 `21:02:00Z`, #348

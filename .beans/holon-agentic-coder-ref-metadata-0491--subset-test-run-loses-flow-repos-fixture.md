@@ -1,14 +1,14 @@
 ---
 # holon-agentic-coder-ref-metadata-0491
 title: "Running a subset of unit test files loses the flow_repos fixture"
-status: todo
+status: in-progress
 type: bug
 priority: normal
 tags:
   - tests
   - holon-agentic-coder
 created_at: 2026-11-26T07:10:00Z
-updated_at: 2026-11-26T13:41:00Z
+updated_at: 2026-11-27T09:00:00+11:00
 ---
 
 ## Problem
@@ -49,3 +49,9 @@ files plus one new regression test. The slug was truncated to 32 characters (Bea
 `single-runner-per-checkpoint` flow on `apps/sandbox-executor/tests/conftest.py`. Intent kept as
 `todo/intent-0491-flow-fixtures-any-test-file-subset.json`; relaunch (checkpoint resume) once that flow merges. See Bean
 0519 for the vanishing worktree after a refusal.
+
+**Resumed 2026-11-27:** PR #351 (single-runner lock) merged and holon reinstalled on `main` `2f29d8c1`. Resumed from
+checkpoint `flow-flow-fixtures-any-test-file/.holon/flow/checkpoint-flow-fixtures-any-test-file.json` (`claude-agent`,
+`claude-opus-5-5`, `--no-wait-on-overlap`). Intent `todo/intent-0491-flow-fixtures-any-test-file-subset.json`
+(self-explaining-code invariant added to the goal). The `flow-flow-fixtures-any-test-file-subset` worktree has no
+checkpoint and was left untouched.
