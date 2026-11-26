@@ -13,7 +13,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:42:56Z
-updated_at: 2026-11-26T22:58:29Z
+updated_at: 2026-11-26T23:28:02Z
 ---
 
 ## Problem
@@ -446,3 +446,10 @@ comment lines in code files against the self-explaining-code invariant: 1 explan
 Note (2026-11-26): PR #344 (bean 0506, `f37c1855`) added 14 docstring lines in its prune script
 (`scripts/prune_kb_single_flow_failures.py`) during its clean-up; the self-explaining sweep should remove them with the
 rest.
+
+## Note (2026-11-27)
+
+PR #358 (bean 0491, merged `14376ba5`) added 3 docstrings and one `#:` comment in
+`apps/sandbox-executor/tests/conftest.py` and `apps/sandbox-executor/tests/test_fixture_discovery_subset.py` (measured
+from `git show 14376ba5`: 75 added lines, 5 triple-quote delimiters, 1 `#:` line). The self-explaining-code gate did not
+catch them; logged as bean 0574.

@@ -1,14 +1,14 @@
 ---
 # holon-agentic-coder-ref-metadata-0491
 title: "Running a subset of unit test files loses the flow_repos fixture"
-status: in-progress
+status: completed
 type: bug
 priority: normal
 tags:
   - tests
   - holon-agentic-coder
 created_at: 2026-11-26T07:10:00Z
-updated_at: 2026-11-26T22:00:00Z
+updated_at: 2026-11-26T23:28:02Z
 ---
 
 ## Problem
@@ -64,3 +64,19 @@ diff. PR state `OPEN`, `MERGEABLE`/`CLEAN`, head `fa1f1497`. Left for the human 
 `tests/test_fixture_discovery_subset.py`. The checkpoint's goal predates the self-explaining-code invariant, and the
 review did not flag it. Logged as bean 0574. The PR needs a rerun on the invariant before it is merged, or the
 maintainer must accept it.
+
+## Resolution
+
+Delivered via [PR #358](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/358) and merged into `main`
+(`14376ba5`):
+
+- **Key Architectural Deliverables**: a directory's conftest fixtures now reach every collector of that directory, so
+  any subset of test files in any argument order sees the same fixtures as the full run
+  (`apps/sandbox-executor/tests/conftest.py`).
+- **Verification & Tests**: regression test `apps/sandbox-executor/tests/test_fixture_discovery_subset.py`; review
+  consensus 3/3 APPROVED at iteration 1.
+- **Holon Flow Traversal**: the flow completed Stages 1 to 5 (calibration report in the PR diff).
+- **Invariant gap**: #358 added 3 docstrings and one `#:` comment across the two files, which the self-explaining-code
+  gate did not flag; logged as bean 0574.
+- **Cleanup**: worktrees `flow-flow-fixtures-any-test-file` and `flow-flow-fixtures-any-test-file-subset` and their
+  local and origin branches removed after the merge.
