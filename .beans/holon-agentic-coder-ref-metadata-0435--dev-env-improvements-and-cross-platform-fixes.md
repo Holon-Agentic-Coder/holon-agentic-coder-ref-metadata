@@ -11,7 +11,7 @@ tags:
   - wsl
   - tmux
 created_at: 2026-11-24T23:12:00Z
-updated_at: 2026-11-26T03:47:00Z
+updated_at: 2026-11-26T05:53:00Z
 ---
 
 Generic ongoing umbrella bean for improvements, bug fixes, and cross-platform parity updates to the `dev-env` repository
@@ -20,11 +20,12 @@ Windows/WSL.
 
 ## Tracked Changes
 
-| Item | Summary                                                                                            | Intent File                                         | PR / Status                                                                                                                                                     |
-| ---- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | Restore `Shift+Enter` newline forwarding in `tmux` for Claude Code + PTY regression test           | `todo/intent-0435-tmux-shift-enter-extkeys.json`    | [PR #41](https://github.com/thomashan/dev-env/pull/41) (merged `2026-11-25T04:03:06Z`, commit `605559f`)                                                        |
-| 2    | Enable `tmux` `focus-events` (`set -g focus-events on`) for Neovim `autoread`/`FocusGained` + test | `todo/intent-0435-tmux-focus-events-on.json`        | [PR #42](https://github.com/thomashan/dev-env/pull/42) (merged `2026-11-26T03:46:21Z`, commit `649168b`, EV `94.83` predicted / `96.62` actual / `+1.79` delta) |
-| 3    | Install `xterm-ghostty` terminfo on Ubuntu WSL and Linux hosts                                     | `todo/intent-0464-ubuntu-wsl-ghostty-terminfo.json` | [PR #43](https://github.com/thomashan/dev-env/pull/43) (merged `2026-11-26T00:03:54Z`, commit `77a7910`, Bean `0464`)                                           |
+| Item | Summary                                                                                            | Intent File                                         | PR / Status                                                                                                                                                                  |
+| ---- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | Restore `Shift+Enter` newline forwarding in `tmux` for Claude Code + PTY regression test           | `todo/intent-0435-tmux-shift-enter-extkeys.json`    | [PR #41](https://github.com/thomashan/dev-env/pull/41) (merged `2026-11-25T04:03:06Z`, commit `605559f`)                                                                     |
+| 2    | Enable `tmux` `focus-events` (`set -g focus-events on`) for Neovim `autoread`/`FocusGained` + test | `todo/intent-0435-tmux-focus-events-on.json`        | [PR #42](https://github.com/thomashan/dev-env/pull/42) (merged `2026-11-26T03:46:21Z`, commit `649168b`, EV `94.83` predicted / `96.62` actual / `+1.79` delta)              |
+| 3    | Install `xterm-ghostty` terminfo on Ubuntu WSL and Linux hosts                                     | `todo/intent-0464-ubuntu-wsl-ghostty-terminfo.json` | [PR #43](https://github.com/thomashan/dev-env/pull/43) (merged `2026-11-26T00:03:54Z`, commit `77a7910`, Bean `0464`)                                                        |
+| 4    | Fix Warp `Shift+Enter` (`0x0a`) swallowed by `tmux` `C-j` binding + split-pane PTY test            | `todo/intent-0470-warp-shift-enter-tmux-cj.json`    | [PR #45](https://github.com/thomashan/dev-env/pull/45) (merged `2026-11-26T05:49:19Z`, commit `6a50860`, Bean `0470`, EV `96.46` predicted / `99.30` actual / `+2.84` delta) |
 
 ## Item 1: `Shift+Enter` Multiline Newline Regression & Automated PTY Test (macOS & Windows/WSL)
 
@@ -70,5 +71,6 @@ Windows/WSL.
 ## Resolution
 
 Ongoing umbrella bean (`Item 1` merged in `dev-env#41` / `605559f`; `Item 2` merged in `dev-env#42` / `649168b`, EV
-`94.83` predicted / `96.62` actual / `+1.79` delta; `Item 3` merged in `dev-env#43` / `77a7910`). Status remains
-`in-progress` because Bean `0470` (`warp-shift-enter-tmux-cj`) is still active under `0435`.
+`94.83` predicted / `96.62` actual / `+1.79` delta; `Item 3` merged in `dev-env#43` / `77a7910`; `Item 4` merged in
+`dev-env#45` / `6a50860`, Bean `0470`, EV `96.46` predicted / `99.30` actual / `+2.84` delta). Status remains
+`in-progress` as the ongoing umbrella epic for `dev-env` improvements.
