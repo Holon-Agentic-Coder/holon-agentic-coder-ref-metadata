@@ -453,3 +453,14 @@ PR #358 (bean 0491, merged `14376ba5`) added 3 docstrings and one `#:` comment i
 `apps/sandbox-executor/tests/conftest.py` and `apps/sandbox-executor/tests/test_fixture_discovery_subset.py` (measured
 from `git show 14376ba5`: 75 added lines, 5 triple-quote delimiters, 1 `#:` line). The self-explaining-code gate did not
 catch them; logged as bean 0574.
+
+> 2026-11-27: flow `self-explaining-code-gate` (intent `todo/intent-0153-self-explaining-code-gate.json`) delivered the
+> diff-scoped self-explaining gate via [PR #357](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/357),
+> merged into `main` at `5a2868af` (Stage 4 consensus 3/3 APPROVED at iteration 4; Stage 5 calibrated, EV predicted
+> `41.45` / actual `59.50`; 11/11 CI green). The gate runs in the `lint` task, the staged-files mode of
+> `scripts/pre_commit_check.py` and `test-hygiene.yml`; the four agent prompt templates state the invariant. Fail-closed
+> behaviour without a merge base is bean 0558.
+>
+> Remaining clean-up slices: the `holon-agentic-coder` docstrings and comments that landed after the gate's baseline
+> (PRs #344, #351, #353, #356, #358 per the notes above) and the checkpoint path that dropped the invariant (bean 0574).
+> Bean stays `in-progress`.

@@ -11,13 +11,20 @@ invariants:
   - id: "self-explaining-code"
     agents_rules:
       - "Self-explaining code (invariant)"
-    status: "missing"
+    status: "partial"
     open_beans:
       - "0558"
       - "0574"
     runs_at:
+      - "pre-commit"
+      - "ci"
       - "flow-gate"
-    checks: []
+    checks:
+      - "script:apps/holon-agentic-coder/main/scripts/check_self_explaining.py"
+      - "script:apps/holon-agentic-coder/main/scripts/pre_commit_check.py"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_check_self_explaining.py::test_lint_task_runs_the_check"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_check_self_explaining.py::test_pre_commit_runs_the_check_only_in_staged_mode"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_prompt_templates.py::test_templates_state_the_self_explaining_code_invariant"
   - id: "clock-read-utc-timestamps"
     agents_rules:
       - "Clock-read UTC timestamps only"

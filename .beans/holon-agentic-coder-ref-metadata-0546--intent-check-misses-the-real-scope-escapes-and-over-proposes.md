@@ -36,3 +36,10 @@ files: `flow/lazy_exports.py` (any new module under `flow/`), `docs/architecture
   line.
 - Replay the check over today's flows that escaped scope (beans 0492, 0502, 0508 evidence) and report precision/recall.
 - Related: Bean 0508 (completed), 0502, 0543.
+
+## Note (2026-11-27)
+
+Scope drift on PR #357 (bean 0153, flow `self-explaining-code-gate`, merged `5a2868af`): the executor added three helper
+modules outside the intent's scope, `scripts/self_explaining_comments.py`, `scripts/self_explaining_diff.py` and
+`scripts/self_explaining_hash.py`. The intent named only the gate script, the pre-commit and hygiene wiring, the tests
+and the prompt templates. Add this escape to the replay set (see the Proposed fix above).
