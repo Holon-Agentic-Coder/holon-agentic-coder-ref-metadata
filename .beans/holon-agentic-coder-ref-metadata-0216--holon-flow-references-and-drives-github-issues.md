@@ -10,7 +10,7 @@ tags:
   - holon-flow
   - holon-agentic-coder
 created_at: 2026-10-30T00:00:00Z
-updated_at: 2026-11-26T04:10:00Z
+updated_at: 2026-11-26T23:00:00Z
 ---
 
 ## Problem
@@ -71,3 +71,12 @@ Note (2026-11-26): resumed from checkpoint after PR #342 merged (20:58Z). No liv
 2026-11-26: Stage 3 touch-set overlap with open PR #351 (I-1795685390-single-runner-per-checkpoint) on
 apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports.py; re-plan after a Stage 3 scope drift (P-1795727982) hit
 it. Resume from checkpoint when #351 merges or releases the file.
+
+Note (2026-11-27): resumed from checkpoint once PR #351 had merged and the main reinstall had finished (no live runner
+for the slug, no install_holon process). Stage 3 refused again, now on a touch-set overlap with the waiting flow
+`module-budget-default-350` (`I-1795698612-module-budget-default-350`, blocked since 2026-11-26T13:18Z) on
+`apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports.py`. Earlier Stage 3 scope drift re-planned to
+P-1795727982 (EV 44.46). The intent JSON in `todo/` gained the self-explaining-code invariant sentence in its goal; the
+checkpoint's copy of the intent still has the older goal. parked 2026-11-27: blocked by `module-budget-default-350` on
+`lazy_exports.py`; resume from checkpoint (`--checkpoint`, never a fresh launch) once that flow merges or releases the
+file. Log `todo/flow-flow-references-github-issues.log`.
