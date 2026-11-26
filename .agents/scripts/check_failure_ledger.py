@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Validate the append-only coordinator failure ledger."""
+
 import json
 import subprocess
 import sys
@@ -8,8 +9,14 @@ from pathlib import Path
 LEDGER = Path(__file__).resolve().parents[1] / "ledger" / "coordinator-failures.jsonl"
 REQUIRED = ("id", "created_at", "session_date", "category", "failure", "my_part", "cost", "rule", "refs")
 CATEGORIES = {
-    "brief", "readiness-check", "overlap-scheduling", "intent-scope",
-    "measurement", "conflict-handling", "bookkeeping", "verification",
+    "brief",
+    "readiness-check",
+    "overlap-scheduling",
+    "intent-scope",
+    "measurement",
+    "conflict-handling",
+    "bookkeeping",
+    "verification",
 }
 
 
@@ -42,7 +49,9 @@ def check_append_only(lines, head_lines):
 
 def head_version(path=LEDGER):
     repo = path.parent
-    rel = subprocess.run(["git", "ls-files", "--full-name", path.name], cwd=repo, capture_output=True, text=True).stdout.strip()
+    rel = subprocess.run(
+        ["git", "ls-files", "--full-name", path.name], cwd=repo, capture_output=True, text=True
+    ).stdout.strip()
     if not rel:
         return []
     out = subprocess.run(["git", "show", f"HEAD:{rel}"], cwd=repo, capture_output=True, text=True)

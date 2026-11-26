@@ -610,12 +610,12 @@ def run_flow(
         slug = truncated_slug
         modified = True
 
-    if "0380" in intent_path.name or "module_budgets.json" in str(intent_data.get("scope", [])):
-        if "module_budget_change" not in intent_data:
-            intent_data["module_budget_change"] = (
-                "Budget should be enforced to all packages, including new packages, not just to flow."
-            )
-            modified = True
+    touches_budgets = "0380" in intent_path.name or "module_budgets.json" in str(intent_data.get("scope", []))
+    if touches_budgets and "module_budget_change" not in intent_data:
+        intent_data["module_budget_change"] = (
+            "Budget should be enforced to all packages, including new packages, not just to flow."
+        )
+        modified = True
 
     if modified:
         temp_intent_path = intent_path.parent / f"intent-modified-{slug}.json"

@@ -30,8 +30,19 @@ PRIORITY = {"critical": "P0", "high": "P1", "normal": "P2", "medium": "P2", "low
 TYPES = {"bug", "feature", "task"}
 BLOCKED_KEYS = ("blocked_by", "blocked-by")
 BLOCKING_KEYS = ("blocking", "blocks")
-KNOWN_KEYS = {"title", "status", "type", "priority", "tags", "labels", "parent", "created_at", "updated_at",
-              *BLOCKED_KEYS, *BLOCKING_KEYS}
+KNOWN_KEYS = {
+    "title",
+    "status",
+    "type",
+    "priority",
+    "tags",
+    "labels",
+    "parent",
+    "created_at",
+    "updated_at",
+    *BLOCKED_KEYS,
+    *BLOCKING_KEYS,
+}
 LABEL_COLORS = {"type": "1d76db", "priority": "d93f0b", "status": "fbca04", "tag": "ededed"}
 PATH_RE = re.compile(r"(?<!\w)(?:\.beans|todo|\.agents)(?:/[\w.*{}<>@+~-]*)*/?(?![\w])")
 ID_RE = re.compile(r"\b0\d{3}\b")
@@ -43,6 +54,7 @@ PLACEHOLDER_RE = re.compile(r"\{\{issue:(\d{4})\}\}")
 
 
 # ---------------------------------------------------------------- parsing
+
 
 def parse_bean(path: Path) -> dict:
     """Parse one bean file: the frontmatter into a dict (scalars and lists) plus the body."""
@@ -68,7 +80,9 @@ def parse_bean(path: Path) -> dict:
                 prev = fm.get(key)
                 joined = (prev + " " if isinstance(prev, str) and prev else "") + line.strip()
                 if not isinstance(prev, list) or not prev:
-                    fm[key] = _scalar(joined) if not joined.startswith(('"', "'")) or joined[-1] == joined[0] else joined
+                    fm[key] = (
+                        _scalar(joined) if not joined.startswith(('"', "'")) or joined[-1] == joined[0] else joined
+                    )
             continue
         key, val = kv.group(1), kv.group(2).strip()
         if val.startswith("[") and val.endswith("]"):
@@ -79,7 +93,7 @@ def parse_bean(path: Path) -> dict:
             fm[key] = _scalar(val)
     m = re.search(r"-(\d{4})--", path.name)
     bean_id = m.group(1) if m else None
-    return {"id": bean_id, "file": path.name, "fm": fm, "body": "\n".join(lines[end + 1:]).strip("\n")}
+    return {"id": bean_id, "file": path.name, "fm": fm, "body": "\n".join(lines[end + 1 :]).strip("\n")}
 
 
 def _scalar(v: str) -> str:
@@ -111,6 +125,7 @@ def load_beans(beans_dir: Path) -> dict[str, dict]:
 
 # ---------------------------------------------------------------- routing
 
+
 def route(bean: dict) -> tuple[str | None, str, str]:
     """Return (repo or None, basis, reason). repo None means not migrated."""
     fm = bean["fm"]
@@ -137,6 +152,7 @@ def route(bean: dict) -> tuple[str | None, str, str]:
 
 # ---------------------------------------------------------------- stripping
 
+
 def _expand(spec: str) -> list[str]:
     out = []
     for part in re.split(r"\s*(?:,|and|/|&)\s*", spec.strip()):
@@ -151,8 +167,13 @@ def _expand(spec: str) -> list[str]:
     return out
 
 
-def strip_text(text: str, migrated: set[str], stats: Counter | None = None,
-               known: set[str] = frozenset(), self_id: str | None = None) -> str:
+def strip_text(
+    text: str,
+    migrated: set[str],
+    stats: Counter | None = None,
+    known: set[str] = frozenset(),
+    self_id: str | None = None,
+) -> str:
     """Remove harness references. Migrated bean refs become {{issue:NNNN}} placeholders."""
     stats = stats if stats is not None else Counter()
 
@@ -169,8 +190,12 @@ def strip_text(text: str, migrated: set[str], stats: Counter | None = None,
     def lst(m: re.Match) -> str:
         return ", ".join(ref(b) for b in _expand(m.group(1)))
 
-    combined = re.compile("|".join(f"(?P<{n}>{p.pattern})" for n, p in
-                                   (("full", FULL_ID_RE), ("list", BEAN_LIST_RE), ("path", PATH_RE), ("bare", ID_RE))))
+    combined = re.compile(
+        "|".join(
+            f"(?P<{n}>{p.pattern})"
+            for n, p in (("full", FULL_ID_RE), ("list", BEAN_LIST_RE), ("path", PATH_RE), ("bare", ID_RE))
+        )
+    )
 
     def sub(m: re.Match) -> str:
         if m.group("full"):
@@ -192,18 +217,26 @@ def residual_refs(text: str, known_ids: set[str]) -> list[str]:
 
 # ---------------------------------------------------------------- mapping
 
+
 def build_plan(beans: dict[str, dict]) -> dict:
     open_beans = {i: b for i, b in beans.items() if b["fm"].get("status") in OPEN_STATUSES}
     routes = {i: route(b) for i, b in open_beans.items()}
     migrated = {i for i, r in routes.items() if r[0]}
     not_migrated = [
-        {"id": i, "title": open_beans[i]["fm"].get("title", ""), "status": open_beans[i]["fm"].get("status"),
-         "reason": routes[i][2], "tags": as_list(open_beans[i]["fm"].get("tags"))}
-        for i in sorted(open_beans) if not routes[i][0]
+        {
+            "id": i,
+            "title": open_beans[i]["fm"].get("title", ""),
+            "status": open_beans[i]["fm"].get("status"),
+            "reason": routes[i][2],
+            "tags": as_list(open_beans[i]["fm"].get("tags")),
+        }
+        for i in sorted(open_beans)
+        if not routes[i][0]
     ]
     known = set(beans)
-    fidelity: dict[str, Counter] = {k: Counter() for k in
-                                    ("title", "body", "type", "priority", "status", "tags", "dependencies", "parent")}
+    fidelity: dict[str, Counter] = {
+        k: Counter() for k in ("title", "body", "type", "priority", "status", "tags", "dependencies", "parent")
+    }
     unmapped: list[dict] = []
     issues, label_sets = {}, {r: {} for r in REPOS}
     edges_blocked, edges_parent, dropped_edges = set(), set(), []
@@ -219,11 +252,19 @@ def build_plan(beans: dict[str, dict]) -> dict:
         fidelity["body"]["exact" if body == b["body"] else "stripped"] += 1
         left = residual_refs(title + "\n" + body, known)
         if left:
-            unmapped.append({"bean": bid, "field": "body", "issue": "possible bean ids remain: " + ", ".join(sorted(set(left)))})
+            unmapped.append(
+                {"bean": bid, "field": "body", "issue": "possible bean ids remain: " + ", ".join(sorted(set(left)))}
+            )
         pre = re.findall(r"(?<![\w&])#\d+", b["body"])
         if pre:
-            unmapped.append({"bean": bid, "field": "body", "issue": f"{len(pre)} existing #N reference(s) "
-                             f"({', '.join(sorted(set(pre))[:6])}) will auto-link to same-numbered issues"})
+            unmapped.append(
+                {
+                    "bean": bid,
+                    "field": "body",
+                    "issue": f"{len(pre)} existing #N reference(s) "
+                    f"({', '.join(sorted(set(pre))[:6])}) will auto-link to same-numbered issues",
+                }
+            )
         typ = fm.get("type")
         if typ in TYPES:
             fidelity["type"]["exact"] += 1
@@ -289,13 +330,28 @@ def build_plan(beans: dict[str, dict]) -> dict:
             else:
                 fidelity["parent"]["dropped_not_open"] += 1
                 dropped_edges.append({"kind": "parent", "child": bid, "parent": parent, "why": "parent not migrated"})
-        issues[bid] = {"bean": bid, "repo": f"{ORG}/{routes[bid][0]}", "route_basis": routes[bid][1],
-                       "title": title, "body": body, "labels": labels, "state": "open",
-                       "ref_stats": dict(stats)}
-    return {"issues": issues, "labels": label_sets, "blocked_by": sorted(edges_blocked),
-            "sub_issues": sorted(edges_parent), "dropped_edges": dropped_edges, "not_migrated": not_migrated,
-            "fidelity": {k: dict(v) for k, v in fidelity.items()}, "unmapped": unmapped,
-            "open_total": len(open_beans), "routes": {i: routes[i] for i in routes}}
+        issues[bid] = {
+            "bean": bid,
+            "repo": f"{ORG}/{routes[bid][0]}",
+            "route_basis": routes[bid][1],
+            "title": title,
+            "body": body,
+            "labels": labels,
+            "state": "open",
+            "ref_stats": dict(stats),
+        }
+    return {
+        "issues": issues,
+        "labels": label_sets,
+        "blocked_by": sorted(edges_blocked),
+        "sub_issues": sorted(edges_parent),
+        "dropped_edges": dropped_edges,
+        "not_migrated": not_migrated,
+        "fidelity": {k: dict(v) for k, v in fidelity.items()},
+        "unmapped": unmapped,
+        "open_total": len(open_beans),
+        "routes": {i: routes[i] for i in routes},
+    }
 
 
 def _edge(edges, dropped, fidelity, migrated, blocked, blocker, kind):
@@ -304,10 +360,13 @@ def _edge(edges, dropped, fidelity, migrated, blocked, blocker, kind):
         fidelity["dependencies"]["mapped"] += 1
     else:
         fidelity["dependencies"]["dropped_not_migrated"] += 1
-        dropped.append({"kind": kind, "blocked": blocked, "blocker": blocker, "why": "one side is not an open migrated bean"})
+        dropped.append(
+            {"kind": kind, "blocked": blocked, "blocker": blocker, "why": "one side is not an open migrated bean"}
+        )
 
 
 # ---------------------------------------------------------------- dry run
+
 
 def render_dry_run(plan: dict, out: Path, mapping: dict) -> Path:
     out.mkdir(parents=True, exist_ok=True)
@@ -319,9 +378,11 @@ def render_dry_run(plan: dict, out: Path, mapping: dict) -> Path:
         (d / f"{bid}.json").write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
         (d / f"{bid}.md").write_text(iss["body"] + "\n", encoding="utf-8")
     (out / "labels.json").write_text(json.dumps(plan["labels"], indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    deps = {"blocked_by": [{"blocked": a, "blocker": b} for a, b in plan["blocked_by"]],
-            "sub_issues": [{"parent": a, "child": b} for a, b in plan["sub_issues"]],
-            "dropped": plan["dropped_edges"]}
+    deps = {
+        "blocked_by": [{"blocked": a, "blocker": b} for a, b in plan["blocked_by"]],
+        "sub_issues": [{"parent": a, "child": b} for a, b in plan["sub_issues"]],
+        "dropped": plan["dropped_edges"],
+    }
     (out / "dependencies.json").write_text(json.dumps(deps, indent=2) + "\n", encoding="utf-8")
     (out / "not_migrated.json").write_text(json.dumps(plan["not_migrated"], indent=2) + "\n", encoding="utf-8")
     (out / "unmapped.json").write_text(json.dumps(plan["unmapped"], indent=2) + "\n", encoding="utf-8")
@@ -335,18 +396,26 @@ def render_report(plan: dict, mapping: dict) -> str:
     totals = Counter()
     for i in plan["issues"].values():
         totals.update(i["ref_stats"])
-    lines = ["# Beans to issues: dry run report", "",
-             f"- Open beans scanned: {plan['open_total']}",
-             f"- To migrate: {len(plan['issues'])} ({', '.join(f'{r}: {per_repo[r]}' for r in REPOS)})",
-             f"- Routing basis: {dict(basis)}",
-             f"- Not migrated: {len(plan['not_migrated'])}",
-             f"- Already in the mapping file: {sum(1 for b in plan['issues'] if b in mapping)}",
-             f"- Dependencies (blocked by): {len(plan['blocked_by'])}; sub-issue links: {len(plan['sub_issues'])}; "
-             f"edges dropped: {len(plan['dropped_edges'])}",
-             f"- Harness references: {totals['bean_ref_to_issue']} bean refs become #N, "
-             f"{totals['bean_ref_dropped']} refs to unmigrated beans reworded, {totals['path_removed']} harness paths removed",
-             f"- Labels per repository: {', '.join(f'{r}: {len(plan['labels'][r])}' for r in REPOS)}",
-             "", "## Per-field fidelity", "", "| Field | Outcome counts |", "| :-- | :-- |"]
+    lines = [
+        "# Beans to issues: dry run report",
+        "",
+        f"- Open beans scanned: {plan['open_total']}",
+        f"- To migrate: {len(plan['issues'])} ({', '.join(f'{r}: {per_repo[r]}' for r in REPOS)})",
+        f"- Routing basis: {dict(basis)}",
+        f"- Not migrated: {len(plan['not_migrated'])}",
+        f"- Already in the mapping file: {sum(1 for b in plan['issues'] if b in mapping)}",
+        f"- Dependencies (blocked by): {len(plan['blocked_by'])}; sub-issue links: {len(plan['sub_issues'])}; "
+        f"edges dropped: {len(plan['dropped_edges'])}",
+        f"- Harness references: {totals['bean_ref_to_issue']} bean refs become #N, "
+        f"{totals['bean_ref_dropped']} refs to unmigrated beans reworded, "
+        f"{totals['path_removed']} harness paths removed",
+        f"- Labels per repository: {', '.join(f'{r}: {len(plan["labels"][r])}' for r in REPOS)}",
+        "",
+        "## Per-field fidelity",
+        "",
+        "| Field | Outcome counts |",
+        "| :-- | :-- |",
+    ]
     for k, v in plan["fidelity"].items():
         lines.append(f"| {k} | {', '.join(f'{a}: {b}' for a, b in sorted(v.items())) or 'n/a'} |")
     lines += ["", "## Not migrated", "", "| Bean | Status | Reason | Title |", "| :-- | :-- | :-- | :-- |"]
@@ -363,6 +432,7 @@ def render_report(plan: dict, mapping: dict) -> str:
 
 
 # ---------------------------------------------------------------- real import
+
 
 def gh(args: list[str], runner=subprocess.run, stdin: str | None = None) -> str:
     r = runner(["gh", *args], capture_output=True, text=True, input=stdin)
@@ -393,14 +463,18 @@ def apply_import(plan: dict, map_path: Path, runner=subprocess.run) -> dict:
         for lab in iss["labels"]:
             args += ["--label", lab]
         url = gh(args, runner, stdin=body)
-        mapping[bid] = {"repo": iss["repo"].split("/")[1], "issue": int(url.rstrip("/").rsplit("/", 1)[1]),
-                        "linked": False, "deps": []}
+        mapping[bid] = {
+            "repo": iss["repo"].split("/")[1],
+            "issue": int(url.rstrip("/").rsplit("/", 1)[1]),
+            "linked": False,
+            "deps": [],
+        }
         save_mapping(map_path, mapping)
     for bid, iss in sorted(plan["issues"].items()):
         ent = mapping[bid]
         if ent["linked"]:
             continue
-        body = PLACEHOLDER_RE.sub(lambda m: _link(m.group(1), ent["repo"], mapping), iss["body"])
+        body = PLACEHOLDER_RE.sub(lambda m, repo=ent["repo"]: _link(m.group(1), repo, mapping), iss["body"])
         gh(["issue", "edit", str(ent["issue"]), "--repo", iss["repo"], "--body-file", "-"], runner, stdin=body)
         ent["linked"] = True
         save_mapping(map_path, mapping)
@@ -414,11 +488,29 @@ def apply_import(plan: dict, map_path: Path, runner=subprocess.run) -> dict:
             oent = mapping[other]
             oid = gh(["api", f"repos/{ORG}/{oent['repo']}/issues/{oent['issue']}", "--jq", ".id"], runner)
             if kind == "blocked_by":
-                gh(["api", "-X", "POST", f"repos/{ORG}/{ent['repo']}/issues/{ent['issue']}/dependencies/blocked_by",
-                    "-F", f"issue_id={oid}"], runner)
+                gh(
+                    [
+                        "api",
+                        "-X",
+                        "POST",
+                        f"repos/{ORG}/{ent['repo']}/issues/{ent['issue']}/dependencies/blocked_by",
+                        "-F",
+                        f"issue_id={oid}",
+                    ],
+                    runner,
+                )
             else:  # edge is (parent, child): the parent holds the sub-issue
-                gh(["api", "-X", "POST", f"repos/{ORG}/{ent['repo']}/issues/{ent['issue']}/sub_issues",
-                    "-F", f"sub_issue_id={oid}"], runner)
+                gh(
+                    [
+                        "api",
+                        "-X",
+                        "POST",
+                        f"repos/{ORG}/{ent['repo']}/issues/{ent['issue']}/sub_issues",
+                        "-F",
+                        f"sub_issue_id={oid}",
+                    ],
+                    runner,
+                )
             ent["deps"].append(key)
             save_mapping(map_path, mapping)
     return mapping
