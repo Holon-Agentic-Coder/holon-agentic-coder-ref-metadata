@@ -953,6 +953,41 @@ class TestMergeColumn:
         assert bean_progress.is_merge_ready(item, lambda b, h: ["plans/a.md", "src/a.py"]) is False
         assert bean_progress.is_merge_ready(item, _no_compare) is False
 
+    def test_large_pr_finds_calibration_through_tree_compare(self) -> None:
+        files = [{"path": f"src/f{i}.py"} for i in range(150)]
+        item = _gh_item(files=files, baseRefOid="b0")
+        seen: list[tuple[str, str]] = []
+
+        def added(base: str, head: str) -> bool:
+            seen.append((base, head))
+            return True
+
+        assert bean_progress.is_merge_ready(item, _no_compare, added) is True
+        assert seen == [("b0", OK_HEAD)]
+        assert bean_progress.is_merge_ready(item, _no_compare, lambda b, h: False) is False
+
+    def test_small_pr_without_calibration_skips_tree_compare(self) -> None:
+        item = _gh_item(files=[{"path": "src/a.py"}])
+        assert bean_progress.is_merge_ready(item, _no_compare, lambda b, h: True) is False
+
+    def test_calibration_added_compares_plan_trees(self, monkeypatch) -> None:
+        trees = {
+            "h:plans": {"I-1": ("s2", "tree"), "I-0": ("s0", "tree")},
+            "b:plans": {"I-0": ("s0", "tree")},
+            "h:plans/I-1": {"P-1_calibration.md": ("c1", "blob"), "x.md": ("x1", "blob")},
+            "b:plans/I-1": {},
+        }
+
+        def fake_run(cmd, **kwargs):
+            ref = cmd[2].rsplit("/git/trees/", 1)[1]
+            tree = [{"path": p, "sha": s, "type": t} for p, (s, t) in trees.get(ref, {}).items()]
+            return type("P", (), {"returncode": 0, "stdout": json.dumps({"tree": tree})})()
+
+        monkeypatch.setattr(bean_progress.subprocess, "run", fake_run)
+        assert bean_progress._calibration_added("o/r", "b", "h") is True
+        trees["b:plans/I-1"] = {"P-1_calibration.md": ("c1", "blob")}
+        assert bean_progress._calibration_added("o/r", "b", "h") is False
+
     def test_column_after_pr_and_ci_and_json_field(self, tmp_path: Path) -> None:
         beans_dir = tmp_path / ".beans"
         beans_dir.mkdir()

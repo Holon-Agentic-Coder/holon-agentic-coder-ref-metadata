@@ -37,6 +37,7 @@ STAGE_ORDER = ["intent", "plan", "execute", "review", "calibrate", "completed"]
 LEDGER_REL = Path("holon-knowledge") / "ledger" / "intents.jsonl"
 APPROVAL_MARKER = "Ensemble Consensus Review — APPROVED"
 BOOKKEEPING_PREFIXES = ("plans/", "executions/", "holon-knowledge/")
+PR_FILES_LIMIT = 100
 CALIBRATION_RE = re.compile(r"(?:^|/)plans/.+_calibration\.md$")
 GITHUB_REMOTE_RE = re.compile(r"github\.com[:/]([^/]+/[^/]+?)(?:\.git)?$")
 
@@ -786,7 +787,42 @@ def _compare_files(github_repo: str, base: str, head: str) -> list[str] | None:
     return [str(n) for n in names] if isinstance(names, list) else None
 
 
-def is_merge_ready(item: dict[str, Any], changed_between: Callable[[str, str], list[str] | None]) -> bool:
+def _tree_entries(github_repo: str, ref: str) -> dict[str, dict[str, str]] | None:
+    try:
+        proc = subprocess.run(
+            ["gh", "api", f"repos/{github_repo}/git/trees/{ref}"],
+            capture_output=True,
+            text=True,
+            timeout=20,
+        )
+        tree = json.loads(proc.stdout).get("tree") if proc.returncode == 0 and proc.stdout.strip() else None
+    except (OSError, subprocess.SubprocessError, ValueError, AttributeError):
+        return None
+    if not isinstance(tree, list):
+        return None
+    return {str(e["path"]): {"sha": str(e["sha"]), "type": str(e["type"])} for e in tree if isinstance(e, dict)}
+
+
+def _calibration_added(github_repo: str, base: str, head: str) -> bool:
+    # why: the PR file list is capped by GitHub, so compare the plans trees of base and head instead
+    head_plans = _tree_entries(github_repo, f"{head}:plans") or {}
+    base_plans = _tree_entries(github_repo, f"{base}:plans") or {}
+    for name, entry in head_plans.items():
+        if entry["type"] != "tree" or base_plans.get(name, {}).get("sha") == entry["sha"]:
+            continue
+        head_files = _tree_entries(github_repo, f"{head}:plans/{name}") or {}
+        base_files = _tree_entries(github_repo, f"{base}:plans/{name}") or {}
+        for fname, fentry in head_files.items():
+            if CALIBRATION_RE.search(f"plans/{name}/{fname}") and base_files.get(fname, {}).get("sha") != fentry["sha"]:
+                return True
+    return False
+
+
+def is_merge_ready(
+    item: dict[str, Any],
+    changed_between: Callable[[str, str], list[str] | None],
+    calibration_added: Callable[[str, str], bool] = lambda base, head: False,
+) -> bool:
     """True when the maintainer can merge this open PR now: clean, green, approved on the head, calibrated."""
     if str(item.get("state") or "OPEN").upper() != "OPEN" or item.get("isDraft"):
         return False
@@ -795,9 +831,11 @@ def is_merge_ready(item: dict[str, Any], changed_between: Callable[[str, str], l
     if not _all_checks_succeeded(item.get("statusCheckRollup")):
         return False
     paths = [str(f.get("path") or "") for f in item.get("files") or [] if isinstance(f, dict)]
-    if not any(CALIBRATION_RE.search(p) for p in paths):
-        return False
     head = str(item.get("headRefOid") or "")
+    if not any(CALIBRATION_RE.search(p) for p in paths):
+        truncated = len(paths) >= PR_FILES_LIMIT
+        if not (truncated and calibration_added(str(item.get("baseRefOid") or ""), head)):
+            return False
     for oid in _approval_oids(item):
         if oid == head:
             return True
@@ -830,7 +868,7 @@ def fetch_open_prs(repos: list[RepoTarget], *, no_gh: bool = False) -> list[Pull
                     "open",
                     "--json",
                     "number,title,url,headRefName,mergeable,isDraft,reviews,comments,statusCheckRollup,"
-                    "mergeStateStatus,headRefOid,files,commits",
+                    "mergeStateStatus,headRefOid,baseRefOid,files,commits",
                 ],
                 capture_output=True,
                 text=True,
@@ -864,7 +902,9 @@ def fetch_open_prs(repos: list[RepoTarget], *, no_gh: bool = False) -> list[Pull
                     comments_count=len(item.get("comments") or []),
                     ci_summary=summarize_checks(item.get("statusCheckRollup")),
                     merge_ready=is_merge_ready(
-                        item, lambda base, head, gh=repo.github_repo: _compare_files(gh, base, head)
+                        item,
+                        lambda base, head, gh=repo.github_repo: _compare_files(gh, base, head),
+                        lambda base, head, gh=repo.github_repo: _calibration_added(gh, base, head),
                     ),
                 )
             )
