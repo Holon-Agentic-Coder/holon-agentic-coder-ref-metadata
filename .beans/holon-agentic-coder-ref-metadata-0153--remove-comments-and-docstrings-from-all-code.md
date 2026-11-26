@@ -436,3 +436,9 @@ kept `todo/intent-0153-infra-helpers-self-doc.json`.
 Note (2026-11-26): [PR #351](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/351) (`2f29d8c`, beans
 0390/0472) added 76 docstring lines (non-test `.py`, triple-quote delimiters included) and 11 comment lines against the
 self-explaining-code invariant. Measured from `gh pr diff 351`; clean-up needed.
+
+Note (2026-11-27): [PR #353](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/353) (`e9db3048`,
+bean 0514) added 11 lines carrying triple quotes (docstring openers and closers, including one-line docstrings) and 4
+comment lines in code files against the self-explaining-code invariant: 1 explanatory comment in
+`scripts/ci_main_push_gate.py` and 3 `# ---` banner comments in
+`apps/sandbox-executor/tests/test_ci_main_push_superseded.py`. Measured from `gh pr diff 353`. Clean-up needed.

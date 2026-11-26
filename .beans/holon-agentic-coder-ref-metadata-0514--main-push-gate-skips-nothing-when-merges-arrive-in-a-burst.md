@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0514
 title: "Main-push tree gate skips nothing when merges arrive back to back; coalesce a burst to the newest tip"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - pipeline
   - holon-agentic-coder
 created_at: 2026-11-26T12:20:00Z
-updated_at: 2026-11-26T12:20:00Z
+updated_at: 2026-11-26T23:03:39Z
 ---
 
 ## Flow
@@ -55,3 +55,17 @@ attribution of a red tip to one of N merges needs a bisect; mitigated because PR
 
 Related: 0510 (completed, the exact-tree rule), 0461 (per-SHA concurrency, deliberately keeps every push), 0403, 0454.
 The 0461 reason (never evict a pending push) is kept by skipping, not cancelling.
+
+## Resolution
+
+Delivered via [PR #353](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/353) and merged into `main`
+(`e9db3048`):
+
+- **Key deliverables:** `scripts/ci_main_push_superseded.py` adds rule `main-push-superseded`. A push to `main` whose
+  commit is a strict ancestor of the current tip records a skip and relies on the tip's run. The tip, a non-ancestor, a
+  failed tip lookup and a re-run keep the full run. Wired into `decide_main_push`; the decision line and step summary
+  name the rule. The daily scheduled full run is untouched.
+- **Verification & tests:** hermetic tests in `apps/sandbox-executor/tests/test_ci_main_push_superseded.py`; existing
+  gate tests unchanged. Review consensus approved 3/3 after 2 iterations; 11/11 CI checks green on head `3e6858c8`.
+- **Holon Flow traversal:** flow `main-push-superseded-skip` completed Intent, Plan, Execute, Review Loop and
+  Calibration.
