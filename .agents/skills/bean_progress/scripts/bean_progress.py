@@ -213,6 +213,12 @@ class InFlightRow:
     distinct: bool = False
     mergeable_now: bool = False
 
+    @property
+    def merge_state(self) -> str:
+        if self.stage == MERGED_STAGE:
+            return "merged"
+        return "ready" if self.mergeable_now else "not-ready"
+
     def notes_cell(self) -> str:
         """Notes column: live/idle state with PID and session first, then the former status notes."""
         parts = [p for p in (self.live_runner, self.notes if self.notes != "—" else "") if p]
@@ -230,6 +236,7 @@ class InFlightRow:
             "time_in_stage": self.time_in_stage,
             "pr_ci": self.pr_ci,
             "mergeable_now": self.mergeable_now,
+            "merge_state": self.merge_state,
             "total_time": self.total_time,
             "last_activity": self.last_activity,
             "live": self.live,
@@ -1982,7 +1989,7 @@ def _live_dot(row: InFlightRow) -> str:
 
 
 def _merge_dot(row: InFlightRow) -> str:
-    return "🟢" if row.mergeable_now else "🔴"
+    return {"ready": "🟢", "merged": "🟡"}.get(row.merge_state, "🔴")
 
 
 def render_markdown_table(rows: list[InFlightRow], *, wide: bool = False) -> str:

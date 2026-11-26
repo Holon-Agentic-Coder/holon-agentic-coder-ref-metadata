@@ -970,6 +970,23 @@ class TestMergeColumn:
             cells = [c.strip() for c in md.splitlines()[2].split("|")]
             assert cells[header.index("Merge")] == "🟢"
         assert rows[0].as_dict()["mergeable_now"] is True
+        assert rows[0].as_dict()["merge_state"] == "ready"
         ready.merge_ready = False
         rows = bean_progress.build_in_flight_rows(beans, intents, wts, [ready], {}, now=NOW)
         assert rows[0].as_dict()["mergeable_now"] is False
+        assert rows[0].as_dict()["merge_state"] == "not-ready"
+        assert bean_progress._merge_dot(rows[0]) == "🔴"
+
+    def test_merged_pr_is_yellow(self, tmp_path: Path) -> None:
+        beans_dir = tmp_path / ".beans"
+        beans_dir.mkdir()
+        _make_bean(beans_dir, "0404", "m", "title: M\nstatus: in-progress\n")
+        beans = bean_progress.scan_beans(beans_dir)
+        head = "I-9-x/bean-0404/_"
+        intents = [bean_progress.IntentMapping(tmp_path / "m.json", "m", ["0404"], "m")]
+        wts = [_wt(tmp_path, "flow-m", "m", execution_branch=head)]
+        merged = [_closed(321, head, "MERGED")]
+        rows = bean_progress.build_in_flight_rows(beans, intents, wts, [], {}, now=NOW, closed_prs=merged)
+        assert rows[0].stage == bean_progress.MERGED_STAGE
+        assert rows[0].as_dict()["merge_state"] == "merged"
+        assert bean_progress._merge_dot(rows[0]) == "🟡"
