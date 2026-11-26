@@ -10,7 +10,7 @@ tags:
   - invariants
   - subagents
 created_at: 2026-11-26T23:09:56Z
-updated_at: 2026-11-26T23:16:46Z
+updated_at: 2026-11-26T23:32:34Z
 ---
 
 ## Instruction (maintainer, 2026-11-27 local)
@@ -47,3 +47,10 @@ Done: `.agents/scripts/git_guard.py` as a project `PreToolUse` Bash hook (`.clau
 `.agents/bin/git` PATH wrapper, with tests for every blocked and allowed form. Remaining: `run_holon_flow.py` must
 prepend `.agents/bin` to the runner PATH; maintainer sets server-side branch protection (no force-push on flow
 branches); coordinator post-run stash/reflog audit.
+
+## Gap found (2026-11-26T23:32:34Z)
+
+The PreToolUse hook matches only the `Bash` tool. Subagents mostly run git through the REPL tool's `$` shell, which the
+hook does not see, so `--no-verify`, `git stash` or `HOLON_GIT_GUARD_BYPASS` there are unguarded. Extend the matcher to
+the REPL tool (or guard at the git level for every process, e.g. the PATH wrapper for all sessions) and rely on the
+per-commit CI replay from Bean 0577 as the backstop.
