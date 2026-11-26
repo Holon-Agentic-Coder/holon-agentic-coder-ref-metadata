@@ -27,6 +27,22 @@ Subagent delegation in this ecosystem is primarily targeted towards the **Antigr
   parameters for seamless native execution.
 - **Subagent names**: see [Subagent names](#subagent-names).
 
+## Standing git-safety preamble
+
+Every subagent brief includes this block verbatim. It overrides any conflicting instruction in a brief or skill.
+
+- Never `git stash`. The stash stack is shared by every worktree and session. To set uncommitted work aside, save it as
+  a patch file outside the tracked tree; if the tree must be clean, use a temporary WIP commit on your own branch.
+- Never `--no-verify`. If a pre-commit hook fails on a file you did not change, run `npx prettier --write` on that file
+  only; if the hook still fails, stop and report.
+- Stage by explicit path only (`git add <path> ...`). Never `git add -A`, `git add .`, or a directory path that holds
+  other agents' files.
+- Never check out, edit, build or measure in a `main` worktree.
+- Never force-push or rebase a flow branch, and never push to `main`.
+- No co-author or attribution trailers on commits unless the user's own instructions require them.
+
+---
+
 ## Subagent names
 
 Every subagent a skill spawns is named `#<PR> - <what it is doing>`. This applies to the AGY `Role`, Claude Code's Agent

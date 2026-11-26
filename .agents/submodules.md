@@ -161,7 +161,7 @@ When developing changes directly inside the embedded `holon-coherence/` folder:
    ```
 2. Make code edits, test, and commit inside the submodule:
    ```bash
-   git add .
+   git add <each changed path inside holon-coherence>
    git commit -m "feat: implement feature in holon-coherence"
    git push origin feat/<feature-name>
    ```

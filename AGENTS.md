@@ -40,6 +40,9 @@ These apply to every task. Each links to the file that holds the full rule.
   flow, driven with `holon flow <intent.json>`; never hand-patch a target repository outside it. The harness files in
   this repository (`.beans/`, `.agents/`, `AGENTS.md`) stay directly editable. See
   [holon-flow.md](.agents/holon-flow.md).
+- **Git safety in every subagent brief**: never `git stash`, `--no-verify`, `git add -A` or `git add .`, and never edit,
+  build or measure in a `main` worktree; the standing preamble is in
+  [subagents.md](.agents/subagents.md#standing-git-safety-preamble).
 - **Self-explaining code (invariant)**: no docstrings and no explanatory comments in any language; names carry the
   intent, and the only allowed comment is a `# why:` comment recording a reason the code cannot show (maintainer,
   2026-11-27). Every intent states it in its goal. See [rules.md](.agents/rules.md).

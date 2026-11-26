@@ -225,9 +225,10 @@ npx prettier --write .beans/bean-triage-prioritisation.md
 
 ### Step 6: Commit Harness State, Recommend & Backfill Next Task
 
-1. Stage and commit harness changes:
+1. Stage and commit harness changes by explicit path (never `git add .beans/`, `git add .` or `git add -A`; other agents
+   may hold edits in the same tree):
    ```bash
-   git add .beans/
+   git add <each bean file closed this run> <any other harness file this run edited>
    git commit -m "docs(post-merge): complete bean XXXX following PR #<N> merge"
    git push origin <current_harness_branch>
    ```

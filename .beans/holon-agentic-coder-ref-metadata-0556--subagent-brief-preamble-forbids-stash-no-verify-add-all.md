@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0556
 title: "Standing subagent brief preamble: no git stash, no --no-verify, no git add -A, no main-worktree measuring"
-status: todo
+status: completed
 type: task
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - subagents
   - coordinator-failures
 created_at: 2026-11-27T00:30:00Z
-updated_at: 2026-11-27T00:30:00Z
+updated_at: 2026-11-27T01:00:00Z
 ---
 
 ## Problem (repeat category, high priority)
@@ -43,3 +43,8 @@ Removes the four breaches seen today (no loss occurred, but each risked another 
 two skill edits.
 
 ## Resolution
+
+Completed. Added the "Standing git-safety preamble" section to `.agents/subagents.md` (stash, `--no-verify`,
+`git add -A`/`git add .`, main-worktree, flow-branch and trailer rules), a one-line hard rule in `AGENTS.md` linking it,
+and replaced the `git add .` in `.agents/submodules.md` and the `git add .beans/` in the `post_pr_merge` skill with
+explicit-path staging. The `pr_review_resolver` and `workflows.md` add-all warnings already used explicit paths.
