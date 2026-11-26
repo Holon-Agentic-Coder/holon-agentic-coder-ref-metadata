@@ -45,3 +45,9 @@ loop-level guard none of them states: they remove one cause; the loop would repe
 About 8 iterations x 10.8 min (audit of 2026-11-26 blocked-iteration cost) = about 85 min and 8 pipeline restarts on
 that flow, plus roughly 24 reviewer-agent turns. Cost: one result field, one loop guard, tests; no change to approval
 semantics.
+
+## Recurrence (2026-11-26, flow module-budget-default-400, PR #326)
+
+Three reviewers APPROVED with 0 open findings on each of 7 iterations; the consensus stayed CHANGES_REQUESTED and the
+loop hit its 7/7 cap because `hygiene (ubuntu-latest)` stayed red: the `module-budget-change` label, which only the
+maintainer applies, was not set. Same class as bean 0486.

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0475
 title: "Docker Build workflow lacks a concurrency group and completes on every cancelled PR head"
-status: todo
+status: completed
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-26T03:50:00Z
-updated_at: 2026-11-26T03:50:00Z
+updated_at: 2026-11-26T09:55:00Z
 ---
 
 # Docker Build workflow lacks a concurrency group and completes on every cancelled PR head
@@ -64,3 +64,25 @@ Small: 4-line `concurrency` block in `.github/workflows/docker-build.yml` (+ tes
 
 - Target repo change through `holon flow` (`holon-agentic-coder`).
 - Related: Bean `0461` (`main`-push concurrency across the other 5 workflows), Bean `0443` (Stage 4 double-push race).
+
+## Progress
+
+- 2026-11-26: in-progress. Flow `flow-docker-build-concurrency-group` launched from
+  `todo/intent-0475-docker-build-concurrency-group.json` (claude-agent, claude-opus-5-5); scope is
+  `.github/workflows/docker-build.yml` only, disjoint from the live flows.
+
+## Resolution
+
+Delivered via [PR #329](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/329) and merged into `main`
+(`883a5d6`):
+
+- **Key Architectural Deliverables**: top-level `concurrency` block added to `.github/workflows/docker-build.yml`. Pull
+  request runs group by workflow and head branch and cancel in progress; push and `workflow_dispatch` runs group by
+  workflow, ref and SHA and are never cancelled (main-push eviction avoided, per bean 0461). The diff touches that one
+  workflow file only.
+- **Verification & Tests**: affected tests, lint, prettier and the full suite passed in the flow's execution record.
+  Live cancellation was not observable at merge time, so it is verified by construction, not by a live run.
+- **Holon Flow Traversal**: intent, plan, execution and calibration artifacts were all committed for
+  `I-1795685858-docker-build-concurrency-group`. The bean's optional README or trigger-test update was not needed.
+- **Post-merge**: flow worktree and its `I-1795685858-docker-build-concurrency-group` branches removed locally and on
+  origin. No install-holon run was needed (workflow-only change).

@@ -26,6 +26,9 @@ from a healthy one.
 
 ## Next step
 
+Second occurrence 2026-11-26 (batch 5, `tests-cpu-bound-redaction-ledger`): the log stayed at 0 bytes through a
+33-minute execute stage and the --from-stage calibrate rerun appended nothing until it ended. Same cause.
+
 Find where the wrapper's output is buffered (the wrapper's own stdout is not flushed, or the flow's output is captured
 and written at the end) and flush each stage transition and `holon flow` line as it happens. Check with a short
 background run that the log grows during Stage 3.

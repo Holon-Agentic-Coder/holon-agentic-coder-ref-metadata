@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-26 09:53:40 UTC
+**Last Updated:** 2026-11-26 09:55:33 UTC
 
 ## Executive Summary
 
@@ -17,9 +17,9 @@ about 10M+ tokens), so flows that touch the same files still run one after anoth
 run together.
 
 - **Total Tracked Beans**: 501 (excluding template)
-- **Completed**: 364 (72.7%)
+- **Completed**: 365 (72.9%)
 - **Scrapped / Superseded**: 10 (2.0%)
-- **Active**: 127 (25.3%), of which 15 are in progress, 110 are todo and 2 are draft
+- **Active**: 126 (25.1%), of which 14 are in progress, 110 are todo and 2 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1097,7 +1097,6 @@ logged beans `0389` and `0390` added to triage.
 | **P1**   | todo        |  High  |             L             | 0478   | Reviewers wait for CI inside their own turn although the engine already gates on CI                                                                           | Architecture / Quality           |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             M             | 0477   | Overlap-exit relaunch without --checkpoint restarts split-calibration-package from intent four times                                                          | Ledger / Observability           |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             L             | 0476   | Local-flow overlap polling relaunches holon flow every minute, logs false clear, and bloats checkpoint logs                                                   | Architecture / Quality           |                                                                                                                                                                                                                                                       |
-| **P1**   | in-progress | Medium |             M             | 0475   | Docker Build workflow lacks a concurrency group and completes on every cancelled PR head                                                                      | Build / DevEx                    |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             M             | 0474   | Flow integration of a plan branch into its execution branch refuses an append-only executions.jsonl merge as 'not a pure ledger append'                       | Ledger / Observability           |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             M             | 0473   | Flow push of a parent branch is rejected after a child PR merges into it (stale local parent, no fetch before push)                                           | Ledger / Observability           |                                                                                                                                                                                                                                                       |
 | **P1**   | in-progress |  High  |             L             | 0472   | Flow runner does not refuse a second run on the same intent and does not reap its children after a halt                                                       | Architecture / Quality           |                                                                                                                                                                                                                                                       |

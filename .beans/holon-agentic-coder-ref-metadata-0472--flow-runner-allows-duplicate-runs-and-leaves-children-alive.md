@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0472
 title: "Flow runner does not refuse a second run on the same intent and does not reap its children after a halt"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -47,3 +47,14 @@ Observed on intent 0405 (`workspace-survival-job-parallel`, resume from `review`
   IDs** (`I-1795646837-ubuntu-wsl-ghostty-terminfo` and `I-1795646845-ubuntu-wsl-ghostty-terminfo`, created 8 s apart at
   `22:47Z`–`22:58Z`: `P-1795646862-ANA-G4N`, `P-1795646869-ANA-G4N`, `P-1795647050-ANA-G4A`, `P-1795647322-ANA-G3.8F`)
   committed into the same PR branch (`dev-env#43`), leaving orphan plan files on `main` when merged.
+
+## Progress (2026-11-26)
+
+- in-progress: flow `single-runner-per-checkpoint` (intent `todo/intent-0390-single-runner-per-checkpoint.json`, log
+  `todo/flow-single-runner-per-checkpoint.log`), covering this bean and 0472 (same defect). Stage 3 overlap refusals are
+  parked, not waited out.
+- parked 2026-11-26: blocked by flow `tests-fewer-git-stage-pipeline` (I-1795684868, worktree
+  flow-tests-fewer-git-stage-pipeline) on apps/sandbox-executor/tests/flow/conftest.py; Stage 3 admission refused the
+  plan's touch set. Checkpoint kept at
+  apps/holon-agentic-coder/flow-single-runner-per-checkpoint/.holon/flow/checkpoint-single-runner-per-checkpoint.json
+  (stage execute); resume with --checkpoint only once that flow merges or releases conftest.py.

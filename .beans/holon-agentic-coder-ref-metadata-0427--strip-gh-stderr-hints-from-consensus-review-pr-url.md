@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0427
 title: "Strip gh CLI stderr hints from pr_url so consensus review links are not corrupted"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - github
   - holon-agentic-coder
 created_at: 2026-11-24T13:00:00Z
-updated_at: 2026-11-24T13:00:00Z
+updated_at: 2026-11-26T09:56:00Z
 ---
 
 ## Why
@@ -59,3 +59,9 @@ Small target-repo change through the Holon flow (`adapter_runner.py`, `adapter.p
 
 - Still active across every target repository in this window: `gh event listen` stderr hints remain embedded inside the
   Markdown link URL of consensus review comments on `holon-agentic-coder#310`–`#313` and `thomashan/dev-env#42`–`#43`.
+
+## Progress
+
+- 2026-11-26: in-progress, flow `pr-url-without-gh-hints` (worktree flow-pr-url-without-gh-hints, claude-agent
+  claude-opus-5-5). Scope narrowed to `flow/github/pr.py`, `adapter_runner.py` and a new test, so it is disjoint from
+  the live review-loop and issue-tracking flows; the `loop.py` consumer already prefers `pr_res["pr_url"]`.

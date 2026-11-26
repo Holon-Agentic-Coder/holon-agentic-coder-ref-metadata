@@ -82,3 +82,7 @@ branches were removed.
 Step 2 set (default 350, decompose the modules between 351 and 400): `knowledge/wisdom.py` 353,
 `sandbox_executor/budgets.py` 359, `flow/git_refs.py` 380, `scripts/pre_commit_check.py` 381, `cli/commands/flow.py` 398
 lines on `main` (measured 2026-11-26; the flow's own count matches).
+
+2026-11-26T09:55:25Z: in-progress, holon flow `module-budget-default-350` (step 2, default 350), runner claude-agent /
+claude-opus-5-5, log `todo/flow-module-budget-default-350.log`, intent `todo/intent-0489-module-budget-default-350.json`
+(scope adds the new split modules).

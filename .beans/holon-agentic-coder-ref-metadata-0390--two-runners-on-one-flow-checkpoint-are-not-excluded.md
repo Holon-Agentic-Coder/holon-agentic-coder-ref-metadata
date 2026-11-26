@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0390
 title: "Two runners can drive the same flow checkpoint at once; nothing locks a flow or a bean against a second launch"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -51,3 +51,14 @@ reason in its log.
 - Asks for this bean: a resume must detect a live role container on the same worktree (not only a live host runner) and
   wait or refuse; and a resume should be able to adopt a completed, pushed execution branch of a killed run instead of
   executing again.
+
+## Progress (2026-11-26)
+
+- in-progress: flow `single-runner-per-checkpoint` (intent `todo/intent-0390-single-runner-per-checkpoint.json`, log
+  `todo/flow-single-runner-per-checkpoint.log`), covering this bean and 0472 (same defect). Stage 3 overlap refusals are
+  parked, not waited out.
+- parked 2026-11-26: blocked by flow `tests-fewer-git-stage-pipeline` (I-1795684868, worktree
+  flow-tests-fewer-git-stage-pipeline) on apps/sandbox-executor/tests/flow/conftest.py; Stage 3 admission refused the
+  plan's touch set. Checkpoint kept at
+  apps/holon-agentic-coder/flow-single-runner-per-checkpoint/.holon/flow/checkpoint-single-runner-per-checkpoint.json
+  (stage execute); resume with --checkpoint only once that flow merges or releases conftest.py.
