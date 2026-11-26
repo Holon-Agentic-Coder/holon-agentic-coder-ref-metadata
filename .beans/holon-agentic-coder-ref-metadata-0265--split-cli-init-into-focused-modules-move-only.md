@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0265
 title: "Split `cli/__init__.py` into focused modules (move only), like the `flow/` package"
-status: todo
+status: completed
 type: task
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - concurrency
   - holon-agentic-coder
 created_at: 2026-11-09T10:30:00Z
-updated_at: 2026-11-22T22:55:00Z
+updated_at: 2026-11-25T05:09:00Z
 ---
 
 ## Problem
@@ -133,3 +133,25 @@ module map and a one-line responsibility per module.
 have merged, and no other session has `0265` in flight. Disjoint from PR #230 on code (`cli/__init__.py`,
 `tests/test_cli.py`), but Scope item 5 edits `docs/architecture.md` which PR #230 also touches — run immediately after
 PR #230 merges (or defer the `docs/architecture.md` edit).
+
+## Status on main (2026-11-23)
+
+Re-measured on `holon-agentic-coder` `main` (`7225685`): `cli/__init__.py` is 690 lines with 16 top-level definitions,
+down from 2,026 lines. PRs #241, #243, #244, #249 and #251 moved code out. The figures in Problem are historical; Scope
+applies to what remains.
+
+> 2026-11-24: launched `split-cli-init-modules` (intent `todo/intent-0265-split-cli-init-modules.json`) via
+> `antigravity-agent` / `gemini-4-neon`.
+
+## Resolution
+
+Delivered via [PR #296](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/296) and merged into `main`
+(`4c6232cb`, `2026-11-25T05:01:49Z`):
+
+- **CLI Package Split**: Split `apps/sandbox-executor/src/sandbox_executor/cli/__init__.py` into focused modules
+  (`cli/doctor.py`, `cli/doctor_env.py`, `cli/logging.py`, `cli/main.py`, `cli/preflight.py`) while preserving package
+  re-exports, and updated `docs/architecture.md`.
+- **Tests**: Split `apps/sandbox-executor/tests/test_cli.py` into `apps/sandbox-executor/tests/cli/` (`test_doctor.py`,
+  `test_env_files_and_redaction.py`, `test_flow_cli.py`, `test_main.py`, `test_patch_targets.py`, `_helpers.py`) and
+  updated affected test patch targets.
+- **Holon Flow Traversal**: Completed all 5 stages (Intent -> Plan -> Execute -> Review Loop -> Calibration).

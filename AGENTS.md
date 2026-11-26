@@ -25,6 +25,8 @@ entirety before performing any operations or modifying any code.
 - [.agents/pr-merging.md](.agents/pr-merging.md) - Human-only PR merging, post-merge protocol.
 - [.agents/engineering-rules.md](.agents/engineering-rules.md) - Benchmarks, tokens, isolation, tests, ledgers.
 - [.agents/subagents.md](.agents/subagents.md) - Subagent invocation, Antigravity runtime.
+- [.agents/self-improvement-audit.md](.agents/self-improvement-audit.md) - Self-improvement audit at session start and
+  every fifth merge.
 - [.agents/skills/](.agents/skills/) - Project-specific agent skills.
 - [todo/](todo/) - Git-ignored scratchpad for local notes; never committed.
 
@@ -38,11 +40,14 @@ These apply to every task. Each links to the file that holds the full rule.
   flow, driven with `holon flow <intent.json>`; never hand-patch a target repository outside it. The harness files in
   this repository (`.beans/`, `.agents/`, `AGENTS.md`) stay directly editable. See
   [holon-flow.md](.agents/holon-flow.md).
+- **Self-explaining code (invariant)**: no docstrings and no explanatory comments in any language; names carry the
+  intent, and the only allowed comment is a `# why:` comment recording a reason the code cannot show (maintainer,
+  2026-11-27). Every intent states it in its goal. See [rules.md](.agents/rules.md).
 - **Never pass `--skip-review`** (to `holon flow` or any wrapper). No case needs it (maintainer, 2026-11-21); if Stage 4
   fails or stalls, halt and report instead of bypassing review. See [holon-flow.md](.agents/holon-flow.md).
-- **Default Holon coding model**: use `antigravity-agent` with `gemini-4-argon` for all Holon coding tasks until tokens
-  run out, then fall back to `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash` (maintainer, 2026-11-22). See
-  [holon-flow.md](.agents/holon-flow.md).
+- **Default Holon coding model**: use `antigravity-agent` with `gemini-4-neon` for all Holon coding tasks until tokens
+  run out, then fall back to `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash`
+  (maintainer, 2026-11-24). See [holon-flow.md](.agents/holon-flow.md).
 - **Never merge a PR that targets `main`**, enable auto-merge or use the merge queue; the human maintainer merges. Stop
   after consensus approval and calibration, and report. See [pr-merging.md](.agents/pr-merging.md).
 - **One worktree per agent**, named for the flow or bean; the `main` worktrees are off-limits (never edit, stage, commit
@@ -56,6 +61,20 @@ These apply to every task. Each links to the file that holds the full rule.
 - **Format before commit**: `npx prettier --write "**/*.md"` in the harness; only changed files in a target worktree.
 - **Subagents** follow [subagents.md](.agents/subagents.md) and the model tiers in
   [model-tiers.md](.agents/model-tiers.md); post-merge steps run through the `post-pr-merge` skill.
+- **Flow concurrency & merge backfill**: up to **4 concurrent `holon-flow` background subagents** may run at once on
+  hosted runtimes (local runtimes stay at 1). Once a target-repo PR merges and `post-pr-merge` completes, automatically
+  pick up and launch the next highest-priority ready bean (honouring `blocked_by`, solo-sweep rules, and disjoint touch
+  sets) to keep up to 4 flows running (maintainer, 2026-11-24). A blocked flow (Stage 3 overlap refusal or waiting on
+  another flow's PR) does not hold a slot: park it, backfill at once, and resume parked flows from their checkpoint
+  ahead of new beans (maintainer, 2026-11-26). See [coordination.md](.agents/coordination.md) and
+  [pr-merging.md](.agents/pr-merging.md).
+- **Coordinator failure ledger**: every coordinator failure (halt, park, wasted run, false readiness, wrong brief) is
+  appended to [.agents/ledger/coordinator-failures.jsonl](.agents/ledger/coordinator-failures.jsonl) with its preventive
+  rule before moving on (maintainer, 2026-11-27). See [coordination.md](.agents/coordination.md).
+- **Self-improvement audit**: at the start of every session and after every fifth merge, a dedicated subagent runs a
+  comprehensive audit for self-improvement (pipeline, flow, coding standards, architecture standards, harness) and logs
+  one bean per suggestion; the brief says plainly that it is a self-improvement audit (maintainer, 2026-11-24). See
+  [self-improvement-audit.md](.agents/self-improvement-audit.md).
 
 ---
 
@@ -63,10 +82,15 @@ These apply to every task. Each links to the file that holds the full rule.
 
 1. **Verify your environment**: check the working directory and locate `.beans`. If `apps/holon-agentic-coder/` or
    `apps/holon-coherence/` is missing, follow the checkout steps in [README.md](README.md).
-2. **Pick up a task**: list [.beans/](.beans/) for your assignment, or log a new bean if none exists.
-3. **Load constraints**: [.agents/rules.md](.agents/rules.md), then the task lifecycle in
+2. **Run the self-improvement audit**: spawn the audit subagent described in
+   [.agents/self-improvement-audit.md](.agents/self-improvement-audit.md) and carry on; do not wait for it.
+3. **Read the coordinator failure ledger**: read
+   [.agents/ledger/coordinator-failures.jsonl](.agents/ledger/coordinator-failures.jsonl) and apply its rules to every
+   brief, readiness check and launch.
+4. **Pick up a task**: list [.beans/](.beans/) for your assignment, or log a new bean if none exists.
+5. **Load constraints**: [.agents/rules.md](.agents/rules.md), then the task lifecycle in
    [.agents/workflows.md](.agents/workflows.md).
-4. **Report**: summarise changes concisely and point to the updated files.
+6. **Report**: summarise changes concisely and point to the updated files.
 
 ---
 

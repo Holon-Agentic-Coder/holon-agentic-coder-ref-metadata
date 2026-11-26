@@ -56,8 +56,21 @@ checkpoint needing no reaction:
    id, calibration commit and EV predicted vs actual), and refresh any related beans the merge unblocks or supersedes.
 2. **Refresh the triage**: update the `prioritise-beans` generator data (statistics, milestones, overrides, the
    Recommended Next Execution Sequence) and regenerate `.beans/bean-triage-prioritisation.md`.
-3. **Recommend the next concurrent set**: from the refreshed triage, report to the maintainer the next set of beans that
-   can run concurrently (pairwise-disjoint touch sets, at most one bean touching a shared hotspot such as `flow.py` or
-   `cli.py` per repository, honouring each bean's recorded dependencies), so the next batch can start immediately.
+3. **Backfill open flow slots (up to 4 concurrent flows; maintainer, 2026-11-24)**: after updating beans and refreshing
+   triage, first resume parked flows unblocked by this merge from their checkpoint (they take free slots ahead of new
+   beans; parked flows do not count toward the 4; maintainer, 2026-11-26). Then, if fewer than 4 `holon-flow` background
+   subagents are active on hosted runtimes (local runtimes remain capped at 1), automatically pick up and launch the
+   highest-priority ready bean from the refreshed triage (honouring `blocked_by`, solo-sweep rules, and
+   pairwise-disjoint touch sets with active flows; at most one bean touching a shared hotspot such as `flow.py` or
+   `cli.py` per repository unless explicitly allowed) via `holon-flow` in a background subagent. Report both the
+   post-merge summary and the newly launched flow (or explain why no eligible bean could start).
+4. **Self-improvement audit**: after each merge, count the pull requests merged into `main` of both target repositories
+   since the newest entry in `.beans/self-improvement-audits.md`. When the count reaches five, launch the
+   self-improvement audit subagent per [self-improvement-audit.md](self-improvement-audit.md).
 
 ---
+
+**Post-merge steps run through the `post-pr-merge` skill** (maintainer, 2026-11-13): on any detected target-repository
+merge, invoke the skill in a dedicated lowest-tier subagent (tier per [model-tiers.md](model-tiers.md)), passing it the
+PR facts (repo, number, merge commit, review id, flow worktree, calibration report path), and verify its report. Never
+run the post-merge steps inline.

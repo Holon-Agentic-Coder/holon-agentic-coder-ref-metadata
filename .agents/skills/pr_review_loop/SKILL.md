@@ -48,6 +48,12 @@ resolution step is executed in a dedicated, fresh subagent**.
      head: votes are cast against the head under review, so after a fix the ensemble re-reviews the new head until a
      pass produces no new actionable finding. A loop that ends with "no head ever held three clean votes" has not
      converged, and must say so plainly rather than reporting an aggregate verdict across mismatched heads.
+   - **Exception: a merge of the target branch that leaves the PR's own diff unchanged keeps the votes** (maintainer,
+     2026-11-23; Bean 0372). When the only push since the votes is a merge of `origin/<target>` whose conflicts, if any,
+     were ledger/KB files under `holon-knowledge/` resolved mechanically, and `git diff` from the merge-base with the
+     target to the head (excluding `holon-knowledge/**` and calibration reports) is identical before and after, do not
+     re-review. Wait for every CI check on the new head instead; re-review only if CI fails there or the PR's own diff
+     changed (a hand-resolved code conflict, a resolver or agent code push).
 3. **Deterministic Convergence (Never Pause)**: The loop has **no pause state and never asks for guidance mid-flight**.
    The only exits are a clean consensus approval posted to the PR, the **max iteration cap** with a final review posted,
    or the **divergence report** of [principle 12](#12-convergence-rules-bean-0170) (diff size and Nit count both rising
@@ -469,8 +475,8 @@ reality, so reviewers never evaluate a diff that no longer exists. Nothing here 
      - Run `git fetch origin main` and `git merge origin/main`.
      - Resolve the conflicts immediately:
        - **Ledger-Only Conflicts**: If conflicts are strictly confined to ledgers (`holon-knowledge/ledger/*.jsonl`),
-         follow the **Ledger-Only Conflict Resolution** procedure: interleave or append the JSON lines chronologically
-         by `created_at`, verify valid JSON syntax, and skip running test suites.
+         follow the **Ledger-Only Conflict Resolution** procedure: keep main's rows unchanged in main's order and append
+         only the branch's own rows by `created_at`, verify valid JSON syntax, and skip running test suites.
        - **Code/Doc Conflicts**: If conflicts involve non-ledger files, resolve them cleanly, format with Prettier, run
          tests (`uv run pytest`), and commit.
      - Push the resolved merge commit to `origin <branch_name>`.
@@ -497,8 +503,8 @@ Execute the review pass in a clean, isolated subagent context.
 - **Model**: Inherit the parent agent's model (`inherit`). If credit or quota runs out on `"inherit"` / `"pro"`,
   automatically fall back along `Model: "inherit"` / `"pro"` $\rightarrow$ `"flash"` $\rightarrow$ `"flash_lite"` (and
   similarly step down `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` or
-  `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash`) and continue the loop from the
-  current iteration without losing completed work.
+  `gemini-4-neon` $\rightarrow$ `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash`) and
+  continue the loop from the current iteration without losing completed work.
 - **Prompt Instructions**:
   > Load and execute the `pr-reviewer` skill for `<pr_url_or_number>` in **Dry-Run Mode (`--dry-run`)** with
   > **Single-Agent Mode** enabled.
@@ -635,9 +641,9 @@ Wait for the subagent to complete and inspect its report.
          1. Run `git fetch origin main` and `git merge origin/main`.
          2. Resolve the conflicts immediately:
             - **Ledger-Only Conflicts**: If conflicts are strictly confined to ledgers
-              (`holon-knowledge/ledger/*.jsonl`), follow the **Ledger-Only Conflict Resolution** procedure: interleave
-              or append the JSON lines chronologically by `created_at`, verify valid JSON syntax, and skip running test
-              suites.
+              (`holon-knowledge/ledger/*.jsonl`), follow the **Ledger-Only Conflict Resolution** procedure: keep main's
+              rows unchanged in main's order and append only the branch's own rows by `created_at`, verify valid JSON
+              syntax, and skip running test suites.
             - **Code/Doc Conflicts**: If conflicts involve non-ledger files, resolve them cleanly, format with Prettier,
               run tests (`uv run pytest`), and commit.
          3. Push the resolved merge commit to `origin <branch_name>`.
@@ -748,8 +754,8 @@ Execute the resolution pass in a clean, isolated subagent context.
 - **Model**: Inherit the parent agent's model (`inherit`). If credit or quota runs out on `"inherit"` / `"pro"`,
   automatically fall back along `Model: "inherit"` / `"pro"` $\rightarrow$ `"flash"` $\rightarrow$ `"flash_lite"` (and
   similarly step down `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` or
-  `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash`) and continue the loop from the
-  current iteration without losing completed work.
+  `gemini-4-neon` $\rightarrow$ `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash`) and
+  continue the loop from the current iteration without losing completed work.
 - **Target Worktree**: Locate the target repository worktree under `apps/holon-agentic-coder/{branch}`,
   `apps/holon-coherence/{branch}`, or repository root.
 - **Prompt Instructions**:

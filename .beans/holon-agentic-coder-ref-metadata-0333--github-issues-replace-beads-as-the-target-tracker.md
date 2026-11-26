@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0333
 title: "GitHub Issues replace beads as the target tracker; remove the beads pilot from holon-agentic-coder"
-status: todo
+status: completed
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - beads
   - holon-agentic-coder
 created_at: 2026-11-19T11:30:00Z
-updated_at: 2026-11-22T22:55:00Z
+updated_at: 2026-11-23T09:35:00Z
 ---
 
 ## Decision (maintainer, 2026-11-19)
@@ -75,3 +75,36 @@ and 0317 remain blocked on this decision bean.
 `.beads/config.yaml`, `.gitignore`, `apps/sandbox-executor/Dockerfile`, `apps/sandbox-executor/docker-bake.hcl`,
 `apps/sandbox-executor/tests/test_beads_integration.py`, `docs/agents.md`, `docs/issue_tracking.md`. Unblocked and
 completely disjoint from PR #230.
+
+## Progress (2026-11-23)
+
+Flow `github-issues-replace-beads` completed all 5 stages (intent, plan, execute, review approved, calibrate) on PR
+[#258](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/258). Mergeable and CLEAN, CI green on the final
+head, calibration report `plans/I-1795422760-github-issues-replace-beads/P-1795422777-CLA-CO5.5_calibration.md` in the
+PR diff. Awaiting human merge into main.
+
+## Progress note (flow rerun, 2026-11-23)
+
+- PR #258 was merged into main at 09:23:07Z (maintainer auto-merge) while the rerun from review was still running; the
+  flow was left to finish.
+- Rerun from review (engine reinstalled 20:11 AEDT): review re-dispatched reviewers (iteration 2), all three APPROVED (0
+  critical, 0 important, 0 nit) on head a4afb308. Approval did not carry over.
+- Stage 5 calibration ran on head ea6df94b (predicted EV 43.29, actual 50.39, delta +7.10); the flow's final-head CI
+  check on 8fcf222 was not verified before the flow ended.
+- Log: todo/flow-github-issues-replace-beads.log.
+
+## Resolution
+
+Delivered via [PR #258](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/258) and merged into `main`
+(`b01c2da`):
+
+- **Key Architectural Deliverables**: the beads pilot is removed from `holon-agentic-coder` (pinned `bd` install and
+  offline check in the `holon/agent-*` image builds, `.beads/` config and gitignore entry, pilot tests); `AGENTS.md` and
+  `.agents/` describe GitHub Issues as the tracker.
+- **Verification & Tests**: pilot tests removed; repository hygiene check no longer covers `.beads/`. Review approved on
+  head `a4afb308` (0 critical, 0 important, 0 nit); calibration report
+  `plans/I-1795422760-github-issues-replace-beads/P-1795422777-CLA-CO5.5_calibration.md`.
+- **Holon Flow Traversal**: all 5 stages completed (Intent -> Plan -> Execute -> Review Loop -> Calibration). The merge
+  landed while the rerun from review was still finishing; the flow then ended.
+- **Cleanup**: flow worktree `flow-github-issues-replace-beads` removed; its branches deleted locally and on origin.
+  Verified bundle of those branches: `todo/stale-worktree-backups/github-issues-replace-beads-2026-11-23.bundle`.

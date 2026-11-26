@@ -1,0 +1,58 @@
+---
+# holon-agentic-coder-ref-metadata-0531
+title: "Break flow/entrypoint and ledger/knowledge import cycles and decompose ExecutionRun, planner, turns"
+status: todo
+type: task
+priority: high
+tags:
+  - holon-agentic-coder
+  - architecture
+  - complexity
+  - refactor
+created_at: 2026-11-26T13:35:00Z
+updated_at: 2026-11-26T13:35:00Z
+---
+
+## Problem
+
+Bidirectional import cycles link `flow` ↔ `entrypoint` (11 imports each way) and `ledger` ↔ `knowledge`, while
+`FlowContext.__post_init__` triggers proxy-resolution side effects during dataclass instantiation and `ExecutionRun`,
+`entrypoint/planner.py:main`, and `turns.py:run_turn` carry extreme state/complexity counts.
+
+## Evidence
+
+- Bidirectional `flow` ↔ `entrypoint` cycle (11 imports in each direction, e.g.
+  `apps/sandbox-executor/src/sandbox_executor/entrypoint/review_loop.py:51-56`, `flow/review/loop.py:16`,
+  `flow/stages/execute.py:20`).
+- `ledger` ↔ `knowledge` cycle (`ledger/rows.py:324` imports `CredentialRedactor` from `knowledge.records`).
+- `review_target.py:12,127,159,186,223`: deferred private imports from `flow`.
+- `flow/github/token_scopes.py:7`: imports from `launcher.mounts`.
+- `flow/context.py:189-194`: `FlowContext.__post_init__` calls side-effecting `coherence.resolve_flow_proxy_choice()`.
+- `entrypoint/executor/run.py:89-141`: 5-mixin god object `ExecutionRun` holding 42 mutable attributes.
+- Complexity hotspots outside `run_review_loop` (Bean `0192`) and `calibration.py` (Bean `0197`):
+  `entrypoint/planner.py:329` (`main`, CC=50, 321 lines) and `turns.py:543` (`run_turn`, CC=49, 189 lines, 18
+  parameters).
+
+## Proposed Change
+
+1. Extract shared contracts, redaction interfaces, and review-target models into leaf modules to break `flow` ↔
+   `entrypoint`, `ledger` ↔ `knowledge`, `flow/github` → `launcher`, and `review_target` → `flow._*` cycles, guarded by
+   an automated import-layer test.
+2. Move `coherence.resolve_flow_proxy_choice()` out of `FlowContext.__post_init__` into an explicit factory/builder.
+3. Replace `ExecutionRun`'s 5-mixin inheritance with composed collaborators, and decompose `entrypoint/planner.py:main`
+   and `turns.py:run_turn` using typed config/request parameter objects.
+
+## Acceptance Criteria
+
+- Automated import-layer test verifies zero circular dependencies across `flow`, `entrypoint`, `ledger`, `knowledge`,
+  `launcher`, and `runners`.
+- `FlowContext(...)` construction is pure (zero proxy/network/subprocess side effects).
+- `planner.py:main`, `turns.py:run_turn`, and `ExecutionRun` meet Ruff complexity limits without bloated parameter lists
+  or 5-mixin state bags.
+
+## Notes
+
+- Target repository: `holon-agentic-coder` (evaluated at `HEAD f1e18bcd`).
+- Related existing beans: Bean `0192` (`run_review_loop`/`run_review_stage`), Bean `0197` (`calibration.py`), Bean
+  `0152`/`0489` (module budgets).
+- Source: 2026-11 ecosystem architecture & source-code review (`docs/ecosystem-audit-report-2026-11.md`).

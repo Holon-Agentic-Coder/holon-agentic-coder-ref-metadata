@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0181
 title: "Use the /_ leaf only when referencing a git branch, never on intent, plan or execution ids"
-status: in-progress
+status: todo
 type: bug
 priority: normal
 tags:
@@ -11,7 +11,7 @@ tags:
   - documentation
   - holon-agentic-coder
 created_at: 2026-10-29T01:01:35Z
-updated_at: 2026-11-23T00:00:00Z
+updated_at: 2026-11-23T08:05:48Z
 ---
 
 ## Principle (maintainer, 2026-10-29)
@@ -86,3 +86,6 @@ now means the `flow/` package.
 lives in `entrypoint/executor/run.py` (lines 94 and 242) alongside `calibration.py`, `cli/commands/`,
 `entrypoint/planner.py`, `entrypoint/taken_ids.py`, and `entrypoint/execution_workspace.py`. Overlaps PR #230 on
 `docs/git_flow.md` and `docs/ledger_schema.md`.
+
+> 2026-11-23: stale worktree deleted 2026-11-23; restart from current main. Backup:
+> todo/stale-worktree-backups/flow-branch-leaf-only-on-refs-2026-11-23.bundle

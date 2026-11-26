@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0215
 title: "Deterministic beans-to-GitHub-Issues importer and real-data dry run"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -9,10 +9,8 @@ tags:
   - github-issues
   - migration
   - harness
-blocked_by:
-  - "0333"
 created_at: 2026-10-30T00:00:00Z
-updated_at: 2026-11-21T01:20:00+11:00
+updated_at: 2026-11-23T14:27:43Z
 ---
 
 ## Problem
@@ -46,4 +44,15 @@ a deterministic importer: bean frontmatter and Markdown body to an issue created
 
 ## Audit (2026-11-21)
 
-Open-bean count refreshed: about 40 active beans, not 50 (after the recent completions). Still blocked by Bean 0333.
+Open-bean count refreshed: about 40 active beans, not 50 (after the recent completions). Bean 0333 completed (PR #258),
+so no blocker remains.
+
+## Progress (2026-11-24)
+
+- Built `.agents/scripts/beans_to_issues.py` (standard library; `gh` for the real import) and
+  `tests/test_beans_to_issues.py`. Default is a dry run that renders payloads, labels, dependencies and a report under
+  `todo/beans-to-issues-dry-run/`; `--apply` is the real import and has not been run. No issue or label was created.
+- Dry run on the real corpus: 41 open beans, 35 to migrate (holon-agentic-coder 31, holon-coherence 4), 6 not migrated
+  (harness-only), 0 mapped dependencies (the only open edges point at this bean, which is not migrated), 0 sub-issues,
+  40 bean references become `#N`, 158 references to unmigrated beans are reworded, 31 harness paths removed.
+- Open decisions for the maintainer: see the dry-run report and the reply that accompanied this bean.

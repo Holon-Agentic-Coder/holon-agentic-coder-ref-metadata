@@ -55,14 +55,15 @@ squashed or force-pushed. For any other branch, still prefer the merge unless th
 ### Step 3: Resolve the append-only files mechanically
 
 ```bash
-python3 .agents/skills/resolve_conflict/scripts/resolve_known.py --repo <worktree>
+python3 .agents/skills/resolve_conflict/scripts/resolve_known.py --repo <worktree>   # merging origin/main into the branch; add --base-stage 2 for the reverse direction
 ```
 
 It handles, and stages:
 
-- **`holon-knowledge/ledger/*.jsonl`** (`intents`, `plans`, `executions`): keeps every row from both sides, base branch
-  order first, this branch's own rows interleaved by `created_at`. Nothing is de-duplicated or dropped, and no file is
-  ever created beyond the three ledgers.
+- **`holon-knowledge/ledger/*.jsonl`** (`intents`, `plans`, `executions`): keeps every row from both sides: the base
+  branch's rows exactly in main's order, then this branch's own rows appended (ordered by `created_at` among
+  themselves); a row already on main is never moved. Nothing is de-duplicated or dropped, and no file is ever created
+  beyond the three ledgers.
 - **`holon-knowledge/kb/**/index.json`**: union of `entries` by `kb_id`, the later `updated_ts`.
 
 Any other conflicted path prints `NEEDS-JUDGEMENT <path>`.
@@ -104,6 +105,24 @@ Push the branch you merged into; never push to `main`, never force-push. Re-chec
 PR is clean when it reads `MERGEABLE` (`UNSTABLE` only means checks are re-running). The commit message is the merge
 commit's default; add no attribution trailer.
 
+### Step 5b: Notify via ntfy (maintainer, 2026-11-25)
+
+Once the merge commit is pushed with zero escalations and `gh pr view` confirms `MERGEABLE`, send a push notification to
+the maintainer via the harness helper:
+
+```bash
+uv run python .agents/skills/holon_flow/scripts/notify_ntfy.py \
+  "PR #<N> Conflicts Resolved" \
+  "<repo>#<N> (<slug>) conflicts resolved (<mergeStateStatus>): <pr_url>" \
+  --priority high --tags white_check_mark
+```
+
+- The helper reads `HOLON_NTFY_TOPIC` or `~/.holon/secrets/ntfy-topic` and silently no-ops if unconfigured; **never**
+  print, log, or commit the topic or secret.
+- Do **not** send an `ntfy` notification if a conflict was escalated or the merge was aborted.
+- Avoid duplicates: if the parent coordinator waits for CI and sends the final ready-to-merge `ntfy` itself, it
+  instructs the subagent to skip Step 5b; otherwise the subagent sends it here.
+
 ---
 
 ## 📋 Report Back (to the parent, five lines at most)
@@ -112,7 +131,7 @@ commit's default; add no attribution trailer.
 - Files resolved mechanically and files resolved by hand (path and one phrase each).
 - Files escalated, with the reason.
 - Verification done (JSON check, additions-only diff, lint, tests).
-- The pushed commit and the resulting `mergeable` / `mergeStateStatus`.
+- The pushed commit, the resulting `mergeable` / `mergeStateStatus`, and whether the `ntfy` notification was sent.
 
 ---
 
@@ -124,3 +143,13 @@ commit's default; add no attribution trailer.
 - Never create a ledger other than `intents.jsonl`, `plans.jsonl` and `executions.jsonl`.
 - Never name harness paths or bean ids in anything written into a target repository.
 - Report outcomes faithfully: if a file was escalated or a check failed, say so.
+
+---
+
+## After the merge: no re-review for a mechanical merge (maintainer, 2026-11-23; Bean 0372)
+
+When every conflict was a ledger/KB file under `holon-knowledge/` resolved mechanically and the PR's own diff
+(merge-base with the target to head, excluding `holon-knowledge/**` and calibration reports) is unchanged by the merge,
+the existing approval stands. Report "approval carries over; waiting for CI on <new head>" and do not ask for a fresh
+review. Only a CI failure on the new head, or a hand-resolved code conflict that changed the PR's own diff, needs a
+re-review.

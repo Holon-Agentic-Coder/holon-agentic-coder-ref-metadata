@@ -26,7 +26,9 @@ multi-hour containerised lifecycle, **the flow is executed inside a dedicated ba
    **MUST NOT execute the flow inline**. Instead, it delegates to a background `Holon Flow Subagent` (`invoke_subagent`
    with `TypeName: "self"`, `Role: "bean <id> - holon flow <slug>"` (named per
    [subagents.md, "Subagent names"](../../subagents.md#subagent-names)), `Model` = the lowest tier per
-   `.agents/model-tiers.md`) and immediately returns control to the user.
+   `.agents/model-tiers.md`) and immediately returns control to the user. Up to **4 concurrent `holon-flow` background
+   subagents** may run at once on hosted runtimes (each in its own `flow-<slug>` worktree; local runtimes stay at 1),
+   with automatic backfill of the next highest-priority ready bean once a PR merges per `post-pr-merge`.
 2. **Sole Change Path Invariant**: Every target codebase change (`holon-agentic-coder` or `holon-coherence`) MUST
    traverse the 5 containerised stages:
    - **Stage 1 (Intent)**: `I-{ts}-{slug}/_` branch created and logged to `holon-knowledge/ledger/intents.jsonl`.
@@ -51,17 +53,24 @@ multi-hour containerised lifecycle, **the flow is executed inside a dedicated ba
 5. **Wait Out a Named Reset, Then the Fallback Ladder (maintainer rule, 2026-11-11)**: If any stage or subagent
    encounters model credit exhaustion, session limits, rate limits, or HTTP 429 errors (`You've hit your session limit`,
    `insufficient_quota`, `RESOURCE_EXHAUSTED`), **do not stop or block**:
-   - **When the error names its reset time** (e.g. `resets 5:40pm (Australia/Melbourne)` — a daily or weekly window),
-     **wait until about one minute after that reset and resume automatically from the checkpoint on the same agent and
-     model**. `scripts/run_holon_flow.py` does this itself (`parse_limit_reset` / `wait_for_limit_reset`), logging it
-     before it sleeps; a hand-driven stage follows the same rule. Never report such a stop as terminal and never wait
-     for a human to type "continue".
+   - **When the error names its reset time** (e.g. `resets 5:40pm (Australia/Melbourne)` or a relative
+     `Resets in 51m58s` as Antigravity prints; a daily or weekly window), **wait until about one minute after that reset
+     and resume automatically from the checkpoint on the same agent and model**. `scripts/run_holon_flow.py` does this
+     itself (`parse_limit_reset` / `wait_for_limit_reset`), logging it before it sleeps; a hand-driven stage follows the
+     same rule. Never report such a stop as terminal and never wait for a human to type "continue".
+   - **A parent or subagent that receives a quota failure naming a reset schedules the resume at once** (`schedule` with
+     the reset plus one minute) in the same turn, before doing anything else; it never waits for the user to say
+     "continue" (maintainer, 2026-11-24).
    - **When no reset time is named** (true credit exhaustion), step down the fallback ladder and continue the flow from
      the current stage or checkpoint:
-   - **Claude (`claude-agent`)**: `claude-fable-5` $\rightarrow$ `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6`
+   - **Fable needs a longer stall window (2026-11-23)**: launch `run_holon_flow.py` with `HOLON_TURN_STALL_SECONDS=600`
+     when the model is `claude-fable-5-2`. With the default 90 s every reviewer was cut ("review stall budget of 90 s
+     exceeded") because Fable thinks longer than that before it streams.
+   - **Claude (`claude-agent`)**: `claude-fable-5-2` $\rightarrow$ `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6`
      $\rightarrow$ `claude-haiku-4-5`.
-   - **Antigravity (`antigravity-agent`)**: `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$
-     `gemini-3.8-flash` (use `gemini-4-argon` for all Holon coding tasks until tokens run out).
+   - **Antigravity (`antigravity-agent`)**: `gemini-4-neon` $\rightarrow$ `gemini-4-argon` $\rightarrow$
+     `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash` (use `gemini-4-neon` for all Holon coding tasks until tokens
+     run out).
    - **Antigravity AGY Subagent Runtime**: `Model: "inherit"` / `"pro"` $\rightarrow$ `"flash"` $\rightarrow$
      `"flash_lite"`.
    - **No Cross-Runner Switch**: never switch `--agent` between `claude-agent` and `antigravity-agent` on your own. When
@@ -75,8 +84,9 @@ multi-hour containerised lifecycle, **the flow is executed inside a dedicated ba
      and pushing to `origin`) so it appears in the PR diff.
 7. **Canonical 3-Ledger Conflict Resolution**: Target repositories maintain strictly three ledgers under
    `holon-knowledge/ledger/` (`intents.jsonl`, `plans.jsonl`, `executions.jsonl`). When concurrent PR merges cause
-   ledger conflicts against `origin/main`, do not run test suites: interleave the JSONL records chronologically by their
-   `created_at` timestamp, commit, and push.
+   ledger conflicts against `origin/main`, do not run test suites: keep main's ledger file exactly as on main, in main's
+   order, append only the branch's own rows (ordered by `created_at` among themselves), never move or re-sort a row
+   already on main, then commit and push.
 8. **Human-Only Merge Boundary (Bean 0034 / Rule 8)**: Agents MUST NEVER merge a PR that targets `main` (`gh pr merge`
    is strictly forbidden). The subagent completes when Stage 5 calibration is included in the PR, confirms the PR is
    clean and mergeable, and notifies the parent agent that the PR is ready for human merge.
@@ -116,16 +126,23 @@ Inside the background subagent, perform pre-flight verification:
 1. **Verify Global `holon` Binary**: Ensure `holon` is available in `PATH` (`which holon` $\rightarrow$
    `~/.local/bin/holon`).
 2. **Verify Docker Daemon**: Ensure Docker is running (`docker info`).
-3. **Verify Intent JSON**: Read and parse `<intent_path>`. Ensure `slug`, `goal`, and `description` are present. Give
-   the intent a descriptive `slug` of up to 32 characters (lowercase, hyphen-separated); the engine rejects longer root
-   slugs, and since the short branch names of PR #206 two levels of nested child intents with 32-character slugs fit
-   GitHub's 255-character ref limit (see `.agents/rules.md`, "Git ref names are limited to 255 characters").
+3. **Verify Intent JSON**: Read and parse `<intent_path>`. Ensure `slug`, `goal`, and `description` are present, and
+   that the `goal` contains this sentence verbatim: "Code is self-explaining: no docstrings and no comments except '#
+   why:' comments that record a reason the code cannot show." (self-explaining-code invariant, maintainer, 2026-11-27);
+   add it if missing. Give the intent a descriptive `slug` of up to 32 characters (lowercase, hyphen-separated); the
+   engine rejects longer root slugs, and since the short branch names of PR #206 two levels of nested child intents with
+   32-character slugs fit GitHub's 255-character ref limit (see `.agents/rules.md`, "Git ref names are limited to 255
+   characters").
 4. **Verify Target Worktree**: Ensure `--target-worktree` is a dedicated `flow-<slug>` worktree (never the `main`
    worktree itself) that exists and is a clean git repository. Create it from `origin/main` first if it does not exist.
-5. **Determine Runner & Model**:
+5. **Intent check (bean 0508, PR #348)**: with the target worktree at current `origin/main`, run
+   `holon intent-check <intent_path> --target-worktree <target_worktree>`. Add each companion file it lists as missing
+   to the intent's scope (files only, never directories), or record in the bean why not. Proposed companions and
+   warnings are advisory.
+6. **Determine Runner & Model**:
    - Default agent: `antigravity-agent` (or `claude-agent`)
-   - Default model: `gemini-4-argon` (fallback: `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash`, or
-     `claude-fable-5` / `claude-opus-5-5`)
+   - Default model: `gemini-4-neon` (fallback: `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$
+     `gemini-3.8-flash`, or `claude-fable-5-2` / `claude-opus-5-5`)
 
 ---
 
@@ -153,11 +170,15 @@ python3 .agents/skills/holon_flow/scripts/run_holon_flow.py <intent_path> \
 #### Claude credentials are built in
 
 For `--agent claude-agent`, `scripts/run_holon_flow.py` builds the container credentials itself (`scripts/flow_env.py`):
-it reads the long-lived OAuth token from `CLAUDE_CODE_OAUTH_TOKEN` or `~/.holon/secrets/claude-oauth-token`, wraps it in
-`HOLON_AGENT_SETTINGS` with the echo padding, and sets `HOLON_TOKEN_REDUCE=0` and `PYTHONUNBUFFERED=1` for the flow
-process. The token is never printed. Nothing needs exporting by hand, and an already-set `HOLON_AGENT_SETTINGS` is left
-alone. When no credentials can be found the runner stops before dispatch with a message naming what is missing, instead
-of letting every Stage 4 reviewer exit with code 1 and no reason.
+it reads the long-lived OAuth token from `CLAUDE_CODE_OAUTH_TOKEN`, then the legacy file
+`~/.holon/secrets/claude-oauth-token` if it still exists, then the OS keychain entry (service `holon`, account
+`claude-oauth-token`), which is where the engine keeps it since pull request #271, wraps it in `HOLON_AGENT_SETTINGS`
+with the echo padding, and sets `HOLON_TOKEN_REDUCE=0` and `PYTHONUNBUFFERED=1` for the flow process. It also switches
+on Claude Code's experimental code mode (`CLAUDE_CODE_EXPERIMENTAL_CODE_MODE=1`, in the flow process and in the settings
+`env` the containers read); export `CLAUDE_CODE_EXPERIMENTAL_CODE_MODE=0` before launching to switch it off. The token
+is never printed. Nothing needs exporting by hand, and an already-set `HOLON_AGENT_SETTINGS` is left alone. When no
+credentials can be found the runner stops before dispatch with a message naming what is missing, instead of letting
+every Stage 4 reviewer exit with code 1 and no reason.
 
 #### Monitoring Stage Progress
 
@@ -177,8 +198,9 @@ If `holon flow` exits with an error:
 
 1. **Quota / Credit / Session Limit Errors**: If the log contains `session limit`, `insufficient_quota`,
    `RESOURCE_EXHAUSTED`, or HTTP 429:
-   - Identify the next tier down on the fallback ladder (e.g. `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen`
-     $\rightarrow$ `gemini-3.8-flash`, or `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6`).
+   - Identify the next tier down on the fallback ladder (e.g. `gemini-4-neon` $\rightarrow$ `gemini-4-argon`
+     $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash`, or `claude-opus-5-5` $\rightarrow$
+     `claude-sonnet-4-6`).
    - Never switch `--agent` across runners without the maintainer's go-ahead; report the exhausted ladder instead.
    - Resume the flow using the saved checkpoint:
 
@@ -242,19 +264,40 @@ Once the flow finishes:
    gh pr view <pr_number> --json mergeable,mergeStateStatus
    ```
 
-   If `mergeable == "CONFLICTING"`, fetch `origin/main`, merge `origin/main` into the PR execution branch, resolve the
-   ledger conflicts chronologically by `created_at`, commit, and push to origin.
+   **A flow is not finished while its PR conflicts with the target branch (maintainer, 2026-11-23).** If
+   `mergeable == "CONFLICTING"` or `mergeStateStatus == "DIRTY"` at the end of the flow, including when the flow itself
+   printed "completed successfully", do not report it as terminal. Rerun the flow:
+   1. Resolve the conflict through the `resolve-conflict` skill in its own subagent (merge `origin/<target>`; never a
+      rebase or force-push; ledger and KB conflicts mechanically; a code conflict that needs a decision goes back to the
+      parent, which delegates a higher-tier resolve-conflict subagent). Push.
+   2. Rerun the flow from the checkpoint, launched from the harness root, choosing the stage by what the merge did:
+      - **Mechanical merge, PR's own diff unchanged** (ledger/KB only): rerun with
+        `.agents/skills/holon_flow/scripts/run_holon_flow.py --from-stage calibrate`. Stage 5's merged-head gate
+        compares the PR-own fingerprint with the one recorded at approval: when they match it keeps the approval, waits
+        for CI on the merged head and redoes calibration; when they differ, or CI fails, it withdraws the consensus and
+        restarts Stage 4 itself. **Do not use `--from-stage review` here**: it re-enters the review loop and dispatches
+        the reviewers again even though nothing of the PR changed (seen on PR #258, 2026-11-23). Better still, for a
+        ledger-only conflict skip step 1 and let the rerun's own conflict gate do the merge: it resolves ledgers itself
+        and records the carry-over row.
+      - **The PR's own diff changed** (a resolved code conflict), or the approval predates the fingerprint (it was
+        recorded by an engine older than PR #254, so the checkpoint's consensus has no `approval_fingerprint`): rerun
+        with `--from-stage review`; one fresh review records a fingerprinted approval, and later merges carry it over.
+   3. Check mergeability again and repeat until the PR is `MERGEABLE` and `CLEAN` with green CI and the calibration
+      report in the diff. If the target branch keeps moving, keep going; report only a conflict you cannot get resolved,
+      never "ready" for a conflicting PR.
 
 ---
 
-### Stage 3 overlap refusals are waited out
+### Stage 3 overlap refusals are parked, not waited out (maintainer, 2026-11-26)
 
-When Stage 3 admission refuses a plan because its touch set overlaps another flow in flight, `scripts/run_holon_flow.py`
-does not stop and never adds `--allow-overlap` itself. It polls each overlapping pull request named in the refusal
-(`gh pr view <n> --json state`, every `--overlap-poll-seconds`, default 60) until each is merged or closed, then resumes
-the flow from its checkpoint, which runs admission again. An overlap with a local flow that has no pull request is
-re-checked by re-running admission after the same interval. Any other refusal (no touch set declared, discovery
-unavailable) still stops. Pass `--no-wait-on-overlap` to stop on an overlap as before.
+When Stage 3 admission refuses a plan because its touch set overlaps another flow in flight (or the flow otherwise waits
+on another flow's PR), the flow does not hold a slot. Never add `--allow-overlap`. Run the wrapper with
+`--no-wait-on-overlap` so it stops on the refusal, then park the flow: keep its worktree, branches and checkpoint, note
+on its bean `parked <date>: blocked by <PR/flow> on <files>; resume from checkpoint when <condition>`, stop only this
+flow's own processes, and end the subagent. Report the parked flow to the parent at once so the slot is reused. Resume
+only from the checkpoint (`--checkpoint`) once the blocker merges or releases the files; never relaunch without
+`--checkpoint`, which re-runs intent and plan and leaves duplicate `I-*` branches. Any other refusal (no touch set
+declared, discovery unavailable) also stops and is reported.
 
 ### Push notifications (ntfy.sh)
 
@@ -269,6 +312,13 @@ while, so they carry only the intent slug and the PR number (no URL or repositor
 
 ### Step 5: Terminal Completion & Notification
 
+0. **Wrapper gate and state file**: `run_holon_flow.py` itself exits non-zero when the flow exits 0 but the PR is
+   missing, the calibration report is absent from the PR diff, or the PR is CONFLICTING/DIRTY, and waits (bounded, 45
+   min, via `gh pr checks`) for pending checks before reporting success. It writes `.subagent/flow_<slug>_state.json`
+   itself at the end (status, PR number/url, stage reached, consensus, calibration EV when logged, merge state, next
+   action); the driver only reads it and may add fields. A merged PR is a clean finish. Dry runs skip all of this. A
+   "spend limit" message is a quota error: with no reset time the wrapper steps down the ladder, with a named reset it
+   waits.
 1. **Write State Artifact**: Record completion summary to `.subagent/flow_<slug>_state.json`:
 
    ```json

@@ -1,0 +1,200 @@
+---
+# holon-agentic-coder-ref-metadata-0376
+title: "The flow resolves file conflicts itself at every stage: an in-flow conflict resolver"
+status: completed
+type: feature
+priority: critical
+tags:
+  - flow
+  - merge-conflicts
+  - resolver
+  - cost
+  - holon-agentic-coder
+created_at: 2026-11-23T08:40:00Z
+updated_at: 2026-11-25T02:27:00Z
+---
+
+## Problem
+
+When a flow branch conflicts with its target branch, the flow engine resolves only ledger files. Any other conflicting
+file stops the stage, and the conflict is then fixed outside the flow (the `resolve-conflict` skill in a harness
+subagent, or by hand). On 2026-11-23 every code conflict was handled that way: PR #248 (twice), bean 0191 child 3, PR
+#253 (`flow/stages/calibrate.py`), PR #251, PR #252 (16 KB entry files).
+
+What each stage does today (`flow/stage_conflicts.py`, `flow/stage_conflict_resolution.py`,
+`flow/review/conflict_gate.py`, `flow/stages/sync_conflict.py`):
+
+| Where                                                | Ledger conflict                                  | Any other file                                                                                                                           |
+| :--------------------------------------------------- | :----------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------- |
+| Before a stage (`check_and_resolve_stage_conflicts`) | append-merged automatically                      | raises `ConflictResolutionError`; the stage fails (bean 0191 at Stage 3 `prepare_workspace`, bean 0369 at Stage 4 entry)                 |
+| End of Stage 3                                       | —                                                | records a `sync_conflict` row and reports success ("a resolver or the maintainer must resolve it"); no resolver runs, Stage 4 then fails |
+| Stage 4 conflict gate                                | merges the target and pushes; approval re-earned | aborts the merge and blocks                                                                                                              |
+| Stage 5                                              | —                                                | refuses to calibrate; PR #248 was refused for ledger and KB index conflicts reported as "code conflicts"                                 |
+
+The handling differs per stage (raise, record a row, abort, refuse), none of it resolves a code conflict, and each halt
+costs a harness subagent, a manual resume and often a repeated review.
+
+## Goal
+
+At any stage of the flow, a file conflict with the target branch is taken care of inside the flow: the engine merges the
+target branch, resolves the conflicts, proves the result with lint and tests, and continues. A stage fails on a conflict
+only when the resolver cannot produce a passing tree, and then it says exactly which files and why.
+
+## Design
+
+1. **One conflict routine for every stage.** Replace the per-stage variants with a single
+   `sync_with_target(context, stage)` used before Stages 2 to 5, at the end of Stage 3, at the Stage 4 conflict gate and
+   before Stage 5: fetch, merge the target branch with a normal merge commit (never a rebase or force-push), classify
+   conflicts, resolve, verify, commit, push. 1a. **Check at the most granular place (maintainer, 2026-11-23): at the
+   start, at every turn, and at the end.** The check itself is cheap and needs no agent (`git fetch` plus a
+   `git merge-tree` probe against the target tip, keyed on the target SHA so an unchanged target costs nothing), so it
+   runs at every boundary the engine controls:
+   - **start of the flow** and **start of every stage** (Stages 1 to 5);
+   - **every turn inside a stage**: each executor turn/step boundary in Stage 3, each planner turn in Stage 2 where
+     there are several, each review iteration in Stage 4 (before the reviewers are dispatched and again before the
+     consensus is posted), each resolver turn, and each calibration retry in Stage 5;
+   - **end of every stage** before it pushes, and **end of the flow** (5a below). A conflict found at any of these
+     points is resolved there by `sync_with_target`, while it is still small, instead of surfacing stages later. Inside
+     a stage the merge happens only at a turn boundary, never while a role container is writing the worktree; the next
+     turn's agent is told what the merge changed. **When the target is merged in (maintainer, 2026-11-23):** only when
+     there is a conflict to resolve, or when a stage is about to start, end, push or calibrate. At a turn boundary
+     inside a stage, a target that is unchanged, or changed without conflict, is not merged (no head move, no CI run, no
+     lost approval); the merge waits for the next stage start or end.
+2. **Mechanical classes, no agent** (extend `classify_conflicts`):
+   - ledgers: append-merge (as today);
+   - KB/WB entry files that differ only in timestamps (add/add): keep the target branch's copy;
+   - files deleted on the target and only touched mechanically on the branch (for example a removed generated index):
+     keep the deletion;
+   - lists both sides appended to (lazy-export maps, `__all__`, changelog-style files): union, keeping order rules.
+3. **Conflict resolver role for code conflicts.** A containerised resolver agent (same runner, agent and model ladder as
+   the Stage 4 resolver) receives the conflicted files, both sides' diffs since the merge-base, and the intent and plan
+   of this flow. It resolves each file, runs `uv run task lint` and the affected tests, then the full suite, and commits
+   the merge. It may not change files outside the conflict set except tests whose setup the merge invalidated, may not
+   touch the frozen module budgets (an over-budget file is split, as elsewhere), and has a bounded number of attempts.
+   **Model ladder: lowest tier first, escalate on evidence, block last (maintainer question, 2026-11-23).** Resolve
+   rather than raise or block. The order is: mechanical rules (no model) → resolver on the lowest tier → the same
+   conflict one tier up when lint or tests fail, or when the resolver reports it cannot decide → fail the stage (block)
+   only when the top tier is exhausted. The gate is the test suite, lint and the scoped re-review, not the model's
+   confidence, so a cheap model is safe to try first. Evidence from 2026-11-23: the lowest tier settled every ledger and
+   KB conflict and correctly escalated the code conflicts; its one attempted code merge (bean 0369, `calibrate.py`)
+   broke a test, and one tier up produced a green tree (5948 passed). Each attempt and its tier are recorded in the
+   ledger row.
+4. **Approval and calibration after a resolved conflict.**
+   - Mechanical-only merge: the approval carries over when the PR's own diff fingerprint is unchanged (Bean 0372); only
+     CI on the new head must pass (PR #250's merged-head gate).
+   - Agent-resolved code conflict: the fingerprint changes, so Stage 4 re-reviews, scoped to the resolved files and the
+     tests the resolver changed, not the whole PR.
+   - Stage 5 calibrates after a clean merge instead of refusing; the report's diff base and evaluated SHA follow
+     Bean 0369.
+5. **Ledger and provenance.** Each sync appends one row to `executions.jsonl` (stage, target SHA, conflicted paths,
+   class per path, how resolved, resolver attempt count, test result). `sync_conflict` rows are superseded by a later
+   resolved row (as Bean 0369 treats them). 5a. **End of the flow: a conflicting PR reruns the flow (maintainer,
+   2026-11-23).** The pipeline's last step checks the PR against the target branch. If it is `CONFLICTING`/`DIRTY` (the
+   target moved while Stage 4 or 5 ran), the flow does not finish at the merge boundary: it runs `sync_with_target` and
+   re-enters Stage 4 and Stage 5 for the merged head (CI on the new head; review only if the PR's own diff changed;
+   calibration redone), and repeats until the PR is mergeable and clean. "Completed successfully" is never printed for a
+   conflicting PR (seen on PR #252 and PR #248). Until this lands, the harness `holon-flow` skill does the same from
+   outside (Step 4.3). 5b. **A merged PR ends the flow.** At every boundary where the engine probes the target it also
+   checks the pull request's state. Once the PR is merged (or closed) the flow stops: no further review iteration,
+   calibration or push to the merged branch. Seen on PR #248 (five more review iterations and a fix commit pushed after
+   the merge) and PR #258 (the rerun was still waiting on CI when auto-merge landed).
+6. **Resume.** A resume that finds a merge in progress in the flow worktree adopts it (verifies, completes or aborts and
+   redoes) rather than failing on a dirty tree (related: Bean 0375).
+7. **Fail closed, clearly.** If the resolver exhausts its attempts or the suite stays red, the stage fails with the
+   conflicted paths, the failing tests and the resolver's last diff saved in the worktree; nothing is pushed.
+
+## Acceptance criteria
+
+- The conflict probe runs at flow start, at the start and end of every stage, at every turn boundary listed in 1a and at
+  the end of the flow; a test per boundary injects a conflicting target change just before it and asserts the conflict
+  is detected and resolved at that boundary, not later. With an unchanged target the probe makes no merge and no push.
+
+- For each of Stages 2, 3, 4 and 5: a fixture where the target branch gains a conflicting change to a code file the flow
+  also changed; the flow resolves it through the resolver role, tests pass, and the stage completes without a human or
+  an outside agent.
+- Mechanical classes (ledgers, timestamp-only KB entries, delete-vs-touch, both-appended lists) resolve with no agent
+  call; a test per class.
+- After a mechanical-only merge no reviewer is dispatched again; after an agent-resolved conflict only the resolved
+  files are re-reviewed.
+- Stage 5 no longer refuses for conflicts the routine can resolve; a ledger-only conflict never produces the message
+  "code conflicts".
+- A resolver that cannot reach a green tree fails the stage with paths, failing tests and saved diff; nothing is pushed;
+  the checkpoint allows `--from-stage` resume.
+- Every sync is recorded as one append-only ledger row; no earlier row is edited.
+- Never rebases or force-pushes a flow branch; never edits the module budget file.
+- All tests pass via `uv run pytest`; `uv run task lint` and `uv run task lint-docs` pass.
+
+## Related and ordering
+
+- Builds on Bean 0372 (approval survives a merge of main; PR #254) and Bean 0369 (calibration diff base; merged as PR
+  #253): run after #254 merges.
+- Bean 0371 (per-flow ledger fragments) and Bean 0373 (KB index, merged) reduce how often conflicts occur; this bean
+  handles the ones that remain.
+- Beans 0374 and 0375 (interrupted-run defects) share the resume path.
+- Large: likely a split flow (shared routine and mechanical classes; resolver role; per-stage wiring and scoped
+  re-review). Once it lands, the harness `resolve-conflict` skill is needed only for hand-authored harness branches.
+
+## Progress note (2026-11-23, flow run)
+
+- Run: `holon flow` via run_holon_flow.py, intent `resolve-conflicts-in-flow`, claude-agent / claude-opus-5-5, split
+  into 5 sequential sub-intents. Log: todo/flow-resolve-conflicts-in-flow.log.
+- Sub-intent 1 `add-the-shared-sync-with-target`: PR #259, merged by the maintainer (2026-11-23T10:56Z).
+- Sub-intent 2 `add-a-containerised-conflict`: PR #262, merged by the maintainer (2026-11-23T12:14Z).
+- Sub-intent 3 `wire-sync-with-target-into-flow`: failed at Stage 2 (plan). The planner container raised
+  ConflictResolutionError: unresolvable code conflict in apps/sandbox-executor/src/sandbox_executor/flow/**init**.py
+  (also ledger conflicts in executions, intents and plans jsonl). Main moved with PR #260 (merged 2026-11-23T12:26Z) and
+  PR #261. The flow worktree is clean with no merge in progress. Sub-intents 4 and 5 not run.
+- Terminal state: BLOCKED. Needs a higher-tier resolve-conflict subagent to merge origin/main into the sub-intent 3
+  branch (flow/**init**.py needs a decision; ledgers are mechanical), then a rerun. Rerun uses --model claude-fable-5-2
+  and HOLON_TURN_STALL_SECONDS=600.
+- 2026-11-24: Sub-intent 3 (PR #265) merged into parent plan branch
+  `I-1795425253-resolve-conflicts-in-flow/P-1795425271-CLA-CO5.5/_` (`1b8894c0`); unblocks sub-intents 4 and 5 (queued
+  for the next free flow slot).
+
+## Measured (self-improvement audit 2026-11-24)
+
+The order matters as well as the resolution: in the period 2026-11-21 to 2026-11-24, 4 review iterations ended with all
+three reviewers APPROVED (0/0/0) and still blocked, because the pull request was `DIRTY`; the conflict was found only
+after the reviewers had run, and each was followed by a merge and another full iteration (median 6.7 minutes). Design
+point 1a (probe before the reviewers are dispatched) would remove them. Also wanted: when the container's ensemble
+verdict differs from the reviewers' verdicts, the log names the reason (today it says only "reviewer container reported
+ensemble verdict CHANGES_REQUESTED"). Merge-resolution defects reviewers had to catch: 4 findings (a dependency listed
+twice after the merge, a 162-character line left by a resolution); the in-flow resolver should run the lint gate of Bean
+0408 on its result.
+
+## Audit evidence, 2026-11-24T12:58Z (self-improvement audit, fifth merge)
+
+- The review loop already probes mergeability at the start of every iteration (`flow/review/loop.py`, step "1.
+  Mergeability inspection", `is_dirty`) but dispatches the reviewer ensemble anyway; a conflict ends the stage only
+  after the reviewers return. PR #273 (sub-intent 4 of this bean, `sync_iteration_mergeability` in
+  `flow/review/sync_points.py`) replaces exactly this step.
+- Cost in this period: PR #272 went `DIRTY` when PR #270 merged (11:31:45Z) and iteration 2 still ran its 26.1 minute
+  ensemble (11:47:34Z to 12:13:42Z) before the `CI SIGNAL SUPPRESSED` halt; it went `DIRTY` again with PR #274
+  (12:45:46Z), and PR #275 (`DIRTY` from the same merge) started iteration 2 at 12:53:13Z on a conflicting head. In each
+  case the conflict was in the three ledger files only, and an agent merged `origin/main` by hand between the halt and
+  the resume (`bc4f11ac` at 12:14:07Z on PR #272).
+- Ranking: PR #273 is the hub of the current waits. Its merge unblocks Bean 0399 (refused since 11:42:16Z on #273) and
+  the flows of Beans 0197 and 0216 (blocked since 04:31Z and 04:27Z), and it removes the DIRTY-review churn above.
+
+- 2026-11-24: All 5 sub-intents (`#259`, `#262`, `#265`, `#273`, `#279`) merged into parent plan branch
+  `I-1795425253-resolve-conflicts-in-flow/P-1795425271-CLA-CO5.5/_`, and parent
+  [PR #283](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/283) (head `077c9bd2`) completed Stage 4
+  consensus review (`3/3` APPROVED at iteration 5) and Stage 5 calibration with `11/11` CI checks `SUCCESS`, `MERGEABLE`
+  / `CLEAN`. Ready for maintainer merge.
+
+## Resolution
+
+Delivered via [PR #283](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/283) and merged into `main`
+(`ce2c4c7a`, merged `2026-11-25T02:25:48Z`):
+
+- **Key Architectural Deliverables**: Delivered across 5 sequential sub-intents (`#259`, `#262`, `#265`, `#273`,
+  `#279`): unified `sync_with_target` (`flow/target_sync.py`, `target_sync_hooks.py`, `target_sync_merge.py`,
+  `target_probe.py`), mechanical conflict classes (`flow/conflict_classes*.py` for ledgers, timestamp-only KB/WB
+  entries, delete-vs-touch, and ordered list unions), containerised `conflict-resolver` role
+  (`flow/conflict_resolver_*.py`, `entrypoint/conflict_resolver*.py`) with lowest-tier-first escalation,
+  per-stage/turn-boundary and Stage 4/5 routing (`flow/review/sync_points.py`, `flow/calibrate_target_sync.py`,
+  `flow/stages/calibrate.py`), and end-of-flow re-entry sync (`flow/end_of_flow_sync.py`).
+- **Verification & Tests**: Hermetic unit and integration test suites added across all conflict classes, sync hooks,
+  review sync points, calibration target sync, and end-of-flow sync; `11/11` CI checks passed on head `077c9bd2`.
+- **Holon Flow Traversal**: All 5 stages (Intent -> Plan -> Execute -> Review Loop `3/3` APPROVED at iteration 5 ->
+  Calibration) completed cleanly across all 5 sub-intents and the parent PR `#283`.

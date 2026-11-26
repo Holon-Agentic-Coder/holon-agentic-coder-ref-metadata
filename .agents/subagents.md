@@ -15,10 +15,10 @@ Subagent delegation in this ecosystem is primarily targeted towards the **Antigr
   research.
 - **Model Selection & Automatic Credit Fallback**: Set `Model: "inherit"` by default to inherit the parent agent's
   active model configuration. If credit or quota runs out on the higher-level model (`"inherit"` / `"pro"`),
-  automatically fall back to `"flash"` and then `"flash_lite"` (and similarly step down `claude-fable-5` $\rightarrow$
-  `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` or `gemini-4-argon` $\rightarrow$
-  `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash` in `holon` CLI invocations) and continue the flow or review loop
-  from the current stage without discarding completed work.
+  automatically fall back to `"flash"` and then `"flash_lite"` (and similarly step down `claude-fable-5-2` $\rightarrow$
+  `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5` or `gemini-4-neon` $\rightarrow$
+  `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash` in `holon` CLI invocations) and
+  continue the flow or review loop from the current stage without discarding completed work.
 - **Reactive Wakeup (Zero Polling)**: The AGY runtime automatically wakes up the parent agent upon subagent completion
   or message delivery. Never poll or loop on subagent status.
 - **Generic Coding Agent Compatibility**: Skill workflows (such as `pr-review-loop`) define generic subagent task
@@ -30,7 +30,9 @@ Subagent delegation in this ecosystem is primarily targeted towards the **Antigr
 ## Subagent names
 
 Every subagent a skill spawns is named `#<PR> - <what it is doing>`. This applies to the AGY `Role`, Claude Code's Agent
-`description`, or whatever your runtime uses. The operator can then tell at a glance which pull request each running
+`description`, or whatever your runtime uses. Claude Code's agent list shows the Agent `name` field, not `description`,
+and `name` allows only `[A-Za-z0-9_-]` (max 64): set it too, as `pr<PR>-<what>` (`pr248-review-loop`) or
+`bean<id>-<what>` (`bean0369-holon-flow`). The operator can then tell at a glance which pull request each running
 subagent belongs to (maintainer, 2026-11-23).
 
 - **With a PR:** `#244 - resolve conflicts`, `#244 - review loop orchestrator`, `#244 - iter 15 dry-run reviewer`,

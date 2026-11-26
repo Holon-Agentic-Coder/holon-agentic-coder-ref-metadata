@@ -10,8 +10,8 @@ tags:
   - configuration
   - refactoring
   - holon-agentic-coder
-created_at: 2026-11-20T19:30:00+11:00
-updated_at: 2026-11-20T19:30:00+11:00
+created_at: 2026-11-20T08:30:00Z
+updated_at: 2026-11-20T08:30:00Z
 ---
 
 ## Context

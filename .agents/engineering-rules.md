@@ -31,18 +31,27 @@ sizing. Moved verbatim from `AGENTS.md`.
     `ACT-POST`, tool operations) and lifecycle summaries (`entry_type: "summary"`, such as `E-...`, `REV-...`) MUST be
     interleaved chronologically inside `executions.jsonl` under `LedgerLock`. Auxiliary ledgers fragment the provenance
     trail, break downstream query engines, and are strictly prohibited.
+    - **Per-Flow Pending Fragments and CI Promotion (maintainer, 2026-11-23; Bean 0371)**: Per-flow pending fragments
+      (`holon-knowledge/ledger/pending/<ledger>/<intent-id>.jsonl`) are the same three ledgers split by flow, not
+      auxiliary ledgers: each fragment holds rows of exactly one of `intents`, `plans` or `executions`, in the canonical
+      row format. Once Bean 0371 lands, flows append only to their own fragments and never write the canonical `*.jsonl`
+      files; readers merge canonical rows and all fragments by `created_at`; and only the CI promotion job on push to
+      `main` folds fragments into the canonical ledgers (append-only, idempotent, ledger-only commit). Until then, flows
+      keep writing the canonical files and the conflict rules below apply.
     - **Ledger-Only Conflict Resolution (No Tests Required)**: When syncing or merging `origin/main` into a flow branch
       results in conflicts strictly confined to ledger files (`holon-knowledge/ledger/*.jsonl`), **do NOT run the test
-      suites**. Simply interleave or append the JSONL records chronologically by their `created_at` timestamp, verify
-      that all lines parse cleanly as valid JSON, commit the resolved merge, and push.
+      suites**. Keep `origin/main`'s ledger file exactly as it is on main, in main's order, and append only the rows the
+      branch adds (ordered by `created_at` among themselves); never move or re-sort a row already on main (the one-time
+      chronological sort is a separate, deliberate change tracked in the harness beans). Verify that all lines parse
+      cleanly as valid JSON, commit the resolved merge, and push.
     - **Mandatory Target-Branch Conflict Resolution Before Review & Calibration**: Prior to posting an approved
       consensus review to GitHub or executing Stage 5 calibration, agents and loop orchestrators **MUST** verify that
       the PR is clean and mergeable against the target branch (`gh pr view <pr> --json mergeable,mergeStateStatus`). If
       `mergeable == "CONFLICTING"` or `mergeStateStatus == "DIRTY"` (which frequently occurs when concurrent PRs merge
       new entries into `holon-knowledge/ledger/`), the agent **MUST immediately fetch `origin/main`, merge `origin/main`
-      into the PR execution branch, resolve the conflicts (interleaving ledger entries chronologically), commit, and
-      push to origin**. Never post an approved review, never calibrate, and never report a PR as ready to merge while it
-      is in a conflicting state against the target branch.
+      into the PR execution branch, resolve the conflicts (ledgers: main's rows unchanged in main's order, then the
+      branch's own rows appended), commit, and push to origin**. Never post an approved review, never calibrate, and
+      never report a PR as ready to merge while it is in a conflicting state against the target branch.
 15. **Modular File Sizing & 200-Line Sizing Guideline**: Source files exceeding **200 lines** should generally be
     decomposed into modular packages and focused single-responsibility modules (e.g. `flow/`, `cli/commands/`, `proxy/`,
     `executor/`, `calibration/`). This is a recommended guideline and best practice rather than a rigid hard rule,
@@ -51,3 +60,26 @@ sizing. Moved verbatim from `AGENTS.md`.
     files where sensible.
 
 ---
+
+16. **Module Budgets Force a Split** (maintainer, 2026-11-20): a module line budget is a ceiling that forces a big
+    module to be divided, never a number to raise. A change that would push a module over budget splits the module.
+    Never raise, lower, add or delete a budget entry (or label a PR `module-budget-change`) without the maintainer's
+    explicit instruction for that change; an unauthorised budget change is a Critical review finding.
+17. **Tests Isolate Their Own Setup; No Shared Directory conftest** (maintainer, 2026-11-26): "all test should isolate
+    as much set up as possible so different tests don't rely on the same conftest.py". A test module owns its setup. A
+    fixture or stub that only some tests need lives in the test module, or in a small helper module (plain install
+    function plus a non-autouse fixture) that the module imports and applies with `pytest.mark.usefixtures`. A
+    `conftest.py` holds only universal safety guards (hermetic git config, ambient credentials, home, network and `gh`
+    write guards, checkout write guards), stays under 200 lines, and a directory `conftest.py` below `tests/` is not
+    added. No autouse fixture unless every test needs it, and no `pytest_plugins` in a test module (it applies to every
+    module collected after it). A new fixture never goes into a shared `conftest.py`; a flow that needs one adds it to
+    the module under test or an imported helper, so conftests stop being touch-set magnets. A new autouse fixture, or a
+    new fixture in a directory `conftest.py`, is an Important review finding; an autouse fixture that hides a real call
+    (a stub that makes a test pass) is Critical. The existing conftests are split by the series in the harness bean for
+    `conftest.py` (0540).
+18. **Self-Explaining Code** (maintainer, 2026-11-27): code carries no docstrings and no explanatory comments in any
+    language; names state intent, and the only allowed comment is a `# why:` comment recording a reason the code cannot
+    show (full text: rule 5 in [rules.md](rules.md)). Machine directives (shebangs, encoding lines, `# noqa`, `# type:`,
+    `# pragma`, `# fmt:`, shellcheck) stay. Every intent the coordinator writes carries this sentence in its goal: "Code
+    is self-explaining: no docstrings and no comments except '# why:' comments that record a reason the code cannot
+    show." The review flags a docstring or a non-`# why:` explanatory comment added in the diff as an Important finding.

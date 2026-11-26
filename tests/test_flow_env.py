@@ -16,6 +16,12 @@ import run_holon_flow  # noqa: E402
 FAKE = "sk-ant-oat-fake-token-for-tests"
 
 
+@pytest.fixture(autouse=True)
+def empty_keychain(monkeypatch):
+    """No test reads the real OS secret store; a test that wants a stored token patches this again."""
+    monkeypatch.setattr(flow_env, "_keychain_token", lambda: "")
+
+
 @pytest.fixture
 def secrets(tmp_path):
     (tmp_path / flow_env.TOKEN_FILE).write_text(FAKE + "\n")
@@ -48,6 +54,42 @@ def test_missing_credentials_fail_loudly_and_name_what_is_missing(tmp_path):
         flow_env.build_flow_env("claude-agent", environ={}, secrets_dir=tmp_path)
     message = str(caught.value)
     assert "HOLON_AGENT_SETTINGS" in message and str(tmp_path / flow_env.TOKEN_FILE) in message
+
+
+def test_the_os_keychain_is_used_when_no_variable_and_no_file_hold_a_token(monkeypatch, tmp_path):
+    monkeypatch.setattr(flow_env, "_keychain_token", lambda: "from-keychain")
+    env = flow_env.build_flow_env("claude-agent", environ={}, secrets_dir=tmp_path)
+    assert json.loads(env["HOLON_AGENT_SETTINGS"])["env"]["CLAUDE_CODE_OAUTH_TOKEN"] == "from-keychain"
+
+
+def test_the_legacy_file_wins_over_the_keychain(monkeypatch, secrets):
+    monkeypatch.setattr(flow_env, "_keychain_token", lambda: "from-keychain")
+    env = flow_env.build_flow_env("claude-agent", environ={}, secrets_dir=secrets)
+    assert json.loads(env["HOLON_AGENT_SETTINGS"])["env"]["CLAUDE_CODE_OAUTH_TOKEN"] == FAKE
+
+
+def test_a_keychain_tool_that_cannot_run_or_has_no_entry_gives_no_token(monkeypatch):
+    monkeypatch.undo()
+
+    def missing_tool(*_args, **_kwargs):
+        raise FileNotFoundError("security")
+
+    monkeypatch.setattr(flow_env.subprocess, "run", missing_tool)
+    assert flow_env._keychain_token() == ""
+
+    class NoEntry:
+        returncode = 44
+        stdout = ""
+
+    monkeypatch.setattr(flow_env.subprocess, "run", lambda *_a, **_k: NoEntry())
+    assert flow_env._keychain_token() == ""
+
+
+def test_the_missing_credentials_message_names_the_keychain_entry(tmp_path):
+    with pytest.raises(flow_env.AuthRouteMissing) as raised:
+        flow_env.build_flow_env("claude-agent", environ={}, secrets_dir=tmp_path)
+    assert "keychain" in str(raised.value)
+    assert flow_env.KEYCHAIN_ACCOUNT in str(raised.value)
 
 
 def test_other_runners_need_no_claude_credentials(tmp_path):
@@ -99,6 +141,22 @@ def test_the_execute_budget_is_raised_unless_the_caller_set_one(secrets):
         "claude-agent", environ={"HOLON_STAGE_BUDGET_EXECUTE_MINUTES": "90"}, secrets_dir=secrets
     )
     assert kept["HOLON_STAGE_BUDGET_EXECUTE_MINUTES"] == "90"
+
+
+def test_claude_runs_get_code_mode_unless_the_caller_set_a_value(secrets):
+    env = flow_env.build_flow_env("claude-agent", environ={}, secrets_dir=secrets)
+    assert env["CLAUDE_CODE_EXPERIMENTAL_CODE_MODE"] == "1"
+    assert json.loads(env["HOLON_AGENT_SETTINGS"])["env"]["CLAUDE_CODE_EXPERIMENTAL_CODE_MODE"] == "1"
+    off = flow_env.build_flow_env(
+        "claude-agent", environ={"CLAUDE_CODE_EXPERIMENTAL_CODE_MODE": "0"}, secrets_dir=secrets
+    )
+    assert off["CLAUDE_CODE_EXPERIMENTAL_CODE_MODE"] == "0"
+    assert json.loads(off["HOLON_AGENT_SETTINGS"])["env"]["CLAUDE_CODE_EXPERIMENTAL_CODE_MODE"] == "0"
+
+
+def test_other_runners_do_not_get_code_mode(tmp_path):
+    env = flow_env.build_flow_env("antigravity-agent", environ={}, secrets_dir=tmp_path)
+    assert "CLAUDE_CODE_EXPERIMENTAL_CODE_MODE" not in env
 
 
 REFUSAL = (
@@ -161,7 +219,7 @@ def test_an_overlap_is_waited_out_and_stage_3_resumes_from_the_checkpoint(monkey
     states = {207: iter(["OPEN", "MERGED"]), 209: iter([None, "CLOSED"])}
     monkeypatch.setattr(run_holon_flow, "run_prerequisites_check", lambda w: None)
     monkeypatch.setattr(run_holon_flow, "build_flow_env", lambda agent: {})
-    monkeypatch.setattr(run_holon_flow, "verify_pr_and_calibration", lambda *a, **k: None)
+    monkeypatch.setattr(run_holon_flow, "verify_pr_and_calibration", lambda *a, **k: {"ok": True})
     monkeypatch.setattr(run_holon_flow, "execute_flow_process", lambda cmd, **k: launched.append(cmd) or next(runs))
     monkeypatch.setattr(run_holon_flow, "pr_state", lambda n, d: polled.append(n) or next(states[n]))
     monkeypatch.setattr("time.sleep", slept.append)

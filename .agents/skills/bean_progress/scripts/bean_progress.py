@@ -17,6 +17,7 @@ import re
 import shlex
 import subprocess
 import sys
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -28,6 +29,9 @@ INTENT_FILE_RE = re.compile(r"^intent-((?:\d{4}-)+)(.+)\.json$")
 WORKTREE_BEAN_RE = re.compile(r"(?:^|-)bean-(\d{4})(?:-|$)")
 BRANCH_SLUG_RE = re.compile(r"^I-\d+-([^/]+)/")
 BRANCH_TS_RE = re.compile(r"^I-(\d+)-")
+CHILD_RE = re.compile(r"/P-[^/]*?--(\d+)-([^/]+)")
+MERGED_STAGE = "Merged — post-merge pending"
+CLOSED_STAGE = "PR closed — dead worktree"
 VERSION_SUFFIX_RE = re.compile(r"-v\d+$")
 STAGE_ORDER = ["intent", "plan", "execute", "review", "calibrate", "completed"]
 LEDGER_REL = Path("holon-knowledge") / "ledger" / "intents.jsonl"
@@ -102,6 +106,11 @@ class WorktreeFlow:
     embedded_bean_nums: list[str] = field(default_factory=list)
     stage_started: datetime | None = None
     flow_started: datetime | None = None
+    checkpoint_time: datetime | None = None
+    last_log: str = ""
+    last_commit_time: datetime | None = None
+    last_commit_subject: str = ""
+    children: list[dict[str, Any]] = field(default_factory=list)
 
 
 @dataclass
@@ -118,6 +127,7 @@ class PullRequestInfo:
     reviews_count: int
     comments_count: int
     ci_summary: str
+    state: str = "OPEN"
 
 
 @dataclass
@@ -151,6 +161,29 @@ class LiveFlowTree:
 
 
 @dataclass
+class Blocker:
+    """One entry of a flow's `admission.blocked_by`, resolved to a name the maintainer can act on."""
+
+    kind: str
+    pr: int | None
+    bean: str | None
+    slug: str | None
+    files: list[str]
+    gone: bool
+    name: str
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "kind": self.kind,
+            "pr": self.pr,
+            "bean": self.bean,
+            "slug": self.slug,
+            "files": self.files,
+            "gone": self.gone,
+        }
+
+
+@dataclass
 class InFlightRow:
     """Rendered table row and machine-readable JSON fields."""
 
@@ -162,13 +195,21 @@ class InFlightRow:
     live_runner: str
     notes: str
     sort_bucket: int
+    live: bool = False
     time_in_stage: str = "—"
     total_time: str = "—"
     source: str = ""
     rank: tuple[float, ...] = ()
+    agent: str = "—"
+    model: str = "—"
+    last_activity: str = "—"
+    stage_compact: str = ""
+    blockers: list[Blocker] = field(default_factory=list)
+    slug: str = ""
+    distinct: bool = False
 
     def notes_cell(self) -> str:
-        """Notes column: runner/model/PID/session info first, then the former status notes."""
+        """Notes column: live/idle state with PID and session first, then the former status notes."""
         parts = [p for p in (self.live_runner, self.notes if self.notes != "—" else "") if p]
         return "; ".join(parts) if parts else "—"
 
@@ -178,12 +219,18 @@ class InFlightRow:
             "bean_nums": self.bean_nums,
             "target": self.target,
             "title": self.title,
+            "agent": self.agent,
+            "model": self.model,
             "stage": self.stage,
             "time_in_stage": self.time_in_stage,
             "pr_ci": self.pr_ci,
             "total_time": self.total_time,
+            "last_activity": self.last_activity,
+            "live": self.live,
             "live_runner": self.live_runner,
             "notes": self.notes_cell(),
+            "blocked_by": [b.as_dict() for b in self.blockers],
+            "flow": self.slug,
         }
 
 
@@ -465,6 +512,74 @@ def _git_dirty_count(worktree_dir: Path) -> int:
     return sum(1 for line in proc.stdout.splitlines() if line.strip())
 
 
+def _git_last_commit(worktree_dir: Path) -> tuple[datetime | None, str]:
+    """Commit time and subject of the worktree's HEAD; (None, "") when git cannot tell."""
+    try:
+        res = subprocess.run(
+            ["git", "-C", str(worktree_dir), "log", "-1", "--format=%ct%x09%s"],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=10,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None, ""
+    stamp, _, subject = res.stdout.strip().partition("\t")
+    if res.returncode != 0 or not stamp.isdigit():
+        return None, ""
+    return datetime.fromtimestamp(int(stamp), tz=UTC), subject.strip()
+
+
+def _last_checkpoint_log(ctx: dict[str, Any]) -> str:
+    """The newest line of the checkpoint's flow log, without its leading `[timestamp]`."""
+    logs = ctx.get("logs")
+    if not isinstance(logs, list) or not logs:
+        return ""
+    return re.sub(r"^\[[^\]]*\]\s*", "", str(logs[-1]).strip())
+
+
+def _find_children(obj: Any, key: str, depth: int = 0) -> list[dict[str, Any]]:
+    """First non-empty list of dicts stored under `key` anywhere in nested dicts (the split flow's child records)."""
+    if depth > 8 or not isinstance(obj, dict):
+        return []
+    val = obj.get(key)
+    if isinstance(val, list) and val and all(isinstance(x, dict) for x in val):
+        return val
+    for sub in obj.values():
+        found = _find_children(sub, key, depth + 1)
+        if found:
+            return found
+    return []
+
+
+def _load_children(checkpoints: list[Path]) -> list[dict[str, Any]]:
+    """Child sub-intents of a decomposed flow (index, slug, PR number, merged), from the parent checkpoint."""
+    best: list[dict[str, Any]] = []
+    for path in checkpoints:
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        raw = _find_children(data, "children_progress") or _find_children(data, "children")
+        children: list[dict[str, Any]] = []
+        for item in raw:
+            idx = item.get("index")
+            if not isinstance(idx, int) or isinstance(idx, bool):
+                continue
+            pr_no = item.get("pr_number")
+            children.append(
+                {
+                    "index": idx,
+                    "slug": str(item.get("slug") or ""),
+                    "pr_number": pr_no if isinstance(pr_no, int) and not isinstance(pr_no, bool) else None,
+                    "merged": item.get("merged") is True or str(item.get("status") or "").lower() == "merged",
+                }
+            )
+        if len(children) > len(best):
+            best = children
+    return best
+
+
 def scan_worktrees(repos: list[RepoTarget]) -> list[WorktreeFlow]:
     """Inspect non-`main` worktrees and their Holon flow checkpoints."""
     worktrees: list[WorktreeFlow] = []
@@ -485,6 +600,8 @@ def scan_worktrees(repos: list[RepoTarget]) -> list[WorktreeFlow]:
                 if flow_dir.is_dir()
                 else []
             )
+            if not entry.name.startswith("flow-") and not checkpoints:
+                continue  # only flow-* worktrees or worktrees holding a flow checkpoint are flows
 
             data: dict[str, Any] = {}
             ckpt_path: Path | None = checkpoints[0] if checkpoints else None
@@ -528,6 +645,7 @@ def scan_worktrees(repos: list[RepoTarget]) -> list[WorktreeFlow]:
                 branch_started(intent_branch or plan_branch or exec_branch),
                 ledger_first_created(entry / LEDGER_REL, slug),
             )
+            commit_time, commit_subject = _git_last_commit(entry)
             embedded_beans = WORKTREE_BEAN_RE.findall(entry.name)
             if ckpt_path is not None:
                 embedded_beans.extend(re.findall(r"(?:^|-)(\d{4})(?:-|$)", ckpt_path.stem))
@@ -555,6 +673,11 @@ def scan_worktrees(repos: list[RepoTarget]) -> list[WorktreeFlow]:
                     embedded_bean_nums=sorted(set(embedded_beans)),
                     stage_started=stage_started,
                     flow_started=flow_started,
+                    checkpoint_time=(parse_iso(data.get("timestamp")) or mtime) if ckpt_path else None,
+                    last_log=_last_checkpoint_log(ctx),
+                    last_commit_time=commit_time,
+                    last_commit_subject=commit_subject,
+                    children=_load_children(checkpoints),
                 )
             )
     return worktrees
@@ -661,6 +784,89 @@ def fetch_open_prs(repos: list[RepoTarget], *, no_gh: bool = False) -> list[Pull
                 )
             )
     return prs
+
+
+def fetch_closed_prs(repos: list[RepoTarget], *, no_gh: bool = False) -> list[PullRequestInfo]:
+    """Recently merged and closed PRs (`gh pr list --state merged|closed`), to spot merged-pending and dead flows."""
+    if no_gh:
+        return []
+    found: list[PullRequestInfo] = []
+    seen_gh: set[str] = set()
+    for repo in repos:
+        if not repo.github_repo or repo.github_repo in seen_gh:
+            continue
+        seen_gh.add(repo.github_repo)
+        for state in ("merged", "closed"):
+            try:
+                proc = subprocess.run(
+                    [
+                        "gh",
+                        "pr",
+                        "list",
+                        "--repo",
+                        repo.github_repo,
+                        "--state",
+                        state,
+                        "--limit",
+                        "100",
+                        "--json",
+                        "number,title,url,headRefName,state",
+                    ],
+                    capture_output=True,
+                    text=True,
+                    timeout=20,
+                )
+                raw_list = json.loads(proc.stdout) if proc.returncode == 0 and proc.stdout.strip() else []
+            except (OSError, subprocess.SubprocessError, ValueError):
+                continue
+            for item in raw_list if isinstance(raw_list, list) else []:
+                if not isinstance(item, dict) or not isinstance(item.get("number"), int):
+                    continue
+                found.append(
+                    PullRequestInfo(
+                        repo_name=repo.name,
+                        number=item["number"],
+                        title=str(item.get("title") or ""),
+                        url=str(item.get("url") or ""),
+                        head_ref_name=str(item.get("headRefName") or ""),
+                        mergeable="",
+                        is_draft=False,
+                        reviews_count=0,
+                        comments_count=0,
+                        ci_summary="",
+                        state=str(item.get("state") or state).upper(),
+                    )
+                )
+    return found
+
+
+def make_pr_state_lookup(repos: list[RepoTarget]) -> Callable[[str, int], str | None]:
+    """Lookup of one pull request's state (`OPEN`, `MERGED`, `CLOSED`) via `gh pr view`, cached per number."""
+    github = {r.name: r.github_repo for r in repos}
+    cache: dict[tuple[str, int], str | None] = {}
+
+    def lookup(repo_name: str, number: int) -> str | None:
+        key = (repo_name, number)
+        if key in cache:
+            return cache[key]
+        state: str | None = None
+        repo = github.get(repo_name)
+        if repo:
+            try:
+                proc = subprocess.run(
+                    ["gh", "pr", "view", str(number), "--repo", repo, "--json", "state", "--jq", ".state"],
+                    capture_output=True,
+                    text=True,
+                    timeout=15,
+                )
+                if proc.returncode == 0 and proc.stdout.strip():
+                    state = proc.stdout.strip().upper()
+            except (OSError, subprocess.SubprocessError):
+                state = None
+        cache[key] = state
+        return state
+
+    return lookup
 
 
 def scan_processes(*, no_ps: bool = False) -> list[ProcessInfo]:
@@ -992,7 +1198,171 @@ def _match_pr_for_unit(
     return None
 
 
-def _derive_stage(wt: WorktreeFlow | None, live: LiveFlowTree | None, has_pr: bool) -> str:
+def _split_info(wt: WorktreeFlow) -> tuple[int, str, int | None] | None:
+    """(child number, child slug, child count or None) of a decomposed flow's active child; None if not decomposed."""
+    total = max([len(wt.children), *(c["index"] for c in wt.children)]) or None
+    for branch in (wt.intent_branch, wt.plan_branch, wt.execution_branch):
+        m = CHILD_RE.search(branch or "")
+        if m:
+            return int(m.group(1)), m.group(2), total
+    pending = [c for c in wt.children if not c["merged"]]
+    if wt.children and pending:
+        first = min(pending, key=lambda c: c["index"])
+        return first["index"], first["slug"], total
+    return None
+
+
+def _split_stage(stage: str, info: tuple[int, str, int | None]) -> str:
+    """`Stage 3 (child 4 of 5: <child-slug>)`; a non-generic sub-state (Review iter 2, Halted) follows a semicolon."""
+    num, child_slug, total = info
+    label = f"child {num}{f' of {total}' if total else ''}: {_truncate(child_slug, 22)}".rstrip(": ")
+    m = re.match(r"^Stage (\d) \((.*)\)$", stage)
+    if not m:
+        return f"{stage} ({label})"
+    inner = m.group(2)
+    if inner in {"Intent", "Plan", "Execute", "Calibrate"}:
+        return f"Stage {m.group(1)} ({label})"
+    return f"Stage {m.group(1)} ({label}; {inner})"
+
+
+def _is_child_head(head: str) -> bool:
+    return bool(CHILD_RE.search(head))
+
+
+def _split_prs(
+    wt: WorktreeFlow, info: tuple[int, str, int | None], prs: list[PullRequestInfo]
+) -> tuple[PullRequestInfo | None, list[PullRequestInfo]]:
+    """The PR to show for a decomposed flow (parent PR if it exists, else the active child's) + all open PRs."""
+    slug_re = re.compile(rf"^I-\d+-{re.escape(wt.slug)}/")
+    mine = [p for p in prs if p.repo_name == wt.repo_name and slug_re.match(p.head_ref_name)]
+    parents = [p for p in mine if not _is_child_head(p.head_ref_name)]
+    active = [p for p in mine if f"--{info[0]}-" in p.head_ref_name]
+    return (parents or active or mine or [None])[0], mine
+
+
+def _merged_children(wt: WorktreeFlow, closed_prs: list[PullRequestInfo]) -> list[int]:
+    """PR numbers of the flow's child PRs already merged into its plan branch, ascending."""
+    slug_re = re.compile(rf"^I-\d+-{re.escape(wt.slug)}/")
+    nums = {c["pr_number"] for c in wt.children if c["merged"] and c["pr_number"]}
+    nums |= {
+        p.number
+        for p in closed_prs
+        if p.state == "MERGED"
+        and p.repo_name == wt.repo_name
+        and slug_re.match(p.head_ref_name)
+        and _is_child_head(p.head_ref_name)
+    }
+    return sorted(nums)
+
+
+def _final_pr(wt: WorktreeFlow, closed_prs: list[PullRequestInfo]) -> PullRequestInfo | None:
+    """Newest merged or closed PR of the flow itself (a child PR never counts), matched by branch or flow slug."""
+    slug_re = re.compile(rf"^I-\d+-{re.escape(wt.slug)}/")
+    hits = [
+        p
+        for p in closed_prs
+        if p.repo_name == wt.repo_name
+        and not _is_child_head(p.head_ref_name)
+        and (p.head_ref_name == wt.execution_branch or slug_re.match(p.head_ref_name))
+    ]
+    return max(hits, key=lambda p: p.number, default=None)
+
+
+STAGE_CELL_LIMIT = 40
+GONE_SUFFIX = "; blocker gone, not resumed"
+
+
+def _blocker_slug(entry: dict[str, Any]) -> str | None:
+    """Slug of the flow behind a blocker: from its branch (`I-<ts>-<slug>/`), else its `flow-<slug>` worktree."""
+    for key in ("plan_branch", "branch", "head"):
+        m = BRANCH_SLUG_RE.match(str(entry.get(key) or ""))
+        if m:
+            return m.group(1)
+    name = Path(str(entry.get("worktree") or "")).name
+    return name.removeprefix("flow-") if name.startswith("flow-") and len(name) > 5 else None
+
+
+def resolve_blockers(
+    admission: dict[str, Any],
+    repo_name: str,
+    *,
+    prs: Iterable[PullRequestInfo] = (),
+    bean_for_slug: Callable[[str], list[str]] | None = None,
+    pr_state: Callable[[str, int], str | None] | None = None,
+) -> list[Blocker]:
+    """Name each distinct entry of `admission.blocked_by` and say whether it is gone (merged, closed, removed)."""
+    raw = admission.get("blocked_by")
+    if not isinstance(raw, list):
+        return []
+    open_prs = [p for p in prs if p.repo_name == repo_name]
+    found: dict[tuple[str, Any], Blocker] = {}
+    for entry in raw:
+        if not isinstance(entry, dict):
+            continue
+        number = entry.get("number")
+        number = number if isinstance(number, int) and not isinstance(number, bool) else None
+        kind = str(entry.get("kind") or ("pull_request" if number is not None else "local_flow"))
+        slug = _blocker_slug(entry)
+        beans = bean_for_slug(slug) if (bean_for_slug and slug) else []
+        bean = "+".join(sorted(set(beans))) or None
+        files = [str(f) for f in entry.get("files") or []]
+        if kind == "pull_request" and number is not None:
+            state = (
+                None
+                if any(p.number == number for p in open_prs)
+                else (pr_state(repo_name, number) if pr_state else None)
+            )
+            gone = state in {"MERGED", "CLOSED"}
+            blocker = Blocker("pull_request", number, bean, slug, files, gone, f"#{number}")
+            key: tuple[str, Any] = ("pr", number)
+        else:
+            flow_pr = None
+            if slug:
+                slug_re = re.compile(rf"^I-\d+-{re.escape(slug)}/")
+                flow_pr = next((p for p in open_prs if slug_re.match(p.head_ref_name)), None)
+            worktree = str(entry.get("worktree") or "")
+            gone = flow_pr is None and bool(worktree) and not Path(worktree).exists()
+            if flow_pr is not None:
+                name = f"#{flow_pr.number} (bean {bean})" if bean else f"#{flow_pr.number}"
+            elif bean:
+                name = f"bean {bean}, no PR yet"
+            else:
+                name = f"flow {slug or Path(worktree).name or 'unknown'}, no PR yet"
+            number = flow_pr.number if flow_pr else None
+            blocker = Blocker("local_flow", number, bean, slug, files, gone, name)
+            key = ("pr", number) if number is not None else ("flow", slug or worktree or name)
+        if key not in found:
+            found[key] = blocker
+        else:
+            found[key].files = list(dict.fromkeys(found[key].files + files))
+    return list(found.values())
+
+
+def _blocked_stage(wt: WorktreeFlow, blockers: list[Blocker] | None, live: LiveFlowTree | None) -> str:
+    """`Stage 3 (Blocked: ...)` naming every blocker; flags blockers that are all gone while no runner is live."""
+    if blockers is None:
+        blockers = resolve_blockers(wt.admission, wt.repo_name)
+    if not blockers:
+        return "Stage 3 (Blocked: overlap)"
+    names = ", ".join(b.name for b in blockers)
+    suffix = GONE_SUFFIX if live is None and all(b.gone for b in blockers) else ""
+    return f"Stage 3 (Blocked: {names}{suffix})"
+
+
+def _compact_stage(stage: str, blockers: list[Blocker], live: LiveFlowTree | None) -> str:
+    """Narrow the Stage cell: first blocker plus `+N more` once the full text passes the cell limit."""
+    if len(stage) <= STAGE_CELL_LIMIT or len(blockers) < 2:
+        return stage
+    suffix = GONE_SUFFIX if live is None and all(b.gone for b in blockers) else ""
+    return f"Stage 3 (Blocked: {blockers[0].name} +{len(blockers) - 1} more{suffix})"
+
+
+def _derive_stage(
+    wt: WorktreeFlow | None,
+    live: LiveFlowTree | None,
+    has_pr: bool,
+    blockers: list[Blocker] | None = None,
+) -> str:
     if live and live.docker_role == "review-loop":
         mode = "Resolve" if live.docker_resolve else "Review"
         iter_part = f" iter {live.docker_iteration}" if live.docker_iteration is not None else ""
@@ -1000,10 +1370,7 @@ def _derive_stage(wt: WorktreeFlow | None, live: LiveFlowTree | None, has_pr: bo
     if live and live.docker_role == "executor":
         return "Stage 3 (Executing)"
     if live and wt and wt.admission.get("state") == "blocked":
-        blockers = wt.admission.get("blocked_by") or []
-        nums = [f"#{b['number']}" for b in blockers if isinstance(b, dict) and b.get("number") is not None]
-        blocker_str = ", ".join(nums) if nums else "overlap"
-        return f"Stage 3 (Blocked: {blocker_str})"
+        return _blocked_stage(wt, blockers, live)
 
     if wt is None:
         return "Stage 4 (Review)" if has_pr else "Not started"
@@ -1019,10 +1386,7 @@ def _derive_stage(wt: WorktreeFlow | None, live: LiveFlowTree | None, has_pr: bo
         return "Stage 5 (Calibrated)"
 
     if wt.admission.get("state") == "blocked" and exec_status != "success":
-        blockers = wt.admission.get("blocked_by") or []
-        nums = [f"#{b['number']}" for b in blockers if isinstance(b, dict) and b.get("number") is not None]
-        blocker_str = ", ".join(nums) if nums else "overlap"
-        return f"Stage 3 (Blocked: {blocker_str})"
+        return _blocked_stage(wt, blockers, live)
 
     if wt.current_stage == "review" and rev_status == "failed":
         iter_part = f" iter {wt.review_iterations_done}" if wt.review_iterations_done else ""
@@ -1033,10 +1397,6 @@ def _derive_stage(wt: WorktreeFlow | None, live: LiveFlowTree | None, has_pr: bo
     return "Not started"
 
 
-def _compact_model(model: str) -> str:
-    return model.removeprefix("claude-")
-
-
 def _attempt_rank(wt: WorktreeFlow | None, live: LiveFlowTree | None, pr: PullRequestInfo | None) -> tuple[float, ...]:
     live_score = 2.0 if live and live.kind == "running" else 1.0 if live else 0.0
     stage_score = float(STAGE_ORDER.index(wt.current_stage)) if wt and wt.current_stage in STAGE_ORDER else -1.0
@@ -1044,11 +1404,48 @@ def _attempt_rank(wt: WorktreeFlow | None, live: LiveFlowTree | None, pr: PullRe
     return (live_score, 1.0 if pr else 0.0, stage_score, recency)
 
 
+def _derive_agent_model(wt: WorktreeFlow | None, live: LiveFlowTree | None) -> tuple[str, str]:
+    """The flow's runner agent and model: the live process first, then the worktree checkpoint; "—" when unknown."""
+    agent = (live.agent if live else None) or (wt.agent if wt else None) or ""
+    model = (live.model if live else None) or (wt.model if wt else None) or ""
+    if not agent and model:
+        agent = (
+            "claude-agent"
+            if model.startswith("claude-")
+            else "antigravity-agent"
+            if model.startswith("gemini-")
+            else ""
+        )
+    return agent or "—", model or "—"
+
+
+def _derive_last_activity(wt: WorktreeFlow | None, live: LiveFlowTree | None, now: datetime) -> str:
+    """What the flow is doing or last did: the live role container, then the newest of HEAD commit and checkpoint.
+
+    The live part comes from the running role container (role, review iteration, resolver). The commit part is the
+    worktree's HEAD (role agents commit step by step, so it is the closest thing to live work progress). The checkpoint
+    part is the last line the flow engine logged when it last saved its checkpoint.
+    """
+    parts: list[str] = []
+    if live and live.kind == "running" and (live.docker_role or live.docker_iteration is not None):
+        fallback = "review" if live.docker_iteration is not None else "role container"
+        role = "resolver" if live.docker_resolve else (live.docker_role or fallback)
+        iteration = f" iter {live.docker_iteration}" if live.docker_iteration is not None else ""
+        parts.append(f"now: {role}{iteration} running")
+    dated: list[tuple[datetime, str]] = []
+    if wt and wt.last_commit_time and wt.last_commit_subject:
+        ago = format_duration(wt.last_commit_time, now)
+        dated.append((wt.last_commit_time, f"commit {ago} ago: {_truncate(wt.last_commit_subject, 70)}"))
+    if wt and wt.checkpoint_time and wt.last_log:
+        ago = format_duration(wt.checkpoint_time, now)
+        dated.append((wt.checkpoint_time, f"checkpoint {ago} ago: {_truncate(wt.last_log, 70)}"))
+    parts.extend(text for _, text in sorted(dated, key=lambda item: item[0], reverse=True))
+    return "; ".join(parts) if parts else "—"
+
+
 def _derive_live_runner(wt: WorktreeFlow | None, live: LiveFlowTree | None) -> str:
     if live:
-        model = _compact_model(
-            live.model or (wt.model if wt else None) or live.agent or (wt.agent if wt else None) or "unknown"
-        )
+        model = "live"
         elapsed = format_etime(live.etime)
         if live.kind == "polling":
             blockers = (wt.admission.get("blocked_by") or []) if wt else []
@@ -1059,19 +1456,21 @@ def _derive_live_runner(wt: WorktreeFlow | None, live: LiveFlowTree | None) -> s
             return f"waiter · {elapsed} (PID {live.root_pid}, {live.session_owner})"
         return f"{model} · {elapsed} (PID {live.root_pid}, {live.session_owner})"
 
-    if wt and (wt.model or wt.agent):
-        return f"idle ({_compact_model(wt.model or wt.agent or '')})"
     return "idle"
 
 
-def _derive_pr_ci(pr: PullRequestInfo | None) -> str:
+def _derive_pr_ci(pr: PullRequestInfo | None, merged_children: list[int] | None = None) -> str:
+    """Open PR link with CI/review state; a decomposed flow adds its merged child PRs (`merged #316 #318`)."""
+    merged = f"merged {' '.join(f'#{n}' for n in merged_children)}" if merged_children else ""
     if pr is None:
-        return "—"
+        return merged or "—"
     parts = [f"[#{pr.number}]({pr.url})", pr.ci_summary, f"{pr.reviews_count} rev"]
     if pr.mergeable == "CONFLICTING":
         parts.append("CONFLICTING")
     if pr.is_draft:
         parts.append("DRAFT")
+    if merged:
+        parts.append(merged)
     return " · ".join(parts)
 
 
@@ -1144,10 +1543,13 @@ def build_in_flight_rows(
     prs: list[PullRequestInfo],
     live_by_key: dict[str, LiveFlowTree],
     now: datetime | None = None,
+    pr_state: Callable[[str, int], str | None] | None = None,
+    closed_prs: list[PullRequestInfo] | None = None,
 ) -> list[InFlightRow]:
     """Correlate beans, intents, worktrees, open PRs, and live PIDs into active rows."""
     wt_by_slug = {w.slug: w for w in worktrees}
     now = now or datetime.now(UTC)
+    closed_prs = closed_prs or []
 
     # Index active intents by parent intent slug (json slug and file slug), filtering out completed/scrapped beans.
     active_by_slug: dict[str, list[str]] = {}
@@ -1173,6 +1575,9 @@ def build_in_flight_rows(
     def is_slug_completed_only(slug: str) -> bool:
         nums = _lookup(all_by_slug, slug)
         return bool(nums) and all(n in beans and beans[n].status in EXCLUDED_STATUSES for n in nums)
+
+    def beans_for_slug(slug: str) -> list[str]:
+        return list(_lookup(active_by_slug, slug) or _lookup(all_by_slug, slug))
 
     used_beans: set[str] = set()
     used_worktrees: set[str] = set()
@@ -1201,8 +1606,16 @@ def build_in_flight_rows(
             continue
 
         cand_beans = sorted(set(cand_beans))
-        pr = _match_pr_for_unit(wt, wt.slug, cand_beans, prs)
+        split = _split_info(wt)
+        if split:
+            pr, flow_prs = _split_prs(wt, split, prs)
+            pr = pr or _match_pr_for_unit(wt, wt.slug, cand_beans, prs)
+            used_prs.update((p.repo_name, p.number) for p in flow_prs)
+        else:
+            pr = _match_pr_for_unit(wt, wt.slug, cand_beans, prs)
         live = resolve_live(wt, wt.slug)
+        final = None if pr else _final_pr(wt, closed_prs)
+        merged_kids = _merged_children(wt, closed_prs) if split else []
 
         group_beans = [beans[n] for n in cand_beans if n in beans]
         # Skip idle, un-PR'd todo/draft worktrees? Wait: a local worktree with checkpoint means flow started!
@@ -1216,10 +1629,34 @@ def build_in_flight_rows(
         else:
             title = wt.slug.replace("-", " ")
 
-        stage = _derive_stage(wt, live, pr is not None)
+        blockers = (
+            resolve_blockers(wt.admission, wt.repo_name, prs=prs, bean_for_slug=beans_for_slug, pr_state=pr_state)
+            if wt.admission.get("state") == "blocked"
+            else []
+        )
+        stage = _derive_stage(wt, live, pr is not None, blockers)
+        stage_compact = _compact_stage(stage, blockers, live) if stage.startswith("Stage 3 (Blocked") else stage
         live_runner = _derive_live_runner(wt, live)
-        pr_ci = _derive_pr_ci(pr)
+        if split and stage.startswith("Stage") and not stage.startswith("Stage 3 (Blocked"):
+            stage = stage_compact = _split_stage(stage, split)
+        pr_ci = _derive_pr_ci(pr, merged_kids)
         notes = _derive_notes(group_beans, wt, pr, live)
+        if stage_compact != stage:
+            full = "Blocked by " + ", ".join(b.name for b in blockers)
+            notes = full if notes == "—" else f"{full}; {notes}"
+        stale_stage = False
+        if final is not None and final.state == "MERGED":
+            stage = stage_compact = MERGED_STAGE
+            pr_ci = f"[#{final.number}]({final.url}) merged"
+            note = "PR merged; run post-pr-merge"
+            notes = note if notes == "—" else f"{note}; {notes}"
+            stale_stage = True
+        elif final is not None and final.state == "CLOSED" and live is None:
+            stage = stage_compact = CLOSED_STAGE
+            pr_ci = f"[#{final.number}]({final.url}) closed"
+            note = "PR closed, runner dead; clean_branches"
+            notes = note if notes == "—" else f"{note}; {notes}"
+            stale_stage = True
         bucket = 0 if (live and live.kind == "running") else 1 if live else 2
         rows.append(
             InFlightRow(
@@ -1229,12 +1666,20 @@ def build_in_flight_rows(
                 stage=stage,
                 pr_ci=pr_ci,
                 live_runner=live_runner,
+                live=bool(live and live.kind == "running"),
                 notes=notes,
                 sort_bucket=bucket,
-                time_in_stage=format_duration(wt.stage_started, now) if stage != "Not started" else "—",
+                time_in_stage="—" if stale_stage or stage == "Not started" else format_duration(wt.stage_started, now),
                 total_time=format_duration(wt.flow_started, now),
                 source=wt.dir_name,
                 rank=_attempt_rank(wt, live, pr),
+                agent=_derive_agent_model(wt, live)[0],
+                model=_derive_agent_model(wt, live)[1],
+                last_activity=_derive_last_activity(wt, live, now),
+                stage_compact=stage_compact,
+                blockers=blockers if stage.startswith("Stage 3 (Blocked") else [],
+                slug=wt.slug,
+                distinct=bool(live or pr or stale_stage),
             )
         )
 
@@ -1272,11 +1717,17 @@ def build_in_flight_rows(
                 stage=_derive_stage(None, live, pr is not None),
                 pr_ci=_derive_pr_ci(pr),
                 live_runner=_derive_live_runner(None, live),
+                live=live.kind == "running",
                 notes=_derive_notes(group_beans, None, pr, live),
                 sort_bucket=0 if live.kind == "running" else 1,
                 total_time=format_duration(branch_started(pr.head_ref_name) if pr else None, now),
                 source=f"live PID {live.root_pid}",
+                slug=live.slug or "",
+                distinct=True,
                 rank=_attempt_rank(None, live, pr),
+                agent=_derive_agent_model(None, live)[0],
+                model=_derive_agent_model(None, live)[1],
+                last_activity=_derive_last_activity(None, live, now),
             )
         )
 
@@ -1304,6 +1755,8 @@ def build_in_flight_rows(
                 sort_bucket=2,
                 total_time=format_duration(branch_started(pr.head_ref_name), now),
                 source=f"PR #{pr.number}",
+                slug=pr_slug or "",
+                distinct=True,
                 rank=_attempt_rank(None, None, pr),
             )
         )
@@ -1311,6 +1764,36 @@ def build_in_flight_rows(
     # 4. Any remaining `in-progress` beans that have no flow worktree, open PR, or live PID yet.
     for bnum, bean in sorted(beans.items()):
         if bnum in used_beans or bean.status != "in-progress":
+            continue
+        target = _infer_target_from_bean(bean)
+        merged_pr = _match_pr_for_unit(
+            None,
+            None,
+            [bnum],
+            sorted(
+                (
+                    p
+                    for p in closed_prs
+                    if p.state == "MERGED" and p.repo_name == target and not _is_child_head(p.head_ref_name)
+                ),
+                key=lambda p: -p.number,
+            ),
+        )
+        if merged_pr is not None:
+            rows.append(
+                InFlightRow(
+                    bean_nums=[bnum],
+                    target=target,
+                    title=_truncate(bean.title),
+                    stage=MERGED_STAGE,
+                    pr_ci=f"[#{merged_pr.number}]({merged_pr.url}) merged",
+                    live_runner="idle",
+                    notes="PR merged; run post-pr-merge",
+                    sort_bucket=3,
+                    source="bean",
+                    distinct=True,
+                )
+            )
             continue
         rows.append(
             InFlightRow(
@@ -1326,21 +1809,30 @@ def build_in_flight_rows(
             )
         )
 
-    def sort_key(r: InFlightRow) -> tuple[int, str, str]:
-        first_bean = r.bean_nums[0] if r.bean_nums else "9999"
-        return (r.sort_bucket, first_bean, r.title)
-
     rows = merge_rows_per_bean(rows)
+    group_bucket: dict[str, int] = {}
+    for r in rows:
+        if r.bean_nums:
+            group_bucket[r.bean_nums[0]] = min(group_bucket.get(r.bean_nums[0], r.sort_bucket), r.sort_bucket)
+
+    def sort_key(r: InFlightRow) -> tuple[int, str, int, str, str]:
+        first_bean = r.bean_nums[0] if r.bean_nums else "9999"
+        return (group_bucket.get(first_bean, r.sort_bucket), first_bean, r.sort_bucket, r.title, r.source)
+
     rows.sort(key=sort_key)
     return rows
 
 
 def merge_rows_per_bean(rows: list[InFlightRow]) -> list[InFlightRow]:
-    """Collapse rows sharing a bean into one: keep the live/most-advanced attempt, note the stale ones."""
+    """One row per live flow or PR of a bean; collapse only dead attempts (no runner, no PR) into a stale note.
+
+    Rows of one bean stay separate when they are the best attempt, have a live runner, an open PR, or a merged/closed
+    PR; every other attempt becomes `stale attempt ...` in the notes of the best row.
+    """
     kept: list[InFlightRow] = []
     for row in sorted(rows, key=lambda r: r.rank, reverse=True):
         host = next((k for k in kept if row.bean_nums and set(k.bean_nums) & set(row.bean_nums)), None)
-        if host is None:
+        if host is None or row.distinct:
             kept.append(row)
             continue
         host.bean_nums = sorted(set(host.bean_nums) | set(row.bean_nums))
@@ -1349,28 +1841,100 @@ def merge_rows_per_bean(rows: list[InFlightRow]) -> list[InFlightRow]:
     return kept
 
 
-def render_markdown_table(rows: list[InFlightRow]) -> str:
-    """Render in-flight bean rows as a single GitHub-Flavored Markdown table."""
-    if not rows:
-        return "No beans are currently in flight."
+def _short_agent(agent: str) -> str:
+    return agent.removesuffix("-agent")
 
+
+def _short_model(model: str) -> str:
+    return model.removeprefix("claude-")
+
+
+def _table(headers: list[str], body: list[list[str]]) -> list[str]:
     lines = [
-        "| Bean # | Target | Title | Stage | Time in Stage | PR & CI | Total Time | Notes |",
-        "| :----- | :----- | :---- | :---- | :------------ | :------ | :--------- | :---- |",
+        "| " + " | ".join(headers) + " |",
+        "| " + " | ".join(":" + "-" * max(len(h) - 1, 4) for h in headers) + " |",
     ]
-    for row in rows:
-        bean_cell = ", ".join(row.bean_nums) if row.bean_nums else "—"
-        cells = [
-            bean_cell,
+    lines.extend("| " + " | ".join(_escape_cell(c) for c in cells) + " |" for cells in body)
+    return lines
+
+
+def render_wide_table(rows: list[InFlightRow]) -> str:
+    """Render every column in one table (`--wide`). Too wide for most terminals, which then show it as raw text."""
+    headers = [
+        "Bean #",
+        "Target",
+        "Title",
+        "Agent",
+        "Model",
+        "Stage",
+        "Time in Stage",
+        "Live",
+        "PR & CI",
+        "Total Time",
+        "Last Activity",
+        "Notes",
+    ]
+    body = [
+        [
+            ", ".join(row.bean_nums) if row.bean_nums else "—",
             row.target,
             row.title,
+            row.agent,
+            row.model,
             row.stage,
             row.time_in_stage,
+            _live_dot(row),
             row.pr_ci,
             row.total_time,
+            row.last_activity,
             row.notes_cell(),
         ]
-        lines.append("| " + " | ".join(_escape_cell(c) for c in cells) + " |")
+        for row in rows
+    ]
+    return "\n".join(_table(headers, body))
+
+
+def _live_dot(row: InFlightRow) -> str:
+    return "🟢" if row.live else "🔴"
+
+
+def render_markdown_table(rows: list[InFlightRow], *, wide: bool = False) -> str:
+    """Render the in-flight beans: a compact table that fits a terminal, then one detail line per bean.
+
+    The long cells (last activity, notes) go below the table as a list, because a table with them is too wide to be
+    rendered as a table. `wide=True` keeps everything in a single table.
+    """
+    if not rows:
+        return "No beans are currently in flight."
+    if wide:
+        return render_wide_table(rows)
+
+    headers = ["Bean #", "Target", "Title", "Agent", "Model", "Stage", "In Stage", "Live", "PR & CI", "Total"]
+    body: list[list[str]] = []
+    details: list[str] = []
+    cells = [", ".join(r.bean_nums) if r.bean_nums else "—" for r in rows]
+    for row, bean_cell in zip(rows, cells, strict=True):
+        body.append(
+            [
+                bean_cell,
+                row.target,
+                _truncate(row.title, 36),
+                _short_agent(row.agent),
+                _short_model(row.model),
+                row.stage_compact or row.stage,
+                row.time_in_stage,
+                _live_dot(row),
+                row.pr_ci,
+                row.total_time,
+            ]
+        )
+        parts = [p for p in (row.last_activity, row.notes_cell()) if p and p != "—"]
+        if parts:
+            flow = f" `{row.slug}`" if row.slug and cells.count(bean_cell) > 1 else ""
+            details.append(f"- **{bean_cell}**{flow}: " + " | ".join(parts))
+    lines = _table(headers, body)
+    if details:
+        lines += ["", "**Last activity and notes**", "", *details]
     return "\n".join(lines)
 
 
@@ -1392,7 +1956,15 @@ def collect_progress(
     prs = fetch_open_prs(repos, no_gh=no_gh)
     processes = scan_processes(no_ps=no_ps)
     live_by_key = match_live_flows(processes, worktrees, intents)
-    return build_in_flight_rows(beans, intents, worktrees, prs, live_by_key)
+    return build_in_flight_rows(
+        beans,
+        intents,
+        worktrees,
+        prs,
+        live_by_key,
+        pr_state=None if no_gh else make_pr_state_lookup(repos),
+        closed_prs=fetch_closed_prs(repos, no_gh=no_gh),
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -1423,6 +1995,11 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Skip inspecting live host processes via ps.",
     )
+    parser.add_argument(
+        "--wide",
+        action="store_true",
+        help="Render every column in one wide table instead of a compact table plus a detail list",
+    )
     args = parser.parse_args(argv)
 
     repo_root = Path(args.repo_root)
@@ -1432,7 +2009,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.json:
         print(json.dumps([r.as_dict() for r in rows], indent=2))
     else:
-        print(render_markdown_table(rows))
+        print(render_markdown_table(rows, wide=args.wide))
     return 0
 
 

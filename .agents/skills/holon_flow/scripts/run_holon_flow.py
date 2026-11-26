@@ -9,6 +9,7 @@ repositories (holon-agentic-coder and holon-coherence) from a subagent or shell.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import re
 import shutil
@@ -30,13 +31,14 @@ COLOR_RESET = "\033[0m"
 
 # Model fallback ladders (.agents/holon-flow.md)
 FALLBACK_LADDER_CLAUDE = [
-    "claude-fable-5",
+    "claude-fable-5-2",
     "claude-opus-5-5",
     "claude-sonnet-4-6",
     "claude-haiku-4-5",
 ]
 
 FALLBACK_LADDER_ANTIGRAVITY = [
+    "gemini-4-neon",
     "gemini-4-argon",
     "gemini-4-hydrogen",
     "gemini-3.8-flash",
@@ -54,13 +56,24 @@ QUOTA_ERROR_PATTERNS = [
     "quota exceeded",
     "quota exhausted",
     "quota_exhausted",
-    "usage limit",
+    "usage limit reached",
+    "hit your usage limit",
+    "hit your limit",
     "rate_limit_exceeded",
     "too many requests",
     "http 429",
     "status 429",
     "credit balance is too low",
+    "monthly spend limit",
+    "spend limit",
 ]
+
+
+def enable_line_buffering() -> None:
+    """Make stdout and stderr line-buffered so each wrapper line reaches a redirected log as it is printed."""
+    for stream in (sys.stdout, sys.stderr):
+        with contextlib.suppress(AttributeError, ValueError, OSError):
+            stream.reconfigure(line_buffering=True)  # type: ignore[union-attr]
 
 
 def log_info(msg: str) -> None:
@@ -83,10 +96,19 @@ def log_stage(msg: str) -> None:
     print(f"\n{COLOR_CYAN}{COLOR_BOLD}=== {msg} ==={COLOR_RESET}\n")
 
 
+QUOTA_SCAN_TAIL_LINES = 200
+
+
 def is_quota_error(text: str) -> bool:
-    """Check if output contains quota, credit, or session limit error indicators."""
-    lower_text = text.lower()
-    return any(pattern in lower_text for pattern in QUOTA_ERROR_PATTERNS)
+    """Check if the end of the output contains quota, credit, or session limit error indicators.
+
+    Only the last ``QUOTA_SCAN_TAIL_LINES`` lines are scanned: a limit error ends the run, so it is near the end, while
+    the top of the output echoes the intent text, which can mention limits in prose. On 2026-11-23 the bare pattern
+    "usage limit" matched an intent's sentence about "named-reset usage limits" and stepped a flow down from opus to
+    sonnet although no limit had been hit (PR #257).
+    """
+    tail = "\n".join(text.splitlines()[-QUOTA_SCAN_TAIL_LINES:]).lower()
+    return any(pattern in tail for pattern in QUOTA_ERROR_PATTERNS)
 
 
 def resolve_next_model(agent: str, current_model: str) -> tuple[str, str] | None:
@@ -169,6 +191,27 @@ def run_prerequisites_check(target_worktree: Path) -> None:
     log_success(f"Target worktree verified: {target_worktree}")
 
 
+def truncate_slug(slug: str, limit: int = 32) -> str:
+    if len(slug) <= limit:
+        return slug
+    head = slug[: limit + 1]
+    cut = head[:limit] if "-" not in head[1:] else head[: head.rindex("-")]
+    return cut[:limit].rstrip("-") or slug[:limit]
+
+
+def directory_scope_entries(scope, base: Path | None = None) -> list[str]:
+    """Scope entries that name a directory (trailing slash, or an existing directory under base)."""
+    if not isinstance(scope, list):
+        return []
+    found = []
+    for entry in scope:
+        if not isinstance(entry, str):
+            continue
+        if entry.endswith("/") or (base is not None and (base / entry).is_dir()):
+            found.append(entry)
+    return found
+
+
 def parse_intent_file(intent_path: Path) -> dict[str, str]:
     """Parse and validate intent JSON specification."""
     if not intent_path.exists():
@@ -204,33 +247,113 @@ def find_flow_pr(target_worktree: Path, slug: str) -> dict | None:
     return next((pr for pr in prs if slug in pr["headRefName"] or slug in pr["title"].lower()), None)
 
 
+CHECKS_TIMEOUT_SECONDS = 45 * 60
+CHECKS_POLL_SECONDS = 30
+STATE_DIR = Path(__file__).resolve().parents[4] / ".subagent"
+
+
+def _gh_json(args: list[str], cwd: Path):
+    """Run `gh`; return its parsed JSON stdout, or None when unreadable (a pending-checks exit still prints JSON)."""
+    res = subprocess.run(["gh", *args], cwd=cwd, capture_output=True, text=True, check=False)
+    try:
+        return json.loads(res.stdout) if res.stdout.strip() else None
+    except ValueError:
+        return None
+
+
+def find_flow_pr_any_state(target_worktree: Path, slug: str) -> dict | None:
+    """The flow's pull request in any state, an open one preferred (a merged one is a clean finish)."""
+    res = subprocess.run(
+        ["gh", "pr", "list", "--state", "all", "--json", "number,headRefName,title,url,state", "--limit", "100"],
+        cwd=target_worktree,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    matches = [pr for pr in json.loads(res.stdout) if slug in pr["headRefName"] or slug in pr["title"].lower()]
+    matches.sort(key=lambda pr: (pr.get("state") != "OPEN", -pr["number"]))
+    return matches[0] if matches else None
+
+
+def wait_for_pending_checks(
+    pr_number: int,
+    target_worktree: Path,
+    timeout: float = CHECKS_TIMEOUT_SECONDS,
+    poll: float = CHECKS_POLL_SECONDS,
+    sleep=None,
+) -> tuple[list[dict], bool]:
+    """Poll the pull request's checks until none is pending or ``timeout`` seconds passed; (checks, still_pending)."""
+    import time
+
+    sleep = sleep or time.sleep
+    waited = 0.0
+    while True:
+        checks = _gh_json(["pr", "checks", str(pr_number), "--json", "name,state,bucket"], target_worktree) or []
+        pending = [c for c in checks if c.get("bucket") == "pending"]
+        if not pending:
+            return checks, False
+        if waited >= timeout:
+            return checks, True
+        log_info(f"PR #{pr_number}: {len(pending)} check(s) still pending ({', '.join(c['name'] for c in pending)}).")
+        sleep(poll)
+        waited += poll
+
+
 def verify_pr_and_calibration(
     target_worktree: Path,
     slug: str,
     dry_run: bool = False,
-) -> None:
-    """Verify that the flow opened a PR and that the calibration report is included."""
+    checks_timeout: float = CHECKS_TIMEOUT_SECONDS,
+    checks_poll: float = CHECKS_POLL_SECONDS,
+    sleep=None,
+) -> dict:
+    """Verify the flow's pull request, calibration report, mergeability and checks; return the result.
+
+    The result has ``ok`` (False when any problem was found), ``problems`` (strings), ``pr`` (the pull request dict or
+    None), ``calibration`` (calibration files in the diff), ``mergeable``, ``merge_state`` and ``checks``. A merged pull
+    request is a clean finish. A dry run skips every check and is ok.
+    """
+    result: dict = {
+        "ok": True,
+        "problems": [],
+        "pr": None,
+        "calibration": [],
+        "mergeable": None,
+        "merge_state": None,
+        "checks": [],
+    }
     if dry_run:
         log_info("[DRY-RUN] Skipping post-flow PR verification.")
-        return
+        return result
+
+    def problem(message: str) -> None:
+        log_error(message)
+        result["ok"] = False
+        result["problems"].append(message)
 
     log_stage("Verifying Pull Request & Calibration Integrity")
 
     try:
-        pr = find_flow_pr(target_worktree, slug)
-    except Exception as exc:
-        log_warn(f"Could not query GitHub PRs: {exc}")
-        return
+        pr = find_flow_pr_any_state(target_worktree, slug)
+    except Exception as exc:  # noqa: BLE001 - an unverifiable flow is not a finished flow
+        problem(f"Could not query GitHub PRs: {exc}")
+        return result
     if pr is None:
-        log_warn(f"No open PR found matching slug '{slug}'.")
-        return
+        problem(f"No pull request found matching slug '{slug}'.")
+        return result
+    result["pr"] = pr
 
     pr_number = pr["number"]
-    pr_url = pr["url"]
-    head_branch = pr["headRefName"]
-    log_success(f"Found active flow PR #{pr_number}: {pr_url} ({head_branch})")
+    log_success(f"Found flow PR #{pr_number}: {pr['url']} ({pr['headRefName']}, {pr.get('state', 'OPEN')})")
+    if pr.get("state") == "MERGED":
+        result["merge_state"] = "MERGED"
+        log_success(f"PR #{pr_number} is already merged; nothing more to verify.")
+        return result
+    if pr.get("state") == "CLOSED":
+        result["merge_state"] = "CLOSED"
+        problem(f"PR #{pr_number} is closed without merging.")
+        return result
 
-    # Verify calibration report exists in PR diff
     diff_res = subprocess.run(
         ["gh", "pr", "diff", str(pr_number), "--name-only"],
         cwd=target_worktree,
@@ -238,36 +361,36 @@ def verify_pr_and_calibration(
         text=True,
         check=False,
     )
-    if diff_res.returncode == 0:
-        files = diff_res.stdout.splitlines()
-        calib_files = [f for f in files if "_calibration.md" in f]
-        if calib_files:
-            log_success(f"Calibration report included in PR diff: {', '.join(calib_files)}")
+    if diff_res.returncode != 0:
+        problem(f"Could not read the diff of PR #{pr_number}; the calibration report is unverified.")
+    else:
+        result["calibration"] = [f for f in diff_res.stdout.splitlines() if "_calibration.md" in f]
+        if result["calibration"]:
+            log_success(f"Calibration report included in PR diff: {', '.join(result['calibration'])}")
         else:
-            log_warn(
-                f"PR #{pr_number} diff does not yet contain a '_calibration.md' report.\n"
+            problem(
+                f"PR #{pr_number} diff does not contain a '_calibration.md' report. "
                 "Ensure Stage 5 calibration was committed and pushed to the PR branch."
             )
 
-    # Check mergeability status against target branch
-    view_res = subprocess.run(
-        ["gh", "pr", "view", str(pr_number), "--json", "mergeable,mergeStateStatus"],
-        cwd=target_worktree,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    if view_res.returncode == 0:
-        pr_info = json.loads(view_res.stdout)
-        mergeable = pr_info.get("mergeable")
-        status = pr_info.get("mergeStateStatus")
-        log_info(f"PR #{pr_number} Mergeable: {mergeable}, State: {status}")
-        if mergeable == "CONFLICTING":
-            log_error(
-                f"PR #{pr_number} has merge conflicts against target branch! "
-                "Per AGENTS.md Invariant 14, fetch origin/main, resolve ledger conflicts "
-                "by chronological interleaving, commit, and push."
+    info = _gh_json(["pr", "view", str(pr_number), "--json", "mergeable,mergeStateStatus"], target_worktree)
+    if info is not None:
+        result["mergeable"], result["merge_state"] = info.get("mergeable"), info.get("mergeStateStatus")
+        log_info(f"PR #{pr_number} Mergeable: {result['mergeable']}, State: {result['merge_state']}")
+        if result["mergeable"] == "CONFLICTING" or result["merge_state"] == "DIRTY":
+            problem(
+                f"PR #{pr_number} has merge conflicts against the target branch (CONFLICTING/DIRTY). "
+                "Fetch origin/main, keep main's ledger rows in main's order and append only the branch's new rows, "
+                "commit, and push."
             )
+    else:
+        problem(f"Could not read the mergeability of PR #{pr_number}.")
+
+    checks, still_pending = wait_for_pending_checks(pr_number, target_worktree, checks_timeout, checks_poll, sleep)
+    result["checks"] = checks
+    if still_pending:
+        problem(f"PR #{pr_number} still has pending checks after waiting {int(checks_timeout)} s.")
+    return result
 
 
 def execute_flow_process(
@@ -280,7 +403,7 @@ def execute_flow_process(
         print(f"  [DRY-RUN] {' '.join(cmd)}")
         return 0, ""
 
-    print(f"\n{COLOR_BOLD}Executing command:{COLOR_RESET} {' '.join(cmd)}\n")
+    print(f"\n{COLOR_BOLD}Executing command:{COLOR_RESET} {' '.join(cmd)}\n", flush=True)
     proc = subprocess.Popen(
         cmd,
         stdout=subprocess.PIPE,
@@ -293,7 +416,7 @@ def execute_flow_process(
     output_lines: list[str] = []
     assert proc.stdout is not None
     for line in proc.stdout:
-        print(line, end="")
+        print(line, end="", flush=True)
         output_lines.append(line)
 
     proc.wait()
@@ -347,16 +470,31 @@ def resolve_flow_worktree(target_worktree: Path, slug: str, dry_run: bool = Fals
     return flow_worktree
 
 
+def parse_relative_limit_reset(output: str):
+    """Return the datetime of a relative reset such as "Resets in 51m58s" or "resets in 1h 2m", or None."""
+    from datetime import datetime, timedelta
+
+    m = re.search(r"resets\s+in\s+(?:(\d+)\s*h)?\s*(?:(\d+)\s*m)?\s*(?:(\d+)\s*s)?", output, re.I)
+    if not m or not any(m.groups()):
+        return None
+    hours, minutes, seconds = (int(part or 0) for part in m.groups())
+    return datetime.now().astimezone() + timedelta(hours=hours, minutes=minutes, seconds=seconds)
+
+
 def parse_limit_reset(output: str):
     """Return the datetime of the usage-limit reset named in ``output`` (e.g. "resets 5:40pm (Australia/Melbourne)").
 
-    Returns None when no reset time is named. The next occurrence of that wall-clock time in the named timezone is
-    used (today if still ahead, otherwise tomorrow), so daily windows resolve exactly and a weekly reset that names a
-    time resolves to its next daily occurrence, which is always sooner than doing nothing.
+    Returns None when no reset time is named. A relative reset ("Resets in 51m58s", as Antigravity prints) is that far
+    from now. The next occurrence of a named wall-clock time in the named timezone is used (today if still ahead,
+    otherwise tomorrow), so daily windows resolve exactly and a weekly reset that names a time resolves to its next
+    daily occurrence, which is always sooner than doing nothing.
     """
     from datetime import datetime, timedelta
     from zoneinfo import ZoneInfo
 
+    relative = parse_relative_limit_reset(output)
+    if relative is not None:
+        return relative
     m = re.search(r"resets\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)(?:\s*\(([^)]+)\))?", output, re.I)
     if not m:
         return None
@@ -450,10 +588,41 @@ def run_flow(
     dry_run: bool = False,
     wait_on_overlap: bool = True,
     overlap_poll_seconds: int = OVERLAP_POLL_SECONDS,
+    outcome: dict | None = None,
 ) -> int:
     """Run holon flow with optional automatic fallback ladder on quota errors."""
     intent_data = parse_intent_file(intent_path)
     slug = intent_data["slug"]
+    directories = directory_scope_entries(intent_data.get("scope"), target_worktree)
+    if directories:
+        log_error(
+            "Intent scope must list files, never directories (a directory becomes broad touch-set globs that block "
+            f"every concurrent flow at Stage 3 admission): {', '.join(directories)}"
+        )
+        return 2
+    outcome = outcome if outcome is not None else {}
+    effective_intent_path = intent_path
+    modified = False
+
+    if len(slug) > 32:
+        truncated_slug = truncate_slug(slug, 32)
+        intent_data["slug"] = truncated_slug
+        slug = truncated_slug
+        modified = True
+
+    touches_budgets = "0380" in intent_path.name or "module_budgets.json" in str(intent_data.get("scope", []))
+    if touches_budgets and "module_budget_change" not in intent_data:
+        intent_data["module_budget_change"] = (
+            "Budget should be enforced to all packages, including new packages, not just to flow."
+        )
+        modified = True
+
+    if modified:
+        temp_intent_path = intent_path.parent / f"intent-modified-{slug}.json"
+        with open(temp_intent_path, "w", encoding="utf-8") as f:
+            json.dump(intent_data, f, indent=2)
+        effective_intent_path = temp_intent_path
+
     target_worktree = resolve_flow_worktree(target_worktree, slug, dry_run=dry_run)
     run_prerequisites_check(target_worktree)
 
@@ -464,7 +633,7 @@ def run_flow(
     current_allow_overlap = allow_overlap
 
     while True:
-        cmd = ["holon", "flow", str(intent_path)]
+        cmd = ["holon", "flow", str(effective_intent_path)]
         cmd.extend(["--target-worktree", str(target_worktree)])
         cmd.extend(["--agent", current_agent])
         cmd.extend(["--model", current_model])
@@ -485,10 +654,17 @@ def run_flow(
             return 1
 
         returncode, output = execute_flow_process(cmd, dry_run=dry_run, env=flow_env)
+        outcome.update(slug=slug, output=output, agent=current_agent, model=current_model, worktree=target_worktree)
 
         if returncode == 0:
             log_success(f"Holon flow for '{slug}' completed successfully!")
-            verify_pr_and_calibration(target_worktree, slug, dry_run=dry_run)
+            verification = verify_pr_and_calibration(target_worktree, slug, dry_run=dry_run)
+            outcome["verification"] = verification
+            if not verification["ok"]:
+                log_error(
+                    "The flow exited 0 but its deliverables are incomplete: " + "; ".join(verification["problems"])
+                )
+                return 1
             return 0
 
         # Flow failed. Check for quota or session exhaustion
@@ -613,6 +789,66 @@ def _notify_outcome(intent_path: Path, exit_code: int, target_worktree: Path) ->
         pass
 
 
+def build_flow_state(slug: str, exit_code: int, outcome: dict, worktree: Path | None) -> dict:
+    """The deterministic state record a resuming driver reads (``.subagent/flow_<slug>_state.json``)."""
+    import re as _re
+
+    output = outcome.get("output") or ""
+    verification = outcome.get("verification") or {}
+    pr = verification.get("pr") or {}
+    stages: list[str] = []
+    if worktree is not None:
+        with contextlib.suppress(OSError, ValueError):
+            stages = json.loads((worktree / f".holon/flow/checkpoint-{slug}.json").read_text()).get(
+                "completed_stages", []
+            )
+    consensus = next(
+        (line.strip() for line in reversed(output.splitlines()) if _re.search(r"consensus", line, _re.I)), None
+    )
+    ev = None
+    for match in _re.finditer(r"\bEV\b\s*[:=]?\s*(-?\d+(?:\.\d+)?)", output):
+        ev = float(match.group(1))
+    merge_state = verification.get("merge_state")
+    problems = verification.get("problems", [])
+    if exit_code == 0 and merge_state == "MERGED":
+        next_action = "run post-pr-merge"
+    elif exit_code == 0:
+        next_action = "maintainer merges the pull request"
+    elif problems:
+        next_action = "fix: " + "; ".join(problems)
+    else:
+        next_action = "diagnose the flow failure and resume from the checkpoint"
+    return {
+        "slug": slug,
+        "status": "completed" if exit_code == 0 else "failed",
+        "exit_code": exit_code,
+        "pr_number": pr.get("number"),
+        "pr_url": pr.get("url"),
+        "stage_reached": stages[-1] if stages else None,
+        "completed_stages": stages,
+        "consensus": consensus,
+        "calibration_ev": ev,
+        "calibration_files": verification.get("calibration", []),
+        "mergeable": verification.get("mergeable"),
+        "merge_state": merge_state,
+        "agent": outcome.get("agent"),
+        "model": outcome.get("model"),
+        "problems": problems,
+        "next_action": next_action,
+    }
+
+
+def write_flow_state(
+    slug: str, exit_code: int, outcome: dict, worktree: Path | None, state_dir: Path | None = None
+) -> Path:
+    """Write the state file for the flow; returns its path. Never raises into the caller's exit code."""
+    state_dir = state_dir or STATE_DIR
+    state_dir.mkdir(parents=True, exist_ok=True)
+    path = state_dir / f"flow_{slug}_state.json"
+    path.write_text(json.dumps(build_flow_state(slug, exit_code, outcome, worktree), indent=2) + "\n")
+    return path
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run and monitor the 5-stage Holon flow from a subagent or terminal.")
     parser.add_argument(
@@ -640,7 +876,7 @@ def main() -> None:
         "--model",
         type=str,
         default=FALLBACK_LADDER_ANTIGRAVITY[0],
-        help="Model tier for the agent runner (default: gemini-4-argon).",
+        help="Model tier for the agent runner (default: gemini-4-neon).",
     )
     parser.add_argument(
         "--from-stage",
@@ -682,6 +918,10 @@ def main() -> None:
 
     args = parser.parse_args()
 
+    # Redirected to a file, stdout is block-buffered and the log stays empty until exit; flush every line instead.
+    enable_line_buffering()
+
+    outcome: dict = {}
     exit_code = run_flow(
         intent_path=args.intent,
         target_worktree=args.target_worktree,
@@ -694,9 +934,15 @@ def main() -> None:
         dry_run=args.dry_run,
         wait_on_overlap=not args.no_wait_on_overlap,
         overlap_poll_seconds=args.overlap_poll_seconds,
+        outcome=outcome,
     )
     if not args.dry_run:
-        flow_worktree = resolve_flow_worktree(args.target_worktree, parse_intent_file(args.intent)["slug"])
+        slug = parse_intent_file(args.intent)["slug"]
+        flow_worktree = resolve_flow_worktree(args.target_worktree, slug)
+        try:
+            write_flow_state(outcome.get("slug", slug), exit_code, outcome, flow_worktree)
+        except Exception as exc:  # noqa: BLE001 - the state file must not change the exit code
+            log_warn(f"Could not write the flow state file: {exc}")
         _notify_outcome(args.intent, exit_code, flow_worktree)
     sys.exit(exit_code)
 

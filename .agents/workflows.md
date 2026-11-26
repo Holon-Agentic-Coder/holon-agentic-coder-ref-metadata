@@ -71,8 +71,10 @@ branch and ledger record the next one consumes (see invariant 8 in [rules.md](ru
 
 - **Intent**: Write the intent JSON (`description`, `goal`, `slug`, optional `target_branch`) and run
   `./holon intent <file>` to open the `I-.../_` branch and append to `holon-knowledge/ledger/intents.jsonl`. Encode the
-  sandbox constraints the executor must respect inside `goal`. Request repeated test runs only when the change must
-  measure performance, with an explicit N, each run under pytest-xdist (invariant 19 in [rules.md](rules.md)).
+  sandbox constraints the executor must respect inside `goal`, plus this sentence: "Code is self-explaining: no
+  docstrings and no comments except '# why:' comments that record a reason the code cannot show." Request repeated test
+  runs only when the change must measure performance, with an explicit N, each run under pytest-xdist (invariant 19 in
+  [rules.md](rules.md)).
 - **Plan**: Run `./holon plan <intent_branch> --agent <agent> --model <model>`; review the generated `plans/P-*.md` and
   the predicted metrics recorded in `plans.jsonl` before proceeding.
 - **Execute**: Run `./holon execute <plan_branch> --agent <agent> --model <model>`. Verify the pushed `E-...` branch is
@@ -102,23 +104,25 @@ across model tiers, use `holon flow <intent.json> --from-stage <stage>` or `--ch
   **continue the flow from the current stage** (reusing the already-created `I-.../_`, `P-.../_`, or `E-.../_` branch
   rather than starting over):
   - **Claude (`claude-agent`)**: `claude-opus-5-5` $\rightarrow$ `claude-sonnet-4-6` $\rightarrow$ `claude-haiku-4-5`.
-  - **Antigravity (`antigravity-agent` CLI)**: `gemini-4-argon` $\rightarrow$ `gemini-4-hydrogen` $\rightarrow$
-    `gemini-3.8-flash` (default to `gemini-4-argon` for all Holon coding tasks until tokens run out).
+  - **Antigravity (`antigravity-agent` CLI)**: `gemini-4-neon` $\rightarrow$ `gemini-4-argon` $\rightarrow$
+    `gemini-4-hydrogen` $\rightarrow$ `gemini-3.8-flash` (default to `gemini-4-neon` for all Holon coding tasks until
+    tokens run out).
   - **Antigravity (`invoke_subagent`)**: `Model: "inherit"` / `"pro"` $\rightarrow$ `"flash"` $\rightarrow$
     `"flash_lite"`.
-  - **Cross-Runner Continuation**: If all model tiers under the current runner share an exhausted account/session quota,
-    switch `--agent` to the alternate runner (`antigravity-agent` or `claude-agent`) and resume from the failed stage
-    (e.g. `holon plan <intent_branch> --agent antigravity-agent --model gemini-4-argon`, followed by
-    `holon execute <plan_branch>`, `holon review <execution_branch>`, and `holon calibrate <execution_branch>`).
+  - **No Cross-Runner Switch** (maintainer, 2026-11-23): if the runner's whole ladder is exhausted or stuck, stay on
+    that runner's ladder and ask the maintainer before switching `--agent` between `antigravity-agent` and
+    `claude-agent`. Never switch on your own; report and wait for the go-ahead.
 - **Ledger-Only Conflicts Do Not Require Test Runs**: When merging or rebasing `origin/main` into a Holon flow branch
-  and the conflict is confined entirely to `holon-knowledge/ledger/*.jsonl`, running test suites is not required.
-  Resolve the conflict by interleaving records chronologically by timestamp (`created_at`), verify all lines parse as
-  valid JSON, commit, and push directly.
+  and the conflict is confined entirely to `holon-knowledge/ledger/*.jsonl`, running test suites is not required. Keep
+  main's ledger file exactly as on main, in main's order, and append only the branch's own rows (ordered by `created_at`
+  among themselves); never move or re-sort a row already on main. Verify all lines parse as valid JSON, commit, and push
+  directly.
 - **Mandatory Target-Branch Conflict Resolution Before Review Approval & Calibration**: Before posting an `APPROVED`
   consensus review to GitHub or running `holon calibrate`, always check
   `gh pr view <pr> --json mergeable,mergeStateStatus`. If the PR is `CONFLICTING` or `DIRTY` against `origin/main`,
-  immediately fetch `origin/main`, merge it into the execution branch, resolve the conflicts (interleaving ledger
-  entries chronologically), commit, and push to `origin`. Never post approval or calibrate while a PR is conflicting.
+  immediately fetch `origin/main`, merge it into the execution branch, resolve the conflicts (ledgers: main's rows
+  unchanged, the branch's own rows appended), commit, and push to `origin`. Never post approval or calibrate while a PR
+  is conflicting.
 
 ### 3. Task Completion
 
@@ -347,3 +351,11 @@ To maintain clean repository history, follow this Git workflow:
 >
 > Branch and worktree cleanup may only be performed **after** the human confirms the merge has completed, or when the
 > user explicitly requests it.
+
+### Beans: bugs and location (maintainer rules)
+
+- **Log a bean for every bug at once** (maintainer, 2026-11-23): any bug hit anywhere (flow engine, wrapper, logs,
+  tests, CI, harness scripts, skills) gets its own bean immediately, with the evidence (PR, log line, timestamps,
+  confirmed cause). Do not ask first and do not leave it as a remark; a bug you also fix on the spot still gets a bean.
+- **Beans live in the main checkout's `.beans/`** (maintainer, 2026-10-25), never in `todo/` or a side worktree (those
+  were lost or hidden before). Write the file there and never stage or commit another agent's edits.

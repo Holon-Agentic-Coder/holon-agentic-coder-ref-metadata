@@ -228,6 +228,33 @@ For every feature or task worktree (excluding `main`):
 
 ---
 
+### Phase 3b: Delete Stale Plans & Stale Worktrees (maintainer, 2026-11-23)
+
+Phase 3 removes only worktrees whose branch is merged. Unmerged leftovers are cleaned up as well, by the same rules the
+`post-pr-merge` skill applies after every merge
+([Step 4b and 4c](../post_pr_merge/SKILL.md#4b-delete-stale-plans-maintainer-2026-11-23)):
+
+- **Stale plan**: a flow worktree on an intent or plan branch (`I-.../_` or `I-.../P-.../_`, no execution branch cut),
+  with no open pull request, no live process, and a base that `origin/main` has moved past.
+- **Stale worktree**: any other flow worktree (superseded earlier attempt, interrupted execution branch of a paused
+  bean, detached leftover) with no open pull request, no live process (`holon flow`, `run_holon_flow.py`, role container
+  or usage-limit waiter naming its slug), a base that `origin/main` has moved past, and nothing touching it for at least
+  two hours (newest of its last commit and its `.holon/flow/checkpoint-*.json` mtime).
+
+For each one:
+
+1. **Back up first.** If it has commits on no remote branch, or uncommitted changes, bundle its `I-*-<slug>/` branches
+   to `todo/stale-worktree-backups/<slug>-<date>.bundle` (`git bundle create`, then `git bundle verify`) and copy
+   uncommitted files beside it. Delete nothing until the bundle verifies.
+2. Remove the worktree (`--force` after the backup), delete its `I-*-<slug>/` and `flow-<slug>` branches locally and on
+   origin.
+3. Set its bean back to `status: todo` (unless completed) with a one-line dated note naming the backup; the bean
+   restarts from current `main` with a fresh `-vN` intent. Keep its `todo/intent-*.json`.
+
+Never delete a worktree with an open PR or a live process, never a branch that is the head or base of an open PR (check
+`gh pr list --state open --json headRefName,baseRefName`), and never the `main` worktree. Report what was deleted, what
+was backed up and what was kept.
+
 ### Phase 4: Registry-vs-Disk Diff & Orphan Directory Purge
 
 Derive the complete directory truth by diffing the filesystem against `git worktree list`:

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0350
 title: "Enable Claude Code code mode (CLAUDE_CODE_EXPERIMENTAL_CODE_MODE=1) for every Claude run"
-status: todo
+status: in-progress
 type: feature
 priority: high
 tags:
@@ -10,8 +10,8 @@ tags:
   - subagents
   - harness
   - holon-agentic-coder
-created_at: 2026-11-21T12:06:00+11:00
-updated_at: 2026-11-21T12:06:00+11:00
+created_at: 2026-11-21T01:06:00Z
+updated_at: 2026-11-24T13:00:00Z
 ---
 
 ## Problem
@@ -53,3 +53,24 @@ flow, subagents, and anything else. Nothing sets the variable today.
 
 - Keep it switchable, because the feature is experimental.
 - Intent JSON must not name harness paths. The target-repo part goes through the Holon flow.
+
+## Progress
+
+- 2026-11-23: Harness half done, uncommitted: `flow_env.py` sets `CLAUDE_CODE_EXPERIMENTAL_CODE_MODE=1` for
+  `claude-agent` (flow process and the settings `env` the containers read; a caller-set value such as `0` is kept), two
+  tests in `tests/test_flow_env.py`, a note in the `holon_flow` skill, and the `env` block of `.claude/settings.json`.
+- Target half: flow `claude-code-mode-default-on` launched (`antigravity-agent` / `gemini-4-argon`), scoped to
+  `agent_runner.py`, `env_registry.py`, their tests and `docs/environment_variables.md`; off switch
+  `HOLON_CLAUDE_CODE_MODE=0`.
+- 2026-11-24: `Holon-Agentic-Coder/holon-agentic-coder#268` (`claude-code-mode-default-on`, Action 3 target containers)
+  merged into `main` at `28340ea2` (11/11 CI green, Stage 5 calibrated EV predicted `61.88` / actual `67.77` / delta
+  `+5.89`), `apps/holon-agentic-coder/main` was fast-forwarded, Docker images and `holon` CLI were rebuilt/reinstalled,
+  and `flow-claude-code-mode-default-on` was pruned.
+- 2026-11-24: Maintainer-instructed host-side cleanup exception on PR #268 (`ce56b34d`): reverted 36 unrelated
+  historical `plans/` files back to `origin/main` (touched by Stage 4 resolver's repo-wide Prettier and
+  `prettier-ignore` edits in iterations 2–3) and relaunched from `--from-stage review` (follow-up Bean `0392`).
+
+- 2026-11-24 (clean-up): stays open. Target containers (Action 3) are delivered by PR #268. Remaining: Action 4 (check
+  the other Claude entry points: review-loop skills, post-merge, resolve-conflict, holon-coherence, dev-env profile),
+  Action 5 (verification run: variable visible in the runner environment, token and duration comparison, how to switch
+  it off), and committing the harness half (Actions 1 and 2, still uncommitted on this branch).

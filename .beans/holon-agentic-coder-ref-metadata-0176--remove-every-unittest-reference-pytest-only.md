@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0176
 title: "Remove every unittest reference from holon-agentic-coder; the suite is pytest only"
-status: in-progress
+status: todo
 type: task
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - pytest
   - holon-agentic-coder
 created_at: 2026-10-28T09:38:48Z
-updated_at: 2026-11-22T22:55:00Z
+updated_at: 2026-11-23T08:05:48Z
 ---
 
 ## Problem
@@ -57,3 +57,6 @@ mention `unittest` (almost all under `apps/sandbox-executor/tests/`, plus `docs/
 
 Re-measured on `main` (`b22258d`): **144** tracked files mention `unittest` (up from 119 on 2026-11-21). Must run alone
 after PR #230 merges.
+
+> 2026-11-23: stale worktree deleted 2026-11-23; restart from current main. Backup:
+> todo/stale-worktree-backups/flow-remove-unittest-pytest-only-2026-11-23.bundle

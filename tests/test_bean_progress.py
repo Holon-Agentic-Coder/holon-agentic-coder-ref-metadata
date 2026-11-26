@@ -259,7 +259,7 @@ class TestLiveProcessesAndChecks:
         assert tree.docker_iteration == 7
 
         assert bean_progress._derive_stage(wt, tree, True) == "Stage 4 (Resolve iter 7)"
-        assert bean_progress._derive_live_runner(wt, tree) == "opus-5-5 · 32m (PID 32031, Antigravity)"
+        assert bean_progress._derive_live_runner(wt, tree) == "live · 32m (PID 32031, Antigravity)"
         assert bean_progress._derive_notes([], wt, None, tree) == "Resolving review findings"
 
     def test_detects_claude_code_parent_and_duplicate_trees(self, tmp_path: Path) -> None:
@@ -333,7 +333,12 @@ class TestLiveProcessesAndChecks:
         )
         md = bean_progress.render_markdown_table([row])
         assert "Pipe \\| inside title" in md
-        assert "a \\| b" in md
+        # The compact table carries no notes; they sit in the details list, where pipes need no escaping.
+        assert "- **0123**: Idle; a | b" in md
+        assert "a | b" not in md.split("**Last activity and notes**")[0]
+        wide = bean_progress.render_markdown_table([row], wide=True)
+        assert "Pipe \\| inside title" in wide
+        assert "a \\| b" in wide
 
         (tmp_path / ".beans").mkdir()
         rc = bean_progress.main(["--repo-root", str(tmp_path), "--no-gh", "--no-ps"])
@@ -436,9 +441,15 @@ class TestTimesAndColumns:
         assert rows[0].total_time == "2d3h"
         md = bean_progress.render_markdown_table(rows)
         header = md.splitlines()[0]
-        assert header == "| Bean # | Target | Title | Stage | Time in Stage | PR & CI | Total Time | Notes |"
+        assert header == "| Bean # | Target | Title | Agent | Model | Stage | In Stage | Live | PR & CI | Total |"
         line = md.splitlines()[2]
-        assert "| 12m |" in line and "| 2d3h |" in line and "idle (opus-5-5)" in line
+        assert "| 12m |" in line and "| 2d3h |" in line
+        assert "idle" in md.split("**Last activity and notes**")[1]
+        wide_header = bean_progress.render_markdown_table(rows, wide=True).splitlines()[0]
+        assert wide_header == (
+            "| Bean # | Target | Title | Agent | Model | Stage | Time in Stage | Live | PR & CI | Total Time "
+            "| Last Activity | Notes |"
+        )
         wt2 = _wt(tmp_path, "flow-bar", "bar")
         assert bean_progress.build_in_flight_rows(beans, [], [wt2], [], {}, now=NOW)[0].time_in_stage == "—"
 
@@ -544,7 +555,8 @@ class TestMappingFixes:
         rows = bean_progress.build_in_flight_rows(beans, intents, wts, [], live, now=NOW)
         assert len(rows) == 1
         assert rows[0].stage.startswith("Stage 4")
-        assert "opus-5-5 · 1h00m" in rows[0].notes_cell()
+        assert "live · 1h00m (PID 1, Claude Code)" in rows[0].notes_cell()
+        assert rows[0].model == "claude-opus-5-5"
         assert "stale attempt flow-scopes" in rows[0].notes_cell()
 
     def test_untracked_flow_gets_bean_from_intent_file_slug(self, tmp_path: Path) -> None:
@@ -560,3 +572,315 @@ class TestMappingFixes:
         )
         assert row2.bean_nums == ["0175"]
         assert row2.total_time != "—"
+
+
+class TestBlockedStage:
+    """The Stage cell names what blocks a flow at Stage 3 admission."""
+
+    def _run(self, tmp_path: Path, blocked_by: list, prs=None, live=None, pr_state=None, intents=None):
+        beans_dir = tmp_path / ".beans"
+        beans_dir.mkdir(exist_ok=True)
+        for n in ("0376", "0400", "0401"):
+            _make_bean(beans_dir, n, f"b{n}", f"title: Bean {n}\nstatus: in-progress\n")
+        beans = bean_progress.scan_beans(beans_dir)
+        intents = [
+            bean_progress.IntentMapping(tmp_path / "a.json", "resolve-conflicts-in-flow", ["0376"], "x"),
+            bean_progress.IntentMapping(tmp_path / "b.json", "blocked-flow", ["0400"], "blocked-flow"),
+            bean_progress.IntentMapping(tmp_path / "c.json", "other-flow", ["0401"], "other-flow"),
+        ]
+        wt = _wt(
+            tmp_path,
+            "flow-blocked-flow",
+            "blocked-flow",
+            admission={"state": "blocked", "blocked_by": blocked_by},
+        )
+        rows = bean_progress.build_in_flight_rows(
+            beans, intents, [wt], prs or [], live or {}, now=NOW, pr_state=pr_state
+        )
+        return next(r for r in rows if r.bean_nums == ["0400"])
+
+    @staticmethod
+    def _local(slug: str, worktree: Path, files=("calibrate.py",)) -> dict:
+        return {
+            "kind": "local_flow",
+            "number": None,
+            "plan_branch": f"I-1795425253-{slug}/P-1795425271-CLA-CO5.5/_",
+            "worktree": str(worktree),
+            "files": list(files),
+        }
+
+    def test_pull_request_blocker(self, tmp_path: Path) -> None:
+        row = self._run(tmp_path, [{"kind": "pull_request", "number": 275, "files": ["a.py"]}])
+        assert row.stage == "Stage 3 (Blocked: #275)"
+        assert row.blockers[0].kind == "pull_request"
+        assert row.blockers[0].pr == 275
+
+    def test_local_flow_with_open_pr(self, tmp_path: Path) -> None:
+        wt_dir = tmp_path / "flow-resolve-conflicts-in-flow"
+        wt_dir.mkdir()
+        prs = [_pr(281, "I-1795425253-resolve-conflicts-in-flow/P-1/E-1/_")]
+        row = self._run(tmp_path, [self._local("resolve-conflicts-in-flow", wt_dir)], prs=prs)
+        assert row.stage == "Stage 3 (Blocked: #281 (bean 0376))"
+        assert row.blockers[0].bean == "0376"
+        assert row.blockers[0].pr == 281
+
+    def test_local_flow_without_pr(self, tmp_path: Path) -> None:
+        wt_dir = tmp_path / "flow-resolve-conflicts-in-flow"
+        wt_dir.mkdir()
+        row = self._run(tmp_path, [self._local("resolve-conflicts-in-flow", wt_dir)])
+        assert row.stage == "Stage 3 (Blocked: bean 0376, no PR yet)"
+        assert "overlap" not in row.stage
+
+    def test_local_flow_without_bean_and_slug_from_worktree(self, tmp_path: Path) -> None:
+        wt_dir = tmp_path / "flow-mystery"
+        wt_dir.mkdir()
+        entry = {"kind": "local_flow", "number": None, "worktree": str(wt_dir), "files": []}
+        row = self._run(tmp_path, [entry])
+        assert row.stage == "Stage 3 (Blocked: flow mystery, no PR yet)"
+
+    def test_duplicate_blocker_shown_once(self, tmp_path: Path) -> None:
+        wt_dir = tmp_path / "flow-resolve-conflicts-in-flow"
+        wt_dir.mkdir()
+        entry = self._local("resolve-conflicts-in-flow", wt_dir)
+        row = self._run(tmp_path, [entry, dict(entry, files=["flow.py"])])
+        assert row.stage == "Stage 3 (Blocked: bean 0376, no PR yet)"
+        assert len(row.blockers) == 1
+        assert row.blockers[0].files == ["calibrate.py", "flow.py"]
+
+    def test_two_distinct_blockers(self, tmp_path: Path) -> None:
+        wt_dir = tmp_path / "flow-resolve-conflicts-in-flow"
+        wt_dir.mkdir()
+        row = self._run(
+            tmp_path,
+            [{"kind": "pull_request", "number": 275}, self._local("resolve-conflicts-in-flow", wt_dir)],
+        )
+        assert row.stage == "Stage 3 (Blocked: #275, bean 0376, no PR yet)"
+        assert row.stage_compact == "Stage 3 (Blocked: #275 +1 more)"
+        assert "Blocked by #275, bean 0376, no PR yet" in row.notes_cell()
+        md = bean_progress.render_markdown_table([row])
+        table, _, details = md.partition("**Last activity and notes**")
+        assert "+1 more" in table
+        assert "bean 0376, no PR yet" not in table
+        assert "bean 0376, no PR yet" in details
+
+    def test_short_cell_is_not_truncated(self, tmp_path: Path) -> None:
+        row = self._run(tmp_path, [{"number": 1}, {"number": 2}])
+        assert row.stage == "Stage 3 (Blocked: #1, #2)"
+        assert row.stage_compact == row.stage
+
+    def test_blocker_gone_not_resumed(self, tmp_path: Path) -> None:
+        gone_dir = tmp_path / "flow-removed"
+        states = {275: "MERGED"}
+        row = self._run(
+            tmp_path,
+            [{"kind": "pull_request", "number": 275}, self._local("removed", gone_dir)],
+            pr_state=lambda _repo, n: states.get(n),
+        )
+        assert row.stage.endswith("; blocker gone, not resumed)")
+        assert row.stage.startswith("Stage 3 (Blocked: #275, flow removed, no PR yet")
+        assert all(b.gone for b in row.blockers)
+
+    def test_not_gone_when_one_blocker_remains_or_unknown(self, tmp_path: Path) -> None:
+        live_dir = tmp_path / "flow-resolve-conflicts-in-flow"
+        live_dir.mkdir()
+        row = self._run(
+            tmp_path,
+            [{"kind": "pull_request", "number": 275}, self._local("resolve-conflicts-in-flow", live_dir)],
+            pr_state=lambda _repo, _n: "MERGED",
+        )
+        assert "blocker gone" not in row.stage
+        assert [b.gone for b in row.blockers] == [True, False]
+        # State unknown (no gh): never claimed as gone.
+        row = self._run(tmp_path, [{"kind": "pull_request", "number": 275}])
+        assert "blocker gone" not in row.stage
+        # An open pull request is not gone even if the lookup says merged.
+        row = self._run(
+            tmp_path,
+            [{"kind": "pull_request", "number": 275}],
+            prs=[_pr(275, "I-5-x/_")],
+            pr_state=lambda _repo, _n: "MERGED",
+        )
+        assert "blocker gone" not in row.stage
+
+    def test_live_runner_suppresses_gone(self, tmp_path: Path) -> None:
+        wt_dir = tmp_path / "flow-blocked-flow"
+        live = {
+            str(wt_dir): bean_progress.LiveFlowTree(
+                9, "01:00", "polling", "terminal", str(wt_dir), "blocked-flow", [], None, None, None, False, None
+            )
+        }
+        row = self._run(
+            tmp_path,
+            [{"kind": "pull_request", "number": 275}],
+            live=live,
+            pr_state=lambda _repo, _n: "MERGED",
+        )
+        assert row.stage == "Stage 3 (Blocked: #275)"
+
+    def test_empty_or_unreadable_list_keeps_overlap(self, tmp_path: Path) -> None:
+        assert self._run(tmp_path, []).stage == "Stage 3 (Blocked: overlap)"
+        assert self._run(tmp_path, "garbage").stage == "Stage 3 (Blocked: overlap)"  # type: ignore[arg-type]
+        assert self._run(tmp_path, [None, "x"]).blockers == []
+
+    def test_json_blocked_by_field(self, tmp_path: Path) -> None:
+        wt_dir = tmp_path / "flow-resolve-conflicts-in-flow"
+        wt_dir.mkdir()
+        row = self._run(tmp_path, [self._local("resolve-conflicts-in-flow", wt_dir)])
+        assert row.as_dict()["blocked_by"] == [
+            {
+                "kind": "local_flow",
+                "pr": None,
+                "bean": "0376",
+                "slug": "resolve-conflicts-in-flow",
+                "files": ["calibrate.py"],
+                "gone": False,
+            }
+        ]
+        other = bean_progress.InFlightRow(["0001"], "HAC", "t", "Not started", "—", "idle", "—", 3)
+        assert other.as_dict()["blocked_by"] == []
+
+
+def _live(wt: bean_progress.WorktreeFlow, pid: int, slug: str) -> bean_progress.LiveFlowTree:
+    return bean_progress.LiveFlowTree(
+        pid,
+        "00:10:00",
+        "running",
+        "Claude Code",
+        str(wt.path),
+        slug,
+        [],
+        None,
+        "claude-opus-5-5",
+        "executor",
+        False,
+        None,
+    )
+
+
+def _closed(number: int, head: str, state: str) -> bean_progress.PullRequestInfo:
+    return bean_progress.PullRequestInfo("HAC", number, "t", f"u/{number}", head, "", False, 0, 0, "", state)
+
+
+class TestMultiRowFlows:
+    """One row per live flow or PR of a bean, stale-row handling, and decomposed flows."""
+
+    def _beans(self, tmp_path: Path, nums: list[str], status: str = "in-progress") -> dict:
+        beans_dir = tmp_path / ".beans"
+        beans_dir.mkdir(exist_ok=True)
+        for n in nums:
+            _make_bean(beans_dir, n, f"b{n}", f"title: Bean {n}\nstatus: {status}\n")
+        return bean_progress.scan_beans(beans_dir)
+
+    def _three_flows(self, tmp_path: Path):
+        beans = self._beans(tmp_path, ["0405"])
+        slugs = ["tests-a", "tests-b", "tests-c"]
+        intents = [bean_progress.IntentMapping(tmp_path / f"{s}.json", s, ["0405"], s) for s in slugs]
+        wts = [_wt(tmp_path, f"flow-{s}", s) for s in slugs]
+        return beans, intents, wts
+
+    def test_two_concurrent_flows_of_one_bean_get_two_rows(self, tmp_path: Path) -> None:
+        beans, intents, wts = self._three_flows(tmp_path)
+        wts = wts[:2]
+        prs = [_pr(325, "I-1-tests-a/P-1/E-1/_"), _pr(327, "I-2-tests-b/P-1/E-1/_")]
+        wts[0].execution_branch, wts[1].execution_branch = prs[0].head_ref_name, prs[1].head_ref_name
+        rows = bean_progress.build_in_flight_rows(beans, intents, wts, prs, {}, now=NOW)
+        assert [r.bean_nums for r in rows] == [["0405"], ["0405"]]
+        assert {r.slug for r in rows} == {"tests-a", "tests-b"}
+        assert sorted("#325" in r.pr_ci or "#327" in r.pr_ci for r in rows) == [True, True]
+        text = bean_progress.render_markdown_table(rows)
+        assert "- **0405** `tests-a`" in text and "- **0405** `tests-b`" in text
+
+    def test_live_column_dots_and_json(self, tmp_path: Path) -> None:
+        beans, intents, wts = self._three_flows(tmp_path)
+        live = {str(wts[0].path): _live(wts[0], 1, wts[0].slug)}
+        pr = _pr(325, "I-2-tests-b/P-1/E-1/_")
+        wts[1].execution_branch = pr.head_ref_name
+        rows = bean_progress.build_in_flight_rows(beans, intents, wts, [pr], live, now=NOW)
+        by_slug = {r.slug: r for r in rows}
+        assert by_slug[wts[0].slug].live is True and by_slug[wts[1].slug].live is False
+        md = bean_progress.render_markdown_table(rows)
+        header = [c.strip() for c in md.splitlines()[0].split("|")]
+        assert header[header.index("In Stage") + 1] == "Live"
+        lines = md.splitlines()[2 : 2 + len(rows)]
+        assert sum("🟢" in ln for ln in lines) == 1 and sum("🔴" in ln for ln in lines) == 1 and len(rows) == 2
+        data = {r["flow"]: r["live"] for r in (r.as_dict() for r in rows)}
+        assert data[wts[0].slug] is True and data[wts[1].slug] is False
+
+    def test_not_started_bean_is_red(self, tmp_path: Path) -> None:
+        beans_dir = tmp_path / ".beans"
+        beans_dir.mkdir()
+        _make_bean(beans_dir, "0500", "x", "title: X\nstatus: in-progress\n")
+        beans = bean_progress.scan_beans(beans_dir)
+        rows = bean_progress.build_in_flight_rows(beans, [], [], [], {}, now=NOW)
+        assert rows[0].stage == "Not started" and rows[0].live is False
+        assert "🔴" in bean_progress.render_markdown_table(rows) and rows[0].as_dict()["live"] is False
+
+    def test_live_concurrent_flow_is_never_a_stale_attempt(self, tmp_path: Path) -> None:
+        beans, intents, wts = self._three_flows(tmp_path)
+        live = {str(w.path): _live(w, i + 1, w.slug) for i, w in enumerate(wts)}
+        rows = bean_progress.build_in_flight_rows(beans, intents, wts, [], live, now=NOW)
+        assert len(rows) == 3
+        assert all("stale attempt" not in r.notes_cell() for r in rows)
+        assert [r.source for r in rows] == sorted(r.source for r in rows)  # adjacent, deterministic
+
+    def test_dead_idle_attempt_still_collapses_into_stale_note(self, tmp_path: Path) -> None:
+        beans, intents, wts = self._three_flows(tmp_path)
+        live = {str(wts[0].path): _live(wts[0], 1, wts[0].slug)}
+        rows = bean_progress.build_in_flight_rows(beans, intents, wts, [], live, now=NOW)
+        assert len(rows) == 1
+        assert rows[0].notes_cell().count("stale attempt") == 2
+
+    def test_merged_pr_pending_post_merge(self, tmp_path: Path) -> None:
+        beans = self._beans(tmp_path, ["0404", "0419"])
+        intents = [bean_progress.IntentMapping(tmp_path / "a.json", "done-flow", ["0404"], "done-flow")]
+        head = "I-3-done-flow/P-1/E-1/_"
+        wts = [_wt(tmp_path, "flow-done-flow", "done-flow", execution_branch=head, current_stage="calibrate")]
+        merged = [_closed(321, head, "MERGED"), _closed(330, "I-9-x/bean-0419/_", "MERGED")]
+        rows = bean_progress.build_in_flight_rows(beans, intents, wts, [], {}, now=NOW, closed_prs=merged)
+        by_bean = {r.bean_nums[0]: r for r in rows}
+        assert by_bean["0404"].stage == bean_progress.MERGED_STAGE
+        assert "#321" in by_bean["0404"].pr_ci and "merged" in by_bean["0404"].pr_ci
+        assert by_bean["0419"].stage == bean_progress.MERGED_STAGE  # no flow at all, found by bean number
+        assert "post-pr-merge" in by_bean["0419"].notes_cell()
+
+    def test_closed_pr_with_dead_runner_and_completed_bean_omitted(self, tmp_path: Path) -> None:
+        beans = self._beans(tmp_path, ["0404"])
+        intents = [bean_progress.IntentMapping(tmp_path / "a.json", "gone", ["0404"], "gone")]
+        wts = [_wt(tmp_path, "flow-gone", "gone")]
+        closed = [_closed(7, "I-4-gone/P-1/E-1/_", "CLOSED")]
+        (row,) = bean_progress.build_in_flight_rows(beans, intents, wts, [], {}, now=NOW, closed_prs=closed)
+        assert row.stage == bean_progress.CLOSED_STAGE
+        beans["0404"].status = "completed"
+        assert bean_progress.build_in_flight_rows(beans, intents, wts, [], {}, now=NOW, closed_prs=closed) == []
+
+    def test_non_flow_worktree_is_ignored(self, tmp_path: Path) -> None:
+        app = tmp_path / "apps" / "holon-agentic-coder"
+        (app / "main").mkdir(parents=True)
+        (app / "audit-tmp").mkdir()
+        (app / "flow-real").mkdir()
+        (app / "other" / ".holon" / "flow").mkdir(parents=True)
+        (app / "other" / ".holon" / "flow" / "checkpoint-other.json").write_text("{}", encoding="utf-8")
+        repo = bean_progress.RepoTarget("HAC", app, True)
+        names = {w.dir_name for w in bean_progress.scan_worktrees([repo])}
+        assert names == {"flow-real", "other"}
+
+    def test_decomposed_flow_shows_child_n_of_m_and_child_prs(self, tmp_path: Path) -> None:
+        beans = self._beans(tmp_path, ["0201"])
+        intents = [bean_progress.IntentMapping(tmp_path / "s.json", "big", ["0201"], "big")]
+        root = "I-100-big"
+        child = f"{root}/P-5-CLA--4-route-ci/P-6/E-7/_"
+        children = [{"index": i, "slug": f"c{i}", "pr_number": 310 + i, "merged": i < 4} for i in range(1, 6)]
+        wts = [_wt(tmp_path, "flow-big", "big", execution_branch=child, intent_branch=f"{root}/P-5-CLA--4-route-ci/_")]
+        wts[0].children = children
+        prs = [_pr(340, child)]
+        (row,) = bean_progress.build_in_flight_rows(beans, intents, wts, prs, {}, now=NOW)
+        assert row.stage == "Stage 3 (child 4 of 5: route-ci)"
+        assert "#340" in row.pr_ci and "merged #311 #312 #313" in row.pr_ci
+        # parent PR into main, once it exists, is shown instead of the child PR
+        parent = _pr(350, f"{root}/P-5/_")
+        (row2,) = bean_progress.build_in_flight_rows(beans, intents, wts, [prs[0], parent], {}, now=NOW)
+        assert "#350" in row2.pr_ci
+        # unknown count -> "child N"
+        wts[0].children = []
+        (row3,) = bean_progress.build_in_flight_rows(beans, intents, wts, [], {}, now=NOW)
+        assert row3.stage == "Stage 3 (child 4: route-ci)"

@@ -1,0 +1,99 @@
+---
+# holon-agentic-coder-ref-metadata-0442
+title: "Stage 5 calibration invokes npx prettier twice instead of local binary"
+status: todo
+type: bug
+priority: high
+tags:
+  - flow
+  - stage-5
+  - calibration
+  - prettier
+  - performance
+  - holon-agentic-coder
+created_at: 2026-11-25T03:08:00Z
+updated_at: 2026-11-25T06:05:00Z
+---
+
+## Problem
+
+Stage 5 calibration work (`Starting Stage 5: Post-Execution Calibration` to `Stage 5 promoted ...`) jumped from
+`0.2–0.4 min` (`12–24 s`) to `2.57–2.65 min` (`154–159 s`) on every flow because `format_calibration_report` in
+`apps/holon-agentic-coder/main/apps/sandbox-executor/src/sandbox_executor/calibration.py:66,1359-1409` invokes
+`npx --yes prettier` twice (`--write`, then `--check`). On the host, `npx --yes prettier` takes `>30–70 s` per call even
+when `prettier` is already cached in `~/.npm/_npx`, whereas calling the cached `prettier` binary directly takes
+`0.064 s`.
+
+## Evidence (2026-11-25T00:28Z–02:54Z fifth-merge audit)
+
+- Across all `13` Stage 5 runs in the window (`12` checkpoints + `todo/flow-timing-gate-judges-test-time.log`),
+  `stage5_calib_work` took a median of **`2.58 min`** (max `2.65 min` on `#278`), consuming **`0.58 h` (`~35 min`)** of
+  wall-clock work.
+- Read-only profiling against `apps/holon-agentic-coder/flow-agent-defaults-self-doc`:
+  - `generate_calibration`: `8.87 s`
+  - `enforce_report_self_check`: `0.04 s`
+  - `promote_pending_candidates(dry_run=True)`: `0.45 s`
+  - Total Python/git calibration work: **`9.36 s`**
+  - `npx --yes prettier --check <report>`: **timed out at `20.01 s`** (`npx --yes prettier --version` also timed out
+    after `>30 s`)
+  - Direct cached binary `~/.npm/_npx/b388654678d519d9/node_modules/.bin/prettier --check <report>`: **`0.064 s`**
+    (`64 ms`)
+- Because `_converge_report` runs both `--write` and `--check` (`calibration.py:1402-1405`), `npx` startup/resolution
+  accounts for **`~140 s` (`~91%`)** of Stage 5 calibration work on every single flow.
+
+## Proposed change
+
+1. Resolve a local/cached `prettier` binary first (e.g., repository `node_modules/.bin/prettier`,
+   `shutil.which("prettier")`, or `npx --offline prettier` / cached `_npx` binary matching the repository's
+   `.prettierrc.json` expectations) before falling back to `("npx", "--yes", "prettier")`, or skip `--check` when
+   `--write` succeeded on the exact file and verify via `--write` + single fast binary call.
+2. Add a hermetic unit test in `tests/test_calibration_format.py` (or existing calibration formatting tests) covering
+   the direct binary preference and `npx` fallback.
+
+## Expected gain
+
+Cuts Stage 5 calibration work from `~2.58 min` (`155 s`) back to `~0.2 min` (`~10–12 s`), saving **`~2.3 min` per flow**
+(`~30 min` across `13` flows in a 2.4-hour window).
+
+## Cost
+
+Small: single command-resolution helper in `calibration.py` + unit test, delivered via the Holon flow.
+
+## Notes
+
+- Target repo change through the Holon flow (`holon-agentic-coder`).
+- Related: Bean `0048` (dropped `@3.8.4` pin), Bean `0383` (Stage 5 timing & budget), Bean `0408` (local hygiene gate).
+
+## Audit evidence, 2026-11-25T04:02Z (self-improvement audit, fifth merge)
+
+- **`PR #308` (`workspace-survival-job-parallel`):** Stage 5 calibration work (`03:35:18Z–03:37:54Z`) took **`2.60 min`
+  (`156 s`)** (`calibrate` total `12.69 min` vs `10 min` budget), and Stage 2 in
+  `todo/flow-workspace-survival-job-parallel.log:45-46` also hit **two `30 s` `npx --yes prettier@3.8.4` timeouts**
+  (`60 s` wasted in Stage 2).
+
+## Audit evidence, 2026-11-25T05:07Z (self-improvement audit, fifth merge #290–#294)
+
+- **`PR #308` Round 1 re-calibration (`04:10:12Z..04:12:52Z`)** spent **`2.50 min`** (`150 s`, incl. `10 s` re-point),
+  and **`thomashan/dev-env#42` Stage 5 calibration (`04:29:23Z..04:31:59Z`)** spent **`2.60 min`** (`156 s`) on
+  calibration work before `final_head_ci`.
+
+## Audit evidence, 2026-11-25T05:41Z (self-improvement audit, fifth merge #295–#299)
+
+- **Stage 2 `formatting.py` (`apps/sandbox-executor/src/sandbox_executor/formatting.py:11,48,63`)**, still pinned to
+  `npx --yes prettier@3.8.4`, timed out twice after `30 s` (`60 s` wasted) in both newly launched flows: `0371`
+  (`todo/flow-ledger-fragments-and-promotion.log:45-46`) and `0438`
+  (`todo/flow-calibration-merge-adapted-file.log:45-46`).
+- On `PR #309` (`0438`), those Stage 2 timeouts left
+  `plans/I-1795584436-calibration-merge-adapted-file/P-1795584464-CLA-CO5.5.md` unformatted, causing **`Test - Hygiene`
+  (`run 45554742211`, `make lint-md` using `prettier@3.10.1`) to immediately FAIL** at `05:37:23Z`, blocking `3/3`
+  `APPROVED (0/0/0)` reviewers at `05:40:16Z` and dispatching a resolver pass (`05:40:17Z`). `formatting.py` and
+  `calibration.py` should share one local/cached Prettier binary resolver aligned with CI's version.
+
+## Audit evidence, 2026-11-25T06:05Z (self-improvement audit, fifth merge #300–#304)
+
+- The downstream cost of Stage 2 Prettier timing out twice (`60 s`) on `PR #309` (`0438`) finished settling at
+  `06:01:51Z`: it added a `6.58 min` resolver pass, a `29 s` 4-push burst (`26eca98f` cancelled), `9.95 min` CI on
+  `4ded0b14`, and a `10.15 min` full Iter 2 re-review (`21.63 min` Stage 4 instead of `~4 min`).
+- Stage 5 calibration work on `PR #309` (`05:57:50Z..06:00:26Z`) still spent **`2.60 min` (`156 s`)** running two host
+  `npx --yes prettier` calls (`calibration_diff` / report check) before `final_head_ci` settled at `06:01:45Z`
+  (`48.93 s` CI wait; `3.98 min` Stage 5 total).

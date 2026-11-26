@@ -19,7 +19,7 @@ Activate a role only when the diff touches its territory.
 | Product, Design & Growth      | Product Owner (business logic, requirements) · UX/UI Designer (consistency, interaction) · SEO & Growth (semantics, load speed, attribution)                                                                                                                                                |
 | Operations, Release & Support | DevOps & SRE (CI/CD, IaC, observability, containers) · Release Manager (ordering, migrations, rollback, flags) · Support Engineer (error clarity, diagnostics, compatibility)                                                                                                               |
 | Security, Compliance & Risk   | Security Architect (OWASP, authentication, authorisation, secrets, PII) · Compliance Auditor (licences, retention, audit logging) · Localization Coordinator (hardcoded strings, formatting, RTL)                                                                                           |
-| DevRel & Documentation        | Technical Writer (docs, docstrings, API references) · Developer Advocate (developer experience, sample code, onboarding)                                                                                                                                                                    |
+| DevRel & Documentation        | Technical Writer (docs, API references) · Developer Advocate (developer experience, sample code, onboarding)                                                                                                                                                                                |
 
 ---
 
@@ -44,6 +44,13 @@ The PR description is never a trigger; only changed files are. An unactivated ro
 - 🟡 **IMPORTANT / IMPROVEMENT**: maintainability, coverage, scale, or user-facing quality. Should be addressed.
 - 🟢 **NIT / OPTIONAL**: style, naming, author discretion.
 - ✅ **APPROVED / PASS**: explicit confirmation of a well-made change with nothing to fix.
+
+Standing self-explaining-code finding (engineering rule 18): a docstring, or a comment that is not a `# why:` comment,
+added in the diff is 🟡 IMPORTANT. Machine directives (shebangs, encoding lines, `# noqa`, `# type:`, `# pragma`,
+`# fmt:`, shellcheck) are exempt.
+
+Standing test-setup finding (engineering rule 17): a new autouse fixture, a new fixture in a directory `conftest.py`, or
+`pytest_plugins` in a test module is 🟡 IMPORTANT; setup belongs in the test module or an explicitly imported helper.
 
 Be constructive, cite file and line, and show the fix. Generic advice is a defect in the review, not in the PR. Use
 Australian English (`initialise`, `optimisation`).

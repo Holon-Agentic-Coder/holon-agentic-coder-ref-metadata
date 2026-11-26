@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0152
 title: "Audit long files and decompose oversized functions (flow.py and cli.py first)"
-status: in-progress
+status: todo
 type: task
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:35:41Z
-updated_at: 2026-11-23T00:00:00Z
+updated_at: 2026-11-23T08:05:48Z
 ---
 
 ## Problem
@@ -129,3 +129,6 @@ only.
 
 Child beans still open: 0189, 0191, 0192, 0197, 0198, 0200, 0265, plus `entrypoint/planner.py` `main`. The committed
 audit script is flow intent 0152 (`audit-function-length-script`).
+
+> 2026-11-23: stale worktree deleted 2026-11-23; restart from current main. Backup:
+> todo/stale-worktree-backups/flow-audit-function-length-script-2026-11-23.bundle

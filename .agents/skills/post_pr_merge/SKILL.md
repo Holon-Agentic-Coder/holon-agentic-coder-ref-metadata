@@ -30,12 +30,14 @@ This skill orchestrates the end-to-end post-merge lifecycle across the Holon eco
      Bake and reinstall CLI tools to `~/.local/bin/` so subsequent flows run against latest code.
    - **Step 3: Close Bean with Resolution**: Mark the corresponding bean in `.beans/` as `status: completed` and
      document the merge commit SHA, PR link, and key technical changes.
-   - **Step 4: Clean Up PR Worktree & Remote Refs (`clean-workspace`)**: Safely remove the disposable PR worktree and
+   - **Step 4: Clean Up PR Worktree, Flow Branches & Stale Plans (`clean-workspace`)**: Remove the merged PR's worktree,
+     its earlier attempts and its flow branches (local and remote), delete every stale plan left by other flows, and
      prune stale tracking refs.
    - **Step 5: Refresh Triage & Matrix (`prioritise-beans`)**: Run the triage script to update completion stats and the
      Active Beans Prioritisation Matrix.
-   - **Step 6: Commit Harness State & Recommend Next Task**: Commit all updated bean files and triage matrices to the
-     current operational harness branch and recommend the next priority bean.
+   - **Step 6: Commit Harness State, Recommend & Backfill Next Task**: Commit all updated bean files and triage matrices
+     to the current operational harness branch, report next priority beans, and automatically launch the next
+     highest-priority ready bean via `holon-flow` whenever active concurrent flows are under 4 on hosted runtimes.
 
 ---
 
@@ -147,6 +149,62 @@ git -C apps/<repo> fetch origin --prune
 
 _Note: Never touch or remove `apps/<repo>/main`._
 
+#### 4a. The merged flow's branches and earlier attempts
+
+The squash merge leaves the flow's own branches behind; delete them, locally and on origin:
+
+```bash
+# Every branch of the merged intent: I-<ts>-<slug>/_, its P-.../_ and E-.../_ children and /calibrated
+git -C apps/<repo> for-each-ref --format='%(refname:short)' "refs/heads/I-*-<slug>/" | xargs -n1 git -C apps/<repo> branch -D
+git -C apps/<repo> for-each-ref --format='%(refname:lstrip=3)' "refs/remotes/origin/I-*-<slug>/" | xargs -n1 git -C apps/<repo> push origin --delete
+```
+
+Earlier attempts of the same bean (the same slug without its `-vN` suffix, e.g. `flow-layered-env-config` beside the
+merged `flow-layered-env-config-v2`) are superseded by the merge: remove their worktrees (`worktree remove --force` when
+the only leftovers are that attempt's own intent/plan/execution commits or ledger edits) and delete their `I-*-<slug>/`
+branches the same way.
+
+#### 4b. Delete stale plans (maintainer, 2026-11-23)
+
+After every merge, any stale plan is deleted as well, whichever bean it belongs to. A flow worktree holds a **stale
+plan** when all of these hold:
+
+- its branch is an intent or plan branch (`I-.../_` or `I-.../P-.../_`): no execution branch was ever cut from it;
+- it has no open pull request and no live process (`ps` shows no `holon flow` / `run_holon_flow.py` / role container
+  naming its slug);
+- `origin/main` has moved since it was cut (`git merge-base --is-ancestor origin/main HEAD` fails), so the plan was made
+  against code that no longer exists.
+
+For each one: remove the worktree (`--force`: uncommitted ledger rows or a stub plan file are part of the stale plan),
+delete its `I-*-<slug>/` branches locally and on origin, delete its `flow-<slug>` branch, and set its bean back to
+`status: todo` with a one-line note ("stale plan deleted after PR #<N> merged; restart from current main"). Keep the
+bean's `todo/intent-*.json`; it is reused for the restart.
+
+#### 4c. Delete stale worktrees (maintainer, 2026-11-23)
+
+Stale worktrees are cleaned up as well, not only stale plans. A flow worktree is **stale** when all of these hold:
+
+- it has no open pull request;
+- no live process uses it (`ps` shows no `holon flow`, `run_holon_flow.py`, role container or usage-limit waiter naming
+  its slug);
+- `origin/main` has moved since it was cut;
+- nothing has touched it for at least two hours (newest of its last commit and its `.holon/flow/checkpoint-*.json`
+  mtime), so a flow that is merely between stages is never caught.
+
+This covers superseded earlier attempts, interrupted execution branches of paused beans and detached leftovers. For each
+one:
+
+1. **Back up first.** If the worktree has commits that exist on no remote branch, or uncommitted changes, save them
+   before deleting:
+   `git -C apps/<repo> bundle create <harness>/todo/stale-worktree-backups/<slug>-<date>.bundle <its I-*-<slug>/ branches>`,
+   and copy uncommitted files next to it. Name the bundle in the report.
+2. Remove the worktree (`--force`), delete its `I-*-<slug>/` and `flow-<slug>` branches locally and on origin.
+3. Set its bean back to `status: todo` (unless the bean is completed) with a one-line note naming the backup; the bean
+   restarts from current `main` with a fresh `-vN` intent.
+
+Never delete a worktree with an open PR or a live process, and never the `main` worktree. List what was deleted, what
+was backed up and what was kept in the post-merge report.
+
 ---
 
 ### Step 5: Refresh Prioritisation Matrix
@@ -165,7 +223,7 @@ npx prettier --write .beans/bean-triage-prioritisation.md
 
 ---
 
-### Step 6: Commit Harness State & Recommend Next Task
+### Step 6: Commit Harness State, Recommend & Backfill Next Task
 
 1. Stage and commit harness changes:
    ```bash
@@ -174,4 +232,32 @@ npx prettier --write .beans/bean-triage-prioritisation.md
    git push origin <current_harness_branch>
    ```
 2. Review the Active Beans Matrix in `.beans/bean-triage-prioritisation.md`.
-3. Provide the user with a concise summary of the post-merge actions completed and recommend the next top-priority bean.
+3. **Backfill up to 4 concurrent `holon-flow` subagents (hosted runtimes; maintainer, 2026-11-24)**: first list parked
+   flows (beans noted `parked <date>`) whose blocker was this PR or whose files this PR released, and recommend resuming
+   them from checkpoint (`--checkpoint`) before any new bean (maintainer, 2026-11-26). Then count currently active
+   background `holon-flow` subagents that are executing, reviewing or calibrating (parked or blocked flows do not count;
+   `< 4` on hosted runtimes; local runtimes remain capped at 1). Pick up the highest-priority ready bean from the
+   refreshed triage (honouring `blocked_by`, solo-sweep rules, and pairwise-disjoint touch sets with active flows; at
+   most one bean touching a shared hotspot such as `flow.py` or `cli.py` per target) and launch it in the background via
+   the `holon-flow` skill.
+4. Provide the user with a concise summary of the post-merge actions completed, note any newly launched backfill flow
+   (or why none could start), and recommend the next top-priority beans.
+
+---
+
+### Step 7: Self-Improvement Audit Check
+
+Count the pull requests merged into `main` of `holon-agentic-coder` and `holon-coherence` since the newest entry in
+`.beans/self-improvement-audits.md` (the first entry under `## Entries`):
+
+```bash
+gh pr list --repo <owner>/holon-agentic-coder --state merged --base main --json number,mergedAt
+gh pr list --repo <owner>/holon-coherence --state merged --base main --json number,mergedAt
+```
+
+1. Count the merges with `mergedAt` after that entry's timestamp, across both repositories. If the log has no entry,
+   count all merges of the last 7 days.
+2. In the final report, state either "self-improvement audit due (N merges since the last audit)" when N is 5 or more,
+   or "N of 5 merges since the last audit".
+3. This skill does not run the audit. The receiving agent launches it per
+   [`.agents/self-improvement-audit.md`](../../self-improvement-audit.md).

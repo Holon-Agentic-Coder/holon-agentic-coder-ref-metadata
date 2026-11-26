@@ -9,10 +9,8 @@ tags:
   - github-issues
   - holon-flow
   - holon-agentic-coder
-blocked_by:
-  - "0333"
 created_at: 2026-10-30T00:00:00Z
-updated_at: 2026-11-23T00:00:00Z
+updated_at: 2026-11-26T04:10:00Z
 ---
 
 ## Problem
@@ -42,3 +40,34 @@ reference. This also honours the standing rule that harness bean ids never land 
 - The token the flow already uses for pull requests (`repo` scope) covers issue writes; Project status needs the
   `project` scope (Bean 0317).
 - Related: Bean 0333 (decision), Bean 0215 (import gives the issue numbers), Bean 0191 (one GitHub adapter).
+
+> 2026-11-23: stale worktree deleted 2026-11-23; restart from current main. Backup:
+> todo/stale-worktree-backups/flow-flow-references-github-issues-2026-11-23.bundle
+
+## Progress (2026-11-24)
+
+- Flow started from this Claude Code session: intent `todo/intent-0216-flow-references-github-issues.json`, slug
+  `flow-references-github-issues`, `claude-agent` / `claude-fable-5-2`, worktree `flow-flow-references-github-issues`.
+
+Note (2026-11-25): stale plan `flow-references-github-issues` deleted after PR #309 merged; restart from current main
+via the kept `todo/intent-0216-flow-references-github-issues.json`.
+
+parked 2026-11-26: Stage 3 overlap with PR #318 (context.py, docs/environment_variables.md); resume from checkpoint when
+#318 merges.
+
+Note (2026-11-26): in-progress. Flow `flow-references-github-issues` launched from origin/main 4e358955 via
+`run_holon_flow.py` (target `apps/holon-agentic-coder/main`, `claude-agent` / `claude-opus-5-5`, log
+`todo/flow-flow-references-github-issues.log`). Scope files `issues.py`, `test_issues.py`, `test_intent_work_item.py`
+are new files to be created.
+
+Note (2026-11-26): resumed from checkpoint
+`apps/holon-agentic-coder/flow-flow-references-github-issues/.holon/flow/checkpoint-flow-references-github-issues.json`
+(blocker flow `no-unneeded-full-review` merged as PRs #316-#334 and its worktree is gone). No live runner for the slug
+at resume. Log `todo/flow-flow-references-github-issues.log`. parked 2026-11-26: resume from checkpoint hit Stage 3
+touch-set overlap with PR #342 (`I-1795694671-ledgers-sorted-chronologically`) on `docs/git_flow.md`; resume from
+checkpoint once #342 merges or releases the file.
+
+Note (2026-11-26): resumed from checkpoint after PR #342 merged (20:58Z). No live runner for the slug at resume. parked
+2026-11-26: Stage 3 touch-set overlap with open PR #351 (I-1795685390-single-runner-per-checkpoint) on
+apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports.py; re-plan after a Stage 3 scope drift (P-1795727982) hit
+it. Resume from checkpoint when #351 merges or releases the file.
