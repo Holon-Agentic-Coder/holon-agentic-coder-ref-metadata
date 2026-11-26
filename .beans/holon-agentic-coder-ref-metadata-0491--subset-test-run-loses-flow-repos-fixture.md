@@ -55,3 +55,12 @@ checkpoint `flow-flow-fixtures-any-test-file/.holon/flow/checkpoint-flow-fixture
 `claude-opus-5-5`, `--no-wait-on-overlap`). Intent `todo/intent-0491-flow-fixtures-any-test-file-subset.json`
 (self-explaining-code invariant added to the goal). The `flow-flow-fixtures-any-test-file-subset` worktree has no
 checkpoint and was left untouched.
+
+**PR #358 (2026-11-27):** flow completed through Stage 5. Review consensus 3/3 APPROVED at iteration 1 (head `8de64341`,
+fallback review comment after the self-approval 422). Calibration `P-1795699971-CLA-CO5.5_calibration.md` is in the PR
+diff. PR state `OPEN`, `MERGEABLE`/`CLEAN`, head `fa1f1497`. Left for the human merge.
+
+**Invariant gap:** the executor added three docstrings and a `#:` comment in `tests/conftest.py` and
+`tests/test_fixture_discovery_subset.py`. The checkpoint's goal predates the self-explaining-code invariant, and the
+review did not flag it. Logged as bean 0574. The PR needs a rerun on the invariant before it is merged, or the
+maintainer must accept it.
