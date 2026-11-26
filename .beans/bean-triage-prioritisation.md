@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-26 00:04:54 UTC
+**Last Updated:** 2026-11-26 00:10:31 UTC
 
 ## Executive Summary
 
@@ -17,9 +17,9 @@ about 10M+ tokens), so flows that touch the same files still run one after anoth
 run together.
 
 - **Total Tracked Beans**: 470 (excluding template)
-- **Completed**: 357 (76.0%)
+- **Completed**: 358 (76.2%)
 - **Scrapped / Superseded**: 10 (2.1%)
-- **Active**: 103 (21.9%), of which 12 are in progress, 89 are todo and 2 are draft
+- **Active**: 102 (21.7%), of which 11 are in progress, 89 are todo and 2 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1083,7 +1083,6 @@ logged beans `0389` and `0390` added to triage.
 | **P1**   | todo        |  High  |             L             | 0467   | Per-merge record commits make up 60 of the last 92 harness commits                                                                         | Architecture / Quality           |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        | Medium |             M             | 0466   | A flow stage that needs Docker aborts the moment the daemon is down instead of waiting                                                     | Build / DevEx                    |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             L             | 0465   | Harness beans, skills and the audit instruction sit uncommitted in the working tree                                                        | Architecture / Quality           |                                                                                                                                                                                                                                                       |
-| **P1**   | in-progress | Medium |             M             | 0464   | Install xterm-ghostty terminfo on Ubuntu WSL (Windows) and Linux hosts                                                                     | General                          |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             M             | 0463   | Stage 2 planner collapses file-scoped intents into directory touch-set entries that broaden Stage 3 overlap                                | Flow / Architecture              |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             M             | 0462   | Epoch-second stage and plan IDs collide across concurrent flows                                                                            | Flow / Architecture              |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        | Medium |             M             | 0461   | Main-push CI concurrency group silently cancels intermediate main commits during burst merges                                              | Build / DevEx                    |                                                                                                                                                                                                                                                       |

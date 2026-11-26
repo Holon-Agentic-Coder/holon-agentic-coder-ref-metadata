@@ -20,10 +20,11 @@ Windows/WSL.
 
 ## Tracked Changes
 
-| Item | Summary                                                                                            | Intent File                                      | PR / Status                                                                                              |
-| ---- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
-| 1    | Restore `Shift+Enter` newline forwarding in `tmux` for Claude Code + PTY regression test           | `todo/intent-0435-tmux-shift-enter-extkeys.json` | [PR #41](https://github.com/thomashan/dev-env/pull/41) (merged `2026-11-25T04:03:06Z`, commit `605559f`) |
-| 2    | Enable `tmux` `focus-events` (`set -g focus-events on`) for Neovim `autoread`/`FocusGained` + test | `todo/intent-0435-tmux-focus-events-on.json`     | [PR #42](https://github.com/thomashan/dev-env/pull/42) (`MERGEABLE`/`CLEAN`, 7/7 CI, `ef1fbd76`)         |
+| Item | Summary                                                                                            | Intent File                                         | PR / Status                                                                                                           |
+| ---- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| 1    | Restore `Shift+Enter` newline forwarding in `tmux` for Claude Code + PTY regression test           | `todo/intent-0435-tmux-shift-enter-extkeys.json`    | [PR #41](https://github.com/thomashan/dev-env/pull/41) (merged `2026-11-25T04:03:06Z`, commit `605559f`)              |
+| 2    | Enable `tmux` `focus-events` (`set -g focus-events on`) for Neovim `autoread`/`FocusGained` + test | `todo/intent-0435-tmux-focus-events-on.json`        | [PR #42](https://github.com/thomashan/dev-env/pull/42) (`MERGEABLE`/`CLEAN`, 7/7 CI, `ef1fbd76`)                      |
+| 3    | Install `xterm-ghostty` terminfo on Ubuntu WSL and Linux hosts                                     | `todo/intent-0464-ubuntu-wsl-ghostty-terminfo.json` | [PR #43](https://github.com/thomashan/dev-env/pull/43) (merged `2026-11-26T00:03:54Z`, commit `77a7910`, Bean `0464`) |
 
 ## Item 1: `Shift+Enter` Multiline Newline Regression & Automated PTY Test (macOS & Windows/WSL)
 
