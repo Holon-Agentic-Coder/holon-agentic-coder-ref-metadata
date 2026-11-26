@@ -8,7 +8,7 @@ tags:
   - harness
   - holon-flow
 created_at: 2026-11-26T22:10:00Z
-updated_at: 2026-11-26T22:10:00Z
+updated_at: 2026-11-26T23:25:08Z
 ---
 
 ## Problem
@@ -30,3 +30,10 @@ silently drops it, and the review loop judges the diff against that goal.
 
 Make the resume path take the invariant from the intent file (or re-stamp the checkpoint goal) before a checkpoint
 resume, and check the executor output for docstrings. Fix the 0491 flow's diff through the flow, not by hand.
+
+## Note (2026-11-26T23:25:08Z)
+
+The checkpoint holds the intent goal in two places: `context.intent_data.goal` and
+`context.stage_results.intent.payload.intent.goal`. A fix must refresh both (or derive one from the other) when a resume
+re-reads the intent file. Seen on the 2026-11-26 resume of the subset-fixture flow (PR #358), which merged with three
+docstrings and a `#:` comment because the resumed run used the pre-invariant goal.
