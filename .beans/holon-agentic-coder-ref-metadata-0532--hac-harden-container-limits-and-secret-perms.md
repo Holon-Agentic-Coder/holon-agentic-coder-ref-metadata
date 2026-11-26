@@ -10,7 +10,7 @@ tags:
   - docker
   - secrets
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-26T13:35:00Z
+updated_at: 2026-11-26T22:58:00Z
 ---
 
 ## Problem
@@ -65,3 +65,22 @@ them), git.py terminators (tests assert exact git args), Dockerfile pin (needs a
 parked 2026-11-27: Stage 4 halted before push (pre-push tests test_flow_repo_templates history and
 test_executor_run_salvage fail on the review-loop identity leak); PR #356 open. Resume from checkpoint (--checkpoint,
 --from-stage review) once the review identity fix merges.
+
+## Flow outcome (2026-11-27)
+
+PR [#356](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/356) merged into `main` (`d3c68686`): secret
+bundle files are unpacked owner-only (0o600 files, 0o700 directories) with a redacted warning on failure, in
+`agent_runner.py`. This bean stays `in-progress` for the remaining scope:
+
+- container resource limits (`--memory`, `--cpus`, `--pids-limit`), `--read-only` rootfs, and the read-only
+  `/tmp/intent.json` mount (touches `launcher/containers.py`; parked with 0390);
+- `local_llm` config modes (`0o777`/`0o644`; the container user needs them);
+- `git.py` `--` terminators (tests assert exact git args);
+- `Dockerfile` installer pin with SHA256 verification (needs a vendor checksum).
+
+Follow-ups:
+
+- (a) The resolver's uncommitted one-line change moving `os.fchmod` inside the `try` was dropped by the review stage;
+  tracked in bean 0551 (backup patch in the scratchpad). Decide in a follow-up flow.
+- (b) PR #356 added two docstrings to `agent_runner.py` against the self-explaining-code invariant; their removal is
+  recorded on bean 0153.

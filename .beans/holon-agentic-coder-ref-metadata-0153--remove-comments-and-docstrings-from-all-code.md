@@ -13,7 +13,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:42:56Z
-updated_at: 2026-11-25T22:58:00Z
+updated_at: 2026-11-26T22:58:00Z
 ---
 
 ## Problem
@@ -427,3 +427,8 @@ kept `todo/intent-0153-infra-helpers-self-doc.json`.
 > 2026-11-27: launched `holon-agentic-coder` self-explaining code gate slice (`self-explaining-code-gate`, intent
 > `todo/intent-0153-self-explaining-code-gate.json`; diff-scoped hygiene check, lint/pre-commit/CI wiring and prompt
 > invariant) via `claude-agent` / `claude-opus-5-5`, flow branch `flow-self-explaining-code-gate`.
+
+> 2026-11-27: PR [#356](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/356)
+> (`secret-bundle-private-files`, merged `d3c68686`) added two docstrings to
+> `apps/sandbox-executor/src/sandbox_executor/agent_runner.py` (the owner-only directory and file writers) against this
+> bean's self-explaining invariant. Remove them in the `holon-agentic-coder` clean-up slice.
