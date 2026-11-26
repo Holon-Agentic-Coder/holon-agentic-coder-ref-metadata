@@ -21,6 +21,7 @@ CATEGORIES = {
     "conflict-handling",
     "bookkeeping",
     "verification",
+    "post-merge",
 }
 
 
