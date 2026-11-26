@@ -57,6 +57,9 @@ Once confirmed merged, fetch and fast-forward `main` in the target repository. T
 `main` and clean: flows run in their own `flow-<slug>` worktree and never leave it elsewhere. If it is on another branch
 or has tracked changes, do not paper over it: report it, because something ran in the `main` worktree.
 
+Run `uv run python .agents/scripts/check_main_worktrees.py` before the fast-forward and again after it; a non-zero exit
+means something ran in a `main` worktree, so report it and record it in the failure ledger instead of continuing.
+
 ```bash
 # For holon-agentic-coder
 git -C apps/holon-agentic-coder/main fetch origin

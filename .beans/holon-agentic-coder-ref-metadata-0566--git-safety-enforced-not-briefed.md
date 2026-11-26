@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0566
 title: "Check: git safety rules enforced by tooling, not only by briefs"
-status: todo
+status: in-progress
 type: task
 priority: critical
 tags:
@@ -10,7 +10,7 @@ tags:
   - invariants
   - subagents
 created_at: 2026-11-26T23:09:56Z
-updated_at: 2026-11-26T23:09:56Z
+updated_at: 2026-11-26T23:16:46Z
 ---
 
 ## Instruction (maintainer, 2026-11-27 local)
@@ -40,3 +40,10 @@ put this in the brief text only; CF-0014, CF-0015 and CF-0010 show briefs alone 
   and passes on the cleaned state.
 - Self-explaining code invariant in anything written: no docstrings, no comments except `# why:`.
 - Target-repository work goes through `holon flow`; the intent never names harness paths or bean ids.
+
+## Resolution
+
+Done: `.agents/scripts/git_guard.py` as a project `PreToolUse` Bash hook (`.claude/settings.json`) and as the
+`.agents/bin/git` PATH wrapper, with tests for every blocked and allowed form. Remaining: `run_holon_flow.py` must
+prepend `.agents/bin` to the runner PATH; maintainer sets server-side branch protection (no force-push on flow
+branches); coordinator post-run stash/reflog audit.

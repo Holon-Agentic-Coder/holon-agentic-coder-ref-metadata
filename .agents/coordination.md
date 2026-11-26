@@ -188,3 +188,7 @@ corrections are new lines with `supersedes`. Fields: `id` (`CF-0001`...), `creat
 verification), `failure`, `my_part`, `cost`, `rule`, `refs`. Append an entry for every halt, park, wasted run, false
 readiness or wrong brief before moving on. Check every brief, readiness check and launch against its rules. Validate
 with `uv run python .agents/scripts/check_failure_ledger.py`.
+
+After every subagent returns, run `uv run python .agents/scripts/check_main_worktrees.py`; a non-zero exit is a
+coordinator failure to record in the ledger and report at once. The git-safety rules are enforced by a hook and a PATH
+wrapper (see [worktrees-and-git.md](worktrees-and-git.md#enforcement-not-briefs)).

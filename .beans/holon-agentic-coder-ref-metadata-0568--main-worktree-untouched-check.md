@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0568
 title: "Check: main worktrees are never edited, built or measured in"
-status: todo
+status: completed
 type: task
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - worktrees
   - invariants
 created_at: 2026-11-26T23:09:56Z
-updated_at: 2026-11-26T23:09:56Z
+updated_at: 2026-11-26T23:16:46Z
 ---
 
 ## Instruction (maintainer, 2026-11-27 local)
@@ -37,3 +37,10 @@ through." Parent: Bean 0562.
   and passes on the cleaned state.
 - Self-explaining code invariant in anything written: no docstrings, no comments except `# why:`.
 - Target-repository work goes through `holon flow`; the intent never names harness paths or bean ids.
+
+## Resolution
+
+Done: `check_main_worktrees.py` with tests; called by the post_pr_merge skill before and after the fast-forward and
+documented as a coordinator step after each subagent; the PreToolUse hook and wrapper refuse mutating git in the main
+worktrees except ff-only. Remaining: in-worktree pre-commit/post-checkout hooks inside the target repositories (a flow
+job).

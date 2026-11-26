@@ -1,0 +1,4 @@
+#!/bin/sh
+checker="$(git rev-parse --show-toplevel)/.agents/scripts/check_commit_trailers.py"
+[ -f "$checker" ] || exit 0
+exec python3 "$checker" --message-file "$1"
