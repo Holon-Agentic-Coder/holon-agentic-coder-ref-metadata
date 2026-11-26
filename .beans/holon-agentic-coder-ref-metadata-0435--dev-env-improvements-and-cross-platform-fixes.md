@@ -11,7 +11,7 @@ tags:
   - wsl
   - tmux
 created_at: 2026-11-24T23:12:00Z
-updated_at: 2026-11-25T04:49:00Z
+updated_at: 2026-11-26T03:47:00Z
 ---
 
 Generic ongoing umbrella bean for improvements, bug fixes, and cross-platform parity updates to the `dev-env` repository
@@ -20,11 +20,11 @@ Windows/WSL.
 
 ## Tracked Changes
 
-| Item | Summary                                                                                            | Intent File                                         | PR / Status                                                                                                           |
-| ---- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| 1    | Restore `Shift+Enter` newline forwarding in `tmux` for Claude Code + PTY regression test           | `todo/intent-0435-tmux-shift-enter-extkeys.json`    | [PR #41](https://github.com/thomashan/dev-env/pull/41) (merged `2026-11-25T04:03:06Z`, commit `605559f`)              |
-| 2    | Enable `tmux` `focus-events` (`set -g focus-events on`) for Neovim `autoread`/`FocusGained` + test | `todo/intent-0435-tmux-focus-events-on.json`        | [PR #42](https://github.com/thomashan/dev-env/pull/42) (`MERGEABLE`/`CLEAN`, 7/7 CI, `ef1fbd76`)                      |
-| 3    | Install `xterm-ghostty` terminfo on Ubuntu WSL and Linux hosts                                     | `todo/intent-0464-ubuntu-wsl-ghostty-terminfo.json` | [PR #43](https://github.com/thomashan/dev-env/pull/43) (merged `2026-11-26T00:03:54Z`, commit `77a7910`, Bean `0464`) |
+| Item | Summary                                                                                            | Intent File                                         | PR / Status                                                                                                                                                     |
+| ---- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | Restore `Shift+Enter` newline forwarding in `tmux` for Claude Code + PTY regression test           | `todo/intent-0435-tmux-shift-enter-extkeys.json`    | [PR #41](https://github.com/thomashan/dev-env/pull/41) (merged `2026-11-25T04:03:06Z`, commit `605559f`)                                                        |
+| 2    | Enable `tmux` `focus-events` (`set -g focus-events on`) for Neovim `autoread`/`FocusGained` + test | `todo/intent-0435-tmux-focus-events-on.json`        | [PR #42](https://github.com/thomashan/dev-env/pull/42) (merged `2026-11-26T03:46:21Z`, commit `649168b`, EV `94.83` predicted / `96.62` actual / `+1.79` delta) |
+| 3    | Install `xterm-ghostty` terminfo on Ubuntu WSL and Linux hosts                                     | `todo/intent-0464-ubuntu-wsl-ghostty-terminfo.json` | [PR #43](https://github.com/thomashan/dev-env/pull/43) (merged `2026-11-26T00:03:54Z`, commit `77a7910`, Bean `0464`)                                           |
 
 ## Item 1: `Shift+Enter` Multiline Newline Regression & Automated PTY Test (macOS & Windows/WSL)
 
@@ -69,5 +69,6 @@ Windows/WSL.
 
 ## Resolution
 
-Ongoing umbrella bean (`Item 1` merged in `dev-env#41` / `605559f`; `Item 2` ready to merge in `dev-env#42` /
-`ef1fbd76`, `MERGEABLE`/`CLEAN`, 7/7 CI `SUCCESS`).
+Ongoing umbrella bean (`Item 1` merged in `dev-env#41` / `605559f`; `Item 2` merged in `dev-env#42` / `649168b`, EV
+`94.83` predicted / `96.62` actual / `+1.79` delta; `Item 3` merged in `dev-env#43` / `77a7910`). Status remains
+`in-progress` because Bean `0470` (`warp-shift-enter-tmux-cj`) is still active under `0435`.

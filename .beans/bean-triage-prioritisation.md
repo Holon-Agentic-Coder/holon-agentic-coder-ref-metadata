@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-26 00:10:31 UTC
+**Last Updated:** 2026-11-26 03:48:31 UTC
 
 ## Executive Summary
 
@@ -16,10 +16,10 @@ the run. Concurrent flows on overlapping files forced repeated syncs and re-revi
 about 10M+ tokens), so flows that touch the same files still run one after another; only flows with disjoint touch sets
 run together.
 
-- **Total Tracked Beans**: 470 (excluding template)
-- **Completed**: 358 (76.2%)
+- **Total Tracked Beans**: 472 (excluding template)
+- **Completed**: 358 (75.8%)
 - **Scrapped / Superseded**: 10 (2.1%)
-- **Active**: 102 (21.7%), of which 11 are in progress, 89 are todo and 2 are draft
+- **Active**: 104 (22.0%), of which 11 are in progress, 91 are todo and 2 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1075,6 +1075,8 @@ logged beans `0389` and `0390` added to triage.
 | **P3**   | todo        | Medium |             M             | 0141   | "Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe"                                                                      | vmlx / Performance               | Ready (host-level vMLX tuning on Mac; not a target-repo change). Pairs with `0142`.                                                                                                                                                                   |
 | **P3**   | todo        |  Low   |            XS             | 0231   | "Exhausted-budget error string interpolates raw count while payload reports clamped 0"                                                     | Flow Engine / Cosmetic           | Queued behind 0376 (overlaps `flow/review/loop.py`). Cosmetic; bundle with a review-loop flow.                                                                                                                                                        |
 | **P3**   | todo        |  Low   |            XS             | 0269   | "Deferred nits from the holon-agentic-coder PR 158 review loop"                                                                            | Review Loop / Housekeeping       | Wait for 0376 (overlaps `docs/git_flow.md`) and 0197 (`calibration.py`). Item 2 obsolete; remaining: fold `parse_actual_metrics` exit-code logic onto `record_exit_code` and fix `docs/git_flow.md` checkpoint wording.                               |
+| **P1**   | todo        |  High  |             M             | 0474   | Flow integration of a plan branch into its execution branch refuses an append-only executions.jsonl merge as 'not a pure ledger append'    | Ledger / Observability           |                                                                                                                                                                                                                                                       |
+| **P1**   | todo        |  High  |             M             | 0473   | Flow push of a parent branch is rejected after a child PR merges into it (stale local parent, no fetch before push)                        | Ledger / Observability           |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        | Medium |             M             | 0472   | Flow runner does not refuse a second run on the same intent and does not reap its children after a halt                                    | General                          |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        | Medium |             M             | 0471   | Resolver container argv carries the Claude OAuth token, visible to every local user via ps and docker top                                  | General                          |                                                                                                                                                                                                                                                       |
 | **P1**   | in-progress | Medium |             M             | 0470   | Fix Warp Shift+Enter swallowed by tmux C-j binding                                                                                         | General                          |                                                                                                                                                                                                                                                       |
