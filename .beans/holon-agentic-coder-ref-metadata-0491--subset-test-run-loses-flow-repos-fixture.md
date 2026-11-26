@@ -8,7 +8,7 @@ tags:
   - tests
   - holon-agentic-coder
 created_at: 2026-11-26T07:10:00Z
-updated_at: 2026-11-26T07:10:00Z
+updated_at: 2026-11-26T10:57:00Z
 ---
 
 ## Problem
@@ -24,6 +24,15 @@ full unit selection. Logs: `todo/test-suite-audit-2026-11-26/serial-top20-rerun.
 
 Flows that re-measure only their in-scope files (every test-speed intent) hit false failures, and the order dependence
 it reveals (bean 0386) can hide a real one.
+
+## Further evidence (PR #332, bean 0511, scrapped as a duplicate)
+
+Batch 2 of bean 0405 (flow `tests-fewer-git-stage-pipeline`) hit the same defect with a different file set: when
+`apps/sandbox-executor/tests/flow/stages/test_replan_request.py` is listed after a parent-directory file that follows
+other `stages/` files (for example `stages/test_children.py flow/test_git_refs.py stages/test_replan_request.py`), its
+eight cases error with "fixture 'no_origin_reconcile' not found", serially and under xdist. Listing the `stages/` files
+contiguously, or a full-directory run, passes. The same order dependence (a fixture visible only to some argument
+orders) points to conftest discovery as the cause, so the fix should cover both fixtures.
 
 ## Next step
 

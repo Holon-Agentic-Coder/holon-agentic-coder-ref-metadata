@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0510
 title: "Main-push CI re-runs every workflow for merges whose tree the PR head already tested"
-status: todo
+status: in-progress
 type: task
 priority: medium
 tags:
@@ -33,3 +33,6 @@ macOS 445 s, survival 278 s). The PR heads had already passed the same jobs: 0 f
 Up to about 17 runner-minutes and the macOS timing-gate flake exposure per merge; no effect on the PR gate. Risk: an
 interaction between two merges is only caught on the next PR, so keep one scheduled full run per day. Related: 0403,
 0454, 0461, 0400.
+
+- In progress (2026-11-26): flow main-push-ci-skip-tested-tree (claude-agent, claude-opus-5-5), log
+  todo/flow-main-push-ci-skip-tested-tree.log.

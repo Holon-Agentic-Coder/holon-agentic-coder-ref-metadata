@@ -10,7 +10,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T09:55:00Z
-updated_at: 2026-11-26T09:40:00Z
+updated_at: 2026-11-26T10:57:00Z
 ---
 
 ## Why
@@ -244,3 +244,11 @@ Measured on main `412bed21` (report: `todo/test-suite-audit-2026-11-26.md`, raw 
 
 - 2026-11-26: batch 2 flow started for intent `tests-fewer-git-stage-pipeline` (flow-tests-fewer-git-stage-pipeline off
   origin/main, claude-agent / claude-opus-5-5, log todo/flow-tests-fewer-git-stage-pipeline.log).
+- 2026-11-26: batch 2 flow finished at the merge boundary: PR #332 (MERGEABLE/CLEAN, 3/3 APPROVED at iteration 2,
+  calibration in diff, final-head CI green). Measured saving missed the 40 percent floor: in-scope git processes 12,177
+  to 8,832 (-27.5 percent), summed time 125.8 s to 113.7 s (-9.6 percent, noisy; about -17 percent on quieter runs).
+  Shortfall reported on the PR; not closed by cutting tests. Bug bean 0511 logged (out-of-order pytest fixture).
+- 2026-11-26 (post-merge of PR #332, merged as `29fa09b3`): batch 2 delivered (test-only change; no production code).
+  In-scope git processes 12,177 to 8,832 (-27.5 percent); summed time 125.8 s to 113.7 s (-9.6 percent under load, about
+  -17 percent estimated on quieter runs). The 40 percent target is missed; the maintainer merged it as a partial result.
+  Per-job CI saving not measured yet. Install step skipped (test-only change). Bean stays in-progress.

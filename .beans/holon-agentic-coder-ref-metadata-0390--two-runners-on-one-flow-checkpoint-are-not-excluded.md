@@ -10,7 +10,7 @@ tags:
   - holon-agentic-coder
   - concurrency
 created_at: 2026-11-23T15:20:54Z
-updated_at: 2026-11-23T15:20:54Z
+updated_at: 2026-11-26T10:57:00Z
 ---
 
 ## Problem
@@ -62,3 +62,11 @@ reason in its log.
   plan's touch set. Checkpoint kept at
   apps/holon-agentic-coder/flow-single-runner-per-checkpoint/.holon/flow/checkpoint-single-runner-per-checkpoint.json
   (stage execute); resume with --checkpoint only once that flow merges or releases conftest.py.
+- 2026-11-26 (post-merge of PR #332): the blocker is released (flow `tests-fewer-git-stage-pipeline` merged; its
+  worktree and branches are removed). Still parked: open PR #334 (`I-1795665991-no-unneeded-full-review`) also touches
+  `apps/sandbox-executor/tests/flow/conftest.py`, so resume only after #334 merges or releases that file.
+- resumed 2026-11-26 10:55Z from checkpoint (stage execute, `--checkpoint`, claude-agent / claude-opus-5-5): PR #332
+  (the earlier blocker) has merged, but Stage 3 admission refused again on a touch-set overlap with open PR #334
+  (`I-1795665991-no-unneeded-full-review`, flow worktree `flow-no-unneeded-full-review`) on
+  `apps/sandbox-executor/tests/flow/conftest.py`. Parked again; checkpoint kept (stage execute), no runner live. Resume
+  with `--checkpoint` once PR #334 merges or releases conftest.py.

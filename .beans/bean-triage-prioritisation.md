@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-26 10:53:34 UTC
+**Last Updated:** 2026-11-26 10:56:54 UTC
 
 ## Executive Summary
 
@@ -16,10 +16,10 @@ the run. Concurrent flows on overlapping files forced repeated syncs and re-revi
 about 10M+ tokens), so flows that touch the same files still run one after another; only flows with disjoint touch sets
 run together.
 
-- **Total Tracked Beans**: 508 (excluding template)
-- **Completed**: 369 (72.6%)
-- **Scrapped / Superseded**: 13 (2.6%)
-- **Active**: 126 (24.8%), of which 16 are in progress, 108 are todo and 2 are draft
+- **Total Tracked Beans**: 510 (excluding template)
+- **Completed**: 369 (72.4%)
+- **Scrapped / Superseded**: 14 (2.7%)
+- **Active**: 127 (24.9%), of which 17 are in progress, 108 are todo and 2 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1071,7 +1071,8 @@ logged beans `0389` and `0390` added to triage.
 | **P3**   | todo        | Medium |             M             | 0141   | "Tune vmlx prefill/decode levers for both Qwen3.8 models, crash-safe"                                                                                         | vmlx / Performance               | Ready (host-level vMLX tuning on Mac; not a target-repo change). Pairs with `0142`.                                                                                                                                                                   |
 | **P3**   | todo        |  Low   |            XS             | 0231   | "Exhausted-budget error string interpolates raw count while payload reports clamped 0"                                                                        | Flow Engine / Cosmetic           | Queued behind 0376 (overlaps `flow/review/loop.py`). Cosmetic; bundle with a review-loop flow.                                                                                                                                                        |
 | **P3**   | todo        |  Low   |            XS             | 0269   | "Deferred nits from the holon-agentic-coder PR 158 review loop"                                                                                               | Review Loop / Housekeeping       | Wait for 0376 (overlaps `docs/git_flow.md`) and 0197 (`calibration.py`). Item 2 obsolete; remaining: fold `parse_actual_metrics` exit-code logic onto `record_exit_code` and fix `docs/git_flow.md` checkpoint wording.                               |
-| **P1**   | todo        | Medium |             M             | 0510   | Main-push CI re-runs every workflow for merges whose tree the PR head already tested                                                                          | Build / DevEx                    |                                                                                                                                                                                                                                                       |
+| **P1**   | todo        |  High  |             M             | 0512   | Push PR-merged events to wake the agent and automatically run post-pr-merge                                                                                   | Flow / Architecture              |                                                                                                                                                                                                                                                       |
+| **P1**   | in-progress | Medium |             M             | 0510   | Main-push CI re-runs every workflow for merges whose tree the PR head already tested                                                                          | Build / DevEx                    |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             L             | 0509   | Verify a performance flow CI saving on main after it merges and record it                                                                                     | Architecture / Quality           |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             L             | 0508   | Intent scope is hand-guessed: 3 of 6 flows changed files they did not list                                                                                    | Architecture / Quality           |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        | Medium |             M             | 0507   | install-holon fails its main-worktree pull when a concurrent fetch rewrites the shared FETCH_HEAD                                                             | General                          |                                                                                                                                                                                                                                                       |
