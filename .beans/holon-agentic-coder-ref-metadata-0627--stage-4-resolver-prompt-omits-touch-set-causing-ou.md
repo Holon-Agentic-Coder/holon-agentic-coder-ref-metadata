@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0627
 title: "Stage 4 resolver prompt omits Touch Set causing out-of-scope halts"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - resolver
   - holon-agentic-coder
 created_at: 2026-11-27T11:52:42Z
-updated_at: 2026-11-27T12:13:43Z
+updated_at: 2026-11-27T16:55:44Z
 ---
 
 ## Notes
@@ -61,5 +61,11 @@ updated_at: 2026-11-27T12:13:43Z
       the required external path instead of committing an out-of-set edit.
 - [ ] Hermetic unit tests verify Touch Set propagation, prompt rendering, and pre-commit refusal; `uv run pytest`
       passes.
+
+## Flow
+
+- **Launched (`2026-11-27`, `stage4-resolver-touch-set`):** Propagates optional `touch_set` from
+  `flow/review/resolver.py` to `entrypoint/review_loop.py` prompt and pre-commit guard with unit tests in
+  `tests/flow/review/test_resolver_touch_set.py` (`todo/intent-0627-stage4-resolver-touch-set.json`).
 
 ## Resolution
