@@ -8,7 +8,7 @@ tags:
   - self-explaining-code
   - holon-flow
 created_at: 2026-11-27T04:43:38Z
-updated_at: 2026-11-27T22:59:12Z
+updated_at: 2026-11-27T23:07:00Z
 ---
 
 ## Evidence (audit 2026-11-27T04:43Z, PRs #396, #393, #392, #390, #389, #385, #384, #382, #383, #380)
@@ -54,10 +54,19 @@ updated_at: 2026-11-27T22:59:12Z
   - **Calibration**: Included in PR diff
     (`plans/I-1795817852-hac-restore-why-tests/P-1795817878-ANA-G4N_calibration.md`), Predicted EV: `35.32`, Actual EV:
     `40.82`, `ΔEV`: `+5.50`
-- **Slice 3 (`hac-restore-why-src-batch1`):** Launched `todo/intent-0608-restore-why-src-batch1.json`
-  (`todo/intent-coverage-0608.json`) restoring or documenting all 22 unmatched removed reason entries across
-  `decomposition_rule.py`, `touch_set.py`, `worktree_head.py`, `entrypoint/agent_output_block.py`,
-  `entrypoint/execution_workspace.py`, and `launcher/sidecar_plan.py` (all within their 350-line budget).
+- **Slice 3 (`hac-restore-why-src-batch1`):** Completed 5-stage Holon flow (`antigravity-agent` / `gemini-4-neon`),
+  awaiting human maintainer merge (also updates `tests/test_self_doc_modules.py` to `allow_why=True`, unblocking Slice 4
+  on merge):
+  - **PR**: [PR #455](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/455) (`79ed5987`)
+  - **Branch**: `I-1795819107-hac-restore-why-src-batch1/P-1795819130-ANA-G4N/E-1795819432-ANA-G4N/_`
+  - **Worktree**: `apps/holon-agentic-coder/flow-hac-restore-why-src-batch1`
+  - **Checkpoint**:
+    `apps/holon-agentic-coder/flow-hac-restore-why-src-batch1/.holon/flow/checkpoint-hac-restore-why-src-batch1.json`
+  - **Consensus**: `APPROVED` (3/3 unanimous iter 1: Reviewer 1/2/3 APPROVED 0/0/0)
+  - **CI Status**: `success` (16/16 passed; `MERGEABLE`, `CLEAN`)
+  - **Calibration**: Included in PR diff
+    (`plans/I-1795819107-hac-restore-why-src-batch1/P-1795819130-ANA-G4N_calibration.md`), Predicted EV: `44.30`, Actual
+    EV: `51.83`, `ΔEV`: `+7.52`
 - **Slice 4 (`hac-restore-why-launcher-batch`):** Parked after Stage 3 halt (`CF-0081`, `a7a913e1`) because
   `apps/sandbox-executor/tests/test_self_doc_modules.py:221` on `main` calls `find_disallowed_comments()` with
   `allow_why=False`, failing tests on restored `# why:` comments in all 7 governed launcher modules (`empty_diff` after
