@@ -8,7 +8,7 @@ tags:
   - self-explaining-code
   - holon-flow
 created_at: 2026-11-27T04:43:38Z
-updated_at: 2026-11-27T22:43:05Z
+updated_at: 2026-11-27T22:59:12Z
 ---
 
 ## Evidence (audit 2026-11-27T04:43Z, PRs #396, #393, #392, #390, #389, #385, #384, #382, #383, #380)
@@ -58,10 +58,11 @@ updated_at: 2026-11-27T22:43:05Z
   (`todo/intent-coverage-0608.json`) restoring or documenting all 22 unmatched removed reason entries across
   `decomposition_rule.py`, `touch_set.py`, `worktree_head.py`, `entrypoint/agent_output_block.py`,
   `entrypoint/execution_workspace.py`, and `launcher/sidecar_plan.py` (all within their 350-line budget).
-- **Slice 4 (`hac-restore-why-launcher-batch`):** Launched `todo/intent-0608-restore-why-launcher-batch.json`
-  (`todo/intent-coverage-0608.json`) restoring or documenting all 14 unmatched removed reason entries across
-  `launcher/container_env.py`, `launcher/proxy_attach.py`, `launcher/proxy_paths.py`, `launcher/proxy_readiness.py`,
-  `launcher/role_dispatch.py`, `launcher/root_ca_openssl.py`, and `launcher/coherence.py` (all within 350 lines).
+- **Slice 4 (`hac-restore-why-launcher-batch`):** Parked after Stage 3 halt (`CF-0081`, `a7a913e1`) because
+  `apps/sandbox-executor/tests/test_self_doc_modules.py:221` on `main` calls `find_disallowed_comments()` with
+  `allow_why=False`, failing tests on restored `# why:` comments in all 7 governed launcher modules (`empty_diff` after
+  executor discarded edits). Worktree `apps/holon-agentic-coder/flow-hac-restore-why-launcher-batch` and checkpoint
+  preserved for resume/re-sync once `allow_why=True` lands on `main` (`PR #455` / follow-up).
 - **Slice 5 (`hac-restore-why-cli-entrypoint`):** Launched `todo/intent-0608-restore-why-cli-entrypoint.json`
   (`todo/intent-coverage-0608.json`) restoring or documenting all 10 unmatched removed reason entries across
   `claude_keychain.py`, `cli/commands/execute.py`, `cli/commands/review_fetch.py`, `config_env_secrets.py`,
