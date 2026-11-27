@@ -11,7 +11,7 @@ tags:
   - stage-5
   - holon-agentic-coder
 created_at: 2026-11-23T05:50:00Z
-updated_at: 2026-11-27T20:56:58Z
+updated_at: 2026-11-27T21:54:03Z
 ---
 
 ## Problem
@@ -53,4 +53,8 @@ To be fixed by the plan: the container entrypoint's git setup
 
 - **Slice 1 (`submodule-gitfile-repair`):** Launched `todo/intent-0368-submodule-gitfile-repair.json` covering
   `entrypoint/executor/repair.py`, `flow/stages/calibrate.py`, `tests/test_executor_repair.py`, and
-  `tests/flow/stages/test_calibrate.py`.
+  `tests/flow/stages/test_calibrate.py`. Opened
+  [PR #445](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/445), which halted in Stage 4 iter 1
+  (`touch_set_violation`: resolver added regression coverage to `tests/flow/stages/test_review_keeps_branch.py` for
+  `flow/stages/review.py`). Closed `#445` (`CF-0079`) and re-cut with expanded 7-file scope adding
+  `submodule_gitfile.py (new)`, `flow/stages/review.py`, and `tests/flow/stages/test_review_keeps_branch.py`.
