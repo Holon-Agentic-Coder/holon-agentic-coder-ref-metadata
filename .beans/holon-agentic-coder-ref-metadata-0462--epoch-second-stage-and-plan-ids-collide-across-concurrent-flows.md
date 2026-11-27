@@ -11,7 +11,7 @@ tags:
   - concurrency
   - holon-agentic-coder
 created_at: 2026-11-25T06:05:00Z
-updated_at: 2026-11-27T21:58:49Z
+updated_at: 2026-11-27T22:41:50Z
 ---
 
 # Epoch-second stage and plan IDs collide across concurrent flows
@@ -109,3 +109,13 @@ merged into `main` (`91c2afe`, 2026-11-26). Bean stays in-progress for the `REV-
   `apps/sandbox-executor/src/sandbox_executor/calibration/run.py`, and
   `apps/sandbox-executor/tests/test_unique_stage_ids.py` to add a per-flow disambiguator (`build_stage_disambiguator`)
   to Stage 5 `CAL-*` execution IDs.
+- **Completed (awaiting human merge)**:
+  - **PR**: [#452](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/452)
+  - **Branch**: `I-1795816829-hac-unique-calibrate-id/P-1795816868-ANA-G4N/E-1795817078-ANA-G4N/_`
+  - **Worktree**: `apps/holon-agentic-coder/flow-hac-unique-calibrate-id`
+  - **Checkpoint**:
+    `apps/holon-agentic-coder/flow-hac-unique-calibrate-id/.holon/flow/checkpoint-hac-unique-calibrate-id.json`
+  - **Consensus**: APPROVED (3/3 consensus)
+  - **CI Status**: 16/16 checks green (`MERGEABLE`, `CLEAN`)
+  - **Calibration**: Predicted EV `50.06`, Actual EV `58.84`, `ΔEV: +8.78`
+    (`plans/I-1795816829-hac-unique-calibrate-id/P-1795816868-ANA-G4N_calibration.md`, included in PR diff)
