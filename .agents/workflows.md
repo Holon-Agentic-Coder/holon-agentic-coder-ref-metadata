@@ -15,7 +15,14 @@ Filename pattern: `.beans/<prefix><id>--<slug>.md` e.g.
 
 - `<id>` is a strictly sequential 4-digit zero-padded integer (`0001` through `9999`), prefixed by `prefix`. Never use
   random base36 IDs (e.g. `k4t7`, `1lh8`). To determine the next ID, inspect existing files in `.beans/`, find the
-  highest integer ID, increment by 1, and zero-pad to 4 digits (e.g. `0034`).
+  highest integer ID, increment by 1, and zero-pad to 4 digits (e.g. `0034`). Agents never pick the ID by hand: run
+  `uv run python .agents/scripts/new_bean.py "<title>" [--type bug] [--priority high] [--tag x]`, which takes the
+  harness lock, allocates the next ID, writes the skeleton with a clock-read timestamp and prints the path.
+- **Committing harness files**: on the shared harness branch commit only through
+  `uv run python .agents/scripts/harness_commit.py "<message>" <paths...>`. It takes an exclusive lock
+  (`.git/harness-commit.lock`), waits for an empty index, formats Markdown with prettier, stages only the named files,
+  validates the staged blobs (beans, audits, failure ledger; never the working tree), commits, and pushes (pull --rebase
+  on rejection). It refuses `main`, directories and an empty path list, and unstages on every failure.
 - `<slug>` is the lowercased, hyphenated title, truncated to 50 characters with no trailing hyphen.
 - The ID comes from the **filename**; it is not a front matter field. The `# <full id>` line at the top of the front
   matter is a cosmetic comment.
@@ -31,9 +38,8 @@ Filename pattern: `.beans/<prefix><id>--<slug>.md` e.g.
 ### 1. Task Acquisition
 
 - Look at the `.beans/` folder. Select a task with status `todo`.
-- If no task matches the user's request, create a new bean: copy [`.beans/template.md`](../.beans/template.md) and
-  assign the next sequential 4-digit ID (`0001`..`9999`) by incrementing the highest existing integer ID in `.beans/`.
-  Do not use `beans create` if it generates random base36 IDs.
+- If no task matches the user's request, create a new bean with `.agents/scripts/new_bean.py` (see above), never by
+  copying the template and picking an ID by hand. Do not use `beans create` if it generates random base36 IDs.
 - Update the status field of the task file to `in-progress`.
 
 ## ❓ Questions Upfront, Then Unattended

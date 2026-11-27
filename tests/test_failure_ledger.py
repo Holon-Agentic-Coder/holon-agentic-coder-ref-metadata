@@ -38,6 +38,26 @@ def test_duplicate_ids_are_refused():
     assert any("duplicate id CF-0002" in e for e in m.check_lines(rows))
 
 
+def _real_lines():
+    return [x for x in m.LEDGER.read_text().splitlines() if x.strip()]
+
+
+def test_new_duplicate_id_still_fails_on_real_ledger():
+    row = json.loads(_real_lines()[0])
+    row.update(id="CF-0028", created_at="2026-11-27T04:40:00Z")
+    errors = m.check_lines(_real_lines() + [json.dumps(row)], now=datetime(2026, 11, 27, 5, 0, tzinfo=UTC))
+    assert any("duplicate id CF-0028" in e for e in errors)
+
+
+def test_next_row_continues_from_highest_id_on_real_ledger():
+    row = json.loads(_real_lines()[0])
+    row.update(id="CF-0039", created_at="2026-11-27T04:40:00Z")
+    now = datetime(2026, 11, 27, 5, 0, tzinfo=UTC)
+    assert m.check_lines(_real_lines() + [json.dumps(row)], now=now) == []
+    row.update(id="CF-0041")
+    assert any("not sequential" in e for e in m.check_lines(_real_lines() + [json.dumps(row)], now=now))
+
+
 def test_append_only():
     head = [_entry(1), _entry(2)]
     assert m.check_append_only(head + [_entry(3)], head) == []

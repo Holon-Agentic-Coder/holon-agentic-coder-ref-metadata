@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0579
 title: "Timestamp helper: bean touch and ledger append read the clock, agents type no time"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - timestamps
   - tooling
 created_at: 2026-11-26T23:51:36Z
-updated_at: 2026-11-26T23:51:36Z
+updated_at: 2026-11-27T04:36:00Z
 ---
 
 ## Evidence
@@ -36,3 +36,13 @@ updated_at: 2026-11-26T23:51:36Z
 
 Removes the cause of invented times and the refused commits they trigger; shorter briefs. Cost: one small script and its
 tests.
+
+## Resolution (partial)
+
+- Done: `.agents/scripts/stamp.py` with `now`, `touch <bean-id>`, `created <bean-id>` and
+  `ledger-append <category> --failure --my-part --cost --rule [--ref ...]` (next CF id = highest + 1, unknown category
+  refused, empty fields refused); tests in `tests/test_stamp.py`; hard rule in `AGENTS.md`, `.agents/rules.md` and the
+  `.agents/subagents.md` preamble point at it; `clock-read-utc-timestamps` registry entry lists the helper and three
+  tests.
+- Remaining: new-bean creation with next sequential id (a sibling `new_bean.py` is in progress), `audit-entry`
+  subcommand, and naming the helper in the pre-commit failure messages.

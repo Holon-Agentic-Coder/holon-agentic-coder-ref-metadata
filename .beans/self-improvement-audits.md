@@ -5,6 +5,38 @@ first.
 
 ## Entries
 
+### 2026-11-27T04:33:33Z — Fifth-Merge Audit
+
+- **Trigger:** fifth merge (`holon-agentic-coder` #371 `00:57:33Z`, #372 `01:13:53Z`, #373 `01:16:57Z`, #402
+  `04:26:41Z`, #401 `04:27:31Z`, #397 `04:28:20Z`, #395 `04:29:30Z`, #399 `04:30:21Z`, #400 `04:31:09Z`, #398
+  `04:32:02Z`: ten merges).
+- **Last merged pull requests at audit time:** `Holon-Agentic-Coder/holon-agentic-coder#398`; `holon-coherence#56`
+  unchanged.
+- **Coordinator ledger (CF-0031 to CF-0038):** repeats flagged high priority: `intent-scope` x3 more (CF-0031, 0033,
+  0034; seven since CF-0028), `readiness-check` x2 (CF-0032, 0035), `overlap-scheduling` (CF-0037, fifth row), and the
+  CF-0036 rule (short timeout, background) broken again as CF-0038 two hours later: bean 0605. Two rows share id
+  CF-0028: bean 0606.
+- **CI at merge (focus 1):** #395, #397, #399, #400, #401 show checks still pending at 04:32Z (merged 04:26Z to 04:31Z,
+  about 10 min after head push); #373 shows all complete now, its merge-time state is **not measured**. No failed check
+  on any of the ten; one review each. Bean 0602 (per-head CI block in the readiness report, merge-time snapshot).
+- **0153 slices (focus 2):** #401 rewrote both `# Lazy:` import comments as `# why:` and added 16 `# why:` lines, so
+  reasons are kept there; no deletion of reasons found. But each slice adds its own 93-line scanner test (token and
+  string checks, copy of the gate): beans 0601 (duplicate mechanism, no behaviour check beyond the suite). PR titles are
+  identical and truncated, bodies boilerplate with no counts; 85 percent of added lines are bookkeeping files:
+  bean 0603.
+- **Slot keeper (focus 3):** launches 13 (01:17Z) to 36 (03:32Z), mostly 0153; queue never held a harness bean. Slice
+  PRs are disjoint packages, all open slice PRs MERGEABLE, so conflict risk is low. 0590 (critical), 0596, 0592, 0579,
+  0581, 0600 all still todo: bean 0604. Log cadence 4 to 12 min against the 60 s rule (01:49 to 02:01, 03:00 to 03:11,
+  03:22 to 03:32): evidence for existing bean 0592; live fell to 3 at 04:08Z with five queued.
+- **Scribe and keeper as agents (focus 4):** one duplicate driver (CF-0037, `live=9` at 03:32Z) and a keeper restart at
+  03:41Z; cadence gaps above; evidence added to 0592 in this entry, not duplicated. Commits are not measured for stalls
+  (no per-commit scribe log).
+- **Install races (focus 5):** bean 0595 updated 04:31Z with evidence; no new bean.
+- **Timing:** slice PR lead time (create to merge) 21 to 54 min (#402 21 min, #395 54 min); per-step times other than
+  these are **not measured** (bean 0412 and 0594 cover).
+- **Examined, in order:** beans 0591 to 0600 not duplicated; 0597 covers N/A agent/model, not titles.
+- **Beans created:** `0601`, `0602`, `0603`, `0604`, `0605`, `0606`.
+
 ### 2026-11-27T00:57:23Z — Fifth-Merge Audit
 
 - **Trigger:** fifth merge (`holon-agentic-coder` #361 `00:05:38Z`, #362 `00:28:06Z`, #366 `00:29:24Z`, #364

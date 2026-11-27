@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0592
 title: "Slot keeper: a script with event triggers and a recorded reason for every unlaunched queue item"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - scheduling
   - slots
 created_at: 2026-11-27T00:57:23Z
-updated_at: 2026-11-27T01:07:06Z
+updated_at: 2026-11-27T04:37:17Z
 ---
 
 ## Evidence
@@ -47,14 +47,22 @@ Slots are refilled within 60 s of freeing, and every pass states what it did and
 
 ## Acceptance
 
-- [ ] Keeper runs as a script; a pass with a held item logs the reason; `launched` lists only this pass.
-- [ ] Test: live 4, cap 8, six queued with two disjoint sets: launches enough to reach 8 or until all remaining overlap,
+- [x] Keeper runs as a script; a pass with a held item logs the reason; `launched` lists only this pass.
+- [x] Test: live 4, cap 8, six queued with two disjoint sets: launches enough to reach 8 or until all remaining overlap,
       and logs reason for each held item.
-- [ ] Test: no pass for 120 s triggers the heartbeat notice.
-- [ ] Event trigger: a flow reaching calibration triggers a pass within 10 s.
-- [ ] Code has no docstrings and no comments except `# why:`; run with `uv run pytest`.
+- [x] Test: no pass for 120 s triggers the heartbeat notice.
+- [x] Event trigger: a flow reaching calibration triggers a pass within 10 s.
+- [x] Code has no docstrings and no comments except `# why:`; run with `uv run pytest`.
 
 ## Notes
 
 - Extends beans 0545 and 0576; CF-0024 and CF-0027. Idle time per slot is still not measured; the log's live count per
   pass becomes the measurement.
+
+## Progress
+
+2026-11-27T04:37:17Z: `.agents/scripts/slot_keeper.py` (tests: `tests/test_slot_keeper.py`, docs and launchd example:
+`.agents/slot-keeper.md`). One pass per invocation, `--loop-seconds` adds the 60 s timer and a trigger within 5 s of a
+flow state-file change, `--check-heartbeat` raises the 120 s notice. Remaining: install the launchd job and switch the
+coordinator to the queue file (maintainer step); PR-merge and park triggers beyond the state-file change; the Stage 5
+cap exemption is undecided; keeper restart relies on launchd `KeepAlive`.

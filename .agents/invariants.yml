@@ -14,6 +14,7 @@ invariants:
     status: "partial"
     open_beans:
       - "0558"
+      - "0153"
     runs_at:
       - "pre-commit"
       - "ci"
@@ -36,6 +37,10 @@ invariants:
       - "script:.agents/scripts/check_beans.py"
       - "script:.agents/scripts/check_failure_ledger.py"
       - "script:.agents/scripts/timestamps.py"
+      - "script:.agents/scripts/stamp.py"
+      - "test:tests/test_stamp.py::test_ledger_append_takes_next_id_and_passes_the_ledger_checker"
+      - "test:tests/test_stamp.py::test_unknown_category_is_refused_and_ledger_untouched"
+      - "test:tests/test_stamp.py::test_touch_command_updates_only_updated_at"
       - "hook:.agents/hooks/pre-commit"
       - "workflow:.github/workflows/test-hygiene.yml#hygiene"
       - "test:tests/test_check_beans.py::test_bean_0550_invented_times_fail_before_cleanup"
@@ -273,6 +278,22 @@ invariants:
       - "test:tests/test_invariant_registry.py::test_every_hard_rule_maps_to_a_registry_entry"
       - "test:tests/test_invariant_registry.py::test_every_referenced_check_exists"
       - "test:tests/test_invariant_registry.py::test_missing_and_partial_entries_name_an_open_bean"
+  - id: "single-commit-and-bean-id-path"
+    agents_rules:
+      - "Single commit and bean-id path"
+    status: "partial"
+    open_beans:
+      - "0581"
+    runs_at:
+      - "pre-commit"
+      - "on-demand"
+    checks:
+      - "script:.agents/scripts/harness_commit.py"
+      - "script:.agents/scripts/new_bean.py"
+      - "script:.agents/scripts/staged_validation.py"
+      - "hook:.agents/hooks/pre-commit"
+      - "test:tests/test_harness_commit.py::test_bad_staged_ledger_row_is_refused_and_unstaged"
+      - "test:tests/test_harness_commit.py::test_concurrent_allocations_across_processes_get_distinct_ids"
   - id: "hooks-installed"
     agents_rules: []
     status: "partial"

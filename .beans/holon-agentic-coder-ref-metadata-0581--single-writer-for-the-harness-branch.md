@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0581
 title: "Single writer for the shared harness branch: per-agent paths or a serialised commit step"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - git
   - coordination
 created_at: 2026-11-26T23:51:36Z
-updated_at: 2026-11-26T23:51:36Z
+updated_at: 2026-11-27T04:37:04Z
 ---
 
 ## Evidence
@@ -32,3 +32,14 @@ updated_at: 2026-11-26T23:51:36Z
 ## Expected gain
 
 Ends cross-agent sweeps and the temptation to bypass hooks. Cost: one script, tests. Complements 0577 and 0578.
+
+## Resolution (partial, 2026-11-27T04:37:04Z)
+
+Built `.agents/scripts/harness_commit.py` (lock under the git common dir via `harness_lock.py`, waits for an empty
+index, prettier, staged-blob validation, commit, push with pull --rebase, unstage and release on every exit path),
+`new_bean.py` (same lock, next sequential id, clock-read skeleton) and `staged_validation.py` (bean, audit and
+failure-ledger checks over `git show :path`; implements the 0577 staged-blob part). The pre-commit hook now runs
+`staged_validation.py` and prettier on staged Markdown only, so another agent's bad uncommitted file no longer blocks a
+commit. Tests: `tests/test_harness_commit.py`. Remaining: nothing forces agents onto the script (a plain `git commit`
+from the REPL still works); needs the git guard to cover REPL commits (0577 note) before this is enforced; CI per-commit
+replay (0577) not done.

@@ -36,12 +36,15 @@ Every subagent brief includes this block verbatim. It overrides any conflicting 
 - Never `--no-verify`. If a pre-commit hook fails on a file you did not change, run `npx prettier --write` on that file
   only; if the hook still fails, stop and report.
 - Stage by explicit path only (`git add <path> ...`). Never `git add -A`, `git add .`, or a directory path that holds
-  other agents' files.
+  other agents' files. On the shared harness branch do not stage or commit by hand: commit through
+  `uv run python .agents/scripts/harness_commit.py "<message>" <paths...>` and create beans through
+  `uv run python .agents/scripts/new_bean.py "<title>"`.
 - Never check out, edit, build or measure in a `main` worktree.
 - Never force-push or rebase a flow branch, and never push to `main`.
 - No co-author or attribution trailers on commits unless the user's own instructions require them.
 - Clock-read UTC timestamps only: read every timestamp you write from `date -u +%Y-%m-%dT%H:%M:%SZ` at write time; never
-  type, estimate, round or copy one, and never label a local time `Z`.
+  type, estimate, round or copy one, and never label a local time `Z`. Use `uv run python .agents/scripts/stamp.py`
+  (`now`, `touch <bean-id>`, `created <bean-id>`, `ledger-append`) instead of typing a time.
 
 ---
 
