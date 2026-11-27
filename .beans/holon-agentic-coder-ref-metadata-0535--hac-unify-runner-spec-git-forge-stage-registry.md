@@ -9,7 +9,7 @@ tags:
   - extensibility
   - architecture
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T17:06:29Z
+updated_at: 2026-11-27T18:02:09Z
 ---
 
 ## Problem
@@ -61,4 +61,9 @@ modules.
   `Predicted EV 54.48 / Actual EV 74.14 / ΔEV +19.66`). Waiting for human maintainer merge.
 - **Slice 2 (`2026-11-27`, `hac-runnerspec-single-source`):** Launched covering AC #1 (`RunnerSpec` single-source
   mounts, defaults, and model-discovery hooks across `runners/*.py`, `agent_defaults.py`, `launcher/mounts.py`, tested
-  in `tests/test_agent_defaults.py` and `tests/test_runner_specs.py`, `todo/intent-coverage-0535.json`).
+  in `tests/test_agent_defaults.py` and `tests/test_runner_specs.py`, `todo/intent-coverage-0535.json`). Opened
+  [PR #441](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/441), which halted at Stage 4 iter 1
+  (`touch_set_violation`: resolver delegated `launcher/antigravity_mounts.py` and `launcher/pi_mounts.py` to
+  `runners/`). Closed `#441` (`CF-0077`) and re-cut Slice 2 with the expanded 15-file scope including
+  `launcher/antigravity_mounts.py`, `launcher/pi_mounts.py`, `tests/test_antigravity_mounts.py`, and
+  `tests/test_pi_mounts.py`.
