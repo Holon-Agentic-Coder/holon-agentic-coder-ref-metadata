@@ -80,7 +80,12 @@ interactive session remains responsive:
     checkpoint, note on its bean
     `parked <date>: blocked by <PR/flow> on <files>; resume from checkpoint when <condition>`, and end its subagent.
   - **Backfill at once** with the next highest-priority ready bean whose touch set is disjoint from every live and
-    parked flow.
+    parked flow — only when no resumable or recoverable existing bean can take the slot.
+  - **Finish more than you start (maintainer, 2026-11-27)**: always prioritise resuming and finishing existing
+    in-flight, parked, or halted beans and PRs ahead of starting new beans. Never start a new bean while any existing
+    in-flight, parked, or halted flow can be resumed, unblocked, or re-scoped into an open slot. When a Holon flow
+    breaks mid-lifecycle, manually kick off its resume (or re-cut/re-scope when blocked by a touch-set omission or stale
+    branch) until all 5 stages complete, until Bean `0630` makes the flow engine self-recover automatically.
   - **Resume from checkpoint**: once the blocker merges or releases the files, resume the parked flow with
     `--checkpoint` (never a fresh launch, which re-runs intent and plan and leaves duplicate `I-*` branches). Resuming
     takes the next free slot ahead of new beans.

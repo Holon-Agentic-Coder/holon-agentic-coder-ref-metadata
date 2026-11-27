@@ -324,3 +324,12 @@ invariants:
     checks:
       - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_review_environment_child_suite_contract.py::test_canary_tests_pass_under_the_environment_the_review_loop_hands_its_pre_push_suite"
       - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_review_environment_child_suite_contract.py::test_canary_tests_fail_when_the_review_identity_leaks_into_that_environment"
+  - id: "finish-more-than-you-start"
+    agents_rules:
+      - "Finish more than you start"
+    status: "missing"
+    open_beans:
+      - "0630"
+    runs_at:
+      - "on-demand"
+    checks: []

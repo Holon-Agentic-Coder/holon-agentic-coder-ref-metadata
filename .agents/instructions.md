@@ -19,6 +19,9 @@ system safety, and clean documentation. Follow these core guidelines in every se
 5. **Avoid Absolute Paths**: Never use absolute file paths in code references, comments, tasks, or documentation. Always
    use paths relative to the project root (e.g. `.agents/instructions.md`) to ensure portability across developer
    workspaces.
+6. **Finish More Than You Start**: Always prioritise resuming, unblocking, and finishing existing in-flight, parked, or
+   halted beans ahead of starting new work; when a flow breaks mid-stage, manually kick off its resume until all 5
+   stages complete (see [coordination.md](coordination.md)).
 
 ---
 
