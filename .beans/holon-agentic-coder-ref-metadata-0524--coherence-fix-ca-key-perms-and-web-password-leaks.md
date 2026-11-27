@@ -10,7 +10,7 @@ tags:
   - ca
   - secrets
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T07:49:11Z
+updated_at: 2026-11-27T07:52:54Z
 ---
 
 ## Problem
@@ -58,3 +58,11 @@ persisting unscrubbed LLM payloads inside the world-writable cache directory.
   `tests/commands/test_web_token.py`; resume from checkpoint
   `apps/holon-coherence/flow-coherence-cache-scrub-endpoints/.holon/flow/checkpoint-coherence-cache-scrub-endpoints.json`
   when PR #63 merges.
+
+## Progress (`2026-11-27`, Coherence PR `#63`)
+
+- Slice 1 (`coherence-ca-key-perms`): merged via
+  [holon-coherence#63](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/63) (`2a1a8562`). Worktree and flow
+  branches pruned.
+- Bean stays `in-progress` for slice 2 (`coherence-cache-scrub-endpoints`, now unblocked and ready to resume from
+  checkpoint).

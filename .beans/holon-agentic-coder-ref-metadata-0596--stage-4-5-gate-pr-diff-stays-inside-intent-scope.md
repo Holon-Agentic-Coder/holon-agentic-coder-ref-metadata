@@ -1,7 +1,8 @@
 ---
 # holon-agentic-coder-ref-metadata-0596
 title: "Stage 4/5 gate: the PR diff must stay inside the intent scope"
-status: todo
+status: completed
+type: task
 type: task
 priority: high
 tags:
@@ -10,7 +11,7 @@ tags:
   - invariants
   - holon-agentic-coder
 created_at: 2026-11-27T00:57:56Z
-updated_at: 2026-11-27T07:43:42Z
+updated_at: 2026-11-27T07:52:54Z
 ---
 
 ## Evidence
@@ -60,3 +61,10 @@ re-plan.
   `touch_set_guard.py`, `test_diff_stays_in_intent_scope.py`) and `checkpoint-diff-stays-in-intent-scope.json`. Resume
   from checkpoint with `HOLON_TURN_STALL_SECONDS=600` once `origin/main` merges a `wisdom.py` split (`#403`,
   `#406`–`#409`, or `#411`) and `origin/main` is merged into PR `#410`.
+
+## Resolution
+
+Resolved via [PR #410](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/410) (`f0d8cf5f`, merged
+`2026-11-27T07:39:41Z`): landed `resolver.py`, `stage5.py`, `touch_set_guard.py`, and
+`tests/flow/test_diff_stays_in_intent_scope.py` enforcing touch-set scope across resolver commits and Stage 5
+calibration/readiness. (Note: merged with `reviews=[]`; follow-up invariant/audit tracking under `0573`/`0617`.)

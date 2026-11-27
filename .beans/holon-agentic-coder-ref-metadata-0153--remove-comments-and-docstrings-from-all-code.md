@@ -677,3 +677,14 @@ Slice `self-doc-src-i` (10 sandbox-executor flow modules plus `tests/test_self_d
 >   (`E-1795753013`: `uv run task test` 9552 passed, 7 skipped; `uv run task lint` passed).
 >
 > All 9 flow worktrees and their local/remote branches pruned; bean stays `in-progress` for the remaining slices.
+
+## Progress (`2026-11-27`, PRs `#406`, `#407`, `#409`)
+
+- `self-doc-tests-48` ([PR #406](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/406), `5fc593c7`)
+  merged and pruned.
+- `self-doc-tests-51` ([PR #407](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/407), `f2b75215`)
+  merged and pruned.
+- `self-doc-tests-45` ([PR #409](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/409), `8241e56c`)
+  merged and pruned.
+- Bean stays `in-progress` while [PR #408](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/408)
+  (`self-doc-tests-49`) resolves its hygiene/calibration failure.

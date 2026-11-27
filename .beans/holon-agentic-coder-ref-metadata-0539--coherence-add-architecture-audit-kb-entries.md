@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0539
 title: "Add 2026-11 architecture audit patterns and failure modes to holon-coherence KB"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - architecture
   - audit
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T07:48:45Z
+updated_at: 2026-11-27T07:52:54Z
 ---
 
 ## Problem
@@ -303,3 +303,9 @@ Run `holon flow` targeting `holon-coherence` to add the 7 curated, target-native
 
 - Target repository: `holon-coherence` (must execute via `holon flow`; never hand-edit `apps/holon-coherence/main`).
 - Source: 2026-11 ecosystem architecture & source-code review (`docs/ecosystem-audit-report-2026-11.md`).
+
+## Resolution
+
+Resolved via [holon-coherence#62](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/62) (`85af07d2`, merged
+`2026-11-27T07:47:33Z`): landed all 7 schema-valid KB entries under `holon-knowledge/kb/{patterns,failure_modes}/` via
+`holon flow`.

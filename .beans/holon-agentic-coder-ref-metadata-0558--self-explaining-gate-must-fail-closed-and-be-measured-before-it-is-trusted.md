@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0558
 title: "Self-explaining gate (#357): fail closed in CI, cover ledger text, and report per-PR counts"
-status: in-progress
+status: completed
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - self-explaining-code
   - holon-agentic-coder
 created_at: 2026-11-26T22:59:59Z
-updated_at: 2026-11-27T07:43:42Z
+updated_at: 2026-11-27T07:52:54Z
 ---
 
 ## Evidence
@@ -108,3 +108,11 @@ Delivered via [PR #378](https://github.com/Holon-Agentic-Coder/holon-agentic-cod
 Remaining (bean stays `in-progress`):
 
 1. Markdown ledger/plan coverage verification (gap 4).
+
+## Resolution
+
+Completed via [PR #364](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/364) (`f8adf665`),
+[PR #375](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/375) (`c1968628`),
+[PR #378](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/378) (`a59ef0d6`), and
+[PR #411](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/411) (`0d8d1249`, merged
+`2026-11-27T07:40:19Z` closing Gap 4 Markdown/JSON/JSONL exemption coverage including `plans/` and `executions/`).

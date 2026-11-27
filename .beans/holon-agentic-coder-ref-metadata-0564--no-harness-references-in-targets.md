@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0564
 title: "Check: target repositories and intents never reference harness paths or bean ids"
-status: in-progress
+status: completed
 type: task
 priority: critical
 tags:
@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-11-26T23:09:56Z
-updated_at: 2026-11-27T07:47:29Z
+updated_at: 2026-11-27T07:52:54Z
 ---
 
 ## Instruction (maintainer, 2026-11-27 local)
@@ -55,3 +55,10 @@ Nothing in a target repository (code, docs, ledgers, KB, PR bodies) and no inten
   - Bean stays in-progress for the holon-coherence part.
   - Coherence restart: stale Coherence plan deleted after #57 merged; ready to restart from current main
     (`todo/intent-0564-coherence-no-harness-refs.json`).
+
+## Resolution
+
+Completed across both repositories:
+[holon-agentic-coder#363](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/363) (`cde6ea40`) and
+[holon-coherence#58](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/58) (`8cb6198b`, merged
+`2026-11-27T07:45:52Z`).

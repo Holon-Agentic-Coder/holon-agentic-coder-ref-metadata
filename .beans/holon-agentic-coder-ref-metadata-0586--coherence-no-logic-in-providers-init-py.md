@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0586
 title: "Move 7 functions out of holon_coherence/providers/__init__.py and enforce no-logic __init__.py"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - hygiene
   - refactor
 created_at: 2026-11-27T00:33:33Z
-updated_at: 2026-11-27T07:47:29Z
+updated_at: 2026-11-27T07:52:54Z
 ---
 
 ## Problem
@@ -47,3 +47,9 @@ import-time side effects.
 - Coordinate with Bean `0527` (`providers/__init__.py` detection unification) and mirror Bean `0379` from
   `holon-agentic-coder`.
 - Source: 2026-11-27 architecture & source-code review (`docs/ecosystem-audit-report-2026-11.md`).
+
+## Resolution
+
+Resolved via [holon-coherence#60](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/60) (`13a49f67`, merged
+`2026-11-27T07:46:29Z`): extracted the 7 registry/detection functions out of `providers/__init__.py` and enforced
+no-logic `__init__.py` via automated AST tests.

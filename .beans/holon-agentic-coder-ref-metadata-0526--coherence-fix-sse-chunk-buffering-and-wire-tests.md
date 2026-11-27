@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0526
 title: "Fix SSE chunk fragmentation bugs and add real mitmproxy tflow wire-level tests"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - proxy
   - testing
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T07:49:11Z
+updated_at: 2026-11-27T07:52:54Z
 ---
 
 ## Problem
@@ -54,3 +54,9 @@ integration tests still hit external hosts and mix legacy `unittest.TestCase`.
 
 - Target repository: `holon-coherence` (evaluated at `HEAD 18084f3`).
 - Source: 2026-11 ecosystem architecture & source-code review (`docs/ecosystem-audit-report-2026-11.md`).
+
+## Resolution
+
+Resolved via [holon-coherence#64](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/64) (`b466872f`, merged
+`2026-11-27T07:48:09Z`): added SSE incomplete-line carry buffering, incremental UTF-8 decoding in `sse_tap.py`, real
+`mitmproxy.test.tflow` / local `HTTPServer` wire tests, offline integration tests, and clean pytest assertions.

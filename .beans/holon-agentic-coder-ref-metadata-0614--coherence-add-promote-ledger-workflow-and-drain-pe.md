@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0614
 title: "Coherence: add Promote Ledger workflow and drain pending ledger fragments"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - ci
   - ledger
 created_at: 2026-11-27T05:26:26Z
-updated_at: 2026-11-27T07:49:11Z
+updated_at: 2026-11-27T07:52:54Z
 ---
 
 ## Notes
@@ -30,3 +30,6 @@ updated_at: 2026-11-27T07:49:11Z
   absent) and `holon-knowledge/ledger/pending/` is drained cleanly.
 
 ## Resolution
+
+Resolved via [holon-coherence#65](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/65) (`ce39bf34`, merged
+`2026-11-27T07:48:26Z`): added `promote-ledger.yml` workflow and drained pending ledger fragments.

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0587
 title: "Introduce a pluggable ReductionPass Protocol and registry for holon-coherence token reduction"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - architecture
   - token-reduction
 created_at: 2026-11-27T00:33:33Z
-updated_at: 2026-11-27T07:48:45Z
+updated_at: 2026-11-27T07:52:54Z
 ---
 
 ## Problem
@@ -47,3 +47,9 @@ A/B-benchmarking individual reduction strategies requires editing core step/clea
 - Target repository: `holon-coherence` (evaluated at `HEAD 18084f3`).
 - Coordinate with Bean `0527` (`ProviderFormat` seam) and Bean `0528` (single-copy hot path).
 - Source: 2026-11-27 architecture & source-code review (`docs/ecosystem-audit-report-2026-11.md`).
+
+## Resolution
+
+Resolved via [holon-coherence#61](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/61) (`6dcb832c`, merged
+`2026-11-27T07:46:47Z`): introduced `ReductionPass` `Protocol` and deterministic registry for token reduction passes
+without provider branching in `clean_payload.py`.
