@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-11-26T23:09:56Z
-updated_at: 2026-11-27T05:20:22Z
+updated_at: 2026-11-27T06:15:08Z
 ---
 
 ## Instruction (maintainer, 2026-11-27 local)
@@ -65,3 +65,8 @@ fragments). No fourth ledger; existing rows are never edited or deleted.
   lands.
 - **Coherence restart:** stale Coherence plan deleted after #57 merged; ready to restart from current main
   (`todo/intent-0563-coherence-ledger-invariants.json`).
+- **parked 2026-11-27 (`flow-coherence-ledger-invariants`):** Stage 2 plan expanded into
+  `tests/test_scripts_self_doc.py` (outside `intent.scope`), causing a Stage 3 admission overlap refusal with open
+  Coherence PR `#58` (`coherence-no-harness-refs`). Preserved worktree
+  `apps/holon-coherence/flow-coherence-ledger-invariants` and `checkpoint-coherence-ledger-invariants.json`. Resume from
+  checkpoint once PR `#58` merges (ahead of `0567`, which also touches `tests/test_scripts_self_doc.py`).
