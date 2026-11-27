@@ -9,7 +9,7 @@ tags:
   - resilience
   - ci
 created_at: 2026-11-27T05:26:26Z
-updated_at: 2026-11-27T17:58:33Z
+updated_at: 2026-11-27T21:12:42Z
 ---
 
 ## Notes
@@ -30,10 +30,17 @@ updated_at: 2026-11-27T17:58:33Z
   silent `except Exception: pass` remain in `agent_runner.py:415`, `flow/pipeline.py:393`,
   `launcher/containers.py:209`). Keeping `status: in-progress` for the remaining slice to narrow non-boundary
   `except Exception` catches to typed exceptions.
-- **Slice 2 (`hac-narrow-broad-excepts`)**: Launched `todo/intent-0616-hac-narrow-broad-excepts.json`
-  (`todo/intent-coverage-0616.json`) to narrow non-boundary `except Exception` handlers in `attribution_check.py`,
-  `calibration/physics.py`, `knowledge/promotion_rules.py`, `knowledge/stats.py`, and `knowledge/consult.py` to typed
-  exceptions and tighten `tests/test_broad_except_ratchet.py`.
+- **Slice 2 (`hac-narrow-broad-excepts`)**:
+  [PR #444](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/444) completed all 5 stages and is
+  `MERGEABLE` / `CLEAN`, awaiting human maintainer merge.
+  - Branch: `I-1795802426-hac-narrow-broad-excepts/P-1795802448-ANA-G4N/E-1795812780-ANA-G4N/_`
+  - Worktree: `apps/holon-agentic-coder/flow-hac-narrow-broad-excepts`
+  - Checkpoint:
+    `apps/holon-agentic-coder/flow-hac-narrow-broad-excepts/.holon/flow/checkpoint-hac-narrow-broad-excepts.json`
+  - Consensus: `APPROVED` (3/3 reviewers: 0/0/0)
+  - CI: 16/16 checks passed (`0 cancelled, 0 failing, 16 successful, 0 skipped, 0 pending`)
+  - Calibration: `plans/I-1795802426-hac-narrow-broad-excepts/P-1795802448-ANA-G4N_calibration.md` included in PR diff
+    (Predicted EV `41.09`, Actual EV `50.45`, `ΔEV: +9.36`)
 
 ## Acceptance Criteria
 
