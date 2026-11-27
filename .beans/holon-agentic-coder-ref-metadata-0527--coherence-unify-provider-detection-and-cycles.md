@@ -10,7 +10,7 @@ tags:
   - extensibility
   - refactor
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T12:13:43Z
+updated_at: 2026-11-27T15:40:36Z
 ---
 
 ## Problem
@@ -70,3 +70,14 @@ multiple modules, while circular imports connect `parsers/` ↔ `providers/` and
   `tests/test_import_cycle_ratchet.py` (`#76`) currently inspects subpackages only (extending to root modules tracked in
   Bean `0632`). `0527` slice 1 (`coherence-provider-format-seam`) hit `CF-0061` on pre-`#77` branch `334357d` and was
   re-cut onto `4a02926b`.
+
+## Flow
+
+- **Progress (`2026-11-27`):** [PR #84](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/84)
+  (`coherence-provider-format-seam`, merge commit `71d46b44`, `Predicted EV 2.63 / Actual EV 5.70 / ΔEV +3.07`) merged
+  into `main`, extracting `src/holon_coherence/providers/_common.py`, adding structural `ProviderFormat.matches()` in
+  `providers/base.py`, unifying detection/lookup across `providers/registry.py`, `proxy/addon.py`, and
+  `proxy/routing.py`, deriving `KNOWN_PROVIDERS` dynamically in `parsers/sse.py`, breaking the `parsers/` ↔ `providers/`
+  import cycle, and adding tests in `tests/providers/test_provider_format_seam.py`. Bean remains `in-progress` because
+  remaining import cycles (`commands/docker_ops.py` ↔ `commands/endpoints.py`, `payload_cleaner` ↔ `providers/`,
+  `commands` ↔ `container`, `hybrid_cache` ↔ `proxy`) and `in_container` consolidation remain open.

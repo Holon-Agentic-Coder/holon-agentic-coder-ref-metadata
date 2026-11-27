@@ -10,7 +10,7 @@ tags:
   - clean-code
   - refactor
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T12:25:54Z
+updated_at: 2026-11-27T15:40:36Z
 ---
 
 ## Problem
@@ -87,3 +87,10 @@ passes host paths into containers.
   `src/holon_coherence/proxy/steps/sse_tap.py`, and `finish_reason` parity plus split-chunk tests in
   `tests/providers/test_translation.py` and `tests/test_sse_wire_streaming.py`. Bean remains `in-progress` because
   `coherence-metrics-unification` is still running.
+- **Progress (`2026-11-27`):** [PR #85](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/85)
+  (`coherence-metrics-unification`, merge commit `4d2cfcf8`, `Predicted EV -1.59 / Actual EV 0.11 / ΔEV +1.70`) merged
+  into `main`, extracting shared aggregation helpers into `src/holon_coherence/metrics_math.py`, unifying live
+  `CumulativeMetrics` (`src/holon_coherence/proxy/metrics.py`) and offline `OfflineMetricsAccumulator`
+  (`src/holon_coherence/metrics/aggregation.py`), removing the duplicate `ttft` guard in `proxy/metrics.py`, and adding
+  parity tests in `tests/proxy/test_metrics.py` and `tests/test_metrics_aggregation.py`. Bean remains `in-progress`
+  because remaining provider `copy.deepcopy` call sites remain.
