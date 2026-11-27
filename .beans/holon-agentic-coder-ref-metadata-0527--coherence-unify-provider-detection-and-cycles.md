@@ -10,7 +10,7 @@ tags:
   - extensibility
   - refactor
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T08:05:56Z
+updated_at: 2026-11-27T12:13:43Z
 ---
 
 ## Problem
@@ -64,3 +64,9 @@ multiple modules, while circular imports connect `parsers/` ↔ `providers/` and
   added a `TYPE_CHECKING` back-edge `reduction_passes -> payload_cleaner` (`1 <-> 1`). Move `web_token` helpers into
   `container/` or a shared leaf and include both edges in the acyclic-import boundary test (coordinated with Bean
   `0621`).
+- Audit refresh (`2026-11-27`, `4a02926b`): Live root+subpackage AST scan also surfaced a fifth bidirectional cycle
+  `hybrid_cache (1) <-> proxy (1)` (`src/holon_coherence/hybrid_cache.py:35` imports `holon_coherence.proxy.scrubbing`
+  <-> `src/holon_coherence/proxy/addon.py:11` imports `holon_coherence.hybrid_cache`). Note
+  `tests/test_import_cycle_ratchet.py` (`#76`) currently inspects subpackages only (extending to root modules tracked in
+  Bean `0632`). `0527` slice 1 (`coherence-provider-format-seam`) hit `CF-0061` on pre-`#77` branch `334357d` and was
+  re-cut onto `4a02926b`.

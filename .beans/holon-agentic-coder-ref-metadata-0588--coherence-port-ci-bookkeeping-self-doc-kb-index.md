@@ -10,7 +10,7 @@ tags:
   - hygiene
   - invariants
 created_at: 2026-11-27T00:33:33Z
-updated_at: 2026-11-27T08:12:38Z
+updated_at: 2026-11-27T12:13:43Z
 ---
 
 ## Problem
@@ -58,3 +58,7 @@ updated_at: 2026-11-27T08:12:38Z
   `holon-knowledge/kb/{failure_modes,patterns}/index.json` and adding `tests/test_no_kb_index_files.py`. Bean remains
   `in-progress` for `ci_bookkeeping_gate.py`, `check_self_explaining.py`, and `module-budget-change` maintainer-actor
   verification.
+- Audit evidence (`2026-11-27`, `4a02926b`): Across `holon-coherence` PRs `#76`–`#82`, **`14` of `24` CI-tested heads
+  (`58.3%`, `132` of `222` total check-runs)** were pure `chore(review)` / `chore(calibration)` bookkeeping commits that
+  re-ran the full `9–10` job CI pipeline (`unit`, `integration`, `docker-build`, `make`, `hygiene`) on unchanged code
+  for lack of `ci_bookkeeping_gate.py`.

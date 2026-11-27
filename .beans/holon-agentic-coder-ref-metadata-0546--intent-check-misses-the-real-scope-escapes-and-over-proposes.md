@@ -10,7 +10,7 @@ tags:
   - touch-set
   - holon-agentic-coder
 created_at: 2026-11-26T21:08:00Z
-updated_at: 2026-11-27T11:55:26Z
+updated_at: 2026-11-27T12:13:43Z
 ---
 
 ## Problem
@@ -63,3 +63,8 @@ and the prompt templates. Add this escape to the replay set (see the Proposed fi
 - **`CF-0059` (`HAC #421`, bean `0617`, `stage5-fail-closed-calibrate`, `11:45:56Z`):** Stage 3 re-plans and Stage 4
   resolver both escaped into `flow/lazy_exports.py` (which `0546` already flags as missing from `intent-check` for
   `flow/` modules) and `flow/stages/calibrate.py`.
+- **`CF-0060` (`HAC #423`, bean `0607`, `exhausted-ladder-blocked-on`, `12:00:07Z`):** Adding/moving public helpers in
+  `apps/sandbox-executor/src/sandbox_executor/flow/review/*` caused Stage 4 resolver (`755a54cdec86`) to export
+  `parked_record_from_ci_status` in `apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports_review.py`, halting
+  with `touch_set_violation` after `15.0 min` Stage 4 + `13.9 min` Stages 1–3. Add a rule proposing
+  `flow/lazy_exports_review.py` whenever `flow/review/*.py` is in scope (mirroring `flow/lazy_exports.py`).

@@ -10,7 +10,7 @@ tags:
   - resolver
   - holon-agentic-coder
 created_at: 2026-11-27T11:52:42Z
-updated_at: 2026-11-27T11:55:26Z
+updated_at: 2026-11-27T12:13:43Z
 ---
 
 ## Notes
@@ -27,6 +27,8 @@ updated_at: 2026-11-27T11:55:26Z
   4. `holon-agentic-coder#421` (`0617`, `CF-0059`, `11:45:56Z`, `15.9 min` Stage 4 + `41.5 min` prior Stage 3 re-plans):
      resolver edited `apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports.py` and
      `apps/sandbox-executor/src/sandbox_executor/flow/stages/calibrate.py`.
+  5. `holon-agentic-coder#423` (`0607`, `CF-0060`, `12:00:07Z`, `15.0 min` Stage 4 + `13.9 min` Stages 1–3): resolver
+     edited `apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports_review.py`.
 - Inspecting `apps/sandbox-executor/src/sandbox_executor/flow/review/resolver.py:112-135` (`_dispatch_review_resolver`)
   and `apps/sandbox-executor/src/sandbox_executor/entrypoint/review_loop.py:323-375` (`_build_resolver_prompt`) at
   `2a83e4cc7` confirms that the plan's Touch Set is **never passed** into `input_payload`, container args, or the

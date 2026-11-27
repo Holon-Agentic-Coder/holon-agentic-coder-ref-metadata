@@ -5,6 +5,104 @@ first.
 
 ## Entries
 
+### 2026-11-27T12:14:08Z — Fifth-Merge Audit
+
+- **Trigger:** fifth merge (`7` newly merged `holon-coherence` PRs `#76`–`#82` since the Coherence audit baseline
+  `52019174f` / `#73`, bringing `holon-coherence` `origin/main` to `4a02926b`; `0` new merges in `holon-agentic-coder`
+  since `2a83e4cc7` / `#422`):
+  - `holon-coherence` (`7`): `#76` (`11:45:04Z`, `1bf07f6b`, Bean `0621`), `#77` (`11:45:04Z`, `bfdb1fd7`, Bean `0623`),
+    `#78` (`11:45:22Z`, `010ffa26`, Bean `0567`), `#79` (`11:45:42Z`, `0491b550`, Bean `0622`), `#80` (`11:46:00Z`,
+    `827e15ac`, Bean `0528` slice), `#81` (`11:46:18Z`, `ffb48044`, Bean `0529` slice), `#82` (`12:03:51Z`, `4a02926b`,
+    Bean `0529` slice). Open/in-flight Coherence flows: `#66` (`0528` `CF-0044`), `#67` (`0530`), `#70` (`0528`
+    `CF-0054`), `0527` (`coherence-provider-format-seam`, re-cut onto `4a02926b` after `CF-0061`), `0528`
+    (`coherence-translation-sse-finish`).
+  - `holon-agentic-coder` (`0` new merges since `#422` `2a83e4cc7`): open PRs include `#413` (`0611`, `CF-0055`), `#415`
+    (`0615`, `3/3 APPROVED` + `CLEAN`), `#420` (`0601`, `CF-0058`), `#421` (`0617`, `CF-0059`), `#423` (`0607`,
+    `CF-0060`).
+- **Last merged pull requests at audit baseline:** `Holon-Agentic-Coder/holon-agentic-coder#422` (`2a83e4cc7`);
+  `Holon-Agentic-Coder/holon-coherence#82` (`4a02926b`).
+- **Coordinator failure ledger repeats (`CF-0059`–`CF-0061`, `2` new rows since `CF-0059`):**
+  - `intent-scope` (`1` new row `CF-0060`, `17` total — **repeat flagged high priority**): `CF-0060` (`HAC #423`,
+    `0607`, `12:00:07Z`) halted in Stage 4 with `touch_set_violation` (`15.0 min` Stage 4 + `13.9 min` Stages 1–3) when
+    resolver commit `755a54cdec86` added an export in `flow/lazy_exports_review.py` -> extended **`0546`**
+    (`flow/review/*` -> `flow/lazy_exports_review.py` companion rule) and **`0627`** (`5` Stage 4 resolver escapes).
+  - `resume-checkpoint` (`1` new row `CF-0061`, `4` total — **repeat flagged high priority**): Resuming Coherence Bean
+    `0527` (`coherence-provider-format-seam`) `--from-stage execute` after `PR #77` (`bfdb1fd`) merged failed with
+    `module_budget_change_refused` (`E-1795780320`) because pre-`#77` `plan_branch` (`334357d`) was never synced with
+    `origin/main` before `dispatch_executor` (`pipeline.py:299` / `execute.py:175` follow `target_sync_hooks.py:52`'s
+    `context.execution_branch` ahead of `plan_branch`, and `plan_refresh_stage_failure` only runs when
+    `admission.waited_since` is set in `admission_state.py:74-77`) -> **new Bean `0631`**.
+- **Concrete Coherence `#76`–`#82` audit findings & clean checks:**
+  - **Root-module import-cycle blind spot (`#76`):** `tests/test_import_cycle_ratchet.py:69-74` skips root-level
+    `src/holon_coherence/*.py` files, missing `payload_cleaner <-> providers` (`2<->4`),
+    `payload_cleaner <-> reduction_passes` (`1<->1`), and newly surfaced `hybrid_cache <-> proxy` (`1<->1`,
+    `hybrid_cache.py:35` <-> `proxy/addon.py:11`) -> **new Bean `0632`** (and extended **`0527`**).
+  - **Squash-merge `Co-authored-by:` trailers & local hook wiring (`#78`):** Even after `#78` added
+    `scripts/check_commit_trailers.py`, `.githooks/commit-msg`, and `test-commit-trailers.yml`, all `5` subsequent
+    squash merges on `holon-coherence/main` (`010ffa2`–`4a02926b`) carry `5` `Co-authored-by: Holon <Role> Agent`
+    trailers synthesized from per-stage commit authors, and `holon-coherence` lacks `core.hooksPath .githooks` setup ->
+    **new Bean `0633`**.
+  - **Residual env reads & wire-log disk bounds (`0529` closed after `#81`/`#82`):** `#81` introduced
+    `CoherenceSettings.from_env()` for `3` consumers, leaving **`36` `os.getenv`/`os.environ` sites across `11`
+    modules** (including import-time freezes in `mitm_addon.py:87` and `proxy/wire_log.py:43`) plus unbounded wire-log
+    disk rotation -> **new Bean `0634`**.
+  - **Pending fragments & bookkeeping CI churn:** Pending fragments grew `48 -> 69` (`+21` across `#76`–`#82` ->
+    extended **`0620`**), and **`14/24` CI-tested heads (`132/222` check-runs, `59.5%`)** re-ran full CI on
+    `chore(review)` / `chore(calibration)` commits (extended **`0588`**).
+  - **Clean findings (examined and in order):** All `7` merged Coherence PRs (`#76`–`#82`) passed `3/3 APPROVED` with
+    `100.0%` Touch Set precision/recall, `0` docstrings / `0` prose comments across all changed files, `0` cancelled CI
+    runs across `222` check-runs, and `#79` eliminated all `3` remaining silent `except Exception: pass` blocks
+    (`3 -> 0`). Note `#81` (`ffb48044`) merged at `11:46:18Z`, `1s` / `13s` ahead of `unit (ubuntu-latest)` and
+    `make (macos-latest)` completing on Stage 5 commit `e8f931e2` (`0602` already tracks final-head CI gating).
+- **Per-flow churn summary (`#76`–`#82`, CI heads / total checks / review iterations / churn vs defect):**
+  - `#76`: `4 / 36 (1 fail on c889dded integration, 0 canc) / 2 full (0 defect; iter 1 rejected FIND-CI-001)`
+  - `#77`: `3 / 27 (0 fail, 0 canc) / 1 full (0 churn)`
+  - `#78`: `3 / 30 (0 fail, 0 canc) / 1 full (0 churn)`
+  - `#79`: `5 / 45 (0 fail, 0 canc) / 1 full + 1 scoped (0 churn; iter 1 resolved R2-F1, R3-F1)`
+  - `#80`: `3 / 27 (0 fail, 0 canc) / 1 full (0 churn)`
+  - `#81`: `3 / 27 (0 fail, 0 canc) / 1 full (0 churn)`
+  - `#82`: `3 / 30 (0 fail, 0 canc) / 1 full (0 churn)`
+- **Per-step timing table (`holon-coherence` `#76`–`#82` plus active `0527`, `0528`, `0601` runs):**
+
+| Step                                        | Count |    Median (s / min) |    Longest (s / min) | Category / Notes                                                       |
+| :------------------------------------------ | ----: | ------------------: | -------------------: | :--------------------------------------------------------------------- |
+| Pre-flight (wrapper start -> Stage 1)       |     - |        not measured |         not measured | Only `2` recent `todo/flow-*.log` (`0528`, `0601`); `#76–#82` unlogged |
+| Stage 1 (`INTENT`)                          |     3 |     17.0 s (0.28 m) |      17.0 s (0.28 m) | Working (`0527`, `0528`, `0601`; `#76–#82` Stage 1 start unlogged)     |
+| Stage 2 (`PLAN`, intent -> plan commit)     |     9 |    169.0 s (2.82 m) |     597.0 s (9.95 m) | Working (`#81` max `9.95 m`)                                           |
+| Stage 3 (`EXECUTE` — succeeded)             |     8 |    218.1 s (3.63 m) |     370.0 s (6.17 m) | Working (`0601` max `6.17 m`; `#79` `283.2 s` max in `#76–#82`)        |
+| Stage 3 (`EXECUTE` — quota `exit 3`)        |     2 |    151.6 s (2.53 m) |     166.8 s (2.78 m) | Quota `exit 3` (`#76` `166.8 s`, `#77` `136.3 s`)                      |
+| Execute commit -> PR create                 |     8 |     20.5 s (0.34 m) |      23.0 s (0.38 m) | Working (`#82` max `23.0 s`)                                           |
+| Stage 4 (`REVIEW` PR -> last review commit) |     7 |    310.0 s (5.17 m) |    786.0 s (13.10 m) | Working + CI (`#79` max `13.10 m`; `#76` `661.0 s`)                    |
+| Stage 5 calibration work (excl. CI)         |     7 |     19.0 s (0.32 m) |      20.0 s (0.33 m) | Working (`#79`, `#80` max `20.0 s`)                                    |
+| Stage 5 final-head CI reg wait              |     7 |     14.0 s (0.23 m) |      21.0 s (0.35 m) | Waiting on CI (`#80` max `21.0 s`)                                     |
+| Stage 5 final-head CI wait                  |     7 |    207.0 s (3.45 m) |     374.0 s (6.23 m) | Waiting on CI (`#80` max `6.23 m`)                                     |
+| Stage 5 (`CALIBRATE` total)                 |     7 |    242.0 s (4.03 m) |     415.0 s (6.92 m) | Work + CI (`#80` max `6.92 m`)                                         |
+| Idle between stop & resume                  |     3 | 7842.0 s (130.70 m) | 17059.0 s (284.32 m) | Idle (`#76`/`#77` `130.7 m` quota reset; `#78` `284.3 m`)              |
+| Human wait (clean CI -> merge, Coherence)   |     6 |  1820.0 s (30.33 m) |   2517.0 s (41.95 m) | Waiting on human (`#77` max; `#81` merged `13 s` before final CI end)  |
+
+- **Not measured:** `0/7` Coherence flows (`#76`–`#82`) preserved `todo/flow-*.log` (`0412`), leaving pre-flight, Stage
+  1 start, Stage 3 admission, and Stage 4 reviewer/resolver inner splits unmeasured; per-stage/turn LLM token usage
+  remains unrecorded (`0629`).
+- **Beans created:** **`0631`** (high: Stage 3 resume refreshes stale `plan_branch` onto `origin/main` before executor
+  dispatch), **`0632`** (normal: extend Coherence `test_import_cycle_ratchet.py` to cover root-level modules),
+  **`0633`** (normal: prevent squash-merge `Co-authored-by:` agent trailers on `main` & wire Coherence `.githooks`),
+  **`0634`** (normal: migrate remaining `36` `os.getenv` sites in Coherence to `CoherenceSettings.from_env()` & bound
+  wire-log disk).
+- **Beans extended:** **`0527`**, **`0528`**, **`0546`**, **`0588`**, **`0620`**, **`0627`**.
+- **Architecture & source-code quality refresh
+  ([docs/ecosystem-audit-report-2026-11.md](../docs/ecosystem-audit-report-2026-11.md), `coherence@4a02926b` vs
+  `52019174f`; `hac@2a83e4cc7` unchanged):**
+  - **Overall scores:** **`holon-coherence` `8.0 / 10 (+0.1)`** widens its lead over **`holon-agentic-coder`
+    `7.5 / 10`** (`coherence@4a02926b` closed `0621`, `0622`, `0623`, `0567`, `0529` and landed `0528` single-copy).
+  - **Coherence deltas (`52019174f -> 4a02926b`):** Clean Architecture `7.6->7.7 (+0.1)` (`#76` subpackage cycle
+    ratchet; `hybrid_cache<->proxy` & root-module blind spot **`0632`**), Modularity `7.6->7.7 (+0.1)` (`#77` unblocked
+    shrinking), Clean Code `7.3->7.4 (+0.1)` (`#80` single-copy `payload_cleaner`, `#81` `settings.py`), Testability
+    `8.0->8.2 (+0.2)` (`+6` test files / `+1,378` test LOC, `1,067` `test_*`, `0` cancelled CI runs), Error Handling
+    `7.9->8.2 (+0.3)` (`#79` `3->0` silent `pass`, `33->30` `broad_except`, AST ratchet across `19` modules), Security &
+    Docker `8.4->8.6 (+0.2)` (`#82` multi-arch digests, frozen `uv.lock`, `HEALTHCHECK`, `.dockerignore`; `#78` trailer
+    check), Config/Observability `7.7 (0.0)` (`#81` `CoherenceSettings.from_env()` offset by `48->69` pending fragments
+    `0620` and `132/222` bookkeeping CI runs `0588`).
+
 ### 2026-11-27T11:54:15Z — Fifth-Merge Audit
 
 - **Trigger:** fifth merge (`7` merges in `holon-agentic-coder` since `2026-11-27T10:56:02Z` at

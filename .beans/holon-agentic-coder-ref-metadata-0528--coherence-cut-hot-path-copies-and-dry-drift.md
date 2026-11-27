@@ -10,7 +10,7 @@ tags:
   - clean-code
   - refactor
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T11:50:10Z
+updated_at: 2026-11-27T12:13:43Z
 ---
 
 ## Problem
@@ -77,5 +77,7 @@ passes host paths into containers.
 - **Progress (`2026-11-27`):** [PR #80](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/80)
   (`coherence-single-request`, merge commit `827e15ac`) merged into `main`, eliminating redundant `copy.deepcopy` calls
   across `src/holon_coherence/proxy/steps/clean_payload.py` and `src/holon_coherence/payload_cleaner.py` with
-  single-copy tests in `tests/test_clean_payload_single_copy.py`. Bean remains `in-progress` for remaining slices
-  (`translation.py`, `metrics`, remaining `providers/anthropic.py` hot-path copies).
+  single-copy tests in `tests/test_clean_payload_single_copy.py`. At `4a02926b`, **14** `copy.deepcopy` call sites
+  remain inside `providers/anthropic.py` (8), `providers/gemini.py` (3), `providers/openai.py` (2), and
+  `providers/translation.py` (1). Bean remains `in-progress` for remaining slices (`translation.py`, `metrics`,
+  remaining provider hot-path copies).
