@@ -10,7 +10,7 @@ tags:
   - extensibility
   - refactor
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T17:15:59Z
+updated_at: 2026-11-27T17:35:46Z
 ---
 
 ## Problem
@@ -84,7 +84,11 @@ multiple modules, while circular imports connect `parsers/` ↔ `providers/` and
 - **Progress (`2026-11-27`):** Slice 2 (`coherence-commands-cycle`,
   [PR #87](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/87)) completed all 5 stages (`APPROVED`, `10/10`
   CI passed, `ΔEV +0.30`; awaiting maintainer merge).
-- **Slice 3 (`2026-11-27`, `coherence-docker-endpoints`):** Launched breaking `commands/docker_ops.py` ↔
-  `commands/endpoints.py` via one-way `docker_ops.py -> endpoints.py` imports and an AST test in
-  `tests/commands/test_endpoints.py` (`todo/intent-0527-coherence-docker-endpoints.json`,
-  `todo/intent-coverage-0527.json`).
+- **Progress (`2026-11-27`):** Slice 3 (`coherence-docker-endpoints`,
+  [PR #92](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/92), branch
+  `I-1795799828-coherence-docker-endpoints/P-1795799850-ANA-G4N/E-1795800022-ANA-G4N/_`) completed all 5 stages on
+  `antigravity-agent`/`gemini-4-neon` (`APPROVED` 3/3 on iteration 1, `10/10` CI passed, `MERGEABLE`/`CLEAN`,
+  `Predicted EV -0.77 / Actual EV 0.28 / ΔEV +1.05`; calibration report
+  `plans/I-1795799828-coherence-docker-endpoints/P-1795799850-ANA-G4N_calibration.md` in PR diff; checkpoint
+  `apps/holon-coherence/flow-coherence-docker-endpoints/.holon/flow/checkpoint-coherence-docker-endpoints.json`;
+  awaiting maintainer merge).
