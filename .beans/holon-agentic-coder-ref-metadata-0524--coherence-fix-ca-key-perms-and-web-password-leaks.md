@@ -10,7 +10,7 @@ tags:
   - ca
   - secrets
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T07:33:49Z
+updated_at: 2026-11-27T07:49:11Z
 ---
 
 ## Problem
