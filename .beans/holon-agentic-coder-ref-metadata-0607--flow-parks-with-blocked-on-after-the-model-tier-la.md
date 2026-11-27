@@ -8,7 +8,7 @@ tags:
   - holon-flow
   - tests
 created_at: 2026-11-27T04:42:54Z
-updated_at: 2026-11-27T12:08:52Z
+updated_at: 2026-11-27T17:11:29Z
 ---
 
 ## Evidence
@@ -66,5 +66,12 @@ Created as a follow-up to 0549's deferred item. Not started; no intent written y
 
 - parked 2026-11-27: blocked by flow-review-posting-transient-retry (bean 0424) on
   `apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports_review.py`; resume from checkpoint when 0424 merges.
+- 2026-11-27: Holon flow completed all 5 stages (`antigravity-agent` / `gemini-4-neon`). PR:
+  https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/433
+  (`I-1795797310-exhausted-ladder-blocked-on/P-1795797341-ANA-G4N/E-1795797570-ANA-G4N/_`), 3/3 consensus APPROVED,
+  calibration included (`plans/I-1795797310-exhausted-ladder-blocked-on/P-1795797341-ANA-G4N_calibration.md`, predicted
+  EV: 62.82, actual EV: 80.33, delta: +17.51), 16/16 CI checks green, `MERGEABLE` / `CLEAN`. Checkpoint:
+  `apps/holon-agentic-coder/flow-exhausted-ladder-blocked-on/.holon/flow/checkpoint-exhausted-ladder-blocked-on.json`.
+  Awaiting human maintainer merge.
 
 ## Resolution
