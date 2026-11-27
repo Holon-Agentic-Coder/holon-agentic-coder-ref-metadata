@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0600
 title: "Engine retries a rejected host push and records execution_branch before pushing"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - git
   - resume
 created_at: 2026-11-27T03:52:30Z
-updated_at: 2026-11-27T03:52:30Z
+updated_at: 2026-11-27T10:54:06Z
 ---
 
 ## Evidence

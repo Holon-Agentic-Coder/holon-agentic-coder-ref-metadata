@@ -1,14 +1,14 @@
 ---
 # holon-agentic-coder-ref-metadata-0608
 title: "Reason comments deleted by 0153 slices are never restored as why comments"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
   - self-explaining-code
   - holon-flow
 created_at: 2026-11-27T04:43:38Z
-updated_at: 2026-11-27T04:43:38Z
+updated_at: 2026-11-27T10:54:06Z
 ---
 
 ## Evidence (audit 2026-11-27T04:43Z, PRs #396, #393, #392, #390, #389, #385, #384, #382, #383, #380)
