@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0619
 title: "Stage 4 and 5 blame PRs for failing origin/main hygiene baseline and withdraw approvals"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - ci
   - holon-agentic-coder
 created_at: 2026-11-27T07:49:17Z
-updated_at: 2026-11-27T07:50:33Z
+updated_at: 2026-11-27T08:16:07Z
 ---
 
 ## Notes
@@ -47,5 +47,16 @@ updated_at: 2026-11-27T07:50:33Z
 - Eliminates cascading `8+` churn iterations, withdrawn approvals (`#408`), Stage 4 halts (`#410`), and redundant
   out-of-scope edits across unrelated PRs whenever a broken commit lands on `main`.
 - Cost: small `origin/main` CI-status lookup in target sync / `ci_routing` + unit tests.
+
+## Acceptance Criteria
+
+- Before syncing `origin/main` into an already-approved PR in Stage 4/5 or routing `FIND-CI` to a PR resolver, Stage 4/5
+  inspects `origin/main`'s latest `hygiene` (and `unit`) check status; if `origin/main` itself is red on a check whose
+  failing path was not touched by the PR diff, Stage 4/5 refuses to sync broken `origin/main` or withdraw existing
+  consensus.
+- Inherited `origin/main` baseline failures are classified as `blocked_on: "main-baseline-failing"` rather than PR
+  defects, refusing to dispatch the PR resolver to edit unrelated `main` files out-of-scope.
+- Unit tests in `apps/sandbox-executor/tests/flow/review/test_main_baseline_guard.py` prove the guard with
+  `uv run pytest`, `uv run task lint` passes, and self-explaining code invariant holds.
 
 ## Resolution

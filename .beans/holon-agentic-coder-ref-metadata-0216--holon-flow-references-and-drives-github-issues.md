@@ -10,7 +10,7 @@ tags:
   - holon-flow
   - holon-agentic-coder
 created_at: 2026-10-30T00:00:00Z
-updated_at: 2026-11-26T23:00:00Z
+updated_at: 2026-11-27T08:16:07Z
 ---
 
 ## Problem
@@ -32,6 +32,20 @@ reference. This also honours the standing rule that harness bean ids never land 
 - Boundary with the 3-ledger invariant: ledger rows cite the issue number but never mirror issue state, and issues never
   duplicate ledger rows. No fourth ledger.
 - Docs: flow usage docs explain the linkage. Failure to reach GitHub at intent time is a warning, not a stage failure.
+
+## Acceptance Criteria
+
+- An intent with work_item set to an open issue passes Stage 1 and the issue is marked in progress; a missing or closed
+  issue fails Stage 1 with a message naming the issue number.
+- An intent without work_item behaves exactly as before; a GitHub outage at intent time logs a warning and does not fail
+  the stage.
+- The pull request body for an intent with work_item contains Closes #N (only on the final child for a decomposed flow);
+  the flow never closes an issue itself.
+- An abandoned or scrapped flow removes the in-progress marker from its issue.
+- Hermetic tests cover validation, the in-progress marker, the Closes line and the abandon path; they run via 'uv run
+  pytest' with no network access.
+- Ledger rows carry the issue number only; no new ledger file is created.
+- docs/git_flow.md and docs/sandbox/create_intent.md describe the work_item field and the Closes linkage.
 
 ## Notes
 
