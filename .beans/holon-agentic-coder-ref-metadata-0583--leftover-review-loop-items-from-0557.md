@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0583
 title: "Leftover review-loop items from 0557: planner/reviewer environment rule and readiness prompt lines"
-status: in-progress
+status: completed
 type: task
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - prompts
   - holon-agentic-coder
 created_at: 2026-11-26T23:53:24Z
-updated_at: 2026-11-27T00:39:36Z
+updated_at: 2026-11-27T00:59:19Z
 ---
 
 ## Problem
@@ -45,3 +45,17 @@ reviewed and checked under that environment before it merges, as the #350 regres
 - Item 2 (readiness prompt line) delivered in the harness: `.agents/coordination.md` (flow-engine readiness bullet),
   `.agents/prompts/pr_review_prompt.md` (readiness paragraph), `.agents/pr-merging.md` (merge rule).
 - Item 1 (planner/reviewer environment rule) in flight: flow `env-overlay-prompt-rule`.
+
+## Resolution
+
+Both leftover items from 0557 are delivered:
+
+- **Item 1 (planner/reviewer environment rule)**:
+  [PR #369](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/369) merged into `main` (`8499e9b0`). It
+  adds the environment overlay rule to `holon-config/prompts/planner.template.md` and a numbered reviewer rule (item 13)
+  to `holon-config/prompts/review_loop.template.md`, making a missing child-process list or test a blocking finding.
+  Checked against the merged diff: both rules are present.
+- **Item 2 (readiness prompt line)**: harness commit `ecec817` (`.agents/coordination.md`,
+  `.agents/prompts/pr_review_prompt.md`, `.agents/pr-merging.md`).
+
+Post-merge: `install-holon` rebuilt the images and reinstalled the CLIs from `main` at `e189a89f`.

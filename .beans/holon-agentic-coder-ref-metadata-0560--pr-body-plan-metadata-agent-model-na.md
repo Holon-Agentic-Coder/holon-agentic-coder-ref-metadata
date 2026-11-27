@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0560
 title: "PR body 'Plan & Validation Metadata' shows Agent and Model as N/A"
-status: todo
+status: in-progress
 type: bug
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - pr-metadata
   - holon-agentic-coder
 created_at: 2026-11-26T23:04:48Z
-updated_at: 2026-11-26T23:04:48Z
+updated_at: 2026-11-27T00:58:24Z
 ---
 
 ## Instruction (maintainer, 2026-11-27)
@@ -54,3 +54,23 @@ origin/main:apps/sandbox-executor/src/sandbox_executor/flow/review/ensemble.py:4
   Metadata".
 - Unit test covering the PR body with plan metadata from a real plan record; test that `N/A` appears only when the value
   is genuinely unknown.
+
+## Flow status (2026-11-27)
+
+Flow ran to the merge boundary: PR #367 approved 3/3 (review iteration 1), calibrated, CI green, MERGEABLE/CLEAN,
+awaiting human merge. The first execute push was refused by the remote with no reason; the kept commits were republished
+from refs/holon/recovery and Stage 3 was rerun from the checkpoint. The orphan branch
+I-1795738057-pr-metadata-real-agent-model/P-1795738135-CLA-CO5.5/E-1795738289-CLA-CO5.5/_ stays on origin and should be
+deleted in post-merge cleanup.
+
+## Post-merge acceptance check (2026-11-27)
+
+PR #367 merged into `main` as `6e6cec045e968f8008a5aeeadc858486049c3f5d`. Against the merged diff:
+
+- Not delivered: the merged PR body still reads `Agent: N/A` and `Model: N/A`, so the first acceptance item is unmet.
+  Follow-up in bean 0597.
+- Partly delivered: unit tests cover the runner fallback and the N/A cases, but the plan record used in
+  `test_pr_metadata.py` and `test_ensemble.py` is an inline dict, not a real plan record, so the second item is unmet.
+- Code adds no docstrings and no comments (0 added lines of `"""` or `#`), so nothing for bean 0153.
+
+Bean stays `in-progress` until bean 0597 delivers the real PR body and a plan-record fixture.
