@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0586
 title: "Move 7 functions out of holon_coherence/providers/__init__.py and enforce no-logic __init__.py"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - hygiene
   - refactor
 created_at: 2026-11-27T00:33:33Z
-updated_at: 2026-11-27T00:33:33Z
+updated_at: 2026-11-27T06:16:27Z
 ---
 
 ## Problem
