@@ -1,14 +1,14 @@
 ---
 # holon-agentic-coder-ref-metadata-0607
 title: "Flow parks with blocked_on after the model tier ladder is exhausted on a test failure"
-status: in-progress
+status: completed
 type: feature
 priority: high
 tags:
   - holon-flow
   - tests
 created_at: 2026-11-27T04:42:54Z
-updated_at: 2026-11-27T17:11:29Z
+updated_at: 2026-11-27T23:48:13Z
 ---
 
 ## Evidence
@@ -75,3 +75,17 @@ Created as a follow-up to 0549's deferred item. Not started; no intent written y
   Awaiting human maintainer merge.
 
 ## Resolution
+
+Delivered via [PR #433](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/433) and merged into `main`
+(`4970dae083`):
+
+- **Key Architectural Deliverables**: Updated `entrypoint/test_failure_loop.py`, `flow/lazy_exports_review.py`,
+  `flow/review/local_test_finding.py`, and `flow/review/local_tests.py` so model-tier ladder exhaustion on test,
+  environment, or pre-existing failures parks with `blocked_on` and the attempt ledger evidence.
+- **Verification & Tests**: Added and updated tests in `tests/flow/test_local_test_finding.py`,
+  `tests/flow/test_review_local_tests.py`, `tests/test_review_local_test_failure.py`, and
+  `tests/test_test_failure_loop.py`; `16/16` CI checks `SUCCESS`.
+- **Holon Flow Traversal & Readiness (`pr_readiness.py --record`)**: Head `45f69f52`, Consensus `APPROVED` (`a9b80c95`),
+  Stage 5 calibration `calibrate=success`
+  (`plans/I-1795797310-exhausted-ladder-blocked-on/P-1795797341-ANA-G4N_calibration.md`),
+  `gates: consensus=ok, calibration=ok, pipeline=ok`.

@@ -9,7 +9,7 @@ tags:
   - resilience
   - error-handling
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T22:40:48Z
+updated_at: 2026-11-27T23:48:13Z
 ---
 
 ## Problem
@@ -50,17 +50,14 @@ modules call `sys.exit(1)` instead of raising domain exceptions, `GitHubAdapter`
 
 ## Flow
 
-- **Slice 1 (`hac-silent-except-agent-runner`):** Completed 5-stage Holon flow (`antigravity-agent` / `gemini-4-neon`)
-  via `todo/intent-0534-silent-except-agent-runner.json` (`todo/intent-coverage-0534.json`), awaiting maintainer merge:
-  - PR: https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/453 (`OPEN`, `MERGEABLE`, `CLEAN`)
-  - Branch: `I-1795817858-hac-silent-except-agent-runner/P-1795817889-ANA-G4N/E-1795818110-ANA-G4N/_` (calibrated:
-    `I-1795817858-hac-silent-except-agent-runner/P-1795817889-ANA-G4N/E-1795818110-ANA-G4N/calibrated`)
-  - Worktree: `apps/holon-agentic-coder/flow-hac-silent-except-agent-runner`
-  - Checkpoint:
-    `apps/holon-agentic-coder/flow-hac-silent-except-agent-runner/.holon/flow/checkpoint-hac-silent-except-agent-runner.json`
-  - Consensus: APPROVED (3/3: Reviewer 1/2/3 APPROVED 0/0/0)
-  - CI status: success (16 passed, 0 failed, 0 other on final head `df65de5`)
-  - Calibration: `plans/I-1795817858-hac-silent-except-agent-runner/P-1795817889-ANA-G4N_calibration.md` included in PR
-    diff (Predicted EV: `44.15`, Actual EV: `53.25`, `ΔEV`: `+9.10`)
+- **Slice 1 (`hac-silent-except-agent-runner`):** Merged into `main` via
+  [PR #453](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/453) (`579c13e245`) via
+  `todo/intent-0534-silent-except-agent-runner.json` (`todo/intent-coverage-0534.json`), replacing the silent
+  `except Exception: pass` in `agent_runner.py` with narrowed handling and tests in `tests/test_agent_runner.py`
+  (`16/16` CI checks `SUCCESS`).
+  - **Readiness (`pr_readiness.py --record`)**: Head `df65de5f`, Consensus `APPROVED` (`8e241c9e`), Stage 5 calibration
+    `calibrate=success` (`plans/I-1795817858-hac-silent-except-agent-runner/P-1795817889-ANA-G4N_calibration.md`),
+    `gates: consensus=ok, calibration=ok, pipeline=ok`. Bean stays `in-progress` for remaining catches, `sys.exit`,
+    adapter, and `git.py` slices.
 - Remaining `launcher/containers.py` / `flow/pipeline.py` except-pass catches, `sys.exit(1)` refactors, and
   `GitHubAdapter` / `GitCommandError` slices are deferred (`todo/intent-coverage-0534.json`).

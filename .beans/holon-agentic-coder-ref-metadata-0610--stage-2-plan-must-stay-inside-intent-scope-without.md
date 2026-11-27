@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0610
 title: "Stage 2 plan must stay inside intent scope without recorded expansion"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - scope
   - holon-agentic-coder
 created_at: 2026-11-27T05:18:43Z
-updated_at: 2026-11-27T16:40:46Z
+updated_at: 2026-11-27T23:48:13Z
 ---
 
 ## Notes
@@ -95,3 +95,16 @@ updated_at: 2026-11-27T16:40:46Z
   `Predicted EV 53.77 / Actual EV 68.59 / ΔEV +14.82`). Waiting for human maintainer merge.
 
 ## Resolution
+
+Delivered via [PR #430](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/430) and merged into `main`
+(`c7700077cf`):
+
+- **Key Architectural Deliverables**: Added `sandbox_executor/flow/stages/plan_scope_guard.py` and integrated it into
+  `sandbox_executor/flow/stages/plan.py` so Stage 2 fails closed when `## Touch Set` contains non-provenance paths
+  outside `intent.scope` without an explicit recorded scope expansion.
+- **Verification & Tests**: Added unit tests in `apps/sandbox-executor/tests/flow/stages/test_plan_scope_guard.py`;
+  `16/16` CI checks `SUCCESS`.
+- **Holon Flow Traversal & Readiness (`pr_readiness.py --record`)**: Head `1b685bde`, Consensus `APPROVED` (`42601089`),
+  Stage 5 calibration `calibrate=success`
+  (`plans/I-1795794446-stage2-plan-in-intent-scope/P-1795794478-ANA-G4N_calibration.md`),
+  `gates: consensus=ok, calibration=ok, pipeline=ok`.

@@ -9,7 +9,7 @@ tags:
   - extensibility
   - architecture
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T21:46:37Z
+updated_at: 2026-11-27T23:48:13Z
 ---
 
 ## Problem
@@ -56,9 +56,16 @@ modules.
 ## Flow
 
 - **Slice 1 (`2026-11-27`, `hac-stage-registry-git-forge`):** Completed all 5 stages on `antigravity-agent` /
-  `gemini-4-neon` and opened [PR #431](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/431) (`OPEN`,
-  `MERGEABLE` / `CLEAN`, `16/16` CI `SUCCESS`, Consensus `APPROVED`,
-  `Predicted EV 54.48 / Actual EV 74.14 / ΔEV +19.66`). Waiting for human maintainer merge.
+  `gemini-4-neon` and merged via [PR #431](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/431)
+  (`755f49bbd8`):
+  - **Deliverables**: Added `GitForge` `Protocol` in `flow/github/forge.py` implemented by `GitHubAdapter`, wired
+    `flow/github/{ci,ci_final_head_seams,ci_head_reruns,ci_timing_rerun,merge,pr,review_post}.py` and
+    `flow/review/loop.py` to depend on `GitForge`, and replaced the `if/elif` dispatch in `flow/pipeline.py` with a
+    declarative stage registry (`flow/lazy_exports.py`, tested in `tests/flow/github/test_forge_protocol.py` and
+    `tests/flow/test_pipeline_registry.py`).
+  - **Readiness (`pr_readiness.py --record`)**: Head `0c1c1186`, Consensus `APPROVED` (`e6f7e7f7`), Stage 5 calibration
+    `calibrate=success` (`plans/I-1795796484-hac-stage-registry-git-forge/P-1795796523-ANA-G4N_calibration.md`), `16/16`
+    CI `SUCCESS`, `gates: consensus=ok, calibration=ok, pipeline=ok`. Bean stays `in-progress` for Slice 2.
 - **Slice 2 (`2026-11-27`, `hac-runnerspec-single-source`):** Launched covering AC #1 (`RunnerSpec` single-source
   mounts, defaults, and model-discovery hooks across `runners/*.py`, `agent_defaults.py`, `launcher/mounts.py`, tested
   in `tests/test_agent_defaults.py` and `tests/test_runner_specs.py`, `todo/intent-coverage-0535.json`). Opened

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0612
 title: "Org-level model spend-limit exhaustion halts concurrent flows and retries dead provider"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - model-tiers
   - holon-agentic-coder
 created_at: 2026-11-27T05:18:43Z
-updated_at: 2026-11-27T23:18:34Z
+updated_at: 2026-11-27T23:48:13Z
 ---
 
 ## Notes
@@ -77,3 +77,18 @@ updated_at: 2026-11-27T23:18:34Z
   `.agents/scripts/slot_keeper.py` and verified in `tests/test_slot_keeper.py`.
 
 ## Resolution
+
+Delivered across target (`PR #456`) and harness (`.agents/scripts/slot_keeper.py`):
+
+- **Target (`holon-agentic-coder` [PR #456](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/456),
+  `27b4197e77`, `hac-provider-cooldown`)**: Added `sandbox_executor/preflight_cooldown.py` and wired shared host-level
+  provider cooldown markers (`~/.holon/`) into `cli/preflight.py`, `preflight.py`, and `preflight_outage.py` so
+  concurrent launches and checkpoint resumes fast-fail without re-probing exhausted providers.
+- **Verification & Tests**: Added `tests/test_preflight_cooldown.py` and updated `test_preflight.py`,
+  `test_preflight_outage.py`, and `test_preflight_retries.py` (keeping `test_preflight.py` under 1,000 lines); `16/16`
+  CI checks `SUCCESS`. Harness `.agents/scripts/slot_keeper.py` defaults to `antigravity-agent` / `gemini-4-neon`
+  (`tests/test_slot_keeper.py`).
+- **Holon Flow Traversal & Readiness (`pr_readiness.py --record`)**: Head `94835ba8`, Consensus `APPROVED` (`f25c2649`),
+  Stage 5 calibration `calibrate=success`
+  (`plans/I-1795819038-hac-provider-cooldown/P-1795819062-ANA-G4N_calibration.md`),
+  `gates: consensus=ok, calibration=ok, pipeline=ok`.

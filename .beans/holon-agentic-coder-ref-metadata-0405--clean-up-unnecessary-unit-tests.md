@@ -10,7 +10,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T09:55:00Z
-updated_at: 2026-11-27T22:17:29Z
+updated_at: 2026-11-27T23:48:13Z
 ---
 
 ## Why
@@ -293,41 +293,24 @@ Measured on main `412bed21` (report: `todo/test-suite-audit-2026-11-26.md`, raw 
 
 ## Deferred areas batch (`2026-11-27`)
 
-- Launched `tests-deferred-three-speedup` (`todo/intent-0405-tests-deferred-three-speedup.json`,
-  `todo/intent-coverage-0405.json`) targeting the three deferred files `tests/flow/test_git_refs.py`,
-  `tests/flow/review/test_conflict_gate.py`, and `tests/test_calibration_diff_property.py` (test-only).
-- Result: completed all 5 stages (`antigravity-agent` / `gemini-4-neon`, resumed from Stage 3 checkpoint after quota
-  reset). PR #443 (`https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/443`, branch
-  `I-1795801610-tests-deferred-three-speedup/P-1795801632-ANA-G4N/E-1795812746-ANA-G4N/_`) APPROVED 3/3 on iteration 2
-  (`0/0/0`), calibrated (`plans/I-1795801610-tests-deferred-three-speedup/P-1795801632-ANA-G4N_calibration.md` in PR
-  diff; Predicted EV `55.52`, Actual EV `68.09`, delta `+12.57`), `MERGEABLE`/`CLEAN`, 16/16 CI checks green, awaiting
-  human maintainer merge. Worktree: `apps/holon-agentic-coder/flow-tests-deferred-three-speedup` (checkpoint
-  `.holon/flow/checkpoint-tests-deferred-three-speedup.json`). Measured across the 3 files: parallel median `5.51s` to
-  `4.84s` (`-12.2%`), serial `5.36s` to `4.99s` (`-6.9%`), `uv run task test` `10870 passed, 7 skipped`,
-  `uv run task lint` exit `0`.
-- Launched `tests-fewer-git-calibrate` (`todo/intent-0405-tests-fewer-git-calibrate.json`,
-  `todo/intent-coverage-0405.json`) targeting the 10 disjoint calibration test files (plus optional helper
-  `apps/sandbox-executor/tests/calibrate_scenarios.py`, test-only, excluding `test_calibration_diff_property.py`).
-  - Result: completed all 5 stages (`antigravity-agent` / `gemini-4-neon`, resumed from Stage 3 checkpoint after quota
-    reset). PR #448 (`https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/448`, branch
-    `I-1795802422-tests-fewer-git-calibrate/P-1795802444-ANA-G4N/E-1795812801-ANA-G4N/_`) APPROVED 3/3 on iteration 2
-    (scoped), calibrated (`plans/I-1795802422-tests-fewer-git-calibrate/P-1795802444-ANA-G4N_calibration.md` in PR diff;
-    Predicted EV `50.61`, Actual EV `65.39`, `ΔEV` `+14.78`), `MERGEABLE`/`CLEAN`, 16/16 CI checks green, awaiting human
-    maintainer merge. Worktree: `apps/holon-agentic-coder/flow-tests-fewer-git-calibrate` (checkpoint
-    `apps/holon-agentic-coder/flow-tests-fewer-git-calibrate/.holon/flow/checkpoint-tests-fewer-git-calibrate.json`).
-- Launched `tests-fewer-git-review-decomp` (`todo/intent-0405-tests-fewer-git-review-decomp.json`,
-  `todo/intent-coverage-0405.json`) targeting the 5 disjoint review/decomposition/fingerprint test files (test-only,
-  excluding `test_conflict_gate.py`).
-  - Result: flow completed all 5 stages (`antigravity-agent` / `gemini-4-neon`, resumed from Stage 3 after quota reset).
-  - PR: https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/449 (#449, `MERGEABLE` / `CLEAN`, awaiting
-    maintainer merge).
-  - Branch: `I-1795802419-tests-fewer-git-review-decomp/P-1795802441-ANA-G4N/E-1795812763-ANA-G4N/_`
-  - Worktree: `apps/holon-agentic-coder/flow-tests-fewer-git-review-decomp`
-  - Checkpoint:
-    `apps/holon-agentic-coder/flow-tests-fewer-git-review-decomp/.holon/flow/checkpoint-tests-fewer-git-review-decomp.json`
-  - Consensus: APPROVED (3/3 on iteration 2 scoped review, fingerprint `pf2:09ec9d22322dde8accf06da09837f69b43c17ef1`).
-  - CI status: all 16 checks passed on final head `65bc5e1`.
-  - Calibration: `plans/I-1795802419-tests-fewer-git-review-decomp/P-1795802441-ANA-G4N_calibration.md` included in PR
-    diff; Predicted EV `43.26`, Actual EV `59.29`, `ΔEV: +16.03`.
-  - Measurement (5 files in scope): git spawns `5395 -> 3569` (`-33.85%`), median summed time `100.7240s -> 45.9650s`
-    (`-54.4%`), cases `146 -> 146`.
+- **PR #443 (`b5da88bd35`, `tests-deferred-three-speedup`)**: Merged into `main` (2026-11-27T23:42:14Z) covering the
+  three deferred files (`tests/flow/test_git_refs.py`, `tests/flow/review/test_conflict_gate.py`,
+  `tests/test_calibration_diff_property.py`). Measured across the 3 files: parallel median `5.51s -> 4.84s` (`-12.2%`),
+  serial `5.36s -> 4.99s` (`-6.9%`), `uv run task test` `10870 passed, 7 skipped`. Readiness
+  (`pr_readiness.py --record`): Head `5c025af3`, Consensus `APPROVED` (`9fc4aa1c`), Stage 5 calibration
+  `calibrate=success` (`plans/I-1795801610-tests-deferred-three-speedup/P-1795801632-ANA-G4N_calibration.md`), `16/16`
+  CI `SUCCESS`, `gates: consensus=ok, calibration=ok, pipeline=ok`.
+- **PR #448 (`222c2ac9cb`, `tests-fewer-git-calibrate`)**: Merged into `main` (2026-11-27T23:43:30Z) covering the 10
+  disjoint calibration test files and `apps/sandbox-executor/tests/calibrate_scenarios.py` (`test-only`). Readiness
+  (`pr_readiness.py --record`): Head `6f092c38`, Consensus `APPROVED` (`9af58cd2`), Stage 5 calibration
+  `calibrate=success` (`plans/I-1795802422-tests-fewer-git-calibrate/P-1795802444-ANA-G4N_calibration.md`), `16/16` CI
+  `SUCCESS`, `gates: consensus=ok, calibration=ok, pipeline=ok`.
+- **PR #449 (`184aee3302`, `tests-fewer-git-review-decomp`)**: Merged into `main` (2026-11-27T23:43:30Z) covering the 5
+  disjoint review/decomposition/fingerprint test files and `apps/sandbox-executor/tests/review_flow_repo.py`
+  (`test-only`; git spawns `5395 -> 3569` `-33.85%`, median summed time `100.7240s -> 45.9650s` `-54.4%`). Readiness
+  (`pr_readiness.py --record`): Head `65bc5e1a`, Consensus `APPROVED` (`ecdff67e`), Stage 5 calibration
+  `calibrate=success` (`plans/I-1795802419-tests-fewer-git-review-decomp/P-1795802441-ANA-G4N_calibration.md`), `16/16`
+  CI `SUCCESS`, `gates: consensus=ok, calibration=ok, pipeline=ok`.
+- **Still open (bean stays `in-progress`)**: regrowth rules (per-test time limit and review-rules note), suite-size
+  reporting per PR, and re-measuring the `main` CI timing targets (`unit (ubuntu-latest)` ~2 min, `unit (macos-latest)`
+  under 5 min).

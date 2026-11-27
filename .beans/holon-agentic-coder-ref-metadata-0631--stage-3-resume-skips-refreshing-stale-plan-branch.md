@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0631
 title: "Stage 3 resume skips refreshing stale plan_branch onto origin/main"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - resume
   - holon-agentic-coder
 created_at: 2026-11-27T12:11:44Z
-updated_at: 2026-11-27T22:11:16Z
+updated_at: 2026-11-27T23:48:13Z
 ---
 
 ## Notes
@@ -58,14 +58,15 @@ updated_at: 2026-11-27T22:11:16Z
 
 ## Resolution
 
-- **Slice 1 (`stage3-plan-branch-refresh`):** Flow completed all 5 stages (`intent` -> `plan` -> `execute` -> `review`
-  -> `calibrate`); awaiting human merge.
-  - **PR:** https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/446 (`OPEN`, `MERGEABLE`, `CLEAN`)
-  - **Branch:** `I-1795813121-stage3-plan-branch-refresh/P-1795813163-ANA-G4N/E-1795813425-ANA-G4N/_`
-  - **Worktree:** `apps/holon-agentic-coder/flow-stage3-plan-branch-refresh`
-  - **Checkpoint:**
-    `apps/holon-agentic-coder/flow-stage3-plan-branch-refresh/.holon/flow/checkpoint-stage3-plan-branch-refresh.json`
-  - **Consensus:** `APPROVED`
-  - **CI status:** `16/16 checks passing`
-  - **Calibration:** `ΔEV: +13.98` (predicted `46.96`, actual `60.94`;
-    `plans/I-1795813121-stage3-plan-branch-refresh/P-1795813163-ANA-G4N_calibration.md` included in PR diff)
+Delivered via [PR #446](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/446) and merged into `main`
+(`787e529cb1`):
+
+- **Key Architectural Deliverables**: Updated `flow/plan_refresh.py`, `flow/stages/execute.py`, and
+  `flow/target_sync_hooks.py` so Stage 3 start/resume refreshes a stale `plan_branch` against `origin/<target_branch>`
+  even without `waited_since` or when a prior `execution_branch` exists, halting fail-closed on merge conflict.
+- **Verification & Tests**: Added/updated tests in `apps/sandbox-executor/tests/flow/stages/test_execute.py`,
+  `test_plan_refresh.py`, `test_target_sync.py`, and `test_target_sync_resume.py`; `16/16` CI checks `SUCCESS`.
+- **Holon Flow Traversal & Readiness (`pr_readiness.py --record`)**: Head `3a7d3a00`, Consensus `APPROVED` (`6ac35fc7`),
+  Stage 5 calibration `calibrate=success`
+  (`plans/I-1795813121-stage3-plan-branch-refresh/P-1795813163-ANA-G4N_calibration.md`),
+  `gates: consensus=ok, calibration=ok, pipeline=ok`.

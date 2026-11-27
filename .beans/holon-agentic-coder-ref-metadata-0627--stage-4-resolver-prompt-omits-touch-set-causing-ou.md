@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0627
 title: "Stage 4 resolver prompt omits Touch Set causing out-of-scope halts"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - resolver
   - holon-agentic-coder
 created_at: 2026-11-27T11:52:42Z
-updated_at: 2026-11-27T17:39:49Z
+updated_at: 2026-11-27T23:48:13Z
 ---
 
 ## Notes
@@ -83,3 +83,17 @@ updated_at: 2026-11-27T17:39:49Z
     `flow/review/loop.py`, and `holon-config/hygiene/module_budgets.json` untouched).
 
 ## Resolution
+
+Delivered via [PR #437](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/437) and merged into `main`
+(`dc9a5cc1d4`):
+
+- **Key Architectural Deliverables**: Propagated the effective plan Touch Set from
+  `sandbox_executor/flow/review/resolver.py` into `sandbox_executor/entrypoint/review_loop.py` (`_build_resolver_prompt`
+  and pre-commit guard) so Stage 4 resolvers know the allowed paths upfront and emit structured out-of-touch-set
+  dispositions rather than committing out-of-scope edits.
+- **Verification & Tests**: Added `apps/sandbox-executor/tests/flow/review/test_resolver_touch_set.py`; `16/16` CI
+  checks `SUCCESS`.
+- **Holon Flow Traversal & Readiness (`pr_readiness.py --record`)**: Head `a3861216`, Consensus `APPROVED` (`823e2659`),
+  Stage 5 calibration `calibrate=success`
+  (`plans/I-1795798629-stage4-resolver-touch-set/P-1795798652-ANA-G4N_calibration.md`),
+  `gates: consensus=ok, calibration=ok, pipeline=ok`.

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0599
 title: "Executor dispatch fails with 'exec role_dispatcher.sh: argument list too long' (exit 255)"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - executor
   - dispatch
 created_at: 2026-11-27T01:49:20Z
-updated_at: 2026-11-27T17:41:21Z
+updated_at: 2026-11-27T23:48:13Z
 ---
 
 ## Cause
@@ -56,3 +56,20 @@ updated_at: 2026-11-27T17:41:21Z
 - Calibration: `plans/I-1795797317-replan-feedback-file-dispatch/P-1795797350-ANA-G4N_calibration.md` included in PR
   diff (Predicted EV: `66.55`, Actual EV: `84.91`, delta `+18.36`)
 - CI: 16/16 checks passed (`0` failing, `0` pending)
+
+## Resolution
+
+Delivered via [PR #434](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/434) and merged into `main`
+(`5d03ddab0f`):
+
+- **Key Architectural Deliverables**: Moved `HOLON_REPLAN_FEEDBACK` dispatch from Docker `-e` environment flags to a
+  mounted feedback file across `launcher/containers.py`, `launcher/env_files.py`, `flow/stages/plan_support.py`,
+  `entrypoint/planner.py`, `entrypoint/executor/run.py`, `budgets.py`, `config_env_keys.py`, `env_registry.py`, and docs
+  (`apps/sandbox-executor/README.md`, `docs/environment_variables.md`), avoiding `MAX_ARG_STRLEN` (`exit 255`) overflows
+  on large replan feedback.
+- **Verification & Tests**: Added `apps/sandbox-executor/tests/test_replan_feedback_file_dispatch.py`; `16/16` CI checks
+  `SUCCESS`.
+- **Holon Flow Traversal & Readiness (`pr_readiness.py --record`)**: Head `4ebcdd35`, Consensus `APPROVED` (`c2aeea0e`),
+  Stage 5 calibration `calibrate=success`
+  (`plans/I-1795797317-replan-feedback-file-dispatch/P-1795797350-ANA-G4N_calibration.md`),
+  `gates: consensus=ok, calibration=ok, pipeline=ok`.

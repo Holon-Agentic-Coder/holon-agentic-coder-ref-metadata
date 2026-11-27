@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0601
 title: "Each 0153 slice adds its own copy of the comment scanner as a test file instead of using the one gate"
-status: in-progress
+status: completed
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - tests
   - duplication
 created_at: 2026-11-27T04:33:33Z
-updated_at: 2026-11-27T15:55:01Z
+updated_at: 2026-11-27T23:48:13Z
 ---
 
 ## Evidence
@@ -78,3 +78,19 @@ becomes checked. Cost: one shared test and an AST-normalising helper; touches th
   test modules while still adding another `89`-line per-slice file
   (`apps/sandbox-executor/tests/test_self_doc_tests_49.py`), bringing `apps/sandbox-executor/tests/test_self_doc*.py` to
   **31 files** awaiting slice-2 deletion.
+
+## Resolution
+
+Delivered via [PR #428](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/428) and merged into `main`
+(`8c3e13e396`):
+
+- **Key Architectural Deliverables**: Deleted 30 redundant per-slice `apps/sandbox-executor/tests/test_self_doc_*.py`
+  scanner copies and consolidated gate-coverage verification into
+  `apps/sandbox-executor/tests/test_self_doc_gate_coverage.py` alongside `scripts/check_self_explaining.py` and the AST
+  behaviour-preservation CI gate (`PR #425`).
+- **Verification & Tests**: `apps/sandbox-executor/tests/test_self_doc_gate_coverage.py` verified; `16/16` CI checks
+  `SUCCESS`.
+- **Holon Flow Traversal & Readiness (`pr_readiness.py --record`)**: Head `1fc9b3ad`, Consensus `APPROVED` (`d8c4ad6d`),
+  Stage 5 calibration `calibrate=success`
+  (`plans/I-1795794454-prune-self-doc-test-copies/P-1795794477-ANA-G4N_calibration.md`),
+  `gates: consensus=ok, calibration=ok, pipeline=ok`.

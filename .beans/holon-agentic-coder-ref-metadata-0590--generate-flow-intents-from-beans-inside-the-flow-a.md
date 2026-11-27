@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0590
 title: "Generate flow intents from beans inside the flow; agents never hand-write intents"
-status: todo
+status: in-progress
 type: feature
 priority: critical
 tags:
@@ -10,7 +10,7 @@ tags:
   - intent
   - invariants
 created_at: 2026-11-27T00:38:30Z
-updated_at: 2026-11-27T17:48:16Z
+updated_at: 2026-11-27T23:48:13Z
 ---
 
 ## Maintainer decision (2026-11-27 local)
@@ -246,3 +246,23 @@ refuses the merged intent for each case.
   `plans/I-1795799839-stage1-requires-assumptions/P-1795799861-ANA-G4N_calibration.md` in PR diff; `MERGEABLE` /
   `CLEAN`; checkpoint
   `apps/holon-agentic-coder/flow-stage1-requires-assumptions/.holon/flow/checkpoint-stage1-requires-assumptions.json`).
+
+## Resolution (Slice 1)
+
+Slice 1 (`stage1-requires-assumptions`) delivered via
+[PR #438](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/438) and merged into `main` (`e2e4e6c0f4`):
+
+- **Delivered (Stage 1 Target Validation)**: Added `sandbox_executor/intent_assumption_rules.py` and wired it into
+  `intent_payload_rules.py`, `flow/stages/children.py`, `e2e_harness.py`, and existing test fixtures, with
+  `apps/sandbox-executor/tests/test_stage1_requires_assumptions.py` verifying Stage 1 enforcement of `assumptions`,
+  `assumption_validation`, `assumption_risk`, mitigations, and `pr_question` impact rules (`16/16` CI checks `SUCCESS`).
+- **Readiness (`pr_readiness.py --record`)**: Head `b0fb824e`, Consensus `APPROVED` (`8e933dbe`), Stage 5 calibration
+  `calibrate=success` (`plans/I-1795799839-stage1-requires-assumptions/P-1795799861-ANA-G4N_calibration.md`),
+  `gates: consensus=ok, calibration=ok, pipeline=ok`.
+- **Remaining Acceptance Criteria (Bean stays `in-progress`)**:
+  - Target Stage 1 content-hash pinning on accepted assumption sets & resume reuse, Stage 2 plan-step/EV integration,
+    Stage 4 assumption-validation review checks, Stage 5 assumption-outcome calibration/KB promotion, and PR body
+    assumption/risk table rendering.
+  - Harness-side `run_holon_flow.py --bean NNNN` generator, assumption/risk leak scan, content hash enforcement,
+    `holon intent-check` + `0589` coverage check wiring, replay fixtures (`0574`, `0570`, `0558`), `holon_flow`
+    `SKILL.md` / slot keeper updates, and `.agents/invariants.yml` registry entry.

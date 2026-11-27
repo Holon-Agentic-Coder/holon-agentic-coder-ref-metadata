@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0635
 title: "HAC: extend test_import_cycle_ratchet.py to cover root-level sandbox_executor modules"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - architecture
   - ci
 created_at: 2026-11-27T15:53:29Z
-updated_at: 2026-11-27T16:55:44Z
+updated_at: 2026-11-27T23:48:13Z
 ---
 
 ## Notes
@@ -58,3 +58,16 @@ updated_at: 2026-11-27T16:55:44Z
   `Predicted EV 58.05 / Actual EV 65.75 / ΔEV +7.70`). Waiting for human maintainer merge.
 
 ## Resolution
+
+Delivered via [PR #432](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/432) and merged into `main`
+(`65c7741f73`):
+
+- **Key Architectural Deliverables**: Extended `apps/sandbox-executor/tests/test_import_cycle_ratchet.py` to cover
+  root-level `src/sandbox_executor/*.py` modules alongside subpackages and ratchet all 6 bidirectional import-cycle
+  pairs.
+- **Verification & Tests**: Synthetic root-module AST cycle tests in
+  `apps/sandbox-executor/tests/test_import_cycle_ratchet.py`; `16/16` CI checks `SUCCESS`.
+- **Holon Flow Traversal & Readiness (`pr_readiness.py --record`)**: Head `a2591bdc`, Consensus `APPROVED` (`5a754a55`),
+  Stage 5 calibration `calibrate=success`
+  (`plans/I-1795796830-hac-root-import-cycle-ratchet/P-1795796867-ANA-G4N_calibration.md`),
+  `gates: consensus=ok, calibration=ok, pipeline=ok`.

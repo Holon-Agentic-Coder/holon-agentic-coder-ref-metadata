@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0638
 title: "Stage 4-to-5 triple push cancels CI and breaks ci_merge_push_gate on carry-over"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - stage-5
   - performance
 created_at: 2026-11-27T15:53:29Z
-updated_at: 2026-11-27T20:52:12Z
+updated_at: 2026-11-27T23:48:13Z
 ---
 
 ## Notes
@@ -78,3 +78,19 @@ updated_at: 2026-11-27T20:52:12Z
     state file `.subagent/flow_ci-merge-bookkeeping-chain_state.json`. Awaiting human maintainer merge.
 
 ## Resolution
+
+Delivered Slice 1 (`ci-merge-bookkeeping-chain`, AC #2 and AC #3) via
+[PR #440](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/440) and merged into `main` (`8f5c9674e5`):
+
+- **Key Architectural Deliverables**: Updated `scripts/ci_bookkeeping_chain.py`, `scripts/ci_bookkeeping_gate.py`,
+  `scripts/ci_main_push_gate.py`, and `scripts/ci_merge_push_gate.py` so a bookkeeping commit chain stacked on a clean
+  `sync: merge target` merge commit evaluates the combined diff equivalence against the last green head and skips heavy
+  CI when only bookkeeping and green `origin/main` changed. (AC #1 Stage 4->5 single-push consolidation was deferred to
+  a separate intent per `todo/intent-coverage-0638.json`.)
+- **Verification & Tests**: Added `apps/sandbox-executor/tests/test_ci_bookkeeping_chain.py` and updated
+  `ci_bookkeeping_fakes.py`, `test_ci_bookkeeping_gate.py`, `test_ci_main_push_gate.py`, and
+  `test_ci_merge_push_gate.py`; `16/16` CI checks `SUCCESS`.
+- **Holon Flow Traversal & Readiness (`pr_readiness.py --record`)**: Head `3f7f4cf0`, Consensus `APPROVED` (`16485661`),
+  Stage 5 calibration `calibrate=success`
+  (`plans/I-1795799994-ci-merge-bookkeeping-chain/P-1795800019-ANA-G4N_calibration.md`),
+  `gates: consensus=ok, calibration=ok, pipeline=ok`.

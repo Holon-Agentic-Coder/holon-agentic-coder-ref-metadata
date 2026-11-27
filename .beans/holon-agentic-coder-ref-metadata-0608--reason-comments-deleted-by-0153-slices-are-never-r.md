@@ -8,7 +8,7 @@ tags:
   - self-explaining-code
   - holon-flow
 created_at: 2026-11-27T04:43:38Z
-updated_at: 2026-11-27T23:10:15Z
+updated_at: 2026-11-27T23:48:13Z
 ---
 
 ## Evidence (audit 2026-11-27T04:43Z, PRs #396, #393, #392, #390, #389, #385, #384, #382, #383, #380)
@@ -42,31 +42,20 @@ updated_at: 2026-11-27T23:10:15Z
   `apps/sandbox-executor/tests/test_measure_deleted_why_comments.py` scanning merged self-doc diffs for removed reason
   comments without matching `# why:` restorations. Keeping `status: in-progress` for the remaining restore and
   template-prevention slices.
-- **Slice 2 (`hac-restore-why-tests`):** Completed 5-stage Holon flow (`antigravity-agent` / `gemini-4-neon`), awaiting
-  human maintainer merge:
-  - **PR**: [PR #454](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/454)
-  - **Branch**: `I-1795817852-hac-restore-why-tests/P-1795817878-ANA-G4N/E-1795818137-ANA-G4N/_`
-  - **Worktree**: `apps/holon-agentic-coder/flow-hac-restore-why-tests`
-  - **Checkpoint**:
-    `apps/holon-agentic-coder/flow-hac-restore-why-tests/.holon/flow/checkpoint-hac-restore-why-tests.json`
-  - **Consensus**: `APPROVED` (Reviewer 1 APPROVED 0/0/0, Reviewer 2 APPROVED 0/0/0, Reviewer 3 APPROVED 0/0/0)
-  - **CI Status**: `success` (16 passed, 0 failed, 0 other; `MERGEABLE`, `CLEAN`)
-  - **Calibration**: Included in PR diff
-    (`plans/I-1795817852-hac-restore-why-tests/P-1795817878-ANA-G4N_calibration.md`), Predicted EV: `35.32`, Actual EV:
-    `40.82`, `ΔEV`: `+5.50`
-- **Slice 3 (`hac-restore-why-src-batch1`):** Completed 5-stage Holon flow (`antigravity-agent` / `gemini-4-neon`),
-  awaiting human maintainer merge (also updates `tests/test_self_doc_modules.py` to `allow_why=True`, unblocking Slice 4
-  on merge):
-  - **PR**: [PR #455](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/455) (`79ed5987`)
-  - **Branch**: `I-1795819107-hac-restore-why-src-batch1/P-1795819130-ANA-G4N/E-1795819432-ANA-G4N/_`
-  - **Worktree**: `apps/holon-agentic-coder/flow-hac-restore-why-src-batch1`
-  - **Checkpoint**:
-    `apps/holon-agentic-coder/flow-hac-restore-why-src-batch1/.holon/flow/checkpoint-hac-restore-why-src-batch1.json`
-  - **Consensus**: `APPROVED` (3/3 unanimous iter 1: Reviewer 1/2/3 APPROVED 0/0/0)
-  - **CI Status**: `success` (16/16 passed; `MERGEABLE`, `CLEAN`)
-  - **Calibration**: Included in PR diff
-    (`plans/I-1795819107-hac-restore-why-src-batch1/P-1795819130-ANA-G4N_calibration.md`), Predicted EV: `44.30`, Actual
-    EV: `51.83`, `ΔEV`: `+7.52`
+- **Slice 2 (`hac-restore-why-tests`):** Merged into `main` via
+  [PR #454](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/454) (`1f44db3eb6`), restoring 16 `# why:`
+  comments across 8 test modules (`16/16` CI checks `SUCCESS`).
+  - **Readiness (`pr_readiness.py --record`)**: Head `19864a6b`, Consensus `APPROVED` (`ac4308f6`), Stage 5 calibration
+    `calibrate=success` (`plans/I-1795817852-hac-restore-why-tests/P-1795817878-ANA-G4N_calibration.md`),
+    `gates: consensus=ok, calibration=ok, pipeline=ok`.
+- **Slice 3 (`hac-restore-why-src-batch1`):** Merged into `main` via
+  [PR #455](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/455) (`1d8cecca48`), restoring `# why:`
+  comments across 6 source modules and updating `apps/sandbox-executor/tests/test_self_doc_modules.py` to
+  `allow_why=True` — unblocking Slices 4 & 5 (`16/16` CI checks `SUCCESS`).
+  - **Readiness (`pr_readiness.py --record`)**: Head `79ed5987`, Consensus `APPROVED` (`23ba28bc`), Stage 5 calibration
+    `calibrate=success` (`plans/I-1795819107-hac-restore-why-src-batch1/P-1795819130-ANA-G4N_calibration.md`),
+    `gates: consensus=ok, calibration=ok, pipeline=ok`.
+  - Bean stays `in-progress` for Slices 4 & 5 and the `0153` template-prevention AC.
 - **Slice 4 (`hac-restore-why-launcher-batch`):** Parked after Stage 3 halt (`CF-0081`, `a7a913e1`) because
   `apps/sandbox-executor/tests/test_self_doc_modules.py:221` on `main` calls `find_disallowed_comments()` with
   `allow_why=False`, failing tests on restored `# why:` comments in all 7 governed launcher modules (`empty_diff` after
