@@ -10,7 +10,7 @@ tags:
   - stage-3
   - holon-agentic-coder
 created_at: 2026-11-26T21:10:00Z
-updated_at: 2026-11-26T21:10:00Z
+updated_at: 2026-11-27T07:50:33Z
 ---
 
 ## Problem
@@ -55,3 +55,10 @@ with them.
 
 - A test: candidate overlapping a parked (no live runner) flow is admitted.
 - A test: two parked flows resuming at once admit exactly one, the other refuses with a named live blocker.
+
+## Audit evidence, 2026-11-27T07:49Z (fifth-merge audit)
+
+- **Recurrence (`CF-0046`, `07:44:57Z`):** resuming parked bean `0590` (`stage1-requires-assumptions`) after PR `#407`
+  merged was immediately refused at Stage 3 admission by an older parked flow (`flow-flow-references-github-issues`,
+  blocked/idle since `2026-11-26T04:13:36Z`, `68` refusals / `1417.1 min` idle). Parked flows continue to chain-block
+  active resumes.

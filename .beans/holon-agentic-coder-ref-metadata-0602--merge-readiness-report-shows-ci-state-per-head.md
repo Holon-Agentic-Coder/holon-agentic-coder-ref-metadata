@@ -10,7 +10,7 @@ tags:
   - ci
   - reporting
 created_at: 2026-11-27T04:33:33Z
-updated_at: 2026-11-27T04:33:33Z
+updated_at: 2026-11-27T07:50:33Z
 ---
 
 ## Evidence
@@ -44,3 +44,12 @@ script and a paragraph in the readiness checklist.
 
 - Source: self-improvement audit 2026-11-27.
 - Related: 0235, 0160.
+
+## Audit evidence, 2026-11-27T07:49Z (fifth-merge audit)
+
+- **`#404` (`05:13:02Z`) and `#405` (`05:13:20Z`):** merged to `origin/main` while `Test - Hygiene` was failing on
+  `knowledge/wisdom.py` (`45944464931`, `45944497911`), poisoning `origin/main` for `2 h 11 min` until `#403` merged at
+  `07:24:46Z` (`8+` wasted iterations across `#403,#406,#407,#408,#409,#410`).
+- **Pending-CI merges continued:** `#403`, `#406`, `#407`, `#409`, `#410`, `#411` all merged right after hand
+  `Merge branch 'main'` commits while `unit (macos-latest)` / `unit (ubuntu-latest)` were `QUEUED`/`IN_PROGRESS`; `#410`
+  also merged with `reviews: []` (`0` GitHub reviews) and no calibration commit.

@@ -9,7 +9,7 @@ tags:
   - observability
   - holon-agentic-coder
 created_at: 2026-11-27T05:18:43Z
-updated_at: 2026-11-27T05:18:43Z
+updated_at: 2026-11-27T07:50:33Z
 ---
 
 ## Notes
@@ -39,5 +39,14 @@ updated_at: 2026-11-27T05:18:43Z
 - Eliminates blind spots in Stage 4 flow logs and ensures review churn accounting matches calibration reports without
   querying GitHub or container artefacts.
 - Cost: minor logging and accounting fix in `flow/review/` with unit tests.
+
+### Audit evidence (2026-11-27T07:49Z fifth-merge audit)
+
+- On `#408` (`self-doc-tests-49`, `06:00:28Z`), `#403` (`tests-46`), `#406` (`tests-48`), `#407` (`tests-51`), and
+  `#409` (`tests-45`) Iter 3–4 (`05:25Z`–`05:40Z`), Stage 4 logs printed `APPROVED (0/0/0)` for all 3 reviewers followed
+  immediately by `Consensus blocked ...: reviewer container reported ensemble verdict CHANGES_REQUESTED` when `FIND-CI`
+  (`hygiene`) blocked consensus, without naming the CI blocker in the verdict line.
+- `todo/flow-self-doc-tests-51.log` (`05:59:16Z`) still printed
+  `Non-defect churn: target merge 0, bookkeeping 0, CI noise 0` despite target-sync merges (`a572af8d`, `3ee72bf9`).
 
 ## Resolution

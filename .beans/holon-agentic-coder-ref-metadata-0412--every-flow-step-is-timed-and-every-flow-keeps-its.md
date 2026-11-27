@@ -11,7 +11,7 @@ tags:
   - timing
   - holon-agentic-coder
 created_at: 2026-11-24T11:00:00Z
-updated_at: 2026-11-25T06:05:00Z
+updated_at: 2026-11-27T07:50:33Z
 ---
 
 ## Why
@@ -180,3 +180,15 @@ Instrumentation gaps from section 4 of `todo/flow-time-audit-2026-11-26.md`:
 - Executor and resolver test runs and pushes inside agent turns are not logged.
 - `executions.jsonl` rows have no turn durations or token counts.
 - No flow log exists for the antigravity flows #296 to #307 or for #316 (0-byte log; Bean 0385).
+
+## Audit evidence, 2026-11-27T07:49Z (fifth-merge audit)
+
+- **`10/10` newer `holon-coherence` flows (`#59`–`#66`, plus running/parked Coherence flows)** left **no**
+  `todo/flow-<slug>.log` file on disk; only `checkpoint-*.json` `context.logs` captured engine events, losing wrapper
+  pre-flight lines and Stage summaries.
+- `todo/flow-self-doc-tests-49.log` (`#408`) stopped at `05:22:54Z` (line 204), while `8` subsequent `--from-stage`
+  resumes (`05:31:53Z`–`06:32:14Z`) logged only to `checkpoint-self-doc-tests-49.json`.
+- Still `not measured` in `05:19:35Z`–`07:49:25Z`: wrapper pre-flight before `Pipeline run initiated`,
+  `stage5_ci_reg_wait`, per-reviewer latencies inside Stage 4 ensembles (`44` ensemble runs), resolver inner splits
+  (container boot vs LLM turns vs local pytest/lint vs push), and hand pre-merge `origin/main` syncs (`#403`, `#406`,
+  `#407`, `#409`, `#410`, `#411`).

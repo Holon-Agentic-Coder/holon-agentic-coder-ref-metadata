@@ -10,7 +10,7 @@ tags:
   - reliability
   - holon-agentic-coder
 created_at: 2026-11-24T12:58:00Z
-updated_at: 2026-11-24T12:58:00Z
+updated_at: 2026-11-27T07:50:33Z
 ---
 
 ## Problem
@@ -46,3 +46,11 @@ Both wrappers relaunched within 50 seconds, so the network was back at once. The
 
 - Related: Bean 0384 (stall budget), Bean 0417 (wrapper completion gate), Bean 0421 (OOM kill, a different
   infrastructure failure).
+
+## Audit evidence, 2026-11-27T07:49Z (fifth-merge audit)
+
+- **`holon-coherence#66` (`coherence-metrics-unification`, `07:16:26Z`):** after `13.1 min` of Stage 4 review produced
+  `3/3 APPROVED (0/0/0)` verdicts, `posting.py` (`gh pr comment` and `gh pr review` via GraphQL) failed with
+  `Post "https://api.github.com/graphql": read tcp 127.0.0.1:63992->127.0.0.1:8080: read: connection reset by peer`.
+  Stage 4 exited `failed` immediately without retrying the transient `gh` proxy reset, discarding `3/3` approval work
+  and precipitating `CF-0044`. Ensure `flow/review/posting.py` uses the in-place retry wrapper.

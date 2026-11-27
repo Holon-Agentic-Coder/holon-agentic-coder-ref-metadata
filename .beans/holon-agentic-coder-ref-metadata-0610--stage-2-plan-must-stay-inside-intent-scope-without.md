@@ -10,7 +10,7 @@ tags:
   - scope
   - holon-agentic-coder
 created_at: 2026-11-27T05:18:43Z
-updated_at: 2026-11-27T05:18:43Z
+updated_at: 2026-11-27T07:50:33Z
 ---
 
 ## Notes
@@ -49,5 +49,16 @@ updated_at: 2026-11-27T05:18:43Z
   Stage 2 from dragging hub docs (`README.md`, `git_flow.md`) into overlap refusals.
 - Cost: small validation step at Stage 2 exit + tests; existing `intent-check` (bean `0546`) already supplies companion
   files before launch.
+
+### Audit evidence (2026-11-27T07:49Z fifth-merge audit — 4 recurrences in 2.5 h)
+
+- **`CF-0039` (`0590`, `stage1-requires-assumptions`, `05:22:32Z`):** passed `intent.scope` disjointness pre-launch,
+  then Stage 2 expanded into `apps/sandbox-executor/tests/flow/test_pipeline_unlimited.py` and parked on PR `#407`.
+- **`CF-0041` (`0567`, `coherence-commit-trailer-check`, `06:09:19Z`):** Stage 2 expanded into
+  `tests/test_scripts_self_doc.py` (unlisted in `intent.scope`) and parked on Coherence PR `#58`.
+- **`CF-0042` (`0563`, `coherence-ledger-invariants`, `06:15:08Z`):** Stage 2 expanded into
+  `tests/test_scripts_self_doc.py` (unlisted in `intent.scope`) and parked on Coherence PR `#58`.
+- **`CF-0045` (`0524` slice 2, `coherence-cache-scrub-endpoints`, `07:34:44Z`):** Stage 2 expanded into
+  `tests/commands/test_start.py` and `tests/commands/test_web_token.py` and parked on Coherence PR `#63`.
 
 ## Resolution

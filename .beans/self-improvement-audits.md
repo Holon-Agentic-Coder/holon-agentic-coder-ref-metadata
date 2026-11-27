@@ -5,6 +5,88 @@ first.
 
 ## Entries
 
+### 2026-11-27T07:49:25Z — Fifth-Merge Audit
+
+- **Trigger:** fifth merge (`14` merges across both target repos since `2026-11-27T05:19:35Z` at
+  `holon-agentic-coder#405` and `holon-coherence#57`):
+  - `holon-agentic-coder` (`6`): `#403` (`07:24:46Z`), `#406` (`07:36:44Z`), `#407` (`07:37:02Z`), `#409` (`07:38:45Z`),
+    `#410` (`07:39:41Z`), `#411` (`07:40:19Z`). Open: `#408` (`self-doc-tests-49`).
+  - `holon-coherence` (`8`): `#58` (`07:45:52Z`), `#59` (`07:46:29Z`), `#60` (`07:46:29Z`), `#61` (`07:46:47Z`), `#62`
+    (`07:47:33Z`), `#63` (`07:47:51Z`), `#64` (`07:48:09Z`), `#65` (`07:48:26Z`). Open: `#66` (`CF-0044`, unreviewed).
+    (`#57` merged `05:17:48Z`, prior audit; included in flow metrics: `14.8 min` span, `1` iter, `15` runs all green.)
+- **Last merged pull requests at audit time:** `Holon-Agentic-Coder/holon-agentic-coder#411`;
+  `Holon-Agentic-Coder/holon-coherence#65`.
+- **Coordinator failure ledger repeats (`CF-0039`–`CF-0046`, 8 new rows since `CF-0038`):**
+  - `overlap-scheduling` (`5` new rows, `11` total): `4` were Stage 2 plan expansion outside `intent.scope` (`CF-0039`
+    `0590`, `CF-0041` `0567`, `CF-0042` `0563`, `CF-0045` `0524` slice 2 — extended bean `0610`); `1` was a parked flow
+    blocking resume (`CF-0046`, `flow-references-github-issues` idle since `2026-11-26` blocking `0590` — extended bean
+    `0544`).
+  - `verification` (`2` new rows, `6` total): `CF-0043` (`#408` carried-finding loop + false readiness claim) and
+    `CF-0044` (Coherence `#66` bypassed failed Stage 3/4 via `--from-stage calibrate` — bean `0617`).
+  - `readiness-check` (`1` new row, `6` total): `CF-0040` (`#410` halted on broken `origin/main` `wisdom.py` budget).
+- **Root-cause findings & new beans:**
+  - **Bean `0617` (new, high):** `--from-stage calibrate` skips Stage 4 approval gate
+    (`"Merged-head CI gate skipped: no Stage 4 approval recorded"`) and exited `calibrate: ok` on unreviewed
+    `holon-coherence#66` (`reviews: []`, `comments: []`, `execute` failed on `module_budgets.json`, `CF-0044`).
+    `hac#410` also merged with `reviews: []` and no calibration commit.
+  - **Bean `0618` (new, high):** `#408` (`self-doc-tests-49`, `CF-0043`) pre-iteration carried-finding resolver crashed
+    `6` consecutive resumes (`06:05Z`–`06:32Z`, `~24 min`) on `nothing to commit, working tree clean` and
+    committed/pushed `6` empty `chore(review): record review ledger rows` heads (`c778c1633`..`be2a5e799`, `54` wasted
+    CI runs) without starting a review.
+  - **Bean `0619` (new, high):** `#404`/`#405` merged at `05:13Z` with `Test - Hygiene` failing on `wisdom.py`
+    (`386 > 350`), poisoning `origin/main` for `2 h 11 min` until `#403` merged (`07:24:46Z`). Stage 4/5 synced broken
+    `main`, withdrew `#408`'s `3/3` `abcd50c7` approval (`9773e1d15`), inflicted `8` extra `FIND-CI` churn iterations
+    (`~90+ min`) across `#403`/`#406`/`#407`/`#409` despite `3/3 APPROVED`, halted `#410` (`CF-0040`), and forced `#411`
+    to split `wisdom.py` out-of-scope.
+- **Per-flow churn summary (CI heads / total runs / review iterations / churn vs defect):**
+  - HAC (`#403,#406,#407,#408,#409,#410,#411`): `#403` `10 / 90 (29 canc, 5 fail) / 5 iters (1 defect, 4 churn)`; `#406`
+    `12 / 100 (36 canc, 4 fail) / 5 iters (1 defect, 4 churn)`; `#407`
+    `12 / 100 (43 canc, 3 fail) / 5 iters (1 defect, 4 churn)`; `#408` (open)
+    `12 / 100 (15 canc, 12 fail, 2 queued) / 2 iters + 8 carried-resolver runs (1 defect, 7+ churn; `6179f55ef`dirtied 36`plans/*_calibration.md`, failing `lint-md`on`b734520fa`)`;
+    `#409` `12 / 100 (36 canc, 5 fail) / 5 iters (1 defect, 4 churn)`; `#410`
+    `6 / 54 (18 canc, 7 fail) / 1 iter (0 reviews at merge)`; `#411` `5 / 45 (3 canc, 0 fail) / 1 iter (0 churn)`.
+  - Coherence (`#57`–`#66`, `0` cancelled runs across all 10 PRs): `#57` `3 / 15 / 1`; `#58` `5 / 30 / 2 (1 defect)`;
+    `#59` `5 / 25 (1 fail) / 2 (1 defect)`; `#60` `3 / 15 / 1`; `#61` `3 / 15 / 1`; `#62` `5 / 25 / 2 (1 defect)`; `#63`
+    `7 / 35 (4 fail) / 3 (2 defect/CI)`; `#64` `4 / 20 / 2 (1 defect)`; `#65` `5 / 25 / 2 (1 defect)`; `#66` (open,
+    `CF-0044`) `2 / 10 / 1 (0 reviews posted, `127.0.0.1:8080` reset)`.
+- **Per-step timing table (`30` active/completed/parked flows across HAC and Coherence):**
+
+| Step                                     | Count |  Median (s / min) |  Longest (s / min) | Category / Notes                                                             |
+| :--------------------------------------- | ----: | ----------------: | -----------------: | :--------------------------------------------------------------------------- |
+| Pre-flight (wrapper start -> Stage 1)    |    35 |       not logged* |        not logged* | Engine `0.0 s / max 3.0 s`; wrapper pre-flight lines unmeasured (`0412`)     |
+| Stage 1 (`INTENT`)                       |    35 |   16.0 s (0.27 m) |   303.0 s (5.05 m) | Working (`coherence-promote-ledger` max)                                     |
+| Stage 2 (`PLAN`)                         |    37 |  174.0 s (2.90 m) |   420.0 s (7.00 m) | Working (`flow-references-github-issues` max)                                |
+| Stage 3 admission — admitted             |    35 |   13.0 s (0.22 m) |   100.0 s (1.67 m) | Working (`self-doc-tests-51` max)                                            |
+| Stage 3 admission — refused (per poll)   |    78 |    5.0 s (0.08 m) |    35.0 s (0.58 m) | Overlap wait (`flow-references-github-issues` max)                           |
+| Stage 3 overlap wait (wall per parked)   |     5 |           290.7 m |           1125.1 m | Wait on other flow (`flow-references-github-issues` `68` refusals)           |
+| Stage 3 (`EXECUTE` — succeeded)          |    23 |  296.0 s (4.93 m) | 1006.0 s (16.77 m) | Working (`self-doc-tests-49` max)                                            |
+| Stage 3 (`EXECUTE` — failed/refused)     |    88 |    5.0 s (0.08 m) | 1149.0 s (19.15 m) | Refusal/failure (`flow-references-github-issues` max)                        |
+| Execute end -> PR create                 |    19 |   11.0 s (0.18 m) |    13.0 s (0.22 m) | Working (`self-doc-tests-45` max)                                            |
+| Stage 4 reviewer ensemble turn           |    44 |  437.5 s (7.29 m) | 2102.0 s (35.03 m) | Working + CI wait (`self-doc-tests-46` max; per-reviewer split unmeasured)   |
+| Stage 4 resolver turn                    |    15 |  397.0 s (6.62 m) |   580.0 s (9.67 m) | Working (`self-doc-tests-51` max; inner pytest/push split unmeasured)        |
+| Stage 4 carried-finding resolver         |     9 |  223.0 s (3.72 m) |   532.0 s (8.87 m) | Working (`self-doc-tests-49` max; 6x clean-tree crash on `#408`)             |
+| Stage 4 (`REVIEW` total)                 |    33 | 786.0 s (13.10 m) | 3358.0 s (55.97 m) | Working + CI (`self-doc-tests-46` max)                                       |
+| Stage 5 calibration work (excl. CI wait) |    15 |   50.0 s (0.83 m) |  864.0 s (14.40 m) | Working (`self-doc-tests-45` max)                                            |
+| Stage 5 CI registration wait             |     - |      not measured |       not measured | Not logged separately (`0412`)                                               |
+| Stage 5 final-head CI wait               |    15 |  147.7 s (2.46 m) |  928.2 s (15.47 m) | Waiting on CI (`self-explaining-markdown-coverage` max)                      |
+| Stage 5 (`CALIBRATE` total)              |    17 |  293.0 s (4.88 m) | 2001.0 s (33.35 m) | Work + CI (`self-doc-tests-49` max failed on CI timeout)                     |
+| Idle between stop & resume               |    99 |   64.0 s (1.07 m) |           645.62 m | Idle (`admission-remote-in-flight` max)                                      |
+| Human wait (approval -> merge)           |    13 |      96.3 m (HAC) | 221.6 m (`coh#57`) | Waiting on human (Coherence `#58–#65` open `37–109 m` before `07:45Z` sweep) |
+
+- **Not measured:** wrapper pre-flight, `stage5_ci_reg_wait`, per-reviewer latencies inside ensembles, resolver inner
+  splits, hand pre-merge syncs, and `todo/flow-*.log` for `10/10` newer Coherence flows (extended `0412`).
+- **Examined and extended (not duplicated):** `0408` (`#408` `6179f55ef` repo-wide Prettier breaking `lint-md` on 36
+  historical plans), `0412` (missing Coherence logs & unmeasured steps), `0424` (Coherence `#66` `127.0.0.1:8080`
+  consensus-posting reset without retry), `0544` (`CF-0046` parked `flow-references-github-issues` blocking `0590`),
+  `0602` (`#404`/`#405` merged with failing `hygiene` + pending-CI merges + `#410` `reviews=0`), `0610` (`CF-0039`,
+  `CF-0041`, `CF-0042`, `CF-0045` Stage 2 scope creep), `0613` (`3/3 APPROVED` printed with `CHANGES_REQUESTED` on
+  `FIND-CI` + `target merge 0` in `tests-51`).
+- **Examined and confirmed covered by existing beans:** `0612` (Claude org spend limit hit `self-doc-tests-45/46/48/51`
+  at `04:48–04:50Z`), `0609` (all `6` merged HAC PRs had hand `Merge branch 'main'` commits seconds before merge),
+  `0601`/`0603` (`#403,#406,#407,#409` per-slice scanner tests and identical titles), `0596` (`#410` merged).
+- **Beans created:** `0617`, `0618`, `0619`.
+- **Beans extended:** `0408`, `0412`, `0424`, `0544`, `0602`, `0610`, `0613`.
+
 ### 2026-11-27T05:19:35Z — Fifth-Merge Audit
 
 - **Trigger:** fifth merge (`15` merges across both target repos since `2026-11-27T04:43:40Z` at
