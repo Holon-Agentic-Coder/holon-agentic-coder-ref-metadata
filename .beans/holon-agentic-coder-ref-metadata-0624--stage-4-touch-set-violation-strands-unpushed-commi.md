@@ -10,7 +10,7 @@ tags:
   - resolver
   - holon-agentic-coder
 created_at: 2026-11-27T10:55:04Z
-updated_at: 2026-11-27T10:56:02Z
+updated_at: 2026-11-27T11:55:26Z
 ---
 
 ## Notes
@@ -31,9 +31,15 @@ updated_at: 2026-11-27T10:56:02Z
      reviewers requested updating `.github/workflows/README.md` to match `.github/workflows/promote-ledger.yml`. The
      resolver edited `.github/workflows/README.md` outside `intent.scope`, raising `touch_set_violation`
      (`ac8f76db3dda`) and refusing ledger commit push (`6365fa72`).
+  3. **`holon-agentic-coder#420` (`0601`, `self-doc-ast-behavior-gate`, `CF-0058`, `11:41:15Z`):** Resolver edited
+     `apps/sandbox-executor/tests/test_ci_bookkeeping_wiring.py` outside the 3-file touch set, stranding unpushed commit
+     `1906a1b8deea` and refusing ledger commit `19d339c9`.
+  4. **`holon-agentic-coder#421` (`0617`, `stage5-fail-closed-calibrate`, `CF-0059`, `11:45:56Z`):** Resolver edited
+     `apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports.py` and `flow/stages/calibrate.py` outside the touch
+     set, stranding unpushed commit `adcb4b6bcf9f` and refusing ledger commit `df001ca8`.
 - Unlike Stage 3 (which automatically returns to Stage 2 to widen the touch set up to `MAX_REPLAN_ATTEMPTS`), Stage 4
   resolver halts leave unpushed local non-ledger commits on the branch that block ledger pushes and require manual
-  `git reset`/re-scope.
+  `git reset`/re-scope (related prevention: Bean `0627`).
 
 ### Proposed Change
 

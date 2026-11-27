@@ -11,7 +11,7 @@ tags:
   - timing
   - holon-agentic-coder
 created_at: 2026-11-24T11:00:00Z
-updated_at: 2026-11-27T10:56:02Z
+updated_at: 2026-11-27T11:55:26Z
 ---
 
 ## Why
@@ -202,3 +202,12 @@ Instrumentation gaps from section 4 of `todo/flow-time-audit-2026-11-26.md`:
 - Still `not measured` in `07:49:25Z`–`10:55Z`: wrapper pre-flight before `Pipeline run initiated`, per-reviewer
   latencies inside Stage 4 ensembles (`8` ensemble runs), resolver inner splits (`5` runs), Stage 5
   `publish_calibration` vs `stage5_cal_work` split, and post-merge pruned flow timings when no `todo/flow-*.log` exists.
+
+## Audit evidence, 2026-11-27T11:54Z (fifth-merge audit)
+
+- **`0/14` flows active or completed in `10:49Z–11:47Z`** wrote any `todo/flow-*.log` entries (newest `todo/flow-*.log`
+  mtime on disk remains `06:04Z`), and `post-pr-merge` pruned the worktrees for 6 of the 7 merged HAC PRs (`#412`,
+  `#414`, `#416`–`#418`, `#422`), leaving only git commit timestamps and GitHub PR metadata for those flows.
+- Still `not measured` in `10:49Z–11:54Z`: wrapper pre-flight (`0` logs), per-reviewer latencies inside `13` Stage 4
+  ensemble runs, resolver inner splits (`4` runs), Stage 5 `ci_reg_wait` vs `publish_calibration` splits (`7` runs), and
+  token usage (tracked separately in Bean `0629`).

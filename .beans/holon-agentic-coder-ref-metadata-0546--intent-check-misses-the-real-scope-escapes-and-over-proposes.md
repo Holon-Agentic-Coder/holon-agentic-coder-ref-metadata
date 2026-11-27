@@ -10,7 +10,7 @@ tags:
   - touch-set
   - holon-agentic-coder
 created_at: 2026-11-26T21:08:00Z
-updated_at: 2026-11-27T10:56:02Z
+updated_at: 2026-11-27T11:55:26Z
 ---
 
 ## Problem
@@ -51,3 +51,15 @@ and the prompt templates. Add this escape to the replay set (see the Proposed fi
   reviewers requested updating `.github/workflows/README.md` to match the new trigger/behavior, and the Stage 4 resolver
   halted on `touch_set_violation` (`ac8f76db3dda`). Add `.github/workflows/*.yml -> .github/workflows/README.md`
   companion rule to `intent-check`.
+
+## Audit evidence (2026-11-27T11:52Z fifth-merge audit)
+
+- **`CF-0058` (`HAC #420`, bean `0601`, `self-doc-ast-behavior-gate`, `11:41:15Z`):** Adding
+  `.github/workflows/test-self-doc-behavior.yml` triggered on `pull_request` required registering the workflow in
+  `apps/sandbox-executor/tests/test_ci_bookkeeping_wiring.py`. `intent_scope_check.py` missed this companion because it
+  only scans Python imports and `git log` co-changes, causing a `15.0 min` Stage 4 `touch_set_violation` halt
+  (`1906a1b8`). Add a rule proposing `apps/sandbox-executor/tests/test_ci_bookkeeping_wiring.py` whenever a new
+  `.github/workflows/*.yml` file is in scope.
+- **`CF-0059` (`HAC #421`, bean `0617`, `stage5-fail-closed-calibrate`, `11:45:56Z`):** Stage 3 re-plans and Stage 4
+  resolver both escaped into `flow/lazy_exports.py` (which `0546` already flags as missing from `intent-check` for
+  `flow/` modules) and `flow/stages/calibrate.py`.

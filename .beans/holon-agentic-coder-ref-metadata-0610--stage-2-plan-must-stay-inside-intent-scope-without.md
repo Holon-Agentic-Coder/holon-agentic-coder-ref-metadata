@@ -10,7 +10,7 @@ tags:
   - scope
   - holon-agentic-coder
 created_at: 2026-11-27T05:18:43Z
-updated_at: 2026-11-27T11:20:54Z
+updated_at: 2026-11-27T11:55:26Z
 ---
 
 ## Notes
@@ -70,7 +70,13 @@ updated_at: 2026-11-27T11:20:54Z
   flow `0216` (`I-1795665976-flow-references-github-issues/P-1795727982-CLA-CO5.5/_`) on
   `apps/sandbox-executor/src/sandbox_executor/flow/stages/plan.py`; resume from checkpoint
   `apps/holon-agentic-coder/flow-stage2-plan-stays-in-intent-scope/.holon/flow/checkpoint-stage2-plan-stays-in-intent.json`
-  when `0216` merges or releases `plan.py`.
+  when `0216` merges or releases `plan.py` (`CF-0057`).
+
+### Audit evidence (2026-11-27T11:52Z fifth-merge audit)
+
+- **`CF-0056` (`0535`, `hac-stage-registry-git-forge`, `11:12:16Z`):** Stage 2 plan widened beyond `intent.scope` into
+  `apps/sandbox-executor/src/sandbox_executor/flow/review/loop.py`, overlapping open PR `#412` (`0618`) and parking at
+  Stage 3 admission (`EV 44.19`).
 
 ## Acceptance Criteria
 

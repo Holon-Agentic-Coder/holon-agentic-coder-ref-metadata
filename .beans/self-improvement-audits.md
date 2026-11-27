@@ -5,6 +5,87 @@ first.
 
 ## Entries
 
+### 2026-11-27T11:54:15Z — Fifth-Merge Audit
+
+- **Trigger:** fifth merge (`7` merges in `holon-agentic-coder` since `2026-11-27T10:56:02Z` at
+  `holon-agentic-coder#411` and `holon-coherence#73`):
+  - `holon-agentic-coder` (`7`): `#412` (`11:40:08Z`), `#414` (`11:40:26Z`), `#416` (`11:41:06Z`), `#417` (`11:41:23Z`),
+    `#418` (`11:41:40Z`), `#419` (`11:41:58Z`), `#422` (`11:42:42Z`). Open: `#413` (`0611`, halted `CF-0055`), `#415`
+    (`0615`, `3/3 APPROVED` + `calibrate: ok`, `CLEAN`), `#420` (`0601`, halted `CF-0058`), `#421` (`0617`, halted
+    `CF-0059`), `#423` (`0607`, in Stage 4 review).
+  - `holon-coherence` (`0` at trigger baseline `52019174`; note `#76`–`#81` merged concurrently at `11:45:04Z–11:46:18Z`
+    while this audit ran and remain queued for the next fifth-merge audit).
+- **Last merged pull requests at audit baseline:** `Holon-Agentic-Coder/holon-agentic-coder#422` (`2a83e4cc7`);
+  `Holon-Agentic-Coder/holon-coherence#73` (`52019174f`).
+- **Coordinator failure ledger repeats (`CF-0056`–`CF-0059`, `4` new rows since `CF-0055`):**
+  - `overlap-scheduling` (`2` new rows, `15` total — **repeat flagged high priority**): `CF-0056` (`0535` Stage 2
+    widened into `flow/review/loop.py`, overlapping `#412`) and `CF-0057` (`0610` launched without reading `0216`'s
+    `plans/*/P-*.md ## Touch Set`, hitting `flow/stages/plan.py`). `slot_keeper.py` only checks `queue.json`
+    `kind=resume` entries rather than scanning all on-disk parked flow worktrees -> **new Bean `0628`** (extended
+    `0610`).
+  - `intent-scope` (`2` new rows, `16` total — **repeat flagged high priority**): `CF-0058` (`#420` `0601` omitted
+    `tests/test_ci_bookkeeping_wiring.py` when adding `.github/workflows/test-self-doc-behavior.yml` -> extended `0546`,
+    `0624`) and `CF-0059` (`#421` `0617` edited `flow/lazy_exports.py` and `flow/stages/calibrate.py` -> extended
+    `0546`, `0624`). Inspecting `flow/review/resolver.py:112-135` and `entrypoint/review_loop.py:323-375` confirmed
+    Stage 4's resolver prompt never receives the plan's Touch Set -> **new Bean `0627`**.
+- **Premature merge & clean findings:**
+  - **Premature mid-Stage-5 merge (`HAC #419`, `b366a559e`):** Merged at `11:41:58Z` (`33 s` after Stage 5 pushed
+    `2bf82d86`) with `2` macOS unit checks still pending, **0 `_calibration.md` / Stage 5 reconciliation commits**, and
+    checkpoint stranded at `stage: calibrate` -> extended **`0602`** so the readiness script gates on both completed CI
+    and `P-*_calibration.md` on the PR head.
+  - **Clean findings (examined and in order):** `6` of the `7` merged HAC PRs (`#412`, `#414`, `#416`–`#418`, `#422`)
+    completed `3/3 APPROVED` + Stage 5 calibration with `0` docstrings added, `0` comments added, and `100%` Touch Set
+    recall (`87.5%`–`100%` precision); `#418` (`0600`) cleanly recovered from its earlier `04:47Z` Stage 3 failure and
+    shipped host-push retry + `execution_branch` preservation.
+- **Per-flow churn summary (CI heads / total checks / review iterations / churn vs defect):**
+  - Merged HAC PRs: `#412` `6 / 90 (12 canc) / 1 full + 1 scoped (0 churn, iter 1 quota resume)`; `#414`
+    `4 / 60 (12 canc) / 2 full (0 churn, iter 1 quota resume)`; `#416` `3 / 45 (3 canc) / 1 full (0 churn)`; `#417`
+    `5 / 75 (12 canc) / 1 full + 1 scoped (0 churn)`; `#418`
+    `5 / 75 (12 canc, 1 fail) / 1 full + 1 scoped (0 churn, pre-reset fail)`; `#419`
+    `6 / 78 (22 canc, 1 pend) / 1 full + 1 scoped (0 churn, merged mid-Stage-5)`; `#422`
+    `3 / 45 (1 canc) / 1 full (0 churn)`.
+  - Halted/open HAC PRs: `#413` `1 / 15 / 1 full (halted CF-0055)`; `#415`
+    `4 / 60 (11 canc) / 2 full (CLEAN, awaiting merge)`; `#420` `1 / 16 (1 fail) / 1 full (halted CF-0058)`; `#421`
+    `1 / 15 / 1 full (halted CF-0059, after 2 Stage 3 re-plans)`; `#423` in Stage 4 review (`9.8 min` Stage 3).
+- **Per-step timing table (`>= 2026-11-27T10:35:00Z` across `15` checkpointed flows + `7` merged HAC PR timelines):**
+
+| Step                                   | Count |    Median (s / min) |    Longest (s / min) | Category / Notes                                                           |
+| :------------------------------------- | ----: | ------------------: | -------------------: | :------------------------------------------------------------------------- |
+| Pre-flight (wrapper start -> Stage 1)  |     - |        not measured |         not measured | `0/14` active/completed flows wrote `todo/flow-*.log` (`0412`)             |
+| Stage 1 (`INTENT`)                     |    10 |     17.0 s (0.28 m) |      28.0 s (0.47 m) | Working (`review-posting-transient-retry` max)                             |
+| Stage 2 (`PLAN`)                       |    11 |    219.0 s (3.65 m) |     277.0 s (4.62 m) | Working (`stage5-fail-closed-calibrate` max)                               |
+| Stage 3 admission — admitted           |    12 |     12.5 s (0.21 m) |      24.0 s (0.40 m) | Working (`stage5-fail-closed-calibrate` max)                               |
+| Stage 3 (`EXECUTE` — succeeded)        |    10 |    294.5 s (4.91 m) |    938.0 s (15.63 m) | Working (`stage5-fail-closed-calibrate` max)                               |
+| Stage 3 (`EXECUTE` — failed/re-plan)   |     4 |    143.5 s (2.39 m) |   1216.0 s (20.27 m) | Failure/re-plan (`stage5-fail-closed-calibrate` touch-set widen max)       |
+| Execute end -> PR create               |     9 |     11.0 s (0.18 m) |      13.0 s (0.22 m) | Working (`self-doc-ast-behavior-gate` max)                                 |
+| Stage 4 reviewer ensemble turn         |    13 |    295.0 s (4.92 m) |    628.0 s (10.47 m) | Working + CI (`stage5-fail-closed-calibrate` max; per-reviewer unmeasured) |
+| Stage 4 resolver turn                  |     4 |    277.5 s (4.62 m) |     303.0 s (5.05 m) | Working (`stage5-fail-closed-calibrate` max; inner splits unmeasured)      |
+| Stage 4 CI registration wait           |     9 |     17.0 s (0.28 m) |      18.0 s (0.30 m) | Waiting on CI (`hac-import-cycle-ratchet` max)                             |
+| Stage 4 (`REVIEW` total)               |    10 |    499.0 s (8.32 m) |   1055.0 s (17.58 m) | Working + CI (`measure-ci-head-durations` max)                             |
+| Stage 5 calibration work (excl. CI)    |     7 |     43.7 s (0.73 m) |      47.4 s (0.79 m) | Working (`hac-import-cycle-ratchet` max; `publish` split unmeasured)       |
+| Stage 5 final-head CI wait             |     7 |    261.2 s (4.35 m) |     377.0 s (6.28 m) | Waiting on CI (`coherence-single-request` max)                             |
+| Stage 5 (`CALIBRATE` total)            |     7 |    308.0 s (5.13 m) |     427.0 s (7.12 m) | Work + CI (`coherence-single-request` max)                                 |
+| Idle between stop & resume             |     5 | 7831.0 s (130.52 m) | 17043.0 s (284.05 m) | Idle (`coherence-commit-trailer-check` max)                                |
+| Human wait (calibration -> merge, HAC) |     7 |   1074.0 s (17.9 m) |    3564.0 s (59.4 m) | Waiting on human (`#414` max `59.4 m`; `#419` `0.9 m` mid-Stage-5)         |
+
+- **Not measured:** `0/14` flows wrote `todo/flow-*.log` (`0412`), `6` merged HAC PRs lost local checkpoint logs upon
+  post-merge pruning, per-reviewer / resolver-inner / Stage 5 `ci_reg_wait` & `publish_calibration` splits remain
+  unlogged (`0412`), and per-stage/turn LLM token usage is unrecorded (**new Bean `0629`**).
+- **Beans created:** **`0627`** (high: pass plan Touch Set to Stage 4 resolver prompt & reject out-of-set edits
+  pre-commit), **`0628`** (high: pre-launch parked-worktree Touch Set guard across all on-disk flows), **`0629`**
+  (normal: record per-stage & per-turn token usage and wall timings in checkpoints).
+- **Beans extended:** **`0412`**, **`0531`**, **`0546`**, **`0602`**, **`0610`**, **`0611`**, **`0616`**, **`0624`**.
+- **Architecture & source-code quality refresh
+  ([docs/ecosystem-audit-report-2026-11.md](../docs/ecosystem-audit-report-2026-11.md), `hac@2a83e4cc7` vs `0d8d1249f`;
+  `coherence@52019174f` baseline):**
+  - **Overall scores:** **`holon-coherence` `7.9 / 10 (0.0)`** retains its lead over **`holon-agentic-coder`
+    `7.5 / 10 (0.0)`** (`hac@2a83e4cc7` closed `0538`, `0594`, `0600`, `0618` and landed `0533`/`0608`/`0616` slices).
+  - **HAC deltas (`0d8d1249f → 2a83e4cc7`):** Complexity `5.9→5.8 (-0.1)` (`run_review_loop` `CC=207→219`, `947/950L`),
+    Clean Code `7.3→7.4 (+0.1)` (`#422` DRY unification), Testability `7.8→7.9 (+0.1)` (`#414` broad-except ratchet,
+    `+7` test files / `+1,985` test LOC / `5,177` `test_*`), Error Handling `8.1→8.2 (+0.1)` (`#412`, `#414`
+    `broad_except` `138→137`, `#418`), Observability `8.2→8.1 (-0.1)` (`#416` `553` KB entries vs `#419` missing
+    `_calibration.md`, pending fragments `270→291`, `0` wrapper logs).
+
 ### 2026-11-27T10:56:02Z — Fifth-Merge Audit
 
 - **Trigger:** fifth merge (`7` merges in `holon-coherence` since `2026-11-27T07:49:25Z` at `holon-agentic-coder#411`

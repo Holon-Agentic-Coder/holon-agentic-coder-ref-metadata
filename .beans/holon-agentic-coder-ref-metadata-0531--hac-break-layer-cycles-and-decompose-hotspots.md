@@ -10,7 +10,7 @@ tags:
   - complexity
   - refactor
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-26T13:35:00Z
+updated_at: 2026-11-27T11:55:26Z
 ---
 
 ## Problem
@@ -52,7 +52,11 @@ Bidirectional import cycles link `flow` ↔ `entrypoint` (11 imports each way) a
 
 ## Notes
 
-- Target repository: `holon-agentic-coder` (evaluated at `HEAD f1e18bcd`).
+- Target repository: `holon-agentic-coder` (evaluated at `HEAD f1e18bcd`; re-verified at `2a83e4cc7`).
 - Related existing beans: Bean `0192` (`run_review_loop`/`run_review_stage`), Bean `0197` (`calibration.py`), Bean
   `0152`/`0489` (module budgets).
 - Source: 2026-11 ecosystem architecture & source-code review (`docs/ecosystem-audit-report-2026-11.md`).
+- **Audit update (2026-11-27T11:52Z, `2a83e4cc7`):** `entrypoint <-> flow` (`12<->15`) and `knowledge <-> ledger`
+  (`4<->1`) cycles remain (PR `#415` / `0615` import-cycle ratchet is `3/3 APPROVED` + `CLEAN`, awaiting merge);
+  `flow/review/loop.py` (`run_review_loop`) grew after `#412` to `947` lines (`3` lines below its `950`-line budget
+  override) and `CC=219` (up from `207`), while `planner.py:main` (`49`) and `turns.py:run_turn` (`49`) stay elevated.
