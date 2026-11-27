@@ -43,19 +43,25 @@ def _real_lines():
 
 
 def test_new_duplicate_id_still_fails_on_real_ledger():
-    row = json.loads(_real_lines()[0])
-    row.update(id="CF-0028", created_at="2026-11-27T04:40:00Z")
-    errors = m.check_lines(_real_lines() + [json.dumps(row)], now=datetime(2026, 11, 27, 5, 0, tzinfo=UTC))
+    lines = _real_lines()
+    last_stamp = json.loads(lines[-1])["created_at"]
+    now = m.timestamps.parse_strict(last_stamp)
+    row = json.loads(lines[0])
+    row.update(id="CF-0028", created_at=last_stamp)
+    errors = m.check_lines(lines + [json.dumps(row)], now=now)
     assert any("duplicate id CF-0028" in e for e in errors)
 
 
 def test_next_row_continues_from_highest_id_on_real_ledger():
-    row = json.loads(_real_lines()[0])
-    row.update(id="CF-0039", created_at="2026-11-27T04:40:00Z")
-    now = datetime(2026, 11, 27, 5, 0, tzinfo=UTC)
-    assert m.check_lines(_real_lines() + [json.dumps(row)], now=now) == []
-    row.update(id="CF-0041")
-    assert any("not sequential" in e for e in m.check_lines(_real_lines() + [json.dumps(row)], now=now))
+    lines = _real_lines()
+    highest = max(m.ledger_number(json.loads(line)["id"]) for line in lines)
+    last_stamp = json.loads(lines[-1])["created_at"]
+    now = m.timestamps.parse_strict(last_stamp)
+    row = json.loads(lines[0])
+    row.update(id=f"CF-{highest + 1:04d}", created_at=last_stamp)
+    assert m.check_lines(lines + [json.dumps(row)], now=now) == []
+    row.update(id=f"CF-{highest + 3:04d}")
+    assert any("not sequential" in e for e in m.check_lines(lines + [json.dumps(row)], now=now))
 
 
 def test_append_only():
