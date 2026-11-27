@@ -9,7 +9,7 @@ tags:
   - stage-5
   - holon-agentic-coder
 created_at: 2026-11-27T07:49:17Z
-updated_at: 2026-11-27T08:09:39Z
+updated_at: 2026-11-27T16:17:53Z
 ---
 
 ## Notes
@@ -50,5 +50,14 @@ updated_at: 2026-11-27T08:09:39Z
   unexecuted runs cannot exit `0`.
 - Unit tests in `apps/sandbox-executor/tests/flow/test_stage5_fail_closed.py` fail without the guard and pass with
   `uv run pytest`, and `uv run task lint` passes cleanly; self-explaining code invariant holds.
+
+## Flow Status
+
+- parked 2026-11-27T16:17:42Z: blocked by local flow `I-1795756527-stage1-requires-assumptions/P-1795795713-ANA-G4N/_`
+  (`apps/holon-agentic-coder/flow-stage1-requires-assumptions`) on `apps/sandbox-executor/tests/flow/test_dispatch.py`,
+  `apps/sandbox-executor/tests/flow/test_git_refs.py`, `apps/sandbox-executor/tests/flow/test_pipeline.py`; resume from
+  checkpoint
+  `apps/holon-agentic-coder/flow-stage5-fail-closed-calibrate/.holon/flow/checkpoint-stage5-fail-closed-calibrate.json`
+  (`--checkpoint`) when `stage1-requires-assumptions` merges or releases those files.
 
 ## Resolution
