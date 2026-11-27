@@ -9,7 +9,7 @@ tags:
   - stage-5
   - holon-agentic-coder
 created_at: 2026-11-27T07:49:17Z
-updated_at: 2026-11-27T08:05:56Z
+updated_at: 2026-11-27T08:09:39Z
 ---
 
 ## Notes
@@ -41,5 +41,14 @@ updated_at: 2026-11-27T08:05:56Z
 - Eliminates unreviewed/unapproved PRs passing Stage 5 calibration and falsely appearing complete (`CF-0044`;
   `verification` repeated twice in `CF-0043`–`CF-0044`, 6x total).
 - Cost: small prerequisite check in Stage 5 + wrapper guard + unit tests.
+
+## Acceptance Criteria
+
+- Stage 5 (`run_calibrate` / `stage5.py`) refuses calibration with non-zero exit unless `execute` succeeded and `review`
+  reached consensus approval with a posted GitHub consensus review (or valid carried fingerprint on a reviewed PR).
+- Stage 5 removes the silent `"Merged-head CI gate skipped: no Stage 4 approval recorded"` pass-through so unreviewed or
+  unexecuted runs cannot exit `0`.
+- Unit tests in `apps/sandbox-executor/tests/flow/test_stage5_fail_closed.py` fail without the guard and pass with
+  `uv run pytest`, and `uv run task lint` passes cleanly; self-explaining code invariant holds.
 
 ## Resolution
