@@ -1,0 +1,39 @@
+---
+# holon-agentic-coder-ref-metadata-0599
+title: "Executor dispatch fails with 'exec role_dispatcher.sh: argument list too long' (exit 255)"
+status: todo
+type: bug
+priority: high
+tags:
+  - holon-flow
+  - executor
+  - dispatch
+created_at: 2026-11-27T01:49:20Z
+updated_at: 2026-11-27T01:49:20Z
+---
+
+## Cause
+
+- On 2026-11-26T23:47:17Z the Stage 3 executor dispatch of the module-budget-default-350 flow ran
+  `docker run ... -e HOLON_REPLAN_FEEDBACK ...` and the container died at once with
+  `exec /home/holon/entrypoint/role_dispatcher.sh: argument list too long`; the stage failed with executor exit code 255
+  after 0.4 minutes (log line 215 of the flow log).
+- Hypothesis, unconfirmed: the inherited environment (`HOLON_REPLAN_FEEDBACK` carries replan text, plus the intent and
+  env-file values) exceeds the kernel exec argument and environment size limit inside the container.
+
+## Fix
+
+- Reproduce with a replan feedback value of realistic size and measure the environment size handed to the container.
+- Pass large values (replan feedback, intent text) through a mounted file instead of an environment variable, as the
+  intent file already is; keep the environment small.
+- Fail early with a clear message naming the variable and its size when the environment would exceed the limit.
+
+## Acceptance
+
+- A replan feedback larger than the exec environment limit no longer fails the executor dispatch.
+- A test covers the dispatch with an oversized feedback value.
+- Self-explaining code invariant holds: no docstrings, and the only comments are `# why:` comments.
+
+## Links
+
+- holon-agentic-coder-ref-metadata-0489 (flow where it occurred)
