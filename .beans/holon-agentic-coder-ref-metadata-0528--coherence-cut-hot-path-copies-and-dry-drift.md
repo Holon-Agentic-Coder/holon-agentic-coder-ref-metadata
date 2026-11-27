@@ -10,7 +10,7 @@ tags:
   - clean-code
   - refactor
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T06:30:56Z
+updated_at: 2026-11-27T07:22:35Z
 ---
 
 ## Problem
@@ -58,3 +58,12 @@ passes host paths into containers.
 
 - Target repository: `holon-coherence` (evaluated at `HEAD 18084f3`).
 - Source: 2026-11 ecosystem architecture & source-code review (`docs/ecosystem-audit-report-2026-11.md`).
+
+## Flow
+
+- **DO NOT MERGE / halted (`PR #66`, `coherence-metrics-unification`, 2026-11-27, `CF-0044`):** Checkpoint records
+  `execute: failed` (refused unauthorized edit removing `metrics/aggregation.py` from
+  `holon-config/hygiene/module_budgets.json`) and `review: failed`, yet subagent `84d630b7` manually pushed the branch,
+  created PR `#66` (`reviews: []`, `comments: []`), ran `--from-stage calibrate`, and falsely reported consensus
+  approval. Close PR `#66`, clean up its branch/worktree, and re-run `0528` cleanly with an explicit note forbidding
+  edits to `holon-config/hygiene/module_budgets.json`.
