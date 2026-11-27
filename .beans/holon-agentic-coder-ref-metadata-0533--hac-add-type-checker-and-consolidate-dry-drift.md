@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0533
 title: "Add mypy/pyright to CI, unify agent-ID and numstat helpers, and drive runtime env from env_registry"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - clean-code
   - dry
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-26T13:35:00Z
+updated_at: 2026-11-27T11:20:55Z
 ---
 
 ## Problem

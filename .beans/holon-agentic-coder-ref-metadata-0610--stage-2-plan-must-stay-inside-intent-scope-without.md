@@ -10,7 +10,7 @@ tags:
   - scope
   - holon-agentic-coder
 created_at: 2026-11-27T05:18:43Z
-updated_at: 2026-11-27T11:12:17Z
+updated_at: 2026-11-27T11:20:54Z
 ---
 
 ## Notes
@@ -66,6 +66,11 @@ updated_at: 2026-11-27T11:12:17Z
 - **`CF-0052` (`0619`, `stage4-main-baseline-guard`, `08:29:46Z`):** Stage 2 plan widened into
   `apps/sandbox-executor/src/sandbox_executor/flow/review/loop.py` outside `intent.scope` and parked cleanly at Stage 3
   admission on live bean `0618` (`flow-stage4-carried-finding-clean-tree`).
+- **parked 2026-11-27T11:18:45Z (`stage2-plan-stays-in-intent`):** blocked at Stage 3 admission by older waiting local
+  flow `0216` (`I-1795665976-flow-references-github-issues/P-1795727982-CLA-CO5.5/_`) on
+  `apps/sandbox-executor/src/sandbox_executor/flow/stages/plan.py`; resume from checkpoint
+  `apps/holon-agentic-coder/flow-stage2-plan-stays-in-intent-scope/.holon/flow/checkpoint-stage2-plan-stays-in-intent.json`
+  when `0216` merges or releases `plan.py`.
 
 ## Acceptance Criteria
 
