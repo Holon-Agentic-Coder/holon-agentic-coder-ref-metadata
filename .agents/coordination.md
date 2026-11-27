@@ -88,6 +88,8 @@ interactive session remains responsive:
     includes this sentence in its `goal`: "Code is self-explaining: no docstrings and no comments except '# why:'
     comments that record a reason the code cannot show." Before reporting a PR ready, scan its diff for docstrings and
     non-`# why:` comments.
+  - **Flow-engine readiness (bean 0583 item 2, from bean 0557)**: a change to the flow engine runs the affected suite
+    inside the review environment (CF-0006 rule) as a recorded command, and its result goes in the readiness note.
 
 ### 4. Generic Subagent Protocol (Any Coding Agent)
 

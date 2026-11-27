@@ -9,7 +9,7 @@ tags:
   - prompts
   - holon-agentic-coder
 created_at: 2026-11-26T23:53:24Z
-updated_at: 2026-11-27T00:32:54Z
+updated_at: 2026-11-27T00:39:36Z
 ---
 
 ## Problem
@@ -39,3 +39,9 @@ reviewed and checked under that environment before it merges, as the #350 regres
 - Planner and reviewer prompts: add the environment rule from item 1.
 - Readiness prompt: add the recorded-suite step from item 2.
 - Prompt text only; no change to the contract test from PR #359.
+
+## Progress (2026-11-27)
+
+- Item 2 (readiness prompt line) delivered in the harness: `.agents/coordination.md` (flow-engine readiness bullet),
+  `.agents/prompts/pr_review_prompt.md` (readiness paragraph), `.agents/pr-merging.md` (merge rule).
+- Item 1 (planner/reviewer environment rule) in flight: flow `env-overlay-prompt-rule`.

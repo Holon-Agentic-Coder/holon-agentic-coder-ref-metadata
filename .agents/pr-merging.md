@@ -25,7 +25,8 @@ phrasing, or skill instructions:
 `main` (nor the repository's default branch) may be merged **autonomously**, by the Holon flow engine or by an agent:
 for example a sub-intent PR into its plan branch. Before merging, verify immediately beforehand that the PR's
 `baseRefName` is not `main` or the default branch (refuse otherwise), that its consensus review is approved, that its
-calibration report is included, that CI is green and that it is mergeable. Prefer a merge commit, so the branch's
+calibration report is included, that CI is green, that it is mergeable and, for a flow-engine change, that the affected
+suite ran under the review environment with the result recorded (bean 0557). Prefer a merge commit, so the branch's
 commits stay ancestors of the base. Auto-merge, the merge queue and `gh repo edit` settings that merge on their own stay
 prohibited. **Everything else in this section applies unchanged to a PR that targets `main`**, including the combined PR
 from a decomposed plan's branch into `main`.
