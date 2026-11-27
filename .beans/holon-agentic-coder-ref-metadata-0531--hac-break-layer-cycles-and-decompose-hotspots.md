@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0531
 title: "Break flow/entrypoint and ledger/knowledge import cycles and decompose ExecutionRun, planner, turns"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - complexity
   - refactor
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T11:55:26Z
+updated_at: 2026-11-27T17:24:08Z
 ---
 
 ## Problem
@@ -60,3 +60,12 @@ Bidirectional import cycles link `flow` ↔ `entrypoint` (11 imports each way) a
   (`4<->1`) cycles remain (PR `#415` / `0615` import-cycle ratchet is `3/3 APPROVED` + `CLEAN`, awaiting merge);
   `flow/review/loop.py` (`run_review_loop`) grew after `#412` to `947` lines (`3` lines below its `950`-line budget
   override) and `CC=219` (up from `207`), while `planner.py:main` (`49`) and `turns.py:run_turn` (`49`) stay elevated.
+
+## Flow
+
+- **Slice 1 (`2026-11-27`, `hac-ledger-knowledge-cycle`):** Extracts `CredentialRedactor` into acyclic leaf module
+  `sandbox_executor/credential_redactor.py`, re-exports it from `knowledge/records.py`, updates `ledger/rows.py` so
+  `sandbox_executor.ledger` has zero imports from `sandbox_executor.knowledge`, and verifies via AST + parity tests in
+  `tests/test_ledger_knowledge_acyclic.py` (`todo/intent-0531-hac-ledger-knowledge-cycle.json`,
+  `todo/intent-coverage-0531.json`). Remaining cycles (`flow <-> entrypoint`, `flow/github -> launcher`), pure
+  `FlowContext`, and hotspot decompositions are deferred to subsequent slices.
