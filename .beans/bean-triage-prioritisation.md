@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-27 12:14:41 UTC
+**Last Updated:** 2026-11-27 12:26:35 UTC
 
 ## Executive Summary
 

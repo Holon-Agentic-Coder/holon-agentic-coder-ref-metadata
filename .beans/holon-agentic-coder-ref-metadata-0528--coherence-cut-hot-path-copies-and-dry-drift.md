@@ -10,7 +10,7 @@ tags:
   - clean-code
   - refactor
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T12:13:43Z
+updated_at: 2026-11-27T12:25:54Z
 ---
 
 ## Problem
@@ -81,3 +81,9 @@ passes host paths into containers.
   remain inside `providers/anthropic.py` (8), `providers/gemini.py` (3), `providers/openai.py` (2), and
   `providers/translation.py` (1). Bean remains `in-progress` for remaining slices (`translation.py`, `metrics`,
   remaining provider hot-path copies).
+- **Progress (`2026-11-27`):** [PR #83](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/83)
+  (`coherence-translation-sse-finish`, merge commit `9eddccdc`) merged into `main`, adding streaming SSE carry-buffer
+  reassembly in `src/holon_coherence/providers/translation.py`, EOF trailing-line flush alignment in
+  `src/holon_coherence/proxy/steps/sse_tap.py`, and `finish_reason` parity plus split-chunk tests in
+  `tests/providers/test_translation.py` and `tests/test_sse_wire_streaming.py`. Bean remains `in-progress` because
+  `coherence-metrics-unification` is still running.
