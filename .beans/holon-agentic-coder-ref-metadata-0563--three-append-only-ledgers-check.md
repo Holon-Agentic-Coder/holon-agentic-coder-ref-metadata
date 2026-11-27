@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0563
 title: "Check: exactly three append-only ledgers in each target repository"
-status: in-progress
+status: completed
 type: task
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-11-26T23:09:56Z
-updated_at: 2026-11-27T06:15:08Z
+updated_at: 2026-11-27T10:50:08Z
 ---
 
 ## Instruction (maintainer, 2026-11-27 local)
@@ -64,9 +64,22 @@ fragments). No fourth ledger; existing rows are never edited or deleted.
   holon-agentic-coder, and a fail-proof against today's evidence. Bean stays `in-progress` until the coherence flow
   lands.
 - **Coherence restart:** stale Coherence plan deleted after #57 merged; ready to restart from current main
-  (`todo/intent-0563-coherence-ledger-invariants.json`).
-- **parked 2026-11-27 (`flow-coherence-ledger-invariants`):** Stage 2 plan expanded into
-  `tests/test_scripts_self_doc.py` (outside `intent.scope`), causing a Stage 3 admission overlap refusal with open
-  Coherence PR `#58` (`coherence-no-harness-refs`). Preserved worktree
-  `apps/holon-coherence/flow-coherence-ledger-invariants` and `checkpoint-coherence-ledger-invariants.json`. Resume from
-  checkpoint once PR `#58` merges (ahead of `0567`, which also touches `tests/test_scripts_self_doc.py`).
+  (`todo/intent-0563-coherence-ledger-invariants.json`). (`apps/holon-coherence/flow-coherence-ledger-invariants` and
+  `checkpoint-coherence-ledger-invariants.json`) completed and merged via PR `#74`.
+
+## Resolution
+
+Delivered across both target repositories:
+
+- **`holon-agentic-coder`**: Delivered via
+  [PR #362](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/362) (`d6f513b`) with
+  `scripts/check_ledger_stores.py`, `scripts/check_ledger_rows_append_only.py`, CI workflow
+  `.github/workflows/test-ledger-invariants.yml`, and hermetic tests in
+  `apps/sandbox-executor/tests/test_ledger_stores_exactly_three.py` and
+  `apps/sandbox-executor/tests/test_ledger_rows_append_only_diff.py`.
+- **`holon-coherence`**: Delivered via [PR #74](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/74)
+  (`ee86c380353ba3b10eb99299a559b97aa2b1a114`) with `scripts/check_ledger_stores.py`,
+  `scripts/check_ledger_rows_append_only.py`, CI workflow `.github/workflows/test-ledger-invariants.yml`, and hermetic
+  tests in `tests/test_ledger_stores_exactly_three.py` and `tests/test_ledger_rows_append_only_diff.py`.
+- **Invariant Registry**: Updated `three-append-only-ledgers` in `.agents/invariants.yml` to `status: "enforced"` with
+  checks covering both `holon-agentic-coder` and `holon-coherence`.

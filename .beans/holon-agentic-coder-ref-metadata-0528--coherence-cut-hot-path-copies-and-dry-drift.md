@@ -10,7 +10,7 @@ tags:
   - clean-code
   - refactor
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T07:22:35Z
+updated_at: 2026-11-27T10:50:08Z
 ---
 
 ## Problem
@@ -67,3 +67,7 @@ passes host paths into containers.
   created PR `#66` (`reviews: []`, `comments: []`), ran `--from-stage calibrate`, and falsely reported consensus
   approval. Close PR `#66`, clean up its branch/worktree, and re-run `0528` cleanly with an explicit note forbidding
   edits to `holon-config/hygiene/module_budgets.json`.
+- **Progress (`2026-11-27`):** [PR #72](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/72)
+  (`coherence-abtest-leaks-deps`, merge commit `a7d752b2`) merged into `main`, fixing `ab_test.py` temporary directory
+  leaks and container mount paths and removing unused `cryptography` dependency from `pyproject.toml`. Bean remains
+  `in-progress` for remaining slices (`translation.py`, `metrics`, hot-path copies).

@@ -10,7 +10,7 @@ tags:
   - resilience
   - packaging
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T08:10:15Z
+updated_at: 2026-11-27T10:50:08Z
 ---
 
 ## Problem
@@ -59,3 +59,7 @@ resolution and dependency installation diverge from `uv.lock` and wheel packagin
   (`coherence-bound-wire-log-queue`, merge commit `2659364d`) merged into `main`, bounding `_pending_wire_log_futures`
   in `src/holon_coherence/proxy/wire_log.py` with tests in `tests/proxy/test_wire_log.py`. Bean remains `in-progress`
   for remaining slices (e.g., `ca-logging-and-image`).
+- Progress (`2026-11-27`): [PR #73](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/73)
+  (`coherence-ca-logging-and-image`, merge commit `52019174`) merged into `main`, surfacing CA setup logging and
+  resolving container/image assets cleanly. Bean remains `in-progress` for remaining slices
+  (`CoherenceSettings.from_env()`).
