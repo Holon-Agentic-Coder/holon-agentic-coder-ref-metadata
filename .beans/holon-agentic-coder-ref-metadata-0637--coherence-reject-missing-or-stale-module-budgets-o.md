@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0637
 title: "Coherence: reject missing or stale module_budgets overrides and prune dashboard and aggregation"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - hygiene
   - module-budgets
 created_at: 2026-11-27T15:53:29Z
-updated_at: 2026-11-27T15:55:01Z
+updated_at: 2026-11-27T16:58:55Z
 ---
 
 ## Notes
@@ -48,5 +48,12 @@ updated_at: 2026-11-27T15:55:01Z
 - [ ] Stale overrides for `src/holon_coherence/proxy/dashboard.py` and `src/holon_coherence/metrics/aggregation.py` are
       pruned from `holon-config/hygiene/module_budgets.json` under maintainer authorisation.
 - [ ] `uv run pytest` and `uv run task lint` pass with zero docstrings or comments.
+
+## Flow
+
+- **Slice 1 (`2026-11-27`, `coherence-budget-missing-fail`):** Covers AC #1 and AC #3 in
+  `scripts/check_module_budgets.py` and `tests/test_module_budgets.py` (failing on missing/deleted overrides, flagging
+  stale overrides, adding `--fail-on-stale-overrides`). AC #2 (`module_budgets.json` pruning for `dashboard.py` and
+  `metrics/aggregation.py`) is deferred to Slice 2 (`todo/intent-coverage-0637.json`).
 
 ## Resolution
