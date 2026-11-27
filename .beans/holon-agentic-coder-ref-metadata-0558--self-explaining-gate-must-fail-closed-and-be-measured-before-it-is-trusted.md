@@ -10,7 +10,7 @@ tags:
   - self-explaining-code
   - holon-agentic-coder
 created_at: 2026-11-26T22:59:59Z
-updated_at: 2026-11-27T05:15:52Z
+updated_at: 2026-11-27T07:43:42Z
 ---
 
 ## Evidence

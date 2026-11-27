@@ -10,7 +10,7 @@ tags:
   - invariants
   - holon-agentic-coder
 created_at: 2026-11-27T00:57:56Z
-updated_at: 2026-11-27T06:02:05Z
+updated_at: 2026-11-27T07:43:42Z
 ---
 
 ## Evidence
