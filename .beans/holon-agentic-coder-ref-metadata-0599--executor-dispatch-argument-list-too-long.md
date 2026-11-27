@@ -9,7 +9,7 @@ tags:
   - executor
   - dispatch
 created_at: 2026-11-27T01:49:20Z
-updated_at: 2026-11-27T08:05:56Z
+updated_at: 2026-11-27T17:41:21Z
 ---
 
 ## Cause
@@ -42,3 +42,17 @@ updated_at: 2026-11-27T08:05:56Z
   `MAX_ARG_STRLEN` and crashing container startup with
   `exec /home/holon/entrypoint/role_dispatcher.sh: argument list too long` (`exit 255`); reproduced via
   `docker run -e HOLON_REPLAN_FEEDBACK=...`.
+
+## Flow & PR Status
+
+- PR: https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/434 (OPEN, `MERGEABLE` / `CLEAN`, head
+  `4ebcdd35adf7e13a2d98584e0a2f02ba9f0d1f55`, awaiting maintainer merge)
+- Worktree: `apps/holon-agentic-coder/flow-replan-feedback-file-dispatch`
+- Branch: `I-1795797317-replan-feedback-file-dispatch/P-1795797350-ANA-G4N/E-1795797667-ANA-G4N/_`
+- Checkpoint:
+  `apps/holon-agentic-coder/flow-replan-feedback-file-dispatch/.holon/flow/checkpoint-replan-feedback-file-dispatch.json`
+  (all 5 stages `intent`, `plan`, `execute`, `review`, `calibrate` completed)
+- Consensus: APPROVED (3/3 across 3 iterations, `antigravity-agent` / `gemini-4-neon`)
+- Calibration: `plans/I-1795797317-replan-feedback-file-dispatch/P-1795797350-ANA-G4N_calibration.md` included in PR
+  diff (Predicted EV: `66.55`, Actual EV: `84.91`, delta `+18.36`)
+- CI: 16/16 checks passed (`0` failing, `0` pending)
