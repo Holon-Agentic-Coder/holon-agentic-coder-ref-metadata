@@ -10,7 +10,7 @@ tags:
   - holon-flow
   - holon-agentic-coder
 created_at: 2026-10-30T00:00:00Z
-updated_at: 2026-11-27T08:16:07Z
+updated_at: 2026-11-27T12:19:38Z
 ---
 
 ## Problem
@@ -94,3 +94,7 @@ P-1795727982 (EV 44.46). The intent JSON in `todo/` gained the self-explaining-c
 checkpoint's copy of the intent still has the older goal. parked 2026-11-27: blocked by `module-budget-default-350` on
 `lazy_exports.py`; resume from checkpoint (`--checkpoint`, never a fresh launch) once that flow merges or releases the
 file. Log `todo/flow-flow-references-github-issues.log`.
+
+Note (2026-11-27): cleared stale un-resumable `flow-flow-references-github-issues` worktree (`CF-0051` broken
+`E-1795726868` conflict, no open PR) to unblock waiting flows `0599`, `0590`, and `0610`; re-cut `0216` cleanly from
+`origin/main` once `0535`, `0599`, `0590`, and `0610` clear their overlapping paths.
