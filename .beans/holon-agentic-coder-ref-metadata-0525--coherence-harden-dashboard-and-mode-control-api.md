@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0525
 title: "Harden /holon/* dashboard Host validation, /holon/api/mode auth, CORS, and wire_log_dir"
-status: todo
+status: in-progress
 type: bug
 priority: critical
 tags:
@@ -9,7 +9,7 @@ tags:
   - security
   - proxy
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-26T13:35:00Z
+updated_at: 2026-11-27T06:11:45Z
 ---
 
 ## Problem
