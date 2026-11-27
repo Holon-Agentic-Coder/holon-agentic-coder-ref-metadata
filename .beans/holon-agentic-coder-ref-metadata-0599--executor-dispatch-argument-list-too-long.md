@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0599
 title: "Executor dispatch fails with 'exec role_dispatcher.sh: argument list too long' (exit 255)"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - executor
   - dispatch
 created_at: 2026-11-27T01:49:20Z
-updated_at: 2026-11-27T01:49:20Z
+updated_at: 2026-11-27T08:05:56Z
 ---
 
 ## Cause
@@ -37,3 +37,8 @@ updated_at: 2026-11-27T01:49:20Z
 ## Links
 
 - holon-agentic-coder-ref-metadata-0489 (flow where it occurred)
+- 2026-11-27 (`0519` `admission-remote-in-flight`, `8496396b1`): confirmed directly — Stage 2 re-plan merged
+  `origin/main` across `3,908` paths (`233,058` bytes in `-e HOLON_REPLAN_FEEDBACK`), exceeding Linux's 128 KiB
+  `MAX_ARG_STRLEN` and crashing container startup with
+  `exec /home/holon/entrypoint/role_dispatcher.sh: argument list too long` (`exit 255`); reproduced via
+  `docker run -e HOLON_REPLAN_FEEDBACK=...`.

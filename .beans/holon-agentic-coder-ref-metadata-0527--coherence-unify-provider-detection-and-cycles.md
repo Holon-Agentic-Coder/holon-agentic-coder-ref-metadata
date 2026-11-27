@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0527
 title: "Unify provider detection, make ProviderFormat extensible, and break import cycles"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - extensibility
   - refactor
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T08:03:32Z
+updated_at: 2026-11-27T08:05:56Z
 ---
 
 ## Problem

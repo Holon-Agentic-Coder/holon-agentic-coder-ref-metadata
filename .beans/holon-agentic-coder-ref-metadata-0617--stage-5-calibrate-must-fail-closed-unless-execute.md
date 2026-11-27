@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0617
 title: "Stage 5 calibrate must fail closed unless execute succeeded and review consensus is posted"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - stage-5
   - holon-agentic-coder
 created_at: 2026-11-27T07:49:17Z
-updated_at: 2026-11-27T07:50:33Z
+updated_at: 2026-11-27T08:05:56Z
 ---
 
 ## Notes
