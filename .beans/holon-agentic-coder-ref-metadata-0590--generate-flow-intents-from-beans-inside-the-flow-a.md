@@ -10,7 +10,7 @@ tags:
   - intent
   - invariants
 created_at: 2026-11-27T00:38:30Z
-updated_at: 2026-11-27T17:15:59Z
+updated_at: 2026-11-27T17:48:16Z
 ---
 
 ## Maintainer decision (2026-11-27 local)
@@ -238,3 +238,11 @@ refuses the merged intent for each case.
   CI integration failures (`tests/test_intent_creator_integration.py`, `tests/test_planner_integration.py`). Closed PR
   #435, pruned worktree/branches, and relaunched with the 20-file scope in
   `todo/intent-0590-stage1-requires-assumptions.json`.
+- **PR #438 (`stage1-requires-assumptions`, ready for maintainer merge):**
+  [PR #438](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/438)
+  (`I-1795799839-stage1-requires-assumptions/P-1795799861-ANA-G4N/E-1795800164-ANA-G4N/_`) completed all 5 stages on
+  `antigravity-agent` / `gemini-4-neon` (`3/3` APPROVED, `0/0/0`; `10,892` Stage 3 tests passed; all 16 CI checks
+  passing; predicted EV `64.33`, actual EV `81.36`, delta `+17.03`; calibration report
+  `plans/I-1795799839-stage1-requires-assumptions/P-1795799861-ANA-G4N_calibration.md` in PR diff; `MERGEABLE` /
+  `CLEAN`; checkpoint
+  `apps/holon-agentic-coder/flow-stage1-requires-assumptions/.holon/flow/checkpoint-stage1-requires-assumptions.json`).
