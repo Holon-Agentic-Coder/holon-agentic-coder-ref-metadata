@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0528
 title: "Eliminate request hot-path deepcopies, duplicate parsers, metric drift, and ab_test leaks"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - clean-code
   - refactor
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T16:58:55Z
+updated_at: 2026-11-27T23:50:58Z
 ---
 
 ## Problem
@@ -95,6 +95,29 @@ passes host paths into containers.
   parity tests in `tests/proxy/test_metrics.py` and `tests/test_metrics_aggregation.py`. Bean remains `in-progress`
   because remaining provider `copy.deepcopy` call sites remain.
 - **Progress (`2026-11-27`):** Final slice `coherence-provider-deepcopies` completed all 5 stages on `antigravity-agent`
-  / `gemini-4-neon` and opened [PR #88](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/88) (`OPEN`,
-  `MERGEABLE` / `CLEAN`, `10/10` CI checks passed, Consensus `APPROVED`,
-  `Predicted EV 3.15 / Actual EV 6.23 / ΔEV +3.08`). Waiting for human maintainer merge to close Bean `0528`.
+  / `gemini-4-neon` and merged as [PR #88](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/88) (merge commit
+  `a7ee76240e`, head `3d174c0a`, Consensus `APPROVED` on `caa98bec`, `10/10` CI checks `SUCCESS`, Stage 5 calibration
+  `plans/I-1795796510-coherence-provider-deepcopies/P-1795796541-ANA-G4N_calibration.md`,
+  `Predicted EV 3.15 / Actual EV 6.23 / ΔEV +3.08`).
+
+## Resolution
+
+Delivered across PRs `#72` (`a7d752b2`), `#80` (`827e15ac`), `#83` (`9eddccdc`), `#85` (`4d2cfcf8`), and final slice
+[PR #88](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/88) merged into `main` (`a7ee76240e`; with cache
+normalization & index cleanup via PR `#75` `980da41`):
+
+- **Key Architectural Deliverables**:
+  - Eliminated redundant `copy.deepcopy` calls across `proxy/steps/clean_payload.py`, `payload_cleaner.py`,
+    `providers/_common.py`, `providers/anthropic.py`, `providers/gemini.py`, `providers/openai.py`, and
+    `providers/translation.py`.
+  - Fixed `ab_test.py` temp-dir leaks and container mount paths, and removed unused `cryptography` from
+    `pyproject.toml`.
+  - Aligned streaming vs. non-streaming `finish_reason` and SSE carry-buffer/EOF handling in `providers/translation.py`
+    and `proxy/steps/sse_tap.py`.
+  - Extracted shared `metrics_math.py` unifying `CumulativeMetrics` and `OfflineMetricsAccumulator`, and removed the
+    duplicate `ttft` branch in `proxy/metrics.py`.
+- **Verification & Tests**: Verified via `tests/test_clean_payload_single_copy.py`,
+  `tests/providers/test_translation.py`, `tests/test_sse_wire_streaming.py`, `tests/proxy/test_metrics.py`, and
+  `tests/test_metrics_aggregation.py`; all `10/10` CI checks passed on PR `#88`.
+- **Holon Flow Traversal**: All 5 stages (Intent -> Plan -> Execute -> Review Loop -> Calibration) completed for each
+  slice, with Consensus `APPROVED` and Stage 5 calibration recorded.

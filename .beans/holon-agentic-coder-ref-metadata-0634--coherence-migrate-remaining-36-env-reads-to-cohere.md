@@ -10,7 +10,7 @@ tags:
   - resilience
   - refactor
 created_at: 2026-11-27T12:12:09Z
-updated_at: 2026-11-27T18:02:39Z
+updated_at: 2026-11-27T23:50:58Z
 ---
 
 ## Notes
@@ -62,25 +62,20 @@ updated_at: 2026-11-27T18:02:39Z
   `settings.py`, tested in `tests/test_settings.py`, `tests/proxy/test_wire_log.py`, `tests/proxy/test_steps.py`, and
   `tests/test_mitm_addon.py` (closed halted PR #89 after Stage 4 `touch_set_violation` on `tests/proxy/test_steps.py`
   and re-cut cleanly with expanded scope per `CF-0074`). Completed all 5 stages via `antigravity-agent`/`gemini-4-neon`
-  in `apps/holon-coherence/flow-coherence-proxy-settings-env`
-  (`.holon/flow/checkpoint-coherence-proxy-settings-env.json`):
-  [PR #91](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/91)
-  (`I-1795799285-coherence-proxy-settings-env/P-1795799308-ANA-G4N/E-1795799527-ANA-G4N/_`), consensus approved,
-  calibration included (`plans/I-1795799285-coherence-proxy-settings-env/P-1795799308-ANA-G4N_calibration.md`, predicted
-  EV `-1.06`, actual EV `0.19`, delta `+1.25`), `MERGEABLE`/`CLEAN`, 10/10 CI checks green, awaiting human merge.
-  Remaining `commands/*`, `host_local.py`, `container/lifecycle.py`, and wire-log disk retention are deferred to Slice 2
-  (`todo/intent-coverage-0634.json`).
+  and merged as [PR #91](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/91) (merge commit `35fc74e4b7`,
+  head `0fc7e557`, review `APPROVED` on `e8c2e498`, calibration
+  `plans/I-1795799285-coherence-proxy-settings-env/P-1795799308-ANA-G4N_calibration.md`, predicted EV `-1.06`, actual EV
+  `0.19`, delta `+1.25`, 10/10 CI checks `SUCCESS`). Remaining `commands/*`, `host_local.py`, `container/lifecycle.py`,
+  and wire-log disk retention are deferred to Slice 2 (`todo/intent-coverage-0634.json`).
 - **Slice 2 (`2026-11-27`, `coherence-commands-settings`):** Migrates `HOLON_PROXY_PORT`, `HOLON_LOCAL_LLM_BASE`, and
   `HOLON_COHERENCE_WEB` in `commands/agents.py` and `commands/start.py` through `CoherenceSettings.from_env()` without
   modifying `settings.py`, verified in `tests/commands/test_agents.py`, `tests/commands/test_start.py`, and
   `tests/commands/test_start_web.py` (`todo/intent-0634-coherence-commands-settings.json`). Completed all 5 stages via
-  `antigravity-agent`/`gemini-4-neon` in `apps/holon-coherence/flow-coherence-commands-settings`
-  (`.holon/flow/checkpoint-coherence-commands-settings.json`):
-  [PR #94](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/94)
-  (`I-1795801603-coherence-commands-settings/P-1795801625-ANA-G4N/E-1795801791-ANA-G4N/_`), consensus approved,
-  calibration included (`plans/I-1795801603-coherence-commands-settings/P-1795801625-ANA-G4N_calibration.md`, predicted
-  EV `-0.67`, actual EV `0.28`, delta `+0.95`), `MERGEABLE`/`CLEAN`, 10/10 CI checks green, awaiting human merge.
-  Remaining `commands/ca.py`, `commands/metrics.py`, `host_local.py`, `container/lifecycle.py`, and wire-log disk
-  retention stay deferred until open PRs `#91`, `#94`, and `#87` merge.
+  `antigravity-agent`/`gemini-4-neon` and merged as
+  [PR #94](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/94) (merge commit `bcad21c86e`, head `fd154c4a`,
+  review `APPROVED` on `215751b4`, calibration
+  `plans/I-1795801603-coherence-commands-settings/P-1795801625-ANA-G4N_calibration.md`, predicted EV `-0.67`, actual EV
+  `0.28`, delta `+0.95`, 10/10 CI checks `SUCCESS`). Bean remains `in-progress` for remaining `commands/ca.py`,
+  `commands/metrics.py`, `host_local.py`, `container/lifecycle.py`, and wire-log disk retention.
 
 ## Resolution

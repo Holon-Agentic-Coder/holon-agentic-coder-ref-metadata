@@ -10,7 +10,7 @@ tags:
   - clean-code
   - hygiene
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T12:32:57Z
+updated_at: 2026-11-27T23:50:58Z
 ---
 
 ## Problem
@@ -69,3 +69,9 @@ package root, and misleading names mask metric/parity semantics.
   inline HTML/CSS/JS template into static package resource `src/holon_coherence/proxy/dashboard.html` loaded via
   `importlib.resources` (`render_dashboard_html()`) with `tests/proxy/test_dashboard.py` verification. Bean remains
   `in-progress` for CI `mypy`/`pyright`, redundant `*_self_doc.py` prune, and `_compat.py` retirement.
+- Progress (`2026-11-27`): [PR #86](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/86)
+  (`coherence-prune-self-doc`, merge commit `6976c7b783`, head `b92afe33`, review `APPROVED` on `eb8e443b`, Stage 5
+  calibration `plans/I-1795794388-coherence-prune-self-doc/P-1795794410-ANA-G4N_calibration.md`, `10/10` CI `SUCCESS`)
+  merged into `main`, deleting the 9 redundant per-module `*_self_doc.py` test files while keeping
+  `tests/test_repo_self_doc.py` and updating `tests/test_scripts_self_doc.py`. Bean remains `in-progress` for CI
+  `mypy`/`pyright`, `_compat.py` / legacy shim retirement, `ringer_orchestrator.py` cleanup, and CLI arg parsing.

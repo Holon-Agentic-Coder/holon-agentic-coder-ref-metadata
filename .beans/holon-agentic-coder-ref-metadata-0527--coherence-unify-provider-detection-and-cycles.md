@@ -10,7 +10,7 @@ tags:
   - extensibility
   - refactor
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T17:35:46Z
+updated_at: 2026-11-27T23:50:58Z
 ---
 
 ## Problem
@@ -82,13 +82,16 @@ multiple modules, while circular imports connect `parsers/` ↔ `providers/` and
   remaining import cycles (`commands/docker_ops.py` ↔ `commands/endpoints.py`, `payload_cleaner` ↔ `providers/`,
   `commands` ↔ `container`, `hybrid_cache` ↔ `proxy`) and `in_container` consolidation remain open.
 - **Progress (`2026-11-27`):** Slice 2 (`coherence-commands-cycle`,
-  [PR #87](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/87)) completed all 5 stages (`APPROVED`, `10/10`
-  CI passed, `ΔEV +0.30`; awaiting maintainer merge).
+  [PR #87](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/87), merge commit `3a10087c21`, head `800aa7d3`,
+  review `APPROVED` on `088e102f`, `10/10` CI `SUCCESS`, Stage 5 calibration
+  `plans/I-1795795465-coherence-commands-cycle/P-1795795544-ANA-G4N_calibration.md`, `ΔEV +0.30`) merged into `main`,
+  breaking the `commands <-> container` bidirectional import cycle by moving `web_token` helpers into
+  `src/holon_coherence/container/web_token.py`.
 - **Progress (`2026-11-27`):** Slice 3 (`coherence-docker-endpoints`,
-  [PR #92](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/92), branch
-  `I-1795799828-coherence-docker-endpoints/P-1795799850-ANA-G4N/E-1795800022-ANA-G4N/_`) completed all 5 stages on
-  `antigravity-agent`/`gemini-4-neon` (`APPROVED` 3/3 on iteration 1, `10/10` CI passed, `MERGEABLE`/`CLEAN`,
-  `Predicted EV -0.77 / Actual EV 0.28 / ΔEV +1.05`; calibration report
-  `plans/I-1795799828-coherence-docker-endpoints/P-1795799850-ANA-G4N_calibration.md` in PR diff; checkpoint
-  `apps/holon-coherence/flow-coherence-docker-endpoints/.holon/flow/checkpoint-coherence-docker-endpoints.json`;
-  awaiting maintainer merge).
+  [PR #92](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/92), merge commit `596a7367a6`, head `a261b10f`,
+  review `APPROVED` on `3f4a9f4b`, `10/10` CI `SUCCESS`, Stage 5 calibration
+  `plans/I-1795799828-coherence-docker-endpoints/P-1795799850-ANA-G4N_calibration.md`,
+  `Predicted EV -0.77 / Actual EV 0.28 / ΔEV +1.05`) merged into `main`, breaking the
+  `commands/docker_ops.py <-> commands/endpoints.py` circular import. Bean remains `in-progress` for remaining
+  `payload_cleaner` <-> `providers/` `TYPE_CHECKING` back-edges, `hybrid_cache` <-> `proxy` cycle, and `in_container`
+  consolidation.

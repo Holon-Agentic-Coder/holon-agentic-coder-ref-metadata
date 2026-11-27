@@ -11,7 +11,7 @@ tags:
   - holon-coherence
   - holon-agentic-coder
 created_at: 2026-11-27T12:11:44Z
-updated_at: 2026-11-27T17:51:13Z
+updated_at: 2026-11-27T23:50:58Z
 ---
 
 ## Notes
@@ -66,13 +66,11 @@ updated_at: 2026-11-27T17:51:13Z
   (`todo/intent-0633-coherence-install-hooks-setup.json`, `todo/intent-coverage-0633.json`). Harness
   `.agents/scripts/install_git_hooks.py` wiring and uniform flow commit-author / squash-merge trailer policy are
   deferred to Slice 2.
-  - PR: [holon-coherence#93](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/93) (`OPEN`, `MERGEABLE`,
-    `CLEAN`, all 10 CI checks `SUCCESS`, awaiting human maintainer merge)
-  - Branch: `I-1795800994-coherence-install-hooks-setup/P-1795801016-ANA-G4N/E-1795801154-ANA-G4N/_`
-  - Worktree: `apps/holon-coherence/flow-coherence-install-hooks-setup`
-  - Checkpoint:
-    `apps/holon-coherence/flow-coherence-install-hooks-setup/.holon/flow/checkpoint-coherence-install-hooks-setup.json`
+  - PR: [holon-coherence#93](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/93) (merged `75a3aa4bcc`, head
+    `2287b2d5`, review `APPROVED` on `aac1a354`, all 10 CI checks `SUCCESS`)
   - Calibration: `plans/I-1795800994-coherence-install-hooks-setup/P-1795801016-ANA-G4N_calibration.md` (predicted EV:
-    `-0.74`, actual EV: `0.35`, delta: `+1.09`; state file `.subagent/flow_coherence-install-hooks-setup_state.json`)
+    `-0.74`, actual EV: `0.35`, delta: `+1.09`)
+  - Merged into `main`; bean stays `in-progress` for Slice 2 (`.agents/scripts/install_git_hooks.py` wiring and uniform
+    flow commit-author / squash-merge trailer policy).
 
 ## Resolution
