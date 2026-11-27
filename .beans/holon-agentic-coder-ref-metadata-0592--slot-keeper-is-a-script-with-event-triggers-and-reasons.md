@@ -1,0 +1,60 @@
+---
+# holon-agentic-coder-ref-metadata-0592
+title: "Slot keeper: a script with event triggers and a recorded reason for every unlaunched queue item"
+status: todo
+type: bug
+priority: high
+tags:
+  - harness
+  - holon-flow
+  - scheduling
+  - slots
+created_at: 2026-11-27T00:57:23Z
+updated_at: 2026-11-27T01:07:06Z
+---
+
+## Evidence
+
+- `todo/slot-keeper.log`: entries at 00:42:22Z (live=8) and 00:53:37Z (live=4). The standing rule is a pass every 60 s;
+  the gap is 11 min. Between 00:39:32Z and 00:53:37Z the queue held six ready intents (0400, 0532, 0570, 0558 x3) and
+  live was 4 at the end, so four slots idled with work queued. The maintainer had to ask why.
+- The `launched=` field repeats `0574,0583,0436,resume0567` on every line since 00:31:49Z: it carries over earlier
+  launches instead of reporting this pass, so the log cannot show what a pass did.
+- No line says why a queued item was not launched (overlap with an open PR, with a sibling intent, cap, quota). Three
+  0558 intents and 0570 share files, so overlap is the likely reason, but this is not recorded, so it is not measured.
+- Live fell from 8 to 4 when several flows reached calibration together; calibrated flows exit, so the drop is sudden
+  and nothing triggers on it.
+- Category `overlap-scheduling` recurs: CF-0023, CF-0024, CF-0026, CF-0027 (high priority). CF-0024 rule (poll every 60
+  s) was not met; CF-0027 rule (re-count before each launch) is the only part visible in the log.
+
+## Goal
+
+Slots are refilled within 60 s of freeing, and every pass states what it did and why each queued item stayed queued.
+
+## Design
+
+- The keeper is a script (`.agents/scripts/`), not a model turn: a pass costs no tokens and cannot stall on a long turn.
+  A model is called only to draft or repair an intent that failed its checks.
+- Pass: count live runners (ps), re-count before each launch, evaluate each queue item in order, launch while live <
+  cap.
+- Log one line per pass: `ts live cap launched=[this pass only] held=[item:reason]` with reasons
+  `overlap:<file>:<holder>`, `blocked_by:<bean>`, `cap`, `quota`, `check:<failure>`.
+- Triggers besides the 60 s timer: a flow log reaching Stage 5 or "calibrated", a PR merge, a park. A flow in Stage 5 no
+  longer counts against the cap for launching purposes (it uses no coding-agent turns); decide with the maintainer.
+- Heartbeat: if no pass is logged for 120 s the watcher raises a notice and restarts the keeper.
+- Queue items held for overlap are retried when the holder merges; the queue order is recomputed so that a
+  non-overlapping item is never held behind an overlapping one.
+
+## Acceptance
+
+- [ ] Keeper runs as a script; a pass with a held item logs the reason; `launched` lists only this pass.
+- [ ] Test: live 4, cap 8, six queued with two disjoint sets: launches enough to reach 8 or until all remaining overlap,
+      and logs reason for each held item.
+- [ ] Test: no pass for 120 s triggers the heartbeat notice.
+- [ ] Event trigger: a flow reaching calibration triggers a pass within 10 s.
+- [ ] Code has no docstrings and no comments except `# why:`; run with `uv run pytest`.
+
+## Notes
+
+- Extends beans 0545 and 0576; CF-0024 and CF-0027. Idle time per slot is still not measured; the log's live count per
+  pass becomes the measurement.

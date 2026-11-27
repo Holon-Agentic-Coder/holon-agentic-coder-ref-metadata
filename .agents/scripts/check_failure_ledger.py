@@ -29,6 +29,7 @@ def check_lines(lines, written_at=None, now=None):
     errors = []
     now = now or timestamps.utc_now()
     previous = None
+    seen = set()
     for n, line in enumerate(lines, 1):
         try:
             obj = json.loads(line)
@@ -39,6 +40,9 @@ def check_lines(lines, written_at=None, now=None):
         if missing:
             errors.append(f"line {n}: missing {missing}")
             continue
+        if obj["id"] in seen:
+            errors.append(f"line {n}: duplicate id {obj['id']}")
+        seen.add(obj["id"])
         if obj["id"] != f"CF-{n:04d}":
             errors.append(f"line {n}: id {obj['id']} not sequential")
         if obj["category"] not in CATEGORIES:

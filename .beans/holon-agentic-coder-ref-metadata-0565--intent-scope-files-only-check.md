@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0565
 title: "Check: intent scope lists files only, never directories or globs"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - overlap
   - holon-agentic-coder
 created_at: 2026-11-26T23:09:56Z
-updated_at: 2026-11-26T23:09:56Z
+updated_at: 2026-11-27T00:57:36Z
 ---
 
 ## Instruction (maintainer, 2026-11-27 local)
@@ -36,3 +36,13 @@ Intent scope lists files. Directories and globs widen the touch set and block ev
   and passes on the cleaned state.
 - Self-explaining code invariant in anything written: no docstrings, no comments except `# why:`.
 - Target-repository work goes through `holon flow`; the intent never names harness paths or bean ids.
+
+## Progress
+
+- 2026-11-27: PR #363 merged (`cde6ea40`, combined with bean 0564). Delivered: `intent-check` exits 2 on a directory,
+  trailing-slash or glob scope entry and warns on the four hub files (`intent_payload_rules.py`); Stage 1 refuses slash
+  and glob entries through `validate_intent_questions`; tests in `test_intent_payload_rules.py` and
+  `test_intent_scope_check.py`.
+- Remaining: Stage 1 does not refuse an existing directory entry, because `validate_intent_questions` has no worktree
+  and the code leaves that case to `intent-check`. The acceptance item "Stage 1 refuses such an intent the same way" is
+  therefore partly delivered. Kept open for that item.

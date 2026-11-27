@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-11-26T23:09:56Z
-updated_at: 2026-11-26T23:16:46Z
+updated_at: 2026-11-27T01:06:58Z
 ---
 
 ## Instruction (maintainer, 2026-11-27 local)
@@ -42,5 +42,7 @@ No attribution trailers (`Co-Authored-By:` and similar) in any commit (maintaine
 ## Resolution
 
 Done for the harness: `commit-msg` hook (`.agents/hooks/commit-msg`, installed into the git hooks dir) and a PR-commit
-check in the hygiene workflow, both via `check_commit_trailers.py`, tested. Remaining: the same hook in
-holon-agentic-coder and holon-coherence, and a test that flow-engine commits pass it (a flow job).
+check in the hygiene workflow, both via `check_commit_trailers.py`, tested. Delivered for holon-agentic-coder by PR #371
+(merged at `e189a89`): `.githooks/commit-msg`, `.github/workflows/test-commit-trailers.yml`, and tests
+`test_check_commit_trailers.py` plus `test_flow_commit_messages_have_no_attribution.py` (the flow-engine commit check).
+Remaining: the same hook and workflow in holon-coherence.

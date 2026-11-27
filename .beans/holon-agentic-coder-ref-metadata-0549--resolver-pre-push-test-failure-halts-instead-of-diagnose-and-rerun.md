@@ -12,7 +12,7 @@ tags:
   - ledger
   - holon-agentic-coder
 created_at: 2026-11-26T22:27:00Z
-updated_at: 2026-11-26T23:16:17Z
+updated_at: 2026-11-27T00:59:09Z
 ---
 
 ## Instruction (maintainer, 2026-11-27)
@@ -64,3 +64,34 @@ A test-failure loop wherever the flow runs the suite (Stage 3 executor, Stage 4 
 - The 2026-11-26 case (identity env leak) would have been classified "environment" within one iteration.
 - Tests for each classification path, using a fake test runner.
 - Related: 0497, 0523, 0547, 0412.
+
+## Flow run (2026-11-27)
+
+Flow `test-failure-record-diagnose-fix`: PR #360 approved 3/3 at `4c073a07` (iteration 5); calibration
+`plans/I-1795734341-test-failure-record-diagnose-fix/P-1795734362-CLA-CO5.5_calibration.md`; merged by the maintainer at
+`a937e904`. No test failure occurred in any stage, so the record/diagnose path did not run. Out-of-scope files in the
+PR: 16. Self-explaining CI gate failed at iteration 4 and was fixed by the resolver.
+
+## Acceptance check (2026-11-27, PR #360 merged at a937e904)
+
+Status stays `in-progress`: items 1 (Stage 5), 3 (`blocked_on` park) and the design's Stage 5 promotion are not
+delivered.
+
+| #   | Acceptance item                                                                            | Result                  | Evidence in the merged diff                                                                                                                                                                                                                                      |
+| --- | ------------------------------------------------------------------------------------------ | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Failed run in any stage writes ledger rows (ids, excerpts, classification)                 | Partial                 | `test_failure_record._row`; wired for Stage 3 (`executor_test_run.default_failure_loop`), Stage 4 (`resolver_test_failure`) and review local tests (`review/local_tests.py`). No Stage 5 test-run wiring in the diff.                                            |
+| 2   | Introduced failure gets a fix turn and a re-run; flow continues without halting            | Delivered               | `test_failure_loop._fix_once`; `test_introduced_failure_is_fixed_and_rerun`; `test_failing_run_maps_the_failure_loop_outcome`.                                                                                                                                   |
+| 3   | Flaky re-run and recorded; environment / pre-existing parks with `blocked_on` and evidence | Partial                 | Flaky: `_retry_flaky`, `test_flaky_failure_is_rerun_recorded_and_passes`. Park: status `blocked` with `blocked_evidence` and row outcome `blocked`. No `blocked_on` field or blocker link anywhere in the diff or repo; blockers 0497 and 0523 are still `todo`. |
+| 4   | 2026-11-26 identity-env case classified "environment" in one iteration                     | Delivered (fake runner) | `test_leaked_git_identity_is_environment_in_one_diagnosis`.                                                                                                                                                                                                      |
+| 5   | Tests for each classification path using a fake runner                                     | Delivered               | 13 PR test files: 609 passed on the merge commit (temporary worktree, removed).                                                                                                                                                                                  |
+
+Design items: three-way diagnosis delivered (`test_failure_classify.diagnose`); spin guard with tier step-up delivered
+(`test_repeated_signature_steps_up_one_tier`, `test_exhausted_ladder_stops_with_the_trail`); parking with `blocked_on`
+after exhaustion not delivered; Stage 5 promotion of repeated signatures to the knowledge base not delivered.
+
+Remaining: (a) `blocked_on` park link and automatic resume (depends on 0497, 0523); (b) Stage 5 wiring of the failure
+loop; (c) failure-mode promotion at Stage 5.
+
+Self-explaining check on PR #360 added lines (AST docstrings and tokenized comments): 0 docstring lines, 0 comments
+other than `# why:` or machine directives. The `FIX_PROMPT_TEMPLATE` triple-quoted string is a prompt constant, not a
+docstring. Bean 0153: no note needed.

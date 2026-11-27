@@ -11,7 +11,7 @@ tags:
   - refactoring
   - holon-agentic-coder
 created_at: 2026-11-26T06:30:00Z
-updated_at: 2026-11-26T21:05:09Z
+updated_at: 2026-11-27T01:07:43Z
 blocked_by:
   - "0380"
 ---
@@ -155,3 +155,12 @@ set.
   `flow-module-budget-default-350` and checkpoint kept; resume from checkpoint (`--checkpoint`, never relaunch without
   it) once PR #357 merges or releases `scripts/pre_commit_check.py`. PR #357 touches a file in this step's decomposition
   set.
+
+## Progress
+
+- resumed 2026-11-26: PR #357 merged (main contains 5a2868a); flow module-budget-default-350 resumed from its checkpoint
+  (Stage 3 admitted with --no-wait-on-overlap). Invariant sentence added to the intent goal and checkpoint copies.
+- 2026-11-27 Stage 4 blocked: flow module-budget-default-350 reached consensus CHANGES_REQUESTED in review iterations
+  1-3 (engine still looping to iteration 4 of 25). Finding: default 350 unmet because scripts/ci_bookkeeping_api.py (383
+  lines) is not in the intent scope; resolver rejects it as out of scope. Needs an intent scope change (add that file)
+  before a rerun.

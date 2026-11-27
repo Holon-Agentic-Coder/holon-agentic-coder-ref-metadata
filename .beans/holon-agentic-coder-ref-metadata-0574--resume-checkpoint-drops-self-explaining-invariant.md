@@ -1,14 +1,14 @@
 ---
 # holon-agentic-coder-ref-metadata-0574
 title: "Flow resumed from a checkpoint whose intent lacks the self-explaining-code invariant"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
   - harness
   - holon-flow
 created_at: 2026-11-26T22:10:00Z
-updated_at: 2026-11-27T00:12:19Z
+updated_at: 2026-11-27T00:58:37Z
 ---
 
 ## Problem
@@ -50,3 +50,19 @@ Remaining: refresh (or derive) `context.stage_results.intent.payload.intent.goal
 on a checkpoint whose stage_results goal lacks the sentence.
 
 Follow-up: to be queued with the slot keeper; not yet queued at the time of this note.
+
+## Resolution
+
+Delivered via [PR #370](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/370) and merged into `main`
+(`0e3702ae`):
+
+- **Key Architectural Deliverables**: `align_stage_intent_with_intent_data` in `intent_refresh.py` copies the refreshed
+  intent fields into `context.stage_results["intent"].payload["intent"]` on every resume, so `context.intent_data` and
+  the stage-result intent goal both match the intent file. A checkpoint with no intent stage result, or a payload
+  without an intent goal, resumes as before. The refusal of a goal without the self-explaining-code sentence is
+  unchanged.
+- **Verification & Tests**: `test_a_resumed_checkpoint_refreshes_both_goal_copies` and
+  `test_a_checkpoint_without_an_intent_stage_goal_still_refreshes_the_intent_data` in
+  `tests/flow/test_intent_refresh_on_resume.py`.
+- **Holon Flow Traversal**: Intent, plan, execute, review loop and calibration ran in flow
+  `I-1795738646-resume-refresh-stage-intent-goal`; the PR carries the calibration report.

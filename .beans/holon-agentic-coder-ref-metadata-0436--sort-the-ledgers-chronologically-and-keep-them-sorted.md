@@ -10,7 +10,7 @@ tags:
   - conflicts
   - holon-agentic-coder
 created_at: 2026-11-24T23:15:00Z
-updated_at: 2026-11-26T20:59:53Z
+updated_at: 2026-11-27T01:12:23Z
 ---
 
 ## Why
@@ -83,3 +83,41 @@ long as the base is unsorted, the rule "interleave by `created_at`" and the rule
 - 2026-11-26T20:58Z: PR #342 merged into `main` (`57a8aa38`). `scripts/normalise_ledgers.py --check` exits 0 on `main`;
   the three conflict reconcilers keep the base's rows in place and insert only the incoming rows. Bean stays in-progress
   for the remaining scope: `created_at` writers in the review modules (canonical `Z` form).
+
+- 2026-11-27 (PR #368, merged as `7cce6c7a`): `flow/partial_salvage.py` and `entrypoint/sync_conflict.py` now stamp
+  `created_at` with `utc_now_z`; the unused `datetime` import is gone; tests added. Not delivered, so the bean stays
+  in-progress: `created_at` writers still on `datetime.now(UTC).isoformat()` (`+00:00`), 16 sites in 15 files under
+  `apps/sandbox-executor/src/sandbox_executor/` (`entrypoint/review_loop.py`, `flow/review/*` (9 files),
+  `flow/stages/{integration,sync_conflict,touch_set_guard}.py`, `knowledge/ledger_sync.py`, `knowledge/records.py`),
+  measured on `7cce6c7a`.
+
+## Acceptance
+
+- [x] One-time normalisation: each of the three ledgers is sorted by `created_at` parsed as a UTC datetime with a stable
+      tie-break, and every `created_at` is in canonical `Z` form; the set of parsed rows is unchanged, proved by a test
+      or check script (delivered by PR #342; `normalise_ledgers.py --check` exits 0 on `main`).
+- [x] The three conflict reconcilers (`flow/ledger_reconcile.py`, `flow/ledger_interleave.py`, `ledger/reconcile.py`)
+      keep the base's rows in place and only insert the incoming rows (delivered by PR #342).
+- [ ] Hygiene check: a pull request whose ledger diff removes or moves any row of `main`, or leaves a ledger out of
+      order, fails the check; tests cover pass, removed-row, moved-row and out-of-order cases.
+- [x] `flow/partial_salvage.py` and `entrypoint/sync_conflict.py` stamp `created_at` via the one helper `utc_now_z`
+      (delivered by PR #368).
+- [ ] Every remaining `created_at` writer stamps canonical `Z` UTC through `utc_now_z`: the 16 sites in 15 files under
+      `apps/sandbox-executor/src/sandbox_executor/` (`entrypoint/review_loop.py`, `flow/review/*` (9 files),
+      `flow/stages/{integration,sync_conflict,touch_set_guard}.py`, `knowledge/ledger_sync.py`, `knowledge/records.py`)
+      no longer use `datetime.now(UTC).isoformat()`; a search for that pattern in `created_at` writers finds none.
+- [ ] Tests: each migrated writer has a test asserting its `created_at` ends in `Z` and parses as UTC.
+- [ ] Reconciler/resolver behaviour stays additions-only after the writer change (existing reconciler and
+      `resolve_known.py` tests still pass; `uv run pytest` is green).
+- [ ] The intent for the remaining work states the self-explaining-code invariant and names no harness paths or bean
+      ids.
+
+## Assumptions
+
+- The remaining writer count (16 sites, 15 files) is still accurate at launch; validated by re-running the search on
+  current `main` before writing the intent scope, listing files explicitly.
+- A hygiene check does not yet exist on `main`; validated by searching for a ledger-diff check in the target's CI and
+  scripts. If PR #342 already delivered one, tick that item and cite it.
+- `utc_now_z` is importable from every writer's module without a circular import; validated by import tests.
+- The hygiene check belongs in the target repository's existing check scripts and CI, not a new mechanism; validated at
+  planning time by locating where `normalise_ledgers.py --check` is run.

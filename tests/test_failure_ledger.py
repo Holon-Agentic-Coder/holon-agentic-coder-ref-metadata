@@ -32,6 +32,12 @@ def test_detects_bad_json_missing_field_and_gap():
     assert m.check_lines([_entry(1, category="other")])
 
 
+def test_duplicate_ids_are_refused():
+    rows = [_entry(n) for n in range(1, 4)] + [_entry(20), _entry(21)]
+    rows[3], rows[4] = _entry(2), _entry(3)
+    assert any("duplicate id CF-0002" in e for e in m.check_lines(rows))
+
+
 def test_append_only():
     head = [_entry(1), _entry(2)]
     assert m.check_append_only(head + [_entry(3)], head) == []

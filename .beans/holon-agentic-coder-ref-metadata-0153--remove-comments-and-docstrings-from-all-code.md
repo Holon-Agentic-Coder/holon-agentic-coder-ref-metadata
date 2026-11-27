@@ -469,3 +469,10 @@ catch them; logged as bean 0574.
 tokens: the shebang on line 1 of `scripts/check_module_budget_label_actor.py` and a `# type: ignore[arg-type]` pragma on
 line 102 of `apps/sandbox-executor/tests/test_check_module_budget_label_actor.py`. Neither explains code; both are left
 for the maintainer to decide. Bean stays in-progress.
+
+## Note (2026-11-27T00:58:37Z): measured on origin/main e189a89f
+
+Scanned every tracked file of `main` with the self-explaining checker rules (docstrings and comments other than `# why:`
+and machine directives): 6740 findings, 3907 docstrings (function 2873, module 605, class 429) and 2833 comments. 6250
+of them sit in `apps/sandbox-executor`; the rest are in CI workflows and actions, scripts and Makefile or pyproject.
+Scanned from a `git archive` export, not the main worktree. Bean stays in-progress.

@@ -5,6 +5,31 @@ first.
 
 ## Entries
 
+### 2026-11-27T00:57:23Z — Fifth-Merge Audit
+
+- **Trigger:** fifth merge (`holon-agentic-coder` #361 `00:05:38Z`, #362 `00:28:06Z`, #366 `00:29:24Z`, #364
+  `00:31:39Z`, #360 `00:55:13Z`; #363 just after).
+- **Last merged pull requests at audit time:** `Holon-Agentic-Coder/holon-agentic-coder#360`; `holon-coherence#56`
+  unchanged.
+- **Coordinator ledger (CF-0023 to CF-0030):** repeats flagged high priority: `intent-scope` x4 (CF-0025, 0028, 0029,
+  0030), `overlap-scheduling` x4 (CF-0023, 0024, 0026, 0027). The CF-0024 rule (poll every 60 s) and CF-0026 rule
+  (open-PR overlap check) were broken again within the hour.
+- **Partial deliveries:** #361, #366, #364 (and #362, half of 0563) delivered part of their beans. The 0589 check is not
+  enough: `--bean` optional, skipped on resume, a one-shared-token match passes, and exclusions are free text. The
+  keeper excluded all three remaining items of 0532 ("queued as separate intents") although only one sibling intent
+  exists: misuse, and split beans (0558 in four intents) can only pass per-intent checks through exclusions. Bean 0591.
+- **Slot utilisation:** `todo/slot-keeper.log` shows 00:42:22Z live=8, then 00:53:37Z live=4: an 11-min gap against the
+  60 s rule, six queued intents unlaunched with no recorded reason, and a stale `launched=` field. Bean 0592.
+- **macOS unit cost:** 0400 and 0404 remain in-progress; final heads of #360 to #366 show the macOS jobs at 0.2 to 0.3
+  min. Intermediate-head durations **not measured**. Bean 0594.
+- **Assumptions design (0590):** nine gaps (completeness, outcome unknown, stale pins, exclusions, rollout, pr_question
+  answers, scoring, size, leak scan). Bean 0593.
+- **Coordinator errors in briefs today:** CF-0025 to CF-0030, all intent-scope or overlap; root cause is hand-written
+  intents, covered by 0590.
+- **Examined, in order:** merged PRs had one review each; the final-head CI is green on all five; beans 0578 to 0590 not
+  duplicated.
+- **Beans created:** `0591`, `0592`, `0593`, `0594`.
+
 ### 2026-11-26T23:51:36Z — Fifth-Merge Audit
 
 - **Trigger:** fifth merge (`holon-agentic-coder` #353 `23:01:29Z`, #358 `23:23:01Z`, #357 `23:44:54Z`, #359

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0572
 title: "Check: every review finding is applied or rejected with a reason"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - invariants
   - holon-agentic-coder
 created_at: 2026-11-26T23:09:56Z
-updated_at: 2026-11-26T23:09:56Z
+updated_at: 2026-11-26T23:28:54Z
 ---
 
 ## Instruction (maintainer, 2026-11-27 local)
@@ -37,3 +37,11 @@ written reason; never waved through. Review is a 3-reviewer ensemble.
   and passes on the cleaned state.
 - Self-explaining code invariant in anything written: no docstrings, no comments except `# why:`.
 - Target-repository work goes through `holon flow`; the intent never names harness paths or bean ids.
+
+## Flow log (parked)
+
+parked 2026-11-27: blocked by PR #360 (flow 0549, test-failure-record-diagnose-fix) on
+apps/sandbox-executor/src/sandbox_executor/flow/review/loop.py, apps/sandbox-executor/tests/test_review_ci_wait.py;
+resume from checkpoint when PR #360 merges or releases those files. Stage 1 and 2 done (I-1795735540, P-1795735565 EV
+37.60); Stage 3 execute commit E-1795735979 exists locally on the E branch; worktree flow-review-findings-all-actioned
+and checkpoint kept.
