@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0615
 title: "HAC: add CI package import-cycle ratchet to prevent layer cycle regressions"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - architecture
   - ci
 created_at: 2026-11-27T05:26:26Z
-updated_at: 2026-11-27T08:30:40Z
+updated_at: 2026-11-27T12:29:07Z
 ---
 
 ## Notes
@@ -31,3 +31,16 @@ updated_at: 2026-11-27T08:30:40Z
   passes cleanly and allows lowering the ratchet baseline.
 
 ## Resolution
+
+Delivered via [PR #415](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/415) and merged into `main`
+(`bebb0840d`):
+
+- **Key Architectural Deliverables**: Added `apps/sandbox-executor/tests/test_import_cycle_ratchet.py`, an AST-based
+  top-level subpackage import-cycle ratchet locking `BASELINE_CYCLE_EDGE_COUNTS` (`entrypoint <-> flow` 12/15,
+  `knowledge <-> ledger` 4/1) so new package cycles or increased edge counts fail CI while reductions pass cleanly.
+- **Verification & Tests**: Includes synthetic import-graph unit tests verifying that new cycles and edge regressions
+  fail and edge removals pass; self-explaining code gate reported 0 added docstrings and 0 non-`# why:` comments across
+  6 changed files.
+- **Holon Flow Traversal**: Completed all 5 Holon flow stages (`I-1795768350-hac-import-cycle-ratchet`, plan
+  `P-1795768373-ANA-G4N-2`, execution `E-1795768641-ANA-G4N`), calibrated in Stage 5 (EV predicted `53.31` / actual
+  `65.54`, $\Delta\text{EV} = +12.23$, Bug EV Drag `0.00`).
