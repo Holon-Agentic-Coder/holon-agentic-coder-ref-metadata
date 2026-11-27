@@ -9,7 +9,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T08:30:00Z
-updated_at: 2026-11-26T06:14:00Z
+updated_at: 2026-11-27T00:56:56Z
 ---
 
 ## Problem
@@ -26,6 +26,29 @@ minutes. The checks that finish last are `Workspace survival (ubuntu-latest)` an
 - Fail fast inside the pipeline: `fail-fast` is `false` on the unit, make and integration matrices today, so a failed
   leg lets its sibling run to the end. Decide per workflow whether that is still wanted. (Superseded runs are already
   cancelled on pull requests.)
+
+## Acceptance
+
+- [ ] Each pipeline job's queue time and run time is measured, and the two jobs that set the total wall-clock time are
+      named.
+- [ ] The pipeline's median wall-clock time on full-pipeline heads is lower than the 7.6 min median recorded on
+      2026-11-25, with the before and after figures stated.
+- [ ] `unit (macos-latest)` run time on code heads is below its 7.0 min median, by dependency and image caching,
+      sharding the unit suite, or both, with the measured result stated.
+- [ ] `Workspace survival (ubuntu-latest)` is either faster than its 6.3 min median or no longer on the critical path,
+      with the measured result stated.
+- [ ] A decision is recorded for each of the unit, make and integration workflows on whether `fail-fast` stays `false`,
+      and the workflow files match the decision.
+- [ ] The macOS unit job runs only for changes that can behave differently there (delivered by PR #319).
+
+## Assumptions
+
+- No numeric target is set in the bean, so the targets are the medians the bean itself records (7.6 min pipeline, 7.0
+  min macOS unit, 6.3 min Workspace survival). Validate: the maintainer confirms the baselines are the right bar, or
+  states a ceiling.
+- "Lower than the median" is read as a measured improvement over a comparable sample of heads. Validate: re-run the
+  audit script's measurement on at least 20 post-change heads.
+- The macOS gating item is already met by PR #319. Validate: the Progress section and the merge commit `412bed21`.
 
 ## Notes
 
