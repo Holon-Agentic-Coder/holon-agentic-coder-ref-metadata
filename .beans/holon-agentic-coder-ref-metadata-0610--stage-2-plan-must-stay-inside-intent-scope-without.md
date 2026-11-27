@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0610
 title: "Stage 2 plan must stay inside intent scope without recorded expansion"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - scope
   - holon-agentic-coder
 created_at: 2026-11-27T05:18:43Z
-updated_at: 2026-11-27T10:56:02Z
+updated_at: 2026-11-27T11:12:17Z
 ---
 
 ## Notes
@@ -66,5 +66,14 @@ updated_at: 2026-11-27T10:56:02Z
 - **`CF-0052` (`0619`, `stage4-main-baseline-guard`, `08:29:46Z`):** Stage 2 plan widened into
   `apps/sandbox-executor/src/sandbox_executor/flow/review/loop.py` outside `intent.scope` and parked cleanly at Stage 3
   admission on live bean `0618` (`flow-stage4-carried-finding-clean-tree`).
+
+## Acceptance Criteria
+
+- Stage 2 (`flow/stages/plan.py` / `plan_scope_guard.py`) fails closed at plan validation before Stage 3 admission when
+  any file in `## Touch Set` lies outside `intent.scope` (excluding provenance paths `plans/`, `executions/`,
+  `holon-knowledge/`, `intents/`), unless an explicit recorded scope expansion is present.
+- Unit tests in `apps/sandbox-executor/tests/flow/stages/test_plan_scope_guard.py` verify that unrecorded out-of-scope
+  `## Touch Set` paths fail Stage 2, provenance paths and recorded expansions pass, and `uv run pytest` +
+  `uv run task lint` pass with no docstrings or disallowed comments.
 
 ## Resolution
