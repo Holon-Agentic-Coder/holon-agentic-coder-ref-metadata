@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0601
 title: "Each 0153 slice adds its own copy of the comment scanner as a test file instead of using the one gate"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - tests
   - duplication
 created_at: 2026-11-27T04:33:33Z
-updated_at: 2026-11-27T04:35:47Z
+updated_at: 2026-11-27T11:13:21Z
 ---
 
 ## Evidence
