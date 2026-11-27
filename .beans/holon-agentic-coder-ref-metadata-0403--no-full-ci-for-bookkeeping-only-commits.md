@@ -10,7 +10,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T08:30:00Z
-updated_at: 2026-11-25T03:08:00Z
+updated_at: 2026-11-27T01:36:00Z
 ---
 
 ## Problem
@@ -74,3 +74,22 @@ approval of unchanged code. The Stage 4 ledger commit (148 in the logged flows) 
 Heads that ran full CI per PR (unit workflow runs, all green): #325 8 (19 commits), #326 14 (22), #327 7 (17), #329 3
 (9), #330 5 (13), #331 7 (15): 44 heads, 0 failed unit runs, so every extra head was bookkeeping or review-resolver
 churn. Each head also runs six other workflows.
+
+## Acceptance
+
+- [ ] A push whose changes since the last fully tested commit lie only in `plans/`, `executions/` and `holon-knowledge/`
+      finishes its required checks in seconds via an in-job gate (delivered by PR #272).
+- [ ] A change outside those paths, however small, always gets the full pipeline; the rule is tested with a mixed commit
+      (delivered by PR #272).
+- [ ] Formatting checks that apply to these files (Prettier on the calibration report) still run (delivered by PR #272).
+- [ ] The live effect is confirmed on real bookkeeping-only pushes: unit, stress, integration, docker build and make
+      jobs skipped in seconds, hygiene under about a minute (measured 2026-11-25 across 22 heads).
+- [ ] The engine-side wait treats a bookkeeping-only head as covered, or the gate and the engine wait are consistent
+      with the one mechanism chosen.
+- [ ] A ledger-row push shortly after a resolver or conflict-gate push also skips full CI (remaining gap, tracked in
+      Bean 0443).
+
+## Assumptions
+
+- The in-job gate is the chosen mechanism (not workflow path filters). Validated by the progress note of 2026-11-24.
+- The remaining gap is delivered by Bean 0443 and not by new scope here. Validated by reading 0443 before closing.

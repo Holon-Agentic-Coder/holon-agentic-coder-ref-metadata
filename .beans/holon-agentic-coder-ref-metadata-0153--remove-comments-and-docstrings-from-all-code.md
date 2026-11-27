@@ -13,7 +13,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:42:56Z
-updated_at: 2026-11-26T23:28:02Z
+updated_at: 2026-11-27T01:36:00Z
 ---
 
 ## Problem
@@ -476,3 +476,36 @@ Scanned every tracked file of `main` with the self-explaining checker rules (doc
 and machine directives): 6740 findings, 3907 docstrings (function 2873, module 605, class 429) and 2833 comments. 6250
 of them sit in `apps/sandbox-executor`; the rest are in CI workflows and actions, scripts and Makefile or pyproject.
 Scanned from a `git archive` export, not the main worktree. Bean stays in-progress.
+
+## Acceptance
+
+- [ ] A check run by `uv run task lint`, pre-commit and CI fails on any docstring or non-allowlisted comment (delivered
+      by PR #357; diff-scoped, fail-closed without a merge base is bean 0558, checkpoint-path gap is bean 0574).
+- [ ] The four agent prompt templates state the self-explaining invariant (delivered by PR #357).
+- [ ] `holon-coherence` Python source and tests, build files, scripts and workflow YAML have no docstrings and no
+      comments except `# why:` and machine directives (delivered by PR #45, #46, #48, #49, #50, #51, #52, #54, #56).
+- [ ] Every module under `apps/sandbox-executor/src/sandbox_executor/` has no docstrings and no comments except `# why:`
+      and machine directives; behaviour unchanged (full suite green); module budgets unchanged. Earlier slices delivered
+      by PR #276, #280, #282, #284 to #295, #297 to #307 and the slices merged after them.
+- [ ] Every test module under `apps/sandbox-executor/tests/` has no docstrings and no comments except `# why:` and
+      machine directives; behaviour unchanged (full suite green); module budgets unchanged.
+- [ ] The docstrings and comments added by PRs #344, #351, #353, #356, #358 and #366 are removed (files named in the
+      notes, including `agent_runner.py`, `scripts/prune_kb_single_flow_failures.py`, `scripts/ci_main_push_gate.py`,
+      `tests/conftest.py`, `tests/test_fixture_discovery_subset.py`, `tests/test_ci_main_push_superseded.py`).
+- [ ] Shell scripts, the `holon` launcher, Makefiles, Dockerfiles, CI workflow and action YAML, pyproject and scripts of
+      `holon-agentic-coder` have no comments except `# why:` and machine directives; behaviour unchanged.
+- [ ] Every remaining comment that stays is a tool directive, shebang, licence header or one-line external reference,
+      justified in the PR.
+- [ ] CLI `--help` text, `make help` output, and log or error messages are unchanged.
+- [ ] The self-explaining checker reports zero findings on `main` (baseline 2026-11-27 on `e189a89f`: 6740 findings,
+      3907 docstrings, 2833 comments).
+- [ ] Each clean-up PR reports the before and after finding count for its slice.
+
+## Assumptions
+
+- The checker rule set is the one in the gate delivered by PR #357 (`# why:` and machine directives allowed). Validated
+  by running the checker on `main` and on each slice.
+- Shebangs and `# type: ignore` pragmas count as machine directives. Validated by the checker's allowlist; the
+  maintainer decides the PR #366 cases.
+- ERA (commented-out code) and shellcheck enforcement from the original scope are covered by the gate. Validated by
+  reading the gate's configuration before closing the bean.

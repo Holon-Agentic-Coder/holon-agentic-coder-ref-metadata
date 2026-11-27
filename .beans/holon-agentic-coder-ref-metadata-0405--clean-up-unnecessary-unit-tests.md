@@ -10,7 +10,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T09:55:00Z
-updated_at: 2026-11-26T11:37:00Z
+updated_at: 2026-11-27T01:36:00Z
 ---
 
 ## Why
@@ -258,3 +258,35 @@ Measured on main `412bed21` (report: `todo/test-suite-audit-2026-11-26.md`, raw 
 - 2026-11-26 (post-merge of PR #336, merged as `6d68e5dc`): batch 7 delivered by bean 0453 / PR #336 (26 standalone
   `test_*_self_doc.py` files consolidated into one data-driven test; test-only change). Install step skipped. Bean stays
   in-progress.
+
+## Acceptance
+
+- [ ] Measurement from JUnit or pytest durations lists the slowest tests and files before any removal (delivered;
+      measurement of 2026-11-24 and audit of 2026-11-26).
+- [ ] The 13 slowest files are made cheap with at least 60 percent less summed time and no coverage loss (delivered by
+      PR #275).
+- [ ] The Workspace survival job runs its stress tests concurrently (delivered by PR #308).
+- [ ] Batch 1, constant-time per-test temp dirs, merged (delivered by PR #325); its CI saving is re-measured on `main`.
+- [ ] Batch 2, fewer git processes in the stage pipeline tests, merged (delivered by PR #332).
+- [ ] Batch 3, fewer git processes in worktree and executor tests, merged (delivered by PR #323).
+- [ ] Batch 5, CPU-bound redaction and ledger tests, merged (delivered by PR #327).
+- [ ] Batch 7, self-doc test consolidation, merged (delivered by PR #336).
+- [ ] The remaining audit batches (calibration tests after the calibration split; review and decomposition tests after
+      `no-unneeded-full-review`; self-doc consolidation part two) are delivered, each test-only with before and after
+      timings.
+- [ ] Test areas deferred earlier (`test_git_refs.py`, `test_conflict_gate.py`, `test_calibration_diff_property.py`) are
+      cleaned up.
+- [ ] Line and branch coverage do not fall, and the mutation score of touched modules does not fall.
+- [ ] Regrowth rules: a per-test time limit in the unit suite, and a review-rules note that a finding is answered by
+      strengthening an existing test where one exists.
+- [ ] Pipeline targets re-measured on `main`: `unit (ubuntu-latest)` about 2 minutes, `unit (macos-latest)` under 5
+      minutes.
+- [ ] The suite size is reported in each pull request so growth is visible.
+- [ ] The module budget file is not changed.
+
+## Assumptions
+
+- Targets stay as written until confirmed by the measurement. Validated by re-measuring on `main` after the batches
+  merge.
+- Batches that missed their percentage floor (3, 5, 2, 1) count as delivered because the maintainer merged them as
+  partial results. Validated by the progress notes.
