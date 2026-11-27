@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0587
 title: "Introduce a pluggable ReductionPass Protocol and registry for holon-coherence token reduction"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - architecture
   - token-reduction
 created_at: 2026-11-27T00:33:33Z
-updated_at: 2026-11-27T00:33:33Z
+updated_at: 2026-11-27T06:17:35Z
 ---
 
 ## Problem
