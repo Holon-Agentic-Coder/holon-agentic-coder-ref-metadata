@@ -8,7 +8,7 @@ tags:
   - self-explaining-code
   - holon-flow
 created_at: 2026-11-27T04:43:38Z
-updated_at: 2026-11-27T10:54:06Z
+updated_at: 2026-11-27T11:48:04Z
 ---
 
 ## Evidence (audit 2026-11-27T04:43Z, PRs #396, #393, #392, #390, #389, #385, #384, #382, #383, #380)
@@ -36,5 +36,11 @@ updated_at: 2026-11-27T10:54:06Z
 - [ ] New slice PR bodies report reasons kept and deleted.
 
 ## Notes
+
+- **Progress (2026-11-27)**: [PR #417](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/417) (`ea7a43fa`,
+  `measure-deleted-why-comments`) merged into `main`: added `scripts/measure_deleted_why_comments.py` and unit tests in
+  `apps/sandbox-executor/tests/test_measure_deleted_why_comments.py` scanning merged self-doc diffs for removed reason
+  comments without matching `# why:` restorations. Keeping `status: in-progress` for the remaining restore and
+  template-prevention slices.
 
 ## Resolution

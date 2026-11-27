@@ -9,7 +9,7 @@ tags:
   - resilience
   - ci
 created_at: 2026-11-27T05:26:26Z
-updated_at: 2026-11-27T08:30:40Z
+updated_at: 2026-11-27T11:48:04Z
 ---
 
 ## Notes
@@ -23,6 +23,11 @@ updated_at: 2026-11-27T08:30:40Z
   `ValueError`, etc.).
 - **Reference**: Source: 2026-11-27 ecosystem architecture audit (`docs/ecosystem-audit-report-2026-11.md`); complements
   Bean `0534`.
+- **Progress (2026-11-27)**: [PR #414](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/414) (`2441e9d4`,
+  `hac-broad-except-ratchet`) merged into `main`: added the fast AST ratchet test
+  `apps/sandbox-executor/tests/test_broad_except_ratchet.py` locking per-module and per-package `except Exception`
+  counts (Stage 4 approved and Stage 5 calibrated). Keeping `status: in-progress` for the remaining slice to narrow
+  non-boundary `except Exception` catches to typed exceptions.
 
 ## Acceptance Criteria
 

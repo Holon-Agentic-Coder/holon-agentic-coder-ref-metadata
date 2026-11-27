@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0618
 title: "Stage 4 pre-iteration carried-finding resolver crashes on clean tree and commits empty ledger rows"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - stage-4
   - holon-agentic-coder
 created_at: 2026-11-27T07:49:17Z
-updated_at: 2026-11-27T08:09:39Z
+updated_at: 2026-11-27T11:48:04Z
 ---
 
 ## Notes
@@ -56,3 +56,15 @@ updated_at: 2026-11-27T08:09:39Z
   `uv run task lint` passes cleanly, and self-explaining code invariant holds.
 
 ## Resolution
+
+Delivered via [PR #412](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/412) and merged into `main`
+(`110cb4d7`):
+
+- **Key Deliverables**: Updated `flow/review/carried_findings.py`, `flow/review/loop.py`, and
+  `flow/review/ledger_commit.py` so a pre-iteration carried-finding resolver pass that exits with a clean working tree
+  clears stale `FIND-CI-*` when CI is green or halts once with `blocked_on` instead of crashing with
+  `Resolver commit failed`, and suppressed empty `chore(review): record review ledger rows` commits when zero reviews
+  ran and zero code changed.
+- **Verification & Tests**: Added proof tests in
+  `apps/sandbox-executor/tests/flow/review/test_carried_finding_clean_tree.py`.
+- **Holon Flow Traversal**: Completed all 5 stages (Stage 4 consensus `3/3 APPROVED`, Stage 5 calibration included).

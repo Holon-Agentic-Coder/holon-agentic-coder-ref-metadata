@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0594
 title: "Measure per-head CI job durations so review-round cost can be attributed (macOS unit leg)"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - holon-flow
   - timing
 created_at: 2026-11-27T00:57:23Z
-updated_at: 2026-11-27T11:07:53Z
+updated_at: 2026-11-27T11:48:05Z
 ---
 
 ## Evidence
@@ -47,3 +47,15 @@ and whether the head changed code or only bookkeeping.
       it.
 - [ ] Bean 0400 and 0404 progress notes cite the table.
 - [ ] Code has no docstrings and no comments except `# why:`; run with `uv run pytest`.
+
+## Resolution
+
+Delivered via [PR #419](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/419) and merged into `main`
+(`b366a559`):
+
+- **Key Deliverables**: Added read-only CLI script `scripts/measure_ci_head_durations.py` to query per-head, per-job CI
+  start/end durations from GitHub, separate code-changing heads from bookkeeping-only heads, correlate reviewer
+  iteration waits where logs exist, and summarize median and longest durations.
+- **Verification & Tests**: Added hermetic unit tests in `apps/sandbox-executor/tests/test_measure_ci_head_durations.py`
+  using stubbed GitHub payloads.
+- **Holon Flow Traversal**: Completed Stage 4 consensus approval and merged to `main`.

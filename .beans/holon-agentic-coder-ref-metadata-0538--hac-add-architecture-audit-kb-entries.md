@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0538
 title: "Add 2026-11 architecture audit patterns and failure modes to holon-agentic-coder KB"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - architecture
   - audit
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T08:38:13Z
+updated_at: 2026-11-27T11:48:04Z
 ---
 
 ## Problem
@@ -304,3 +304,14 @@ Run `holon flow` targeting `holon-agentic-coder` to add the 7 curated, target-na
 - Target repository: `holon-agentic-coder` (must execute via `holon flow`; never hand-edit
   `apps/holon-agentic-coder/main`).
 - Source: 2026-11 ecosystem architecture & source-code review (`docs/ecosystem-audit-report-2026-11.md`).
+
+## Resolution
+
+Delivered via [PR #416](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/416) and merged into `main`
+(`a2e378b5`):
+
+- **Key Deliverables**: Added all 7 curated 2026-11 architecture pattern and failure-mode KB JSON entries under
+  `holon-knowledge/kb/patterns/` and `holon-knowledge/kb/failure_modes/`.
+- **Verification & Tests**: Added `apps/sandbox-executor/tests/test_architecture_audit_kb_entries.py` asserting
+  `wisdom.load_index()` loads all 7 entries cleanly with valid schemas and zero harness references.
+- **Holon Flow Traversal**: Completed all 5 stages (Stage 4 consensus approved, Stage 5 calibration included).

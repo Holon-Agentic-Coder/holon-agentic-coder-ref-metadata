@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0600
 title: "Engine retries a rejected host push and records execution_branch before pushing"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - git
   - resume
 created_at: 2026-11-27T03:52:30Z
-updated_at: 2026-11-27T10:54:06Z
+updated_at: 2026-11-27T11:48:04Z
 ---
 
 ## Evidence
@@ -53,3 +53,16 @@ updated_at: 2026-11-27T10:54:06Z
   collides; the test asserts a resume does not mint a new name.
 - A fake remote (a local bare repository with a pre-receive hook that fails once) reproduces the `(failed)` shape
   closely enough. Validation: the test asserts on the exit code and the "remote rejected" line, not on GitHub's text.
+
+## Resolution
+
+Delivered via [PR #418](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/418) and merged into `main`
+(`8351cde7`):
+
+- **Key Deliverables**: Updated `flow/stages/execute.py`, `flow/host_remote.py`, and `flow/execution_recovery.py` to
+  record `execution_branch` in the checkpoint before the host push, retry rejected pushes with bounded exponential
+  backoff while logging remote output and attempt numbers, and reuse the recorded branch on resume (from the recovery
+  ref when needed) without creating a duplicate execution branch.
+- **Verification & Tests**: Added hermetic tests in
+  `apps/sandbox-executor/tests/flow/test_host_push_retry_record_branch.py`.
+- **Holon Flow Traversal**: Completed Stage 4 consensus approval and merged to `main`.
