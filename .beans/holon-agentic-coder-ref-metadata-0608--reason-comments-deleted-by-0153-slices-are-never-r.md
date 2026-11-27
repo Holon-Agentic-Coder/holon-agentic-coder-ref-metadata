@@ -8,7 +8,7 @@ tags:
   - self-explaining-code
   - holon-flow
 created_at: 2026-11-27T04:43:38Z
-updated_at: 2026-11-27T23:07:00Z
+updated_at: 2026-11-27T23:10:15Z
 ---
 
 ## Evidence (audit 2026-11-27T04:43Z, PRs #396, #393, #392, #390, #389, #385, #384, #382, #383, #380)
@@ -72,10 +72,13 @@ updated_at: 2026-11-27T23:07:00Z
   `allow_why=False`, failing tests on restored `# why:` comments in all 7 governed launcher modules (`empty_diff` after
   executor discarded edits). Worktree `apps/holon-agentic-coder/flow-hac-restore-why-launcher-batch` and checkpoint
   preserved for resume/re-sync once `allow_why=True` lands on `main` (`PR #455` / follow-up).
-- **Slice 5 (`hac-restore-why-cli-entrypoint`):** Launched `todo/intent-0608-restore-why-cli-entrypoint.json`
-  (`todo/intent-coverage-0608.json`) restoring or documenting all 10 unmatched removed reason entries across
-  `claude_keychain.py`, `cli/commands/execute.py`, `cli/commands/review_fetch.py`, `config_env_secrets.py`,
-  `entrypoint/executor/outcome.py`, `entrypoint/executor/sub_intents.py`, `entrypoint/git_locks.py`,
-  `entrypoint/rejected_attempt.py`, and `entrypoint/taken_ids.py` (all within 350 lines).
+- **Slice 5 (`hac-restore-why-cli-entrypoint`):** Parked on
+  [PR #457](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/457) (`1a8ce158`) after Stage 4 iter 1
+  halted on `touch_set_violation` (`CF-0082`, `f975da1b`): the 8 restored `# why:` files hit the same
+  `test_self_doc_modules.py:221` (`allow_why=False`) failure fixed by pending
+  [PR #455](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/455), and the resolver added
+  `test_self_doc_modules.py` outside scope (`82b32b211` / `a0fde65c2` unpushed local commits). Worktree
+  `apps/holon-agentic-coder/flow-hac-restore-why-cli-entrypoint` and checkpoint preserved: once `PR #455` merges, reset
+  local unpushed commits to `1a8ce158`, sync `origin/main`, and resume Stage 4.
 
 ## Resolution
