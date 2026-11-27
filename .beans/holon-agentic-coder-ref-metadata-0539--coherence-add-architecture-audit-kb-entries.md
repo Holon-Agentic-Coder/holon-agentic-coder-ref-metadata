@@ -10,7 +10,7 @@ tags:
   - architecture
   - audit
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T06:21:08Z
+updated_at: 2026-11-27T07:48:45Z
 ---
 
 ## Problem

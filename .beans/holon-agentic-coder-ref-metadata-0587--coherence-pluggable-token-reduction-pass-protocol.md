@@ -10,7 +10,7 @@ tags:
   - architecture
   - token-reduction
 created_at: 2026-11-27T00:33:33Z
-updated_at: 2026-11-27T06:17:35Z
+updated_at: 2026-11-27T07:48:45Z
 ---
 
 ## Problem
