@@ -10,7 +10,7 @@ tags:
   - intent
   - invariants
 created_at: 2026-11-27T00:38:30Z
-updated_at: 2026-11-27T00:55:37Z
+updated_at: 2026-11-27T05:21:15Z
 ---
 
 ## Maintainer decision (2026-11-27 local)
@@ -227,3 +227,8 @@ refuses the merged intent for each case.
 - Maintainer, 2026-11-27: "do we need to incorporate intent creation as part of holon flow?" ... "ok create a bean for
   this".
 - Launch and resume both go through the generator, so the generator's output is the only intent the flow sees.
+- parked 2026-11-27T05:20Z (`stage1-requires-assumptions`): blocked by PR #407
+  (`I-1795752747-self-doc-tests-51/P-1795752777-CLA-CO5.5/E-1795753049-CLA-CO5.5/_`) on
+  `apps/sandbox-executor/tests/flow/test_pipeline_unlimited.py`; resume from checkpoint
+  `apps/holon-agentic-coder/flow-stage1-requires-assumptions/.holon/flow/checkpoint-stage1-requires-assumptions.json`
+  when PR #407 merges or closes.
