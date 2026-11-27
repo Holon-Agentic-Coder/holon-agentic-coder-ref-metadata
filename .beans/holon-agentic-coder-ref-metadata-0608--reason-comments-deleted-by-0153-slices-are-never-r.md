@@ -8,7 +8,7 @@ tags:
   - self-explaining-code
   - holon-flow
 created_at: 2026-11-27T04:43:38Z
-updated_at: 2026-11-27T22:15:53Z
+updated_at: 2026-11-27T22:37:23Z
 ---
 
 ## Evidence (audit 2026-11-27T04:43Z, PRs #396, #393, #392, #390, #389, #385, #384, #382, #383, #380)
@@ -45,5 +45,9 @@ updated_at: 2026-11-27T22:15:53Z
 - **Slice 2 (`hac-restore-why-tests`):** Launched `todo/intent-0608-restore-why-tests.json`
   (`todo/intent-coverage-0608.json`) restoring or documenting all 16 unmatched removed reason entries across the 8
   `tests/` files surfaced by `scripts/measure_deleted_why_comments.py`.
+- **Slice 3 (`hac-restore-why-src-batch1`):** Launched `todo/intent-0608-restore-why-src-batch1.json`
+  (`todo/intent-coverage-0608.json`) restoring or documenting all 22 unmatched removed reason entries across
+  `decomposition_rule.py`, `touch_set.py`, `worktree_head.py`, `entrypoint/agent_output_block.py`,
+  `entrypoint/execution_workspace.py`, and `launcher/sidecar_plan.py` (all within their 350-line budget).
 
 ## Resolution
