@@ -23,14 +23,23 @@ An audit that is due is not skipped because flows are running; it is read-only a
   of suggestions, each logged as a bean.
 - **Model tier**: the session model or one tier below it; the audit needs judgement, so not the lowest tier
   ([model-tiers.md](model-tiers.md)).
-- **Read-only** on target repositories, flows, worktrees, branches and pull requests. It writes only new beans, the
-  audit log, and nothing else. It never launches a flow and never edits another bean's scope.
+- **Read-only** on target repositories, flows, worktrees, branches and pull requests. It writes only new or extended
+  beans, the architecture & code-quality report (`docs/ecosystem-audit-report-YYYY-MM.md`), and the audit log
+  (`.beans/self-improvement-audits.md`). It never launches a flow and never edits another bean's scope.
 
 ## What it audits
 
-The evidence is what happened since the last audit: the merged pull requests and their review threads, the flow logs and
-checkpoints in `todo/`, the calibration reports, CI run times and failures, the beans opened and closed, and the bugs
-logged along the way.
+The evidence is what happened since the last audit **plus** a comprehensive source-code quality, architecture, and
+cleanliness audit across `holon-agentic-coder` and `holon-coherence` (maintainer instruction, 2026-11-27):
+
+- **Process & flow evidence:** merged pull requests and their review threads, the flow logs, checkpoints, and prior
+  comprehensive audit reports and measurement artifacts in `todo/` (e.g., `todo/flow-time-audit-*.md`,
+  `todo/test-suite-audit-*.md`, `todo/self-improvement-audit-*/`), calibration reports, CI run times and failures, the
+  beans opened and closed, and the bugs logged along the way.
+- **Source-code quality, architecture & cleanliness (read-only against `apps/*/main`):** live AST/structural metrics
+  (source/test LOC, return-typing percentage, module budgets and orphaned overrides, cyclomatic complexity hotspots,
+  package import cycles, bare/broad `except` counts, docstrings and `# why:` comment counts, security/secret hygiene,
+  and test-suite health) evaluated against `docs/ecosystem-audit-report-YYYY-MM.md`.
 
 It looks for improvements of at least these kinds:
 
@@ -81,14 +90,19 @@ improvements, comprehensive timing around all the steps are to be done").
 
 ## What it produces
 
-- **One bean per suggestion**, with the evidence (pull request, log line, timing), the proposed change, the expected
-  gain and the cost. Before writing a bean it searches `.beans/` and adds to an existing open bean instead of
-  duplicating it.
-- **A short report** to the main agent: the suggestions ranked by value, the beans created or extended, and what was
-  examined but found in order.
+- **Comprehensive architecture & source-code quality report**, `docs/ecosystem-audit-report-YYYY-MM.md` (refreshed
+  against current `apps/holon-agentic-coder/main` and `apps/holon-coherence/main`, consulting `todo/` audit reports):
+  per-aspect scores out of 10 with deltas from the prior snapshot, overall score, done-well vs could-be-better
+  commentary, and updated remediation matrix linking each actionable gap to an open or newly created bean.
+- **One bean per suggestion**, with the evidence (pull request, log line, timing, or AST/code-quality measurement), the
+  proposed change, the expected gain and the cost. Before writing a bean it searches `.beans/` and adds to an existing
+  open bean instead of duplicating it.
+- **A short report** to the main agent: the suggestions ranked by value, the updated architecture & code-quality
+  scorecard, the beans created or extended, and what was examined but found in order.
 - **An entry in the audit log**, `.beans/self-improvement-audits.md`: the date and time (UTC), the trigger (session
-  start or fifth merge), the last merged pull request of each target repository at that moment, and the beans created.
-  The next count of five starts from that entry.
+  start or fifth merge), the last merged pull request of each target repository at that moment, a link and summary of
+  the refreshed `docs/ecosystem-audit-report-YYYY-MM.md` architecture & code-quality report, and the beans created. The
+  next count of five starts from that entry.
 
 The main agent passes the ranked suggestions to the maintainer and regenerates the triage matrix. It does not start work
 on a suggestion without the usual priority order or the maintainer's word.

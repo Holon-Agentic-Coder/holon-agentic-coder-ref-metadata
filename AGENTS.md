@@ -88,9 +88,11 @@ These apply to every task. Each links to the file that holds the full rule.
   [.agents/invariants.yml](.agents/invariants.yml); `tests/test_invariant_registry.py` fails on a hard rule with no
   entry, a check that does not exist, or a missing or partial entry with no open bean (maintainer, 2026-11-27).
 - **Self-improvement audit**: at the start of every session and after every fifth merge, a dedicated subagent runs a
-  comprehensive audit for self-improvement (pipeline, flow, coding standards, architecture standards, harness) and logs
-  one bean per suggestion; the brief says plainly that it is a self-improvement audit (maintainer, 2026-11-24). See
-  [self-improvement-audit.md](.agents/self-improvement-audit.md).
+  comprehensive audit for self-improvement (pipeline, flow, coding standards, architecture standards, harness) **and** a
+  comprehensive source-code quality, architecture, and cleanliness audit (consulting `todo/` audit reports and
+  refreshing/including `docs/ecosystem-audit-report-YYYY-MM.md` in `.beans/self-improvement-audits.md`), logging one
+  bean per suggestion; the brief says plainly that it is a self-improvement audit (maintainer, 2026-11-24; expanded
+  2026-11-27). See [self-improvement-audit.md](.agents/self-improvement-audit.md).
 
 ---
 

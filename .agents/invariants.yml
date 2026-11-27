@@ -13,7 +13,6 @@ invariants:
       - "Self-explaining code (invariant)"
     status: "partial"
     open_beans:
-      - "0558"
       - "0153"
     runs_at:
       - "pre-commit"
@@ -169,9 +168,8 @@ invariants:
   - id: "no-harness-references-in-targets"
     agents_rules:
       - "Target repositories"
-    status: "partial"
-    open_beans:
-      - "0564"
+    status: "enforced"
+    open_beans: []
     runs_at:
       - "ci"
       - "flow-gate"
@@ -180,6 +178,9 @@ invariants:
       - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_check_no_harness_references.py::test_added_line_with_a_reference_fails_without_echoing_it"
       - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_check_no_harness_references.py::test_unreadable_diff_fails_closed"
       - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_intent_payload_rules.py::test_reconstructed_intent_with_harness_reference_is_refused"
+      - "script:apps/holon-coherence/main/scripts/check_no_harness_references.py"
+      - "test:apps/holon-coherence/main/tests/test_check_no_harness_references.py::test_diff_mode_fails_on_added_reference_line"
+      - "test:apps/holon-coherence/main/tests/test_check_no_harness_references.py::test_diff_mode_fails_closed_on_unreadable_diff_and_inputs"
   - id: "intent-covers-bean-acceptance"
     agents_rules: []
     status: "partial"
@@ -261,12 +262,15 @@ invariants:
       - "test:tests/test_check_beans.py::test_audit_entries_must_be_newest_first"
   - id: "every-review-finding-actioned"
     agents_rules: []
-    status: "missing"
-    open_beans:
-      - "0572"
+    status: "enforced"
+    open_beans: []
     runs_at:
       - "flow-gate"
-    checks: []
+    checks:
+      - "script:apps/holon-agentic-coder/main/apps/sandbox-executor/src/sandbox_executor/review_finding_outcomes.py"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_review_finding_outcomes.py::test_a_loop_that_leaves_a_nit_and_a_surviving_mutant_without_an_outcome_fails"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_review_finding_outcomes.py::test_a_loop_where_every_finding_is_applied_or_rejected_with_a_reason_passes"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_review_finding_outcomes.py::test_approval_needs_exactly_three_verdicts"
   - id: "new-invariant-lands-with-its-check"
     agents_rules:
       - "New invariants"
