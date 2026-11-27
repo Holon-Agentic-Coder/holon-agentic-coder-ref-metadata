@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0588
 title: "Port ci_bookkeeping_gate, self-explaining check, budget-label actor check, and remove KB index.json"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - hygiene
   - invariants
 created_at: 2026-11-27T00:33:33Z
-updated_at: 2026-11-27T00:33:33Z
+updated_at: 2026-11-27T07:27:06Z
 ---
 
 ## Problem
