@@ -8,7 +8,7 @@ tags:
   - self-explaining-code
   - holon-flow
 created_at: 2026-11-27T04:43:38Z
-updated_at: 2026-11-27T22:39:43Z
+updated_at: 2026-11-27T22:43:05Z
 ---
 
 ## Evidence (audit 2026-11-27T04:43Z, PRs #396, #393, #392, #390, #389, #385, #384, #382, #383, #380)
@@ -42,9 +42,18 @@ updated_at: 2026-11-27T22:39:43Z
   `apps/sandbox-executor/tests/test_measure_deleted_why_comments.py` scanning merged self-doc diffs for removed reason
   comments without matching `# why:` restorations. Keeping `status: in-progress` for the remaining restore and
   template-prevention slices.
-- **Slice 2 (`hac-restore-why-tests`):** Launched `todo/intent-0608-restore-why-tests.json`
-  (`todo/intent-coverage-0608.json`) restoring or documenting all 16 unmatched removed reason entries across the 8
-  `tests/` files surfaced by `scripts/measure_deleted_why_comments.py`.
+- **Slice 2 (`hac-restore-why-tests`):** Completed 5-stage Holon flow (`antigravity-agent` / `gemini-4-neon`), awaiting
+  human maintainer merge:
+  - **PR**: [PR #454](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/454)
+  - **Branch**: `I-1795817852-hac-restore-why-tests/P-1795817878-ANA-G4N/E-1795818137-ANA-G4N/_`
+  - **Worktree**: `apps/holon-agentic-coder/flow-hac-restore-why-tests`
+  - **Checkpoint**:
+    `apps/holon-agentic-coder/flow-hac-restore-why-tests/.holon/flow/checkpoint-hac-restore-why-tests.json`
+  - **Consensus**: `APPROVED` (Reviewer 1 APPROVED 0/0/0, Reviewer 2 APPROVED 0/0/0, Reviewer 3 APPROVED 0/0/0)
+  - **CI Status**: `success` (16 passed, 0 failed, 0 other; `MERGEABLE`, `CLEAN`)
+  - **Calibration**: Included in PR diff
+    (`plans/I-1795817852-hac-restore-why-tests/P-1795817878-ANA-G4N_calibration.md`), Predicted EV: `35.32`, Actual EV:
+    `40.82`, `ΔEV`: `+5.50`
 - **Slice 3 (`hac-restore-why-src-batch1`):** Launched `todo/intent-0608-restore-why-src-batch1.json`
   (`todo/intent-coverage-0608.json`) restoring or documenting all 22 unmatched removed reason entries across
   `decomposition_rule.py`, `touch_set.py`, `worktree_head.py`, `entrypoint/agent_output_block.py`,
