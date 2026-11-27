@@ -144,12 +144,16 @@ invariants:
     checks: []
   - id: "three-append-only-ledgers"
     agents_rules: []
-    status: "missing"
+    status: "partial"
     open_beans:
       - "0563"
     runs_at:
-      - "on-demand"
-    checks: []
+      - "ci"
+    checks:
+      - "script:apps/holon-agentic-coder/main/scripts/check_ledger_stores.py"
+      - "script:apps/holon-agentic-coder/main/scripts/check_ledger_rows_append_only.py"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_ledger_stores_exactly_three.py::test_a_fourth_store_fails_and_is_named"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_ledger_rows_append_only_diff.py::test_a_base_row_edit_fails"
   - id: "no-harness-references-in-targets"
     agents_rules:
       - "Target repositories"
