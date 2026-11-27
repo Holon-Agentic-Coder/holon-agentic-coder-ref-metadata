@@ -10,7 +10,7 @@ tags:
   - extensibility
   - refactor
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T15:40:36Z
+updated_at: 2026-11-27T17:15:59Z
 ---
 
 ## Problem
@@ -81,3 +81,10 @@ multiple modules, while circular imports connect `parsers/` ↔ `providers/` and
   import cycle, and adding tests in `tests/providers/test_provider_format_seam.py`. Bean remains `in-progress` because
   remaining import cycles (`commands/docker_ops.py` ↔ `commands/endpoints.py`, `payload_cleaner` ↔ `providers/`,
   `commands` ↔ `container`, `hybrid_cache` ↔ `proxy`) and `in_container` consolidation remain open.
+- **Progress (`2026-11-27`):** Slice 2 (`coherence-commands-cycle`,
+  [PR #87](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/87)) completed all 5 stages (`APPROVED`, `10/10`
+  CI passed, `ΔEV +0.30`; awaiting maintainer merge).
+- **Slice 3 (`2026-11-27`, `coherence-docker-endpoints`):** Launched breaking `commands/docker_ops.py` ↔
+  `commands/endpoints.py` via one-way `docker_ops.py -> endpoints.py` imports and an AST test in
+  `tests/commands/test_endpoints.py` (`todo/intent-0527-coherence-docker-endpoints.json`,
+  `todo/intent-coverage-0527.json`).

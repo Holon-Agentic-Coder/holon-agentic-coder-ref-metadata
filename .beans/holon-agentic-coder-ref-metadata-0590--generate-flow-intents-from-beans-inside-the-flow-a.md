@@ -10,7 +10,7 @@ tags:
   - intent
   - invariants
 created_at: 2026-11-27T00:38:30Z
-updated_at: 2026-11-27T05:21:15Z
+updated_at: 2026-11-27T17:15:59Z
 ---
 
 ## Maintainer decision (2026-11-27 local)
@@ -232,3 +232,9 @@ refuses the merged intent for each case.
   `apps/sandbox-executor/tests/flow/test_pipeline_unlimited.py`; resume from checkpoint
   `apps/holon-agentic-coder/flow-stage1-requires-assumptions/.holon/flow/checkpoint-stage1-requires-assumptions.json`
   when PR #407 merges or closes.
+- **2026-11-27 (`stage1-requires-assumptions`, `CF-0075`):**
+  [PR #435](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/435) received `3/3` reviewer approval
+  (`0/0/0`) and passed `10,892` unit tests, then halted in Stage 4 iteration 1 on `touch_set_violation` when resolving
+  CI integration failures (`tests/test_intent_creator_integration.py`, `tests/test_planner_integration.py`). Closed PR
+  #435, pruned worktree/branches, and relaunched with the 20-file scope in
+  `todo/intent-0590-stage1-requires-assumptions.json`.
