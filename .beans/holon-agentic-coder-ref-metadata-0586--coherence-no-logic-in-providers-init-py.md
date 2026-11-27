@@ -10,7 +10,7 @@ tags:
   - hygiene
   - refactor
 created_at: 2026-11-27T00:33:33Z
-updated_at: 2026-11-27T06:16:27Z
+updated_at: 2026-11-27T07:47:29Z
 ---
 
 ## Problem

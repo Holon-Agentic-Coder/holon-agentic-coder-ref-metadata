@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-11-26T23:09:56Z
-updated_at: 2026-11-27T05:20:22Z
+updated_at: 2026-11-27T07:47:29Z
 ---
 
 ## Instruction (maintainer, 2026-11-27 local)
