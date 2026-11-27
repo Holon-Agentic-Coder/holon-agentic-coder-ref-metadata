@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0611
 title: "Promote Ledger no-ops green without bot token while 252 pending fragments pile up"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - ledger
   - holon-agentic-coder
 created_at: 2026-11-27T05:18:43Z
-updated_at: 2026-11-27T11:55:26Z
+updated_at: 2026-11-27T12:33:36Z
 ---
 
 ## Notes
@@ -53,3 +53,31 @@ updated_at: 2026-11-27T11:55:26Z
   warning behavior, and self-explaining YAML compliance via `uv run pytest`, and `uv run task lint` passes cleanly.
 
 ## Resolution
+
+Delivered via [PR #424](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/424) and merged into `main`
+(`c03385aff`):
+
+- **Key Architectural Deliverables**:
+  - Removed the unguarded `on.push` trigger and obsolete job-level `if:` condition from
+    `.github/workflows/promote-ledger.yml`, leaving daily `schedule` (`cron: "41 3 * * *"`) and `workflow_dispatch`
+    triggers so merge bursts no longer trigger cancelled run storms, and brought all YAML comments into `# why:`
+    self-explaining compliance.
+  - Added a read-only sparse checkout of `holon-knowledge/ledger/pending` and a non-failing `::warning::` step (plus job
+    summary entry) reporting the pending fragment count and required `HOLON_LEDGER_BOT_TOKEN` maintainer action whenever
+    `HOLON_LEDGER_BOT_TOKEN` is unset.
+  - Updated `.github/workflows/README.md` (`## Workflows` and `## Ledger Promotion`) to document the schedule/dispatch
+    triggers and missing-token pending-backlog warning.
+  - Updated `apps/sandbox-executor/tests/test_promote_ledger_workflow.py` to verify schedule/dispatch-only triggers,
+    sparse checkout + `::warning::` alert behavior, secret scoping across checkout steps, README alignment, and
+    self-explaining YAML compliance.
+- **Verification & Tests**:
+  - Targeted workflow tests
+    (`uv run pytest apps/sandbox-executor/tests/test_promote_ledger_workflow.py apps/sandbox-executor/tests/test_workflow_triggers.py`):
+    `46 passed, 0 failed` (`0.37s`).
+  - Repository lint (`uv run task lint` covering `uv lock --check`, `ruff check`, `ruff format --check`, module budgets,
+    and `scripts/check_self_explaining.py`): passed; Prettier check on modified markdown files passed.
+  - Full unit test suite (`uv run task test`): `10809 passed, 0 failed, 7 skipped` (`64.33s`).
+- **Holon Flow Traversal**: Completed all 5 stages (`I-1795780652-promote-ledger-debounce-alert` ->
+  `P-1795780678-ANA-G4N` -> `E-1795780889-ANA-G4N` -> Stage 4 review `APPROVED 3/3` (`1` full review, `0` churn) ->
+  Stage 5 calibration: `100.0%` Touch Set precision/recall, `EV_pred = 55.88`, `EV_actual = 76.58`, calibrated `+20.70`
+  EV).
