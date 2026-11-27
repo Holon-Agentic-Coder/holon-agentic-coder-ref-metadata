@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0524
 title: "Fix world-writable Root CA key permissions, web password leaks, and unscrubbed cache"
-status: in-progress
+status: completed
 type: bug
 priority: critical
 tags:
@@ -10,7 +10,7 @@ tags:
   - ca
   - secrets
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T07:52:54Z
+updated_at: 2026-11-27T08:33:37Z
 ---
 
 ## Problem
@@ -59,10 +59,30 @@ persisting unscrubbed LLM payloads inside the world-writable cache directory.
   `apps/holon-coherence/flow-coherence-cache-scrub-endpoints/.holon/flow/checkpoint-coherence-cache-scrub-endpoints.json`
   when PR #63 merges.
 
-## Progress (`2026-11-27`, Coherence PR `#63`)
+## Resolution
 
-- Slice 1 (`coherence-ca-key-perms`): merged via
-  [holon-coherence#63](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/63) (`2a1a8562`). Worktree and flow
-  branches pruned.
-- Bean stays `in-progress` for slice 2 (`coherence-cache-scrub-endpoints`, now unblocked and ready to resume from
-  checkpoint).
+Completed across two sequential Holon flows in `holon-coherence`:
+
+1. **Slice 1 (`coherence-ca-key-perms`)** — Delivered via
+   [PR #63](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/63) and merged into `main`
+   (`2a1a8562b1c52d4f7d51d247e78fb4c59ee7938a`, `2026-11-27T07:47:51Z`):
+   - **Key Architectural Deliverables**: Disabled `world_accessible_mounts` in `src/holon_coherence/commands/start.py`;
+     enforced `0o700` directory and `0o600` private key permissions in `src/holon_coherence/container/lifecycle.py`;
+     moved `HOLON_COHERENCE_WEB_PASSWORD` delivery out of `docker run -e` / mitmweb `--set web_password=` argv into a
+     `0o600` env/config mechanism with helpers in `src/holon_coherence/commands/web_token.py`.
+   - **Verification & Tests**: Updated and added restrictive permission and zero-argv-secret regression tests in
+     `tests/test_proxy_lifecycle.py`, `tests/commands/test_start_web.py`, and `tests/commands/test_web_token.py`.
+
+2. **Slice 2 (`coherence-cache-scrub-endpoints`)** — Delivered via
+   [PR #75](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/75) and merged into `main`
+   (`980da41a15659380a2ae1379d54462889a0ca6f5`, `2026-11-27T08:27:33Z`):
+   - **Key Architectural Deliverables**: Removed `?token=` query-string secret leakage from `inspector_url` and printed
+     endpoint URLs in `src/holon_coherence/commands/endpoints.py` (printing base URL + token-recovery command
+     instructions instead). Hardened `src/holon_coherence/hybrid_cache.py` to enforce `0o700` cache directory and
+     `0o600` SQLite file permissions, scrub sensitive credentials/headers via `scrub_sensitive_data` in `put()`, drop
+     the unused `idx_prompt_cache_provider_system_created` index, and eliminate redundant `normalize_payload` calls.
+   - **Verification & Tests**: Added/updated tests in `tests/commands/test_endpoints.py`,
+     `tests/commands/test_start_web.py`, `tests/commands/test_web_token.py`, and `tests/test_hybrid_cache.py`.
+   - **Holon Flow Traversal**: All 5 stages (`I-1795764570-coherence-cache-scrub-endpoints` -> `P-1795766728-ANA-G4N` ->
+     `E-1795766932-ANA-G4N` -> Stage 4 review -> Stage 5 calibration) completed successfully (`1` pipeline run, `1` full
+     review, `100%` touch-set precision/recall, `0` added docstrings/comments).
