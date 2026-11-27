@@ -10,7 +10,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T09:55:00Z
-updated_at: 2026-11-27T22:12:27Z
+updated_at: 2026-11-27T22:17:29Z
 ---
 
 ## Why
@@ -318,3 +318,16 @@ Measured on main `412bed21` (report: `todo/test-suite-audit-2026-11-26.md`, raw 
 - Launched `tests-fewer-git-review-decomp` (`todo/intent-0405-tests-fewer-git-review-decomp.json`,
   `todo/intent-coverage-0405.json`) targeting the 5 disjoint review/decomposition/fingerprint test files (test-only,
   excluding `test_conflict_gate.py`).
+  - Result: flow completed all 5 stages (`antigravity-agent` / `gemini-4-neon`, resumed from Stage 3 after quota reset).
+  - PR: https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/449 (#449, `MERGEABLE` / `CLEAN`, awaiting
+    maintainer merge).
+  - Branch: `I-1795802419-tests-fewer-git-review-decomp/P-1795802441-ANA-G4N/E-1795812763-ANA-G4N/_`
+  - Worktree: `apps/holon-agentic-coder/flow-tests-fewer-git-review-decomp`
+  - Checkpoint:
+    `apps/holon-agentic-coder/flow-tests-fewer-git-review-decomp/.holon/flow/checkpoint-tests-fewer-git-review-decomp.json`
+  - Consensus: APPROVED (3/3 on iteration 2 scoped review, fingerprint `pf2:09ec9d22322dde8accf06da09837f69b43c17ef1`).
+  - CI status: all 16 checks passed on final head `65bc5e1`.
+  - Calibration: `plans/I-1795802419-tests-fewer-git-review-decomp/P-1795802441-ANA-G4N_calibration.md` included in PR
+    diff; Predicted EV `43.26`, Actual EV `59.29`, `ΔEV: +16.03`.
+  - Measurement (5 files in scope): git spawns `5395 -> 3569` (`-33.85%`), median summed time `100.7240s -> 45.9650s`
+    (`-54.4%`), cases `146 -> 146`.
