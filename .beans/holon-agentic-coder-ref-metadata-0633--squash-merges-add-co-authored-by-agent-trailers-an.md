@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0633
 title: "Squash merges add Co-authored-by agent trailers and Coherence lacks hook setup"
-status: todo
+status: in-progress
 type: bug
 priority: normal
 tags:
@@ -11,7 +11,7 @@ tags:
   - holon-coherence
   - holon-agentic-coder
 created_at: 2026-11-27T12:11:44Z
-updated_at: 2026-11-27T15:55:01Z
+updated_at: 2026-11-27T17:35:04Z
 ---
 
 ## Notes
@@ -57,5 +57,14 @@ updated_at: 2026-11-27T15:55:01Z
 - [ ] Squash-merged commits on `holon-coherence/main` and `holon-agentic-coder/main` do not introduce unintended
       `Co-authored-by:` agent trailers (verified via `scripts/check_commit_trailers.py` or equivalent check).
 - [ ] Automated tests verify hook installation and commit-trailer enforcement under `uv run pytest`.
+
+## Flow
+
+- **Slice 1 (`2026-11-27`, `coherence-install-hooks-setup`):** Adds idempotent `install-hooks` target to
+  `holon-coherence` `Makefile` (activating `.githooks/commit-msg` via `git config core.hooksPath .githooks`, supporting
+  `DRY_RUN` and `help`) with tests in `tests/test_makefile.py` and `tests/test_check_commit_trailers.py`
+  (`todo/intent-0633-coherence-install-hooks-setup.json`, `todo/intent-coverage-0633.json`). Harness
+  `.agents/scripts/install_git_hooks.py` wiring and uniform flow commit-author / squash-merge trailer policy are
+  deferred to Slice 2.
 
 ## Resolution
