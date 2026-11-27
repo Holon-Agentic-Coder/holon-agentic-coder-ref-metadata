@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0538
 title: "Add 2026-11 architecture audit patterns and failure modes to holon-agentic-coder KB"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - architecture
   - audit
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-26T13:35:00Z
+updated_at: 2026-11-27T08:38:13Z
 ---
 
 ## Problem
