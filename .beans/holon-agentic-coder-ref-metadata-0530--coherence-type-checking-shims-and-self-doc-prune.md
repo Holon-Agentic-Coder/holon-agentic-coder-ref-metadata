@@ -10,7 +10,7 @@ tags:
   - clean-code
   - hygiene
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T08:03:32Z
+updated_at: 2026-11-27T08:10:15Z
 ---
 
 ## Problem
@@ -60,3 +60,7 @@ package root, and misleading names mask metric/parity semantics.
 - Audit refresh (`2026-11-27`, `ce39bf34d`): redundant `*_self_doc.py` files grew from `9` (`922` LOC) to `10` (`1,202`
   LOC) across `#58`–`#65`; `unittest.TestCase` migration finished in PR `#64` (`0` subclasses remain, only
   `unittest.mock` left).
+- Progress (`2026-11-27`): [PR #71](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/71)
+  (`coherence-parity-and-hygiene`, merge commit `f958f9a0`) merged into `main`, addressing `ab_testing/evaluation.py`,
+  `openbrain_memory.py`, `rag_indexer.py`, and repo hygiene tests. Bean remains `in-progress` for remaining slices
+  (e.g., `dashboard-html-asset` and CI type-checking).
