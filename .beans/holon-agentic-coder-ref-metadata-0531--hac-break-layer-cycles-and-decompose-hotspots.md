@@ -10,7 +10,7 @@ tags:
   - complexity
   - refactor
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T17:47:32Z
+updated_at: 2026-11-27T20:48:07Z
 ---
 
 ## Problem
@@ -78,3 +78,9 @@ Bidirectional import cycles link `flow` ↔ `entrypoint` (11 imports each way) a
 - **Slice 2 (`2026-11-27`, `hac-turns-run-turn-decompose`):** Decomposes `turns.py:run_turn` into cohesive helpers
   backed by a typed config/request dataclass while preserving 100% backward-compatible kwargs, verified in
   `tests/test_turns.py` and `tests/test_turn_supervisor.py` (`todo/intent-0531-hac-turns-run-turn-decompose.json`).
+  Completed all 5 stages on `antigravity-agent`/`gemini-4-neon`: PR
+  [#442](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/442)
+  (`I-1795801599-hac-turns-run-turn-decompose/P-1795801622-ANA-G4N/E-1795801870-ANA-G4N/_`), `MERGEABLE`/`CLEAN`, 16/16
+  CI checks passing, calibration included (predicted EV `52.69`, actual EV `70.29`, delta `+17.60`), checkpoint
+  `apps/holon-agentic-coder/flow-hac-turns-run-turn-decompose/.holon/flow/checkpoint-hac-turns-run-turn-decompose.json`,
+  awaiting maintainer merge.
