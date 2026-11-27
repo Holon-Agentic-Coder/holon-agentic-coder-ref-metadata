@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0528
 title: "Eliminate request hot-path deepcopies, duplicate parsers, metric drift, and ab_test leaks"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - clean-code
   - refactor
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-26T13:35:00Z
+updated_at: 2026-11-27T06:30:56Z
 ---
 
 ## Problem
