@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0635
 title: "HAC: extend test_import_cycle_ratchet.py to cover root-level sandbox_executor modules"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - architecture
   - ci
 created_at: 2026-11-27T15:53:29Z
-updated_at: 2026-11-27T15:55:01Z
+updated_at: 2026-11-27T16:24:44Z
 ---
 
 ## Notes
