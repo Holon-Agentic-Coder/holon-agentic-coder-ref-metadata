@@ -10,7 +10,7 @@ tags:
   - intent
   - invariants
 created_at: 2026-11-27T00:38:30Z
-updated_at: 2026-11-27T00:41:38Z
+updated_at: 2026-11-27T00:55:37Z
 ---
 
 ## Maintainer decision (2026-11-27 local)
@@ -18,6 +18,9 @@ updated_at: 2026-11-27T00:41:38Z
 "yes if you going to infer the intent, we need to be very explicit about the assumption. we should have another section
 in the intent for what those assumptions were. often the biggest failures come from untested assumptions. we also need
 to have another section on how we are going to test or fill in the assumption"
+
+Maintainer, 2026-11-27 local: "also we need a section to weigh the risk of the assumption being false or can't be
+tested".
 
 ## Evidence (2026-11-26 and 2026-11-27)
 
@@ -57,11 +60,11 @@ those rules even when the harness is bypassed.
      clock-read UTC timestamps where the bean touches timestamps.
    - Assumptions: each inference the generator makes (goal wording, which files are in scope, whether an item is in
      scope, which stage owns a check, what the maintainer authorised) is written to `assumptions`. Each one gets a
-     matching entry in `assumption_validation`. The generator refuses to emit an intent with an assumption that has no
-     validation entry.
+     matching entry in `assumption_validation` and in `assumption_risk`. The generator refuses to emit an intent with an
+     assumption that lacks either entry, or with a risk entry whose response is missing.
    - A leak scan (harness paths `.beans/`, `todo/`, `.agents/`; bean ids `NNNN` in harness form) runs over the title,
-     goal, every acceptance item, and every assumption and validation text before anything is written to the target. A
-     hit refuses the launch.
+     goal, every acceptance item, and every assumption, validation and risk text before anything is written to the
+     target. A hit refuses the launch.
    - Scope is proposed by a model. `holon intent-check` validates it: no directories, no globs, hub files flagged. A
      flagged hub refuses the launch with the file named.
    - The coverage check from bean 0589 runs on the result: every bean item maps to an intent item, or the launch is
@@ -71,8 +74,8 @@ those rules even when the harness is bypassed.
 
 2. Target side: the intent schema gains two required sections (below). Stage 1 in `holon` refuses an intent that lacks
    an invariant sentence, has directories or globs in scope, references harness paths, lacks either assumption section,
-   or has an assumption without a validation entry. This depends on PR #363 (beans 0564 and 0565). It protects the
-   target from a bad intent even when the harness is bypassed.
+   or has an assumption without a validation entry or without an `assumption_risk` entry. This depends on PR #363 (beans
+   0564 and 0565). It protects the target from a bad intent even when the harness is bypassed.
 
 3. Assumptions and their validation (target schema, harness generator):
    - `assumptions`: list of `{id, statement, why, impact, source}`.
@@ -86,22 +89,42 @@ those rules even when the harness is bypassed.
        recorded for the maintainer in the PR body and does not block the flow.
      - `stage`: `before_planning`, `plan_step`, `execution_test` or `review`.
 
+   - `assumption_risk`: one entry per assumption id,
+     `{assumption_id, likelihood, likelihood_reason, testability, testability_reason, impact, score, response, mitigation, residual_risk}`.
+     - `likelihood`: `low`, `medium` or `high`, the chance the assumption is false, with `likelihood_reason` giving the
+       evidence (or stating there is none).
+     - `testability`: `testable`, `partly` or `untestable`, with `testability_reason` saying why.
+     - `impact`: copied from the assumption, not re-scored.
+     - `score`: likelihood x impact on the scale low 1, medium 2, high 3. Products 1-2 are low, 3-4 medium, 6-9 high. An
+       `untestable` assumption raises the score one level (high stays high).
+     - `response`: what the score requires. `low`: validate as planned. `medium`: validate before Stage 3 and add a
+       test. `high`: validate before planning; if the assumption is untestable, the plan must instead carry a
+       `mitigation` (reversible design, guard, fallback, feature flag or narrower scope) and a `pr_question` in the PR
+       body.
+     - `mitigation`: the mitigation the plan names, empty unless the response needs one.
+     - `residual_risk`: the risk the maintainer accepts once the response is in place, in words.
+
 4. Stage changes (target, through `holon flow`):
    - Stage 1: refuses a missing section, an assumption without a validation entry, a `pr_question` on a low or medium
-     impact assumption, and an unknown enum value.
+     impact assumption, an unknown enum value, an assumption without an `assumption_risk` entry, and a high-score
+     assumption with neither a `before_planning` validation nor a mitigation. Once the set passes, Stage 1 pins it by
+     content hash.
    - Stage 2: every validation with a method other than `pr_question` becomes a plan step. `before_planning` items are
-     resolved first and their result is recorded in the plan.
-   - Stage 4: reviewers check that each assumption was validated at its stage, and flag any untested assumption as a
-     finding.
-   - Stage 5: calibration records which assumptions held and which failed. Failed ones are promoted to the knowledge
-     base (`holon-knowledge/kb`) as failure modes.
-   - PR body: a table of every assumption with its validation method, its result, and any `pr_question` for the
-     maintainer.
+     resolved first and their result is recorded in the plan. The planner's expected value counts open risk: each
+     assumption not yet validated contributes its score.
+   - Stage 4: reviewers check that each assumption was validated at its stage, that each response matches its score, and
+     flag any untested assumption as a finding.
+   - Stage 5: calibration records, per assumption, the predicted likelihood and the outcome (held or failed), so the
+     flow learns to estimate risk. Failed ones are promoted to the knowledge base (`holon-knowledge/kb`) as failure
+     modes.
+   - PR body: a table of every assumption with its validation method, its result and any `pr_question` for the
+     maintainer. The table gains likelihood, testability, score and response columns from `assumption_risk`.
 
-5. Resume: a resume regenerates the intent from the bean and refreshes both checkpoint goal copies
+5. Resume: a resume rebuilds the intent around the pinned assumption set and refreshes both checkpoint goal copies
    (`context.intent_data.goal` and `context.stage_results.intent.payload.intent.goal`, bean 0574). Stale goals are
-   removed by construction, because the goal is never read from the checkpoint. A resume must reuse the assumption set
-   of the launched intent, not re-infer it, so that validation results are not lost (see Open points).
+   removed by construction, because the goal is never read from the checkpoint. The pinned assumption set (its
+   `assumptions`, `assumption_validation`, `assumption_risk` and content hash) is reused, not re-inferred, so validation
+   results are not lost. It is re-inferred only when the bean's text changes, and then the pin is replaced.
 
 6. Slot keeper and launchers call `--bean` only. No picker drafts an intent.
 
@@ -134,6 +157,13 @@ those rules even when the harness is bypassed.
 ## Acceptance additions (assumptions)
 
 - [ ] Target test: an intent without `assumptions` or without `assumption_validation` is refused at Stage 1.
+- [ ] Target test: an assumption without an `assumption_risk` entry is refused at Stage 1.
+- [ ] Target test: a high-score, untestable assumption without a mitigation is refused at Stage 1.
+- [ ] Target test: the same assumption with a mitigation and a `pr_question` is accepted at Stage 1.
+- [ ] Target test: Stage 5 calibration records the predicted likelihood and the actual outcome (held or failed) for each
+      assumption.
+- [ ] Target test: the accepted assumption set is pinned by content hash after Stage 1; a resume reuses it, and a
+      changed set is refused.
 - [ ] Target test: an intent with an assumption that has no validation entry is refused at Stage 1.
 - [ ] Target test: a `pr_question` on a low or medium impact assumption is refused at Stage 1.
 - [ ] Harness test: the generator refuses to emit an intent with an assumption that has no validation entry.
@@ -147,16 +177,18 @@ those rules even when the harness is bypassed.
     an open question.
   - 0558 (PR #364, counts): an assumption that per-PR docstring and comment counts appear in the job summary and the
     calibration report (gap 2 of that bean). Nothing validates it, so Stage 1 refuses the intent.
-- [ ] Target Stage 4 and Stage 5 tests: an untested assumption becomes a review finding; a failed assumption is promoted
-      to `holon-knowledge/kb`.
-- [ ] PR body test: the table of assumptions and their validation results is rendered.
+- [ ] Target Stage 4 and Stage 5 tests (reviewers check each response against its score): an untested assumption becomes
+      a review finding; a failed assumption is promoted to `holon-knowledge/kb`.
+- [ ] PR body test: the table of assumptions, validation results and risk columns (likelihood, testability, score,
+      response) is rendered.
 
 ## Open points for the maintainer
 
-- Resume re-infers the intent unless it is pinned. Proposal: a resume reuses the assumption set and its content hash
-  from the launched intent, and re-infers only when the bean's text changes.
-- The `pr_question` channel is non-blocking by design. Confirm that a high-impact assumption which cannot be validated
-  should proceed to review with the question in the PR body rather than wait for an answer.
+- Resume pinning (decided by the coordinator, 2026-11-27): a resume reuses the assumption set and its content hash from
+  the launched intent, and re-infers only when the bean's text changes. Covered by the pin acceptance test above.
+- Awaiting the maintainer: high-impact assumptions that cannot be validated. The `pr_question` channel is non-blocking
+  by design. Confirm whether such an assumption should proceed to review with the question in the PR body, or halt the
+  flow until the maintainer answers. Not decided; the non-blocking default is not settled.
 
 ## Fixtures (today's three cases)
 
