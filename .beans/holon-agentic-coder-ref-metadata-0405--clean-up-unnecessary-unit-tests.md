@@ -10,7 +10,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T09:55:00Z
-updated_at: 2026-11-27T17:58:33Z
+updated_at: 2026-11-27T21:54:59Z
 ---
 
 ## Why
@@ -296,6 +296,15 @@ Measured on main `412bed21` (report: `todo/test-suite-audit-2026-11-26.md`, raw 
 - Launched `tests-deferred-three-speedup` (`todo/intent-0405-tests-deferred-three-speedup.json`,
   `todo/intent-coverage-0405.json`) targeting the three deferred files `tests/flow/test_git_refs.py`,
   `tests/flow/review/test_conflict_gate.py`, and `tests/test_calibration_diff_property.py` (test-only).
+- Result: completed all 5 stages (`antigravity-agent` / `gemini-4-neon`, resumed from Stage 3 checkpoint after quota
+  reset). PR #443 (`https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/443`, branch
+  `I-1795801610-tests-deferred-three-speedup/P-1795801632-ANA-G4N/E-1795812746-ANA-G4N/_`) APPROVED 3/3 on iteration 2
+  (`0/0/0`), calibrated (`plans/I-1795801610-tests-deferred-three-speedup/P-1795801632-ANA-G4N_calibration.md` in PR
+  diff; Predicted EV `55.52`, Actual EV `68.09`, delta `+12.57`), `MERGEABLE`/`CLEAN`, 16/16 CI checks green, awaiting
+  human maintainer merge. Worktree: `apps/holon-agentic-coder/flow-tests-deferred-three-speedup` (checkpoint
+  `.holon/flow/checkpoint-tests-deferred-three-speedup.json`). Measured across the 3 files: parallel median `5.51s` to
+  `4.84s` (`-12.2%`), serial `5.36s` to `4.99s` (`-6.9%`), `uv run task test` `10870 passed, 7 skipped`,
+  `uv run task lint` exit `0`.
 - Launched `tests-fewer-git-calibrate` (`todo/intent-0405-tests-fewer-git-calibrate.json`,
   `todo/intent-coverage-0405.json`) targeting the 10 disjoint calibration test files (plus optional helper
   `apps/sandbox-executor/tests/calibrate_scenarios.py`, test-only, excluding `test_calibration_diff_property.py`).
