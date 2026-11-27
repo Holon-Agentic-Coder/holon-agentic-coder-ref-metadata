@@ -49,9 +49,11 @@ Verify that the target PR is actually merged using the GitHub CLI:
 
 ```bash
 gh pr view <pr_number_or_url> --repo <owner>/<repo> --json state,mergedAt,mergeCommit
+uv run python .agents/scripts/pr_readiness.py <pr_number_or_url> --record
 ```
 
-If `state != "MERGED"`, halt and inform the user that the PR is still open.
+Record the output of `pr_readiness.py --record` (head SHA, Stage 5 calibration presence, and merge-time CI check state)
+in the bean's `## Resolution` in Step 3. If `state != "MERGED"`, halt and inform the user that the PR is still open.
 
 Once confirmed merged, fetch and fast-forward `main` in the target repository. The `main` worktree must already be on
 `main` and clean: flows run in their own `flow-<slug>` worktree and never leave it elsewhere. If it is on another branch

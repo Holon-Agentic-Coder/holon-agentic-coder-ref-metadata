@@ -38,7 +38,10 @@ PR activity (no further `gh pr` writes of any kind). On a PR the Holon flow drov
 (`holon calibrate <execution_branch>`) itself before requesting the merge, per "Ordering of the merge boundary" above:
 it creates and pushes the `/calibrated` branch, merges or fast-forwards the calibration commit into the PR head
 execution branch (`.../_`) so the calibration report is included in the PR diff, pushes the updated PR branch to
-`origin`, and reports:
+`origin`, runs `uv run python .agents/scripts/pr_readiness.py <pr_url>` to generate the fixed per-head readiness block
+(head SHA, review verdict, Stage 5 calibration state, and CI table), and pastes that block when reporting: never report
+a PR as merge-ready if the script's first line says `not ready:` (for example `not ready: CI pending` or
+`not ready: Stage 5 calibration missing`). Once `pr_readiness.py` prints `READY:`, report:
 
 > ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub and Stage 5 calibration has
 > been completed and included in the PR. Please review and merge it manually at `<pr_url>` when you are ready; merging

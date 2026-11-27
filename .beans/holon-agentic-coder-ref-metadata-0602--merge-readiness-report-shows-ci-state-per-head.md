@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0602
 title: "Readiness report to the maintainer shows per-head CI state; five PRs were merged with checks still pending"
-status: todo
+status: completed
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - ci
   - reporting
 created_at: 2026-11-27T04:33:33Z
-updated_at: 2026-11-27T11:55:26Z
+updated_at: 2026-11-27T23:13:03Z
 ---
 
 ## Evidence
@@ -67,3 +67,20 @@ script and a paragraph in the readiness checklist.
   `P-1795777767-ANA-G4N_calibration.md`**, no Stage 5 reconciliation, and no knowledge/wisdom commits, and left its
   worktree checkpoint stranded at `stage: calibrate`. The `0602` readiness script must block on both pending CI and
   missing `P-*_calibration.md`.
+
+## Resolution
+
+Implemented deterministic per-head readiness checking and merge-time CI/calibration recording:
+
+- **Script**: [`.agents/scripts/pr_readiness.py`](.agents/scripts/pr_readiness.py) fetches `gh pr view` metadata
+  (`headRefOid`, `reviews`, `files`, `statusCheckRollup`, `mergeable`, `mergeStateStatus`), evaluates `consensus`,
+  `calibration` (`plans/*/P-*_calibration.md` plus optional `--checkpoint`), and `pipeline` gates, prints either
+  `READY: ...` or `not ready: ... (outstanding gates: ...)` on line 1 alongside the sorted CI job table, and exits `1`
+  when unready (or `0` under `--record` for post-merge logging).
+- **Workflow Wiring**: Updated [`.agents/pr-merging.md`](.agents/pr-merging.md) to require running `pr_readiness.py`
+  before reporting a PR ready, and updated
+  [`.agents/skills/post_pr_merge/SKILL.md`](.agents/skills/post_pr_merge/SKILL.md) to capture `pr_readiness.py --record`
+  output in bean resolutions.
+- **Verification**: `uv run pytest tests/test_pr_readiness.py tests/test_invariant_registry.py` passed (`30/30`), and
+  live smoke tests verified `READY:` (exit `0`) on HAC `PR #455` (`79ed5987`, `16/16` CI pass) and `not ready:` on HAC
+  `PR #457` (`1a8ce158`, missing consensus/calibration + `3/16` CI failures).
