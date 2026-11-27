@@ -5,6 +5,28 @@ first.
 
 ## Entries
 
+### 2026-11-27T04:43:40Z — Fifth-Merge Audit (light)
+
+- **Trigger:** fifth merge (`holon-agentic-coder` #396 `04:33:40Z`, #393 `04:34:20Z`, #392 `04:34:56Z`, #390
+  `04:35:35Z`, #389 `04:36:24Z`, #385 `04:37:02Z`, #384 `04:37:40Z`, #380 `04:38:35Z`, #382 `04:39:11Z`, #383
+  `04:39:44Z`: ten merges in six minutes, confirmed from gh).
+- **Last merged pull request at audit time:** `Holon-Agentic-Coder/holon-agentic-coder#383`; `holon-coherence#56`
+  unchanged.
+- **Deleted reason comments (focus 1):** about 148 removed comment lines read as reasons across nine slices (heuristic,
+  bodies report none); no restore slice exists. Bean 0608.
+- **#380 scope escape (focus 2):** calibration shows recall 0.625; `failure_classification.py`,
+  `flow/github/stage5_test_failure.py` and `flow/lazy_exports.py` were outside the intent scope (the lazy_exports change
+  is one added line). No park or conflict from it found in the window; covered by 0596 (gate) and 0543 (derive
+  lazy_exports); no new bean.
+- **Heads moving (focus 3):** not only #392: all ten had a merge-from-main commit 26 to 60 s before merge, after reviews
+  0.7 to 2 h old. Bean 0609 (0372 and 0602 cover parts only).
+- **Install races (focus 4):** no new occurrence in the evidence; 0595 unchanged.
+- **New tools (focus 5):** stamp.py, harness_commit.py, new_bean.py, staged validation and slot_keeper.py landed in
+  `b98d6da` (15:41 local) and are referenced from the rules; this audit used new_bean.py (ids 0608, 0609 after another
+  agent took 0607). Beans 0600 to 0606 were written before it landed, by hand. Use of harness_commit and slot_keeper in
+  a run is **not measured** (no log yet).
+- **Beans created:** `0608`, `0609`.
+
 ### 2026-11-27T04:33:33Z — Fifth-Merge Audit
 
 - **Trigger:** fifth merge (`holon-agentic-coder` #371 `00:57:33Z`, #372 `01:13:53Z`, #373 `01:16:57Z`, #402

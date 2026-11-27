@@ -13,7 +13,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:42:56Z
-updated_at: 2026-11-27T01:36:00Z
+updated_at: 2026-11-27T04:43:35Z
 ---
 
 ## Problem
@@ -477,6 +477,38 @@ and machine directives): 6740 findings, 3907 docstrings (function 2873, module 6
 of them sit in `apps/sandbox-executor`; the rest are in CI workflows and actions, scripts and Makefile or pyproject.
 Scanned from a `git archive` export, not the main worktree. Bean stays in-progress.
 
+> 2026-11-27: `sandbox_executor` `flow/review` slice (`self-doc-src-28`, intent `todo/intent-0153-self-doc-src-28.json`)
+> delivered via [PR #402](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/402) and merged into `main`
+> (`3a9fc789`). Behaviour kept: string literals and function/class signatures match before and after in all 10 files; CI
+> green on the final head. Counts (AST docstrings, tokenize comments; allowlist as the slice test): slice 73 docstrings
+> (186 lines) and 16 disallowed comments before, 0 and 0 after. Package `apps/sandbox-executor/src/sandbox_executor`
+> (370 files): 1564 docstrings (4603 lines) and 565 comments before; 1491 and 549 after #402; 1326 and 510 on `main`
+> `0648afd0` after later slices. Bean stays `in-progress`: other packages, the test tree, and non-Python files still
+> carry docstrings or comments.
+
+> 2026-11-27: `holon-agentic-coder` slice `self-doc-src-27` (the `flow/review` package: 10 modules plus
+> `tests/test_self_doc_src_27.py`) delivered via
+> [PR #401](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/401) and merged into `main` (`7f82e0f1`).
+> Self-explaining checker on `apps/sandbox-executor/src/sandbox_executor/flow/review` (docstrings and non-`# why:`
+> comments): 318 before (`3a9fc789`: 33 module, 19 class, 176 function docstrings, 90 comments) and 239 after
+> (`7f82e0f1`: 23, 13, 123, 80), so -79. The 10 listed modules went from 79 to 0. Code tokens are unchanged, but the
+> `# Lazy:` import reasons were dropped rather than kept as `# why:` comments. The PR body carried no before/after
+> counts. Bean stays `in-progress`.
+
+## Note (2026-11-27T04:37Z): self-doc-src-i merged
+
+Slice `self-doc-src-i` (10 sandbox-executor flow modules plus `tests/test_self_doc_src_i.py`) merged as
+[PR #392](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/392) into `main` at `05b726e`.
+
+- Counts on the scope files, merge parent vs merge commit: docstrings 79 to 0; plain comments 25 to 0 (all 25
+  non-allowed); `# why:` comments 0 to 37. At most 25 of the 37 can be rewritten removed comments; the rest carry
+  reasons from removed docstrings. The scan does not split them further.
+- Acceptance scan (static AST and tokenize equivalent of the slice test) passes on the merged content. The in-tree test
+  was not run under pytest.
+- Approval at merge: 3/3 ensemble APPROVED (0 critical, 0 important, 0 nit) at `d9ced1d6`; calibration report present
+  (`4f8618ae`). CI was 14/14 at `d9ced1d6`. Merge commit `05b726e` came from head `f6be399` (merge of main), which had
+  13 checks still queued at merge and was not covered by the approval.
+
 ## Acceptance
 
 - [ ] A check run by `uv run task lint`, pre-commit and CI fails on any docstring or non-allowlisted comment (delivered
@@ -501,6 +533,54 @@ Scanned from a `git archive` export, not the main worktree. Bean stays in-progre
       3907 docstrings, 2833 comments).
 - [ ] Each clean-up PR reports the before and after finding count for its slice.
 
+> 2026-11-27: `apps/sandbox-executor` flow-stages slice (`self-doc-src-24`: 10 modules under `flow/stages/` plus
+> `tests/test_self_doc_src_24.py`) delivered via
+> [PR #397](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/397) and merged into `main` (`0648afd0`).
+> Counts on those 10 files (ast/tokenize, `# why:` and directives allowed): before 96 docstrings (214 lines) and 29
+> other comments; after 0 and 0. Bean stays in-progress: the rest of the sandbox-executor `src` and tests,
+> shell/Make/CI/Dockerfile files, and the lint gate remain. PR #397 body reports no before/after counts (criterion 3 not
+> met by the PR itself).
+
+> 2026-11-27: `apps/sandbox-executor` flow slice (`self-doc-src-23`: target-sync, checkpoint, adoption and evidence
+> modules under `flow/`, plus `tests/test_self_doc_src_23.py`) delivered via
+> [PR #394](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/394) and merged into `main` (`41f6469`).
+> Counts on the 10 existing scope files (ast/tokenize, before to after): docstring lines 137 to 0; non-allowed comments
+> 9 to 0; `# why:` comments 0 to 29. Per file (docstring lines, comments): `stages/__init__.py` 1 to 0;
+> `target_sync_branch.py` 5 to 0; `target_sync_hooks.py` 10 to 0; `target_sync_merge.py` 36 to 0 and 5 to 0;
+> `target_sync_record.py` 11 to 0; `target_sync_result.py` 16 to 0; `target_sync_resume.py` 13 to 0 and 1 to 0;
+> `test_evidence.py` 13 to 0 and 1 to 0; `unrecorded_branch_adoption.py` 23 to 0; `worktree_checkpoints.py` 9 to 0 and 2
+> to 0. Reason comments deleted rather than rewritten as `# why:` (9): "Every merge the sync starts carries this
+> message"; "the merge commit (with its row) has landed"; "the merge commit (with its row) already landed"; "the row may
+> create its fragment"; "an empty pathspec would make `git commit --` commit the whole index"; "a failed push keeps the
+> recorded merge commit"; "The optional executions.jsonl summary-row keys that describe a Stage 3 test measurement";
+> "the current stage is execute or review"; "stale or foreign: never blocks". Still open: the other sandbox-executor src
+> and test slices, shell/Makefile/Dockerfile/CI files, the holon-coherence sweep and the zero-findings checker on
+> `main`; the bean stays `in-progress`.
+
+> 2026-11-27: `apps/sandbox-executor` flow slice `self-doc-src-j` (10 modules under `flow/` plus
+> `tests/test_self_doc_src_j.py`) delivered via
+> [PR #399](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/399) and merged into `main` (`10088fa1`).
+> Counts on those 10 source files (ast/tokenize, `# why:` and directives allowed): before 72 docstrings (190 lines) and
+> 7 other comments; after 0 and 0. The slice test file (32 tests) passes on the identical slice files. Bean stays
+> in-progress: the rest of the sandbox-executor `src` and tests, shell/Make/CI/Dockerfile files, and the lint gate
+> remain.
+
+> 2026-11-27: `apps/sandbox-executor` flow stages and review slice (`self-doc-src-25`: 10 modules under `flow/stages/`
+> and `flow/review/` plus `tests/test_self_doc_src_25.py`) delivered via
+> [PR #398](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/398) and merged into `main` (`d3982e76`).
+> Counts on those 10 files (ast/tokenize, `# why:` and directives allowed): before 60 docstrings and 2 other comments;
+> after 0 and 0, with 11 `# why:` comments kept. The 2 pre-existing comments in `stage_support.py` were rewritten as
+> `# why:`; none were deleted. Bean stays in-progress: the rest of the sandbox-executor `src` and tests,
+> shell/Make/CI/Dockerfile files, and the lint gate remain.
+
+> 2026-11-27: `apps/sandbox-executor` flow-review slice (`self-doc-src-26`: 10 modules under `flow/review/` plus
+> `tests/test_self_doc_src_26.py`) delivered via
+> [PR #400](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/400) and merged into `main` (`1683f9f1`).
+> Counts on those 10 files (ast/tokenize, `# why:` and directives allowed): before 84 docstrings and 17 other comments;
+> after 0 and 0 (21 `# why:` comments kept). Whole-repo checker (`scripts/self_explaining_comments.py` over tracked
+> files): `10088fa1` 6300 findings, `1683f9f1` 6199. Bean stays in-progress: the remaining sandbox-executor `src` and
+> tests, shell/Make/CI/Dockerfile files, and the lint gate remain.
+
 ## Assumptions
 
 - The checker rule set is the one in the gate delivered by PR #357 (`# why:` and machine directives allowed). Validated
@@ -509,3 +589,56 @@ Scanned from a `git archive` export, not the main worktree. Bean stays in-progre
   maintainer decides the PR #366 cases.
 - ERA (commented-out code) and shellcheck enforcement from the original scope are covered by the gate. Validated by
   reading the gate's configuration before closing the bean.
+
+> 2026-11-27: slice `self-doc-src-21` (the ten `sandbox_executor/flow/` modules, test `tests/test_self_doc_src_21.py`)
+> delivered via [PR #396](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/396) and merged into `main`
+> (`f90c47d3`). Acceptance on the merged tree, measured with `scripts/self_explaining_comments.py` on `git archive`
+> copies (never the main worktree): scope modules 131 findings before (10 module docstrings, 5 class docstrings, 81
+> function docstrings, 35 comments) and 0 after; `test_self_doc_src_21.py` 33 passed. Whole holon-agentic-coder `.py`
+> tree (same finder): 5888 findings before (525 module, 368 class, 2436 function docstrings, 2559 comments) and 5757
+> after (515, 363, 2355, 2524). Reason comments deleted rather than rewritten as `# why:`: "The branch each stage reads
+> from the flow context and fails without (Stage 1 needs none)." and "an unlimited stage never overruns" on the
+> `budget_seconds is None` line; the `#:` attribute docs that only described names were deleted with their names kept.
+> Bean stays `in-progress` for the remaining holon-agentic-coder slices.
+>
+> 2026-11-27: slice `self-doc-tests-a` (15 test modules under `apps/sandbox-executor/tests/`) delivered via
+> [PR #390](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/390) and merged into `main` (`de1cca2c`).
+> Acceptance on the merged tree, measured with the `scripts/self_explaining_comments.py` finder on `git archive` copies
+> (never the main worktree): scope modules 777 findings before (282 docstrings, 495 comments) and 0 after. 238 reason
+> comments kept as `# why:` (rewritten); the rest deleted. Review loop: iteration 1 CHANGES_REQUESTED, iteration 2
+> APPROVED by 3 of 3 reviewers; calibration report recorded before merge. GitHub shows no formal approving review (one
+> COMMENTED review), so the approval is the review-loop ledger. Bean stays `in-progress` for the remaining
+> holon-agentic-coder slices.
+
+> 2026-11-27: slice `self-doc-src-g` (the ten `sandbox_executor/flow/` modules `admission*.py`, `base_files.py`,
+> `calibrate_fetch_retry.py`, `calibrate_promotion.py`, `calibrate_rebuild.py`; test `tests/test_self_doc_src_g.py`)
+> delivered via [PR #393](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/393) and merged into `main`
+> (`055fb4a3`). Acceptance on the merged tree, measured with `scripts/self_explaining_comments.py` on
+> `git archive`-style copies (never the main worktree): scope modules 69 findings before (10 module docstrings, 6 class
+> docstrings, 37 function docstrings, 16 comments) and 0 after; 22 `# why:` comments now stand where none existed
+> before. `test_self_doc_src_g.py`: 21 passed. Reason comments: the diff rewrites the reasons as `# why:` lines and
+> deletes the descriptive ones (names kept). Bean stays `in-progress`: the remaining sandbox-executor slices,
+> shell/Make/CI/Dockerfile files and the lint gate remain.
+
+> 2026-11-27: slice `self-doc-src-f` (ten `sandbox_executor` modules in knowledge, entrypoint and flow; test
+> `tests/test_self_doc_src_f.py`) delivered via
+> [PR #389](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/389) and merged into `main` (`c0b41e27`).
+> Acceptance on the merged tree, counted with an ast and tokenize pass on `git archive` copies (never the main
+> worktree): scope modules 80 docstrings and 76 comments before (`de1cca2c`) and 0 and 0 after; 64 `# why:` comments
+> kept (the reasons rewritten, the rest of the removed items deleted); 5 directive comments unchanged. Approval 3/3 was
+> on `9991b03`; the scope files are identical at `9991b03`, the final head `b82a1cc` and the merge. Calibration was in
+> the PR diff, not a separate pass after merge. Bean stays `in-progress` for the remaining holon-agentic-coder slices.
+
+> 2026-11-27: slice `self-doc-root-modules-a` (15 `sandbox_executor` modules under `src/sandbox_executor/` plus the new
+> `tests/test_self_doc_root_modules_a.py`) delivered via
+> [PR #383](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/383) and merged into `main` (`acdd3fc`).
+> Acceptance on the merged tree, counted with an ast and tokenize pass on `git archive`-style copies (never the main
+> worktree): scope files before (`acdd3fc^`) 116 docstrings and 41 comments; after 0 and 0, with 40 `# why:` comments
+> kept and 3 directive comments unchanged. Reason comments deleted rather than rewritten as `# why:` (verbatim,
+> pre-merge line numbers): `agent_runner.py:55` "# Directory cleanup and root protection helpers"; `agent_runner.py:360`
+> "# Ephemeral Secret Bundle Injection (HOLON_SECRET_BUNDLE_PATH or default /run/secrets/holon_auth.json)";
+> `agent_runner.py:372` "# Unpack session files into /home/holon/ if specified"; `agent_runner.py:699` "# Runner
+> registry: maps agent_id -> StandardAgentRunner instance." (the last three describe code and are the rename-or-extract
+> case; the first is a section label). Flow worktree, its local and remote I-branches removed after a bundle backup at
+> `todo/stale-worktree-backups/self-doc-root-modules-a-2026-11-27.bundle`. Bean stays `in-progress` for the remaining
+> holon-agentic-coder slices.

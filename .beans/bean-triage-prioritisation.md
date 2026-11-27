@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-27 04:39:10 UTC
+**Last Updated:** 2026-11-27 04:42:52 UTC
 
 ## Executive Summary
 
@@ -17,9 +17,9 @@ about 10M+ tokens), so flows that touch the same files still run one after anoth
 run together.
 
 - **Total Tracked Beans**: 601 (excluding template)
-- **Completed**: 402 (66.9%)
+- **Completed**: 403 (67.1%)
 - **Scrapped / Superseded**: 17 (2.8%)
-- **Active**: 182 (30.3%), of which 30 are in progress, 150 are todo and 2 are draft
+- **Active**: 181 (30.1%), of which 29 are in progress, 150 are todo and 2 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1111,7 +1111,6 @@ logged beans `0389` and `0390` added to triage.
 | **P1**   | todo        | Medium |             M             | 0552   | Flow calibration-in-diff gate fails when the PR diff exceeds GitHub's 300-file limit                                                                          | General                          | Found while resuming bean 0506 (PR                                                                                                                                                                                                                    |
 | **P1**   | todo        |  High  |             M             | 0551   | Flow review stage drops uncommitted edits left in the flow worktree                                                                                           | Flow / Architecture              |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             L             | 0550   | Reshape the harness failure ledger into the target repositories' existing ledger and knowledge base                                                           | Architecture / Quality           |                                                                                                                                                                                                                                                       |
-| **P1**   | in-progress | Medium |             M             | 0549   | Failed tests: record in the ledger, diagnose, fix and re-run in a loop until they pass                                                                        | Build / DevEx                    |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             M             | 0546   | holon intent-check misses the files plans actually escape into and over-proposes test files                                                                   | Flow / Architecture              |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             L             | 0545   | Backfill picker launches flows that park at admission; pre-check touch sets and record each pick                                                              | Architecture / Quality           |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        | Medium |             M             | 0544   | A parked flow holds no touch set: admission blocks only on open PRs and running flows                                                                         | General                          |                                                                                                                                                                                                                                                       |
