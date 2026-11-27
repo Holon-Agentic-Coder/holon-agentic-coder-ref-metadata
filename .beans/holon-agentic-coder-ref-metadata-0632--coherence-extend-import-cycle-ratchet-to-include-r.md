@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0632
 title: "Coherence: extend import-cycle ratchet to include root-level modules"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - ci
   - hygiene
 created_at: 2026-11-27T12:11:44Z
-updated_at: 2026-11-27T12:13:43Z
+updated_at: 2026-11-27T23:55:39Z
 ---
 
 ## Notes
@@ -52,5 +52,10 @@ updated_at: 2026-11-27T12:13:43Z
 - [ ] Synthetic AST unit tests verify a newly introduced root<->subpackage or root<->root cycle fails while shrinking a
       recorded cycle edge count passes.
 - [ ] `uv run pytest` and `uv run task lint` pass with zero docstrings or comments.
+
+## Flow
+
+- Launched `todo/intent-0632-coherence-root-import-cycle-ratchet.json` (`todo/intent-coverage-0632.json`) on
+  `holon-coherence@bcad21c86e` after `PR #87` merged and released `tests/test_import_cycle_ratchet.py`.
 
 ## Resolution
