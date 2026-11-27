@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-27 01:10:11 UTC
+**Last Updated:** 2026-11-27 01:19:03 UTC
 
 ## Executive Summary
 
@@ -17,9 +17,9 @@ about 10M+ tokens), so flows that touch the same files still run one after anoth
 run together.
 
 - **Total Tracked Beans**: 592 (excluding template)
-- **Completed**: 400 (67.6%)
+- **Completed**: 401 (67.7%)
 - **Scrapped / Superseded**: 17 (2.9%)
-- **Active**: 175 (29.6%), of which 28 are in progress, 145 are todo and 2 are draft
+- **Active**: 174 (29.4%), of which 27 are in progress, 145 are todo and 2 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1067,7 +1067,6 @@ logged beans `0389` and `0390` added to triage.
 | **P3**   | todo        |  Low   |            XS             | 0231   | "Exhausted-budget error string interpolates raw count while payload reports clamped 0"                                                                        | Flow Engine / Cosmetic           | Queued behind 0376 (overlaps `flow/review/loop.py`). Cosmetic; bundle with a review-loop flow.                                                                                                                                                        |
 | **P3**   | todo        |  Low   |            XS             | 0269   | "Deferred nits from the holon-agentic-coder PR 158 review loop"                                                                                               | Review Loop / Housekeeping       | Wait for 0376 (overlaps `docs/git_flow.md`) and 0197 (`calibration.py`). Item 2 obsolete; remaining: fold `parse_actual_metrics` exit-code logic onto `record_exit_code` and fix `docs/git_flow.md` checkpoint wording.                               |
 | **P0**   | todo        |  High  |             M             | 0590   | Generate flow intents from beans inside the flow; agents never hand-write intents                                                                             | Flow / Architecture              |                                                                                                                                                                                                                                                       |
-| **P0**   | in-progress | Medium |             M             | 0570   | Check: module budget changes only with explicit maintainer authorisation                                                                                      | Skills / Tooling                 |                                                                                                                                                                                                                                                       |
 | **P0**   | in-progress |  High  |             L             | 0566   | Check: git safety rules enforced by tooling, not only by briefs                                                                                               | Architecture / Quality           |                                                                                                                                                                                                                                                       |
 | **P0**   | in-progress |  High  |             M             | 0564   | Check: target repositories and intents never reference harness paths or bean ids                                                                              | Ledger / Observability           |                                                                                                                                                                                                                                                       |
 | **P0**   | in-progress |  High  |             M             | 0562   | Every invariant has an explicit, automatic check (umbrella)                                                                                                   | Ledger / Observability           |                                                                                                                                                                                                                                                       |
