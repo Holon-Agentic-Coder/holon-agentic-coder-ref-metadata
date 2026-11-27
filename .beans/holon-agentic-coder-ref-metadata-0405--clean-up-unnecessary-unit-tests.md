@@ -10,7 +10,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T09:55:00Z
-updated_at: 2026-11-27T21:54:59Z
+updated_at: 2026-11-27T22:12:27Z
 ---
 
 ## Why
@@ -308,6 +308,13 @@ Measured on main `412bed21` (report: `todo/test-suite-audit-2026-11-26.md`, raw 
 - Launched `tests-fewer-git-calibrate` (`todo/intent-0405-tests-fewer-git-calibrate.json`,
   `todo/intent-coverage-0405.json`) targeting the 10 disjoint calibration test files (plus optional helper
   `apps/sandbox-executor/tests/calibrate_scenarios.py`, test-only, excluding `test_calibration_diff_property.py`).
+  - Result: completed all 5 stages (`antigravity-agent` / `gemini-4-neon`, resumed from Stage 3 checkpoint after quota
+    reset). PR #448 (`https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/448`, branch
+    `I-1795802422-tests-fewer-git-calibrate/P-1795802444-ANA-G4N/E-1795812801-ANA-G4N/_`) APPROVED 3/3 on iteration 2
+    (scoped), calibrated (`plans/I-1795802422-tests-fewer-git-calibrate/P-1795802444-ANA-G4N_calibration.md` in PR diff;
+    Predicted EV `50.61`, Actual EV `65.39`, `ΔEV` `+14.78`), `MERGEABLE`/`CLEAN`, 16/16 CI checks green, awaiting human
+    maintainer merge. Worktree: `apps/holon-agentic-coder/flow-tests-fewer-git-calibrate` (checkpoint
+    `apps/holon-agentic-coder/flow-tests-fewer-git-calibrate/.holon/flow/checkpoint-tests-fewer-git-calibrate.json`).
 - Launched `tests-fewer-git-review-decomp` (`todo/intent-0405-tests-fewer-git-review-decomp.json`,
   `todo/intent-coverage-0405.json`) targeting the 5 disjoint review/decomposition/fingerprint test files (test-only,
   excluding `test_conflict_gate.py`).
