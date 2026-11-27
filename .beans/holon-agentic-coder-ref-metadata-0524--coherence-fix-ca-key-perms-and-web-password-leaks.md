@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0524
 title: "Fix world-writable Root CA key permissions, web password leaks, and unscrubbed cache"
-status: todo
+status: in-progress
 type: bug
 priority: critical
 tags:
@@ -10,7 +10,7 @@ tags:
   - ca
   - secrets
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-26T13:35:00Z
+updated_at: 2026-11-27T06:23:30Z
 ---
 
 ## Problem

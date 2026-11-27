@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0614
 title: "Coherence: add Promote Ledger workflow and drain pending ledger fragments"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - ci
   - ledger
 created_at: 2026-11-27T05:26:26Z
-updated_at: 2026-11-27T05:26:26Z
+updated_at: 2026-11-27T06:23:29Z
 ---
 
 ## Notes

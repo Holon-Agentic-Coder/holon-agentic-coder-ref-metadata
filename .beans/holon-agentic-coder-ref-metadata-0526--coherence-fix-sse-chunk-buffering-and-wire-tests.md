@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0526
 title: "Fix SSE chunk fragmentation bugs and add real mitmproxy tflow wire-level tests"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - proxy
   - testing
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-26T13:35:00Z
+updated_at: 2026-11-27T06:23:29Z
 ---
 
 ## Problem
