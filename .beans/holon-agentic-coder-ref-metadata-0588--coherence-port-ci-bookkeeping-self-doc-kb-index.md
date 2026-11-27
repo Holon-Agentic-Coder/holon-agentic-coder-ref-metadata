@@ -10,7 +10,7 @@ tags:
   - hygiene
   - invariants
 created_at: 2026-11-27T00:33:33Z
-updated_at: 2026-11-27T08:03:32Z
+updated_at: 2026-11-27T08:12:38Z
 ---
 
 ## Problem
@@ -53,3 +53,8 @@ updated_at: 2026-11-27T08:03:32Z
 - Audit refresh (`2026-11-27`, `ce39bf34d`): `no-harness-references` (`#58`, Bean `0564`) landed; remaining work is
   `ci_bookkeeping_gate.py`, `check_self_explaining.py`, `module-budget-change` maintainer-actor verification, and
   removing tracked `holon-knowledge/kb/{failure_modes,patterns}/index.json`.
+- Progress (`2026-11-27`): [PR #68](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/68)
+  (`coherence-remove-kb-index-json`, merge commit `dbf76cd6`) merged into `main`, removing
+  `holon-knowledge/kb/{failure_modes,patterns}/index.json` and adding `tests/test_no_kb_index_files.py`. Bean remains
+  `in-progress` for `ci_bookkeeping_gate.py`, `check_self_explaining.py`, and `module-budget-change` maintainer-actor
+  verification.
