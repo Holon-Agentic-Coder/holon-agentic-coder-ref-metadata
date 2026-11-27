@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0544
 title: "A parked flow holds no touch set: admission blocks only on open PRs and running flows"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - stage-3
   - holon-agentic-coder
 created_at: 2026-11-26T21:10:00Z
-updated_at: 2026-11-27T07:50:33Z
+updated_at: 2026-11-27T20:56:57Z
 ---
 
 ## Problem
@@ -62,3 +62,8 @@ with them.
   merged was immediately refused at Stage 3 admission by an older parked flow (`flow-flow-references-github-issues`,
   blocked/idle since `2026-11-26T04:13:36Z`, `68` refusals / `1417.1 min` idle). Parked flows continue to chain-block
   active resumes.
+
+## Flow
+
+- **Slice 1 (`parked-flow-no-touch-set`):** Launched `todo/intent-0544-parked-flow-no-touch-set.json` covering
+  `flow/admission*.py` and `tests/flow/test_admission*.py` so parked idle flows release their touch sets cleanly.

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0631
 title: "Stage 3 resume skips refreshing stale plan_branch onto origin/main"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - resume
   - holon-agentic-coder
 created_at: 2026-11-27T12:11:44Z
-updated_at: 2026-11-27T12:13:43Z
+updated_at: 2026-11-27T20:56:57Z
 ---
 
 ## Notes
@@ -57,3 +57,6 @@ updated_at: 2026-11-27T12:13:43Z
       `execution_branch`; `uv run pytest` and `uv run task lint` pass.
 
 ## Resolution
+
+- **Slice 1 (`stage3-plan-branch-refresh`):** Launched `todo/intent-0631-stage3-plan-branch-refresh.json` covering
+  `flow/stages/execute.py`, `flow/plan_refresh.py`, `flow/target_sync_hooks.py`, and their unit tests.

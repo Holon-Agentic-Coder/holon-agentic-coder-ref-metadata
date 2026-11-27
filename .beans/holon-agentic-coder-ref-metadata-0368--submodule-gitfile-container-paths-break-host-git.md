@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0368
 title: "Submodule gitfile left with container paths breaks host-side git in the flow worktree"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - stage-5
   - holon-agentic-coder
 created_at: 2026-11-23T05:50:00Z
-updated_at: 2026-11-23T05:50:00Z
+updated_at: 2026-11-27T20:56:58Z
 ---
 
 ## Problem
@@ -38,3 +38,19 @@ agent runs `git submodule` commands inside the container hit this.
 To be fixed by the plan: the container entrypoint's git setup
 (`apps/sandbox-executor/src/sandbox_executor/entrypoint/executor/repair.py`),
 `apps/sandbox-executor/src/sandbox_executor/flow/stages/calibrate.py` (pre-checkout check), and their tests.
+
+## Acceptance Criteria
+
+- [ ] Find where a role container initialises or updates the `holon-coherence` submodule in the mounted worktree, and
+      either stop it (role containers do not need the submodule) or make it write host-valid, relative paths
+      (`git submodule absorbgitdirs` / relative `gitdir:`).
+- [ ] Host-side stages (4 and 5) detect an unresolvable submodule gitfile before any checkout and repair it, or fail
+      with a clear message naming the file, instead of failing mid-checkout.
+- [ ] Tests: a worktree whose submodule gitfile points at a container path is repaired or rejected before Stage 5 checks
+      out.
+
+## Flow
+
+- **Slice 1 (`submodule-gitfile-repair`):** Launched `todo/intent-0368-submodule-gitfile-repair.json` covering
+  `entrypoint/executor/repair.py`, `flow/stages/calibrate.py`, `tests/test_executor_repair.py`, and
+  `tests/flow/stages/test_calibrate.py`.
