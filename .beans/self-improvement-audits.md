@@ -5,6 +5,69 @@ first.
 
 ## Entries
 
+### 2026-11-27T05:19:35Z — Fifth-Merge Audit
+
+- **Trigger:** fifth merge (`15` merges across both target repos since `2026-11-27T04:43:40Z` at
+  `holon-agentic-coder#383` and `holon-coherence#56`):
+  - `holon-agentic-coder` (`14`): `#365` (`05:05:08Z`), `#374` (`05:06:17Z`), `#375` (`05:06:55Z`), `#376`
+    (`05:07:30Z`), `#377` (`05:08:05Z`), `#378` (`05:08:41Z`), `#379` (`05:09:58Z`), `#381` (`05:10:32Z`), `#386`
+    (`05:11:09Z`), `#387` (`05:11:27Z`), `#388` (`05:11:45Z`), `#391` (`05:12:24Z`), `#404` (`05:13:02Z`), `#405`
+    (`05:13:20Z`).
+  - `holon-coherence` (`1`): `#57` (`05:17:48Z`, `coherence-planner-touch-set`, bean `0598`, `14.8 min` flow time, `1`
+    review iteration, `7/7` CI green, `217.7 min` human wait, no pre-merge main merge).
+- **Last merged pull requests at audit time:** `Holon-Agentic-Coder/holon-agentic-coder#405`;
+  `Holon-Agentic-Coder/holon-coherence#57`.
+- **Coordinator failure ledger & operational repeats:** No new rows added to `.agents/ledger/coordinator-failures.jsonl`
+  since `CF-0038` (`04:23:55Z`). Repeats observed in logs and flagged high priority:
+  - `todo/slot-keeper.log` hit `live=10` again at `04:43:15Z` and `04:47:09Z` (repeat of `CF-0027`, exceeding cap `8`),
+    went silent after `04:47:09Z` (`25+ min` gap vs `60 s` rule, repeat of `CF-0024`), and launched
+    `self-doc-tests-45..51` on `claude-agent` instead of `AGENTS.md` default `antigravity-agent / gemini-4-neon`
+    (extended bean `0592`).
+  - Post-merge runner leak (`CF-0021` pattern): `self-doc-tests-47` (`#404`) kept running in Stage 5 past its
+    `05:13:02Z` merge, re-triggering cancelled CI runs `7` times (`05:12:53Z`–`05:13:19Z`, `4` after merge) until killed
+    manually (extended bean `0420`).
+- **Scope creep past `intent.scope`:** `4` of `6` non-`0153` PRs (`#374`, `#375`, `#376`, `#378`) changed `24` code
+  files outside `intent.scope` (`#374`: `8 -> 35` plan paths / `14` extra; `#376`: `3 -> 16` plan paths / `6` extra
+  incl. hub docs; `#378`: `5 -> 8` plan paths / `3` extra; `#375`: `1` extra). Bean `0596` only checks against the plan
+  touch set; Stage 2 widening needs its own guard: bean `0610`.
+- **`Promote Ledger` silent no-op & backlog:** `origin/main` now holds `252` files in `holon-knowledge/ledger/pending/`;
+  `.github/workflows/promote-ledger.yml` exits green in `2 s` (`HOLON_LEDGER_BOT_TOKEN` unset), while `15/20` recent
+  burst runs were `cancelled`: bean `0611`.
+- **Model spend-limit cascade:** `self-doc-tests-51` (`04:48:57Z`), `48` (`04:49:18Z`), `45` (`04:50:20Z`) all hit
+  Claude's org monthly spend limit; `51` re-probed `claude-agent` at `05:11:15Z` before switching to `gemini-4-neon`:
+  bean `0612`.
+- **Review loop observability & churn accounting:** `[Review Loop]` terminal summaries printed
+  `Non-defect churn: target merge 0` on all `14` merged PRs even where calibration reports recorded `2` (`#374`,
+  `#375`), and `self-doc-tests-46` logs printed only `Reviewer 1: APPROVED` while container verdict returned
+  `CHANGES_REQUESTED`: bean `0613`.
+- **Timing highlights across 22 HAC flows in window (`14` merged + `8` active/halted):**
+  - `pre_flight` (n=21): median `5.0 s`, max `8.0 s` (work).
+  - `stage1_intent` (n=20): median `18.0 s`, max `50.0 s` (work).
+  - `stage2_plan` (n=22): median `200.5 s`, max `474.0 s` (`#365`) (work).
+  - `stage3_admission_refusal` (n=43): median `6.0 s`, max `1149.0 s` (`flow-references-github-issues`, `41` runs /
+    `1460.4 min` wall) (overlap wait / sync).
+  - `stage3_execute` (n=19): median `646.0 s`, max `1006.0 s` (`self-doc-tests-49`) (work).
+  - `stage4_review_total` (n=20): median `1096.0 s` (`18.3 min`), max `6177.0 s` (`#365`) (work + CI wait);
+    `review_reviewer_turn` (n=41): median `410.0 s`, max `2102.0 s` (`self-doc-tests-46`); `review_resolver_turn`
+    (n=17): median `331.0 s`, max `900.0 s`.
+  - `ci_reg_wait` (n=20): median `1.5 s`, max `18.0 s`; `ci_wait` (n=13): median `114.1 s`, max `670.8 s` (`#405`).
+  - `stage5_calibrate_total` (n=12): median `185.0 s`, max `2311.0 s` (`#405`, `38.4 min` vs `10 min` budget, incl.
+    `stage5_merged_head_ci_wait` `1595.0 s` + `final head CI` `670.8 s`; `#365` failed/skipped; `#404` merged mid-Stage
+    5).
+  - `human_wait_to_merge` (n=12): min `39.0 s` (`#405`), median `10427.5 s` (`173.8 min`), max `12323.0 s` (`205.4 min`,
+    `#376`); `idle_between_runs` (n=54): median `64.0 s`, max `29962.0 s`.
+  - **Not measured:** per-reviewer individual times inside ensembles, resolver inner split (edit vs local pytest/lint vs
+    push), Stage 2/3/5 sub-step splits, `slot-keeper`/`harness-scribe` activity after `04:47Z`/`04:50Z`, and post-`#376`
+    sharded `unit (macos-latest)` durations (all sharded runs queued or cancelled before finishing; pre-`#376` unsharded
+    ran `422 s–485 s`). Covered by existing beans `0412` and `0594`.
+- **Examined and confirmed against existing beans (not duplicated):** `0383` (`#405` Stage 5 `38.4 min` overrun), `0596`
+  (`diff-stays-in-intent-scope` in Stage 2), `0600` (`host-push-retry-record-branch` failed Stage 3 execute at
+  `04:47:27Z`), `0601`/`0603`/`0608` (all `8` `0153` PRs `#379..#405` keep per-slice scanner test copies, shared
+  truncated titles/empty counts, and deleted `78` reason-keyword `#` lines), `0602`/`0609` (all `14` HAC PRs merged with
+  fresh `Merge branch 'main'` commits and queued/cancelled head CI, incl. `#404` `10` cancelled + `4` queued).
+- **Beans created:** `0610`, `0611`, `0612`, `0613`.
+- **Beans extended:** `0420`, `0592`.
+
 ### 2026-11-27T04:43:40Z — Fifth-Merge Audit (light)
 
 - **Trigger:** fifth merge (`holon-agentic-coder` #396 `04:33:40Z`, #393 `04:34:20Z`, #392 `04:34:56Z`, #390

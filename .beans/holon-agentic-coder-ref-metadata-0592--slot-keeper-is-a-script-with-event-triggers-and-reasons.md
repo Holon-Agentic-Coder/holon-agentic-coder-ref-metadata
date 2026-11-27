@@ -10,7 +10,7 @@ tags:
   - scheduling
   - slots
 created_at: 2026-11-27T00:57:23Z
-updated_at: 2026-11-27T04:37:17Z
+updated_at: 2026-11-27T05:19:35Z
 ---
 
 ## Evidence
@@ -58,6 +58,10 @@ Slots are refilled within 60 s of freeing, and every pass states what it did and
 
 - Extends beans 0545 and 0576; CF-0024 and CF-0027. Idle time per slot is still not measured; the log's live count per
   pass becomes the measurement.
+- **Audit evidence (2026-11-27T04:43Z–05:18Z, high-priority repeat of CF-0027 & CF-0024):** `todo/slot-keeper.log` shows
+  `live=10` again at `04:43:15Z` and `04:47:09Z` (exceeding the 8-flow cap), and stopped logging completely after
+  `04:47:09Z` (25+ min gap against the 60 s rule and 120 s heartbeat). Also launched `self-doc-tests-45..51` on
+  `claude-agent` instead of `AGENTS.md` default `antigravity-agent` / `gemini-4-neon`.
 
 ## Progress
 
