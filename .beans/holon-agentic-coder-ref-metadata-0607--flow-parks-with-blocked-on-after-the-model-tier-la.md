@@ -8,7 +8,7 @@ tags:
   - holon-flow
   - tests
 created_at: 2026-11-27T04:42:54Z
-updated_at: 2026-11-27T11:27:43Z
+updated_at: 2026-11-27T12:08:52Z
 ---
 
 ## Evidence
@@ -63,5 +63,8 @@ lands), 0572 (parked on PR #360 overlap).
 ## Notes
 
 Created as a follow-up to 0549's deferred item. Not started; no intent written yet.
+
+- parked 2026-11-27: blocked by flow-review-posting-transient-retry (bean 0424) on
+  `apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports_review.py`; resume from checkpoint when 0424 merges.
 
 ## Resolution
