@@ -10,7 +10,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T09:55:00Z
-updated_at: 2026-11-27T17:40:19Z
+updated_at: 2026-11-27T17:58:33Z
 ---
 
 ## Why
@@ -296,3 +296,9 @@ Measured on main `412bed21` (report: `todo/test-suite-audit-2026-11-26.md`, raw 
 - Launched `tests-deferred-three-speedup` (`todo/intent-0405-tests-deferred-three-speedup.json`,
   `todo/intent-coverage-0405.json`) targeting the three deferred files `tests/flow/test_git_refs.py`,
   `tests/flow/review/test_conflict_gate.py`, and `tests/test_calibration_diff_property.py` (test-only).
+- Launched `tests-fewer-git-calibrate` (`todo/intent-0405-tests-fewer-git-calibrate.json`,
+  `todo/intent-coverage-0405.json`) targeting the 10 disjoint calibration test files (plus optional helper
+  `apps/sandbox-executor/tests/calibrate_scenarios.py`, test-only, excluding `test_calibration_diff_property.py`).
+- Launched `tests-fewer-git-review-decomp` (`todo/intent-0405-tests-fewer-git-review-decomp.json`,
+  `todo/intent-coverage-0405.json`) targeting the 5 disjoint review/decomposition/fingerprint test files (test-only,
+  excluding `test_conflict_gate.py`).

@@ -9,7 +9,7 @@ tags:
   - resilience
   - ci
 created_at: 2026-11-27T05:26:26Z
-updated_at: 2026-11-27T11:55:26Z
+updated_at: 2026-11-27T17:58:33Z
 ---
 
 ## Notes
@@ -30,6 +30,10 @@ updated_at: 2026-11-27T11:55:26Z
   silent `except Exception: pass` remain in `agent_runner.py:415`, `flow/pipeline.py:393`,
   `launcher/containers.py:209`). Keeping `status: in-progress` for the remaining slice to narrow non-boundary
   `except Exception` catches to typed exceptions.
+- **Slice 2 (`hac-narrow-broad-excepts`)**: Launched `todo/intent-0616-hac-narrow-broad-excepts.json`
+  (`todo/intent-coverage-0616.json`) to narrow non-boundary `except Exception` handlers in `attribution_check.py`,
+  `calibration/physics.py`, `knowledge/promotion_rules.py`, `knowledge/stats.py`, and `knowledge/consult.py` to typed
+  exceptions and tighten `tests/test_broad_except_ratchet.py`.
 
 ## Acceptance Criteria
 
