@@ -169,12 +169,17 @@ python3 .agents/skills/holon_flow/scripts/run_holon_flow.py <intent_path> \
 ```
 
 Always pass `--bean <NNNN>` on a fresh launch. `scripts/intent_coverage.py` extracts the bean's Acceptance, Check,
-Common acceptance, Gaps to close and Next step items and requires each to be covered by an intent `acceptance_criteria`
-item (normalised fuzzy match, code spans verbatim) or mapped in `todo/intent-coverage-<NNNN>.json`
-(`{bean_item: intent_item}`, the intent item must exist verbatim). An uncovered item exits 2 and lists it; fix the
-intent or the mapping, never bypass. The bean id stays on the command line and is never written into the intent. A
-launch without `--bean` logs a loud warning (it becomes mandatory); a resume from `--checkpoint` or `--from-stage` skips
-the check.
+Common acceptance, Gaps to close, Next step and Done when items (headings match case-insensitively by prefix, so
+`## Acceptance Criteria` counts; a bean with no such section is refused with "bean has no acceptance section") and
+requires each to be covered by an intent `acceptance_criteria` item (normalised fuzzy match, code spans verbatim),
+mapped in `todo/intent-coverage-<NNNN>.json` (`{bean_item: intent_item}`; the intent item must exist verbatim and share
+a content token with the bean item), or explicitly excluded in the same file:
+`{"excluded": {bean_item: {"reason": "delivered by PR #N" | "out of scope: <why>", "pr": N}}}`. An exclusion counts only
+with a non-empty reason in one of those two forms; a "delivered by PR #N" claim is checked merged via `gh` (skipped with
+a warning when offline) and every exclusion is listed in the launch log. Never map an already-delivered or out-of-scope
+item to an unrelated criterion; exclude it. An uncovered item exits 2 and lists it; fix the intent or the file, never
+bypass. The bean id stays on the command line and is never written into the intent. A launch without `--bean` logs a
+loud warning (it becomes mandatory); a resume from `--checkpoint` or `--from-stage` skips the check.
 
 #### Claude credentials are built in
 

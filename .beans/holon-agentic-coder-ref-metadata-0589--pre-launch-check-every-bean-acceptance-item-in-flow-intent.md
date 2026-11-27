@@ -106,3 +106,10 @@ diff; brief-builder call (bean 0580).
 
 The intent-generation bean 0590 makes this check's coverage component part of the generator. The launch-side check here
 stays until 0590 lands.
+
+## Progress 2026-11-27T00:40:24Z
+
+Headings now match case-insensitively by prefix (incl. Acceptance Criteria, Done when); a bean with no section is
+refused with "bean has no acceptance section". Mapping file gains `excluded` (reason required; "delivered by PR #N"
+verified merged via gh, warning offline; logged); mappings must share a content token. Stays in-progress for any
+remaining acceptance items.

@@ -143,10 +143,94 @@ def test_the_mapping_file_in_todo_is_honoured(tmp_path):
     assert intent_coverage.coverage_refusal(intent, "0574", root) is None
 
 
-def test_an_unknown_bean_or_a_bean_without_items_refuses(tmp_path):
+def test_an_unknown_bean_or_a_bean_without_a_section_refuses(tmp_path):
     assert "no file" in intent_coverage.coverage_refusal({}, "9999", tmp_path)
     root = harness(tmp_path, "0001", "# empty\n")
-    assert "lists no acceptance items" in intent_coverage.coverage_refusal({}, "0001", root)
+    assert "bean has no acceptance section" in intent_coverage.coverage_refusal({}, "0001", root)
+
+
+def test_a_recognised_section_without_items_refuses_with_a_different_message(tmp_path):
+    root = harness(tmp_path, "0002", "## Acceptance\n\nprose only\n")
+    assert "lists no acceptance items" in intent_coverage.coverage_refusal({}, "0002", root)
+
+
+@pytest.mark.parametrize(
+    "heading",
+    [
+        "Acceptance Criteria",
+        "Acceptance criteria",
+        "ACCEPTANCE (all)",
+        "Done when",
+        "Checks",
+        "Next steps",
+        "Gaps to close",
+    ],
+)
+def test_headings_match_case_insensitively_by_prefix(heading):
+    assert intent_coverage.bean_items(f"## {heading}\n\n- one item\n") == ["one item"]
+    assert intent_coverage.has_acceptance_section(f"## {heading}\n")
+
+
+def test_unrelated_headings_are_not_sections():
+    assert not intent_coverage.has_acceptance_section("## Problem\n\n## Notes\n")
+
+
+def test_a_mapping_to_an_unrelated_criterion_is_refused():
+    bean_item = intent_coverage.bean_items(BEAN_0574)[0]
+    bogus = "Docs are updated."
+    assert missing_for(BEAN_0574, ["x", INTENT_0574_COMPLETE[1], bogus], {bean_item: bogus}) == [bean_item]
+
+
+def exclusion_root(tmp_path, excluded):
+    return harness(tmp_path, "0574", BEAN_0574, {"excluded": excluded})
+
+
+def intent_with_second_only():
+    return {"acceptance_criteria": [INTENT_0574_COMPLETE[1]]}
+
+
+def test_an_exclusion_without_a_reason_does_not_cover(tmp_path):
+    item = intent_coverage.bean_items(BEAN_0574)[0]
+    root = exclusion_root(tmp_path, {item: {"reason": "  "}})
+    refusal = intent_coverage.coverage_refusal(intent_with_second_only(), "0574", root)
+    assert refusal and "exclusion has no reason" in refusal
+
+
+def test_an_out_of_scope_exclusion_with_a_reason_covers_and_is_logged(tmp_path, capsys):
+    item = intent_coverage.bean_items(BEAN_0574)[0]
+    root = exclusion_root(tmp_path, {item: {"reason": "out of scope: split to a coherence flow"}})
+    assert intent_coverage.coverage_refusal(intent_with_second_only(), "0574", root) is None
+    assert "excluded (out of scope)" in capsys.readouterr().err
+
+
+def test_a_free_text_reason_is_refused(tmp_path):
+    item = intent_coverage.bean_items(BEAN_0574)[0]
+    root = exclusion_root(tmp_path, {item: {"reason": "later"}})
+    assert "reason must be" in intent_coverage.coverage_refusal(intent_with_second_only(), "0574", root)
+
+
+@pytest.mark.parametrize(
+    ("merged", "expected"),
+    [(True, "merged"), (False, "is not merged"), (None, "WARNING")],
+)
+def test_a_delivered_by_pr_exclusion_is_verified_via_gh(tmp_path, monkeypatch, capsys, merged, expected):
+    item = intent_coverage.bean_items(BEAN_0574)[0]
+    root = exclusion_root(tmp_path, {item: {"reason": "delivered by PR #361", "pr": 361}})
+    monkeypatch.setattr(intent_coverage, "pr_merged", lambda number, repo=None: merged)
+    refusal = intent_coverage.coverage_refusal(intent_with_second_only(), "0574", root)
+    if merged is False:
+        assert refusal and expected in refusal
+    else:
+        assert refusal is None
+        assert expected in capsys.readouterr().err
+
+
+def test_pr_merged_is_none_when_gh_is_unavailable(monkeypatch):
+    def missing(*args, **kwargs):
+        raise FileNotFoundError
+
+    monkeypatch.setattr(intent_coverage.subprocess, "run", missing)
+    assert intent_coverage.pr_merged(1) is None
 
 
 @pytest.fixture
