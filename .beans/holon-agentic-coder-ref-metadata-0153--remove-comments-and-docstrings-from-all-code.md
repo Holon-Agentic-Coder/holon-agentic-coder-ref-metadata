@@ -13,7 +13,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:42:56Z
-updated_at: 2026-11-27T07:43:42Z
+updated_at: 2026-11-27T15:40:22Z
 ---
 
 ## Problem
@@ -686,5 +686,6 @@ Slice `self-doc-src-i` (10 sandbox-executor flow modules plus `tests/test_self_d
   merged and pruned.
 - `self-doc-tests-45` ([PR #409](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/409), `8241e56c`)
   merged and pruned.
-- Bean stays `in-progress` while [PR #408](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/408)
-  (`self-doc-tests-49`) resolves its hygiene/calibration failure.
+- `self-doc-tests-49` ([PR #426](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/426), `1f333163`,
+  replacing closed `#408`) merged and pruned.
+- Bean stays `in-progress` for the remaining slices.

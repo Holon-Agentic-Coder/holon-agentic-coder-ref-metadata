@@ -10,7 +10,7 @@ tags:
   - tests
   - duplication
 created_at: 2026-11-27T04:33:33Z
-updated_at: 2026-11-27T11:13:21Z
+updated_at: 2026-11-27T15:40:02Z
 ---
 
 ## Evidence
@@ -65,3 +65,11 @@ becomes checked. Cost: one shared test and an AST-normalising helper; touches th
   module, class or function body (substituting `pass` when the body would be empty); a test covers that case.
 - A PR can be identified as a self-doc change from its label, its title or a diff that only removes docstrings and
   comments. Validation: the CI test covers each trigger on a sample diff.
+
+## Progress
+
+- `self-doc-ast-behavior-gate` ([PR #425](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/425),
+  `da13a83c`) merged into `main`, delivering the AST behaviour-preservation CI gate
+  (`scripts/check_self_doc_behavior.py` and `.github/workflows/test-self-doc-behavior.yml`; Stage 5 calibrated:
+  Predicted EV 59.33 / Actual EV 73.55 / ΔEV +14.22). Bean stays `in-progress` while deleting per-slice
+  `test_self_doc_*` copies remains as slice 2.
