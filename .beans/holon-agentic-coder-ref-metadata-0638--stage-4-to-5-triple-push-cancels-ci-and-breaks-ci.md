@@ -10,7 +10,7 @@ tags:
   - stage-5
   - performance
 created_at: 2026-11-27T15:53:29Z
-updated_at: 2026-11-27T16:40:46Z
+updated_at: 2026-11-27T17:18:38Z
 ---
 
 ## Notes
@@ -63,8 +63,11 @@ updated_at: 2026-11-27T16:40:46Z
 ## Flow
 
 - **Slice 1 (`2026-11-27`, `ci-merge-bookkeeping-chain`):** Covers AC #2 (`ci_merge_push_gate.py` /
-  `ci_bookkeeping_gate.py` / `ci_bookkeeping_chain.py` handling a bookkeeping commit chain stacked on a clean
-  `sync: merge target` merge commit) and AC #3 (hermetic tests). AC #1 (Stage 4->5 single push consolidation) is
-  deferred to Slice 2 (`todo/intent-coverage-0638.json`).
+  `ci_bookkeeping_gate.py` / `ci_bookkeeping_chain.py` / `ci_main_push_gate.py` handling a bookkeeping commit chain
+  stacked on a clean `sync: merge target` merge commit) and AC #3 (hermetic tests). AC #1 (Stage 4->5 single push
+  consolidation) is deferred to Slice 2 (`todo/intent-coverage-0638.json`).
+  - Closed halted [PR #436](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/436) (`CF-0076`: Stage 4
+    `touch_set_violation` on `scripts/ci_main_push_gate.py` and `apps/sandbox-executor/tests/test_ci_main_push_gate.py`
+    while fixing `R2-F1`, plus Python 3.9 `R3-F1`), expanded scope to 9 files, and relaunched cleanly.
 
 ## Resolution
