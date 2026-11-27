@@ -10,7 +10,7 @@ tags:
   - clean-code
   - hygiene
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T07:27:06Z
+updated_at: 2026-11-27T08:03:32Z
 ---
 
 ## Problem
@@ -57,3 +57,6 @@ package root, and misleading names mask metric/parity semantics.
 
 - Target repository: `holon-coherence` (evaluated at `HEAD 18084f3`).
 - Source: 2026-11 ecosystem architecture & source-code review (`docs/ecosystem-audit-report-2026-11.md`).
+- Audit refresh (`2026-11-27`, `ce39bf34d`): redundant `*_self_doc.py` files grew from `9` (`922` LOC) to `10` (`1,202`
+  LOC) across `#58`–`#65`; `unittest.TestCase` migration finished in PR `#64` (`0` subclasses remain, only
+  `unittest.mock` left).

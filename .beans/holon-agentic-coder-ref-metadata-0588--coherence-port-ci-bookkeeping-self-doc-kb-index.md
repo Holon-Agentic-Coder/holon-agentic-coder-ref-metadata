@@ -10,7 +10,7 @@ tags:
   - hygiene
   - invariants
 created_at: 2026-11-27T00:33:33Z
-updated_at: 2026-11-27T07:27:06Z
+updated_at: 2026-11-27T08:03:32Z
 ---
 
 ## Problem
@@ -50,3 +50,6 @@ updated_at: 2026-11-27T07:27:06Z
 - Related shared-invariant beans: Bean `0563` (3 append-only ledgers check), Bean `0564` (no harness refs in targets),
   Bean `0558` (self-explaining gate), Bean `0570` (budget-change authorisation).
 - Source: 2026-11-27 architecture & source-code review (`docs/ecosystem-audit-report-2026-11.md`).
+- Audit refresh (`2026-11-27`, `ce39bf34d`): `no-harness-references` (`#58`, Bean `0564`) landed; remaining work is
+  `ci_bookkeeping_gate.py`, `check_self_explaining.py`, `module-budget-change` maintainer-actor verification, and
+  removing tracked `holon-knowledge/kb/{failure_modes,patterns}/index.json`.

@@ -84,8 +84,36 @@ first.
 - **Examined and confirmed covered by existing beans:** `0612` (Claude org spend limit hit `self-doc-tests-45/46/48/51`
   at `04:48–04:50Z`), `0609` (all `6` merged HAC PRs had hand `Merge branch 'main'` commits seconds before merge),
   `0601`/`0603` (`#403,#406,#407,#409` per-slice scanner tests and identical titles), `0596` (`#410` merged).
-- **Beans created:** `0617`, `0618`, `0619`.
-- **Beans extended:** `0408`, `0412`, `0424`, `0544`, `0602`, `0610`, `0613`.
+- **Beans created:** `0617`, `0618`, `0619`, plus architecture/code-quality refresh beans `0620` (Coherence: drain 27
+  pending ledger fragments / configure `HOLON_LEDGER_BOT_TOKEN`), `0621` (Coherence: CI package import-cycle ratchet),
+  and `0622` (Coherence: replace 4 silent `except Exception: pass` catches and ratchet broad catches).
+- **Beans extended:** `0408`, `0412`, `0424`, `0544`, `0602`, `0610`, `0613`, plus `0527` (`commands <-> container`
+  `4 <-> 3` from `#63`, `TYPE_CHECKING` `reduction_passes -> payload_cleaner` from `#61`), `0530` (`*_self_doc.py` `10`
+  files / `1,202` LOC; `0` `TestCase`), `0588` (`#58` landed), and `0611` (`270` pending HAC fragments).
+- **Architecture & source-code quality refresh
+  ([docs/ecosystem-audit-report-2026-11.md](../docs/ecosystem-audit-report-2026-11.md), `hac@0d8d1249f` vs `5c0a557cc`,
+  `coherence@ce39bf34d` vs `c26a0c1`):**
+  - **Overall scores:** `holon-coherence` **7.7 / 10 (+0.4)** reclaimed the lead over `holon-agentic-coder` **7.5 / 10
+    (+0.1)**.
+  - **10-aspect scorecard (HAC / Coherence, deltas vs `5c0a557cc` / `c26a0c1`):**
+    1. Clean Architecture & Layer Boundaries: `6.6` / `7.6 (-0.1)` (`#63` added `commands <-> container` `4 <-> 3`)
+    2. Modularity, Cohesion & File Sizing: `7.4 (+0.1)` / `7.6 (+0.1)` (HAC `wisdom.py` split `>350L` `21→20`; Coherence
+       `providers/registry.py` & `reduction_passes.py`)
+    3. Complexity & Control Flow: `5.9` / `8.0` (`run_review_loop` `CC=207`; Coherence max `CC=24`)
+    4. Clean Code & Idiomatic Python: `7.3` / `7.1 (+0.1)` (Coherence `98.6%` return-typed, `0` `TestCase`)
+    5. Intention-Revealing & Self-Doc Code: `8.1 (+0.1)` / `8.2` (HAC test docstrings `1,089→1,057`, `src/` `# why:`
+       `581/663`; Coherence `0`/`0`)
+    6. Extensibility & Plug-in Seams: `6.8` / `7.7 (+0.4)` (Coherence `#61` `ReductionPass` `Protocol`)
+    7. Testability & Verification Quality: `7.8 (+0.1)` / `7.8 (+0.8)` (Coherence `#64` `tflow`/`HTTPServer` wire tests;
+       `todo/test-suite-audit-2026-11-26.md` `8,311` cases / `45,157` git spawns / quadratic `mktemp` mapped to `0405`,
+       `0491`)
+    8. Error Handling, Resilience & Failure Modes: `8.1` / `7.6 (+0.6)` (Coherence `#64` SSE carry-buffer & incremental
+       UTF-8, `broad_except` `35→34`; HAC `broad_except` `137→138`)
+    9. Security, Isolation & Secret Hygiene: `8.4` / `7.4 (+1.9)` (Coherence `#59` `0525`, `#58` `0564`, `#63` `0524`
+       slice 1)
+    10. Observability, Provenance & Config: `8.2` / `7.6 (+0.2)` (Coherence `0539`/`0614` closed, `27` pending fragments
+        remain (`0620`); HAC `270` pending fragments (`0611`); `todo/flow-time-audit-2026-11-26.md` timing gaps folded
+        in)
 
 ### 2026-11-27T05:19:35Z — Fifth-Merge Audit
 

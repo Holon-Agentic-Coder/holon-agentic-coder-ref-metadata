@@ -10,7 +10,7 @@ tags:
   - extensibility
   - refactor
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T05:26:34Z
+updated_at: 2026-11-27T08:03:32Z
 ---
 
 ## Problem
@@ -59,3 +59,8 @@ multiple modules, while circular imports connect `parsers/` ↔ `providers/` and
 
 - Target repository: `holon-coherence` (evaluated at `HEAD 18084f3`).
 - Source: 2026-11 ecosystem architecture & source-code review (`docs/ecosystem-audit-report-2026-11.md`).
+- Audit refresh (`2026-11-27`, `ce39bf34d`): PR `#63` (`0524` slice 1) added a new bidirectional cycle
+  `commands <-> container` (`4 <-> 3`: `container/lifecycle.py:443,468,494` imports `commands.web_token`), and PR `#61`
+  added a `TYPE_CHECKING` back-edge `reduction_passes -> payload_cleaner` (`1 <-> 1`). Move `web_token` helpers into
+  `container/` or a shared leaf and include both edges in the acyclic-import boundary test (coordinated with Bean
+  `0621`).

@@ -9,7 +9,7 @@ tags:
   - ledger
   - holon-agentic-coder
 created_at: 2026-11-27T05:18:43Z
-updated_at: 2026-11-27T05:18:43Z
+updated_at: 2026-11-27T08:03:32Z
 ---
 
 ## Notes
@@ -17,7 +17,8 @@ updated_at: 2026-11-27T05:18:43Z
 ### Evidence (2026-11-27T04:43Z–05:18Z fifth-merge audit)
 
 - On `holon-agentic-coder` `origin/main`, `holon-knowledge/ledger/pending/` has accumulated **252 pending fragment
-  files** across `intents/`, `plans/`, and `executions/`.
+  files** across `intents/`, `plans/`, and `executions/` (grown to **270 pending fragments** by `0d8d1249f` after PRs
+  `#403`, `#406`–`#411`).
 - `.github/workflows/promote-ledger.yml` run `45943839152` (`05:06:56Z`) exited `success` in 2 s with notice:
   `Ledger promotion skipped: the repository secret HOLON_LEDGER_BOT_TOKEN is not configured, so the run stays green.`
 - Because `promote-ledger.yml` triggers on every `push` to `main` with
