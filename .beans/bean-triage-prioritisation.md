@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-27 11:55:26 UTC
+**Last Updated:** 2026-11-27 12:08:08 UTC
 
 ## Executive Summary
 
@@ -17,9 +17,9 @@ about 10M+ tokens), so flows that touch the same files still run one after anoth
 run together.
 
 - **Total Tracked Beans**: 625 (excluding template)
-- **Completed**: 426 (68.2%)
+- **Completed**: 427 (68.3%)
 - **Scrapped / Superseded**: 17 (2.7%)
-- **Active**: 182 (29.1%), of which 41 are in progress, 139 are todo and 2 are draft
+- **Active**: 181 (29.0%), of which 40 are in progress, 139 are todo and 2 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1128,7 +1128,6 @@ logged beans `0389` and `0390` added to triage.
 | **P1**   | in-progress |  High  |             M             | 0532   | Add Docker resource limits, read-only intent mount, 0o600 secret permissions, and Dockerfile pinning                                                          | Flow / Architecture              |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             M             | 0531   | Break flow/entrypoint and ledger/knowledge import cycles and decompose ExecutionRun, planner, turns                                                           | Flow / Architecture              |                                                                                                                                                                                                                                                       |
 | **P1**   | in-progress | Medium |             M             | 0530   | Add static type checker to CI, prune redundant self-doc tests, legacy shims, and root clutter                                                                 | CLI / Telemetry                  |                                                                                                                                                                                                                                                       |
-| **P1**   | in-progress | Medium |             M             | 0529   | Centralize typed CoherenceSettings, bound wire-log queues, and align Docker/wheel packaging                                                                   | Build / DevEx                    |                                                                                                                                                                                                                                                       |
 | **P1**   | in-progress | Medium |             M             | 0528   | Eliminate request hot-path deepcopies, duplicate parsers, metric drift, and ab_test leaks                                                                     | CLI / Telemetry                  |                                                                                                                                                                                                                                                       |
 | **P1**   | in-progress |  High  |             L             | 0527   | Unify provider detection, make ProviderFormat extensible, and break import cycles                                                                             | Architecture / Quality           |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             L             | 0523   | A flow parked at Stage 3 is resumed by hand when its blocker merges; record the blocker and resume on its state change                                        | Architecture / Quality           |                                                                                                                                                                                                                                                       |

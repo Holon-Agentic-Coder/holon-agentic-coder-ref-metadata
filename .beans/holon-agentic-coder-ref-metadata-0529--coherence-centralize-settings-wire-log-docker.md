@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0529
 title: "Centralize typed CoherenceSettings, bound wire-log queues, and align Docker/wheel packaging"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - resilience
   - packaging
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T11:50:10Z
+updated_at: 2026-11-27T12:08:08Z
 ---
 
 ## Problem
@@ -68,3 +68,24 @@ resolution and dependency installation diverge from `uv.lock` and wheel packagin
   `CoherenceSettings.from_env()` in `src/holon_coherence/settings.py` (with tests in `tests/test_settings.py`) and
   routing `commands/runner.py`, `commands/web_token.py`, and `ringer_orchestrator.py` through it. Bean remains
   `in-progress` for the remaining `coherence-dockerfile-packaging` slice.
+
+## Resolution
+
+Delivered across four merged `holon-coherence` pull requests into `main`:
+
+- **Wire-log queue bound** ([PR #69](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/69), `2659364d`):
+  bounded `_pending_wire_log_futures` in `src/holon_coherence/proxy/wire_log.py` with tests in
+  `tests/proxy/test_wire_log.py`.
+- **CA logging & asset resolution** ([PR #73](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/73),
+  `52019174`): surfaced CA setup failures via explicit logging and resolved container/image assets cleanly without
+  fragile `__file__` traversal.
+- **Centralized typed settings** ([PR #81](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/81), `ffb48044`):
+  introduced frozen typed `CoherenceSettings.from_env()` in `src/holon_coherence/settings.py` (with unit tests in
+  `tests/test_settings.py`) and routed `commands/runner.py`, `commands/web_token.py`, and `ringer_orchestrator.py`
+  through it.
+- **Pinned `Dockerfile`, `uv.lock` install, `HEALTHCHECK` & `.dockerignore`**
+  ([PR #82](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/82), `4a02926b`): pinned multi-arch
+  `mitmproxy/mitmproxy:12.2.3` and `ghcr.io/astral-sh/uv:0.9.5` digests in `Dockerfile`, installed dependencies via
+  `uv export --frozen` from `uv.lock` and `uv pip install --system --no-deps .` (no `pip`), added a TCP socket
+  `HEALTHCHECK`, tightened `.dockerignore`, and added `tests/test_dockerfile_packaging.py` following full 5-stage Holon
+  flow traversal and calibration.
