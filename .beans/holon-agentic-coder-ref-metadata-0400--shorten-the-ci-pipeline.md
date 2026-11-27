@@ -9,7 +9,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T08:30:00Z
-updated_at: 2026-11-27T00:56:56Z
+updated_at: 2026-11-27T05:15:52Z
 ---
 
 ## Problem
@@ -119,3 +119,19 @@ CI): queue time is negligible (median 2 s, p90 4 s for every job). Run time medi
 (Stage 5 CI wait 1.2 to 1.7 min, Bean 0403 working). The approving review iteration of every flow ends when the pipeline
 ends (reviewers wait for it, Bean 0478), so the macOS unit leg sets about 6 to 9 min of every flow. Up to 46 superseded
 runs per long PR were cancelled (for example 46 of 138 on #308, 40 of 102 on #310).
+
+## Progress (2026-11-27T05:12:05Z, PR #376 merged as b4b771d8)
+
+- Delivered macOS unit sharding via [PR #376](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/376)
+  (`b4b771d8`, merged `2026-11-27T05:07:30Z`, slug `macos-unit-sharded`): added `scripts/unit_test_shard.py` and split
+  the `unit (macos-latest)` leg of `.github/workflows/test-unit.yml` into 2 parallel shards
+  (`unit (macos-latest, shard 1 of 2)` and `unit (macos-latest, shard 2 of 2)`), preserving the CI timing gate, timing
+  record upload, and macOS relevance gate per shard; updated `.github/actions/bookkeeping-gate/action.yml`,
+  `.github/workflows/README.md`, `docs/git_flow.md`, and wiring/unit tests (`test_unit_test_shard.py`,
+  `test_ci_timing_gate.py`, `test_ci_bookkeeping_wiring.py`, `test_macos_relevance_wiring.py`).
+- Local measurement (`E-1795741941-CLA-CO5.5`): 346 files split 176/170 (4,115 + 5,423 = 9,538 passed), shard times
+  29.75s and 36.22s vs 103.52s whole-suite locally. Worktree `flow-macos-unit-sharded` and its flow/remote branches
+  pruned.
+- Remaining (bean stays `in-progress`): post-merge CI measurement of the two macOS shards against the 7.0 min median and
+  overall pipeline median against 7.6 min, maintainer ruleset update for the two shard check names, `Workspace survival`
+  speed/critical-path reduction, and per-workflow `fail-fast` decisions.

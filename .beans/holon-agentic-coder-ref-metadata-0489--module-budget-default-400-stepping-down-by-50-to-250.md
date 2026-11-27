@@ -11,7 +11,7 @@ tags:
   - refactoring
   - holon-agentic-coder
 created_at: 2026-11-26T06:30:00Z
-updated_at: 2026-11-27T01:47:35Z
+updated_at: 2026-11-27T05:15:52Z
 blocked_by:
   - "0380"
 ---
@@ -168,3 +168,12 @@ set.
   OPEN, not approved). Review stage failed at target sync: worktree had uncommitted tracked changes; remote branch
   diverged (origin has a merge of main plus ledger commits). Not rerun: scripts/ci_bookkeeping_api.py must join the
   intent scope first, then resolve-conflict and rerun from review.
+- 2026-11-27T05:12:05Z (Step 2 merged): PR #365 merged into `main` (`ef54c7a2`, `2026-11-27T05:05:08Z`).
+  `holon-config/hygiene/module_budgets.json` now sets `default_max_lines` to `350` (24 overrides above 400 kept
+  unchanged), decomposing `budgets.py` (`budgets_timer.py`), `flow/git_refs.py` (`git_refs_branches.py`,
+  `git_refs_ledger.py`), `scripts/pre_commit_check.py` (`pre_commit_credentials.py`, `pre_commit_spelling.py`),
+  `cli/commands/flow.py` (`_flow_context.py`, `_flow_report.py`), `flow/github/ci_final_head.py`
+  (`ci_final_head_seams.py`, `ci_final_head_rerun.py`), and `scripts/ci_bookkeeping_api.py`
+  (`scripts/ci_bookkeeping_context.py`), with `tests/flow/test_module_budgets.py` and `docs/architecture.md` updated.
+  Worktree `flow-module-budget-default-350` and its flow/remote branches pruned. Bean stays `in-progress` for Step 3
+  (`350 -> 300`) and Step 4 (`300 -> 250`).

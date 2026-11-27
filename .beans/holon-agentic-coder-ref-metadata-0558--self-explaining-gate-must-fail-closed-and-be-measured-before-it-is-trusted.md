@@ -10,7 +10,7 @@ tags:
   - self-explaining-code
   - holon-agentic-coder
 created_at: 2026-11-26T22:59:59Z
-updated_at: 2026-11-26T23:46:38Z
+updated_at: 2026-11-27T05:15:52Z
 ---
 
 ## Evidence
@@ -72,3 +72,39 @@ Not delivered (bean stays in-progress):
 
 Measured in #364 code files (163 added lines): 0 added docstring lines, 0 added comments without `# why:`, 1 `# why:`
 line. No note on bean 0153 needed.
+
+## Progress (2026-11-27T05:12:05Z, PR #375 merged as c1968628)
+
+Delivered via [PR #375](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/375) (`c1968628`, merged
+`2026-11-27T05:06:55Z`, gap 3 — Stage 3 pre-push gate):
+
+- Wired `scripts/check_self_explaining.py` into `PrePushSteps.record_branch` in
+  `apps/sandbox-executor/src/sandbox_executor/entrypoint/executor/pre_push.py` so executions that add docstrings or
+  explanatory comments are refused before sync/push (`self_explaining_violation` row with offending `path:line` output).
+- Added rule 10 to `holon-config/prompts/executor.template.md` documenting the pre-push check.
+- Verified by `apps/sandbox-executor/tests/test_pre_push_self_explaining.py` (execution `E-1795741267-CLA-CO5.5`:
+  `uv run task test` 9530 passed, 7 skipped; `uv run task lint` passed). Worktree `flow-self-explaining-gate-pre-push`
+  and its flow/remote branches pruned.
+
+Not delivered yet (bean stays `in-progress`):
+
+1. Counts report (gap 2): `self-explaining-counts-report` (PR #378 merged on `main`, pending its post-merge pass).
+2. Markdown ledger/plan coverage verification (gap 4).
+
+## Progress (2026-11-27T05:14:20Z, PR #378 merged as a59ef0d6)
+
+Delivered via [PR #378](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/378) (`a59ef0d6`, merged
+`2026-11-27T05:08:41Z`, gap 2 — counts reporting):
+
+- `scripts/check_self_explaining.py` appends a markdown summary table (checked files, added/removed docstrings and
+  non-reason comments) to `GITHUB_STEP_SUMMARY` on pass and failure, and adds `--head REF` / `--counts-json` modes;
+  `scripts/self_explaining_diff.py` tracks removed files and lines.
+- `apps/sandbox-executor/src/sandbox_executor/calibration/self_explaining_counts.py`, `calibration/generate.py`, and
+  `calibration/report.py` emit `## 7. Self-Explaining Code Counts` in Stage 5 calibration reports.
+- Verified by `test_check_self_explaining.py`, `test_calibration_report_self_explaining_counts.py`, and
+  `test_calibration_regression_merge_main.py` (`uv run task test` 9558 passed, 7 skipped; `uv run task lint` passed in
+  `E-1795742983-CLA-CO5.5`). Worktree `flow-self-explaining-counts-report` and its flow/remote branches pruned.
+
+Remaining (bean stays `in-progress`):
+
+1. Markdown ledger/plan coverage verification (gap 4).

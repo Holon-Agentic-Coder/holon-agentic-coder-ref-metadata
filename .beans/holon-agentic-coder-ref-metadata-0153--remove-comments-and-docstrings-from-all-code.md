@@ -13,7 +13,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:42:56Z
-updated_at: 2026-11-27T04:43:35Z
+updated_at: 2026-11-27T05:16:06Z
 ---
 
 ## Problem
@@ -642,3 +642,38 @@ Slice `self-doc-src-i` (10 sandbox-executor flow modules plus `tests/test_self_d
 > case; the first is a section label). Flow worktree, its local and remote I-branches removed after a bundle backup at
 > `todo/stale-worktree-backups/self-doc-root-modules-a-2026-11-27.bundle`. Bean stays `in-progress` for the remaining
 > holon-agentic-coder slices.
+
+> 2026-11-27T05:15:31Z: nine `holon-agentic-coder` slices delivered, merged to `main`, and pruned:
+>
+> - `self-doc-src-22` ([PR #395](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/395), `117937fd`,
+>   merged `2026-11-27T04:29:30Z`): 10 `sandbox_executor/flow/` modules (`run_lock*.py`, `stage5*.py`,
+>   `stage_conflict*.py`, `stage_status.py`, `target_probe.py`, `target_sync.py`) + `tests/test_self_doc_src_22.py`.
+>   Findings `69 -> 0` (`E-1795749951`: `uv run task test` 9569 passed, 7 skipped on run 2; `uv run task lint` passed).
+> - `self-doc-runners-launcher` ([PR #379](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/379),
+>   `5b3ee61a`, merged `2026-11-27T05:09:58Z`): 7 `runners/` modules, `launcher/run_tracking.py`, and
+>   `cli/commands/intent_check.py` + `tests/test_self_doc_runners_launcher.py`. Findings `36 -> 0`, 13 `# why:` kept
+>   (`E-1795743869`: `uv run task test` 9572 passed, 7 skipped; `uv run task lint` passed).
+> - `self-doc-cli-package` ([PR #381](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/381), `0152cfd2`,
+>   merged `2026-11-27T05:10:32Z`): 10 root `cli/` modules + `tests/test_self_doc_cli_package.py`. Findings `45 -> 0`,
+>   14 `# why:` kept (`E-1795745076`: `uv run task test` 9583 passed, 7 skipped; `uv run task lint` passed).
+> - `self-doc-tests-b` ([PR #386](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/386), `77e75328`,
+>   merged `2026-11-27T05:11:09Z`): 12 test modules + `tests/test_self_doc_tests_b.py`. Findings `430 -> 0`, 125
+>   `# why:` kept (`E-1795747510`: `uv run task test` 9589 passed, 7 skipped; `uv run task lint` passed).
+> - `self-doc-tests-c` ([PR #387](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/387), `a357507a`,
+>   merged `2026-11-27T05:11:27Z`): 12 test modules + `tests/test_self_doc_tests_c.py`. Findings `307 -> 0`
+>   (`E-1795747524`: `uv run task test` 9563 passed, 7 skipped; `uv run task lint` passed).
+> - `self-doc-tests-d` ([PR #388](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/388), `333a803f`,
+>   merged `2026-11-27T05:11:45Z`): 12 test modules + `tests/test_self_doc_tests_d.py`. Findings `257 -> 0`, 39 `# why:`
+>   kept (`E-1795747585`: `uv run task test` 9560 passed, 7 skipped; `uv run task lint` passed).
+> - `self-doc-src-h` ([PR #391](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/391), `ae3af1ad`, merged
+>   `2026-11-27T05:12:24Z`): 10 `flow/` calibrate/checkpoint/child_progress modules + `tests/test_self_doc_src_h.py`.
+>   Findings `123 -> 0`, 27 `# why:` kept (`E-1795748375`: `uv run task test` 9576 passed, 7 skipped; `uv run task lint`
+>   passed).
+> - `self-doc-tests-47` ([PR #404](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/404), `e6e93d5d`,
+>   merged `2026-11-27T05:13:02Z`): 12 `tests/flow/` modules + `tests/test_self_doc_tests_47.py`. Findings `52 -> 0`
+>   (`E-1795752910`: `uv run task test` 9585 passed, 7 skipped; `uv run task lint` passed).
+> - `self-doc-tests-50` ([PR #405](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/405), `5c0a557c`,
+>   merged `2026-11-27T05:13:20Z`): 12 `tests/flow/` modules + `tests/test_self_doc_tests_50.py`. Findings `57 -> 0`
+>   (`E-1795753013`: `uv run task test` 9552 passed, 7 skipped; `uv run task lint` passed).
+>
+> All 9 flow worktrees and their local/remote branches pruned; bean stays `in-progress` for the remaining slices.

@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0560
 title: "PR body 'Plan & Validation Metadata' shows Agent and Model as N/A"
-status: in-progress
+status: completed
 type: bug
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - pr-metadata
   - holon-agentic-coder
 created_at: 2026-11-26T23:04:48Z
-updated_at: 2026-11-27T00:58:24Z
+updated_at: 2026-11-27T05:15:52Z
 ---
 
 ## Instruction (maintainer, 2026-11-27)
@@ -74,3 +74,17 @@ PR #367 merged into `main` as `6e6cec045e968f8008a5aeeadc858486049c3f5d`. Agains
 - Code adds no docstrings and no comments (0 added lines of `"""` or `#`), so nothing for bean 0153.
 
 Bean stays `in-progress` until bean 0597 delivers the real PR body and a plan-record fixture.
+
+## Resolution
+
+Delivered via [PR #377](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/377) (`c51be37b`, merged
+`2026-11-27T05:08:05Z`, completing follow-up bean `0597` on top of PR `#367`):
+
+- **Key Architectural Deliverables**: `apps/sandbox-executor/src/sandbox_executor/flow/github/pr_metadata.py` ignores
+  placeholder strings when resolving plan payload -> runner -> intent, and
+  `apps/sandbox-executor/src/sandbox_executor/flow/review/ensemble.py` (`_planning_runner`) supplies the planning runner
+  on every PR create and edit write. Live flow PRs (`#377` and `#378`+) now show `Agent: claude-agent` and
+  `Model: claude-opus-5-5` in GitHub PR bodies.
+- **Verification & Tests**: `apps/sandbox-executor/tests/test_pr_body_real_agent_model.py` tests the PR body path using
+  a real plan file loaded via `plan_metrics` / `plan_stage_payload` (`uv run task test` 9552 passed, 7 skipped;
+  `uv run task lint` passed in `E-1795742362-CLA-CO5.5`). Worktree `flow-pr-body-real-agent-model` pruned.
