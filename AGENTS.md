@@ -65,7 +65,12 @@ These apply to every task. Each links to the file that holds the full rule.
   audit entries, checkpoints) comes from `date -u +%Y-%m-%dT%H:%M:%SZ` (or `datetime.now(timezone.utc)`) at write time;
   never typed, estimated, rounded, copied from another record or written as local time labelled `Z`.
   `.agents/scripts/check_beans.py` and `check_failure_ledger.py` reject future, malformed, misordered or post-commit
-  values at commit and in CI. See [rules.md](.agents/rules.md).
+  values at commit and in CI. Never type a timestamp: run `uv run python .agents/scripts/stamp.py` (`now`,
+  `touch <bean-id>`, `created <bean-id>`, `ledger-append <category> ...`). See [rules.md](.agents/rules.md).
+- **Single commit and bean-id path** (harness branch): commit only through
+  `uv run python .agents/scripts/harness_commit.py "<message>" <paths...>` (lock, empty index, prettier, staged-blob
+  validation, commit, push) and create beans only through `uv run python .agents/scripts/new_bean.py "<title>"`; never
+  `git add`/`git commit` by hand on the shared branch. See [workflows.md](.agents/workflows.md).
 - **Format before commit**: `npx prettier --write "**/*.md"` in the harness; only changed files in a target worktree.
 - **Subagents** follow [subagents.md](.agents/subagents.md) and the model tiers in
   [model-tiers.md](.agents/model-tiers.md); post-merge steps run through the `post-pr-merge` skill.
