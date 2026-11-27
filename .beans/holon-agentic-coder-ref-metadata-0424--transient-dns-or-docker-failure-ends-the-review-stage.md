@@ -10,7 +10,7 @@ tags:
   - reliability
   - holon-agentic-coder
 created_at: 2026-11-24T12:58:00Z
-updated_at: 2026-11-27T11:38:21Z
+updated_at: 2026-11-27T12:31:09Z
 ---
 
 ## Problem
@@ -76,3 +76,6 @@ Both wrappers relaunched within 50 seconds, so the network was back at once. The
 
 - Started slice 1 (`review-posting-transient-retry`) to classify transient infrastructure errors and retry
   `post_review_consensus` in place with backoff without touching `flow/review/loop.py` or `tests/flow/`.
+- parked 2026-11-27: halted Stage 3 after 2 re-plans on omitted `flow/lazy_exports_review.py` and
+  `tests/test_review_loop.py` (`CF-0064`); expanded intent scope upfront and queued behind Bean `0607` on
+  `lazy_exports_review.py`.
