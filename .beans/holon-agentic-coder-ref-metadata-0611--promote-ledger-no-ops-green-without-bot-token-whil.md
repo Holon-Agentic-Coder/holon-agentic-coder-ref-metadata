@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0611
 title: "Promote Ledger no-ops green without bot token while 252 pending fragments pile up"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - ledger
   - holon-agentic-coder
 created_at: 2026-11-27T05:18:43Z
-updated_at: 2026-11-27T08:03:32Z
+updated_at: 2026-11-27T08:22:49Z
 ---
 
 ## Notes
@@ -39,5 +39,16 @@ updated_at: 2026-11-27T08:03:32Z
 - Stops 75% (`15/20`) cancelled workflow churn during merge bursts and drains the `252`-file pending ledger backlog on
   `main` so canonical ledgers stay current.
 - Cost: tiny workflow edit + secret configuration (or threshold alert).
+
+## Acceptance Criteria
+
+- `.github/workflows/promote-ledger.yml` avoids per-merge cancelled run storms by removing the unguarded `on.push`
+  trigger (relying on periodic `schedule` + `workflow_dispatch`, or `paths: ['holon-knowledge/ledger/pending/**']` with
+  debounced cadence).
+- When `HOLON_LEDGER_BOT_TOKEN` is absent, `.github/workflows/promote-ledger.yml` checks out the pending directory count
+  (or emits an explicit `::warning::` naming the pending fragment backlog and action required rather than a silent
+  `::notice::` green no-op).
+- Unit tests in `apps/sandbox-executor/tests/test_promote_ledger_workflow.py` assert the workflow triggers, non-silent
+  warning behavior, and self-explaining YAML compliance via `uv run pytest`, and `uv run task lint` passes cleanly.
 
 ## Resolution
