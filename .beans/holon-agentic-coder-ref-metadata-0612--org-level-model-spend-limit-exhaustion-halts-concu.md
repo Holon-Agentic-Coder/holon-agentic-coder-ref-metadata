@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0612
 title: "Org-level model spend-limit exhaustion halts concurrent flows and retries dead provider"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - model-tiers
   - holon-agentic-coder
 created_at: 2026-11-27T05:18:43Z
-updated_at: 2026-11-27T05:18:43Z
+updated_at: 2026-11-27T21:18:45Z
 ---
 
 ## Notes
@@ -40,5 +40,23 @@ updated_at: 2026-11-27T05:18:43Z
 - Prevents cascading Stage 4 halts across all 8 concurrent slots and saves ~2–5 min of wasted preflight/reviewer
   container turns per halted flow.
 - Cost: small shared cooldown file read/write in preflight/wrapper + `slot_keeper.py` default check.
+
+## Acceptance Criteria
+
+- [ ] A shared host-level provider cooldown marker (under `~/.holon/` with reset/TTL timestamp) is recorded when
+      preflight fails with org spend-limit or quota exhaustion, so concurrent launches and checkpoint resumes fail fast
+      without re-probing the exhausted provider while its cooldown is active.
+- [ ] Hermetic unit tests in `tests/test_preflight.py`, `tests/test_preflight_outage.py`, and
+      `tests/test_preflight_retries.py` verify cooldown marker write, expiry, and fast-fail behaviour under
+      `uv run pytest` and `uv run task lint`.
+- [ ] Ensure `slot_keeper.py` and queued intents default to the configured coding runner/model (`antigravity-agent` /
+      `gemini-4-neon`) unless explicitly overridden.
+
+## Flow
+
+- **Slice 1 (`hac-provider-cooldown`):** Launched `todo/intent-0612-hac-provider-cooldown.json`
+  (`todo/intent-coverage-0612.json`) covering `cli/preflight.py`, `preflight.py`, `preflight_outage.py`, new
+  `preflight_cooldown.py`, and `tests/test_preflight*.py` for the target-repo cooldown marker. AC #3
+  (`.agents/scripts/slot_keeper.py`) is harness-side and deferred (`todo/intent-coverage-0612.json`).
 
 ## Resolution
