@@ -21,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from flow_env import AuthRouteMissing, build_flow_env  # noqa: E402
 from flow_gates import budget_change_refusal, forbidden_flag_refusal  # noqa: E402
+from intent_coverage import coverage_refusal  # noqa: E402
 
 # Terminal formatting
 COLOR_BOLD = "\033[1m"
@@ -592,6 +593,7 @@ def run_flow(
     wait_on_overlap: bool = True,
     overlap_poll_seconds: int = OVERLAP_POLL_SECONDS,
     outcome: dict | None = None,
+    bean: str | None = None,
 ) -> int:
     """Run holon flow with optional automatic fallback ladder on quota errors."""
     flag_refusal = forbidden_flag_refusal(
@@ -623,6 +625,20 @@ def run_flow(
     if budget_refusal:
         log_error(budget_refusal)
         return 2
+
+    resuming = checkpoint is not None or from_stage is not None
+    if resuming:
+        log_info("Resuming from a checkpoint; the bean intent-coverage check is skipped.")
+    elif bean is None:
+        log_warn(
+            "No --bean given: the intent is NOT checked against a bean's acceptance items. Pass --bean NNNN on every "
+            "launch; it will become mandatory."
+        )
+    else:
+        coverage = coverage_refusal(intent_data, bean)
+        if coverage:
+            log_error(coverage)
+            return 2
 
     if modified:
         temp_intent_path = intent_path.parent / f"intent-modified-{slug}.json"
@@ -908,6 +924,11 @@ def main() -> None:
         action="store_true",
         help="Admit Stage 3 even when the plan's touch set overlaps a flow in flight or is undeclared.",
     )
+    parser.add_argument(
+        "--bean",
+        type=str,
+        help="Bean id whose acceptance items the intent must cover (never written into the intent).",
+    )
     parser.add_argument("--skip-review", action="store_true", help="Always refused; never allowed.")
     parser.add_argument(
         "--skip-preflight", action="store_true", help="Refused unless the maintainer authorisation is present."
@@ -950,6 +971,7 @@ def main() -> None:
         wait_on_overlap=not args.no_wait_on_overlap,
         overlap_poll_seconds=args.overlap_poll_seconds,
         outcome=outcome,
+        bean=args.bean,
     )
     if not args.dry_run:
         slug = parse_intent_file(args.intent)["slug"]

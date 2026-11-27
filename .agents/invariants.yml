@@ -167,6 +167,19 @@ invariants:
     runs_at:
       - "on-demand"
     checks: []
+  - id: "intent-covers-bean-acceptance"
+    agents_rules: []
+    status: "partial"
+    open_beans:
+      - "0589"
+    runs_at:
+      - "flow-gate"
+    checks:
+      - "script:.agents/skills/holon_flow/scripts/intent_coverage.py"
+      - "test:tests/test_intent_coverage.py::test_bean_0574_missing_second_goal_copy_is_refused_and_complete_passes"
+      - "test:tests/test_intent_coverage.py::test_bean_0570_missing_ci_read_is_refused_and_complete_passes"
+      - "test:tests/test_intent_coverage.py::test_bean_0558_missing_summary_calibration_and_pre_push_is_refused_and_complete_passes"
+      - "test:tests/test_intent_coverage.py::test_run_flow_refuses_an_uncovered_bean_with_exit_2"
   - id: "intent-scope-lists-files-only"
     agents_rules: []
     status: "partial"

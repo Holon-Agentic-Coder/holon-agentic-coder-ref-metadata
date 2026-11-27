@@ -162,10 +162,19 @@ Or using the automated companion orchestrator:
 
 ```bash
 python3 .agents/skills/holon_flow/scripts/run_holon_flow.py <intent_path> \
+  --bean <NNNN> \
   --target-worktree <target_worktree> \
   --agent <agent> \
   --model <model>
 ```
+
+Always pass `--bean <NNNN>` on a fresh launch. `scripts/intent_coverage.py` extracts the bean's Acceptance, Check,
+Common acceptance, Gaps to close and Next step items and requires each to be covered by an intent `acceptance_criteria`
+item (normalised fuzzy match, code spans verbatim) or mapped in `todo/intent-coverage-<NNNN>.json`
+(`{bean_item: intent_item}`, the intent item must exist verbatim). An uncovered item exits 2 and lists it; fix the
+intent or the mapping, never bypass. The bean id stays on the command line and is never written into the intent. A
+launch without `--bean` logs a loud warning (it becomes mandatory); a resume from `--checkpoint` or `--from-stage` skips
+the check.
 
 #### Claude credentials are built in
 

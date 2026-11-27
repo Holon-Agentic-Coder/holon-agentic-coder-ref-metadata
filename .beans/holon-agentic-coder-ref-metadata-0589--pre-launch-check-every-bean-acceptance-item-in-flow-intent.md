@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0589
 title: "Pre-launch check: every bean acceptance item appears in the flow intent"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - invariants
   - holon-flow
 created_at: 2026-11-27T00:34:53Z
-updated_at: 2026-11-27T00:34:53Z
+updated_at: 2026-11-27T00:36:58Z
 ---
 
 ## Evidence
@@ -91,3 +91,13 @@ and pass on the complete intent.
 - Ledger rows: CF-0025 (intent-scope, PR #361) and CF-0029 (intent-scope, PR #364). Preventive rule in both: every
   acceptance item of a bean is mapped verbatim to the intent before launch, and any unmapped item blocks the launch.
 - Bean 0570's CI gap is tracked there; this bean covers only the launch-side check.
+
+## Progress (2026-11-27T00:36:58Z)
+
+Delivered: `.agents/skills/holon_flow/scripts/intent_coverage.py`, wired into `run_holon_flow.py` (`--bean NNNN`, exit 2
+listing unmatched items, skipped on resume, loud warning when absent), mapping file `todo/intent-coverage-<bean>.json`
+read, `tests/test_intent_coverage.py` (fixtures for 0574, 0570, 0558 with refusal and passing cases), SKILL.md launch
+command, registry entry `intent-covers-bean-acceptance` (partial).
+
+Remaining: make `--bean` mandatory; launcher auto-writing the mapping file; `post-pr-merge` re-check against the merged
+diff; brief-builder call (bean 0580).
