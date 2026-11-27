@@ -10,7 +10,7 @@ tags:
   - invariants
   - holon-flow
 created_at: 2026-11-27T00:34:53Z
-updated_at: 2026-11-27T00:36:58Z
+updated_at: 2026-11-27T00:38:30Z
 ---
 
 ## Evidence
@@ -101,3 +101,8 @@ command, registry entry `intent-covers-bean-acceptance` (partial).
 
 Remaining: make `--bean` mandatory; launcher auto-writing the mapping file; `post-pr-merge` re-check against the merged
 diff; brief-builder call (bean 0580).
+
+## Superseded in part by holon-agentic-coder-ref-metadata-0590
+
+The intent-generation bean 0590 makes this check's coverage component part of the generator. The launch-side check here
+stays until 0590 lands.

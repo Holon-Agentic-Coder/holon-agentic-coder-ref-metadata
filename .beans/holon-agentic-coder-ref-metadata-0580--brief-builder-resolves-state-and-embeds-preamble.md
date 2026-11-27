@@ -9,7 +9,7 @@ tags:
   - coordination
   - subagents
 created_at: 2026-11-26T23:51:36Z
-updated_at: 2026-11-26T23:51:36Z
+updated_at: 2026-11-27T00:38:30Z
 ---
 
 ## Evidence (coordinator failure ledger, repeated categories)
@@ -32,3 +32,8 @@ updated_at: 2026-11-26T23:51:36Z
 ## Expected gain
 
 Removes the largest recurring failure category by construction. Cost: one script, tests, skill text.
+
+## Superseded in part by holon-agentic-coder-ref-metadata-0590
+
+The intent half of this bean (the brief must carry intent state) is covered by bean 0590: the slot keeper and launchers
+call `--bean` only. The brief-state half stays here.
