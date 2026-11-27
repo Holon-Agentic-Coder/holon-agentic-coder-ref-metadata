@@ -9,7 +9,7 @@ tags:
   - hygiene
   - module-budgets
 created_at: 2026-11-27T15:53:29Z
-updated_at: 2026-11-27T16:58:55Z
+updated_at: 2026-11-27T17:21:12Z
 ---
 
 ## Notes
@@ -43,17 +43,26 @@ updated_at: 2026-11-27T16:58:55Z
 
 ## Acceptance Criteria
 
-- [ ] `scripts/check_module_budgets.py` fails immediately if `holon-config/hygiene/module_budgets.json` names a
+- [x] `scripts/check_module_budgets.py` fails immediately if `holon-config/hygiene/module_budgets.json` names a
       missing/deleted path and flags stale overrides at or below `default_max_lines`.
 - [ ] Stale overrides for `src/holon_coherence/proxy/dashboard.py` and `src/holon_coherence/metrics/aggregation.py` are
       pruned from `holon-config/hygiene/module_budgets.json` under maintainer authorisation.
-- [ ] `uv run pytest` and `uv run task lint` pass with zero docstrings or comments.
+- [x] `uv run pytest` and `uv run task lint` pass with zero docstrings or comments.
 
 ## Flow
 
 - **Slice 1 (`2026-11-27`, `coherence-budget-missing-fail`):** Covers AC #1 and AC #3 in
   `scripts/check_module_budgets.py` and `tests/test_module_budgets.py` (failing on missing/deleted overrides, flagging
-  stale overrides, adding `--fail-on-stale-overrides`). AC #2 (`module_budgets.json` pruning for `dashboard.py` and
-  `metrics/aggregation.py`) is deferred to Slice 2 (`todo/intent-coverage-0637.json`).
+  stale overrides, adding `--fail-on-stale-overrides`). Completed all 5 stages on `antigravity-agent` / `gemini-4-neon`:
+  - PR: [Holon-Agentic-Coder/holon-coherence#90](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/90)
+    (`MERGEABLE`, `CLEAN`, 10/10 CI checks passing)
+  - Branch: `I-1795798809-coherence-budget-missing-fail/P-1795798834-ANA-G4N/E-1795798979-ANA-G4N/_`
+  - Worktree: `apps/holon-coherence/flow-coherence-budget-missing-fail`
+  - Checkpoint:
+    `apps/holon-coherence/flow-coherence-budget-missing-fail/.holon/flow/checkpoint-coherence-budget-missing-fail.json`
+  - Calibration: `plans/I-1795798809-coherence-budget-missing-fail/P-1795798834-ANA-G4N_calibration.md` (EV predicted
+    `-0.661`, actual `0.36`, delta `+1.02`)
+  - Awaiting human maintainer merge; AC #2 (`module_budgets.json` pruning for `dashboard.py` and
+    `metrics/aggregation.py`) remains deferred to Slice 2 (`todo/intent-coverage-0637.json`).
 
 ## Resolution
