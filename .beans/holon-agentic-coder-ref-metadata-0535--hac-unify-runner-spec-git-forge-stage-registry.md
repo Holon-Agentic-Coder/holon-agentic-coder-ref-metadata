@@ -9,7 +9,7 @@ tags:
   - extensibility
   - architecture
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T18:02:09Z
+updated_at: 2026-11-27T21:45:28Z
 ---
 
 ## Problem
