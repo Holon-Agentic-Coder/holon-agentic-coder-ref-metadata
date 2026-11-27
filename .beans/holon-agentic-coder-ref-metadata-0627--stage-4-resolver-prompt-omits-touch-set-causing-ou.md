@@ -10,7 +10,7 @@ tags:
   - resolver
   - holon-agentic-coder
 created_at: 2026-11-27T11:52:42Z
-updated_at: 2026-11-27T16:55:44Z
+updated_at: 2026-11-27T17:39:49Z
 ---
 
 ## Notes
@@ -67,5 +67,19 @@ updated_at: 2026-11-27T16:55:44Z
 - **Launched (`2026-11-27`, `stage4-resolver-touch-set`):** Propagates optional `touch_set` from
   `flow/review/resolver.py` to `entrypoint/review_loop.py` prompt and pre-commit guard with unit tests in
   `tests/flow/review/test_resolver_touch_set.py` (`todo/intent-0627-stage4-resolver-touch-set.json`).
+- **Completed (`2026-11-27T17:39:05Z`, `antigravity-agent` / `gemini-4-neon`):**
+  - PR: https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/437 (`OPEN`, `MERGEABLE`, `CLEAN`, awaiting
+    human maintainer merge)
+  - Branch: `I-1795798629-stage4-resolver-touch-set/P-1795798652-ANA-G4N/E-1795798908-ANA-G4N/_`
+  - Worktree: `apps/holon-agentic-coder/flow-stage4-resolver-touch-set`
+  - Checkpoint:
+    `apps/holon-agentic-coder/flow-stage4-resolver-touch-set/.holon/flow/checkpoint-stage4-resolver-touch-set.json`
+  - Review: 3/3 `APPROVED` at iteration 2 (1 full, 1 scoped); CI `16/16` passed on final head `a386121`.
+  - Calibration: `plans/I-1795798629-stage4-resolver-touch-set/P-1795798652-ANA-G4N_calibration.md` included in PR diff
+    (Predicted EV `56.64`, Actual EV `74.64`, ΔEV `+18.00`).
+  - Changed code/tests: `apps/sandbox-executor/src/sandbox_executor/flow/review/resolver.py`,
+    `apps/sandbox-executor/src/sandbox_executor/entrypoint/review_loop.py`,
+    `apps/sandbox-executor/tests/flow/review/test_resolver_touch_set.py` (`flow/lazy_exports_review.py`,
+    `flow/review/loop.py`, and `holon-config/hygiene/module_budgets.json` untouched).
 
 ## Resolution
