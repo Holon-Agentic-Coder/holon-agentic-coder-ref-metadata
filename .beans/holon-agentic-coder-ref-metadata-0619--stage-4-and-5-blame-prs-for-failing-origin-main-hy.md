@@ -9,7 +9,7 @@ tags:
   - ci
   - holon-agentic-coder
 created_at: 2026-11-27T07:49:17Z
-updated_at: 2026-11-27T08:16:07Z
+updated_at: 2026-11-27T16:18:16Z
 ---
 
 ## Notes
@@ -47,6 +47,9 @@ updated_at: 2026-11-27T08:16:07Z
 - Eliminates cascading `8+` churn iterations, withdrawn approvals (`#408`), Stage 4 halts (`#410`), and redundant
   out-of-scope edits across unrelated PRs whenever a broken commit lands on `main`.
 - Cost: small `origin/main` CI-status lookup in target sync / `ci_routing` + unit tests.
+- parked 2026-11-27 (`stage4-main-baseline-guard`): halted in Stage 3 after 2 re-plans on omitted
+  `flow/lazy_exports_review.py` (`CF-0067`); expanded intent scope upfront to all 11 modules and queued behind Bean
+  `0607` (`lazy_exports_review.py`) and Bean `0535` (`flow/review/loop.py`).
 
 ## Acceptance Criteria
 
