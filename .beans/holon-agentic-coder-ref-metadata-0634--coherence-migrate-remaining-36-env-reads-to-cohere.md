@@ -10,7 +10,7 @@ tags:
   - resilience
   - refactor
 created_at: 2026-11-27T12:12:09Z
-updated_at: 2026-11-27T17:31:42Z
+updated_at: 2026-11-27T17:45:05Z
 ---
 
 ## Notes
@@ -70,5 +70,11 @@ updated_at: 2026-11-27T17:31:42Z
   EV `-1.06`, actual EV `0.19`, delta `+1.25`), `MERGEABLE`/`CLEAN`, 10/10 CI checks green, awaiting human merge.
   Remaining `commands/*`, `host_local.py`, `container/lifecycle.py`, and wire-log disk retention are deferred to Slice 2
   (`todo/intent-coverage-0634.json`).
+- **Slice 2 (`2026-11-27`, `coherence-commands-settings`):** Migrates `HOLON_PROXY_PORT`, `HOLON_LOCAL_LLM_BASE`, and
+  `HOLON_COHERENCE_WEB` in `commands/agents.py` and `commands/start.py` through `CoherenceSettings.from_env()` without
+  modifying `settings.py`, verified in `tests/commands/test_agents.py`, `tests/commands/test_start.py`, and
+  `tests/commands/test_start_web.py` (`todo/intent-0634-coherence-commands-settings.json`). Remaining `commands/ca.py`,
+  `commands/metrics.py`, `host_local.py`, `container/lifecycle.py`, and wire-log disk retention stay deferred until open
+  PRs `#91` and `#87` merge.
 
 ## Resolution

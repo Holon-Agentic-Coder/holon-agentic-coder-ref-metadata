@@ -10,7 +10,7 @@ tags:
   - complexity
   - refactor
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T17:24:08Z
+updated_at: 2026-11-27T17:45:05Z
 ---
 
 ## Problem
@@ -69,3 +69,6 @@ Bidirectional import cycles link `flow` ↔ `entrypoint` (11 imports each way) a
   `tests/test_ledger_knowledge_acyclic.py` (`todo/intent-0531-hac-ledger-knowledge-cycle.json`,
   `todo/intent-coverage-0531.json`). Remaining cycles (`flow <-> entrypoint`, `flow/github -> launcher`), pure
   `FlowContext`, and hotspot decompositions are deferred to subsequent slices.
+- **Slice 2 (`2026-11-27`, `hac-turns-run-turn-decompose`):** Decomposes `turns.py:run_turn` into cohesive helpers
+  backed by a typed config/request dataclass while preserving 100% backward-compatible kwargs, verified in
+  `tests/test_turns.py` and `tests/test_turn_supervisor.py` (`todo/intent-0531-hac-turns-run-turn-decompose.json`).
