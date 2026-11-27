@@ -11,7 +11,7 @@ tags:
   - refactoring
   - holon-agentic-coder
 created_at: 2026-11-26T06:30:00Z
-updated_at: 2026-11-27T01:07:43Z
+updated_at: 2026-11-27T01:47:35Z
 blocked_by:
   - "0380"
 ---
@@ -164,3 +164,7 @@ set.
   1-3 (engine still looping to iteration 4 of 25). Finding: default 350 unmet because scripts/ci_bookkeeping_api.py (383
   lines) is not in the intent scope; resolver rejects it as out of scope. Needs an intent scope change (add that file)
   before a rerun.
+- 2026-11-27 halted for human intervention at Stage 4 (review restart 1 of 3, iterations 1-6 CHANGES_REQUESTED, PR #365
+  OPEN, not approved). Review stage failed at target sync: worktree had uncommitted tracked changes; remote branch
+  diverged (origin has a merge of main plus ledger commits). Not rerun: scripts/ci_bookkeeping_api.py must join the
+  intent scope first, then resolve-conflict and rerun from review.
