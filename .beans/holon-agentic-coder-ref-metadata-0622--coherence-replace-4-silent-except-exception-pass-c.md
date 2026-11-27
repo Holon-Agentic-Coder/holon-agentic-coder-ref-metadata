@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0622
 title: "Coherence: replace 4 silent except-Exception-pass catches and ratchet broad catches"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - error-handling
   - ci
 created_at: 2026-11-27T08:03:26Z
-updated_at: 2026-11-27T10:56:02Z
+updated_at: 2026-11-27T11:50:10Z
 ---
 
 ## Notes
@@ -39,3 +39,15 @@ updated_at: 2026-11-27T10:56:02Z
 - CI fails if unratcheted `except Exception` catches are added outside explicit proxy/CLI boundary handlers.
 
 ## Resolution
+
+Delivered via [PR #79](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/79) and merged into `main`
+(`0491b550`):
+
+- **Key Architectural Deliverables**: Replaced remaining silent `except Exception: pass` blocks in
+  `src/holon_coherence/commands/ca.py`, `src/holon_coherence/commands/docker_ops.py`, and
+  `src/holon_coherence/proxy/wire_log.py` with narrowed exception types and explicit logging, and added an AST CI
+  ratchet in `tests/test_broad_except_ratchet.py` capping `except Exception` counts per module.
+- **Verification & Tests**: Updated and added unit tests in `tests/commands/test_ca.py`,
+  `tests/commands/test_docker_ops.py`, `tests/proxy/test_wire_log.py`, and `tests/test_broad_except_ratchet.py`.
+- **Holon Flow Traversal**: Completed all 5 stages (`I-1795776812-coherence-broad-except-ratchet`,
+  `P-1795776834-ANA-G4N`, `E-1795777008-ANA-G4N`, Stage 4 consensus review, Stage 5 calibration).

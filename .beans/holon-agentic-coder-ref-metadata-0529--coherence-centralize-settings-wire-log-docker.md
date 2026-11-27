@@ -10,7 +10,7 @@ tags:
   - resilience
   - packaging
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T10:50:08Z
+updated_at: 2026-11-27T11:50:10Z
 ---
 
 ## Problem
@@ -63,3 +63,8 @@ resolution and dependency installation diverge from `uv.lock` and wheel packagin
   (`coherence-ca-logging-and-image`, merge commit `52019174`) merged into `main`, surfacing CA setup logging and
   resolving container/image assets cleanly. Bean remains `in-progress` for remaining slices
   (`CoherenceSettings.from_env()`).
+- Progress (`2026-11-27`): [PR #81](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/81)
+  (`coherence-settings-from-env`, merge commit `ffb48044`) merged into `main`, introducing frozen typed
+  `CoherenceSettings.from_env()` in `src/holon_coherence/settings.py` (with tests in `tests/test_settings.py`) and
+  routing `commands/runner.py`, `commands/web_token.py`, and `ringer_orchestrator.py` through it. Bean remains
+  `in-progress` for the remaining `coherence-dockerfile-packaging` slice.

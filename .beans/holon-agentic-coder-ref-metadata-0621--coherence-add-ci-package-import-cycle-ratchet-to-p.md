@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0621
 title: "Coherence: add CI package import-cycle ratchet to prevent new layer cycles"
-status: in-progress
+status: completed
 type: task
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - architecture
   - ci
 created_at: 2026-11-27T08:03:26Z
-updated_at: 2026-11-27T08:30:40Z
+updated_at: 2026-11-27T11:50:10Z
 ---
 
 ## Notes
@@ -34,3 +34,14 @@ updated_at: 2026-11-27T08:30:40Z
   cycles passes cleanly and lowers the ratchet baseline.
 
 ## Resolution
+
+Delivered via [PR #76](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/76) and merged into `main`
+(`1bf07f6b`):
+
+- **Key Architectural Deliverables**: Added an AST-based package import-cycle ratchet test in
+  `tests/test_import_cycle_ratchet.py` scanning `src/holon_coherence/` top-level subpackages and locking baseline cycle
+  pair edge counts so regressions fail CI while cycle reductions pass cleanly.
+- **Verification & Tests**: Added synthetic AST unit tests in `tests/test_import_cycle_ratchet.py` verifying cycle
+  regressions fail and improvements pass.
+- **Holon Flow Traversal**: Completed all 5 stages (`I-1795768569-coherence-import-cycle-ratchet`,
+  `P-1795768592-ANA-G4N`, `E-1795776797-ANA-G4N`, Stage 4 consensus review, Stage 5 calibration).

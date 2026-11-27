@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0623
 title: "Coherence: allow shrinking files in test_module_budgets and test_complexity_baseline under frozen config"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - hygiene
   - tests
 created_at: 2026-11-27T08:29:46Z
-updated_at: 2026-11-27T08:30:40Z
+updated_at: 2026-11-27T11:50:10Z
 ---
 
 ## Problem
@@ -39,3 +39,17 @@ halted at Stage 3/4 in a ratchet-test deadlock:
   zero docstrings/comments, and `holon-config/hygiene/module_budgets.json` is untouched.
 
 ## Resolution
+
+Delivered via [PR #77](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/77) and merged into `main`
+(`bfdb1fd7`):
+
+- **Key Architectural Deliverables**: Updated `test_live_repository_passes_module_budgets` in
+  `tests/test_module_budgets.py` to assert `main(...) == 0` and `captured.err == ""` without failing on informational
+  `Ratchet notice:` stdout lines, and updated `test_complexity_baseline_ratchet_ceiling` in
+  `tests/test_complexity_baseline.py` to enforce `total_count <= BASELINE_CEILING` while leaving
+  `holon-config/hygiene/module_budgets.json` untouched.
+- **Verification & Tests**: Added unit tests in `tests/test_module_budgets.py` and `tests/test_complexity_baseline.py`
+  proving shrinking overridden modules and reducing inline `# noqa` suppressions below ceiling pass while regressions
+  fail.
+- **Holon Flow Traversal**: Completed all 5 stages (`I-1795768590-coherence-ratchet-test-deadlock`,
+  `P-1795768613-ANA-G4N`, `E-1795776793-ANA-G4N`, Stage 4 consensus review, Stage 5 calibration).
