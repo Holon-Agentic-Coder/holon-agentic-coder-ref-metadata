@@ -10,7 +10,7 @@ tags:
   - resilience
   - refactor
 created_at: 2026-11-27T12:12:09Z
-updated_at: 2026-11-27T17:06:29Z
+updated_at: 2026-11-27T17:31:42Z
 ---
 
 ## Notes
@@ -61,7 +61,14 @@ updated_at: 2026-11-27T17:06:29Z
   `proxy/steps/serve_dashboard.py`, `proxy/steps/route_local_target.py`) through `CoherenceSettings.from_env()` in
   `settings.py`, tested in `tests/test_settings.py`, `tests/proxy/test_wire_log.py`, `tests/proxy/test_steps.py`, and
   `tests/test_mitm_addon.py` (closed halted PR #89 after Stage 4 `touch_set_violation` on `tests/proxy/test_steps.py`
-  and re-cut cleanly with expanded scope per `CF-0074`). Remaining `commands/*`, `host_local.py`,
-  `container/lifecycle.py`, and wire-log disk retention are deferred to Slice 2 (`todo/intent-coverage-0634.json`).
+  and re-cut cleanly with expanded scope per `CF-0074`). Completed all 5 stages via `antigravity-agent`/`gemini-4-neon`
+  in `apps/holon-coherence/flow-coherence-proxy-settings-env`
+  (`.holon/flow/checkpoint-coherence-proxy-settings-env.json`):
+  [PR #91](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/91)
+  (`I-1795799285-coherence-proxy-settings-env/P-1795799308-ANA-G4N/E-1795799527-ANA-G4N/_`), consensus approved,
+  calibration included (`plans/I-1795799285-coherence-proxy-settings-env/P-1795799308-ANA-G4N_calibration.md`, predicted
+  EV `-1.06`, actual EV `0.19`, delta `+1.25`), `MERGEABLE`/`CLEAN`, 10/10 CI checks green, awaiting human merge.
+  Remaining `commands/*`, `host_local.py`, `container/lifecycle.py`, and wire-log disk retention are deferred to Slice 2
+  (`todo/intent-coverage-0634.json`).
 
 ## Resolution
