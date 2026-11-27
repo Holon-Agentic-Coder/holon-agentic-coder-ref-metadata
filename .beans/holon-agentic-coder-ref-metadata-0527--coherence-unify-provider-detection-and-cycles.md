@@ -10,7 +10,7 @@ tags:
   - extensibility
   - refactor
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-26T13:35:00Z
+updated_at: 2026-11-27T05:26:34Z
 ---
 
 ## Problem
@@ -32,6 +32,8 @@ multiple modules, while circular imports connect `parsers/` ↔ `providers/` and
 - Import cycles: `parsers/tokens.py:84` and `parsers/sse.py:58,64` deferred-import `providers.get_provider`;
   `commands/docker_ops.py:24-25,122` ↔ `commands/endpoints.py:6-10`; sibling imports from `providers/anthropic.py` in
   `providers/openai.py:11` and `providers/gemini.py:11`.
+- Newly surfaced AST cycle (`c26a0c1` audit): `payload_cleaner(2) <-> providers(4)` bidirectional package cycle
+  (`src/holon_coherence/payload_cleaner.py` ↔ `src/holon_coherence/providers/`).
 - Duplicate `in_container` helper in `src/holon_coherence/host_local.py:218-219` and
   `src/holon_coherence/container/lifecycle.py:153-154`.
 
@@ -42,14 +44,15 @@ multiple modules, while circular imports connect `parsers/` ↔ `providers/` and
 2. Add a `matches(url, payload)` (and capability/header hooks) seam to `ProviderFormat` so `detect_provider` delegates
    to a single registry-ordered lookup and `KNOWN_PROVIDERS` is derived dynamically from the registry (covering
    `ollama`/`vllm`).
-3. Break both import cycles (`parsers/` ↔ `providers/` and `commands/docker_ops.py` ↔ `commands/endpoints.py`) and add
-   an acyclic-import boundary test.
+3. Break all import cycles (`parsers/` ↔ `providers/`, `payload_cleaner` ↔ `providers/`, and `commands/docker_ops.py` ↔
+   `commands/endpoints.py`) and add an acyclic-import boundary test.
 4. Consolidate `in_container` into a single shared helper.
 
 ## Acceptance Criteria
 
 - Exactly one provider-detection code path exists across `proxy/addon.py` and `providers/`.
-- Zero circular imports remain between `parsers/`, `providers/`, and `commands/` (verified by an automated import test).
+- Zero circular imports remain between `parsers/`, `payload_cleaner`, `providers/`, and `commands/` (verified by an
+  automated import test).
 - Registering a new provider via `register_provider()` requires no core `Literal` or string `if/elif` edits.
 
 ## Notes
