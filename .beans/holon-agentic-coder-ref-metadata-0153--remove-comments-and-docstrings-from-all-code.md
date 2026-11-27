@@ -13,7 +13,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-10-25T07:42:56Z
-updated_at: 2026-11-27T05:16:06Z
+updated_at: 2026-11-27T07:30:39Z
 ---
 
 ## Problem
@@ -557,11 +557,11 @@ Slice `self-doc-src-i` (10 sandbox-executor flow modules plus `tests/test_self_d
 > and test slices, shell/Makefile/Dockerfile/CI files, the holon-coherence sweep and the zero-findings checker on
 > `main`; the bean stays `in-progress`.
 
-> 2026-11-27: `apps/sandbox-executor` flow slice `self-doc-src-j` (10 modules under `flow/` plus
-> `tests/test_self_doc_src_j.py`) delivered via
-> [PR #399](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/399) and merged into `main` (`10088fa1`).
-> Counts on those 10 source files (ast/tokenize, `# why:` and directives allowed): before 72 docstrings (190 lines) and
-> 7 other comments; after 0 and 0. The slice test file (32 tests) passes on the identical slice files. Bean stays
+> 2026-11-27: PR [#403](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/403) (`self-doc-tests-46`, merge
+> commit `a087fda4d451e61d5f3c8d62a351bdd62c69737bd`) merged into `main`. Cleaned up comments and docstrings in tests
+> and split `wisdom.py` into `wisdom_store.py`. `apps/holon-agentic-coder/main` fast-forwarded, `holon` images and CLI
+> rebuilt/reinstalled via `install_holon.py`. Bean stays `in-progress` while remaining PRs (#406, #407, #408, #409) are
+> open. 7 other comments; after 0 and 0. The slice test file (32 tests) passes on the identical slice files. Bean stays
 > in-progress: the rest of the sandbox-executor `src` and tests, shell/Make/CI/Dockerfile files, and the lint gate
 > remain.
 
