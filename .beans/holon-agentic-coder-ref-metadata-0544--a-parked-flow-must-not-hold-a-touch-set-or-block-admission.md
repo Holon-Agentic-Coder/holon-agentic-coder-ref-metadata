@@ -10,7 +10,7 @@ tags:
   - stage-3
   - holon-agentic-coder
 created_at: 2026-11-26T21:10:00Z
-updated_at: 2026-11-27T20:56:57Z
+updated_at: 2026-11-27T22:11:36Z
 ---
 
 ## Problem
@@ -65,5 +65,14 @@ with them.
 
 ## Flow
 
-- **Slice 1 (`parked-flow-no-touch-set`):** Launched `todo/intent-0544-parked-flow-no-touch-set.json` covering
-  `flow/admission*.py` and `tests/flow/test_admission*.py` so parked idle flows release their touch sets cleanly.
+- **Slice 1 (`parked-flow-no-touch-set`):** Completed all 5 stages via `todo/intent-0544-parked-flow-no-touch-set.json`
+  (`antigravity-agent` / `gemini-4-neon`).
+  - **PR:** https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/447
+  - **Branch:** `I-1795813121-parked-flow-no-touch-set/P-1795813160-ANA-G4N/E-1795813552-ANA-G4N/_`
+  - **Worktree:** `apps/holon-agentic-coder/flow-parked-flow-no-touch-set`
+  - **Checkpoint:**
+    `apps/holon-agentic-coder/flow-parked-flow-no-touch-set/.holon/flow/checkpoint-parked-flow-no-touch-set.json`
+  - **Consensus:** `APPROVED` (mergeable: `MERGEABLE`, state: `CLEAN`)
+  - **CI:** `success` (16 passed, 0 failed)
+  - **Calibration:** Predicted EV `61.58`, Actual EV `74.83`, `ΔEV: +13.25`
+    (`plans/I-1795813121-parked-flow-no-touch-set/P-1795813160-ANA-G4N_calibration.md`, included in PR diff)
