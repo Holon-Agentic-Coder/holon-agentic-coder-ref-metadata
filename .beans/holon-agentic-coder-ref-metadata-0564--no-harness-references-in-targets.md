@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-11-26T23:09:56Z
-updated_at: 2026-11-27T00:57:36Z
+updated_at: 2026-11-27T05:20:22Z
 ---
 
 ## Instruction (maintainer, 2026-11-27 local)
@@ -53,3 +53,5 @@ Nothing in a target repository (code, docs, ledgers, KB, PR bodies) and no inten
   - Remaining: holon-coherence has no equivalent check (not delivered); no pre-commit hook; the `slug` and
     `target_branch` intent fields are not scanned.
   - Bean stays in-progress for the holon-coherence part.
+  - Coherence restart: stale Coherence plan deleted after #57 merged; ready to restart from current main
+    (`todo/intent-0564-coherence-no-harness-refs.json`).

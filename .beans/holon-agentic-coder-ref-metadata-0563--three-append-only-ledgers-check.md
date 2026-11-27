@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-11-26T23:09:56Z
-updated_at: 2026-11-27T00:30:35Z
+updated_at: 2026-11-27T05:20:22Z
 ---
 
 ## Instruction (maintainer, 2026-11-27 local)
@@ -63,3 +63,5 @@ fragments). No fourth ledger; existing rows are never edited or deleted.
 - **Remaining:** the holon-coherence half (its own `holon flow`), pre-commit and flow-gate wiring for
   holon-agentic-coder, and a fail-proof against today's evidence. Bean stays `in-progress` until the coherence flow
   lands.
+- **Coherence restart:** stale Coherence plan deleted after #57 merged; ready to restart from current main
+  (`todo/intent-0563-coherence-ledger-invariants.json`).

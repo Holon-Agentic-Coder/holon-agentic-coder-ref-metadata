@@ -11,7 +11,7 @@ tags:
   - holon-agentic-coder
   - holon-coherence
 created_at: 2026-11-26T23:09:56Z
-updated_at: 2026-11-27T01:06:58Z
+updated_at: 2026-11-27T05:20:23Z
 ---
 
 ## Instruction (maintainer, 2026-11-27 local)
@@ -45,4 +45,5 @@ Done for the harness: `commit-msg` hook (`.agents/hooks/commit-msg`, installed i
 check in the hygiene workflow, both via `check_commit_trailers.py`, tested. Delivered for holon-agentic-coder by PR #371
 (merged at `e189a89`): `.githooks/commit-msg`, `.github/workflows/test-commit-trailers.yml`, and tests
 `test_check_commit_trailers.py` plus `test_flow_commit_messages_have_no_attribution.py` (the flow-engine commit check).
-Remaining: the same hook and workflow in holon-coherence.
+Remaining: the same hook and workflow in holon-coherence. Coherence restart: stale Coherence plan deleted after #57
+merged; ready to restart from current main (`todo/intent-0567-coherence-commit-trailer-check.json`).

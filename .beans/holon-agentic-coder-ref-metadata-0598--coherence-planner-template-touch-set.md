@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0598
 title: "holon-coherence planner template has no Touch Set section, so every coherence flow is refused at Stage 3"
-status: todo
+status: completed
 type: bug
 priority: critical
 tags:
@@ -10,7 +10,7 @@ tags:
   - planner
   - overlap
 created_at: 2026-11-27T01:21:30Z
-updated_at: 2026-11-27T01:21:30Z
+updated_at: 2026-11-27T05:20:22Z
 ---
 
 ## Cause
@@ -61,3 +61,16 @@ updated_at: 2026-11-27T01:21:30Z
 - holon-agentic-coder-ref-metadata-0563 (coherence ledger invariants)
 - holon-agentic-coder-ref-metadata-0564 (coherence no harness references)
 - holon-agentic-coder-ref-metadata-0567 (coherence commit trailer check)
+
+## Resolution
+
+Delivered via [PR #57](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/57) and merged into `main`
+(`c26a0c11`):
+
+- **Key Architectural Deliverables**: Added the `## Touch Set` instruction and `{repository_relative_path_or_glob}` plan
+  format example block to `holon-config/prompts/planner.template.md` (excluding `plans/`, `executions/`, and
+  `holon-knowledge/`, or `- none` when no other file changes), enabling Stage 3 touch-set admission for
+  `holon-coherence` flows.
+- **Verification & Tests**: Added `tests/test_planner_template_touch_set.py` and verified all 5 Holon flow stages
+  (`I-1795742722-coherence-planner-touch-set/P-1795742758-CLA-CO5.5/E-1795742876-CLA-CO5.5/_`) including calibration
+  (`P-1795742758-CLA-CO5.5_calibration.md`).
