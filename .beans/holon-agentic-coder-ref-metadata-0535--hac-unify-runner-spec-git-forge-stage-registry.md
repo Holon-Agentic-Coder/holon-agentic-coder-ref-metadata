@@ -9,7 +9,7 @@ tags:
   - extensibility
   - architecture
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T11:11:33Z
+updated_at: 2026-11-27T17:06:29Z
 ---
 
 ## Problem
@@ -52,3 +52,13 @@ modules.
   `apps/sandbox-executor/src/sandbox_executor/flow/review/loop.py`; resume from checkpoint
   `apps/holon-agentic-coder/flow-hac-stage-registry-git-forge/.holon/flow/checkpoint-hac-stage-registry-git-forge.json`
   when PR #412 merges.
+
+## Flow
+
+- **Slice 1 (`2026-11-27`, `hac-stage-registry-git-forge`):** Completed all 5 stages on `antigravity-agent` /
+  `gemini-4-neon` and opened [PR #431](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/431) (`OPEN`,
+  `MERGEABLE` / `CLEAN`, `16/16` CI `SUCCESS`, Consensus `APPROVED`,
+  `Predicted EV 54.48 / Actual EV 74.14 / ΔEV +19.66`). Waiting for human maintainer merge.
+- **Slice 2 (`2026-11-27`, `hac-runnerspec-single-source`):** Launched covering AC #1 (`RunnerSpec` single-source
+  mounts, defaults, and model-discovery hooks across `runners/*.py`, `agent_defaults.py`, `launcher/mounts.py`, tested
+  in `tests/test_agent_defaults.py` and `tests/test_runner_specs.py`, `todo/intent-coverage-0535.json`).

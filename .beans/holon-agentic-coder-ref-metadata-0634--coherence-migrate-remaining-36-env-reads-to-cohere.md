@@ -10,7 +10,7 @@ tags:
   - resilience
   - refactor
 created_at: 2026-11-27T12:12:09Z
-updated_at: 2026-11-27T16:40:46Z
+updated_at: 2026-11-27T17:06:29Z
 ---
 
 ## Notes
@@ -59,8 +59,9 @@ updated_at: 2026-11-27T16:40:46Z
 - **Slice 1 (`2026-11-27`, `coherence-proxy-settings-env`):** Migrates env reads across the 6 proxy/addon modules
   (`mitm_addon.py`, `proxy/addon.py`, `proxy/wire_log.py`, `proxy/steps/wire_record.py`,
   `proxy/steps/serve_dashboard.py`, `proxy/steps/route_local_target.py`) through `CoherenceSettings.from_env()` in
-  `settings.py`, tested in `tests/test_settings.py` and `tests/proxy/test_wire_log.py`. Remaining `commands/*`,
-  `host_local.py`, `container/lifecycle.py`, and wire-log disk retention are deferred to Slice 2
-  (`todo/intent-coverage-0634.json`).
+  `settings.py`, tested in `tests/test_settings.py`, `tests/proxy/test_wire_log.py`, `tests/proxy/test_steps.py`, and
+  `tests/test_mitm_addon.py` (closed halted PR #89 after Stage 4 `touch_set_violation` on `tests/proxy/test_steps.py`
+  and re-cut cleanly with expanded scope per `CF-0074`). Remaining `commands/*`, `host_local.py`,
+  `container/lifecycle.py`, and wire-log disk retention are deferred to Slice 2 (`todo/intent-coverage-0634.json`).
 
 ## Resolution
