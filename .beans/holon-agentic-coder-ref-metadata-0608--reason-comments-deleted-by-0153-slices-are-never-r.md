@@ -8,7 +8,7 @@ tags:
   - self-explaining-code
   - holon-flow
 created_at: 2026-11-27T04:43:38Z
-updated_at: 2026-11-27T11:48:04Z
+updated_at: 2026-11-27T22:15:53Z
 ---
 
 ## Evidence (audit 2026-11-27T04:43Z, PRs #396, #393, #392, #390, #389, #385, #384, #382, #383, #380)
@@ -42,5 +42,8 @@ updated_at: 2026-11-27T11:48:04Z
   `apps/sandbox-executor/tests/test_measure_deleted_why_comments.py` scanning merged self-doc diffs for removed reason
   comments without matching `# why:` restorations. Keeping `status: in-progress` for the remaining restore and
   template-prevention slices.
+- **Slice 2 (`hac-restore-why-tests`):** Launched `todo/intent-0608-restore-why-tests.json`
+  (`todo/intent-coverage-0608.json`) restoring or documenting all 16 unmatched removed reason entries across the 8
+  `tests/` files surfaced by `scripts/measure_deleted_why_comments.py`.
 
 ## Resolution

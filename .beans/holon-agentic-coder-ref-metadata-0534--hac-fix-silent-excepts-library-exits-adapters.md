@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0534
 title: "Eliminate silent except-pass catches, library sys.exit calls, and GitHub/Git adapter error gaps"
-status: todo
+status: in-progress
 type: bug
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - resilience
   - error-handling
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-26T13:35:00Z
+updated_at: 2026-11-27T22:15:53Z
 ---
 
 ## Problem
@@ -47,3 +47,11 @@ modules call `sys.exit(1)` instead of raising domain exceptions, `GitHubAdapter`
 
 - Target repository: `holon-agentic-coder` (evaluated at `HEAD f1e18bcd`).
 - Source: 2026-11 ecosystem architecture & source-code review (`docs/ecosystem-audit-report-2026-11.md`).
+
+## Flow
+
+- **Slice 1 (`hac-silent-except-agent-runner`):** Launched `todo/intent-0534-silent-except-agent-runner.json`
+  (`todo/intent-coverage-0534.json`) covering `apps/sandbox-executor/src/sandbox_executor/agent_runner.py` and
+  `apps/sandbox-executor/tests/test_agent_runner.py` to narrow and log the silent `except Exception: pass` on
+  `models.json` discovery. Remaining `launcher/containers.py` / `flow/pipeline.py` except-pass catches, `sys.exit(1)`
+  refactors, and `GitHubAdapter` / `GitCommandError` slices are deferred (`todo/intent-coverage-0534.json`).
