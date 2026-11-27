@@ -10,7 +10,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T09:55:00Z
-updated_at: 2026-11-27T01:36:00Z
+updated_at: 2026-11-27T17:40:19Z
 ---
 
 ## Why
@@ -290,3 +290,9 @@ Measured on main `412bed21` (report: `todo/test-suite-audit-2026-11-26.md`, raw 
   merge.
 - Batches that missed their percentage floor (3, 5, 2, 1) count as delivered because the maintainer merged them as
   partial results. Validated by the progress notes.
+
+## Deferred areas batch (`2026-11-27`)
+
+- Launched `tests-deferred-three-speedup` (`todo/intent-0405-tests-deferred-three-speedup.json`,
+  `todo/intent-coverage-0405.json`) targeting the three deferred files `tests/flow/test_git_refs.py`,
+  `tests/flow/review/test_conflict_gate.py`, and `tests/test_calibration_diff_property.py` (test-only).
