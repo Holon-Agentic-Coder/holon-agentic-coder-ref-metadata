@@ -1,14 +1,14 @@
 ---
 # holon-agentic-coder-ref-metadata-0574
 title: "Flow resumed from a checkpoint whose intent lacks the self-explaining-code invariant"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
   - harness
   - holon-flow
 created_at: 2026-11-26T22:10:00Z
-updated_at: 2026-11-26T23:25:08Z
+updated_at: 2026-11-27T00:12:19Z
 ---
 
 ## Problem
@@ -37,3 +37,16 @@ The checkpoint holds the intent goal in two places: `context.intent_data.goal` a
 `context.stage_results.intent.payload.intent.goal`. A fix must refresh both (or derive one from the other) when a resume
 re-reads the intent file. Seen on the 2026-11-26 resume of the subset-fixture flow (PR #358), which merged with three
 docstrings and a `#:` comment because the resumed run used the pre-invariant goal.
+
+## Note (2026-11-27T00:12:19Z): partial delivery by PR #361
+
+PR #361 (merged 2026-11-27T00:05:38Z; consensus 3/3, calibration in the PR diff) delivered `intent_refresh.py`
+`refresh_intent_text`. It refreshes `context.intent_data` from the intent file and refuses a goal without the
+self-explaining-code sentence, but it does not touch the second copy,
+`context.stage_results.intent.payload.intent.goal`. A resume can therefore still run stages against the stale goal. This
+bean stays `in-progress`.
+
+Remaining: refresh (or derive) `context.stage_results.intent.payload.intent.goal` in the same resume path, with a test
+on a checkpoint whose stage_results goal lacks the sentence.
+
+Follow-up: to be queued with the slot keeper; not yet queued at the time of this note.
