@@ -9,7 +9,7 @@ tags:
   - ci
   - ledger
 created_at: 2026-11-27T05:26:26Z
-updated_at: 2026-11-27T06:23:29Z
+updated_at: 2026-11-27T07:35:24Z
 ---
 
 ## Notes
@@ -21,9 +21,12 @@ updated_at: 2026-11-27T06:23:29Z
 - **Proposed Change**: Port the debounced `promote-ledger.yml` workflow (avoiding the silent green no-op and per-push
   cancel storm tracked in Bean `0611`), ensure `holon-coherence` promotes pending fragments cleanly, and drain the 3
   existing pending fragments into canonical ledgers.
-- **Acceptance Criteria**: `holon-coherence` has an automated ledger-promotion workflow (or explicit non-silent backlog
-  alert when bot token is absent) and `holon-knowledge/ledger/pending/` is drained cleanly.
 - **Reference**: Source: 2026-11-27 ecosystem architecture audit (`docs/ecosystem-audit-report-2026-11.md`); coordinate
   with Bean `0611`.
+
+## Acceptance
+
+- `holon-coherence` has an automated ledger-promotion workflow (or explicit non-silent backlog alert when bot token is
+  absent) and `holon-knowledge/ledger/pending/` is drained cleanly.
 
 ## Resolution

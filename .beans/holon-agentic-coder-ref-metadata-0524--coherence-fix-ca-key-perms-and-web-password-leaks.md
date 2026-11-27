@@ -10,7 +10,7 @@ tags:
   - ca
   - secrets
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T06:23:30Z
+updated_at: 2026-11-27T07:33:49Z
 ---
 
 ## Problem
@@ -53,3 +53,8 @@ persisting unscrubbed LLM payloads inside the world-writable cache directory.
 
 - Target repository: `holon-coherence` (evaluated at `HEAD 18084f3`).
 - Source: 2026-11 ecosystem architecture & source-code review (`docs/ecosystem-audit-report-2026-11.md`).
+- parked 2026-11-27T07:33:03Z (flow `coherence-cache-scrub-endpoints`): blocked by PR #63
+  (`I-1795760711-coherence-ca-key-perms/P-1795760732-ANA-G4N/E-1795760946-ANA-G4N/_`) on `tests/commands/test_start.py`,
+  `tests/commands/test_web_token.py`; resume from checkpoint
+  `apps/holon-coherence/flow-coherence-cache-scrub-endpoints/.holon/flow/checkpoint-coherence-cache-scrub-endpoints.json`
+  when PR #63 merges.
