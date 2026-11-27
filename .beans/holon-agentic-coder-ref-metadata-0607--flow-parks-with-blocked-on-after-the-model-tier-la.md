@@ -1,14 +1,14 @@
 ---
 # holon-agentic-coder-ref-metadata-0607
 title: "Flow parks with blocked_on after the model tier ladder is exhausted on a test failure"
-status: todo
+status: in-progress
 type: feature
 priority: high
 tags:
   - holon-flow
   - tests
 created_at: 2026-11-27T04:42:54Z
-updated_at: 2026-11-27T04:42:54Z
+updated_at: 2026-11-27T11:27:43Z
 ---
 
 ## Evidence
