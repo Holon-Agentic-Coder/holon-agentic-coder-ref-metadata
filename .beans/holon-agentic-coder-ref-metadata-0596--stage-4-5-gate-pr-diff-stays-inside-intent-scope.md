@@ -10,7 +10,7 @@ tags:
   - invariants
   - holon-agentic-coder
 created_at: 2026-11-27T00:57:56Z
-updated_at: 2026-11-27T01:07:06Z
+updated_at: 2026-11-27T06:02:05Z
 ---
 
 ## Evidence
@@ -50,3 +50,13 @@ re-plan.
 - [ ] Tests use PR #360's file list (outcome.py, model_tiers.py, review/loop.py, conftest.py, test_uv_lock.py and the
       other 11 files) against bean 0549's scope and fail before the change, pass after.
 - [ ] Code has no docstrings and no comments except `# why:`; run with `uv run pytest`.
+
+## Flow
+
+- **parked 2026-11-27 (PR #410):** blocked in Stage 4 resolver pre-push (`uv run task lint`) by pre-existing
+  `origin/main@5c0a557cc` `module_budgets` failure on `apps/sandbox-executor/src/sandbox_executor/knowledge/wisdom.py`
+  (`386` lines > `350` limit, introduced before PR `#365`). Preserved worktree
+  `apps/holon-agentic-coder/flow-diff-stays-in-intent-scope` (holds uncommitted fixes across `resolver.py`, `stage5.py`,
+  `touch_set_guard.py`, `test_diff_stays_in_intent_scope.py`) and `checkpoint-diff-stays-in-intent-scope.json`. Resume
+  from checkpoint with `HOLON_TURN_STALL_SECONDS=600` once `origin/main` merges a `wisdom.py` split (`#403`,
+  `#406`–`#409`, or `#411`) and `origin/main` is merged into PR `#410`.
