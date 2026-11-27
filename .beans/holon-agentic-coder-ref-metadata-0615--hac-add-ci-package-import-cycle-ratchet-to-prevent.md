@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0615
 title: "HAC: add CI package import-cycle ratchet to prevent layer cycle regressions"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - architecture
   - ci
 created_at: 2026-11-27T05:26:26Z
-updated_at: 2026-11-27T05:26:26Z
+updated_at: 2026-11-27T08:30:40Z
 ---
 
 ## Notes
@@ -22,9 +22,12 @@ updated_at: 2026-11-27T05:26:26Z
 - **Proposed Change**: Add a fast AST-based package-import graph test in `holon-agentic-coder` CI with a locked baseline
   of allowed cycle edge counts (ratchet-only: new package cycles or increased edge counts fail CI; lowering counts
   updates the baseline downward). Coordinate with Beans `0531` and `0584` which unwind the existing cycles.
-- **Acceptance Criteria**: CI fails if any new package import cycle is introduced or if any existing cycle's edge count
-  increases; removing edges passes cleanly and allows lowering the ratchet baseline.
 - **Reference**: Source: 2026-11-27 ecosystem architecture audit (`docs/ecosystem-audit-report-2026-11.md`); coordinates
   with Beans `0531` and `0584`.
+
+## Acceptance Criteria
+
+- CI fails if any new package import cycle is introduced or if any existing cycle's edge count increases; removing edges
+  passes cleanly and allows lowering the ratchet baseline.
 
 ## Resolution

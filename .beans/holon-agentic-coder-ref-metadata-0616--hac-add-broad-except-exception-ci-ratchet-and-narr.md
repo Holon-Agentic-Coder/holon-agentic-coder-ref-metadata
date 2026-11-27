@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0616
 title: "HAC: add broad except-Exception CI ratchet and narrow non-boundary catches"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - resilience
   - ci
 created_at: 2026-11-27T05:26:26Z
-updated_at: 2026-11-27T05:26:26Z
+updated_at: 2026-11-27T08:30:40Z
 ---
 
 ## Notes
@@ -21,9 +21,13 @@ updated_at: 2026-11-27T05:26:26Z
   module/package (excluding explicit top-level CLI/stage fail-safe boundaries with `# why:` justification), and narrow
   non-boundary catches to specific exception classes (`OSError`, `subprocess.SubprocessError`, `json.JSONDecodeError`,
   `ValueError`, etc.).
-- **Acceptance Criteria**: CI fails when unratcheted `except Exception` catches are added; non-boundary modules narrow
-  catches to typed exceptions.
 - **Reference**: Source: 2026-11-27 ecosystem architecture audit (`docs/ecosystem-audit-report-2026-11.md`); complements
   Bean `0534`.
+
+## Acceptance Criteria
+
+- CI fails when unratcheted `except Exception` catches are added (ratchet-only cap per module/package passes when equal
+  or lower).
+- Non-boundary modules narrow catches to typed exceptions.
 
 ## Resolution

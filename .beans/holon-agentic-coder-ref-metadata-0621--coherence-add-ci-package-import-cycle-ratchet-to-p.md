@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0621
 title: "Coherence: add CI package import-cycle ratchet to prevent new layer cycles"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - architecture
   - ci
 created_at: 2026-11-27T08:03:26Z
-updated_at: 2026-11-27T08:03:26Z
+updated_at: 2026-11-27T08:30:40Z
 ---
 
 ## Notes
