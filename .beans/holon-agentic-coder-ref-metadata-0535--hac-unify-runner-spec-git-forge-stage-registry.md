@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0535
 title: "Make RunnerSpec single-source runner registration and add GitForge Protocol + stage registry"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - extensibility
   - architecture
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-26T13:35:00Z
+updated_at: 2026-11-27T11:04:47Z
 ---
 
 ## Problem
