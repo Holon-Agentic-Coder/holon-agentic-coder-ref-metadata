@@ -10,7 +10,7 @@ tags:
   - docker
   - secrets
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-26T22:58:00Z
+updated_at: 2026-11-27T01:17:18Z
 ---
 
 ## Problem
@@ -84,3 +84,13 @@ Follow-ups:
   tracked in bean 0551 (backup patch in the scratchpad). Decide in a follow-up flow.
 - (b) PR #356 added two docstrings to `agent_runner.py` against the self-explaining-code invariant; their removal is
   recorded on bean 0153.
+
+## Flow outcome 2 (2026-11-27, PR #372)
+
+PR [#372](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/372) merged into `main` (`ac01cd10`): the role
+container `docker run` mounts the intent file at `/tmp/intent.json:ro` (`launcher/containers.py`), and the pinned
+characterisation expectations were updated (`test_container_launch_characterisation.py`,
+`test_host_worktree_sandbox.py`). This delivers only the read-only intent mount item of acceptance criterion 1. This
+bean stays `in-progress` for the remaining scope: container resource limits (`--memory`, `--cpus`, `--pids-limit`) and
+`--read-only` rootfs, `local_llm` modes, `git.py` `--` terminators, and the `Dockerfile` installer pin with SHA256
+verification (excluded in `todo/intent-coverage-0532.json`).
