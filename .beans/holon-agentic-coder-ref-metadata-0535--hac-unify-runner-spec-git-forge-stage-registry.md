@@ -9,7 +9,7 @@ tags:
   - extensibility
   - architecture
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T21:45:28Z
+updated_at: 2026-11-27T21:46:37Z
 ---
 
 ## Problem
@@ -66,4 +66,11 @@ modules.
   (`touch_set_violation`: resolver delegated `launcher/antigravity_mounts.py` and `launcher/pi_mounts.py` to
   `runners/`). Closed `#441` (`CF-0077`) and re-cut Slice 2 with the expanded 15-file scope including
   `launcher/antigravity_mounts.py`, `launcher/pi_mounts.py`, `tests/test_antigravity_mounts.py`, and
-  `tests/test_pi_mounts.py`.
+  `tests/test_pi_mounts.py`. Stage 3 execution (`E-1795813140-ANA-G4N`) passed `10875` tests but modified
+  `apps/sandbox-executor/tests/test_self_doc_runners_launcher.py`; re-plan (`P-1795815148-ANA-G4N`) added it and parked
+  cleanly at Stage 3 admission (`admission.state = "blocked"`, `CF-0078`) behind open
+  [PR #428](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/428) (`prune-self-doc-test-copies`, which
+  deletes `test_self_doc_runners_launcher.py`). Worktree `apps/holon-agentic-coder/flow-hac-runnerspec-single-source`
+  and checkpoint
+  `apps/holon-agentic-coder/flow-hac-runnerspec-single-source/.holon/flow/checkpoint-hac-runnerspec-single-source.json`
+  preserved for immediate resume once PR #428 merges.
