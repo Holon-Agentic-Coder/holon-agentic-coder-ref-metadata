@@ -9,7 +9,7 @@ tags:
   - checkpoint
   - holon-agentic-coder
 created_at: 2026-11-26T13:10:00Z
-updated_at: 2026-11-26T14:23:25Z
+updated_at: 2026-11-27T16:31:30Z
 ---
 
 ## Problem
@@ -95,3 +95,12 @@ refuse while a runner holds the worktree.
   apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports.py. parked 2026-11-26 20:59Z: blocked by parked flow
   module-budget-default-350 on lazy_exports.py; resume from checkpoint once that flow's worktree releases the file (its
   blocker #342 has merged, so it needs its own resume or its stale waiting state cleared).
+- relaunched 2026-11-27T16:25:14Z cleanly from `origin/main` (`1f3331637`) with `antigravity-agent` / `gemini-4-neon` in
+  `apps/holon-agentic-coder/flow-admission-remote-in-flight`: Stage 1 (`I-1795796714-admission-remote-in-flight/_`) and
+  Stage 2 (`I-1795796714-admission-remote-in-flight/P-1795796752-ANA-G4N/_`, EV=45.68) succeeded, then Stage 3 refused
+  on touch-set overlap. parked 2026-11-27T16:31:12Z: blocked by local flow
+  `I-1795796484-hac-stage-registry-git-forge/P-1795796523-ANA-G4N/_` (worktree
+  `apps/holon-agentic-coder/flow-hac-stage-registry-git-forge`) on
+  `apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports.py`; resume from checkpoint
+  `apps/holon-agentic-coder/flow-admission-remote-in-flight/.holon/flow/checkpoint-admission-remote-in-flight.json` when
+  `flow-hac-stage-registry-git-forge` finishes/merges or releases `lazy_exports.py`.
