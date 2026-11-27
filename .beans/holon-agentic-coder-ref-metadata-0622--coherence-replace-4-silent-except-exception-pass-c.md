@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0622
 title: "Coherence: replace 4 silent except-Exception-pass catches and ratchet broad catches"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - error-handling
   - ci
 created_at: 2026-11-27T08:03:26Z
-updated_at: 2026-11-27T08:03:26Z
+updated_at: 2026-11-27T10:52:04Z
 ---
 
 ## Notes
