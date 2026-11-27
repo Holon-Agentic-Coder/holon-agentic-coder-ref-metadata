@@ -5,6 +5,116 @@ first.
 
 ## Entries
 
+### 2026-11-27T15:55:01Z — Fifth-Merge Audit
+
+- **Trigger:** fifth merge (`8` newly merged PRs since `2026-11-27T12:14:08Z`, bringing `holon-agentic-coder`
+  `origin/main` to `1f3331637` and `holon-coherence` `origin/main` to `4d2cfcf8`):
+  - `holon-agentic-coder` (`4`): `#415` (`12:26:25Z`, `bebb0840d`, Bean `0615`), `#424` (`12:26:42Z`, `c03385aff`, Bean
+    `0611`), `#425` (`12:48:20Z`, `da13a83ca`, Bean `0601` slice 1), `#426` (`12:48:20Z`, `1f3331637`, Bean `0153`).
+    Halted/parked: `#427` (`0607`, `CF-0065`), `0424` (`CF-0064`), `0599`/`0590`/`0619` (`exit code 3` at `12:45Z`).
+  - `holon-coherence` (`4`): `#83` (`12:24:01Z`, `9eddccdc3`, Bean `0528` slice), `#67` (`12:27:09Z`, `63a6bf3f7`, Bean
+    `0530` slice), `#84` (`12:40:45Z`, `71d46b44b`, Bean `0527` slice 1), `#85` (`12:40:45Z`, `4d2cfcf81`, Bean `0528`
+    slice).
+- **Last merged pull requests at audit baseline:** `Holon-Agentic-Coder/holon-agentic-coder#426` (`1f3331637`);
+  `Holon-Agentic-Coder/holon-coherence#85` (`4d2cfcf8`).
+- **Coordinator failure ledger repeats (`CF-0062`–`CF-0065`, `4` new rows since `CF-0061`):**
+  - `intent-scope` (`2` new rows `CF-0064` & `CF-0065`, `16` total — **repeat flagged high priority**): `CF-0064`
+    (`0424` `review-posting-transient-retry`, `12:29:32Z`) halted in Stage 3 after 2 re-plans because intent omitted
+    `flow/lazy_exports_review.py` (`REVIEW_LAZY_EXPORTS`) and `tests/test_review_loop.py` (`HTTP 502` fixtures);
+    `CF-0065` (`HAC #427`, `0607`, `15:39:27Z`) halted in Stage 4 iter 1 with `touch_set_violation` on
+    `tests/flow/test_local_test_finding.py` after expanding `intent-0607` for `lazy_exports_review.py` without running a
+    fail-closed `intent-check` guard -> extended **`0546`** and **`0543`**.
+  - `overlap-scheduling` (`1` new row `CF-0062`, `16` total — **repeat flagged high priority**): Relaunched `0607`
+    (`I-1795780932`) with `lazy_exports_review.py` parked at Stage 3 admission (`EV 52.20`) because live `0424`
+    (`flow/review/*`) dynamically re-planned into `lazy_exports_review.py` (`P-1795780572`) -> extended **`0628`** and
+    **`0543`**.
+  - `resume-checkpoint` (`1` new row `CF-0063`, `5` total — **repeat flagged high priority**): Resumed `HAC #408`
+    (`12:12:18Z`) got `3/3 APPROVED`, then halted on `FIND-CI-002` (`lint-md` on 36 historical `plans/*_calibration.md`
+    files, `0392`) when the in-loop resolver left zero non-ledger edits and crashed `git commit` on an empty index
+    (`0409`).
+  - **Quota `exit code 3` idle restarts:** `0599`, `0590`, and `0619` exited `3` in Stage 3 at `12:45:16Z–12:45:46Z` and
+    idled **`~181 min` (`>9` flow-hours)** until `15:46:55Z–15:47:02Z` restarts -> extended **`0625`**.
+- **Concrete Audit Findings & Clean Checks (`#415`, `#424`–`#426`, `#83`, `#67`, `#84`, `#85`):**
+  - **Stage 4->5 triple push & `ci_merge_push_gate` miss (`HAC #425`, `#426`):** Stage 4->5 pushed 3 commits in 12 s
+    (`chore(review) iteration` -> `sync: merge target` -> `chore(review) stage 5 carry-over`), cancelling `24` (`#425`)
+    / `17` (`#426`) intermediate check-runs and breaking `ci_merge_push_gate` (`0454`), forcing `stage 5 carry-over` to
+    run full CI (`740 s` / `12.3 min` on `#425`, `509 s` / `8.5 min` on `#426`) before a second Stage 5 CI wait on
+    `chore(calibration)` (`114–135 s`), overrunning Stage 5's 10-min budget (`14.9 min`, `11.7 min`) -> **new Bean
+    `0638`** (and extended **`0383`**). Across all 8 PRs, **`31/42` (`73.8%`) CI-tested heads and `365/509` (`71.7%`)
+    check-runs** (`210/287` HAC + `155/222` Coherence) ran on bookkeeping/sync commits (extended **`0588`**).
+  - **HAC import-cycle ratchet root-module blind spot (`#415`):** `test_import_cycle_ratchet.py:19-28` scans
+    subdirectories only, missing `4` active root-module cycles (`calibration<->calibration_self_check` `2<->1`,
+    `entrypoint<->review_target` `1<->1`, `flow<->review_target` `8<->4`, `flow<->flow_guard` `4<->1`) -> **new Bean
+    `0635`**.
+  - **Unpromoted pending ledger backlog (`#424` + Coherence):** `HOLON_LEDGER_BOT_TOKEN` remains unconfigured in both
+    repos; HAC pending fragments grew `291 -> 303` (`4,357` rows) after `0611` closed on `promote-ledger.yml` debounce
+    -> **new Bean `0636`**, while Coherence grew `69 -> 81` (`737` rows -> extended **`0620`**).
+  - **Coherence stale `module_budgets.json` overrides (`#67`, `#85`):** `#67` shrank `proxy/dashboard.py` (`383->9L`)
+    and `#85` shrank `metrics/aggregation.py` (`222->150L`) below the `200L` default cap, leaving 2 stale overrides ->
+    **new Bean `0637`**.
+  - **Ongoing structural items:** `#426` added `test_self_doc_tests_49.py` (31st `test_self_doc*.py` file -> extended
+    **`0601`**), and all `8/8` squash merges still added 5 `Co-authored-by: Holon <Role> Agent` trailers on `main`
+    (extended **`0633`**).
+  - **Clean findings (examined and in order):** All `8/8` merged PRs passed `3/3 APPROVED` + Stage 5 calibration with
+    `100.0%` Touch Set precision/recall, `0` newly introduced docstrings or prose comments across touched code, and `0`
+    cancelled CI runs in Coherence (`222` check-runs). Coherence `#84` broke `parsers<->providers` (`3<->4 -> 0`) and
+    `#85` dropped Coherence `broad_except` (`30 -> 26`, `0` silent `pass`).
+- **Per-flow churn summary (`8` PRs, CI heads / bookkeeping heads / total check-runs / bookkeeping checks / cancelled /
+  review iterations / non-defect churn):**
+  - `HAC #415`: `4 / 3 / 60 / 45 (11 canc) / 2 full (0 churn; iter 1 quota exit 3)`
+  - `HAC #424`: `3 / 2 / 45 / 30 (1 canc) / 1 full (0 churn)`
+  - `HAC #425`: `7 / 5 / 112 / 80 (36 canc, 1 fail on execute) / 1 full + 1 scoped (2 target-merge carry-over)`
+  - `HAC #426`: `5 / 4 / 70 / 55 (17 canc) / 1 full (2 target-merge carry-over)`
+  - `COH #83`: `3 / 2 / 30 / 20 (0 canc) / 1 full (0 churn)`
+  - `COH #67`: `9 / 7 / 82 / 65 (0 canc, 6 fail pre-0623) / 4 full (2 target-merge carry-over; parked 241.9m on #77)`
+  - `COH #84`: `6 / 4 / 60 / 40 (0 canc, 1 fail iter1 fix) / 1 full + 1 scoped (2 target-merge carry-over)`
+  - `COH #85`: `5 / 4 / 50 / 40 (0 canc) / 1 full (2 target-merge carry-over)`
+- **Per-step timing table (`8` merged PRs since `2026-11-27T12:14:08Z`):**
+
+| Step                                       | Count |     Median (s / min) |    Longest (s / min) | Category / Notes                                                         |
+| :----------------------------------------- | ----: | -------------------: | -------------------: | :----------------------------------------------------------------------- |
+| Pre-flight (wrapper start -> Stage 1)      |     0 |         not measured |         not measured | `0/8` wrapper pre-flight timestamps (`0412`)                             |
+| Stage 1 (`INTENT`)                         |     3 |      17.0 s (0.28 m) |      17.0 s (0.28 m) | Working (`#425`, `#426`, `#83`; `5/8` unlogged)                          |
+| Stage 2 (`PLAN`, intent -> plan commit)    |     8 |     189.0 s (3.15 m) |     290.0 s (4.83 m) | Working (`#84` max `4.83 m`)                                             |
+| Stage 3 admission wait                     |     3 |      17.0 s (0.28 m) |      21.0 s (0.35 m) | Waiting (`#425` `21s`, `#426` `17s`, `#83` `5s`; `5/8` unlogged)         |
+| Stage 3 (`EXECUTE` total, plan -> exec)    |     8 |     379.0 s (6.32 m) |     501.0 s (8.35 m) | Working (`#426` max `8.35 m`)                                            |
+| Execute commit -> PR create                |     8 |      26.0 s (0.43 m) |      50.0 s (0.83 m) | Working (`#415` max `0.83 m`)                                            |
+| Stage 4 (`REVIEW` active, excl. idle)      |     7 |     561.0 s (9.35 m) |   1743.0 s (29.05 m) | Working + CI (`#67` 4 iters max; `#415` iter2 unsplit from 114.2m reset) |
+| Stage 5 carry-over CI wait (`sync` merges) |     5 |     438.0 s (7.30 m) |    740.0 s (12.33 m) | Waiting on CI (`#425` `12.33 m`, `#426` `8.48 m`; `0638`)                |
+| Stage 5 calibration work (excl. CI)        |     8 |      20.0 s (0.33 m) |      29.0 s (0.48 m) | Working (`#85` max `0.48 m`)                                             |
+| Stage 5 final-head CI reg wait             |     8 |      14.0 s (0.23 m) |      15.0 s (0.25 m) | Waiting on CI (`#415`, `#426` max `15 s`)                                |
+| Stage 5 final-head CI wait                 |     8 |     178.5 s (2.98 m) |    723.0 s (12.05 m) | Waiting on CI (`#415` max `12.05 m`; `#85` `5.50 m`)                     |
+| Stage 5 (`CALIBRATE` total)                |     8 |    610.0 s (10.17 m) |    886.0 s (14.77 m) | Work + CI (`#425` `14.77 m`, `#85` `13.70 m`, `#426` `11.53 m`; `0383`)  |
+| Idle between stop & resume                 |     2 | 10680.5 s (178.01 m) | 14512.0 s (241.87 m) | Idle (`#67` `241.9 m` on `#77`; `#415` `114.2 m` quota reset+iter2)      |
+| Human wait (final CI -> merge)             |     8 |     245.0 s (4.08 m) |   5618.0 s (93.63 m) | Waiting on human (`#415` `93.63 m`; `#67` `13.83 m`; others `1.1–10.3m`) |
+
+- **Not measured:** `5/8` flows (`HAC #415`, `#424`; `COH #67`, `#84`, `#85`) preserved no `todo/flow-*.log` (`0412`),
+  leaving Pre-flight (`8/8`), Stage 1 (`5/8`), Stage 3 admission/sync (`5/8`), Stage 4 inner reviewer/resolver splits
+  (`5/8` + `#415` iter-2 active vs idle), and per-stage/turn LLM token counts (`8/8`, `0629`) unmeasured.
+- **Beans created:** **`0635`** (normal: HAC extend `test_import_cycle_ratchet.py` to cover root modules), **`0636`**
+  (high: HAC drain `303` pending fragments and configure `HOLON_LEDGER_BOT_TOKEN`), **`0637`** (normal: Coherence reject
+  missing/stale `module_budgets.json` overrides and prune `dashboard.py` + `aggregation.py`), **`0638`** (high: Stage
+  4->5 triple push cancels CI and breaks `ci_merge_push_gate` on `stage 5 carry-over`).
+- **Beans extended:** **`0383`**, **`0412`**, **`0543`**, **`0546`**, **`0588`**, **`0601`**, **`0620`**, **`0625`**,
+  **`0628`**, **`0633`**.
+- **Architecture & source-code quality refresh
+  ([docs/ecosystem-audit-report-2026-11.md](../docs/ecosystem-audit-report-2026-11.md), `hac@1f3331637` vs `2a83e4cc7`;
+  `coherence@4d2cfcf8` vs `4a02926b`):**
+  - **Overall scores:** **`holon-coherence` `8.1 / 10 (+0.1)`** widens its lead over **`holon-agentic-coder`
+    `7.5 / 10`**.
+  - **Coherence deltas (`4a02926b -> 4d2cfcf8`):** Clean Architecture `7.7->7.9 (+0.2)` (`#84` broke
+    `parsers<->providers` `3<->4 -> 0`), Modularity `7.7->7.9 (+0.2)` (`#67` `dashboard.py` `383->9L`, `#85`
+    `aggregation.py` `222->150L`, `>200L` `19->17`, `2` stale overrides **`0637`**), Clean Code `7.4->7.6 (+0.2)` (`#85`
+    `metrics_math.py`, `#84` `_common.py`, `-461` `src/` LOC), Extensibility `7.7->8.0 (+0.3)` (`#84`
+    `ProviderFormat.matches()` + dynamic registry), Testability `8.2->8.3 (+0.1)` (`+706` test LOC, `1,067->1,082`
+    `test_*`, `0` cancelled runs), Error Handling `8.2->8.3 (+0.1)` (`broad_except` `30->26`, `0` silent `pass`, `#83`
+    SSE finish), Config/Observability `7.7->7.6 (-0.1)` (`69->81` pending fragments `0620`, `155/222` bookkeeping CI
+    `0588`, `39` non-settings env sites `0634`).
+  - **HAC deltas (`2a83e4cc7 -> 1f3331637`):** Clean Architecture `6.6->6.7 (+0.1)` (`#415` ratchet, `4` root cycles
+    remain **`0635`**), Self-Doc Code `8.1->8.2 (+0.1)` (`#425` AST gate, `#426` `1,057->1,022` test docstrings, `31`
+    `test_self_doc*.py` copies `0601`), Testability `7.9->8.0 (+0.1)` (`+3` test files, `5,177->5,207` `test_*`, `65`
+    cancelled check-runs).
+
 ### 2026-11-27T12:14:08Z — Fifth-Merge Audit
 
 - **Trigger:** fifth merge (`7` newly merged `holon-coherence` PRs `#76`–`#82` since the Coherence audit baseline

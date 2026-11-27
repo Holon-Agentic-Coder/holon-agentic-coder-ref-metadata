@@ -10,7 +10,7 @@ tags:
   - model-tiers
   - holon-agentic-coder
 created_at: 2026-11-27T10:55:04Z
-updated_at: 2026-11-27T10:56:02Z
+updated_at: 2026-11-27T15:55:01Z
 ---
 
 ## Notes
@@ -31,6 +31,13 @@ updated_at: 2026-11-27T10:56:02Z
 - Related: Bean `0612` tracks a shared host-level cooldown marker for org-level spend limits so launches do not re-probe
   exhausted providers; Bean `0424` covers Stage 4 transient network/Docker retries. This bean owns automatic
   intra-ladder model step-down on Stage 3/4 quota `exit code 3`.
+
+### Evidence (2026-11-27T15:46Z fifth-merge audit)
+
+- At `12:45:16Z–12:45:46Z`, **3 concurrent Stage 3 flows** (`0599` `flow-replan-feedback-file-dispatch`, `0590`
+  `flow-stage1-requires-assumptions`, `0619` `flow-stage4-main-baseline-guard`) failed Stage 3 `execute` with
+  `exit code 3` (`3.8–9.4 min` execute turns) and sat idle for **`~181 min` (`3.0 hours`, `>9` flow-hours lost)** until
+  restarted at `15:46:55Z–15:47:02Z` (coordinated with `0612`).
 
 ### Proposed Change
 

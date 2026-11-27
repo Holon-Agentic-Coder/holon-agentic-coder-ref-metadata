@@ -10,7 +10,7 @@ tags:
   - tests
   - duplication
 created_at: 2026-11-27T04:33:33Z
-updated_at: 2026-11-27T15:40:02Z
+updated_at: 2026-11-27T15:55:01Z
 ---
 
 ## Evidence
@@ -73,3 +73,8 @@ becomes checked. Cost: one shared test and an AST-normalising helper; touches th
   (`scripts/check_self_doc_behavior.py` and `.github/workflows/test-self-doc-behavior.yml`; Stage 5 calibrated:
   Predicted EV 59.33 / Actual EV 73.55 / ΔEV +14.22). Bean stays `in-progress` while deleting per-slice
   `test_self_doc_*` copies remains as slice 2.
+- Audit update (`2026-11-27T15:46Z`, `1f3331637`):
+  [PR #426](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/426) (`0153` `self-doc-tests-49`) cleaned 12
+  test modules while still adding another `89`-line per-slice file
+  (`apps/sandbox-executor/tests/test_self_doc_tests_49.py`), bringing `apps/sandbox-executor/tests/test_self_doc*.py` to
+  **31 files** awaiting slice-2 deletion.

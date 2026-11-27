@@ -11,7 +11,7 @@ tags:
   - holon-coherence
   - holon-agentic-coder
 created_at: 2026-11-27T12:11:44Z
-updated_at: 2026-11-27T12:13:43Z
+updated_at: 2026-11-27T15:55:01Z
 ---
 
 ## Notes
@@ -31,6 +31,10 @@ updated_at: 2026-11-27T12:13:43Z
   2. `.agents/scripts/install_git_hooks.py` installs hooks only in the harness repository (not `apps/holon-coherence` or
      `apps/holon-agentic-coder`), and `holon-coherence/Makefile` has no hook-path setup or check wiring
      `.githooks/commit-msg`.
+- **Audit update (`2026-11-27T15:46Z`):** All **4** new HAC squash merges (`#415` `bebb0840d`, `#424` `c03385aff`,
+  `#425` `da13a83ca`, `#426` `1f3331637`) and all **4** new Coherence squash merges (`#83` `9eddccdc3`, `#67`
+  `63a6bf3f7`, `#84` `71d46b44b`, `#85` `4d2cfcf81`) still landed `5` `Co-authored-by: Holon <Role> Agent` trailers each
+  on `main`.
 
 ### Proposed Change
 

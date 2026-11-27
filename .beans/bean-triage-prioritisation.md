@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-27 15:40:37 UTC
+**Last Updated:** 2026-11-27 16:02:04 UTC
 
 ## Executive Summary
 
@@ -16,10 +16,10 @@ the run. Concurrent flows on overlapping files forced repeated syncs and re-revi
 about 10M+ tokens), so flows that touch the same files still run one after another; only flows with disjoint touch sets
 run together.
 
-- **Total Tracked Beans**: 629 (excluding template)
-- **Completed**: 429 (68.2%)
+- **Total Tracked Beans**: 633 (excluding template)
+- **Completed**: 429 (67.8%)
 - **Scrapped / Superseded**: 17 (2.7%)
-- **Active**: 183 (29.1%), of which 38 are in progress, 143 are todo and 2 are draft
+- **Active**: 187 (29.5%), of which 38 are in progress, 147 are todo and 2 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1069,6 +1069,10 @@ logged beans `0389` and `0390` added to triage.
 | **P0**   | todo        |  High  |             M             | 0590   | Generate flow intents from beans inside the flow; agents never hand-write intents                                                                             | Flow / Architecture              |                                                                                                                                                                                                                                                       |
 | **P0**   | in-progress |  High  |             L             | 0566   | Check: git safety rules enforced by tooling, not only by briefs                                                                                               | Architecture / Quality           |                                                                                                                                                                                                                                                       |
 | **P0**   | in-progress |  High  |             M             | 0562   | Every invariant has an explicit, automatic check (umbrella)                                                                                                   | Ledger / Observability           |                                                                                                                                                                                                                                                       |
+| **P1**   | todo        |  High  |             L             | 0638   | Stage 4-to-5 triple push cancels CI and breaks ci_merge_push_gate on carry-over                                                                               | Architecture / Quality           |                                                                                                                                                                                                                                                       |
+| **P1**   | todo        | Medium |             M             | 0637   | Coherence: reject missing or stale module_budgets overrides and prune dashboard and aggregation                                                               | CLI / Telemetry                  |                                                                                                                                                                                                                                                       |
+| **P1**   | todo        |  High  |             L             | 0636   | HAC: drain 303 pending ledger fragments and configure HOLON_LEDGER_BOT_TOKEN                                                                                  | Architecture / Quality           |                                                                                                                                                                                                                                                       |
+| **P1**   | todo        |  High  |             M             | 0635   | HAC: extend test_import_cycle_ratchet.py to cover root-level sandbox_executor modules                                                                         | Flow / Architecture              |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        | Medium |             M             | 0634   | Coherence: migrate remaining 36 env reads to CoherenceSettings and bound wire-log disk                                                                        | CLI / Telemetry                  |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        | Medium |             M             | 0633   | Squash merges add Co-authored-by agent trailers and Coherence lacks hook setup                                                                                | Build / DevEx                    |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             L             | 0632   | Coherence: extend import-cycle ratchet to include root-level modules                                                                                          | Architecture / Quality           |                                                                                                                                                                                                                                                       |

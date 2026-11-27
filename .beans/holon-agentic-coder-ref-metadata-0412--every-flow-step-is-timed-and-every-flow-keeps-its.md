@@ -11,7 +11,7 @@ tags:
   - timing
   - holon-agentic-coder
 created_at: 2026-11-24T11:00:00Z
-updated_at: 2026-11-27T11:55:26Z
+updated_at: 2026-11-27T15:55:01Z
 ---
 
 ## Why
@@ -211,3 +211,13 @@ Instrumentation gaps from section 4 of `todo/flow-time-audit-2026-11-26.md`:
 - Still `not measured` in `10:49Z–11:54Z`: wrapper pre-flight (`0` logs), per-reviewer latencies inside `13` Stage 4
   ensemble runs, resolver inner splits (`4` runs), Stage 5 `ci_reg_wait` vs `publish_calibration` splits (`7` runs), and
   token usage (tracked separately in Bean `0629`).
+
+## Audit evidence, 2026-11-27T15:46Z (fifth-merge audit)
+
+- **`5/8` merged PRs (`HAC #415`, `HAC #424`, `COH #67`, `COH #84`, `COH #85`)** left **no** `todo/flow-*.log` file on
+  disk (only `HAC #425` `todo/flow-0601.log`, `HAC #426` `todo/flow-0153-self-doc-tests-49.log`, and `COH #83`
+  `todo/flow-0528.log` were preserved).
+- Still `not measured` in `12:14Z–15:46Z`: wrapper pre-flight (`8/8` flows), Stage 1 start/duration (`5/8` unlogged),
+  Stage 3 admission wait & target-sync split (`5/8` unlogged), Stage 4 per-reviewer/resolver inner splits (`5/8`
+  unlogged; `#415` iter-2 active review vs `~104 min` quota idle unseparated in commit timestamps), and per-turn LLM
+  tokens (`8/8`, Bean `0629`).

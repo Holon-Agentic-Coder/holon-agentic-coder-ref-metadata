@@ -10,7 +10,7 @@ tags:
   - touch-set
   - holon-agentic-coder
 created_at: 2026-11-26T21:08:00Z
-updated_at: 2026-11-27T12:13:43Z
+updated_at: 2026-11-27T15:55:01Z
 ---
 
 ## Problem
@@ -68,3 +68,16 @@ and the prompt templates. Add this escape to the replay set (see the Proposed fi
   `parked_record_from_ci_status` in `apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports_review.py`, halting
   with `touch_set_violation` after `15.0 min` Stage 4 + `13.9 min` Stages 1–3. Add a rule proposing
   `flow/lazy_exports_review.py` whenever `flow/review/*.py` is in scope (mirroring `flow/lazy_exports.py`).
+
+## Audit evidence (2026-11-27T15:46Z fifth-merge audit)
+
+- **`CF-0064` (`0424`, `review-posting-transient-retry`, `12:29:32Z`):** Stage 3 halted after 2 re-plans because
+  `intent-0424` omitted `apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports_review.py` (`REVIEW_LAZY_EXPORTS`)
+  and `apps/sandbox-executor/tests/test_review_loop.py` (permanent failure fixture using `"HTTP 502"`). Inspecting
+  `intent_scope_check.py:88-96` (`_source_proposals`) at `1f3331637` confirms it only proposes `__init__.py`
+  (`reexporting_init`), never `flow/lazy_exports.py` or `flow/lazy_exports_review.py`.
+- **`CF-0065` (`HAC #427`, `0607`, `exhausted-ladder-blocked-on`, `15:39:27Z`):** After expanding `intent-0607` for
+  `lazy_exports_review.py` (`CF-0060`), `PR #427` halted in Stage 4 iteration 1 with `touch_set_violation` on
+  `apps/sandbox-executor/tests/flow/test_local_test_finding.py` (`9.0 min` execute + `3.4 min` review).
+  `test_local_test_finding.py` directly imports `local_test_finding` (so `intent_scope_graph.py` can detect it), yet
+  `run_holon_flow.py` pre-flight did not fail closed when `holon intent-check` exited `1` on unresolved companion tests.

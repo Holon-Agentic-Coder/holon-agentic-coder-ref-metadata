@@ -9,7 +9,7 @@ tags:
   - overlap-scheduling
   - slot-keeper
 created_at: 2026-11-27T11:52:42Z
-updated_at: 2026-11-27T11:55:26Z
+updated_at: 2026-11-27T15:55:01Z
 ---
 
 ## Notes
@@ -26,6 +26,11 @@ updated_at: 2026-11-27T11:55:26Z
   2. Direct launches via `.agents/skills/holon_flow/scripts/run_holon_flow.py` do not scan all on-disk
      `apps/*/flow-*/plans/*/P-*.md ## Touch Set` files before starting Stage 1, so coordinators relied on grepping
      `checkpoint-*.json` (`CF-0057`) and missed `plan.py` in `0216`'s `P-1795727982-CLA-CO5.5.md`.
+- **`CF-0062` (`0607` vs `0424`, `12:08:30Z`, 16th `overlap-scheduling` failure):** Relaunched `0607` (`I-1795780932`,
+  with `flow/lazy_exports_review.py` in scope) parked at Stage 3 admission (`EV 52.20`) because concurrent live `0424`
+  (`review-posting-transient-retry`) dynamically re-planned in `P-1795780572` and added `lazy_exports_review.py` to its
+  Touch Set. Pre-launch overlap checks should flag live Stage 2–3 `flow/review/*` flows as implicitly contesting
+  `flow/lazy_exports_review.py` (and `flow/*` flows as contesting `flow/lazy_exports.py`) until `0543` removes the hubs.
 
 ### Proposed Change
 

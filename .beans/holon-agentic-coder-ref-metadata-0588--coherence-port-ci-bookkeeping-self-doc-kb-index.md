@@ -10,7 +10,7 @@ tags:
   - hygiene
   - invariants
 created_at: 2026-11-27T00:33:33Z
-updated_at: 2026-11-27T12:13:43Z
+updated_at: 2026-11-27T15:55:01Z
 ---
 
 ## Problem
@@ -62,3 +62,7 @@ updated_at: 2026-11-27T12:13:43Z
   (`58.3%`, `132` of `222` total check-runs)** were pure `chore(review)` / `chore(calibration)` bookkeeping commits that
   re-ran the full `9–10` job CI pipeline (`unit`, `integration`, `docker-build`, `make`, `hygiene`) on unchanged code
   for lack of `ci_bookkeeping_gate.py`.
+- Audit evidence (`2026-11-27T15:46Z`, `4d2cfcf8`): Across `holon-coherence` PRs `#83`, `#67`, `#84`, `#85`, **`17` of
+  `23` CI-tested heads (`73.9%`, `155` of `222` total check-runs = `69.8%`)** ran full CI on `chore(review)`,
+  `chore(calibration)`, and `sync: merge target` commits (`unit (macos-latest)` taking `2.5–4.1 min` per bookkeeping
+  head).

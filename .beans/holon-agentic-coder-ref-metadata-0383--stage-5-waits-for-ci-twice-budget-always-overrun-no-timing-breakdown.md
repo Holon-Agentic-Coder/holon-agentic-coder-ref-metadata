@@ -11,7 +11,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-23T12:40:00Z
-updated_at: 2026-11-27T10:56:02Z
+updated_at: 2026-11-27T15:55:01Z
 ---
 
 ## Problem
@@ -301,3 +301,9 @@ not the flow engine. The other recommendations for the whole flow are listed in 
   `10 min` budget), both logging `WARNING: Stage 'calibrate' ran ... against its 10 min budget` solely from merged-head
   and final-head CI waits after `2` target-merge carry-overs (`#74` incurred `8` CI heads / `56` CI runs across `2`
   target-merge carry-overs).
+- **Audit evidence (`2026-11-27T15:46Z`, `8` merged PRs `#415,#424–#426` and `#83,#67,#84,#85`):** All `5/8`
+  target-syncing PRs waited **twice** for CI in Stage 5 — first `164–740 s` (`median 438 s` / `7.30 min`) on
+  `stage 5 carry-over` after `sync: merge target`, then `100–330 s` (`median 178.5 s` across all 8 PRs) on
+  `chore(calibration)` — even though calibration work itself took only `16–29 s` (`median 20.0 s`). Stage 5 overran its
+  10-minute budget on `HAC #425` (`14.9 min`, `886 s`), `HAC #426` (`11.7 min`, `692 s`), and `COH #85` (`13.7 min`,
+  `822 s`; `COH #84` `8.8 min`, `COH #67` `7.5 min`).
