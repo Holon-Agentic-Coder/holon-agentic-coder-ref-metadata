@@ -10,7 +10,7 @@ tags:
   - complexity
   - refactor
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T17:45:05Z
+updated_at: 2026-11-27T17:47:32Z
 ---
 
 ## Problem
@@ -67,8 +67,14 @@ Bidirectional import cycles link `flow` ↔ `entrypoint` (11 imports each way) a
   `sandbox_executor/credential_redactor.py`, re-exports it from `knowledge/records.py`, updates `ledger/rows.py` so
   `sandbox_executor.ledger` has zero imports from `sandbox_executor.knowledge`, and verifies via AST + parity tests in
   `tests/test_ledger_knowledge_acyclic.py` (`todo/intent-0531-hac-ledger-knowledge-cycle.json`,
-  `todo/intent-coverage-0531.json`). Remaining cycles (`flow <-> entrypoint`, `flow/github -> launcher`), pure
-  `FlowContext`, and hotspot decompositions are deferred to subsequent slices.
+  `todo/intent-coverage-0531.json`). Completed all 5 Holon stages (`antigravity-agent` / `gemini-4-neon`, predicted EV
+  `36.82`, actual EV `45.40`, `ΔEV: +8.58`, 3/3 consensus `APPROVED`, `16/16` CI checks passing, `MERGEABLE`/`CLEAN`) at
+  PR [`#439`](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/439) (branch
+  `I-1795800327-hac-ledger-knowledge-cycle/P-1795800376-ANA-G4N/E-1795800568-ANA-G4N/_`, worktree
+  `apps/holon-agentic-coder/flow-hac-ledger-knowledge-cycle`, checkpoint
+  `apps/holon-agentic-coder/flow-hac-ledger-knowledge-cycle/.holon/flow/checkpoint-hac-ledger-knowledge-cycle.json`),
+  awaiting human merge. Remaining cycles (`flow <-> entrypoint`, `flow/github -> launcher`), pure `FlowContext`, and
+  hotspot decompositions are deferred to subsequent slices.
 - **Slice 2 (`2026-11-27`, `hac-turns-run-turn-decompose`):** Decomposes `turns.py:run_turn` into cohesive helpers
   backed by a typed config/request dataclass while preserving 100% backward-compatible kwargs, verified in
   `tests/test_turns.py` and `tests/test_turn_supervisor.py` (`todo/intent-0531-hac-turns-run-turn-decompose.json`).
