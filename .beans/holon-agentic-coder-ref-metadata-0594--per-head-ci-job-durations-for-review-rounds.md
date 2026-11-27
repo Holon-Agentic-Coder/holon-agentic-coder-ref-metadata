@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0594
 title: "Measure per-head CI job durations so review-round cost can be attributed (macOS unit leg)"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - holon-flow
   - timing
 created_at: 2026-11-27T00:57:23Z
-updated_at: 2026-11-27T01:07:06Z
+updated_at: 2026-11-27T11:07:53Z
 ---
 
 ## Evidence
