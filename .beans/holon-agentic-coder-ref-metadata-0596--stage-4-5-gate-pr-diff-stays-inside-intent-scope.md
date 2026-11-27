@@ -23,6 +23,10 @@ updated_at: 2026-11-27T01:07:06Z
 - Related: beans 0546 (intent-check misses real scope escapes), 0562 (every invariant has an explicit check), 0573
   (invariant registry). Ledger: CF-0031, CF-0032 (renumbered from CF-0020/0021).
 
+- PR #380 (bean 0549 Stage 5 remainder) merged with 3 files outside its intent scope: `failure_classification.py`,
+  `flow/github/stage5_test_failure.py`, `flow/lazy_exports.py` (the scope listed only `test_failure_record.py`,
+  `ci_reverify.py`, `wisdom.py` and two test files).
+
 ## Goal
 
 No flow PR reaches calibration or merge with files outside its intent scope that were not explained by a recorded

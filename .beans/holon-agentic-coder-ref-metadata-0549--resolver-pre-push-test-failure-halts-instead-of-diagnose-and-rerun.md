@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0549
 title: "Failed tests: record in the ledger, diagnose, fix and re-run in a loop until they pass"
-status: in-progress
+status: completed
 type: feature
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
   - ledger
   - holon-agentic-coder
 created_at: 2026-11-26T22:27:00Z
-updated_at: 2026-11-27T00:59:09Z
+updated_at: 2026-11-27T04:41:37Z
 ---
 
 ## Instruction (maintainer, 2026-11-27)
@@ -95,3 +95,26 @@ loop; (c) failure-mode promotion at Stage 5.
 Self-explaining check on PR #360 added lines (AST docstrings and tokenized comments): 0 docstring lines, 0 comments
 other than `# why:` or machine directives. The `FIX_PROMPT_TEMPLATE` triple-quoted string is a prompt constant, not a
 docstring. Bean 0153: no note needed.
+
+## Resolution (2026-11-27, PR #380 merged at b5d9bfce)
+
+Status set to `completed`. Acceptance check against PR #360 (a937e904) and PR #380 (b5d9bfce), honouring
+`todo/intent-coverage-0549.json` exclusions:
+
+| Item                                                                       | Result                             | Evidence                                                                                                                                                                            |
+| -------------------------------------------------------------------------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Failed run writes ledger rows in any stage (ids, excerpts, classification) | Delivered                          | #360 Stage 3/4/review wiring; #380 Stage 5 wiring: `ci_reverify.py` calls `stage5_test_failure.record_stage5_test_failure` on a failing final-head check, row with stage `stage_5`. |
+| Stage 5 promotion of repeated failure signatures to the KB                 | Delivered                          | #380 `wisdom.promote_repeated_failure_signatures` (failure_mode entries, once per signature, two or more runs), called from the Stage 5 promotion step.                             |
+| Introduced failure gets a fix turn and re-run                              | Delivered                          | #360 `test_failure_loop._fix_once`.                                                                                                                                                 |
+| Flaky re-run and recorded; environment/pre-existing parks with evidence    | Delivered except `blocked_on` link | #360 `_retry_flaky`, status `blocked` with `blocked_evidence`.                                                                                                                      |
+| 2026-11-26 identity-env case classified "environment"                      | Delivered                          | #360 `test_leaked_git_identity_is_environment_in_one_diagnosis`.                                                                                                                    |
+| Tests per classification path with a fake runner                           | Delivered                          | #360 (13 test files).                                                                                                                                                               |
+
+Excluded by the coverage file, not delivered: the `blocked_on` park link and automatic resume (depends on beans 0497 and
+0523, both still `todo`). The coverage file names a separate intent for it, but no such intent exists in `todo/`; it
+needs a new bean before `blocked_on` work can start.
+
+Out-of-scope files in PR #380 (not in intent scope, recorded per bean 0596): `failure_classification.py`,
+`flow/github/stage5_test_failure.py`, `flow/lazy_exports.py`. Also 16 out-of-scope files in PR #360.
+
+Retirement: with the exclusions above honoured, the manual fail-to-diagnose loop rule can be retired.
