@@ -11,7 +11,7 @@ tags:
   - stage-5
   - holon-agentic-coder
 created_at: 2026-11-23T05:50:00Z
-updated_at: 2026-11-27T21:54:03Z
+updated_at: 2026-11-27T22:30:23Z
 ---
 
 ## Problem
@@ -58,3 +58,14 @@ To be fixed by the plan: the container entrypoint's git setup
   (`touch_set_violation`: resolver added regression coverage to `tests/flow/stages/test_review_keeps_branch.py` for
   `flow/stages/review.py`). Closed `#445` (`CF-0079`) and re-cut with expanded 7-file scope adding
   `submodule_gitfile.py (new)`, `flow/stages/review.py`, and `tests/flow/stages/test_review_keeps_branch.py`.
+- **Re-cut (`submodule-gitfile-repair`):** Completed all 5 stages and opened
+  [PR #451](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/451) (awaiting human merge).
+  - **Branch:** `I-1795816532-submodule-gitfile-repair/P-1795816569-ANA-G4N/E-1795816845-ANA-G4N/_`
+  - **Worktree:** `apps/holon-agentic-coder/flow-submodule-gitfile-repair`
+  - **Checkpoint:**
+    `apps/holon-agentic-coder/flow-submodule-gitfile-repair/.holon/flow/checkpoint-submodule-gitfile-repair.json`
+  - **Consensus:** `APPROVED`
+  - **CI Status:** `success` (16/16 checks passing, `MERGEABLE`, `CLEAN`)
+  - **Calibration:** Included in PR diff
+    (`plans/I-1795816532-submodule-gitfile-repair/P-1795816569-ANA-G4N_calibration.md`; predicted EV `56.48`, actual EV
+    `73.46`, `ΔEV: +16.98`)
