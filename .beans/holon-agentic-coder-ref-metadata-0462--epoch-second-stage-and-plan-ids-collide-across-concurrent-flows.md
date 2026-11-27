@@ -11,7 +11,7 @@ tags:
   - concurrency
   - holon-agentic-coder
 created_at: 2026-11-25T06:05:00Z
-updated_at: 2026-11-27T01:36:00Z
+updated_at: 2026-11-27T21:58:49Z
 ---
 
 # Epoch-second stage and plan IDs collide across concurrent flows
@@ -101,3 +101,11 @@ merged into `main` (`91c2afe`, 2026-11-26). Bean stays in-progress for the `REV-
   the slice's plan.
 - The 5 duplicate `plan_id` rows already on `main` are out of scope (the bean fixes generation, not history). Validated
   by the maintainer when the slice is scoped.
+
+## Slice 2 (`hac-unique-calibrate-id`)
+
+- Launched `todo/intent-0462-unique-calibrate-id.json` (`todo/intent-coverage-0462.json`) covering
+  `apps/sandbox-executor/src/sandbox_executor/calibration_record.py`,
+  `apps/sandbox-executor/src/sandbox_executor/calibration/run.py`, and
+  `apps/sandbox-executor/tests/test_unique_stage_ids.py` to add a per-flow disambiguator (`build_stage_disambiguator`)
+  to Stage 5 `CAL-*` execution IDs.
