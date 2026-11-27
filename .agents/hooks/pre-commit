@@ -1,9 +1,11 @@
 #!/bin/sh
 root="$(git rev-parse --show-toplevel)"
-echo "Running Prettier formatting check..."
-npx prettier --check "**/*.md" || {
-  echo "Prettier check failed. Run 'npx prettier --write \"**/*.md\"' and try again."
-  exit 1
-}
-python3 "$root/.agents/scripts/check_beans.py" || exit 1
-python3 "$root/.agents/scripts/check_failure_ledger.py" || exit 1
+staged_markdown="$(git diff --cached --name-only --diff-filter=ACMR -- '*.md')"
+if [ -n "$staged_markdown" ]; then
+  echo "Running Prettier formatting check on staged Markdown..."
+  echo "$staged_markdown" | xargs npx prettier --check || {
+    echo "Prettier check failed. Run 'npx prettier --write <file>' on the staged files and try again."
+    exit 1
+  }
+fi
+python3 "$root/.agents/scripts/staged_validation.py" || exit 1
