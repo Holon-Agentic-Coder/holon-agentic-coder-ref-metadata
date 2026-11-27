@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0558
 title: "Self-explaining gate (#357): fail closed in CI, cover ledger text, and report per-PR counts"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - self-explaining-code
   - holon-agentic-coder
 created_at: 2026-11-26T22:59:59Z
-updated_at: 2026-11-26T22:59:59Z
+updated_at: 2026-11-26T23:46:38Z
 ---
 
 ## Evidence
@@ -50,3 +50,25 @@ Turns a rule broken 6 of 6 times into a gate that fails in the executor turn. Co
 after it merges.
 
 ## Resolution
+
+## Progress (2026-11-27, PR #364 merged as f8adf665)
+
+Delivered by #364 (`scripts/check_self_explaining.py`, `scripts/self_explaining_diff.py`, tests in
+`apps/sandbox-executor/tests/test_check_self_explaining.py`):
+
+- Fail closed: no merge base with `origin/main` exits 2 with an error on stderr; the skip notice and its exit-0 path are
+  removed.
+- Shallow checkout: the merge-base lookup fetches `origin/main` and unshallows, then fails if no merge base results.
+- Per-file counts: each violating file gets a path and added docstring/comment count line, then the total; success
+  prints the changed-file count.
+
+Not delivered (bean stays in-progress):
+
+1. Counts in the CI job summary and the calibration report: `.github/workflows/test-hygiene.yml` emits no
+   `GITHUB_STEP_SUMMARY`.
+2. Gate in the executor turn before push (Stage 3, gap 3): no executor or flow change; prompts still cite
+   `uv run task lint` only.
+3. Ledger text coverage (title, gap 4): the Markdown ledger and plan exemption is unchanged and not verified.
+
+Measured in #364 code files (163 added lines): 0 added docstring lines, 0 added comments without `# why:`, 1 `# why:`
+line. No note on bean 0153 needed.
