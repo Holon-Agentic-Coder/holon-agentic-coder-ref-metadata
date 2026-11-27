@@ -10,7 +10,7 @@ tags:
   - invariants
   - holon-agentic-coder
 created_at: 2026-11-26T23:09:56Z
-updated_at: 2026-11-26T23:15:08Z
+updated_at: 2026-11-27T00:32:54Z
 ---
 
 ## Instruction (maintainer, 2026-11-27 local)
@@ -51,3 +51,20 @@ without a non-empty `module_budget_change` is refused (exit 2); tests in `tests/
 module-budget-default-350 and default-400 intents already carry the maintainer's quoted instruction. Old 0380 coherence
 intents lack the field and would now be refused (already done flows). Remaining: target CI label-actor check (maintainer
 applies `module-budget-change`) needs a `holon flow`.
+
+2026-11-26T23:52:52Z: target half launched as flow module-budget-label-actor (intent in the scratchpad; label-actor
+check in the hygiene job). 0560 was skipped: parked 0216 plans pr_metadata.py and its test.
+
+2026-11-27T00:29:22Z: target half done: flow module-budget-label-actor completed (claude-agent, claude-opus-5-5 after
+the fable spend-limit step-down); PR #366 APPROVED 3/3 at iteration 1, CI 11/11 green, calibration in diff,
+MERGEABLE/CLEAN; awaiting maintainer merge. Diff scan: no docstrings; one tool pragma (`# type: ignore[arg-type]`) in
+scripts/check_module_budget_label_actor.py flagged for the maintainer, not edited.
+
+2026-11-27T00:32:54Z: PR #366 (flow module-budget-label-actor) merged into main at f006e79b (2026-11-27T00:29:24Z). The
+check reads the label's actor and that actor's admin permission, and runs on labeled/unlabeled pull_request events.
+Still open: the CI bullet also requires the intent to carry `module_budget_change`;
+`scripts/check_module_budget_label_actor.py` reads no intent and no CI step checks it, so this bean stays in-progress.
+Harness gate tests pass (budget tests in `tests/test_flow_gates.py`). Measured #366 additions: 0 docstrings;
+non-`# why:` comment tokens are a shebang and one `# type: ignore` pragma (noted on bean 0153); one `# why:` line in the
+workflow. Slug worktree and branches removed. Open PR #365 does not change `holon-config/hygiene/module_budgets.json`,
+so the check does not gate it.

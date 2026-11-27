@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0583
 title: "Leftover review-loop items from 0557: planner/reviewer environment rule and readiness prompt lines"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - prompts
   - holon-agentic-coder
 created_at: 2026-11-26T23:53:24Z
-updated_at: 2026-11-26T23:53:24Z
+updated_at: 2026-11-27T00:32:54Z
 ---
 
 ## Problem

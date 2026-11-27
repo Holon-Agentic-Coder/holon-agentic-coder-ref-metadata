@@ -72,9 +72,13 @@ invariants:
       - "0570"
     runs_at:
       - "flow-gate"
+      - "ci"
     checks:
       - "test:tests/test_flow_gates.py::test_budget_scope_without_the_field_is_refused"
       - "test:tests/test_flow_gates.py::test_maintainer_flags_are_refused_without_authorisation"
+      - "script:apps/holon-agentic-coder/main/scripts/check_module_budget_label_actor.py"
+      - "workflow:.github/workflows/test-hygiene.yml#hygiene"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_check_module_budget_label_actor.py::test_the_hygiene_workflow_runs_the_check_on_pull_request_events_only"
   - id: "default-holon-coding-model"
     agents_rules:
       - "Default Holon coding model"

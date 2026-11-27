@@ -464,3 +464,8 @@ catch them; logged as bean 0574.
 > Remaining clean-up slices: the `holon-agentic-coder` docstrings and comments that landed after the gate's baseline
 > (PRs #344, #351, #353, #356, #358 per the notes above) and the checkpoint path that dropped the invariant (bean 0574).
 > Bean stays `in-progress`.
+
+2026-11-27T00:32:54Z: PR #366 (module-budget-label-actor, merged f006e79b) added 0 docstrings. Two non-`# why:` comment
+tokens: the shebang on line 1 of `scripts/check_module_budget_label_actor.py` and a `# type: ignore[arg-type]` pragma on
+line 102 of `apps/sandbox-executor/tests/test_check_module_budget_label_actor.py`. Neither explains code; both are left
+for the maintainer to decide. Bean stays in-progress.

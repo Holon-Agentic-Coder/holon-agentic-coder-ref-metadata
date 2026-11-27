@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-27 00:30:19 UTC
+**Last Updated:** 2026-11-27 00:33:16 UTC
 
 ## Executive Summary
 
@@ -19,7 +19,7 @@ run together.
 - **Total Tracked Beans**: 578 (excluding template)
 - **Completed**: 398 (68.9%)
 - **Scrapped / Superseded**: 17 (2.9%)
-- **Active**: 163 (28.2%), of which 27 are in progress, 134 are todo and 2 are draft
+- **Active**: 163 (28.2%), of which 28 are in progress, 133 are todo and 2 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1072,7 +1072,7 @@ logged beans `0389` and `0390` added to triage.
 | **P0**   | in-progress |  High  |             M             | 0562   | Every invariant has an explicit, automatic check (umbrella)                                                                                                   | Ledger / Observability           |                                                                                                                                                                                                                                                       |
 | **P0**   | todo        |  High  |             L             | 0525   | Harden /holon/* dashboard Host validation, /holon/api/mode auth, CORS, and wire_log_dir                                                                       | Architecture / Quality           |                                                                                                                                                                                                                                                       |
 | **P0**   | todo        |  High  |             L             | 0524   | Fix world-writable Root CA key permissions, web password leaks, and unscrubbed cache                                                                          | Architecture / Quality           |                                                                                                                                                                                                                                                       |
-| **P1**   | todo        | Medium |             M             | 0583   | Leftover review-loop items from 0557: planner/reviewer environment rule and readiness prompt lines                                                            | General                          |                                                                                                                                                                                                                                                       |
+| **P1**   | in-progress | Medium |             M             | 0583   | Leftover review-loop items from 0557: planner/reviewer environment rule and readiness prompt lines                                                            | General                          |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             L             | 0582   | Self-explaining gate: sweep open PR heads when the gate lands; measure by AST, not text                                                                       | Architecture / Quality           |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             L             | 0581   | Single writer for the shared harness branch: per-agent paths or a serialised commit step                                                                      | Architecture / Quality           |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        | Medium |             M             | 0580   | Brief builder: resolve slug, PR state and time from live state, embed the standing preamble                                                                   | Build / DevEx                    |                                                                                                                                                                                                                                                       |
