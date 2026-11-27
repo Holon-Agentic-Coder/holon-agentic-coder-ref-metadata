@@ -5,6 +5,97 @@ first.
 
 ## Entries
 
+### 2026-11-27T10:56:02Z — Fifth-Merge Audit
+
+- **Trigger:** fifth merge (`7` merges in `holon-coherence` since `2026-11-27T07:49:25Z` at `holon-agentic-coder#411`
+  and `holon-coherence#65`; `0` new merges in `holon-agentic-coder`):
+  - `holon-coherence` (`7`): `#69` (`08:02:58Z`), `#71` (`08:06:25Z`), `#68` (`08:08:11Z`), `#75` (`08:27:33Z`), `#74`
+    (`08:36:52Z`), `#72` (`09:29:55Z`), `#73` (`09:29:55Z`). Open: `#66` (`CF-0044`), `#67` (`0623`), `#70` (`CF-0054`).
+  - `holon-agentic-coder` (`0`): latest merged remains `#411` (`07:40:19Z`). Open: `#408` (`CF-0043`), `#412` (`0618`,
+    `3/3 APPROVED` + `calibrate: ok` `10:48:47Z`), `#413` (`0611`, halted `CF-0055`), `#414` (`0616`, `3/3 APPROVED` +
+    `calibrate: ok` `10:47:40Z`), `#415` (`0615`, `3/3 APPROVED` + `calibrate: ok` `10:46:16Z`).
+- **Last merged pull requests at audit time:** `Holon-Agentic-Coder/holon-agentic-coder#411`;
+  `Holon-Agentic-Coder/holon-coherence#73` (`5201917`).
+- **Coordinator failure ledger repeats (`CF-0047`–`CF-0055`, `9` new rows since `CF-0046`):**
+  - `intent-scope` (`2` new rows, `14` total): `CF-0053` (`0527` slice 1 & `#67` halted on `test_module_budgets` /
+    `test_complexity_baseline` ratchet deadlock -> `0623`) and `CF-0055` (`HAC #413` Stage 4 resolver halted with
+    `touch_set_violation` on `.github/workflows/README.md` -> extended `0546`, new **`0624`**).
+  - `overlap-scheduling` (`2` new rows, `13` total): `CF-0050` (`0599` parked on older `0216` checkpoint) and `CF-0052`
+    (`0619` Stage 2 widened into `flow/review/loop.py` overlapping live `0618` -> extended `0610`).
+  - `resume-checkpoint` (`2` new rows, `3` total): `CF-0051` (`0216` resume adopted stale `E-1795726868` ->
+    `lint_failed`) and `CF-0054` (`Coherence #70` Stage 4 resolver halted with `touch_set_violation` on `sse_tap.py:79`
+    after `#64` merged -> new **`0624`**).
+  - `conflict-handling` (`1`), `post-merge` (`1`), `brief` (`1`): `CF-0048` (`#70` post-`#64` mismatch), `CF-0047`
+    (`flash_lite` post-merge omissions), `CF-0049` (`0617` missing `## Acceptance Criteria` from `new_bean.py` -> new
+    **`0626`**).
+- **Clean findings (examined and in order):**
+  - **`exit code 3` quota isolation:** `6` concurrent flows (`#414`, `#415`, `0538`, `0617`, `0621`, `0623`) hit
+    `gemini-4-neon` `quota (resets 2026-11-27T10:30Z)` at `08:42–08:46Z` and exited cleanly with zero branch corruption;
+    `#412`, `#414`, and `#415` resumed cleanly post-reset to `3/3 APPROVED` + `calibrate: ok` (idle-stall improvement
+    logged as **`0625`**).
+  - **Coherence CI stability:** `0` cancelled CI runs across all `10` Coherence PRs (`#66`–`#75`), `100.0%` touch-set
+    precision/recall and `0` docstrings/comments across all `7` Coherence calibration reports (`#68,#69,#71–#75`).
+  - **Stage 4 scope gate (`0596`):** `#410` gate immediately caught out-of-scope resolver edits on `#70` and `#413`.
+- **Per-flow churn summary (CI heads / total runs / review iterations / churn vs defect):**
+  - Coherence (`#67`–`#75`): `#68` `3 / 15 / 1 full (0 churn)`; `#69` `3 / 15 / 1 full (0 churn)`; `#71`
+    `3 / 15 / 1 full (0 churn)`; `#75` `3 / 18 / 1 full (0 churn)`; `#74`
+    `8 / 56 / 2 full + 1 scoped (2 target-merge churn, 2 carry-overs)`; `#72`
+    `5 / 29 (1 fail) / 1 full (2 target-merge churn, 2 carry-overs; Stage 5 27.0 m)`; `#73`
+    `4 / 23 / 1 full (2 target-merge churn, 2 carry-overs; Stage 5 17.6 m)`; open `#67`
+    `3 / 16 (3 fail) / 2 full (halted 0623)`; open `#70`
+    `5 / 29 (3 fail) / 1 full + 1 carried resolver (2 target-merge churn, halted CF-0054)`.
+  - HAC (`#412`–`#415` open): `#412`
+    `6 / 54 (9 canc) / 1 full + 1 scoped (0 churn, iter 1 resolver idle exit 3 -> approved on resume)`; `#413`
+    `1 / 9 / 1 full (halted CF-0055 touch_set_violation)`; `#414`
+    `4 / 36 (8 canc) / 2 full (0 churn, iter 1 quota exit 3 -> approved on resume)`; `#415`
+    `4 / 36 (8 canc) / 2 full (0 churn, iter 1 quota exit 3 -> approved on resume)`.
+- **Per-step timing table (`>= 2026-11-27T07:15:00Z` checkpoint events across `24` active/completed/parked flows):**
+
+| Step                                        | Count |    Median (s / min) |   Longest (s / min) | Category / Notes                                                                 |
+| :------------------------------------------ | ----: | ------------------: | ------------------: | :------------------------------------------------------------------------------- |
+| Pre-flight (wrapper start -> Stage 1)       |     - |        not measured |        not measured | `0` `todo/flow-*.log` files written in `07:29Z–10:49Z` (`0412`)                  |
+| Stage 1 (`INTENT`)                          |    13 |     17.0 s (0.28 m) |     21.0 s (0.35 m) | Working (`stage4-carried-finding-clean-tree` max)                                |
+| Stage 2 (`PLAN`)                            |    15 |    202.0 s (3.37 m) |    341.0 s (5.68 m) | Working (`stage5-fail-closed-calibrate` max)                                     |
+| Stage 3 admission — admitted                |    14 |     12.0 s (0.20 m) |     21.0 s (0.35 m) | Working (`hac-architecture-audit-kb-entries` max)                                |
+| Stage 3 admission — refused (per poll)      |     3 |      8.0 s (0.13 m) |      9.0 s (0.15 m) | Overlap wait (`stage4-main-baseline-guard` max)                                  |
+| Stage 3 (`EXECUTE` — succeeded)             |     6 |    339.0 s (5.65 m) |   832.0 s (13.87 m) | Working (`stage4-carried-finding-clean-tree` max)                                |
+| Stage 3 (`EXECUTE` — failed/refused)        |    11 |     49.0 s (0.82 m) |  1273.0 s (21.22 m) | Failure/refusal (`stage5-fail-closed-calibrate` re-plan breach max)              |
+| Execute end -> PR create                    |     6 |     13.0 s (0.22 m) |     14.0 s (0.23 m) | Working (`hac-import-cycle-ratchet` max)                                         |
+| Stage 4 reviewer ensemble turn              |     8 |    336.0 s (5.60 m) |   678.0 s (11.30 m) | Working + CI (`coherence-translation-sse-finish` max; per-reviewer unmeasured)   |
+| Stage 4 resolver turn                       |     5 |    128.0 s (2.13 m) |    313.0 s (5.22 m) | Working (`promote-ledger-debounce-alert` max; inner splits unmeasured)           |
+| Stage 4 carried-finding resolver            |     2 |    187.0 s (3.12 m) |    213.0 s (3.55 m) | Working (`coherence-translation-sse-finish` max)                                 |
+| Stage 4 CI registration wait                |     3 |      2.0 s (0.03 m) |      2.0 s (0.03 m) | Waiting on CI                                                                    |
+| Stage 4 (`REVIEW` total)                    |    11 |    263.0 s (4.38 m) |   931.0 s (15.52 m) | Working + CI (`coherence-dashboard-html-asset` max)                              |
+| Stage 5 calibration work (before CI wait)   |     4 |     17.0 s (0.28 m) |     18.0 s (0.30 m) | Working (`stage4-carried-finding-clean-tree` max)                                |
+| Stage 5 merged-head CI wait                 |     1 |    357.0 s (5.95 m) |    357.0 s (5.95 m) | Waiting on CI (`coherence-translation-sse-finish` failed head `1d7726f9`)        |
+| Stage 5 final-head CI reg wait              |     3 |     18.0 s (0.30 m) |     18.0 s (0.30 m) | Waiting on CI (`hac-broad-except-ratchet` max)                                   |
+| Stage 5 final-head CI wait                  |     4 |    221.3 s (3.69 m) |    360.7 s (6.01 m) | Waiting on CI (`hac-broad-except-ratchet` max)                                   |
+| Stage 5 (`CALIBRATE` total, incl. `#72–74`) |     6 |    451.2 s (7.52 m) |  1619.1 s (26.99 m) | Work + CI (`coherence-abtest-leaks-deps` `#72` max; `#73` `1056.1 s` / `17.6 m`) |
+| Idle between stop & resume                  |     8 | 6648.5 s (110.81 m) | 7571.0 s (126.18 m) | Idle (`gemini-4-neon` `10:30Z` quota reset wait across `6` flows)                |
+| Human wait (approval -> merge, Coherence)   |     7 |   1398.0 s (23.3 m) |  6204.0 s (103.4 m) | Waiting on human (`#75` `6.0 m`, `#74` `9.4 m`, `#72` `103.4 m`)                 |
+
+- **Not measured:** `100%` of flows (`07:29Z–10:49Z`) wrote `0` `todo/flow-*.log` files, leaving wrapper pre-flight,
+  per-reviewer latencies inside Stage 4 ensembles (`8` runs), resolver inner splits (`5` runs), and Stage 5
+  `publish_calibration` split unmeasured (extended **`0412`**).
+- **Beans created:** **`0624`** (high: Stage 4 `touch_set_violation` rollback & bounded re-plan recovery), **`0625`**
+  (high: Stage 3/4 quota `exit code 3` automatic ladder step-down), **`0626`** (normal: `new_bean.py` scaffold
+  `## Acceptance Criteria`).
+- **Beans extended:** **`0383`** (`#72`/`#73`/`#74` Stage 5 CI-wait overruns), **`0412`** (`0` wrapper logs in
+  `07:29Z–10:49Z`), **`0528`** (`#75` closed `3x normalize_payload` & unused SQLite index), **`0546`** (`CF-0055`
+  `.github/workflows/README.md` companion gap), **`0610`** (`CF-0052` `0619` Stage 2 `loop.py` expansion), **`0620`**
+  (Coherence pending fragments `27→48`), **`0622`** (`#69` fixed `wire_log.py:69`, `4→3` silent `pass`, `34→33` broad
+  catches).
+- **Architecture & source-code quality refresh
+  ([docs/ecosystem-audit-report-2026-11.md](../docs/ecosystem-audit-report-2026-11.md), `hac@0d8d1249f` unchanged,
+  `coherence@52019174f` vs `ce39bf34d`):**
+  - **Overall scores:** **`holon-coherence` `7.9 / 10 (+0.2)`** widened its lead over **`holon-agentic-coder`
+    `7.5 / 10 (0.0)`** after closing `0524` (`#75`) and `0563` (`#74`) plus 5 resilience/hygiene PRs
+    (`#68,#69,#71–#73`).
+  - **Coherence deltas (`ce39bf34d → 52019174f`):** Clean Code `7.1→7.3 (+0.2)`, Self-Doc `8.2→8.3 (+0.1)`, Testability
+    `7.8→8.0 (+0.2)` (`+3` test files / `+792` LOC / `1,019` `test_*`), Error Handling `7.6→7.9 (+0.3)` (`broad_except`
+    `34→33`, silent `pass` `4→3`), Security `7.4→8.4 (+1.0)` (`0524` closed), Observability `7.6→7.7 (+0.1)` (`0563`
+    closed, `0` `index.json`, `48` pending fragments remain under `0620`).
+
 ### 2026-11-27T07:49:25Z — Fifth-Merge Audit
 
 - **Trigger:** fifth merge (`14` merges across both target repos since `2026-11-27T05:19:35Z` at

@@ -11,7 +11,7 @@ tags:
   - timing
   - holon-agentic-coder
 created_at: 2026-11-24T11:00:00Z
-updated_at: 2026-11-27T07:50:33Z
+updated_at: 2026-11-27T10:56:02Z
 ---
 
 ## Why
@@ -192,3 +192,13 @@ Instrumentation gaps from section 4 of `todo/flow-time-audit-2026-11-26.md`:
   `stage5_ci_reg_wait`, per-reviewer latencies inside Stage 4 ensembles (`44` ensemble runs), resolver inner splits
   (container boot vs LLM turns vs local pytest/lint vs push), and hand pre-merge `origin/main` syncs (`#403`, `#406`,
   `#407`, `#409`, `#410`, `#411`).
+
+## Audit evidence, 2026-11-27T10:55Z (fifth-merge audit)
+
+- **`100%` of flows launched in `07:29Z–10:49Z`** (`#67`–`#75`, `#412`–`#415`, `0538`, `0617`, `0619`, `0615`, `0616`,
+  `0621`, `0623`, `0527`, `0599`) left **no** `todo/flow-<slug>.log` file on disk; only `checkpoint-*.json`
+  `context.logs` captured engine events, losing wrapper pre-flight lines and Stage summaries (and pruned flows `#68`,
+  `#69`, `#71`, `#75`, `#72`, `#73`, `#74` lost their checkpoint logs once post-merge pruned their worktrees).
+- Still `not measured` in `07:49:25Z`–`10:55Z`: wrapper pre-flight before `Pipeline run initiated`, per-reviewer
+  latencies inside Stage 4 ensembles (`8` ensemble runs), resolver inner splits (`5` runs), Stage 5
+  `publish_calibration` vs `stage5_cal_work` split, and post-merge pruned flow timings when no `todo/flow-*.log` exists.

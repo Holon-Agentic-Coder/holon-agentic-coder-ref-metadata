@@ -10,7 +10,7 @@ tags:
   - clean-code
   - refactor
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T10:50:08Z
+updated_at: 2026-11-27T10:56:02Z
 ---
 
 ## Problem
@@ -69,5 +69,8 @@ passes host paths into containers.
   edits to `holon-config/hygiene/module_budgets.json`.
 - **Progress (`2026-11-27`):** [PR #72](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/72)
   (`coherence-abtest-leaks-deps`, merge commit `a7d752b2`) merged into `main`, fixing `ab_test.py` temporary directory
-  leaks and container mount paths and removing unused `cryptography` dependency from `pyproject.toml`. Bean remains
-  `in-progress` for remaining slices (`translation.py`, `metrics`, hot-path copies).
+  leaks and container mount paths and removing unused `cryptography` dependency from `pyproject.toml`. In addition,
+  [PR #75](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/75) (`980da41`, bean `0524`) eliminated `3x`
+  `normalize_payload()` calls in `HybridCacheStore.get()`/`put()` and dropped the unused
+  `idx_prompt_cache_provider_system_created` SQLite index. Bean remains `in-progress` for remaining slices
+  (`translation.py`, `metrics`, hot-path deepcopies).

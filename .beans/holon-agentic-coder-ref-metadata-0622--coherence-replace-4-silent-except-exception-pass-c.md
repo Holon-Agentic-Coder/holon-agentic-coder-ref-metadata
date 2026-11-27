@@ -10,7 +10,7 @@ tags:
   - error-handling
   - ci
 created_at: 2026-11-27T08:03:26Z
-updated_at: 2026-11-27T10:52:04Z
+updated_at: 2026-11-27T10:56:02Z
 ---
 
 ## Notes
@@ -21,6 +21,10 @@ updated_at: 2026-11-27T10:52:04Z
   - `src/holon_coherence/commands/docker_ops.py:81` (container port parsing)
   - `src/holon_coherence/commands/docker_ops.py:169` (post-run metrics summary printing)
   - `src/holon_coherence/proxy/wire_log.py:69` (wire-log mode parsing)
+- **Audit update (`2026-11-27T10:55Z`, `52019174f`):** PR `#69` (`2659364`) resolved
+  `src/holon_coherence/proxy/wire_log.py:69`, reducing silent `except Exception: pass` blocks to **3**
+  (`commands/ca.py:40`, `commands/docker_ops.py:81,169`) and `broad_except` in `src/` from `34` to **`33`** (`35`
+  including `scripts/`).
 - **Proposed Change**: Replace all 4 silent `except Exception: pass` blocks with narrowed exception types (`OSError`,
   `ValueError`, `json.JSONDecodeError`, `subprocess.SubprocessError`) and explicit debug/warning logging, and add an AST
   CI ratchet capping `except Exception` counts per module (mirroring HAC Bean `0616`).

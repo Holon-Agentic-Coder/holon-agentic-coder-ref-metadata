@@ -10,7 +10,7 @@ tags:
   - touch-set
   - holon-agentic-coder
 created_at: 2026-11-26T21:08:00Z
-updated_at: 2026-11-26T21:08:00Z
+updated_at: 2026-11-27T10:56:02Z
 ---
 
 ## Problem
@@ -43,3 +43,11 @@ Scope drift on PR #357 (bean 0153, flow `self-explaining-code-gate`, merged `5a2
 modules outside the intent's scope, `scripts/self_explaining_comments.py`, `scripts/self_explaining_diff.py` and
 `scripts/self_explaining_hash.py`. The intent named only the gate script, the pre-commit and hygiene wiring, the tests
 and the prompt templates. Add this escape to the replay set (see the Proposed fix above).
+
+## Audit evidence (2026-11-27T10:55Z fifth-merge audit)
+
+- **`CF-0055` (`HAC #413`, bean `0611`, `promote-ledger-debounce-alert`, `08:44:21Z`):** `holon intent-check` did not
+  propose `.github/workflows/README.md` when `.github/workflows/promote-ledger.yml` was in `intent.scope`. All `3/3`
+  reviewers requested updating `.github/workflows/README.md` to match the new trigger/behavior, and the Stage 4 resolver
+  halted on `touch_set_violation` (`ac8f76db3dda`). Add `.github/workflows/*.yml -> .github/workflows/README.md`
+  companion rule to `intent-check`.

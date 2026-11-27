@@ -11,7 +11,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-23T12:40:00Z
-updated_at: 2026-11-24T13:00:00Z
+updated_at: 2026-11-27T10:56:02Z
 ---
 
 ## Problem
@@ -296,3 +296,8 @@ not the flow engine. The other recommendations for the whole flow are listed in 
 
 - Overlap: Bean 0412 records timing for every step, including the Stage 5 breakdown in Goal 4. This bean owns the double
   CI wait and the budget; Bean 0412 owns the timing breakdown.
+- **Audit evidence (`2026-11-27T10:55Z`):** Coherence `#72` (`coherence-abtest-leaks-deps`) ran Stage 5 `27.0 min`
+  (`1619.1 s` vs `10 min` budget) and `#73` (`coherence-ca-logging-and-image`) ran Stage 5 `17.6 min` (`1056.1 s` vs
+  `10 min` budget), both logging `WARNING: Stage 'calibrate' ran ... against its 10 min budget` solely from merged-head
+  and final-head CI waits after `2` target-merge carry-overs (`#74` incurred `8` CI heads / `56` CI runs across `2`
+  target-merge carry-overs).

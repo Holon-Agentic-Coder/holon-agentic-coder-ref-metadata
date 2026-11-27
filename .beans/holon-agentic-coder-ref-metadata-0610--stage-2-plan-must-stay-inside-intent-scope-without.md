@@ -10,7 +10,7 @@ tags:
   - scope
   - holon-agentic-coder
 created_at: 2026-11-27T05:18:43Z
-updated_at: 2026-11-27T07:50:33Z
+updated_at: 2026-11-27T10:56:02Z
 ---
 
 ## Notes
@@ -60,5 +60,11 @@ updated_at: 2026-11-27T07:50:33Z
   `tests/test_scripts_self_doc.py` (unlisted in `intent.scope`) and parked on Coherence PR `#58`.
 - **`CF-0045` (`0524` slice 2, `coherence-cache-scrub-endpoints`, `07:34:44Z`):** Stage 2 expanded into
   `tests/commands/test_start.py` and `tests/commands/test_web_token.py` and parked on Coherence PR `#63`.
+
+### Audit evidence (2026-11-27T10:55Z fifth-merge audit)
+
+- **`CF-0052` (`0619`, `stage4-main-baseline-guard`, `08:29:46Z`):** Stage 2 plan widened into
+  `apps/sandbox-executor/src/sandbox_executor/flow/review/loop.py` outside `intent.scope` and parked cleanly at Stage 3
+  admission on live bean `0618` (`flow-stage4-carried-finding-clean-tree`).
 
 ## Resolution
