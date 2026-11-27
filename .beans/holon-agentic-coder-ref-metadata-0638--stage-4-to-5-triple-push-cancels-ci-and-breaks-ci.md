@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0638
 title: "Stage 4-to-5 triple push cancels CI and breaks ci_merge_push_gate on carry-over"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - stage-5
   - performance
 created_at: 2026-11-27T15:53:29Z
-updated_at: 2026-11-27T15:55:01Z
+updated_at: 2026-11-27T16:40:46Z
 ---
 
 ## Notes
@@ -59,5 +59,12 @@ updated_at: 2026-11-27T15:55:01Z
 - [ ] `ci_merge_push_gate.py` skips heavy CI when a clean `sync: merge target` + bookkeeping commit chain preserves an
       unchanged PR-own diff against a green prior head and green `origin/main` commit.
 - [ ] Hermetic tests cover the combined merge+bookkeeping push case; `uv run pytest` passes.
+
+## Flow
+
+- **Slice 1 (`2026-11-27`, `ci-merge-bookkeeping-chain`):** Covers AC #2 (`ci_merge_push_gate.py` /
+  `ci_bookkeeping_gate.py` / `ci_bookkeeping_chain.py` handling a bookkeeping commit chain stacked on a clean
+  `sync: merge target` merge commit) and AC #3 (hermetic tests). AC #1 (Stage 4->5 single push consolidation) is
+  deferred to Slice 2 (`todo/intent-coverage-0638.json`).
 
 ## Resolution

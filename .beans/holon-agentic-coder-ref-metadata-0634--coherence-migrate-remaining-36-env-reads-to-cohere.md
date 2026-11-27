@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0634
 title: "Coherence: migrate remaining 36 env reads to CoherenceSettings and bound wire-log disk"
-status: todo
+status: in-progress
 type: task
 priority: normal
 tags:
@@ -10,7 +10,7 @@ tags:
   - resilience
   - refactor
 created_at: 2026-11-27T12:12:09Z
-updated_at: 2026-11-27T12:13:43Z
+updated_at: 2026-11-27T16:40:46Z
 ---
 
 ## Notes
@@ -53,5 +53,14 @@ updated_at: 2026-11-27T12:13:43Z
       through `CoherenceSettings.from_env()` with unit tests in `tests/test_settings.py`.
 - [ ] Wire-log disk output in `proxy/wire_log.py` enforces bounded size/file retention with unit tests.
 - [ ] `uv run pytest` and `uv run task lint` pass with zero docstrings or comments and untouched `module_budgets.json`.
+
+## Flow
+
+- **Slice 1 (`2026-11-27`, `coherence-proxy-settings-env`):** Migrates env reads across the 6 proxy/addon modules
+  (`mitm_addon.py`, `proxy/addon.py`, `proxy/wire_log.py`, `proxy/steps/wire_record.py`,
+  `proxy/steps/serve_dashboard.py`, `proxy/steps/route_local_target.py`) through `CoherenceSettings.from_env()` in
+  `settings.py`, tested in `tests/test_settings.py` and `tests/proxy/test_wire_log.py`. Remaining `commands/*`,
+  `host_local.py`, `container/lifecycle.py`, and wire-log disk retention are deferred to Slice 2
+  (`todo/intent-coverage-0634.json`).
 
 ## Resolution

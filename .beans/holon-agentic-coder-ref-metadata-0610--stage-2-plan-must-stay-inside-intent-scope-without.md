@@ -10,7 +10,7 @@ tags:
   - scope
   - holon-agentic-coder
 created_at: 2026-11-27T05:18:43Z
-updated_at: 2026-11-27T11:55:26Z
+updated_at: 2026-11-27T16:40:46Z
 ---
 
 ## Notes
@@ -86,5 +86,12 @@ updated_at: 2026-11-27T11:55:26Z
 - Unit tests in `apps/sandbox-executor/tests/flow/stages/test_plan_scope_guard.py` verify that unrecorded out-of-scope
   `## Touch Set` paths fail Stage 2, provenance paths and recorded expansions pass, and `uv run pytest` +
   `uv run task lint` pass with no docstrings or disallowed comments.
+
+## Flow
+
+- **Progress (`2026-11-27`):** `stage2-plan-in-intent-scope` completed all 5 stages on `antigravity-agent` /
+  `gemini-4-neon` and opened [PR #430](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/430) (`OPEN`,
+  `MERGEABLE` / `CLEAN`, `16/16` CI checks `SUCCESS`, Consensus `APPROVED`,
+  `Predicted EV 53.77 / Actual EV 68.59 / ΔEV +14.82`). Waiting for human maintainer merge.
 
 ## Resolution
