@@ -10,7 +10,7 @@ tags:
   - clean-code
   - hygiene
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T08:10:15Z
+updated_at: 2026-11-27T12:32:57Z
 ---
 
 ## Problem
@@ -64,3 +64,8 @@ package root, and misleading names mask metric/parity semantics.
   (`coherence-parity-and-hygiene`, merge commit `f958f9a0`) merged into `main`, addressing `ab_testing/evaluation.py`,
   `openbrain_memory.py`, `rag_indexer.py`, and repo hygiene tests. Bean remains `in-progress` for remaining slices
   (e.g., `dashboard-html-asset` and CI type-checking).
+- Progress (`2026-11-27`): [PR #67](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/67)
+  (`coherence-dashboard-html-asset`, merge commit `63a6bf3f`) merged into `main`, extracting `proxy/dashboard.py`'s
+  inline HTML/CSS/JS template into static package resource `src/holon_coherence/proxy/dashboard.html` loaded via
+  `importlib.resources` (`render_dashboard_html()`) with `tests/proxy/test_dashboard.py` verification. Bean remains
+  `in-progress` for CI `mypy`/`pyright`, redundant `*_self_doc.py` prune, and `_compat.py` retirement.

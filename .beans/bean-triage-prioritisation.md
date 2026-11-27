@@ -1,6 +1,6 @@
 # Holon Ecosystem Bean Triage and Prioritisation Matrix
 
-**Last Updated:** 2026-11-27 12:29:27 UTC
+**Last Updated:** 2026-11-27 12:33:31 UTC
 
 ## Executive Summary
 
@@ -17,9 +17,9 @@ about 10M+ tokens), so flows that touch the same files still run one after anoth
 run together.
 
 - **Total Tracked Beans**: 629 (excluding template)
-- **Completed**: 428 (68.0%)
+- **Completed**: 429 (68.2%)
 - **Scrapped / Superseded**: 17 (2.7%)
-- **Active**: 184 (29.3%), of which 39 are in progress, 143 are todo and 2 are draft
+- **Active**: 183 (29.1%), of which 38 are in progress, 143 are todo and 2 are draft
 
 Dates below are UTC, as in `gh`, the bean timestamps and the milestones.
 
@@ -1086,7 +1086,6 @@ logged beans `0389` and `0390` added to triage.
 | **P1**   | in-progress |  High  |             L             | 0616   | HAC: add broad except-Exception CI ratchet and narrow non-boundary catches                                                                                    | Architecture / Quality           |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             L             | 0613   | Review loop prints zero non-defect churn and hides Reviewer 2 and 3 verdicts in flow logs                                                                     | Architecture / Quality           |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             L             | 0612   | Org-level model spend-limit exhaustion halts concurrent flows and retries dead provider                                                                       | Architecture / Quality           |                                                                                                                                                                                                                                                       |
-| **P1**   | in-progress |  High  |             L             | 0611   | Promote Ledger no-ops green without bot token while 252 pending fragments pile up                                                                             | Architecture / Quality           |                                                                                                                                                                                                                                                       |
 | **P1**   | in-progress |  High  |             M             | 0610   | Stage 2 plan must stay inside intent scope without recorded expansion                                                                                         | Flow / Architecture              |                                                                                                                                                                                                                                                       |
 | **P1**   | todo        |  High  |             M             | 0609   | Merge of main lands on every approved PR head seconds before the human merge                                                                                  | Flow / Architecture              |                                                                                                                                                                                                                                                       |
 | **P1**   | in-progress |  High  |             M             | 0608   | Reason comments deleted by 0153 slices are never restored as why comments                                                                                     | Flow / Architecture              |                                                                                                                                                                                                                                                       |
