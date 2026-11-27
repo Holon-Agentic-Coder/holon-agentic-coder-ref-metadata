@@ -10,7 +10,7 @@ tags:
   - resilience
   - refactor
 created_at: 2026-11-27T12:12:09Z
-updated_at: 2026-11-27T17:45:05Z
+updated_at: 2026-11-27T18:02:39Z
 ---
 
 ## Notes
@@ -73,8 +73,14 @@ updated_at: 2026-11-27T17:45:05Z
 - **Slice 2 (`2026-11-27`, `coherence-commands-settings`):** Migrates `HOLON_PROXY_PORT`, `HOLON_LOCAL_LLM_BASE`, and
   `HOLON_COHERENCE_WEB` in `commands/agents.py` and `commands/start.py` through `CoherenceSettings.from_env()` without
   modifying `settings.py`, verified in `tests/commands/test_agents.py`, `tests/commands/test_start.py`, and
-  `tests/commands/test_start_web.py` (`todo/intent-0634-coherence-commands-settings.json`). Remaining `commands/ca.py`,
-  `commands/metrics.py`, `host_local.py`, `container/lifecycle.py`, and wire-log disk retention stay deferred until open
-  PRs `#91` and `#87` merge.
+  `tests/commands/test_start_web.py` (`todo/intent-0634-coherence-commands-settings.json`). Completed all 5 stages via
+  `antigravity-agent`/`gemini-4-neon` in `apps/holon-coherence/flow-coherence-commands-settings`
+  (`.holon/flow/checkpoint-coherence-commands-settings.json`):
+  [PR #94](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/94)
+  (`I-1795801603-coherence-commands-settings/P-1795801625-ANA-G4N/E-1795801791-ANA-G4N/_`), consensus approved,
+  calibration included (`plans/I-1795801603-coherence-commands-settings/P-1795801625-ANA-G4N_calibration.md`, predicted
+  EV `-0.67`, actual EV `0.28`, delta `+0.95`), `MERGEABLE`/`CLEAN`, 10/10 CI checks green, awaiting human merge.
+  Remaining `commands/ca.py`, `commands/metrics.py`, `host_local.py`, `container/lifecycle.py`, and wire-log disk
+  retention stay deferred until open PRs `#91`, `#94`, and `#87` merge.
 
 ## Resolution
