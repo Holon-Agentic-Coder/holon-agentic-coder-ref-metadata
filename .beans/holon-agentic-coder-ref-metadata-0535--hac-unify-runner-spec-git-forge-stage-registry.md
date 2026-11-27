@@ -9,7 +9,7 @@ tags:
   - extensibility
   - architecture
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T11:04:47Z
+updated_at: 2026-11-27T11:11:33Z
 ---
 
 ## Problem
@@ -47,3 +47,8 @@ modules.
 - Target repository: `holon-agentic-coder` (evaluated at `HEAD f1e18bcd`).
 - Related: Bean `0270` (dynamic model discovery).
 - Source: 2026-11 ecosystem architecture & source-code review (`docs/ecosystem-audit-report-2026-11.md`).
+- parked 2026-11-27: blocked by PR #412
+  (`I-1795767086-stage4-carried-finding-clean/P-1795767114-ANA-G4N/E-1795767405-ANA-G4N/_`) on
+  `apps/sandbox-executor/src/sandbox_executor/flow/review/loop.py`; resume from checkpoint
+  `apps/holon-agentic-coder/flow-hac-stage-registry-git-forge/.holon/flow/checkpoint-hac-stage-registry-git-forge.json`
+  when PR #412 merges.
