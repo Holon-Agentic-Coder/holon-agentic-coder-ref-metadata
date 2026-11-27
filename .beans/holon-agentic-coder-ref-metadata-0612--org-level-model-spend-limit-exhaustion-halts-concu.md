@@ -10,7 +10,7 @@ tags:
   - model-tiers
   - holon-agentic-coder
 created_at: 2026-11-27T05:18:43Z
-updated_at: 2026-11-27T22:35:38Z
+updated_at: 2026-11-27T23:18:34Z
 ---
 
 ## Notes
@@ -61,6 +61,18 @@ updated_at: 2026-11-27T22:35:38Z
     adding cooldown tests grew `tests/test_preflight.py` from 975 to 1,015 lines (>1,000-line cap) and the resolver
     created `tests/test_preflight_cooldown.py` outside intent scope. Closed `PR #450`, pruned worktree/branches, added
     `tests/test_preflight_cooldown.py (new)` to scope, and relaunched.
+  - **Re-cut (`PR #456`, `5c90f9a7`)**: Completed all 5 stages on `antigravity-agent` / `gemini-4-neon` (awaiting human
+    maintainer merge):
+    - **PR**: [PR #456](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/456) (`94835ba8`, `MERGEABLE` /
+      `CLEAN`)
+    - **Branch**: `I-1795819038-hac-provider-cooldown/P-1795819062-ANA-G4N/E-1795819299-ANA-G4N/_`
+    - **Worktree**: `apps/holon-agentic-coder/flow-hac-provider-cooldown`
+    - **Checkpoint**:
+      `apps/holon-agentic-coder/flow-hac-provider-cooldown/.holon/flow/checkpoint-hac-provider-cooldown.json`
+    - **Consensus & CI**: `APPROVED` (on `f25c2649`), `16/16` CI checks `SUCCESS`
+    - **Calibration**: Included in PR diff
+      (`plans/I-1795819038-hac-provider-cooldown/P-1795819062-ANA-G4N_calibration.md`), Predicted EV: `54.94`, Actual
+      EV: `70.18`, `ΔEV`: `+15.24`
 - **Harness (`slot_keeper.py`):** Updated `DEFAULT_AGENT = "antigravity-agent"` and `DEFAULT_MODEL = "gemini-4-neon"` in
   `.agents/scripts/slot_keeper.py` and verified in `tests/test_slot_keeper.py`.
 
