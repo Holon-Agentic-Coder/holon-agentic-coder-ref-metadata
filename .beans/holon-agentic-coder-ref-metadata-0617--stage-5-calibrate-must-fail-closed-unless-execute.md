@@ -9,7 +9,7 @@ tags:
   - stage-5
   - holon-agentic-coder
 created_at: 2026-11-27T07:49:17Z
-updated_at: 2026-11-27T16:17:53Z
+updated_at: 2026-11-27T16:42:33Z
 ---
 
 ## Notes
@@ -59,5 +59,10 @@ updated_at: 2026-11-27T16:17:53Z
   checkpoint
   `apps/holon-agentic-coder/flow-stage5-fail-closed-calibrate/.holon/flow/checkpoint-stage5-fail-closed-calibrate.json`
   (`--checkpoint`) when `stage1-requires-assumptions` merges or releases those files.
+- **Worktree pruned (`2026-11-27`, `CF-0073`):** Pre-Stage-3 parked worktree `flow-stage5-fail-closed-calibrate`
+  (`P-1795795893`, zero Stage 3 code) and its local/remote branches were pruned to break a mutual Stage 3 overlap
+  deadlock where `P-1795795893` blocked `Bean 0590` (`stage1-requires-assumptions`, `P-1795797356`) on
+  `test_dispatch.py` and `test_pipeline.py`. Remains `in-progress` and will re-cut fresh from `main` once `0590` and
+  `0535` clear.
 
 ## Resolution
