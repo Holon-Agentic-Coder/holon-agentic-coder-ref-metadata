@@ -10,7 +10,7 @@ tags:
   - model-tiers
   - holon-agentic-coder
 created_at: 2026-11-27T05:18:43Z
-updated_at: 2026-11-27T21:18:45Z
+updated_at: 2026-11-27T22:35:38Z
 ---
 
 ## Notes
@@ -46,17 +46,22 @@ updated_at: 2026-11-27T21:18:45Z
 - [ ] A shared host-level provider cooldown marker (under `~/.holon/` with reset/TTL timestamp) is recorded when
       preflight fails with org spend-limit or quota exhaustion, so concurrent launches and checkpoint resumes fail fast
       without re-probing the exhausted provider while its cooldown is active.
-- [ ] Hermetic unit tests in `tests/test_preflight.py`, `tests/test_preflight_outage.py`, and
-      `tests/test_preflight_retries.py` verify cooldown marker write, expiry, and fast-fail behaviour under
-      `uv run pytest` and `uv run task lint`.
-- [ ] Ensure `slot_keeper.py` and queued intents default to the configured coding runner/model (`antigravity-agent` /
+- [ ] Hermetic unit tests in `tests/test_preflight_cooldown.py` (new), `tests/test_preflight_outage.py`, and
+      `tests/test_preflight_retries.py` verify cooldown marker write, expiry, and fast-fail behaviour (keeping
+      `tests/test_preflight.py` strictly under 1,000 lines) under `uv run pytest` and `uv run task lint`.
+- [x] Ensure `slot_keeper.py` and queued intents default to the configured coding runner/model (`antigravity-agent` /
       `gemini-4-neon`) unless explicitly overridden.
 
 ## Flow
 
 - **Slice 1 (`hac-provider-cooldown`):** Launched `todo/intent-0612-hac-provider-cooldown.json`
   (`todo/intent-coverage-0612.json`) covering `cli/preflight.py`, `preflight.py`, `preflight_outage.py`, new
-  `preflight_cooldown.py`, and `tests/test_preflight*.py` for the target-repo cooldown marker. AC #3
-  (`.agents/scripts/slot_keeper.py`) is harness-side and deferred (`todo/intent-coverage-0612.json`).
+  `preflight_cooldown.py`, and `tests/test_preflight*.py` for the target-repo cooldown marker.
+  - **First run (`PR #450`, `2917749d`) halted (`CF-0080`)**: Stage 4 iter 2 failed on `touch_set_violation` because
+    adding cooldown tests grew `tests/test_preflight.py` from 975 to 1,015 lines (>1,000-line cap) and the resolver
+    created `tests/test_preflight_cooldown.py` outside intent scope. Closed `PR #450`, pruned worktree/branches, added
+    `tests/test_preflight_cooldown.py (new)` to scope, and relaunched.
+- **Harness (`slot_keeper.py`):** Updated `DEFAULT_AGENT = "antigravity-agent"` and `DEFAULT_MODEL = "gemini-4-neon"` in
+  `.agents/scripts/slot_keeper.py` and verified in `tests/test_slot_keeper.py`.
 
 ## Resolution

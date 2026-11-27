@@ -145,10 +145,12 @@ def test_new_launch_passes_bean_agent_and_model(tmp_path):
     harness = Harness(tmp_path)
     slot_keeper.run_pass(harness.environment, [harness.entry("0042", "n42", ["src/a.py"])])
     argv = harness.launches[0][0]
+    assert slot_keeper.DEFAULT_AGENT == "antigravity-agent"
+    assert slot_keeper.DEFAULT_MODEL == "gemini-4-neon"
     assert argv[:4] == ["uv", "run", "python", slot_keeper.FLOW_SCRIPT_PATH]
     assert argv[argv.index("--bean") + 1] == "0042"
-    assert argv[argv.index("--agent") + 1] == slot_keeper.DEFAULT_AGENT
-    assert argv[argv.index("--model") + 1] == slot_keeper.DEFAULT_MODEL
+    assert argv[argv.index("--agent") + 1] == "antigravity-agent"
+    assert argv[argv.index("--model") + 1] == "gemini-4-neon"
     assert harness.launches[0][2] == tmp_path / "todo" / "flow-n42.log"
 
 

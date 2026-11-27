@@ -21,8 +21,8 @@ OPTIONS_WITH_VALUE = frozenset(
     {"--target-worktree", "--agent", "--model", "--from-stage", "--checkpoint", "--bean", "--overlap-poll-seconds"}
 )
 DEFAULT_CAP = 8
-DEFAULT_AGENT = "claude-agent"
-DEFAULT_MODEL = "claude-fable-5-2"
+DEFAULT_AGENT = "antigravity-agent"
+DEFAULT_MODEL = "gemini-4-neon"
 DEFAULT_TARGET_WORKTREE = "apps/holon-agentic-coder/main"
 DEFAULT_REPOS = ("Holon-Agentic-Coder/holon-agentic-coder", "Holon-Agentic-Coder/holon-coherence")
 HEARTBEAT_LIMIT_SECONDS = 120
