@@ -10,7 +10,7 @@ tags:
   - hygiene
   - invariants
 created_at: 2026-11-27T00:33:33Z
-updated_at: 2026-11-27T15:55:01Z
+updated_at: 2026-11-27T16:09:12Z
 ---
 
 ## Problem
@@ -66,3 +66,6 @@ updated_at: 2026-11-27T15:55:01Z
   `23` CI-tested heads (`73.9%`, `155` of `222` total check-runs = `69.8%`)** ran full CI on `chore(review)`,
   `chore(calibration)`, and `sync: merge target` commits (`unit (macos-latest)` taking `2.5–4.1 min` per bookkeeping
   head).
+- parked 2026-11-27 (`coherence-bookkeeping-gate`): Stage 3 re-planned into `tests/test_scripts_self_doc.py` (enforcing
+  `SCRIPTS_SELF_DOC_FILES` on `4d2cfcf8`) and parked at Stage 3 admission on open PR `#86` (`coherence-prune-self-doc`,
+  which deletes `tests/test_scripts_self_doc.py`) (`CF-0066`); resume or re-cut cleanly once PR `#86` merges.
