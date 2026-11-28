@@ -17,6 +17,8 @@ ENTRY_START = re.compile(r"^  - (\w+): (.*)$")
 FIELD = re.compile(r"^    (\w+):(?: (.*))?$")
 LIST_ITEM = re.compile(r"^      - (.*)$")
 HARD_RULE_TITLE = re.compile(r"^- \*\*(.+?)\*\*")
+TARGET_DIRECTORY = "apps"
+TARGET_MAIN_WORKTREES = ("apps/holon-agentic-coder/main/", "apps/holon-coherence/main/")
 
 
 def unquote(value: str) -> str:
@@ -73,6 +75,31 @@ def bean_status(bean_number: str, beans_directory: Path = BEANS_DIRECTORY) -> st
     return None
 
 
+def check_reference(check: str) -> str:
+    _, _, reference = check.partition(":")
+    return reference
+
+
+def is_target_check(check: str) -> bool:
+    return check_reference(check).startswith(f"{TARGET_DIRECTORY}/")
+
+
+def target_checkout_present(root: Path) -> bool:
+    return (root / TARGET_DIRECTORY).is_dir()
+
+
+def target_reference_problems(name: str, check: str) -> list[str]:
+    if check_reference(check).startswith(TARGET_MAIN_WORKTREES):
+        return []
+    return [f"{name}: target check outside a main worktree: {check}"]
+
+
+def unverifiable_target_checks(entries: list[dict], root: Path = ROOT) -> list[str]:
+    if target_checkout_present(root):
+        return []
+    return [check for entry in entries for check in entry.get("checks", []) if is_target_check(check)]
+
+
 def resolve_test(reference: str, root: Path) -> str | None:
     file_part, _, test_name = reference.partition("::")
     path = root / file_part
@@ -122,7 +149,12 @@ def entry_problems(entry: dict, root: Path = ROOT) -> list[str]:
         problems.append(f"{name}: enforced without a check")
     if entry.get("status") == "partial" and not entry.get("checks"):
         problems.append(f"{name}: partial without a check; mark it missing")
+    targets_absent = not target_checkout_present(root)
     for check in entry.get("checks", []):
+        if is_target_check(check):
+            problems += target_reference_problems(name, check)
+            if targets_absent:
+                continue
         if (problem := resolve_check(check, root)) is not None:
             problems.append(f"{name}: {problem}")
     return problems
@@ -155,8 +187,8 @@ def dangling_agents_rules(entries: list[dict], agents_text: str) -> list[str]:
     return [rule for entry in entries for rule in entry.get("agents_rules", []) if rule not in titles]
 
 
-def all_problems() -> list[str]:
-    entries = load_registry()
+def all_problems(entries: list[dict] | None = None) -> list[str]:
+    entries = load_registry() if entries is None else entries
     agents_text = AGENTS_PATH.read_text()
     problems = [f"hard rule without a registry entry: {title}" for title in unmapped_hard_rules(entries, agents_text)]
     problems += [
@@ -168,9 +200,13 @@ def all_problems() -> list[str]:
 
 
 def main() -> int:
-    problems = all_problems()
+    entries = load_registry()
+    problems = all_problems(entries)
     for problem in problems:
         print(problem, file=sys.stderr)
+    unverified = len(unverifiable_target_checks(entries))
+    if unverified:
+        print(f"{unverified} target-repo checks unverified: {TARGET_DIRECTORY}/ is not checked out here")
     return 1 if problems else 0
 
 

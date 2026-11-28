@@ -91,6 +91,43 @@ def test_a_resolvable_check_passes():
     assert registry.resolve_check("test:tests/test_git_guard.py::test_blocked_forms", ROOT) is None
 
 
+def _target_entry() -> dict:
+    return {
+        "id": "target-backed",
+        "status": "enforced",
+        "runs_at": ["ci"],
+        "checks": ["script:apps/holon-coherence/main/scripts/check_no_harness_references.py"],
+    }
+
+
+def test_target_checks_are_verified_where_the_targets_are_checked_out(tmp_path):
+    entry = _target_entry()
+    check_file = tmp_path / "apps" / "holon-coherence" / "main" / "scripts" / "check_no_harness_references.py"
+    check_file.parent.mkdir(parents=True)
+    check_file.write_text("#!/usr/bin/env python3\n")
+    assert registry.entry_problems(entry, tmp_path) == []
+    check_file.unlink()
+    assert registry.entry_problems(entry, tmp_path) == [
+        "target-backed: file missing: apps/holon-coherence/main/scripts/check_no_harness_references.py"
+    ]
+
+
+def test_target_checks_are_counted_as_unverified_without_a_target_checkout(tmp_path):
+    entry = _target_entry()
+    assert registry.entry_problems(entry, tmp_path) == []
+    assert registry.unverifiable_target_checks([entry], tmp_path) == entry["checks"]
+    assert registry.unverifiable_target_checks([entry], ROOT) == [] or not (ROOT / "apps").is_dir()
+
+
+def test_a_target_check_outside_a_main_worktree_fails_even_without_the_checkout(tmp_path):
+    entry = _target_entry()
+    entry["checks"] = ["script:apps/holon-coherence/feature/scripts/check_no_harness_references.py"]
+    assert registry.entry_problems(entry, tmp_path) == [
+        "target-backed: target check outside a main worktree: "
+        "script:apps/holon-coherence/feature/scripts/check_no_harness_references.py"
+    ]
+
+
 def test_enforced_without_a_check_and_bad_status_are_reported():
     entry = {"id": "x", "status": "enforced", "runs_at": ["ci"], "checks": []}
     assert registry.entry_problems(entry, ROOT) == ["x: enforced without a check"]
