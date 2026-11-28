@@ -51,7 +51,9 @@ def _sample_pr(
 
 
 def test_ready_pr_formats_ready_line_and_exits_zero(capsys):
-    code = pr_readiness.main(["https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/455"], fetcher=lambda r, n: _sample_pr())
+    code = pr_readiness.main(
+        ["https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/455"], fetcher=lambda r, n: _sample_pr()
+    )
     out = capsys.readouterr().out
     first_line = out.splitlines()[0]
     assert code == 0

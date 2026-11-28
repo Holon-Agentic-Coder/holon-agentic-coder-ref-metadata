@@ -80,7 +80,9 @@ def _effective_review_verdict(reviews: list[dict[str, Any]]) -> tuple[str, str |
         state = str(review.get("state") or "").upper()
         body = str(review.get("body") or "")
         author_obj = review.get("author") or {}
-        author = str(author_obj.get("login") or f"reviewer-{idx}") if isinstance(author_obj, dict) else f"reviewer-{idx}"
+        author = (
+            str(author_obj.get("login") or f"reviewer-{idx}") if isinstance(author_obj, dict) else f"reviewer-{idx}"
+        )
 
         if state in {"APPROVED", "CHANGES_REQUESTED"}:
             formal_by_author[author] = state
@@ -136,7 +138,11 @@ def _calibration_status(
     checkpoint: dict[str, Any] | None,
 ) -> tuple[bool, str, tuple[str, ...]]:
     cal_files = tuple(
-        sorted(str(f.get("path")) for f in files if isinstance(f, dict) and CALIBRATION_FILE_RE.match(str(f.get("path") or "")))
+        sorted(
+            str(f.get("path"))
+            for f in files
+            if isinstance(f, dict) and CALIBRATION_FILE_RE.match(str(f.get("path") or ""))
+        )
     )
     if not cal_files:
         return False, "missing P-*_calibration.md on PR diff", ()
@@ -212,19 +218,18 @@ def format_markdown(report: ReadinessReport) -> str:
         gate_text = ", ".join(report.outstanding_gates)
         first_line = f"not ready: {reason_text} (outstanding gates: {gate_text})"
 
-    review_sha_note = (
-        f" on `{report.review_head_sha[:8]}`"
-        if report.review_head_sha
-        else ""
+    review_sha_note = f" on `{report.review_head_sha[:8]}`" if report.review_head_sha else ""
+    cal_files_note = (
+        f" ({', '.join(f'`{path}`' for path in report.calibration_files)})" if report.calibration_files else ""
     )
-    cal_files_note = f" ({', '.join(f'`{path}`' for path in report.calibration_files)})" if report.calibration_files else ""
     gates_note = "none" if report.ready else ", ".join(report.outstanding_gates)
+    head_sha = report.head_sha or "unknown"
 
     lines = [
         first_line,
         "",
         f"- **PR:** {report.url}",
-        f"- **Head SHA:** `{report.head_sha or 'unknown'}` ({report.state}, `{report.mergeable}` / `{report.merge_state_status}`)",
+        f"- **Head SHA:** `{head_sha}` ({report.state}, `{report.mergeable}` / `{report.merge_state_status}`)",
         f"- **Review Verdict:** `{report.review_verdict}`{review_sha_note}",
         f"- **Stage 5 Calibration:** {report.calibration_state}{cal_files_note}",
         f"- **Outstanding Gates:** {gates_note}",
@@ -242,8 +247,7 @@ def format_markdown(report: ReadinessReport) -> str:
 
 def fetch_pr_data(repo: str, pr_number: int) -> dict[str, Any]:
     fields = (
-        "number,url,state,baseRefName,headRefName,headRefOid,"
-        "mergeable,mergeStateStatus,reviews,files,statusCheckRollup"
+        "number,url,state,baseRefName,headRefName,headRefOid,mergeable,mergeStateStatus,reviews,files,statusCheckRollup"
     )
     raw = subprocess.check_output(
         ["gh", "pr", "view", str(pr_number), "--repo", repo, "--json", fields],
