@@ -10,7 +10,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-24T09:55:00Z
-updated_at: 2026-11-26T11:37:00Z
+updated_at: 2026-11-27T23:48:13Z
 ---
 
 ## Why
@@ -258,3 +258,59 @@ Measured on main `412bed21` (report: `todo/test-suite-audit-2026-11-26.md`, raw 
 - 2026-11-26 (post-merge of PR #336, merged as `6d68e5dc`): batch 7 delivered by bean 0453 / PR #336 (26 standalone
   `test_*_self_doc.py` files consolidated into one data-driven test; test-only change). Install step skipped. Bean stays
   in-progress.
+
+## Acceptance
+
+- [ ] Measurement from JUnit or pytest durations lists the slowest tests and files before any removal (delivered;
+      measurement of 2026-11-24 and audit of 2026-11-26).
+- [ ] The 13 slowest files are made cheap with at least 60 percent less summed time and no coverage loss (delivered by
+      PR #275).
+- [ ] The Workspace survival job runs its stress tests concurrently (delivered by PR #308).
+- [ ] Batch 1, constant-time per-test temp dirs, merged (delivered by PR #325); its CI saving is re-measured on `main`.
+- [ ] Batch 2, fewer git processes in the stage pipeline tests, merged (delivered by PR #332).
+- [ ] Batch 3, fewer git processes in worktree and executor tests, merged (delivered by PR #323).
+- [ ] Batch 5, CPU-bound redaction and ledger tests, merged (delivered by PR #327).
+- [ ] Batch 7, self-doc test consolidation, merged (delivered by PR #336).
+- [ ] The remaining audit batches (calibration tests after the calibration split; review and decomposition tests after
+      `no-unneeded-full-review`; self-doc consolidation part two) are delivered, each test-only with before and after
+      timings.
+- [ ] Test areas deferred earlier (`test_git_refs.py`, `test_conflict_gate.py`, `test_calibration_diff_property.py`) are
+      cleaned up.
+- [ ] Line and branch coverage do not fall, and the mutation score of touched modules does not fall.
+- [ ] Regrowth rules: a per-test time limit in the unit suite, and a review-rules note that a finding is answered by
+      strengthening an existing test where one exists.
+- [ ] Pipeline targets re-measured on `main`: `unit (ubuntu-latest)` about 2 minutes, `unit (macos-latest)` under 5
+      minutes.
+- [ ] The suite size is reported in each pull request so growth is visible.
+- [ ] The module budget file is not changed.
+
+## Assumptions
+
+- Targets stay as written until confirmed by the measurement. Validated by re-measuring on `main` after the batches
+  merge.
+- Batches that missed their percentage floor (3, 5, 2, 1) count as delivered because the maintainer merged them as
+  partial results. Validated by the progress notes.
+
+## Deferred areas batch (`2026-11-27`)
+
+- **PR #443 (`b5da88bd35`, `tests-deferred-three-speedup`)**: Merged into `main` (2026-11-27T23:42:14Z) covering the
+  three deferred files (`tests/flow/test_git_refs.py`, `tests/flow/review/test_conflict_gate.py`,
+  `tests/test_calibration_diff_property.py`). Measured across the 3 files: parallel median `5.51s -> 4.84s` (`-12.2%`),
+  serial `5.36s -> 4.99s` (`-6.9%`), `uv run task test` `10870 passed, 7 skipped`. Readiness
+  (`pr_readiness.py --record`): Head `5c025af3`, Consensus `APPROVED` (`9fc4aa1c`), Stage 5 calibration
+  `calibrate=success` (`plans/I-1795801610-tests-deferred-three-speedup/P-1795801632-ANA-G4N_calibration.md`), `16/16`
+  CI `SUCCESS`, `gates: consensus=ok, calibration=ok, pipeline=ok`.
+- **PR #448 (`222c2ac9cb`, `tests-fewer-git-calibrate`)**: Merged into `main` (2026-11-27T23:43:30Z) covering the 10
+  disjoint calibration test files and `apps/sandbox-executor/tests/calibrate_scenarios.py` (`test-only`). Readiness
+  (`pr_readiness.py --record`): Head `6f092c38`, Consensus `APPROVED` (`9af58cd2`), Stage 5 calibration
+  `calibrate=success` (`plans/I-1795802422-tests-fewer-git-calibrate/P-1795802444-ANA-G4N_calibration.md`), `16/16` CI
+  `SUCCESS`, `gates: consensus=ok, calibration=ok, pipeline=ok`.
+- **PR #449 (`184aee3302`, `tests-fewer-git-review-decomp`)**: Merged into `main` (2026-11-27T23:43:30Z) covering the 5
+  disjoint review/decomposition/fingerprint test files and `apps/sandbox-executor/tests/review_flow_repo.py`
+  (`test-only`; git spawns `5395 -> 3569` `-33.85%`, median summed time `100.7240s -> 45.9650s` `-54.4%`). Readiness
+  (`pr_readiness.py --record`): Head `65bc5e1a`, Consensus `APPROVED` (`ecdff67e`), Stage 5 calibration
+  `calibrate=success` (`plans/I-1795802419-tests-fewer-git-review-decomp/P-1795802441-ANA-G4N_calibration.md`), `16/16`
+  CI `SUCCESS`, `gates: consensus=ok, calibration=ok, pipeline=ok`.
+- **Still open (bean stays `in-progress`)**: regrowth rules (per-test time limit and review-rules note), suite-size
+  reporting per PR, and re-measuring the `main` CI timing targets (`unit (ubuntu-latest)` ~2 min, `unit (macos-latest)`
+  under 5 min).

@@ -6,6 +6,8 @@ priority: P1
 labels: [sandbox-executor, agent-pi, sandbox-hardening, preflight]
 blocked-by: []
 blocks: [holon-agentic-coder-ref-metadata-0221]
+created_at: 2026-11-06T05:49:30Z
+updated_at: 2026-11-06T05:49:30Z
 ---
 
 ## Task

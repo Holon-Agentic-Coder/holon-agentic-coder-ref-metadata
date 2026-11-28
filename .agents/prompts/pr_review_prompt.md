@@ -49,6 +49,9 @@ Standing self-explaining-code finding (engineering rule 18): a docstring, or a c
 added in the diff is 🟡 IMPORTANT. Machine directives (shebangs, encoding lines, `# noqa`, `# type:`, `# pragma`,
 `# fmt:`, shellcheck) are exempt.
 
+Readiness (bean 0583 item 2, from bean 0557): a flow-engine change is not ready until its readiness note records a run
+of the affected suite under the review environment (CF-0006 rule).
+
 Standing test-setup finding (engineering rule 17): a new autouse fixture, a new fixture in a directory `conftest.py`, or
 `pytest_plugins` in a test module is 🟡 IMPORTANT; setup belongs in the test module or an explicitly imported helper.
 

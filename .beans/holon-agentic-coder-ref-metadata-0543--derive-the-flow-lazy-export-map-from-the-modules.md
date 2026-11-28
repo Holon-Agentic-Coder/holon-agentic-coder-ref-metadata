@@ -10,7 +10,7 @@ tags:
   - admission
   - holon-agentic-coder
 created_at: 2026-11-26T21:10:00Z
-updated_at: 2026-11-26T21:10:00Z
+updated_at: 2026-11-27T15:55:01Z
 ---
 
 ## Problem
@@ -32,6 +32,10 @@ moves a flow function must edit it, so it is a hub file that no intent scope can
 - 9 flow logs under `todo/` mention the file; PR #342 and #283 and #263 touched it in the last four days.
 - The table duplicates information the modules already hold (their public names / `__all__`), so a wrong or missing
   entry is only caught when the lazy `__getattr__` fails at import time.
+- **Audit update (2026-11-27T15:46Z):** `flow/lazy_exports_review.py` (`88` lines, `REVIEW_LAZY_EXPORTS`) caused three
+  back-to-back failures in the `12:00Z–12:30Z` window alone: `CF-0060` (`0607` `PR #423` halted in Stage 4), `CF-0062`
+  (`0607` parked at Stage 3 admission overlapping `0424`'s dynamic re-plan), and `CF-0064` (`0424` halted in Stage 3
+  after 2 re-plans). Ensure `lazy_exports_review.py` and `lazy_exports_sync.py` are derived alongside `lazy_exports.py`.
 
 ## Proposed change
 

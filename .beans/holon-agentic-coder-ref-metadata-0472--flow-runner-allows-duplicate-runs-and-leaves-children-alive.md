@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0472
 title: "Flow runner does not refuse a second run on the same intent and does not reap its children after a halt"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -9,7 +9,7 @@ tags:
   - harness
   - stage-4
 created_at: 2026-11-25T23:35:26Z
-updated_at: 2026-11-25T23:35:26Z
+updated_at: 2026-11-26T22:58:29Z
 ---
 
 ## Problem
@@ -63,3 +63,14 @@ Observed on intent 0405 (`workspace-survival-job-parallel`, resume from `review`
   (`I-1795665991-no-unneeded-full-review`, flow worktree `flow-no-unneeded-full-review`) on
   `apps/sandbox-executor/tests/flow/conftest.py`. Parked again; checkpoint kept (stage execute), no runner live. Resume
   with `--checkpoint` once PR #334 merges or releases conftest.py.
+
+## Resolution
+
+Delivered via [PR #351](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/351) and merged into `main`
+(`2f29d8c`), together with bean 0390 (same defect). Each flow checkpoint now takes an exclusive advisory lock per intent
+slug in the git common directory, so a second fresh, `--from-stage` or `--checkpoint` run exits before any stage runs; a
+run that halts, fails or receives SIGINT/SIGTERM reaps its docker clients, containers and process groups
+(`flow/run_lock.py`, `flow/process_reaper.py`).
+
+Not in PR #351: the `flow_start` dirty-tree check that ignores the run's own containers (third fix-direction item). The
+lock removes the racing writers that caused the dirty tree in the first place.

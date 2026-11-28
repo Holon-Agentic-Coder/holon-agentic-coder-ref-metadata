@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0544
 title: "A parked flow holds no touch set: admission blocks only on open PRs and running flows"
-status: todo
+status: completed
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - stage-3
   - holon-agentic-coder
 created_at: 2026-11-26T21:10:00Z
-updated_at: 2026-11-26T21:10:00Z
+updated_at: 2026-11-27T23:48:13Z
 ---
 
 ## Problem
@@ -55,3 +55,25 @@ with them.
 
 - A test: candidate overlapping a parked (no live runner) flow is admitted.
 - A test: two parked flows resuming at once admit exactly one, the other refuses with a named live blocker.
+
+## Audit evidence, 2026-11-27T07:49Z (fifth-merge audit)
+
+- **Recurrence (`CF-0046`, `07:44:57Z`):** resuming parked bean `0590` (`stage1-requires-assumptions`) after PR `#407`
+  merged was immediately refused at Stage 3 admission by an older parked flow (`flow-flow-references-github-issues`,
+  blocked/idle since `2026-11-26T04:13:36Z`, `68` refusals / `1417.1 min` idle). Parked flows continue to chain-block
+  active resumes.
+
+## Resolution
+
+Delivered via [PR #447](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/447) and merged into `main`
+(`ca562e4e87`):
+
+- **Key Architectural Deliverables**: Updated `sandbox_executor/flow/admission_decision.py` and
+  `sandbox_executor/flow/admission_lock.py` so parked idle flows release their touch sets and Stage 3 admission blocks
+  only on open PRs and flows with live runner processes.
+- **Verification & Tests**: Updated `tests/flow/test_admission.py`, `test_admission_base_files.py`,
+  `test_admission_lock.py`, and `test_admission_order.py`; `16/16` CI checks `SUCCESS`.
+- **Holon Flow Traversal & Readiness (`pr_readiness.py --record`)**: Head `74a854e5`, Consensus `APPROVED` (`f0d12595`),
+  Stage 5 calibration `calibrate=success`
+  (`plans/I-1795813121-parked-flow-no-touch-set/P-1795813160-ANA-G4N_calibration.md`),
+  `gates: consensus=ok, calibration=ok, pipeline=ok`.

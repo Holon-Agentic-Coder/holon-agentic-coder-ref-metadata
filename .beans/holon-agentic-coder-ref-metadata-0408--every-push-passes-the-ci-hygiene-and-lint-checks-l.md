@@ -11,7 +11,7 @@ tags:
   - pipeline
   - holon-agentic-coder
 created_at: 2026-11-24T11:00:00Z
-updated_at: 2026-11-25T05:41:00Z
+updated_at: 2026-11-27T07:50:33Z
 ---
 
 ## Why
@@ -95,3 +95,11 @@ gate, add ruff, `jq` and the growth check. A few seconds per turn.
   `05:07Z–05:40:24Z`.
 - **`PR #296` (`split-cli-init-modules`, cadence merge):** full lifetime showed `2` `Hygiene` failures (`5cc97090` Ruff
   - Prettier, `bd5fccc2` `executions/*.md` Prettier).
+
+## Audit evidence, 2026-11-27T07:49Z (fifth-merge audit)
+
+- **`PR #408` (`self-doc-tests-49`):** Stage 4 resolver commit `6179f55ef` (`05:44:40Z`) ran repo-wide Prettier inside
+  the container, modifying `36` historical `plans/*_calibration.md` files outside `intent.scope` (`146+ / 105-` lines,
+  e.g. wrapping `$cost\_error = 0.18$`), which subsequently failed CI `Test - Hygiene` (`lint-md` with
+  `prettier@3.10.1`) on `b734520fa` (`run 45960018737`, `07:40:39Z`). Confirms both the scoped-file Prettier requirement
+  and the container/CI Prettier version parity gap.

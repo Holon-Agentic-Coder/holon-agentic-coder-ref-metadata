@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0534
 title: "Eliminate silent except-pass catches, library sys.exit calls, and GitHub/Git adapter error gaps"
-status: todo
+status: in-progress
 type: bug
 priority: normal
 tags:
@@ -9,7 +9,7 @@ tags:
   - resilience
   - error-handling
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-26T13:35:00Z
+updated_at: 2026-11-28T00:03:59Z
 ---
 
 ## Problem
@@ -47,3 +47,20 @@ modules call `sys.exit(1)` instead of raising domain exceptions, `GitHubAdapter`
 
 - Target repository: `holon-agentic-coder` (evaluated at `HEAD f1e18bcd`).
 - Source: 2026-11 ecosystem architecture & source-code review (`docs/ecosystem-audit-report-2026-11.md`).
+
+## Flow
+
+- **Slice 1 (`hac-silent-except-agent-runner`):** Merged into `main` via
+  [PR #453](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/453) (`579c13e245`) via
+  `todo/intent-0534-silent-except-agent-runner.json` (`todo/intent-coverage-0534.json`), replacing the silent
+  `except Exception: pass` in `agent_runner.py` with narrowed handling and tests in `tests/test_agent_runner.py`
+  (`16/16` CI checks `SUCCESS`).
+  - **Readiness (`pr_readiness.py --record`)**: Head `df65de5f`, Consensus `APPROVED` (`8e241c9e`), Stage 5 calibration
+    `calibrate=success` (`plans/I-1795817858-hac-silent-except-agent-runner/P-1795817889-ANA-G4N_calibration.md`),
+    `gates: consensus=ok, calibration=ok, pipeline=ok`. Bean stays `in-progress` for remaining catches, `sys.exit`,
+    adapter, and `git.py` slices.
+- Remaining `launcher/containers.py` / `flow/pipeline.py` except-pass catches, `sys.exit(1)` refactors, and
+  `GitHubAdapter` / `GitCommandError` slices are deferred (`todo/intent-coverage-0534.json`).
+- **Audit update (`2026-11-28T00:01Z`, `27b4197e7`):** `PR #444` (`ec16d88c3`, narrow broad excepts) + `PR #453`
+  (`579c13e24`, `agent_runner.py`) reduced `except Exception` in `src/` from `137` (`3` silent `pass`) to **`131` (`2`
+  silent `pass` at `flow/pipeline.py:392` and `launcher/containers.py:255`)**.

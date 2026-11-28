@@ -11,7 +11,7 @@ tags:
   - resilience
   - holon-agentic-coder
 created_at: 2026-11-26T05:25:00Z
-updated_at: 2026-11-26T08:49:00Z
+updated_at: 2026-11-27T01:36:00Z
 ---
 
 ## Problem
@@ -98,3 +98,24 @@ Still open (bean stays `in-progress`):
 - Wrapper side: `run_holon_flow.py` exits with a distinct "relaunch from checkpoint later" code when the wait gives up,
   and the Stage 3 overlap poll skips the model probe when the previous launch passed it under an hour ago.
 - Stage-level outages (Bean 0424 territory).
+
+## Acceptance
+
+- [ ] A pre-flight UNKNOWN caused by connectivity (DNS failure, connection refused or reset, network unreachable, Docker
+      daemon or probe timeout) is re-probed with backoff (30 s doubling to 300 s, up to 3600 s cumulative) before giving
+      up (delivered by PR #320).
+- [ ] Auth, quota, expired-key, not-logged-in, model-name, missing-CLI and unsupported-runner results never wait
+      (delivered by PR #320).
+- [ ] Hermetic tests cover the outage wait (delivered by PR #320, `test_preflight_outage.py`).
+- [ ] When the wait gives up, `run_holon_flow.py` exits with a distinct code meaning relaunch from checkpoint later, not
+      terminal failure, and the log says so with a timestamp.
+- [ ] The Stage 3 overlap poll does not re-run the model probe when the previous launch passed it less than an hour ago.
+- [ ] The flow supervisor (Bean 0396) treats the distinct exit code as relaunch later.
+- [ ] Engine role-container failures (Bean 0424) and the Docker probe (Bean 0466) follow the same wait policy.
+
+## Assumptions
+
+- The supervisor hook depends on Bean 0396 being available. Validated by checking that bean's status when the wrapper
+  slice is scoped.
+- The stage-level items (Bean 0424 territory) may be delivered by that bean instead. Validated by checking 0424 before
+  launching.

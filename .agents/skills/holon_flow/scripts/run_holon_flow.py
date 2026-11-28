@@ -20,6 +20,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from flow_env import AuthRouteMissing, build_flow_env  # noqa: E402
+from flow_gates import budget_change_refusal, forbidden_flag_refusal  # noqa: E402
+from intent_coverage import coverage_refusal  # noqa: E402
 
 # Terminal formatting
 COLOR_BOLD = "\033[1m"
@@ -584,13 +586,22 @@ def run_flow(
     from_stage: str | None = None,
     checkpoint: Path | None = None,
     allow_overlap: bool = False,
+    skip_preflight: bool = False,
+    skip_review: bool = False,
     auto_fallback: bool = True,
     dry_run: bool = False,
     wait_on_overlap: bool = True,
     overlap_poll_seconds: int = OVERLAP_POLL_SECONDS,
     outcome: dict | None = None,
+    bean: str | None = None,
 ) -> int:
     """Run holon flow with optional automatic fallback ladder on quota errors."""
+    flag_refusal = forbidden_flag_refusal(
+        {"skip_review": skip_review, "skip_preflight": skip_preflight, "allow_overlap": allow_overlap}
+    )
+    if flag_refusal:
+        log_error(flag_refusal)
+        return 2
     intent_data = parse_intent_file(intent_path)
     slug = intent_data["slug"]
     directories = directory_scope_entries(intent_data.get("scope"), target_worktree)
@@ -610,12 +621,24 @@ def run_flow(
         slug = truncated_slug
         modified = True
 
-    touches_budgets = "0380" in intent_path.name or "module_budgets.json" in str(intent_data.get("scope", []))
-    if touches_budgets and "module_budget_change" not in intent_data:
-        intent_data["module_budget_change"] = (
-            "Budget should be enforced to all packages, including new packages, not just to flow."
+    budget_refusal = budget_change_refusal(intent_data)
+    if budget_refusal:
+        log_error(budget_refusal)
+        return 2
+
+    resuming = checkpoint is not None or from_stage is not None
+    if resuming:
+        log_info("Resuming from a checkpoint; the bean intent-coverage check is skipped.")
+    elif bean is None:
+        log_warn(
+            "No --bean given: the intent is NOT checked against a bean's acceptance items. Pass --bean NNNN on every "
+            "launch; it will become mandatory."
         )
-        modified = True
+    else:
+        coverage = coverage_refusal(intent_data, bean)
+        if coverage:
+            log_error(coverage)
+            return 2
 
     if modified:
         temp_intent_path = intent_path.parent / f"intent-modified-{slug}.json"
@@ -644,6 +667,8 @@ def run_flow(
             cmd.extend(["--checkpoint", str(current_checkpoint)])
         if current_allow_overlap:
             cmd.append("--allow-overlap")
+        if skip_preflight:
+            cmd.append("--skip-preflight")
 
         log_stage(f"Launching Holon Flow: {slug} (Agent: {current_agent}, Model: {current_model})")
 
@@ -900,6 +925,15 @@ def main() -> None:
         help="Admit Stage 3 even when the plan's touch set overlaps a flow in flight or is undeclared.",
     )
     parser.add_argument(
+        "--bean",
+        type=str,
+        help="Bean id whose acceptance items the intent must cover (never written into the intent).",
+    )
+    parser.add_argument("--skip-review", action="store_true", help="Always refused; never allowed.")
+    parser.add_argument(
+        "--skip-preflight", action="store_true", help="Refused unless the maintainer authorisation is present."
+    )
+    parser.add_argument(
         "--no-wait-on-overlap",
         action="store_true",
         help="Stop on a Stage 3 touch-set overlap refusal instead of waiting for the overlapping flows to finish.",
@@ -930,11 +964,14 @@ def main() -> None:
         from_stage=args.from_stage,
         checkpoint=args.checkpoint,
         allow_overlap=args.allow_overlap,
+        skip_preflight=args.skip_preflight,
+        skip_review=args.skip_review,
         auto_fallback=not args.no_fallback,
         dry_run=args.dry_run,
         wait_on_overlap=not args.no_wait_on_overlap,
         overlap_poll_seconds=args.overlap_poll_seconds,
         outcome=outcome,
+        bean=args.bean,
     )
     if not args.dry_run:
         slug = parse_intent_file(args.intent)["slug"]

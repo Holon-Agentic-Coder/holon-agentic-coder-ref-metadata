@@ -441,14 +441,16 @@ class TestTimesAndColumns:
         assert rows[0].total_time == "2d3h"
         md = bean_progress.render_markdown_table(rows)
         header = md.splitlines()[0]
-        assert header == "| Bean # | Target | Title | Agent | Model | Stage | In Stage | Live | PR & CI | Total |"
+        assert (
+            header == "| Bean # | Target | Title | Agent | Model | Stage | In Stage | Live | PR & CI | Merge | Total |"
+        )
         line = md.splitlines()[2]
         assert "| 12m |" in line and "| 2d3h |" in line
         assert "idle" in md.split("**Last activity and notes**")[1]
         wide_header = bean_progress.render_markdown_table(rows, wide=True).splitlines()[0]
         assert wide_header == (
-            "| Bean # | Target | Title | Agent | Model | Stage | Time in Stage | Live | PR & CI | Total Time "
-            "| Last Activity | Notes |"
+            "| Bean # | Target | Title | Agent | Model | Stage | Time in Stage | Live | PR & CI | Merge "
+            "| Total Time | Last Activity | Notes |"
         )
         wt2 = _wt(tmp_path, "flow-bar", "bar")
         assert bean_progress.build_in_flight_rows(beans, [], [wt2], [], {}, now=NOW)[0].time_in_stage == "—"
@@ -802,7 +804,7 @@ class TestMultiRowFlows:
         header = [c.strip() for c in md.splitlines()[0].split("|")]
         assert header[header.index("In Stage") + 1] == "Live"
         lines = md.splitlines()[2 : 2 + len(rows)]
-        assert sum("🟢" in ln for ln in lines) == 1 and sum("🔴" in ln for ln in lines) == 1 and len(rows) == 2
+        assert sum(ln.count("🟢") for ln in lines) == 1 and sum(ln.count("🔴") for ln in lines) == 3 and len(rows) == 2
         data = {r["flow"]: r["live"] for r in (r.as_dict() for r in rows)}
         assert data[wts[0].slug] is True and data[wts[1].slug] is False
 
@@ -884,3 +886,142 @@ class TestMultiRowFlows:
         wts[0].children = []
         (row3,) = bean_progress.build_in_flight_rows(beans, intents, wts, [], {}, now=NOW)
         assert row3.stage == "Stage 3 (child 4: route-ci)"
+
+
+OK_HEAD = "h2"
+
+
+def _gh_item(**over) -> dict:
+    item = {
+        "state": "OPEN",
+        "isDraft": False,
+        "mergeable": "MERGEABLE",
+        "mergeStateStatus": "CLEAN",
+        "headRefOid": OK_HEAD,
+        "statusCheckRollup": [{"status": "COMPLETED", "conclusion": "SUCCESS"}, {"state": "SUCCESS"}],
+        "files": [{"path": "plans/x/p_calibration.md"}, {"path": "src/a.py"}],
+        "commits": [
+            {"oid": "h1", "committedDate": "2026-11-27T01:00:00Z"},
+            {"oid": OK_HEAD, "committedDate": "2026-11-27T02:00:00Z"},
+        ],
+        "reviews": [
+            {
+                "body": "Ensemble Consensus Review — APPROVED",
+                "submittedAt": "2026-11-27T02:30:00Z",
+                "commit": {"oid": OK_HEAD},
+            }
+        ],
+        "comments": [],
+    }
+    item.update(over)
+    return item
+
+
+def _no_compare(base: str, head: str) -> list[str] | None:
+    return None
+
+
+class TestMergeColumn:
+    def test_ready_pr_is_green(self) -> None:
+        assert bean_progress.is_merge_ready(_gh_item(), _no_compare) is True
+
+    def test_approved_but_checks_running_is_red(self) -> None:
+        rollup = [{"status": "IN_PROGRESS", "conclusion": ""}]
+        assert bean_progress.is_merge_ready(_gh_item(statusCheckRollup=rollup), _no_compare) is False
+
+    def test_approved_but_not_calibrated_is_red(self) -> None:
+        assert bean_progress.is_merge_ready(_gh_item(files=[{"path": "src/a.py"}]), _no_compare) is False
+
+    def test_conflicting_is_red(self) -> None:
+        item = _gh_item(mergeable="CONFLICTING", mergeStateStatus="DIRTY")
+        assert bean_progress.is_merge_ready(item, _no_compare) is False
+
+    def test_merged_is_red(self) -> None:
+        assert bean_progress.is_merge_ready(_gh_item(state="MERGED"), _no_compare) is False
+
+    def test_unapproved_is_red(self) -> None:
+        assert bean_progress.is_merge_ready(_gh_item(reviews=[]), _no_compare) is False
+
+    def test_comment_approval_counts_for_commit_before_it(self) -> None:
+        comment = {"body": "Ensemble Consensus Review — APPROVED", "createdAt": "2026-11-27T02:10:00Z"}
+        assert bean_progress.is_merge_ready(_gh_item(reviews=[], comments=[comment]), _no_compare) is True
+
+    def test_approval_on_older_head_ok_only_after_bookkeeping_changes(self) -> None:
+        old = [{"body": "Ensemble Consensus Review — APPROVED", "submittedAt": "t", "commit": {"oid": "h1"}}]
+        item = _gh_item(reviews=old)
+        assert bean_progress.is_merge_ready(item, lambda b, h: ["plans/a.md", "executions/b.json"]) is True
+        assert bean_progress.is_merge_ready(item, lambda b, h: ["plans/a.md", "src/a.py"]) is False
+        assert bean_progress.is_merge_ready(item, _no_compare) is False
+
+    def test_large_pr_finds_calibration_through_tree_compare(self) -> None:
+        files = [{"path": f"src/f{i}.py"} for i in range(150)]
+        item = _gh_item(files=files, baseRefOid="b0")
+        seen: list[tuple[str, str]] = []
+
+        def added(base: str, head: str) -> bool:
+            seen.append((base, head))
+            return True
+
+        assert bean_progress.is_merge_ready(item, _no_compare, added) is True
+        assert seen == [("b0", OK_HEAD)]
+        assert bean_progress.is_merge_ready(item, _no_compare, lambda b, h: False) is False
+
+    def test_small_pr_without_calibration_skips_tree_compare(self) -> None:
+        item = _gh_item(files=[{"path": "src/a.py"}])
+        assert bean_progress.is_merge_ready(item, _no_compare, lambda b, h: True) is False
+
+    def test_calibration_added_compares_plan_trees(self, monkeypatch) -> None:
+        trees = {
+            "h:plans": {"I-1": ("s2", "tree"), "I-0": ("s0", "tree")},
+            "b:plans": {"I-0": ("s0", "tree")},
+            "h:plans/I-1": {"P-1_calibration.md": ("c1", "blob"), "x.md": ("x1", "blob")},
+            "b:plans/I-1": {},
+        }
+
+        def fake_run(cmd, **kwargs):
+            ref = cmd[2].rsplit("/git/trees/", 1)[1]
+            tree = [{"path": p, "sha": s, "type": t} for p, (s, t) in trees.get(ref, {}).items()]
+            return type("P", (), {"returncode": 0, "stdout": json.dumps({"tree": tree})})()
+
+        monkeypatch.setattr(bean_progress.subprocess, "run", fake_run)
+        assert bean_progress._calibration_added("o/r", "b", "h") is True
+        trees["b:plans/I-1"] = {"P-1_calibration.md": ("c1", "blob")}
+        assert bean_progress._calibration_added("o/r", "b", "h") is False
+
+    def test_column_after_pr_and_ci_and_json_field(self, tmp_path: Path) -> None:
+        beans_dir = tmp_path / ".beans"
+        beans_dir.mkdir()
+        _make_bean(beans_dir, "0600", "m", "title: M\nstatus: in-progress\n")
+        beans = bean_progress.scan_beans(beans_dir)
+        ready = _pr(9, "I-1-m/P-1/E-1/_")
+        ready.merge_ready = True
+        intents = [bean_progress.IntentMapping(tmp_path / "m.json", "m", ["0600"], "m")]
+        wts = [_wt(tmp_path, "flow-m", "m", execution_branch=ready.head_ref_name)]
+        rows = bean_progress.build_in_flight_rows(beans, intents, wts, [ready], {}, now=NOW)
+        for wide in (False, True):
+            md = bean_progress.render_markdown_table(rows, wide=wide)
+            header = [c.strip() for c in md.splitlines()[0].split("|")]
+            assert header[header.index("PR & CI") + 1] == "Merge"
+            cells = [c.strip() for c in md.splitlines()[2].split("|")]
+            assert cells[header.index("Merge")] == "🟢"
+        assert rows[0].as_dict()["mergeable_now"] is True
+        assert rows[0].as_dict()["merge_state"] == "ready"
+        ready.merge_ready = False
+        rows = bean_progress.build_in_flight_rows(beans, intents, wts, [ready], {}, now=NOW)
+        assert rows[0].as_dict()["mergeable_now"] is False
+        assert rows[0].as_dict()["merge_state"] == "not-ready"
+        assert bean_progress._merge_dot(rows[0]) == "🔴"
+
+    def test_merged_pr_is_yellow(self, tmp_path: Path) -> None:
+        beans_dir = tmp_path / ".beans"
+        beans_dir.mkdir()
+        _make_bean(beans_dir, "0404", "m", "title: M\nstatus: in-progress\n")
+        beans = bean_progress.scan_beans(beans_dir)
+        head = "I-9-x/bean-0404/_"
+        intents = [bean_progress.IntentMapping(tmp_path / "m.json", "m", ["0404"], "m")]
+        wts = [_wt(tmp_path, "flow-m", "m", execution_branch=head)]
+        merged = [_closed(321, head, "MERGED")]
+        rows = bean_progress.build_in_flight_rows(beans, intents, wts, [], {}, now=NOW, closed_prs=merged)
+        assert rows[0].stage == bean_progress.MERGED_STAGE
+        assert rows[0].as_dict()["merge_state"] == "merged"
+        assert bean_progress._merge_dot(rows[0]) == "🟡"

@@ -10,7 +10,7 @@ tags:
   - touch-set
   - holon-agentic-coder
 created_at: 2026-11-26T21:08:00Z
-updated_at: 2026-11-26T21:08:00Z
+updated_at: 2026-11-28T00:03:58Z
 ---
 
 ## Problem
@@ -36,3 +36,67 @@ files: `flow/lazy_exports.py` (any new module under `flow/`), `docs/architecture
   line.
 - Replay the check over today's flows that escaped scope (beans 0492, 0502, 0508 evidence) and report precision/recall.
 - Related: Bean 0508 (completed), 0502, 0543.
+
+## Note (2026-11-27)
+
+Scope drift on PR #357 (bean 0153, flow `self-explaining-code-gate`, merged `5a2868af`): the executor added three helper
+modules outside the intent's scope, `scripts/self_explaining_comments.py`, `scripts/self_explaining_diff.py` and
+`scripts/self_explaining_hash.py`. The intent named only the gate script, the pre-commit and hygiene wiring, the tests
+and the prompt templates. Add this escape to the replay set (see the Proposed fix above).
+
+## Audit evidence (2026-11-27T10:55Z fifth-merge audit)
+
+- **`CF-0055` (`HAC #413`, bean `0611`, `promote-ledger-debounce-alert`, `08:44:21Z`):** `holon intent-check` did not
+  propose `.github/workflows/README.md` when `.github/workflows/promote-ledger.yml` was in `intent.scope`. All `3/3`
+  reviewers requested updating `.github/workflows/README.md` to match the new trigger/behavior, and the Stage 4 resolver
+  halted on `touch_set_violation` (`ac8f76db3dda`). Add `.github/workflows/*.yml -> .github/workflows/README.md`
+  companion rule to `intent-check`.
+
+## Audit evidence (2026-11-27T11:52Z fifth-merge audit)
+
+- **`CF-0058` (`HAC #420`, bean `0601`, `self-doc-ast-behavior-gate`, `11:41:15Z`):** Adding
+  `.github/workflows/test-self-doc-behavior.yml` triggered on `pull_request` required registering the workflow in
+  `apps/sandbox-executor/tests/test_ci_bookkeeping_wiring.py`. `intent_scope_check.py` missed this companion because it
+  only scans Python imports and `git log` co-changes, causing a `15.0 min` Stage 4 `touch_set_violation` halt
+  (`1906a1b8`). Add a rule proposing `apps/sandbox-executor/tests/test_ci_bookkeeping_wiring.py` whenever a new
+  `.github/workflows/*.yml` file is in scope.
+- **`CF-0059` (`HAC #421`, bean `0617`, `stage5-fail-closed-calibrate`, `11:45:56Z`):** Stage 3 re-plans and Stage 4
+  resolver both escaped into `flow/lazy_exports.py` (which `0546` already flags as missing from `intent-check` for
+  `flow/` modules) and `flow/stages/calibrate.py`.
+- **`CF-0060` (`HAC #423`, bean `0607`, `exhausted-ladder-blocked-on`, `12:00:07Z`):** Adding/moving public helpers in
+  `apps/sandbox-executor/src/sandbox_executor/flow/review/*` caused Stage 4 resolver (`755a54cdec86`) to export
+  `parked_record_from_ci_status` in `apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports_review.py`, halting
+  with `touch_set_violation` after `15.0 min` Stage 4 + `13.9 min` Stages 1–3. Add a rule proposing
+  `flow/lazy_exports_review.py` whenever `flow/review/*.py` is in scope (mirroring `flow/lazy_exports.py`).
+
+## Audit evidence (2026-11-27T15:46Z fifth-merge audit)
+
+- **`CF-0064` (`0424`, `review-posting-transient-retry`, `12:29:32Z`):** Stage 3 halted after 2 re-plans because
+  `intent-0424` omitted `apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports_review.py` (`REVIEW_LAZY_EXPORTS`)
+  and `apps/sandbox-executor/tests/test_review_loop.py` (permanent failure fixture using `"HTTP 502"`). Inspecting
+  `intent_scope_check.py:88-96` (`_source_proposals`) at `1f3331637` confirms it only proposes `__init__.py`
+  (`reexporting_init`), never `flow/lazy_exports.py` or `flow/lazy_exports_review.py`.
+- **`CF-0065` (`HAC #427`, `0607`, `exhausted-ladder-blocked-on`, `15:39:27Z`):** After expanding `intent-0607` for
+  `lazy_exports_review.py` (`CF-0060`), `PR #427` halted in Stage 4 iteration 1 with `touch_set_violation` on
+  `apps/sandbox-executor/tests/flow/test_local_test_finding.py` (`9.0 min` execute + `3.4 min` review).
+  `test_local_test_finding.py` directly imports `local_test_finding` (so `intent_scope_graph.py` can detect it), yet
+  `run_holon_flow.py` pre-flight did not fail closed when `holon intent-check` exited `1` on unresolved companion tests.
+
+## Audit evidence (2026-11-28T00:01Z fifth-merge audit, `CF-0067..CF-0082`)
+
+- `intent-scope` repeated **12 more times**
+  (`CF-0067, CF-0069, CF-0070, CF-0071, CF-0074, CF-0075, CF-0076, CF-0077, CF-0079, CF-0080, CF-0081, CF-0082` -> **28
+  total** in ledger), halting **8 Stage 4 PRs** (`#429, #435, #436, #441, #445, #450, #457`, Coherence `#89`) and **3
+  Stage 3 runs** (`0619, 0599, 0590`):
+  - **New blind spot (`CF-0080`, `HAC #450`):** `intent-check` did not warn when scoped `tests/test_preflight.py` was
+    `975` lines (near the `1,000`-line test file cap), so adding tests pushed it to `1,015L` and forced Stage 4 to
+    create `tests/test_preflight_cooldown.py` outside scope (`~45 min` wasted). Add a `>= 900L` test-cap proximity
+    warning / `(new)` test-file proposal in `intent-check`.
+  - **Missed rules & ignored companions:** `flow/lazy_exports_review.py` (`CF-0067`), `apps/sandbox-executor/README.md`
+    via `test_config_env.py` (`CF-0069`), `tests/test_*_integration.py` raw intent fixtures (`CF-0075`),
+    `launcher/*_mounts.py` (`CF-0077`), `flow/stages/review.py` + `tests/flow/stages/test_review_keeps_branch.py`
+    (`CF-0079`); and `run_holon_flow.py` still allowed launching even when `holon intent-check` explicitly proposed
+    `test_review_local_tests.py` (`CF-0070`), `tests/proxy/test_steps.py` (`CF-0074`), and
+    `scripts/ci_main_push_gate.py` (`CF-0076`).
+  - Note: `PR #437` (`stage4-resolver-touch-set`) and `PR #430` (`stage2-plan-in-intent-scope`) merged at
+    `23:38Z–23:41Z` (after those halts).

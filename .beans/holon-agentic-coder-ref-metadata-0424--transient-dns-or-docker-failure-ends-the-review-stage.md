@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0424
 title: "A transient DNS or Docker failure ends the review stage and throws away finished reviewer work"
-status: todo
+status: in-progress
 type: bug
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - reliability
   - holon-agentic-coder
 created_at: 2026-11-24T12:58:00Z
-updated_at: 2026-11-24T12:58:00Z
+updated_at: 2026-11-27T12:31:09Z
 ---
 
 ## Problem
@@ -46,3 +46,36 @@ Both wrappers relaunched within 50 seconds, so the network was back at once. The
 
 - Related: Bean 0384 (stall budget), Bean 0417 (wrapper completion gate), Bean 0421 (OOM kill, a different
   infrastructure failure).
+
+## Audit evidence, 2026-11-27T07:49Z (fifth-merge audit)
+
+- **`holon-coherence#66` (`coherence-metrics-unification`, `07:16:26Z`):** after `13.1 min` of Stage 4 review produced
+  `3/3 APPROVED (0/0/0)` verdicts, `posting.py` (`gh pr comment` and `gh pr review` via GraphQL) failed with
+  `Post "https://api.github.com/graphql": read tcp 127.0.0.1:63992->127.0.0.1:8080: read: connection reset by peer`.
+  Stage 4 exited `failed` immediately without retrying the transient `gh` proxy reset, discarding `3/3` approval work
+  and precipitating `CF-0044`. Ensure `flow/review/posting.py` uses the in-place retry wrapper.
+
+## Acceptance Criteria
+
+- `is_transient_infra_failure` classifies `docker run` exit `125`, DNS resolution failures, and connection
+  reset/refused/timeout errors to GitHub, the local proxy, or model APIs as transient, while returning `False` for
+  permanent HTTP/validation/auth failures.
+- `retry_transient_infra` retries transient infrastructure failures in place with configurable backoff (default 3 tries
+  over up to 2 minutes, injectable `sleep_fn`), logging each retry as `"transient infrastructure"` with the retry count
+  and redacting secrets.
+- `flow/review/posting.py` (`post_review_consensus`) retries transient posting failures (both raised exceptions and
+  non-posted error result dicts from `post_fn`) in place without consuming a review iteration or discarding consensus
+  work, emits a single `ACT-POST` ledger record, and fails immediately with zero retries on permanent errors.
+- Unit tests in `apps/sandbox-executor/tests/test_posting_transient_retry.py` pass under `uv run pytest` covering
+  transient classification, backoff retry recovery, retry exhaustion fail-closed behavior, and non-retry on permanent
+  errors.
+- Slice 2 (deferred): reviewer ensemble container dispatch retries exit `125` in place, persists each reviewer's result
+  as soon as it finishes, and retries transient ledger push DNS errors.
+
+## Progress
+
+- Started slice 1 (`review-posting-transient-retry`) to classify transient infrastructure errors and retry
+  `post_review_consensus` in place with backoff without touching `flow/review/loop.py` or `tests/flow/`.
+- parked 2026-11-27: halted Stage 3 after 2 re-plans on omitted `flow/lazy_exports_review.py` and
+  `tests/test_review_loop.py` (`CF-0064`); expanded intent scope upfront and queued behind Bean `0607` on
+  `lazy_exports_review.py`.

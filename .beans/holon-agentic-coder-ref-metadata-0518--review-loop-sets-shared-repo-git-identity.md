@@ -2,7 +2,7 @@
 # holon-agentic-coder-ref-metadata-0518
 title:
   "Review loop writes its git identity into the shared repository config, so host-side commits are authored by the agent"
-status: in-progress
+status: completed
 type: bug
 priority: high
 tags:
@@ -11,7 +11,7 @@ tags:
   - review-loop
   - holon-agentic-coder
 created_at: 2026-11-26T13:06:00Z
-updated_at: 2026-11-26T21:06:00Z
+updated_at: 2026-11-26T22:58:29Z
 ---
 
 ## Problem
@@ -64,3 +64,12 @@ The maintainer removed `user.name`/`user.email` (Holon Review Loop Agent) from `
 `git config --get user.name` now resolves to the global identity. Flows 0216 and 0390 were started before PR #350's
 reinstall and may still write the keys back during their review stage: re-check the shared config after both finish,
 then close this bean.
+
+## Resolution
+
+Shared repository config cleared (maintainer, 2026-11-26 21:08Z) and re-checked at 2026-11-26T22:58:29Z:
+`git -C apps/holon-agentic-coder/main config --local --get user.name` returns nothing, so the shared `.git/config` no
+longer carries `Holon Review Loop Agent` and identities resolve to the global config. The per-command identity fix is in
+[PR #350](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/350) (`cc1f256`). The last flow started before
+that reinstall (0390) has finished; PR #351 merged at `2f29d8c`. Flow 0216 was resumed separately: if the shared config
+gets the keys back, that is a regression of PR #350 and needs a new bean.

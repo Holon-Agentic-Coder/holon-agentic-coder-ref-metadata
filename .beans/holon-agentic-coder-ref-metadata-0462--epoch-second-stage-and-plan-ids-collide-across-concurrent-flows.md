@@ -11,7 +11,7 @@ tags:
   - concurrency
   - holon-agentic-coder
 created_at: 2026-11-25T06:05:00Z
-updated_at: 2026-11-26T13:02:11Z
+updated_at: 2026-11-27T23:48:13Z
 ---
 
 # Epoch-second stage and plan IDs collide across concurrent flows
@@ -81,3 +81,39 @@ are free of live flows.
 
 Plan ids are now unique across flows: [PR #341](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/341)
 merged into `main` (`91c2afe`, 2026-11-26). Bean stays in-progress for the `REV-ITR-*` and `CAL-*` id follow-up.
+
+## Acceptance
+
+- [ ] Plan ids are unique across concurrent flows started in the same second (delivered by PR #341).
+- [ ] The root intent id and branch (`entrypoint/intent_creator.py`) include a per-flow disambiguator, so two flows
+      launched in the same second with different slugs get distinct `I-<epoch>-*` prefixes.
+- [ ] The review iteration `execution_id` (`REV-ITR-<n>-...` in `flow/review/loop.py`) includes a per-flow disambiguator
+      and is distinct for two same-second calls from different flows.
+- [ ] The Stage 5 calibration id (`CAL-<plan_id>-...` in `calibration.py`) includes a per-flow disambiguator and is
+      distinct for two same-second calls from different flows.
+- [ ] Regression tests show two same-second calls with different slugs or branches produce globally distinct
+      `intent_id`, `plan_id`, `REV-ITR-*` and `CAL-*` ids (plan id part delivered by PR #341).
+- [ ] Branch-length limits (`ensure_stage_segment_fits`) and existing row schemas are preserved.
+
+## Assumptions
+
+- The disambiguator reuses `build_stage_disambiguator` as the bean proposes. Validated by reading `ledger/rows.py` in
+  the slice's plan.
+- The 5 duplicate `plan_id` rows already on `main` are out of scope (the bean fixes generation, not history). Validated
+  by the maintainer when the slice is scoped.
+
+## Slice 2 (`hac-unique-calibrate-id`)
+
+- Launched `todo/intent-0462-unique-calibrate-id.json` (`todo/intent-coverage-0462.json`) covering
+  `apps/sandbox-executor/src/sandbox_executor/calibration_record.py`,
+  `apps/sandbox-executor/src/sandbox_executor/calibration/run.py`, and
+  `apps/sandbox-executor/tests/test_unique_stage_ids.py` to add a per-flow disambiguator (`build_stage_disambiguator`)
+  to Stage 5 `CAL-*` execution IDs.
+- **Merged (`PR #452`, `8cb19448c5`)**: Stage 5 `CAL-*` execution IDs minted in `calibration_record.py` now include
+  per-flow disambiguation (`tests/test_unique_stage_ids.py`; `16/16` CI checks `SUCCESS`). Readiness
+  (`pr_readiness.py --record`): Head `e731f023`, Consensus `APPROVED` (`b2e545d3`), Stage 5 calibration
+  `calibrate=success` (`plans/I-1795816829-hac-unique-calibrate-id/P-1795816868-ANA-G4N_calibration.md`),
+  `gates: consensus=ok, calibration=ok, pipeline=ok`.
+- **Remaining Acceptance Criteria (Bean stays `in-progress`)**: per-flow disambiguators and regression tests for root
+  `intent_id` / branch prefix (`entrypoint/intent_creator.py`) and review iteration `REV-ITR-*` execution IDs
+  (`flow/review/loop.py`).

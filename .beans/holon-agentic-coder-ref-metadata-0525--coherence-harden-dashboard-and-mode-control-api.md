@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0525
 title: "Harden /holon/* dashboard Host validation, /holon/api/mode auth, CORS, and wire_log_dir"
-status: todo
+status: completed
 type: bug
 priority: critical
 tags:
@@ -9,7 +9,7 @@ tags:
   - security
   - proxy
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-26T13:35:00Z
+updated_at: 2026-11-27T07:52:54Z
 ---
 
 ## Problem
@@ -47,3 +47,10 @@ paths, and ignore runtime mode overrides in `GET /holon/api/mode` when `HOLON_PA
 
 - Target repository: `holon-coherence` (evaluated at `HEAD 18084f3`).
 - Source: 2026-11 ecosystem architecture & source-code review (`docs/ecosystem-audit-report-2026-11.md`).
+
+## Resolution
+
+Resolved via [holon-coherence#59](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/59) (`f05bf346`, merged
+`2026-11-27T07:46:29Z`): restricted `/holon/*` interception to explicit local hosts, added bearer auth on
+`POST /holon/api/mode` without wildcard CORS, validated `wire_log_dir` containment, and aligned `GET /holon/api/mode`
+runtime overrides.

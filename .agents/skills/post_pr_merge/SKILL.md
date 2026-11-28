@@ -49,13 +49,18 @@ Verify that the target PR is actually merged using the GitHub CLI:
 
 ```bash
 gh pr view <pr_number_or_url> --repo <owner>/<repo> --json state,mergedAt,mergeCommit
+uv run python .agents/scripts/pr_readiness.py <pr_number_or_url> --record
 ```
 
-If `state != "MERGED"`, halt and inform the user that the PR is still open.
+Record the output of `pr_readiness.py --record` (head SHA, Stage 5 calibration presence, and merge-time CI check state)
+in the bean's `## Resolution` in Step 3. If `state != "MERGED"`, halt and inform the user that the PR is still open.
 
 Once confirmed merged, fetch and fast-forward `main` in the target repository. The `main` worktree must already be on
 `main` and clean: flows run in their own `flow-<slug>` worktree and never leave it elsewhere. If it is on another branch
 or has tracked changes, do not paper over it: report it, because something ran in the `main` worktree.
+
+Run `uv run python .agents/scripts/check_main_worktrees.py` before the fast-forward and again after it; a non-zero exit
+means something ran in a `main` worktree, so report it and record it in the failure ledger instead of continuing.
 
 ```bash
 # For holon-agentic-coder
@@ -225,14 +230,15 @@ npx prettier --write .beans/bean-triage-prioritisation.md
 
 ### Step 6: Commit Harness State, Recommend & Backfill Next Task
 
-1. Stage and commit harness changes:
+1. Stage and commit harness changes by explicit path (never `git add .beans/`, `git add .` or `git add -A`; other agents
+   may hold edits in the same tree):
    ```bash
-   git add .beans/
+   git add <each bean file closed this run> <any other harness file this run edited>
    git commit -m "docs(post-merge): complete bean XXXX following PR #<N> merge"
    git push origin <current_harness_branch>
    ```
 2. Review the Active Beans Matrix in `.beans/bean-triage-prioritisation.md`.
-3. **Backfill up to 4 concurrent `holon-flow` subagents (hosted runtimes; maintainer, 2026-11-24)**: first list parked
+3. **Backfill up to 8 concurrent `holon-flow` subagents (hosted runtimes; maintainer, 2026-11-24)**: first list parked
    flows (beans noted `parked <date>`) whose blocker was this PR or whose files this PR released, and recommend resuming
    them from checkpoint (`--checkpoint`) before any new bean (maintainer, 2026-11-26). Then count currently active
    background `holon-flow` subagents that are executing, reviewing or calibrating (parked or blocked flows do not count;

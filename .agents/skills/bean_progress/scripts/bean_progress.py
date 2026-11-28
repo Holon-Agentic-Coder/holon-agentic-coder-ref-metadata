@@ -35,6 +35,10 @@ CLOSED_STAGE = "PR closed — dead worktree"
 VERSION_SUFFIX_RE = re.compile(r"-v\d+$")
 STAGE_ORDER = ["intent", "plan", "execute", "review", "calibrate", "completed"]
 LEDGER_REL = Path("holon-knowledge") / "ledger" / "intents.jsonl"
+APPROVAL_MARKER = "Ensemble Consensus Review — APPROVED"
+BOOKKEEPING_PREFIXES = ("plans/", "executions/", "holon-knowledge/")
+PR_FILES_LIMIT = 100
+CALIBRATION_RE = re.compile(r"(?:^|/)plans/.+_calibration\.md$")
 GITHUB_REMOTE_RE = re.compile(r"github\.com[:/]([^/]+/[^/]+?)(?:\.git)?$")
 
 STAGE_LABELS = {
@@ -128,6 +132,7 @@ class PullRequestInfo:
     comments_count: int
     ci_summary: str
     state: str = "OPEN"
+    merge_ready: bool = False
 
 
 @dataclass
@@ -207,6 +212,13 @@ class InFlightRow:
     blockers: list[Blocker] = field(default_factory=list)
     slug: str = ""
     distinct: bool = False
+    mergeable_now: bool = False
+
+    @property
+    def merge_state(self) -> str:
+        if self.stage == MERGED_STAGE:
+            return "merged"
+        return "ready" if self.mergeable_now else "not-ready"
 
     def notes_cell(self) -> str:
         """Notes column: live/idle state with PID and session first, then the former status notes."""
@@ -224,6 +236,8 @@ class InFlightRow:
             "stage": self.stage,
             "time_in_stage": self.time_in_stage,
             "pr_ci": self.pr_ci,
+            "mergeable_now": self.mergeable_now,
+            "merge_state": self.merge_state,
             "total_time": self.total_time,
             "last_activity": self.last_activity,
             "live": self.live,
@@ -726,6 +740,111 @@ def summarize_checks(rollup: Any) -> str:
     return ", ".join(parts)
 
 
+def _all_checks_succeeded(rollup: Any) -> bool:
+    if not isinstance(rollup, list) or not rollup:
+        return False
+    for item in rollup:
+        if not isinstance(item, dict):
+            return False
+        verdict = item.get("conclusion") if "conclusion" in item or "status" in item else item.get("state")
+        if str(verdict or "").upper() != "SUCCESS":
+            return False
+    return True
+
+
+def _approval_oids(item: dict[str, Any]) -> list[str]:
+    # why: a review carries its commit; a comment does not, so it counts for the newest commit made before it was posted
+    commits = sorted(
+        (c for c in item.get("commits") or [] if isinstance(c, dict)),
+        key=lambda c: str(c.get("committedDate") or ""),
+    )
+    found: list[tuple[str, str]] = []
+    for review in item.get("reviews") or []:
+        if isinstance(review, dict) and APPROVAL_MARKER in str(review.get("body") or ""):
+            oid = str((review.get("commit") or {}).get("oid") or "")
+            if oid:
+                found.append((str(review.get("submittedAt") or ""), oid))
+    for comment in item.get("comments") or []:
+        if isinstance(comment, dict) and APPROVAL_MARKER in str(comment.get("body") or ""):
+            posted = str(comment.get("createdAt") or "")
+            before = [str(c.get("oid") or "") for c in commits if str(c.get("committedDate") or "") <= posted]
+            if before and before[-1]:
+                found.append((posted, before[-1]))
+    return [oid for _, oid in sorted(found, reverse=True)]
+
+
+def _compare_files(github_repo: str, base: str, head: str) -> list[str] | None:
+    try:
+        proc = subprocess.run(
+            ["gh", "api", f"repos/{github_repo}/compare/{base}...{head}", "--jq", "[.files[].filename]"],
+            capture_output=True,
+            text=True,
+            timeout=20,
+        )
+        names = json.loads(proc.stdout) if proc.returncode == 0 and proc.stdout.strip() else None
+    except (OSError, subprocess.SubprocessError, ValueError):
+        return None
+    return [str(n) for n in names] if isinstance(names, list) else None
+
+
+def _tree_entries(github_repo: str, ref: str) -> dict[str, dict[str, str]] | None:
+    try:
+        proc = subprocess.run(
+            ["gh", "api", f"repos/{github_repo}/git/trees/{ref}"],
+            capture_output=True,
+            text=True,
+            timeout=20,
+        )
+        tree = json.loads(proc.stdout).get("tree") if proc.returncode == 0 and proc.stdout.strip() else None
+    except (OSError, subprocess.SubprocessError, ValueError, AttributeError):
+        return None
+    if not isinstance(tree, list):
+        return None
+    return {str(e["path"]): {"sha": str(e["sha"]), "type": str(e["type"])} for e in tree if isinstance(e, dict)}
+
+
+def _calibration_added(github_repo: str, base: str, head: str) -> bool:
+    # why: the PR file list is capped by GitHub, so compare the plans trees of base and head instead
+    head_plans = _tree_entries(github_repo, f"{head}:plans") or {}
+    base_plans = _tree_entries(github_repo, f"{base}:plans") or {}
+    for name, entry in head_plans.items():
+        if entry["type"] != "tree" or base_plans.get(name, {}).get("sha") == entry["sha"]:
+            continue
+        head_files = _tree_entries(github_repo, f"{head}:plans/{name}") or {}
+        base_files = _tree_entries(github_repo, f"{base}:plans/{name}") or {}
+        for fname, fentry in head_files.items():
+            if CALIBRATION_RE.search(f"plans/{name}/{fname}") and base_files.get(fname, {}).get("sha") != fentry["sha"]:
+                return True
+    return False
+
+
+def is_merge_ready(
+    item: dict[str, Any],
+    changed_between: Callable[[str, str], list[str] | None],
+    calibration_added: Callable[[str, str], bool] = lambda base, head: False,
+) -> bool:
+    """True when the maintainer can merge this open PR now: clean, green, approved on the head, calibrated."""
+    if str(item.get("state") or "OPEN").upper() != "OPEN" or item.get("isDraft"):
+        return False
+    if item.get("mergeable") != "MERGEABLE" or item.get("mergeStateStatus") != "CLEAN":
+        return False
+    if not _all_checks_succeeded(item.get("statusCheckRollup")):
+        return False
+    paths = [str(f.get("path") or "") for f in item.get("files") or [] if isinstance(f, dict)]
+    head = str(item.get("headRefOid") or "")
+    if not any(CALIBRATION_RE.search(p) for p in paths):
+        truncated = len(paths) >= PR_FILES_LIMIT
+        if not (truncated and calibration_added(str(item.get("baseRefOid") or ""), head)):
+            return False
+    for oid in _approval_oids(item):
+        if oid == head:
+            return True
+        later = changed_between(oid, head)
+        if later is not None and all(p.startswith(BOOKKEEPING_PREFIXES) for p in later):
+            return True
+    return False
+
+
 def fetch_open_prs(repos: list[RepoTarget], *, no_gh: bool = False) -> list[PullRequestInfo]:
     """Fetch open PRs via `gh pr list` across all managed GitHub repositories."""
     if no_gh:
@@ -748,7 +867,8 @@ def fetch_open_prs(repos: list[RepoTarget], *, no_gh: bool = False) -> list[Pull
                     "--state",
                     "open",
                     "--json",
-                    "number,title,url,headRefName,mergeable,isDraft,reviews,comments,statusCheckRollup",
+                    "number,title,url,headRefName,mergeable,isDraft,reviews,comments,statusCheckRollup,"
+                    "mergeStateStatus,headRefOid,baseRefOid,files,commits",
                 ],
                 capture_output=True,
                 text=True,
@@ -781,6 +901,11 @@ def fetch_open_prs(repos: list[RepoTarget], *, no_gh: bool = False) -> list[Pull
                     reviews_count=len(item.get("reviews") or []),
                     comments_count=len(item.get("comments") or []),
                     ci_summary=summarize_checks(item.get("statusCheckRollup")),
+                    merge_ready=is_merge_ready(
+                        item,
+                        lambda base, head, gh=repo.github_repo: _compare_files(gh, base, head),
+                        lambda base, head, gh=repo.github_repo: _calibration_added(gh, base, head),
+                    ),
                 )
             )
     return prs
@@ -1665,6 +1790,7 @@ def build_in_flight_rows(
                 title=_truncate(title),
                 stage=stage,
                 pr_ci=pr_ci,
+                mergeable_now=bool(pr and pr.merge_ready),
                 live_runner=live_runner,
                 live=bool(live and live.kind == "running"),
                 notes=notes,
@@ -1716,6 +1842,7 @@ def build_in_flight_rows(
                 title=_truncate(title),
                 stage=_derive_stage(None, live, pr is not None),
                 pr_ci=_derive_pr_ci(pr),
+                mergeable_now=bool(pr and pr.merge_ready),
                 live_runner=_derive_live_runner(None, live),
                 live=live.kind == "running",
                 notes=_derive_notes(group_beans, None, pr, live),
@@ -1750,6 +1877,7 @@ def build_in_flight_rows(
                 title=_truncate(title),
                 stage=_derive_stage(None, None, True),
                 pr_ci=_derive_pr_ci(pr),
+                mergeable_now=pr.merge_ready,
                 live_runner="idle",
                 notes=_derive_notes(group_beans, None, pr, None),
                 sort_bucket=2,
@@ -1870,6 +1998,7 @@ def render_wide_table(rows: list[InFlightRow]) -> str:
         "Time in Stage",
         "Live",
         "PR & CI",
+        "Merge",
         "Total Time",
         "Last Activity",
         "Notes",
@@ -1885,6 +2014,7 @@ def render_wide_table(rows: list[InFlightRow]) -> str:
             row.time_in_stage,
             _live_dot(row),
             row.pr_ci,
+            _merge_dot(row),
             row.total_time,
             row.last_activity,
             row.notes_cell(),
@@ -1898,6 +2028,10 @@ def _live_dot(row: InFlightRow) -> str:
     return "🟢" if row.live else "🔴"
 
 
+def _merge_dot(row: InFlightRow) -> str:
+    return {"ready": "🟢", "merged": "🟡"}.get(row.merge_state, "🔴")
+
+
 def render_markdown_table(rows: list[InFlightRow], *, wide: bool = False) -> str:
     """Render the in-flight beans: a compact table that fits a terminal, then one detail line per bean.
 
@@ -1909,7 +2043,7 @@ def render_markdown_table(rows: list[InFlightRow], *, wide: bool = False) -> str
     if wide:
         return render_wide_table(rows)
 
-    headers = ["Bean #", "Target", "Title", "Agent", "Model", "Stage", "In Stage", "Live", "PR & CI", "Total"]
+    headers = ["Bean #", "Target", "Title", "Agent", "Model", "Stage", "In Stage", "Live", "PR & CI", "Merge", "Total"]
     body: list[list[str]] = []
     details: list[str] = []
     cells = [", ".join(r.bean_nums) if r.bean_nums else "—" for r in rows]
@@ -1925,6 +2059,7 @@ def render_markdown_table(rows: list[InFlightRow], *, wide: bool = False) -> str
                 row.time_in_stage,
                 _live_dot(row),
                 row.pr_ci,
+                _merge_dot(row),
                 row.total_time,
             ]
         )

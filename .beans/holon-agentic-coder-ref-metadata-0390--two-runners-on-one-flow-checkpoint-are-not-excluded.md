@@ -10,7 +10,7 @@ tags:
   - holon-agentic-coder
   - concurrency
 created_at: 2026-11-23T15:20:54Z
-updated_at: 2026-11-26T20:59Z
+updated_at: 2026-11-26T22:58:29Z
 ---
 
 ## Problem
@@ -99,3 +99,13 @@ reason in its log.
   review; no runner live. Resolver's uncommitted fixes remain in the flow worktree (patch copy:
   /private/tmp/claude-501/-Users-thomashan-git-holon-agentic-coder-ref-metadata/f956a41e-6830-4ee3-9257-8c114a4af5b9/scratchpad/resolver-uncommitted-0390.patch).
   Resume with `--from-stage review` once 0547 is merged and the branch has merged origin/main.
+
+## Progress (2026-11-26)
+
+- merged: [PR #351](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/351) (`2f29d8c`) delivered the
+  target-side part: an exclusive per-slug run lock in `holon flow` with dead-pid takeover, and reaping of the run's
+  children on halt. Flow `single-runner-per-checkpoint` is closed; its worktree and branches are removed; no runner or
+  container live for the slug.
+- still open: (1) the harness-side refusal in `run_holon_flow.py` and the atomic bean claim (exclusive-create claim
+  file), which PR #351 does not touch; (2) a resume adopting a completed, pushed execution branch of a killed run
+  instead of executing again. Stays `in-progress` until the maintainer decides whether these are scoped separately.

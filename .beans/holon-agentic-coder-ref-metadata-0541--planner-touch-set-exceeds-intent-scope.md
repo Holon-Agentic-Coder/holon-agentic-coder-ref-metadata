@@ -9,7 +9,7 @@ tags:
   - planner
   - admission
   - holon-agentic-coder
-created_at: 2026-11-26T14:28:39.444Z
+created_at: 2026-11-26T14:28:39Z
 updated_at: 2026-11-26T21:05:39Z
 ---
 

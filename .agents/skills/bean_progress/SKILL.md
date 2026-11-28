@@ -60,11 +60,11 @@ Return the resulting Markdown table directly to the user verbatim (with a brief 
 
 ### Output layout
 
-The default output is a **compact table** (Bean #, Target, Title, Agent, Model, Stage, In Stage, Live, PR & CI, Total)
-followed by a **"Last activity and notes"** list with one line per bean. The long cells are kept out of the table on
-purpose: a table with them is too wide for a terminal and is then shown as raw text instead of a table. Agent and model
-are shortened in the compact table (`claude`, `fable-5-2`). Pass `--wide` for every column in one table, and `--json`
-for the full fields.
+The default output is a **compact table** (Bean #, Target, Title, Agent, Model, Stage, In Stage, Live, PR & CI, Merge,
+Total) followed by a **"Last activity and notes"** list with one line per bean. The long cells are kept out of the table
+on purpose: a table with them is too wide for a terminal and is then shown as raw text instead of a table. Agent and
+model are shortened in the compact table (`claude`, `fable-5-2`). Pass `--wide` for every column in one table, and
+`--json` for the full fields.
 
 ### Output Table Schema
 
@@ -79,6 +79,7 @@ for the full fields.
 | `Time in Stage` | How long the bean has been in its current stage (compact: `45s`, `12m`, `1h05m`, `2d3h`; `—` if unknown)                                                                                                                                                                                                                                                                                |
 | `Live`          | 🟢 when a process is actively working the row right now (a live `run_holon_flow`/`holon flow` runner or role container, or a review/resolver turn); 🔴 otherwise, including parked, idle and `Not started` rows                                                                                                                                                                         |
 | `PR & CI`       | Open PR link, CI rollup (`pass`/`fail`/`running`), review count, mergeability flags                                                                                                                                                                                                                                                                                                     |
+| `Merge`         | 🟢 only when the PR is open, approved by the consensus review on the head (or on a head followed only by plans/, executions/, holon-knowledge/ changes), calibrated, MERGEABLE and CLEAN with every check SUCCESS, so the maintainer can merge now; 🟡 when the PR is already merged; 🔴 otherwise; `--json`: `merge_state` (`ready`/`merged`/`not-ready`) and `mergeable_now`          |
 | `Total Time`    | How long the bean has been in flight overall (same format; `—` if unknown)                                                                                                                                                                                                                                                                                                              |
 | `Last Activity` | What the flow is doing or last did: the live role container (`now: review iter 2 running`), then the newest of the worktree's HEAD commit (`commit 2m ago: <subject>`; role agents commit step by step, so this is the closest thing to live work progress) and the last line of the latest checkpoint's flow log (`checkpoint 8m ago: execute: ok (...)`)                              |
 | `Notes`         | Live state first (`live · 31m (PID, session)`, or `idle`), then blockers, warnings, stale attempts                                                                                                                                                                                                                                                                                      |

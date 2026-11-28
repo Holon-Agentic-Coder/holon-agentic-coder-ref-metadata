@@ -112,3 +112,30 @@ strictly for coordination, task tracking (`.beans/`), and agent guidance.
 > or running host verification).
 
 ---
+
+---
+
+## 🛡️ Enforcement (not briefs)
+
+The git-safety and worktree rules are enforced by tooling; the brief text is only a reminder.
+
+- **Claude Code hook**: `.claude/settings.json` registers a `PreToolUse` hook on `Bash` running
+  `.agents/scripts/git_guard.py --hook`. It blocks `git stash`, `--no-verify` (and `commit -n`), `git add -A` / `--all`
+  / `.`, force-push (`--force`, `-f`, `--force-with-lease`, `+refspec`), `git rebase` and `git pull --rebase` on flow
+  branches (`I-*`, `P-*`, `E-*`, `flow-*`), and any mutating command (commit, checkout, switch, reset, merge, rebase,
+  add, restore, clean, cherry-pick, revert, am, rm, mv, pull) whose `-C` path or cwd is a `main` worktree. The only
+  allowed moves there are `git merge --ff-only` and `git pull --ff-only`. Rules are checked inside `cd`, `bash -c`,
+  `eval` and `$(...)`; quoted text such as commit messages is never matched.
+- **PATH wrapper**: `.agents/bin/git` applies the same rules for flow runners and non-Claude agents, then execs the real
+  git. Put it first on `PATH` (`PATH="$REPO/.agents/bin:$PATH"`). Remaining: `run_holon_flow.py` should prepend that
+  directory to the `PATH` it gives the runner process; it is not wired yet.
+- **Bypass**: only the maintainer, by exporting `HOLON_GIT_GUARD_BYPASS=1` in the process that starts the agent (hook or
+  wrapper); an agent must never set it.
+- **Commit trailers**: `.agents/hooks/commit-msg` rejects `Co-Authored-By` and similar attribution trailers (via
+  `.agents/scripts/check_commit_trailers.py`); install with
+  `cp .agents/hooks/commit-msg "$(git rev-parse --git-common-dir)/hooks/commit-msg"`. The hygiene workflow runs the same
+  check over every PR's commits. The target repositories' own `commit-msg` hooks are a flow job.
+- **Main worktrees**: `uv run python .agents/scripts/check_main_worktrees.py` asserts both `main` worktrees are on
+  `main`, clean (untracked `todo/` aside) and at or behind `origin/main`. The `post_pr_merge` skill runs it before and
+  after the fast-forward; the coordinator runs it after every subagent and records a violation in the failure ledger.
+- **Server side** (maintainer): branch protection forbidding force-push on flow branches and the harness branch.

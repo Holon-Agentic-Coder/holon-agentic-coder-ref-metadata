@@ -10,7 +10,7 @@ tags:
   - holon-flow
   - holon-agentic-coder
 created_at: 2026-10-30T00:00:00Z
-updated_at: 2026-11-26T04:10:00Z
+updated_at: 2026-11-27T12:19:38Z
 ---
 
 ## Problem
@@ -32,6 +32,20 @@ reference. This also honours the standing rule that harness bean ids never land 
 - Boundary with the 3-ledger invariant: ledger rows cite the issue number but never mirror issue state, and issues never
   duplicate ledger rows. No fourth ledger.
 - Docs: flow usage docs explain the linkage. Failure to reach GitHub at intent time is a warning, not a stage failure.
+
+## Acceptance Criteria
+
+- An intent with work_item set to an open issue passes Stage 1 and the issue is marked in progress; a missing or closed
+  issue fails Stage 1 with a message naming the issue number.
+- An intent without work_item behaves exactly as before; a GitHub outage at intent time logs a warning and does not fail
+  the stage.
+- The pull request body for an intent with work_item contains Closes #N (only on the final child for a decomposed flow);
+  the flow never closes an issue itself.
+- An abandoned or scrapped flow removes the in-progress marker from its issue.
+- Hermetic tests cover validation, the in-progress marker, the Closes line and the abandon path; they run via 'uv run
+  pytest' with no network access.
+- Ledger rows carry the issue number only; no new ledger file is created.
+- docs/git_flow.md and docs/sandbox/create_intent.md describe the work_item field and the Closes linkage.
 
 ## Notes
 
@@ -71,3 +85,16 @@ Note (2026-11-26): resumed from checkpoint after PR #342 merged (20:58Z). No liv
 2026-11-26: Stage 3 touch-set overlap with open PR #351 (I-1795685390-single-runner-per-checkpoint) on
 apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports.py; re-plan after a Stage 3 scope drift (P-1795727982) hit
 it. Resume from checkpoint when #351 merges or releases the file.
+
+Note (2026-11-27): resumed from checkpoint once PR #351 had merged and the main reinstall had finished (no live runner
+for the slug, no install_holon process). Stage 3 refused again, now on a touch-set overlap with the waiting flow
+`module-budget-default-350` (`I-1795698612-module-budget-default-350`, blocked since 2026-11-26T13:18Z) on
+`apps/sandbox-executor/src/sandbox_executor/flow/lazy_exports.py`. Earlier Stage 3 scope drift re-planned to
+P-1795727982 (EV 44.46). The intent JSON in `todo/` gained the self-explaining-code invariant sentence in its goal; the
+checkpoint's copy of the intent still has the older goal. parked 2026-11-27: blocked by `module-budget-default-350` on
+`lazy_exports.py`; resume from checkpoint (`--checkpoint`, never a fresh launch) once that flow merges or releases the
+file. Log `todo/flow-flow-references-github-issues.log`.
+
+Note (2026-11-27): cleared stale un-resumable `flow-flow-references-github-issues` worktree (`CF-0051` broken
+`E-1795726868` conflict, no open PR) to unblock waiting flows `0599`, `0590`, and `0610`; re-cut `0216` cleanly from
+`origin/main` once `0535`, `0599`, `0590`, and `0610` clear their overlapping paths.

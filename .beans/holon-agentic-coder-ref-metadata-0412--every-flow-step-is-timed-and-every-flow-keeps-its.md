@@ -11,7 +11,7 @@ tags:
   - timing
   - holon-agentic-coder
 created_at: 2026-11-24T11:00:00Z
-updated_at: 2026-11-25T06:05:00Z
+updated_at: 2026-11-28T00:03:58Z
 ---
 
 ## Why
@@ -180,3 +180,55 @@ Instrumentation gaps from section 4 of `todo/flow-time-audit-2026-11-26.md`:
 - Executor and resolver test runs and pushes inside agent turns are not logged.
 - `executions.jsonl` rows have no turn durations or token counts.
 - No flow log exists for the antigravity flows #296 to #307 or for #316 (0-byte log; Bean 0385).
+
+## Audit evidence, 2026-11-27T07:49Z (fifth-merge audit)
+
+- **`10/10` newer `holon-coherence` flows (`#59`–`#66`, plus running/parked Coherence flows)** left **no**
+  `todo/flow-<slug>.log` file on disk; only `checkpoint-*.json` `context.logs` captured engine events, losing wrapper
+  pre-flight lines and Stage summaries.
+- `todo/flow-self-doc-tests-49.log` (`#408`) stopped at `05:22:54Z` (line 204), while `8` subsequent `--from-stage`
+  resumes (`05:31:53Z`–`06:32:14Z`) logged only to `checkpoint-self-doc-tests-49.json`.
+- Still `not measured` in `05:19:35Z`–`07:49:25Z`: wrapper pre-flight before `Pipeline run initiated`,
+  `stage5_ci_reg_wait`, per-reviewer latencies inside Stage 4 ensembles (`44` ensemble runs), resolver inner splits
+  (container boot vs LLM turns vs local pytest/lint vs push), and hand pre-merge `origin/main` syncs (`#403`, `#406`,
+  `#407`, `#409`, `#410`, `#411`).
+
+## Audit evidence, 2026-11-27T10:55Z (fifth-merge audit)
+
+- **`100%` of flows launched in `07:29Z–10:49Z`** (`#67`–`#75`, `#412`–`#415`, `0538`, `0617`, `0619`, `0615`, `0616`,
+  `0621`, `0623`, `0527`, `0599`) left **no** `todo/flow-<slug>.log` file on disk; only `checkpoint-*.json`
+  `context.logs` captured engine events, losing wrapper pre-flight lines and Stage summaries (and pruned flows `#68`,
+  `#69`, `#71`, `#75`, `#72`, `#73`, `#74` lost their checkpoint logs once post-merge pruned their worktrees).
+- Still `not measured` in `07:49:25Z`–`10:55Z`: wrapper pre-flight before `Pipeline run initiated`, per-reviewer
+  latencies inside Stage 4 ensembles (`8` ensemble runs), resolver inner splits (`5` runs), Stage 5
+  `publish_calibration` vs `stage5_cal_work` split, and post-merge pruned flow timings when no `todo/flow-*.log` exists.
+
+## Audit evidence, 2026-11-27T11:54Z (fifth-merge audit)
+
+- **`0/14` flows active or completed in `10:49Z–11:47Z`** wrote any `todo/flow-*.log` entries (newest `todo/flow-*.log`
+  mtime on disk remains `06:04Z`), and `post-pr-merge` pruned the worktrees for 6 of the 7 merged HAC PRs (`#412`,
+  `#414`, `#416`–`#418`, `#422`), leaving only git commit timestamps and GitHub PR metadata for those flows.
+- Still `not measured` in `10:49Z–11:54Z`: wrapper pre-flight (`0` logs), per-reviewer latencies inside `13` Stage 4
+  ensemble runs, resolver inner splits (`4` runs), Stage 5 `ci_reg_wait` vs `publish_calibration` splits (`7` runs), and
+  token usage (tracked separately in Bean `0629`).
+
+## Audit evidence, 2026-11-27T15:46Z (fifth-merge audit)
+
+- **`5/8` merged PRs (`HAC #415`, `HAC #424`, `COH #67`, `COH #84`, `COH #85`)** left **no** `todo/flow-*.log` file on
+  disk (only `HAC #425` `todo/flow-0601.log`, `HAC #426` `todo/flow-0153-self-doc-tests-49.log`, and `COH #83`
+  `todo/flow-0528.log` were preserved).
+- Still `not measured` in `12:14Z–15:46Z`: wrapper pre-flight (`8/8` flows), Stage 1 start/duration (`5/8` unlogged),
+  Stage 3 admission wait & target-sync split (`5/8` unlogged), Stage 4 per-reviewer/resolver inner splits (`5/8`
+  unlogged; `#415` iter-2 active review vs `~104 min` quota idle unseparated in commit timestamps), and per-turn LLM
+  tokens (`8/8`, Bean `0629`).
+
+## Audit evidence, 2026-11-28T00:01Z (fifth-merge audit)
+
+- **`27/31` merged PRs** (`19/23` HAC `#428..#447, #452..#455` + `8/8` Coherence `#86..#88, #90..#94`) left **no**
+  `todo/flow-*.log` file on disk (only `flow-0368.log`, `flow-hac-provider-cooldown.log`,
+  `flow-tests-fewer-git-calibrate.log`, and `flow-tests-fewer-git-review-decomp.log` were preserved since `15:55Z`), and
+  post-merge pruned their worktrees/checkpoints.
+- Leaving `not measured` across `27/31` flows: Pre-flight (`31/31` unlogged in wrapper), Stage 1 (`27/31`), Stage 3
+  admission wait (`27/31`), Stage 4 inner reviewer/resolver/CI splits (`27/31`), and the `~838.5 min` unexplained
+  `18:06Z–20:51Z` idle gap across `HAC #442` (`145.6m`), `#443` (`173.5m`), `#444` (`169.9m`), `#448` (`171.3m`), `#449`
+  (`178.3m`) (only `#448`/`#449` had logs showing `18:06Z -> 20:51Z` stop/resume).

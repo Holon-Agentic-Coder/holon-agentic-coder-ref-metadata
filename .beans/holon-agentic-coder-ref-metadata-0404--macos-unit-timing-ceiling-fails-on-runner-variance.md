@@ -10,7 +10,7 @@ tags:
   - flake
   - holon-agentic-coder
 created_at: 2026-11-24T09:35:00Z
-updated_at: 2026-11-26T08:49:03Z
+updated_at: 2026-11-27T00:56:56Z
 ---
 
 ## Problem
@@ -40,6 +40,33 @@ approval in Stage 5 and stopped the flow of Bean 0225; the engine's one automati
   miss, or worker count.
 - The engine's timing-noise rerun (`_retry_timing_noise`) covers this case: it should retry a ceiling failure on a head
   whose code did not change, more than once if needed, before withdrawing an approval.
+
+## Acceptance
+
+- [ ] A slow runner does not fail a pull request on the `unit (macos-latest)` timing gate: the gate judges summed JUnit
+      test time, not job wall-clock time (delivered by PR #278).
+- [ ] Every `--ceiling` timing-gate job, including `Workspace survival` in `test-stress.yml`, is covered by the same
+      rule, so a job that is slow on wall-clock time with no test grown does not fail (the Workspace survival job runs
+      at `--ceiling 900` with `--junit`).
+- [ ] The engine's timing-noise rerun retries a ceiling failure on a head whose code did not change, more than once if
+      needed and within a bound, before withdrawing an approval (delivered by PR #321).
+- [ ] The cause of the bimodal macOS job (about 250 s or about 570 s for the same code) is found and named: runner
+      hardware class, cache hit or miss, or worker count.
+- [ ] The cancelled (not failed) `build (macos-latest)` and `unit (macos-latest)` jobs seen on #272 and #278 are
+      explained.
+- [ ] The closing banner of the flow follows the final state of the flow: it does not print "[REVIEW APPROVED] ... ready
+      for the maintainer to merge" after "Not ready to merge. The approval covered ... no longer stands".
+- [ ] `docs/git_flow.md` states the timing-gate rule (delivered by PR #321).
+
+## Assumptions
+
+- The closing-banner defect is listed under the second occurrence as a separate defect, not under Goal; it is included
+  as an acceptance item. Validate: check whether a bean already tracks it; if so, move the item there.
+- "Within a bound" for the rerun is inferred from the delivered bounded rerun in PR #321. Validate: read
+  `ci_timing_rerun.py` for the bound.
+- The bimodal cause is accepted as met when a cause is named with evidence from run data. Validate: the maintainer
+  agrees the evidence suffices, or opts to scrap the item.
+- Items marked as delivered are taken from the Progress section. Validate: the merge commits `0c933519` and `903aafe4`.
 
 ## Notes
 

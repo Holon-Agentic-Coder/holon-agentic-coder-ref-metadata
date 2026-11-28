@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0549
 title: "Failed tests: record in the ledger, diagnose, fix and re-run in a loop until they pass"
-status: todo
+status: completed
 type: feature
 priority: high
 tags:
@@ -12,7 +12,7 @@ tags:
   - ledger
   - holon-agentic-coder
 created_at: 2026-11-26T22:27:00Z
-updated_at: 2026-11-27T00:10:00Z
+updated_at: 2026-11-27T04:41:37Z
 ---
 
 ## Instruction (maintainer, 2026-11-27)
@@ -64,3 +64,57 @@ A test-failure loop wherever the flow runs the suite (Stage 3 executor, Stage 4 
 - The 2026-11-26 case (identity env leak) would have been classified "environment" within one iteration.
 - Tests for each classification path, using a fake test runner.
 - Related: 0497, 0523, 0547, 0412.
+
+## Flow run (2026-11-27)
+
+Flow `test-failure-record-diagnose-fix`: PR #360 approved 3/3 at `4c073a07` (iteration 5); calibration
+`plans/I-1795734341-test-failure-record-diagnose-fix/P-1795734362-CLA-CO5.5_calibration.md`; merged by the maintainer at
+`a937e904`. No test failure occurred in any stage, so the record/diagnose path did not run. Out-of-scope files in the
+PR: 16. Self-explaining CI gate failed at iteration 4 and was fixed by the resolver.
+
+## Acceptance check (2026-11-27, PR #360 merged at a937e904)
+
+Status stays `in-progress`: items 1 (Stage 5), 3 (`blocked_on` park) and the design's Stage 5 promotion are not
+delivered.
+
+| #   | Acceptance item                                                                            | Result                  | Evidence in the merged diff                                                                                                                                                                                                                                      |
+| --- | ------------------------------------------------------------------------------------------ | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Failed run in any stage writes ledger rows (ids, excerpts, classification)                 | Partial                 | `test_failure_record._row`; wired for Stage 3 (`executor_test_run.default_failure_loop`), Stage 4 (`resolver_test_failure`) and review local tests (`review/local_tests.py`). No Stage 5 test-run wiring in the diff.                                            |
+| 2   | Introduced failure gets a fix turn and a re-run; flow continues without halting            | Delivered               | `test_failure_loop._fix_once`; `test_introduced_failure_is_fixed_and_rerun`; `test_failing_run_maps_the_failure_loop_outcome`.                                                                                                                                   |
+| 3   | Flaky re-run and recorded; environment / pre-existing parks with `blocked_on` and evidence | Partial                 | Flaky: `_retry_flaky`, `test_flaky_failure_is_rerun_recorded_and_passes`. Park: status `blocked` with `blocked_evidence` and row outcome `blocked`. No `blocked_on` field or blocker link anywhere in the diff or repo; blockers 0497 and 0523 are still `todo`. |
+| 4   | 2026-11-26 identity-env case classified "environment" in one iteration                     | Delivered (fake runner) | `test_leaked_git_identity_is_environment_in_one_diagnosis`.                                                                                                                                                                                                      |
+| 5   | Tests for each classification path using a fake runner                                     | Delivered               | 13 PR test files: 609 passed on the merge commit (temporary worktree, removed).                                                                                                                                                                                  |
+
+Design items: three-way diagnosis delivered (`test_failure_classify.diagnose`); spin guard with tier step-up delivered
+(`test_repeated_signature_steps_up_one_tier`, `test_exhausted_ladder_stops_with_the_trail`); parking with `blocked_on`
+after exhaustion not delivered; Stage 5 promotion of repeated signatures to the knowledge base not delivered.
+
+Remaining: (a) `blocked_on` park link and automatic resume (depends on 0497, 0523); (b) Stage 5 wiring of the failure
+loop; (c) failure-mode promotion at Stage 5.
+
+Self-explaining check on PR #360 added lines (AST docstrings and tokenized comments): 0 docstring lines, 0 comments
+other than `# why:` or machine directives. The `FIX_PROMPT_TEMPLATE` triple-quoted string is a prompt constant, not a
+docstring. Bean 0153: no note needed.
+
+## Resolution (2026-11-27, PR #380 merged at b5d9bfce)
+
+Status set to `completed`. Acceptance check against PR #360 (a937e904) and PR #380 (b5d9bfce), honouring
+`todo/intent-coverage-0549.json` exclusions:
+
+| Item                                                                       | Result                             | Evidence                                                                                                                                                                            |
+| -------------------------------------------------------------------------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Failed run writes ledger rows in any stage (ids, excerpts, classification) | Delivered                          | #360 Stage 3/4/review wiring; #380 Stage 5 wiring: `ci_reverify.py` calls `stage5_test_failure.record_stage5_test_failure` on a failing final-head check, row with stage `stage_5`. |
+| Stage 5 promotion of repeated failure signatures to the KB                 | Delivered                          | #380 `wisdom.promote_repeated_failure_signatures` (failure_mode entries, once per signature, two or more runs), called from the Stage 5 promotion step.                             |
+| Introduced failure gets a fix turn and re-run                              | Delivered                          | #360 `test_failure_loop._fix_once`.                                                                                                                                                 |
+| Flaky re-run and recorded; environment/pre-existing parks with evidence    | Delivered except `blocked_on` link | #360 `_retry_flaky`, status `blocked` with `blocked_evidence`.                                                                                                                      |
+| 2026-11-26 identity-env case classified "environment"                      | Delivered                          | #360 `test_leaked_git_identity_is_environment_in_one_diagnosis`.                                                                                                                    |
+| Tests per classification path with a fake runner                           | Delivered                          | #360 (13 test files).                                                                                                                                                               |
+
+Excluded by the coverage file, not delivered: the `blocked_on` park link and automatic resume (depends on beans 0497 and
+0523, both still `todo`). The coverage file names a separate intent for it, but no such intent exists in `todo/`; it
+needs a new bean before `blocked_on` work can start.
+
+Out-of-scope files in PR #380 (not in intent scope, recorded per bean 0596): `failure_classification.py`,
+`flow/github/stage5_test_failure.py`, `flow/lazy_exports.py`. Also 16 out-of-scope files in PR #360.
+
+Retirement: with the exclusions above honoured, the manual fail-to-diagnose loop rule can be retired.

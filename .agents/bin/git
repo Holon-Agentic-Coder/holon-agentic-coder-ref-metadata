@@ -1,0 +1,16 @@
+#!/bin/sh
+here=$(cd "$(dirname "$0")" && pwd)
+python3 "$here/../scripts/git_guard.py" --argv "$@" || exit 1
+real_git=""
+old_ifs=$IFS
+IFS=:
+for entry in $PATH; do
+  [ "$entry" = "$here" ] && continue
+  if [ -x "$entry/git" ]; then
+    real_git="$entry/git"
+    break
+  fi
+done
+IFS=$old_ifs
+[ -n "$real_git" ] || { echo "git-guard: no real git on PATH" >&2; exit 127; }
+exec "$real_git" "$@"

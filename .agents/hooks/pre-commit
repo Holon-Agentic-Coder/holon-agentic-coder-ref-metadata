@@ -1,0 +1,11 @@
+#!/bin/sh
+root="$(git rev-parse --show-toplevel)"
+staged_markdown="$(git diff --cached --name-only --diff-filter=ACMR -- '*.md')"
+if [ -n "$staged_markdown" ]; then
+  echo "Running Prettier formatting check on staged Markdown..."
+  echo "$staged_markdown" | xargs npx prettier --check || {
+    echo "Prettier check failed. Run 'npx prettier --write <file>' on the staged files and try again."
+    exit 1
+  }
+fi
+python3 "$root/.agents/scripts/staged_validation.py" || exit 1

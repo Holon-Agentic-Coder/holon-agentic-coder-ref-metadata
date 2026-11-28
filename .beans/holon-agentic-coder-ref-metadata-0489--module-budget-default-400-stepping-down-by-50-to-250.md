@@ -11,7 +11,7 @@ tags:
   - refactoring
   - holon-agentic-coder
 created_at: 2026-11-26T06:30:00Z
-updated_at: 2026-11-26T21:05:09Z
+updated_at: 2026-11-27T05:15:52Z
 blocked_by:
   - "0380"
 ---
@@ -145,3 +145,35 @@ PR #346 (merged `aa085c3`) takes `scripts/ci_bookkeeping_api.py` to 383 lines (`
 default of 350. The parked step-2 plan was made before #346 and does not cover it. When step 2 resumes, its review loop
 will hit a hygiene failure on that file. The fix is to split it (move-only), not an override. Add it to the step-2 split
 set.
+
+- 2026-11-26T22:58Z: resumed: holon flow `module-budget-default-350` (step 2, default 350) from checkpoint (execute
+  stage), runner claude-agent / claude-opus-5-5, `--no-wait-on-overlap`, log `todo/flow-module-budget-default-350.log`.
+  PR #351 (blocker) merged; main contains 2f29d8c. Post-merge reinstall of holon finished (no install process live for
+  two checks). Module-budget-change label: required for CI on the PR, noted here, not applied by the agent.
+- 2026-11-26T22:59Z: parked again: Stage 3 admission refused on overlap with PR #357 (flow `self-explaining-code-gate`,
+  branch I-1795732927-self-explaining-code-gate/..., still open) on `scripts/pre_commit_check.py`. Worktree
+  `flow-module-budget-default-350` and checkpoint kept; resume from checkpoint (`--checkpoint`, never relaunch without
+  it) once PR #357 merges or releases `scripts/pre_commit_check.py`. PR #357 touches a file in this step's decomposition
+  set.
+
+## Progress
+
+- resumed 2026-11-26: PR #357 merged (main contains 5a2868a); flow module-budget-default-350 resumed from its checkpoint
+  (Stage 3 admitted with --no-wait-on-overlap). Invariant sentence added to the intent goal and checkpoint copies.
+- 2026-11-27 Stage 4 blocked: flow module-budget-default-350 reached consensus CHANGES_REQUESTED in review iterations
+  1-3 (engine still looping to iteration 4 of 25). Finding: default 350 unmet because scripts/ci_bookkeeping_api.py (383
+  lines) is not in the intent scope; resolver rejects it as out of scope. Needs an intent scope change (add that file)
+  before a rerun.
+- 2026-11-27 halted for human intervention at Stage 4 (review restart 1 of 3, iterations 1-6 CHANGES_REQUESTED, PR #365
+  OPEN, not approved). Review stage failed at target sync: worktree had uncommitted tracked changes; remote branch
+  diverged (origin has a merge of main plus ledger commits). Not rerun: scripts/ci_bookkeeping_api.py must join the
+  intent scope first, then resolve-conflict and rerun from review.
+- 2026-11-27T05:12:05Z (Step 2 merged): PR #365 merged into `main` (`ef54c7a2`, `2026-11-27T05:05:08Z`).
+  `holon-config/hygiene/module_budgets.json` now sets `default_max_lines` to `350` (24 overrides above 400 kept
+  unchanged), decomposing `budgets.py` (`budgets_timer.py`), `flow/git_refs.py` (`git_refs_branches.py`,
+  `git_refs_ledger.py`), `scripts/pre_commit_check.py` (`pre_commit_credentials.py`, `pre_commit_spelling.py`),
+  `cli/commands/flow.py` (`_flow_context.py`, `_flow_report.py`), `flow/github/ci_final_head.py`
+  (`ci_final_head_seams.py`, `ci_final_head_rerun.py`), and `scripts/ci_bookkeeping_api.py`
+  (`scripts/ci_bookkeeping_context.py`), with `tests/flow/test_module_budgets.py` and `docs/architecture.md` updated.
+  Worktree `flow-module-budget-default-350` and its flow/remote branches pruned. Bean stays `in-progress` for Step 3
+  (`350 -> 300`) and Step 4 (`300 -> 250`).

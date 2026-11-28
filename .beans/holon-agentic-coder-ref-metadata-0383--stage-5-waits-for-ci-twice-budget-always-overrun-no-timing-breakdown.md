@@ -11,7 +11,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-23T12:40:00Z
-updated_at: 2026-11-24T13:00:00Z
+updated_at: 2026-11-28T00:03:58Z
 ---
 
 ## Problem
@@ -296,3 +296,20 @@ not the flow engine. The other recommendations for the whole flow are listed in 
 
 - Overlap: Bean 0412 records timing for every step, including the Stage 5 breakdown in Goal 4. This bean owns the double
   CI wait and the budget; Bean 0412 owns the timing breakdown.
+- **Audit evidence (`2026-11-27T10:55Z`):** Coherence `#72` (`coherence-abtest-leaks-deps`) ran Stage 5 `27.0 min`
+  (`1619.1 s` vs `10 min` budget) and `#73` (`coherence-ca-logging-and-image`) ran Stage 5 `17.6 min` (`1056.1 s` vs
+  `10 min` budget), both logging `WARNING: Stage 'calibrate' ran ... against its 10 min budget` solely from merged-head
+  and final-head CI waits after `2` target-merge carry-overs (`#74` incurred `8` CI heads / `56` CI runs across `2`
+  target-merge carry-overs).
+- **Audit evidence (`2026-11-27T15:46Z`, `8` merged PRs `#415,#424–#426` and `#83,#67,#84,#85`):** All `5/8`
+  target-syncing PRs waited **twice** for CI in Stage 5 — first `164–740 s` (`median 438 s` / `7.30 min`) on
+  `stage 5 carry-over` after `sync: merge target`, then `100–330 s` (`median 178.5 s` across all 8 PRs) on
+  `chore(calibration)` — even though calibration work itself took only `16–29 s` (`median 20.0 s`). Stage 5 overran its
+  10-minute budget on `HAC #425` (`14.9 min`, `886 s`), `HAC #426` (`11.7 min`, `692 s`), and `COH #85` (`13.7 min`,
+  `822 s`; `COH #84` `8.8 min`, `COH #67` `7.5 min`).
+- **Audit evidence (`2026-11-28T00:01Z`, `31` merged PRs `#428..#456` and `#86..#94`):** With `0` target merges during
+  `15:55Z–23:38Z`, Stage 5 calibration work took `19–36 s` (`median 27.0 s`), yet final-head CI wait on
+  `chore(calibration)` took **`median 303.0 s` (`5.05 min`)**, **`max 933.0 s` (`15.55 min`, `COH #88`)** (Stage 5 total
+  `median 5.87 min`, `max 16.73 min`). Even on `HAC #456`, where `ci_bookkeeping_gate` skipped all test jobs on
+  `94835ba84`, Stage 5 still waited `14 s` registration + `148 s` (`162 s` / `2.7 min` total) for GitHub to spin up and
+  skip 16 workflow jobs.

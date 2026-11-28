@@ -9,7 +9,7 @@ tags:
   - review
   - holon-agentic-coder
 created_at: 2026-11-24T11:45:00Z
-updated_at: 2026-11-24T11:45:00Z
+updated_at: 2026-11-27T05:19:35Z
 ---
 
 ## Problem
@@ -52,3 +52,8 @@ longer existed.
 
 - Related: Bean 0419 (the timing-gate failure that triggered the withdrawal), Bean 0376, Bean 0403.
 - Calibration after a merge is a separate question; this bean only requires a clean exit and a recorded outcome.
+- **Audit evidence (2026-11-27T04:43Z–05:18Z):** `PR #404` (`self-doc-tests-47`) merged at `05:13:02Z`, cancelling CI
+  runs on its `Merge branch 'main'` head (`fe081dfe`); Stage 5's `ci_head_reruns`
+  (`Merged-head CI: re-triggering cancelled run ...`) re-triggered cancelled runs 7 times (`05:12:53Z`–`05:13:19Z`, 4
+  after the merge) and kept the host runner alive past merge until killed manually (`CF-0021` pattern). The PR-merged
+  check must also run inside Stage 5's `ci_head_reruns` / CI polling loop before re-triggering any cancelled run.

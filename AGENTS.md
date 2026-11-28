@@ -40,6 +40,9 @@ These apply to every task. Each links to the file that holds the full rule.
   flow, driven with `holon flow <intent.json>`; never hand-patch a target repository outside it. The harness files in
   this repository (`.beans/`, `.agents/`, `AGENTS.md`) stay directly editable. See
   [holon-flow.md](.agents/holon-flow.md).
+- **Git safety in every subagent brief**: never `git stash`, `--no-verify`, `git add -A` or `git add .`, and never edit,
+  build or measure in a `main` worktree; the standing preamble is in
+  [subagents.md](.agents/subagents.md#standing-git-safety-preamble).
 - **Self-explaining code (invariant)**: no docstrings and no explanatory comments in any language; names carry the
   intent, and the only allowed comment is a `# why:` comment recording a reason the code cannot show (maintainer,
   2026-11-27). Every intent states it in its goal. See [rules.md](.agents/rules.md).
@@ -58,30 +61,51 @@ These apply to every task. Each links to the file that holds the full rule.
 - **Target repositories** never reference harness paths (`.beans/`, `todo/`, `.agents/`); keep exactly three append-only
   ledgers (`intents`, `plans`, `executions`); no synthetic data for benchmarks; keep updates dense and token-cheap. See
   [engineering-rules.md](.agents/engineering-rules.md).
+- **Clock-read UTC timestamps only**: every timestamp an agent writes (bean `created_at`/`updated_at`, ledger rows,
+  audit entries, checkpoints) comes from `date -u +%Y-%m-%dT%H:%M:%SZ` (or `datetime.now(timezone.utc)`) at write time;
+  never typed, estimated, rounded, copied from another record or written as local time labelled `Z`.
+  `.agents/scripts/check_beans.py` and `check_failure_ledger.py` reject future, malformed, misordered or post-commit
+  values at commit and in CI. Never type a timestamp: run `uv run python .agents/scripts/stamp.py` (`now`,
+  `touch <bean-id>`, `created <bean-id>`, `ledger-append <category> ...`). See [rules.md](.agents/rules.md).
+- **Single commit and bean-id path** (harness branch): commit only through
+  `uv run python .agents/scripts/harness_commit.py "<message>" <paths...>` (lock, empty index, prettier, staged-blob
+  validation, commit, push) and create beans only through `uv run python .agents/scripts/new_bean.py "<title>"`; never
+  `git add`/`git commit` by hand on the shared branch. See [workflows.md](.agents/workflows.md).
 - **Format before commit**: `npx prettier --write "**/*.md"` in the harness; only changed files in a target worktree.
 - **Subagents** follow [subagents.md](.agents/subagents.md) and the model tiers in
   [model-tiers.md](.agents/model-tiers.md); post-merge steps run through the `post-pr-merge` skill.
-- **Flow concurrency & merge backfill**: up to **4 concurrent `holon-flow` background subagents** may run at once on
+- **Flow concurrency & merge backfill**: up to **8 concurrent `holon-flow` background subagents** may run at once on
   hosted runtimes (local runtimes stay at 1). Once a target-repo PR merges and `post-pr-merge` completes, automatically
   pick up and launch the next highest-priority ready bean (honouring `blocked_by`, solo-sweep rules, and disjoint touch
-  sets) to keep up to 4 flows running (maintainer, 2026-11-24). A blocked flow (Stage 3 overlap refusal or waiting on
-  another flow's PR) does not hold a slot: park it, backfill at once, and resume parked flows from their checkpoint
-  ahead of new beans (maintainer, 2026-11-26). See [coordination.md](.agents/coordination.md) and
-  [pr-merging.md](.agents/pr-merging.md).
+  sets) to keep up to 8 flows running (maintainer, 2026-11-24; raised from 4 to 8 on 2026-11-27 because flows run with
+  much less friction). A blocked flow (Stage 3 overlap refusal or waiting on another flow's PR) does not hold a slot:
+  park it, backfill at once, and resume parked flows from their checkpoint ahead of new beans (maintainer, 2026-11-26).
+  See [coordination.md](.agents/coordination.md) and [pr-merging.md](.agents/pr-merging.md).
+- **Finish more than you start**: always prioritise resuming and finishing existing in-flight, parked, or halted beans
+  and PRs ahead of starting new beans. Never start a new bean while any existing in-flight, parked, or halted flow can
+  be resumed, unblocked, or re-scoped into an open slot. When a Holon flow breaks mid-lifecycle, manually kick off its
+  resume (or re-cut/re-scope when blocked by a touch-set omission or stale branch) until all 5 stages complete, until
+  the flow engine self-recovers automatically (maintainer, 2026-11-27). See [coordination.md](.agents/coordination.md).
 - **Coordinator failure ledger**: every coordinator failure (halt, park, wasted run, false readiness, wrong brief) is
   appended to [.agents/ledger/coordinator-failures.jsonl](.agents/ledger/coordinator-failures.jsonl) with its preventive
   rule before moving on (maintainer, 2026-11-27). See [coordination.md](.agents/coordination.md).
+- **New invariants**: a new invariant lands together with its automatic check and its entry in
+  [.agents/invariants.yml](.agents/invariants.yml); `tests/test_invariant_registry.py` fails on a hard rule with no
+  entry, a check that does not exist, or a missing or partial entry with no open bean (maintainer, 2026-11-27).
 - **Self-improvement audit**: at the start of every session and after every fifth merge, a dedicated subagent runs a
-  comprehensive audit for self-improvement (pipeline, flow, coding standards, architecture standards, harness) and logs
-  one bean per suggestion; the brief says plainly that it is a self-improvement audit (maintainer, 2026-11-24). See
-  [self-improvement-audit.md](.agents/self-improvement-audit.md).
+  comprehensive audit for self-improvement (pipeline, flow, coding standards, architecture standards, harness) **and** a
+  comprehensive source-code quality, architecture, and cleanliness audit (consulting `todo/` audit reports and
+  refreshing/including `docs/ecosystem-audit-report-YYYY-MM.md` in `.beans/self-improvement-audits.md`), logging one
+  bean per suggestion; the brief says plainly that it is a self-improvement audit (maintainer, 2026-11-24; expanded
+  2026-11-27). See [self-improvement-audit.md](.agents/self-improvement-audit.md).
 
 ---
 
 ## 🚀 Incoming Agent Checklist
 
 1. **Verify your environment**: check the working directory and locate `.beans`. If `apps/holon-agentic-coder/` or
-   `apps/holon-coherence/` is missing, follow the checkout steps in [README.md](README.md).
+   `apps/holon-coherence/` is missing, follow the checkout steps in [README.md](README.md). Install the git hooks with
+   `python3 .agents/scripts/install_git_hooks.py` (idempotent).
 2. **Run the self-improvement audit**: spawn the audit subagent described in
    [.agents/self-improvement-audit.md](.agents/self-improvement-audit.md) and carry on; do not wait for it.
 3. **Read the coordinator failure ledger**: read

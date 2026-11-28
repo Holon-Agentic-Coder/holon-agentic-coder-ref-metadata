@@ -1,0 +1,335 @@
+invariants:
+  - id: "sole-change-path"
+    agents_rules:
+      - "Sole change path"
+    status: "missing"
+    open_beans:
+      - "0575"
+    runs_at:
+      - "on-demand"
+    checks: []
+  - id: "self-explaining-code"
+    agents_rules:
+      - "Self-explaining code (invariant)"
+    status: "partial"
+    open_beans:
+      - "0153"
+    runs_at:
+      - "pre-commit"
+      - "ci"
+      - "flow-gate"
+    checks:
+      - "script:apps/holon-agentic-coder/main/scripts/check_self_explaining.py"
+      - "script:apps/holon-agentic-coder/main/scripts/pre_commit_check.py"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_check_self_explaining.py::test_lint_task_runs_the_check"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_check_self_explaining.py::test_pre_commit_runs_the_check_only_in_staged_mode"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_prompt_templates.py::test_templates_state_the_self_explaining_code_invariant"
+  - id: "clock-read-utc-timestamps"
+    agents_rules:
+      - "Clock-read UTC timestamps only"
+    status: "enforced"
+    open_beans: []
+    runs_at:
+      - "pre-commit"
+      - "ci"
+    checks:
+      - "script:.agents/scripts/check_beans.py"
+      - "script:.agents/scripts/check_failure_ledger.py"
+      - "script:.agents/scripts/timestamps.py"
+      - "script:.agents/scripts/stamp.py"
+      - "test:tests/test_stamp.py::test_ledger_append_takes_next_id_and_passes_the_ledger_checker"
+      - "test:tests/test_stamp.py::test_unknown_category_is_refused_and_ledger_untouched"
+      - "test:tests/test_stamp.py::test_touch_command_updates_only_updated_at"
+      - "hook:.agents/hooks/pre-commit"
+      - "workflow:.github/workflows/test-hygiene.yml#hygiene"
+      - "test:tests/test_check_beans.py::test_bean_0550_invented_times_fail_before_cleanup"
+      - "test:tests/test_failure_ledger.py::test_today_s_invented_ledger_times_fail_before_cleanup"
+  - id: "bean-format"
+    agents_rules: []
+    status: "enforced"
+    open_beans: []
+    runs_at:
+      - "pre-commit"
+      - "ci"
+    checks:
+      - "script:.agents/scripts/check_beans.py"
+      - "hook:.agents/hooks/pre-commit"
+      - "workflow:.github/workflows/test-hygiene.yml#hygiene"
+      - "test:tests/test_check_beans.py::test_bean_status_name_id_and_required_fields"
+      - "test:tests/test_check_beans.py::test_collection_flags_duplicate_gap_and_missing_blocker"
+  - id: "forbidden-flow-flags"
+    agents_rules:
+      - "Never pass `--skip-review`"
+    status: "enforced"
+    open_beans: []
+    runs_at:
+      - "flow-gate"
+    checks:
+      - "test:tests/test_flow_gates.py::test_skip_review_is_refused_even_with_authorisation"
+      - "test:tests/test_flow_gates.py::test_run_flow_refuses_skip_review_before_any_work"
+      - "test:tests/test_flow_gates.py::test_the_command_line_refuses_skip_review"
+  - id: "budget-authorisation"
+    agents_rules: []
+    status: "enforced"
+    open_beans: []
+    runs_at:
+      - "flow-gate"
+      - "ci"
+    checks:
+      - "test:tests/test_flow_gates.py::test_budget_scope_without_the_field_is_refused"
+      - "test:tests/test_flow_gates.py::test_maintainer_flags_are_refused_without_authorisation"
+      - "script:apps/holon-agentic-coder/main/scripts/check_module_budget_label_actor.py"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_check_module_budget_label_actor.py::test_a_budget_change_whose_intent_lacks_the_field_fails_despite_an_admin_label"
+      - "workflow:.github/workflows/test-hygiene.yml#hygiene"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_check_module_budget_label_actor.py::test_the_hygiene_workflow_runs_the_check_on_pull_request_events_only"
+  - id: "default-holon-coding-model"
+    agents_rules:
+      - "Default Holon coding model"
+    status: "missing"
+    open_beans:
+      - "0575"
+    runs_at:
+      - "on-demand"
+    checks: []
+  - id: "never-merge-into-main"
+    agents_rules:
+      - "Never merge a PR that targets `main`"
+    status: "missing"
+    open_beans:
+      - "0575"
+    runs_at:
+      - "on-demand"
+    checks: []
+  - id: "main-worktrees-untouched"
+    agents_rules: []
+    status: "enforced"
+    open_beans: []
+    runs_at:
+      - "agent-hook"
+      - "on-demand"
+    checks:
+      - "script:.agents/scripts/check_main_worktrees.py"
+      - "test:tests/test_check_main_worktrees.py::test_tracked_modification_is_reported"
+      - "test:tests/test_git_guard.py::test_cwd_inside_main_worktree_blocks_mutation"
+  - id: "git-safety"
+    agents_rules:
+      - "One worktree per agent"
+      - "Git safety in every subagent brief"
+    status: "partial"
+    open_beans:
+      - "0566"
+    runs_at:
+      - "agent-hook"
+    checks:
+      - "script:.agents/scripts/git_guard.py"
+      - "script:.agents/bin/git"
+      - "test:tests/test_git_guard.py::test_blocked_forms"
+      - "test:tests/test_git_guard.py::test_project_settings_register_the_hook"
+      - "test:tests/test_git_guard.py::test_wrapper_refuses_forbidden_forms"
+  - id: "no-attribution-trailers"
+    agents_rules: []
+    status: "enforced"
+    open_beans: []
+    runs_at:
+      - "commit-msg"
+      - "ci"
+    checks:
+      - "script:.agents/scripts/check_commit_trailers.py"
+      - "hook:.agents/hooks/commit-msg"
+      - "workflow:.github/workflows/test-hygiene.yml#hygiene"
+      - "workflow:apps/holon-agentic-coder/main/.github/workflows/test-commit-trailers.yml#commit-trailers"
+      - "script:apps/holon-coherence/main/scripts/check_commit_trailers.py"
+      - "hook:apps/holon-coherence/main/.githooks/commit-msg"
+      - "workflow:apps/holon-coherence/main/.github/workflows/test-commit-trailers.yml#commit-trailers"
+      - "test:tests/test_check_commit_trailers.py::test_attribution_trailers_detected"
+      - "test:tests/test_check_commit_trailers.py::test_installed_hook_rejects_a_commit_with_trailer"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_check_commit_trailers.py::test_commit_msg_hook_runs_the_check_on_the_message_file"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_check_commit_trailers.py::test_workflow_checks_the_pull_request_commits_with_full_history"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_flow_commit_messages_have_no_attribution.py::test_commit_trailer_block_has_no_attribution"
+      - "test:apps/holon-coherence/main/tests/test_check_commit_trailers.py::test_githook_is_executable_and_enforces_checker"
+      - "test:apps/holon-coherence/main/tests/test_check_commit_trailers.py::test_ci_workflow_runs_commit_trailer_range_check"
+  - id: "tests-only-via-uv-run-pytest"
+    agents_rules:
+      - "Tests"
+    status: "missing"
+    open_beans:
+      - "0575"
+    runs_at:
+      - "on-demand"
+    checks: []
+  - id: "three-append-only-ledgers"
+    agents_rules: []
+    status: "enforced"
+    open_beans: []
+    runs_at:
+      - "ci"
+    checks:
+      - "script:apps/holon-agentic-coder/main/scripts/check_ledger_stores.py"
+      - "script:apps/holon-agentic-coder/main/scripts/check_ledger_rows_append_only.py"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_ledger_stores_exactly_three.py::test_a_fourth_store_fails_and_is_named"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_ledger_rows_append_only_diff.py::test_a_base_row_edit_fails"
+      - "script:apps/holon-coherence/main/scripts/check_ledger_stores.py"
+      - "script:apps/holon-coherence/main/scripts/check_ledger_rows_append_only.py"
+      - "test:apps/holon-coherence/main/tests/test_ledger_stores_exactly_three.py::test_fourth_ledger_store_fails"
+      - "test:apps/holon-coherence/main/tests/test_ledger_rows_append_only_diff.py::test_editing_single_byte_in_base_row_fails"
+  - id: "no-harness-references-in-targets"
+    agents_rules:
+      - "Target repositories"
+    status: "enforced"
+    open_beans: []
+    runs_at:
+      - "ci"
+      - "flow-gate"
+    checks:
+      - "script:apps/holon-agentic-coder/main/scripts/check_no_harness_references.py"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_check_no_harness_references.py::test_added_line_with_a_reference_fails_without_echoing_it"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_check_no_harness_references.py::test_unreadable_diff_fails_closed"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_intent_payload_rules.py::test_reconstructed_intent_with_harness_reference_is_refused"
+      - "script:apps/holon-coherence/main/scripts/check_no_harness_references.py"
+      - "test:apps/holon-coherence/main/tests/test_check_no_harness_references.py::test_diff_mode_fails_on_added_reference_line"
+      - "test:apps/holon-coherence/main/tests/test_check_no_harness_references.py::test_diff_mode_fails_closed_on_unreadable_diff_and_inputs"
+  - id: "intent-covers-bean-acceptance"
+    agents_rules: []
+    status: "partial"
+    open_beans:
+      - "0589"
+    runs_at:
+      - "flow-gate"
+    checks:
+      - "script:.agents/skills/holon_flow/scripts/intent_coverage.py"
+      - "test:tests/test_intent_coverage.py::test_bean_0574_missing_second_goal_copy_is_refused_and_complete_passes"
+      - "test:tests/test_intent_coverage.py::test_bean_0570_missing_ci_read_is_refused_and_complete_passes"
+      - "test:tests/test_intent_coverage.py::test_bean_0558_missing_summary_calibration_and_pre_push_is_refused_and_complete_passes"
+      - "test:tests/test_intent_coverage.py::test_run_flow_refuses_an_uncovered_bean_with_exit_2"
+  - id: "intent-scope-lists-files-only"
+    agents_rules: []
+    status: "partial"
+    open_beans:
+      - "0565"
+    runs_at:
+      - "flow-gate"
+    checks:
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_intent_payload_rules.py::test_shape_violations_are_refused"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_intent_scope_check.py::test_directory_entry_is_a_violation"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_intent_payload_rules.py::test_hub_files_give_warnings_only"
+      - "test:tests/test_flow_scope_files.py::test_run_flow_refuses_a_directory_scope_before_any_stage"
+      - "test:tests/test_flow_scope_files.py::test_a_trailing_slash_entry_is_a_directory"
+  - id: "format-before-commit"
+    agents_rules:
+      - "Format before commit"
+    status: "enforced"
+    open_beans: []
+    runs_at:
+      - "pre-commit"
+      - "ci"
+    checks:
+      - "hook:.agents/hooks/pre-commit"
+      - "workflow:.github/workflows/test-hygiene.yml#hygiene"
+  - id: "subagents-follow-model-tiers"
+    agents_rules:
+      - "Subagents"
+    status: "partial"
+    open_beans:
+      - "0575"
+    runs_at:
+      - "on-demand"
+    checks:
+      - "test:tests/test_lowest_model.py::test_picks_smallest_family_then_lowest_effort"
+  - id: "flow-concurrency"
+    agents_rules:
+      - "Flow concurrency & merge backfill"
+    status: "missing"
+    open_beans:
+      - "0575"
+    runs_at:
+      - "on-demand"
+    checks: []
+  - id: "coordinator-failure-ledger"
+    agents_rules:
+      - "Coordinator failure ledger"
+    status: "partial"
+    open_beans:
+      - "0575"
+    runs_at:
+      - "pre-commit"
+      - "ci"
+    checks:
+      - "script:.agents/scripts/check_failure_ledger.py"
+      - "test:tests/test_failure_ledger.py::test_append_only"
+  - id: "self-improvement-audit"
+    agents_rules:
+      - "Self-improvement audit"
+    status: "partial"
+    open_beans:
+      - "0575"
+    runs_at:
+      - "pre-commit"
+      - "ci"
+    checks:
+      - "test:tests/test_check_beans.py::test_audit_entries_must_be_newest_first"
+  - id: "every-review-finding-actioned"
+    agents_rules: []
+    status: "enforced"
+    open_beans: []
+    runs_at:
+      - "flow-gate"
+    checks:
+      - "script:apps/holon-agentic-coder/main/apps/sandbox-executor/src/sandbox_executor/review_finding_outcomes.py"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_review_finding_outcomes.py::test_a_loop_that_leaves_a_nit_and_a_surviving_mutant_without_an_outcome_fails"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_review_finding_outcomes.py::test_a_loop_where_every_finding_is_applied_or_rejected_with_a_reason_passes"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_review_finding_outcomes.py::test_approval_needs_exactly_three_verdicts"
+  - id: "new-invariant-lands-with-its-check"
+    agents_rules:
+      - "New invariants"
+    status: "enforced"
+    open_beans: []
+    runs_at:
+      - "ci"
+    checks:
+      - "test:tests/test_invariant_registry.py::test_every_hard_rule_maps_to_a_registry_entry"
+      - "test:tests/test_invariant_registry.py::test_every_referenced_check_exists"
+      - "test:tests/test_invariant_registry.py::test_missing_and_partial_entries_name_an_open_bean"
+  - id: "single-commit-and-bean-id-path"
+    agents_rules:
+      - "Single commit and bean-id path"
+    status: "partial"
+    open_beans:
+      - "0581"
+    runs_at:
+      - "pre-commit"
+      - "on-demand"
+    checks:
+      - "script:.agents/scripts/harness_commit.py"
+      - "script:.agents/scripts/new_bean.py"
+      - "script:.agents/scripts/staged_validation.py"
+      - "hook:.agents/hooks/pre-commit"
+      - "test:tests/test_harness_commit.py::test_bad_staged_ledger_row_is_refused_and_unstaged"
+      - "test:tests/test_harness_commit.py::test_concurrent_allocations_across_processes_get_distinct_ids"
+  - id: "hooks-installed"
+    agents_rules: []
+    status: "partial"
+    open_beans:
+      - "0575"
+    runs_at:
+      - "on-demand"
+    checks:
+      - "script:.agents/scripts/install_git_hooks.py"
+      - "test:tests/test_invariant_registry.py::test_installer_is_idempotent_and_installs_every_hook"
+  - id: "review-loop-child-suite-contract"
+    agents_rules: []
+    status: "enforced"
+    open_beans: []
+    runs_at:
+      - "ci"
+    checks:
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_review_environment_child_suite_contract.py::test_canary_tests_pass_under_the_environment_the_review_loop_hands_its_pre_push_suite"
+      - "test:apps/holon-agentic-coder/main/apps/sandbox-executor/tests/test_review_environment_child_suite_contract.py::test_canary_tests_fail_when_the_review_identity_leaks_into_that_environment"
+  - id: "finish-more-than-you-start"
+    agents_rules:
+      - "Finish more than you start"
+    status: "missing"
+    open_beans:
+      - "0630"
+    runs_at:
+      - "on-demand"
+    checks: []

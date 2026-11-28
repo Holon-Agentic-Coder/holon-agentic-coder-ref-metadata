@@ -10,7 +10,7 @@ tags:
   - merge
   - churn
 created_at: 2026-11-25T05:45:00Z
-updated_at: 2026-11-25T05:45:00Z
+updated_at: 2026-11-28T00:03:58Z
 ---
 
 ## Problem
@@ -73,3 +73,12 @@ Small, harness only (`.agents/pr-merging.md`, `.agents/skills/post_pr_merge/`, `
 - `thomashan/dev-env#42` (`tmux-focus-events-on`): `Merge remote-tracking branch 'origin/main'` (`842a47cf`) was pushed
   at `2026-11-26T03:45:52Z` and merged **`29 s` later** at `03:46:21Z`, long before `Unit Tests` (`15–20 min`) or
   `Ubuntu Converge E2E` (`5–6 min`) completed.
+
+## Audit evidence (2026-11-28T00:01Z, fifth-merge audit)
+
+- During `2026-11-27T23:38:00Z–23:45:15Z`, `23` `holon-agentic-coder` PRs (`#428..#456`) sat `MERGEABLE`/`CLEAN` for up
+  to `7.3 h` (`median 353.8 min` across 31 PRs) and were burst-merged without cross-PR re-validation. Two semantic
+  interactions (`#430` + `#438` on `test_plan_scope_guard.py`, and `#432` + `#456` on
+  `preflight <-> preflight_cooldown`) broke `Test - Unit` and `Test - Stress` on `main` (`27b4197e7`, Bean `0639`). When
+  bursting merges of PRs that add tests, ratchets, or Stage 1 contracts, run a batch speculative merge check
+  (`git merge-tree` + affected ratchet/unit tests) before merging the stack.

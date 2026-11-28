@@ -25,7 +25,8 @@ phrasing, or skill instructions:
 `main` (nor the repository's default branch) may be merged **autonomously**, by the Holon flow engine or by an agent:
 for example a sub-intent PR into its plan branch. Before merging, verify immediately beforehand that the PR's
 `baseRefName` is not `main` or the default branch (refuse otherwise), that its consensus review is approved, that its
-calibration report is included, that CI is green and that it is mergeable. Prefer a merge commit, so the branch's
+calibration report is included, that CI is green, that it is mergeable and, for a flow-engine change, that the affected
+suite ran under the review environment with the result recorded (bean 0557). Prefer a merge commit, so the branch's
 commits stay ancestors of the base. Auto-merge, the merge queue and `gh repo edit` settings that merge on their own stay
 prohibited. **Everything else in this section applies unchanged to a PR that targets `main`**, including the combined PR
 from a decomposed plan's branch into `main`.
@@ -37,7 +38,10 @@ PR activity (no further `gh pr` writes of any kind). On a PR the Holon flow drov
 (`holon calibrate <execution_branch>`) itself before requesting the merge, per "Ordering of the merge boundary" above:
 it creates and pushes the `/calibrated` branch, merges or fast-forwards the calibration commit into the PR head
 execution branch (`.../_`) so the calibration report is included in the PR diff, pushes the updated PR branch to
-`origin`, and reports:
+`origin`, runs `uv run python .agents/scripts/pr_readiness.py <pr_url>` to generate the fixed per-head readiness block
+(head SHA, review verdict, Stage 5 calibration state, and CI table), and pastes that block when reporting: never report
+a PR as merge-ready if the script's first line says `not ready:` (for example `not ready: CI pending` or
+`not ready: Stage 5 calibration missing`). Once `pr_readiness.py` prints `READY:`, report:
 
 > ✅ **PR #N is approved.** The 3-agent ensemble consensus review has been posted to GitHub and Stage 5 calibration has
 > been completed and included in the PR. Please review and merge it manually at `<pr_url>` when you are ready; merging
@@ -56,14 +60,14 @@ checkpoint needing no reaction:
    id, calibration commit and EV predicted vs actual), and refresh any related beans the merge unblocks or supersedes.
 2. **Refresh the triage**: update the `prioritise-beans` generator data (statistics, milestones, overrides, the
    Recommended Next Execution Sequence) and regenerate `.beans/bean-triage-prioritisation.md`.
-3. **Backfill open flow slots (up to 4 concurrent flows; maintainer, 2026-11-24)**: after updating beans and refreshing
-   triage, first resume parked flows unblocked by this merge from their checkpoint (they take free slots ahead of new
-   beans; parked flows do not count toward the 4; maintainer, 2026-11-26). Then, if fewer than 4 `holon-flow` background
-   subagents are active on hosted runtimes (local runtimes remain capped at 1), automatically pick up and launch the
-   highest-priority ready bean from the refreshed triage (honouring `blocked_by`, solo-sweep rules, and
-   pairwise-disjoint touch sets with active flows; at most one bean touching a shared hotspot such as `flow.py` or
-   `cli.py` per repository unless explicitly allowed) via `holon-flow` in a background subagent. Report both the
-   post-merge summary and the newly launched flow (or explain why no eligible bean could start).
+3. **Backfill open flow slots (up to 8 concurrent flows; maintainer, 2026-11-27, was 4)**: after updating beans and
+   refreshing triage, first resume parked flows unblocked by this merge from their checkpoint (they take free slots
+   ahead of new beans; parked flows do not count toward the 4; maintainer, 2026-11-26). Then, if fewer than 4
+   `holon-flow` background subagents are active on hosted runtimes (local runtimes remain capped at 1), automatically
+   pick up and launch the highest-priority ready bean from the refreshed triage (honouring `blocked_by`, solo-sweep
+   rules, and pairwise-disjoint touch sets with active flows; at most one bean touching a shared hotspot such as
+   `flow.py` or `cli.py` per repository unless explicitly allowed) via `holon-flow` in a background subagent. Report
+   both the post-merge summary and the newly launched flow (or explain why no eligible bean could start).
 4. **Self-improvement audit**: after each merge, count the pull requests merged into `main` of both target repositories
    since the newest entry in `.beans/self-improvement-audits.md`. When the count reaches five, launch the
    self-improvement audit subagent per [self-improvement-audit.md](self-improvement-audit.md).

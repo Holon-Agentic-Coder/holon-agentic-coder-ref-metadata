@@ -11,7 +11,7 @@ tags:
   - resolver
   - holon-agentic-coder
 created_at: 2026-11-24T11:00:00Z
-updated_at: 2026-11-24T13:00:00Z
+updated_at: 2026-11-27T12:12:18Z
 ---
 
 ## Why
@@ -34,6 +34,14 @@ and their output are in the git-ignored audit folder `todo/self-improvement-audi
   - Flow checkpoint-and-ledger-ownership (2026-11-21): 19 full iterations, 10 of them on an unchanged head after a
     resolver pass.
 - 26 of 249 findings were rejected by the resolver; reviewers are not told which findings were rejected and why.
+
+### Evidence (2026-11-27, PR #408)
+
+- Resumed HAC PR `#408` (`self-doc-tests-49`) got `3/3 APPROVED` in iteration 2, blocked only on `FIND-CI-002`, then ran
+  the in-loop `--resolve` resolver pass (`lint_passed: true`, `tests_passed: true`, `disposition: applied`), leaving
+  zero non-ledger working-tree changes. Unlike the carried-finding path fixed by Bean `0618` (PR `#412`), the in-loop
+  resolver still ran `git commit` after `git add -A -- . :(exclude)holon-knowledge/ledger/...` and crashed with exit
+  code `1` (`no changes added to commit`).
 
 ## Proposed change
 

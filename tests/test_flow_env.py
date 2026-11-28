@@ -186,6 +186,7 @@ def test_an_admission_refusal_is_reported_and_never_overridden_by_the_runner(mon
 
 
 def test_the_override_is_passed_only_when_the_caller_asks_for_it(monkeypatch, tmp_path):
+    monkeypatch.setattr(run_holon_flow, "forbidden_flag_refusal", lambda flags: None)
     code, launched = _overlap_run(monkeypatch, tmp_path, allow_overlap=True)
     assert code == 1 and len(launched) == 1
     assert "--allow-overlap" in launched[0]

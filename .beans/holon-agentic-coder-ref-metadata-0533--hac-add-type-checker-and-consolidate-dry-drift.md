@@ -1,7 +1,7 @@
 ---
 # holon-agentic-coder-ref-metadata-0533
 title: "Add mypy/pyright to CI, unify agent-ID and numstat helpers, and drive runtime env from env_registry"
-status: todo
+status: in-progress
 type: task
 priority: high
 tags:
@@ -10,7 +10,7 @@ tags:
   - clean-code
   - dry
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-26T13:35:00Z
+updated_at: 2026-11-27T11:48:05Z
 ---
 
 ## Problem
@@ -53,3 +53,10 @@ legacy `os.environ` mutations plus dead shims remain.
 - Target repository: `holon-agentic-coder` (evaluated at `HEAD f1e18bcd`).
 - Coordinate env consolidation with Bean `0223`.
 - Source: 2026-11 ecosystem architecture & source-code review (`docs/ecosystem-audit-report-2026-11.md`).
+- **Progress (2026-11-27)**: [PR #422](https://github.com/Holon-Agentic-Coder/holon-agentic-coder/pull/422) (`2a83e4cc`,
+  `hac-unify-agent-id-numstat`) merged into `main`: delegated `local_llm.normalize_agent_id` to `agent_defaults.py`,
+  extracted canonical `git.parse_numstat` across `calibration_diff.py`, `flow/stages/review.py`,
+  `flow/review/delta_review_git.py`, and `calibration/actual_evidence.py`, and added
+  `apps/sandbox-executor/tests/test_dry_normalization_numstat.py` (Stage 4 approved and Stage 5 calibrated). Keeping
+  `status: in-progress` for remaining slices (CI static type checker, `env_registry.py` runtime alignment, and legacy
+  cleanup).

@@ -23,14 +23,25 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
           node-version: 24
 
+      - name: Reject attribution trailers in PR commits
+        if: github.event_name == 'pull_request'
+        run: python3 .agents/scripts/check_commit_trailers.py --range "origin/${{ github.base_ref }}..${{ github.event.pull_request.head.sha }}"
+
       - name: Run Prettier Check
         run: npx prettier --check "**/*.md"
+
+      - name: Validate bean files, audit entries and failure ledger (ids, status, timestamps)
+        run: |
+          python3 .agents/scripts/check_beans.py
+          python3 .agents/scripts/check_failure_ledger.py
 
       - name: Validate Markdown Links
         run: node .agents/scripts/validate-links.js

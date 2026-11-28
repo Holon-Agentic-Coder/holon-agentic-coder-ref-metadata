@@ -69,10 +69,10 @@ interactive session remains responsive:
   `send_message` **only once** upon terminal completion or an unresolvable blocker.
 - **Re-Entrancy Guard**: If the executing agent is already the spawned `Holon Flow Subagent`, it proceeds directly to
   flow execution without spawning another nested subagent.
-- **4-Flow Concurrency Cap & Merge Backfill (maintainer, 2026-11-24)**: On hosted runtimes, up to **4 concurrent
-  `holon-flow` background subagents** may run at once, each in its own dedicated `flow-<slug>` worktree and honouring
-  dependencies, solo-sweep rules, and disjoint touch sets. Once a target-repo PR merges, backfill open slots up to 4 by
-  launching the next highest-priority ready bean via `holon-flow`.
+- **8-Flow Concurrency Cap & Merge Backfill (maintainer, 2026-11-24; 8 since 2026-11-27)**: On hosted runtimes, up to
+  **8 concurrent `holon-flow` background subagents** may run at once, each in its own dedicated `flow-<slug>` worktree
+  and honouring dependencies, solo-sweep rules, and disjoint touch sets. Once a target-repo PR merges, backfill open
+  slots up to 8 by launching the next highest-priority ready bean via `holon-flow`.
   - **Slots must always be doing work (maintainer, 2026-11-26)**: only flows that are executing, reviewing or
     calibrating count toward the 4; check this on every progress report and after every merge.
   - **Park blocked flows**: a flow refused at Stage 3 admission on a touch-set overlap, or otherwise waiting on another
@@ -80,7 +80,12 @@ interactive session remains responsive:
     checkpoint, note on its bean
     `parked <date>: blocked by <PR/flow> on <files>; resume from checkpoint when <condition>`, and end its subagent.
   - **Backfill at once** with the next highest-priority ready bean whose touch set is disjoint from every live and
-    parked flow.
+    parked flow — only when no resumable or recoverable existing bean can take the slot.
+  - **Finish more than you start (maintainer, 2026-11-27)**: always prioritise resuming and finishing existing
+    in-flight, parked, or halted beans and PRs ahead of starting new beans. Never start a new bean while any existing
+    in-flight, parked, or halted flow can be resumed, unblocked, or re-scoped into an open slot. When a Holon flow
+    breaks mid-lifecycle, manually kick off its resume (or re-cut/re-scope when blocked by a touch-set omission or stale
+    branch) until all 5 stages complete, until Bean `0630` makes the flow engine self-recover automatically.
   - **Resume from checkpoint**: once the blocker merges or releases the files, resume the parked flow with
     `--checkpoint` (never a fresh launch, which re-runs intent and plan and leaves duplicate `I-*` branches). Resuming
     takes the next free slot ahead of new beans.
@@ -88,6 +93,8 @@ interactive session remains responsive:
     includes this sentence in its `goal`: "Code is self-explaining: no docstrings and no comments except '# why:'
     comments that record a reason the code cannot show." Before reporting a PR ready, scan its diff for docstrings and
     non-`# why:` comments.
+  - **Flow-engine readiness (bean 0583 item 2, from bean 0557)**: a change to the flow engine runs the affected suite
+    inside the review environment (CF-0006 rule) as a recorded command, and its result goes in the readiness note.
 
 ### 4. Generic Subagent Protocol (Any Coding Agent)
 
@@ -144,7 +151,7 @@ answer and no tool call), and a constrained host can be pushed into swap or cras
 The rule:
 
 - **Hosted runtime** -- dispatch independent children concurrently (the default in `pr-reviewer` and `pr-review-loop`);
-  for target-repo `holon-flow` executions, up to **4 concurrent background flow subagents** are permitted (with
+  for target-repo `holon-flow` executions, up to **8 concurrent background flow subagents** are permitted (with
   automatic highest-priority bean backfill upon PR merge).
 - **Local runtime** -- dispatch LLM-inference children **serially**: launch one child, wait for it to finish, then
   launch the next. Concurrency for LLM work is capped at 1. Serialising changes **only the launch schedule**:
@@ -188,3 +195,7 @@ corrections are new lines with `supersedes`. Fields: `id` (`CF-0001`...), `creat
 verification), `failure`, `my_part`, `cost`, `rule`, `refs`. Append an entry for every halt, park, wasted run, false
 readiness or wrong brief before moving on. Check every brief, readiness check and launch against its rules. Validate
 with `uv run python .agents/scripts/check_failure_ledger.py`.
+
+After every subagent returns, run `uv run python .agents/scripts/check_main_worktrees.py`; a non-zero exit is a
+coordinator failure to record in the ledger and report at once. The git-safety rules are enforced by a hook and a PATH
+wrapper (see [worktrees-and-git.md](worktrees-and-git.md#enforcement-not-briefs)).
