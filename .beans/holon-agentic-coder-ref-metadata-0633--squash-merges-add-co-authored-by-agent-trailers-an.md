@@ -11,7 +11,7 @@ tags:
   - holon-coherence
   - holon-agentic-coder
 created_at: 2026-11-27T12:11:44Z
-updated_at: 2026-11-27T23:50:58Z
+updated_at: 2026-11-28T00:03:58Z
 ---
 
 ## Notes
@@ -35,6 +35,10 @@ updated_at: 2026-11-27T23:50:58Z
   `#425` `da13a83ca`, `#426` `1f3331637`) and all **4** new Coherence squash merges (`#83` `9eddccdc3`, `#67`
   `63a6bf3f7`, `#84` `71d46b44b`, `#85` `4d2cfcf81`) still landed `5` `Co-authored-by: Holon <Role> Agent` trailers each
   on `main`.
+- **Audit update (`2026-11-28T00:01Z`):** All **`23/23`** new HAC squash merges (`#428..#456`) and all **`8/8`** new
+  Coherence squash merges (`#86..#88, #90..#94`, even after `#93` added `make install-hooks`) still landed `5`
+  `Co-authored-by: Holon <Role> Agent` trailers each on `main`. Slice 2 (uniform flow commit-author / squash-merge
+  trailer policy + `.agents/scripts/install_git_hooks.py` wiring) remains pending.
 
 ### Proposed Change
 

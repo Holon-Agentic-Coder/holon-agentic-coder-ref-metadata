@@ -9,7 +9,7 @@ tags:
   - ci
   - ledger
 created_at: 2026-11-27T15:53:29Z
-updated_at: 2026-11-27T15:55:01Z
+updated_at: 2026-11-28T00:03:58Z
 ---
 
 ## Notes
@@ -22,6 +22,9 @@ updated_at: 2026-11-27T15:55:01Z
 - `HOLON_LEDGER_BOT_TOKEN` remains unconfigured on `Holon-Agentic-Coder/holon-agentic-coder`, so
   `holon-knowledge/ledger/pending/` grew `+12` fragments across `#415`, `#424`–`#426` to **303 `.jsonl` files** (**4,357
   rows** across `intents/`, `plans/`, `executions/` at `1f3331637`, up from 291 files at `2a83e4cc7`).
+- **Audit update (`2026-11-28T00:01Z`, `27b4197e7`):** Pending fragments grew `+69` across `#428..#456` to **372
+  `.jsonl` files** (**4,985 rows**: `124` files each under `intents/`, `plans/`, `executions/`) while
+  `HOLON_LEDGER_BOT_TOKEN` remains unset.
 
 ### Proposed Change
 

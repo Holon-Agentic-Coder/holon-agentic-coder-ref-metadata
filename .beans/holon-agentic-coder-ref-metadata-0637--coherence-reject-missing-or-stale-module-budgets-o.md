@@ -9,7 +9,7 @@ tags:
   - hygiene
   - module-budgets
 created_at: 2026-11-27T15:53:29Z
-updated_at: 2026-11-27T23:50:58Z
+updated_at: 2026-11-28T00:03:58Z
 ---
 
 ## Notes
@@ -60,5 +60,11 @@ updated_at: 2026-11-27T23:50:58Z
     `-0.661`, actual `0.36`, delta `+1.02`)
   - Merged into `main`; bean stays `in-progress` because AC #2 (`module_budgets.json` pruning for `dashboard.py` and
     `metrics/aggregation.py`) remains deferred to Slice 2 (`todo/intent-coverage-0637.json`).
+- **Audit update (`2026-11-28T00:01Z`, `holon-coherence@bcad21c86e`):**
+  [PR #92](https://github.com/Holon-Agentic-Coder/holon-coherence/pull/92) (`596a736`) shrank
+  `src/holon_coherence/commands/docker_ops.py` to `174` lines (`<= 200` default cap, override `221`), adding a **3rd
+  stale override**. `uv run python scripts/check_module_budgets.py --fail-on-stale-overrides` currently exits `1` on
+  `main` (`docker_ops.py` `174/221`, `metrics/aggregation.py` `150/222`, `proxy/dashboard.py` `9/383`). Include
+  `commands/docker_ops.py` in Slice 2's prune list.
 
 ## Resolution

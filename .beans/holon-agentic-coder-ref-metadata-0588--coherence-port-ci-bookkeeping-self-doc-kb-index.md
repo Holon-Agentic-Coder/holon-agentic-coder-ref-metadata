@@ -10,7 +10,7 @@ tags:
   - hygiene
   - invariants
 created_at: 2026-11-27T00:33:33Z
-updated_at: 2026-11-27T16:09:12Z
+updated_at: 2026-11-28T00:03:59Z
 ---
 
 ## Problem
@@ -69,3 +69,7 @@ updated_at: 2026-11-27T16:09:12Z
 - parked 2026-11-27 (`coherence-bookkeeping-gate`): Stage 3 re-planned into `tests/test_scripts_self_doc.py` (enforcing
   `SCRIPTS_SELF_DOC_FILES` on `4d2cfcf8`) and parked at Stage 3 admission on open PR `#86` (`coherence-prune-self-doc`,
   which deletes `tests/test_scripts_self_doc.py`) (`CF-0066`); resume or re-cut cleanly once PR `#86` merges.
+- **Audit evidence (`2026-11-28T00:01Z`, `bcad21c86e`):** Across `holon-coherence` PRs `#86..#88, #90..#94`, **`16/24`
+  CI-tested heads (`66.7%`, `160/240` check-runs)** still ran full CI on `chore(review)` and `chore(calibration)`
+  commits (taking up to `15.55 min` on `COH #88`'s `chore(calibration)`). `PR #86` (`6976c7b`) has now merged,
+  unblocking `coherence-bookkeeping-gate` for resume/re-cut.

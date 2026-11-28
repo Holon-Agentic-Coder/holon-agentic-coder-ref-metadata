@@ -9,7 +9,7 @@ tags:
   - overlap-scheduling
   - slot-keeper
 created_at: 2026-11-27T11:52:42Z
-updated_at: 2026-11-27T15:55:01Z
+updated_at: 2026-11-28T00:03:59Z
 ---
 
 ## Notes
@@ -31,6 +31,17 @@ updated_at: 2026-11-27T15:55:01Z
   (`review-posting-transient-retry`) dynamically re-planned in `P-1795780572` and added `lazy_exports_review.py` to its
   Touch Set. Pre-launch overlap checks should flag live Stage 2–3 `flow/review/*` flows as implicitly contesting
   `flow/lazy_exports_review.py` (and `flow/*` flows as contesting `flow/lazy_exports.py`) until `0543` removes the hubs.
+- **Audit update (`2026-11-28T00:01Z`, `CF-0066, CF-0068, CF-0072, CF-0073, CF-0078` -> `21` total `overlap-scheduling`
+  rows):**
+  - `CF-0066` (Coherence `0588` vs `#86` deleting `tests/test_scripts_self_doc.py`) and `CF-0078` (`0535 s2` vs
+    `HAC #428` deleting `test_self_doc_runners_launcher.py`) show concurrent flows collide with open PRs deleting
+    hardcoded `*_self_doc.py` files.
+  - `CF-0068` (`0617` vs `0590` on `tests/flow/test_{dispatch,git_refs,pipeline}.py`) and `CF-0072` (`0519` vs `0535` on
+    `lazy_exports.py`) parked behind live Stage 2/3 plan expansions.
+  - **`CF-0073` (mutual deadlock):** `0590` was refused at Stage 3 admission by `0617`'s pre-Stage-3 parked worktree
+    (`P-1795795893`), which had already parked behind `0590` (`CF-0068`). Pre-launch / re-cut helpers should prune
+    pre-Stage-3 parked worktrees (zero Stage 3 code) when re-cutting their blocker, and reject launches touching
+    directories guarded by open `*_self_doc.py`-pruning PRs.
 
 ### Proposed Change
 

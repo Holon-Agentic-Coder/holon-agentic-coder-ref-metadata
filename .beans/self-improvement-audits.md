@@ -5,6 +5,123 @@ first.
 
 ## Entries
 
+### 2026-11-28T00:03:59Z — Fifth-Merge Audit
+
+- **Trigger:** fifth merge (`31` newly merged PRs since `2026-11-27T15:55:01Z`, bringing `holon-agentic-coder`
+  `origin/main` to `27b4197e77` and `holon-coherence` `origin/main` to `bcad21c86e`):
+  - `holon-agentic-coder` (`23`, burst-merged `23:38:00Z–23:45:15Z`): `#428` (`0601`), `#430` (`0610`), `#431` (`0535`),
+    `#432` (`0635`), `#433` (`0607`), `#434` (`0599`), `#437` (`0627`), `#438` (`0590`), `#439` (`0531` s1), `#440`
+    (`0638`), `#442` (`0531` s2), `#443` (`0405`), `#444` (`0534`), `#446` (`0631`), `#447` (`0519`), `#448` (`0405`),
+    `#449` (`0405`), `#451` (`0368`), `#452` (`0462`), `#453` (`0534` s1), `#454` (`0608` s2), `#455` (`0608` s3),
+    `#456` (`0612`). Halted/closed in window: `#429`, `#435`, `#436`, `#441`, `#445`, `#450`, and open `#457` (`0608`
+    s5).
+  - `holon-coherence` (`8`, burst-merged `23:46:19Z–23:47:31Z`): `#86` (`0530`), `#87` (`0527`), `#88` (`0528`), `#90`
+    (`0637` s1), `#91` (`0634` s1), `#92` (`0527`), `#93` (`0633` s1), `#94` (`0634` s2). Halted/closed: `#89` (`0634`).
+- **Last merged pull requests at audit baseline:** `Holon-Agentic-Coder/holon-agentic-coder#456` (`27b4197e77`);
+  `Holon-Agentic-Coder/holon-coherence#94` (`bcad21c86e`).
+- **Coordinator failure ledger repeats (`CF-0066`–`CF-0082`, `17` new rows since `CF-0065`):**
+  - `intent-scope` (`12` new rows `CF-0067, CF-0069–CF-0071, CF-0074–CF-0077, CF-0079–CF-0082`, `28` total — **repeat
+    flagged high priority**): Halted `8` Stage 4 PRs on `touch_set_violation` (`#429`, `#435`, `#436`, `#441`, `#445`,
+    `#450`, `#457`, Coherence `#89`; `#457` stranded unpushed commits `82b32b211`/`a0fde65c2`), `3` Stage 3 runs
+    (`0619`, `0599`, `0590`), and `1` `empty_diff` (`0608` s4). Key blind spots: `>=900L` test-file cap proximity
+    (`CF-0080`: `test_preflight.py` `975L->1,015L` forced new `test_preflight_cooldown.py` outside scope),
+    `flow/lazy_exports_review.py` (`CF-0067`), `apps/sandbox-executor/README.md` (`CF-0069`), `integration_test` raw
+    intent fixtures (`CF-0075`), `launcher/*_mounts.py` (`CF-0077`), `flow/stages/review.py` +
+    `test_review_keeps_branch.py` (`CF-0079`), ignored `intent-check` companions (`CF-0070, CF-0074, CF-0076`), and
+    launching `0608` s4/s5 before `#455` merged `allow_why=True` (`CF-0081, CF-0082`) -> extended **`0546`** and
+    **`0624`**.
+  - `overlap-scheduling` (`5` new rows `CF-0066, CF-0068, CF-0072, CF-0073, CF-0078`, `21` total — **repeat flagged high
+    priority**): `CF-0066` (`0588` vs `#86` pruning `test_scripts_self_doc.py`), `CF-0078` (`0535` s2 vs `#428` pruning
+    `test_self_doc_runners_launcher.py`), `CF-0068` (`0617` vs `0590`), `CF-0072` (`0519` vs `0535`), and mutual
+    deadlock `CF-0073` (`0590` refused by parked pre-Stage-3 `0617` which waited on `0590`) -> extended **`0628`**.
+- **Concrete Audit Findings & Clean Checks (`#428..#456`, `#86..#94`):**
+  - **`holon-agentic-coder/main` RED at `27b4197e77` after burst merge (**new Bean `0639` high** + extended
+    **`0458`**):** Burst-merging `23` `MERGEABLE`/`CLEAN` PRs (`23:38Z–23:45Z`) broke **`Test - Unit`** (run
+    `46084228956`: `4 failed, 10772 passed`) and **`Test - Stress`** (`46084229004`) via two cross-PR interactions: (1)
+    `#432` (`65c7741f7`, root import-cycle ratchet) + `#456` (`preflight <-> preflight_cooldown`, `1<->4` sites), and
+    (2) `#430` (`test_plan_scope_guard.py` missing `assumptions`) + `#438` (Stage 1 requires `assumptions`).
+  - **Bookkeeping CI & Stage 5 runner waits (`#428..#456`, `#86..#94`):** Across all `31` merged PRs, **`78/121`
+    (`64.5%`) CI-tested heads and `1,152/1,792` (`64.3%`) check-runs** (`992/1,552` HAC + `160/240` Coherence) ran on
+    `chore(review)` / `chore(calibration)` commits, with `210` cancelled HAC check-runs (`0` in Coherence). Stage 5
+    calibration work took `19–36 s` (`med 27.0 s`), yet final-head CI wait took **`med 5.05 min` (`max 15.55 min` on
+    `COH #88`)**; even `ci_bookkeeping_gate`-skipped `chore(calibration)` on `HAC #456` still took `162 s` (`2.7 min`)
+    across 16 runners -> extended **`0383`** and **`0588`** (`#86` unblocked `coherence-bookkeeping-gate`).
+  - **Unlogged flows & `~14 h` idle gap:** **`27/31` merged PRs** (`19/23` HAC + `8/8` Coherence) preserved zero
+    `todo/flow-*.log` files (`0412`), and `5` HAC PRs (`#442–#444, #448, #449`) lost **`~838.5 min`** (`145.6–178.3 m`
+    each) to an unexplained `18:06Z–20:51Z` stop/resume gap -> extended **`0412`**.
+  - **Coherence stale `module_budgets.json` override (`#92`):** `#92` shrank `commands/docker_ops.py` (`221->174L`),
+    leaving **`3` stale overrides** (`docker_ops.py` `174/221`, `aggregation.py` `150/222`, `dashboard.py` `9/383`) so
+    `check_module_budgets.py --fail-on-stale-overrides` exits `1` on `bcad21c86e` -> extended **`0637`**.
+  - **Pending ledger backlog & squash trailers:** HAC pending fragments grew `303 -> 372` (`4,985` rows -> extended
+    **`0636`**), Coherence grew `81 -> 105` (`881` rows -> extended **`0620`**); `31/31` new squash merges (`23/23` HAC
+    - `8/8` Coherence) still carry `5` `Co-authored-by: Holon <Role> Agent` trailers on `main` (extended **`0633`**).
+  - **Clean findings (examined and in order):** `31/31` merged PRs passed `3/3 APPROVED` + Stage 5 calibration with
+    `100.0%` Touch Set recall (`28/31` at `100.0%` precision; `0` out-of-scope files), `0` added docstrings/comments
+    across all `31` diffs, `0` cancelled CI runs across `240` Coherence check-runs, `0` silent `pass` in Coherence (`26`
+    `broad_except`), and `bcad21c86e` CI is 100% green (`#88` cut provider `deepcopy` `17->2`, `#87+#92` broke
+    `commands<->container`, `#91+#94` cut env reads `40->19` -> extended **`0634`**; HAC `#444+#453` cut `broad_except`
+    `137->131` -> extended **`0534`**).
+- **Per-flow churn summary (`31` PRs:
+  `CI heads / bookkeeping heads / total check-runs / bookkeeping checks (cancelled, failed) / review iters [full+scoped] / non-defect churn`):**
+  - `HAC #428`: `3 / 2 / 48 / 32 (1 canc) / 1+0 (0 churn)`; `#430`: `5 / 3 / 80 / 48 (13 canc) / 1+1 (0 churn)`
+  - `HAC #431`: `3 / 2 / 48 / 32 (3 canc) / 1+0 (0 churn)`; `#432`: `3 / 2 / 48 / 32 (3 canc) / 1+0 (0 churn)`
+  - `HAC #433`: `3 / 2 / 48 / 32 (2 canc) / 1+0 (0 churn)`; `#434`: `6 / 4 / 96 / 64 (15 canc) / 2+1 (0 churn)`
+  - `HAC #437`: `5 / 3 / 80 / 48 (13 canc) / 1+1 (0 churn)`; `#438`: `3 / 2 / 48 / 32 (3 canc) / 1+0 (0 churn)`
+  - `HAC #439`: `3 / 2 / 48 / 32 (3 canc) / 1+0 (0 churn)`; `#440`: `5 / 3 / 80 / 48 (15 canc) / 1+1 (0 churn)`
+  - `HAC #442`: `6 / 4 / 96 / 64 (16 canc) / 2+0 (0 churn)`; `#443`: `5 / 3 / 80 / 48 (23 canc, 1 fail) / 2+0 (0 churn)`
+  - `HAC #444`: `3 / 2 / 48 / 32 (1 canc) / 1+0 (0 churn)`; `#446`: `5 / 3 / 80 / 48 (18 canc) / 1+1 (0 churn)`
+  - `HAC #447`: `5 / 3 / 80 / 48 (16 canc) / 1+1 (0 churn)`; `#448`: `5 / 3 / 80 / 48 (19 canc) / 1+1 (0 churn)`
+  - `HAC #449`: `5 / 3 / 80 / 48 (15 canc) / 1+1 (0 churn)`; `#451`: `5 / 3 / 80 / 48 (13 canc) / 1+1 (0 churn)`
+  - `HAC #452`: `5 / 4 / 80 / 64 (2 canc, 1 fail) / 3+0 (0 churn)`; `#453`: `3 / 2 / 48 / 32 (1 canc) / 1+0 (0 churn)`
+  - `HAC #454`: `3 / 2 / 48 / 32 (1 canc) / 1+0 (0 churn)`; `#455`: `3 / 2 / 48 / 32 (2 canc) / 1+0 (0 churn)`
+  - `HAC #456`: `5 / 3 / 80 / 48 (12 canc) / 1+1 (0 churn)`
+  - `COH #86, #87, #88, #90, #91, #92, #93, #94`: each `3 / 2 / 30 / 20 (0 canc, 0 fail) / 1+0 (0 churn)`
+- **Per-step timing table (`31` merged PRs since `2026-11-27T15:55:01Z`):** **not completed**. The audit subagent
+  stopped on a `RESOURCE_EXHAUSTED` quota error before writing it; the churn summary above and the stage timings in the
+  findings are the only timing evidence recorded for this audit.
+
+| Step                                       | Count |     Median (s / min) |    Longest (s / min) | Category / Notes                                                                           |
+| :----------------------------------------- | ----: | -------------------: | -------------------: | :----------------------------------------------------------------------------------------- |
+| Pre-flight (wrapper start -> Stage 1)      |     0 |         not measured |         not measured | `31/31` unlogged in wrapper (`0412`)                                                       |
+| Stage 1 (`INTENT`)                         |     4 |      18.0 s (0.30 m) |      30.0 s (0.50 m) | Working (`#448, #449, #451, #450`; `27/31` unlogged; `#450` 1st try 15m)                   |
+| Stage 2 (`PLAN`, intent -> plan commit)    |    31 |     217.0 s (3.62 m) |     366.0 s (6.10 m) | Working (`#447` max `6.10 m`)                                                              |
+| Stage 3 admission wait                     |     4 |      36.5 s (0.61 m) |      75.0 s (1.25 m) | Waiting (`#448` `25s+75s`, `#449` `26s+39s`, `#451` `38s`, `#450` `34s`)                   |
+| Stage 3 (`EXECUTE` active, excl. idle)     |    31 |     571.0 s (9.52 m) |   2476.0 s (41.27 m) | Working (`#448` max `41.27 m`; `#449` `36.15 m`)                                           |
+| Execute commit -> PR create                |    31 |      38.0 s (0.63 m) |     584.0 s (9.73 m) | Working (`#447` `9.73 m`, `#446` `9.60 m` at `21:27->21:37Z`)                              |
+| Stage 4 (`REVIEW` active, excl. idle)      |    31 |    660.0 s (11.00 m) |   2617.0 s (43.62 m) | Working + CI (`#443` max `43.62 m`; `#452` 3 full iters `23.6 m`)                          |
+| Stage 5 carry-over CI wait (`sync` merges) |     0 |                  0 s |                  0 s | `0/31` target merges during `15:55Z–23:38Z` window                                         |
+| Stage 5 calibration work (excl. CI)        |    31 |      27.0 s (0.45 m) |      36.0 s (0.60 m) | Working (`#430`, `#451` max `0.60 m`)                                                      |
+| Stage 5 final-head CI reg wait             |    31 |      15.0 s (0.25 m) |      50.0 s (0.83 m) | Waiting on CI (`COH #88` max `50 s`)                                                       |
+| Stage 5 final-head CI wait                 |    31 |     303.0 s (5.05 m) |    933.0 s (15.55 m) | Waiting on CI (`COH #88` `15.55 m`, `HAC #443` `9.75 m`; `0383`, `0588`)                   |
+| Stage 5 (`CALIBRATE` total)                |    31 |     352.0 s (5.87 m) |   1004.0 s (16.73 m) | Work + CI (`COH #88` `16.73 m`, `HAC #443` `10.42 m`; `0383`)                              |
+| Idle between stop & resume                 |     5 | 10279.8 s (171.33 m) | 10695.0 s (178.25 m) | Idle (`#442` `145.6m`, `#443` `173.5m`, `#444` `169.9m`, `#448` `171.3m`, `#449` `178.3m`) |
+| Human wait (final CI -> merge)             |    31 | 21230.0 s (353.83 m) | 27959.0 s (465.98 m) | Waiting on human (`COH #86` `466.0 m`, `HAC #428` `437.5 m`; burst merge)                  |
+
+- **Not measured:** `27/31` merged flows left no `todo/flow-*.log` (`0412`), leaving Pre-flight (`31/31`), Stage 1
+  (`27/31`), Stage 3 admission (`27/31`), Stage 4 inner reviewer/resolver splits (`27/31`), and per-turn LLM tokens
+  (`31/31`, `0629`) unmeasured.
+- **Beans created:** **`0639`** (high: HAC `main` broken at `27b4197e7` after burst merge —
+  `preflight<->preflight_cooldown` cycle `#432+#456` and `test_plan_scope_guard.py` missing `assumptions` `#430+#438`).
+- **Beans extended:** **`0383`**, **`0412`**, **`0458`**, **`0534`**, **`0546`**, **`0588`**, **`0620`**, **`0624`**,
+  **`0628`**, **`0633`**, **`0634`**, **`0636`**, **`0637`**.
+- **Architecture & source-code quality refresh
+  ([docs/ecosystem-audit-report-2026-11.md](../docs/ecosystem-audit-report-2026-11.md), `hac@27b4197e77` vs `1f3331637`;
+  `coherence@bcad21c86e` vs `4d2cfcf8`):**
+  - **Overall scores:** **`holon-coherence` `8.2 / 10 (+0.1)`** and **`holon-agentic-coder` `7.6 / 10 (+0.1)`**.
+  - **Coherence deltas (`4d2cfcf8 -> bcad21c86e`):** Clean Architecture `7.9->8.1 (+0.2)` (`#87+#92` broke
+    `commands<->container`), Modularity `7.9->8.0 (+0.1)` (`>200L` `17->16`, `#90` `--fail-on-stale-overrides`, `3`
+    stale overrides `0637`), Clean Code `7.6->7.9 (+0.3)` (`#88` `deepcopy` `17->2`, `#91+#94` env `40->19`), Self-Doc
+    Code `8.3->8.5 (+0.2)` (`#86` `10->1` `*_self_doc.py`), Testability `8.3->8.4 (+0.1)` (`1,082->1,097` `test_*`, `0`
+    cancelled runs), Security `8.6->8.7 (+0.1)` (`#93` `make install-hooks`), Config/Obs `7.6->7.7 (+0.1)` (`40->19` env
+    sites `0634`, `81->105` pending fragments `0620`, `160/240` bookkeeping CI `0588`).
+  - **HAC deltas (`1f3331637 -> 27b4197e77`):** Clean Architecture `6.7->6.8 (+0.1)` (`#439` broke `ledger<->knowledge`,
+    `#432` root ratchet, regressed by `#456` `preflight<->preflight_cooldown` `0639`), Complexity `5.8->6.0 (+0.2)`
+    (`#442` `turns.py:run_turn` `CC=49->4`), Clean Code `7.4->7.5 (+0.1)` (`broad_except` `137->131`), Self-Doc Code
+    `8.2->8.5 (+0.3)` (`#428` `31->2` `test_self_doc*.py`, `#454+#455` `# why:` `584->608`, test docstrings
+    `1,022->638`), Extensibility `6.8->7.1 (+0.3)` (`#431` `GitForge` + stage registry), Testability `8.0->7.9 (-0.1)`
+    (`#443/#448/#449` git speedups, **but** `Test - Unit` & `Test - Stress` RED on `main` `27b4197e7` `0639`), Error
+    Handling `8.2->8.4 (+0.2)` (`broad_except` `137->131`, silent `pass` `3->2`, `#433/#446/#447/#451/#456`).
+
 ### 2026-11-27T15:55:01Z — Fifth-Merge Audit
 
 - **Trigger:** fifth merge (`8` newly merged PRs since `2026-11-27T12:14:08Z`, bringing `holon-agentic-coder`

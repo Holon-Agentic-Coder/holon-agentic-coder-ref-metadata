@@ -9,7 +9,7 @@ tags:
   - ci
   - ledger
 created_at: 2026-11-27T08:03:26Z
-updated_at: 2026-11-27T15:55:01Z
+updated_at: 2026-11-28T00:03:58Z
 ---
 
 ## Notes
@@ -27,6 +27,9 @@ updated_at: 2026-11-27T15:55:01Z
 - **Audit update (`2026-11-27T15:46Z`, `4d2cfcf8`):** Pending fragments grew another `+12` (`#83`, `#67`, `#84`, `#85`)
   to **81 `.jsonl` files** (`737` rows across `intents/`, `plans/`, and `executions/`) while `HOLON_LEDGER_BOT_TOKEN`
   remains unconfigured.
+- **Audit update (`2026-11-28T00:01Z`, `bcad21c86e`):** Pending fragments grew another `+24` (`#86..#88, #90..#94`) to
+  **105 `.jsonl` files** (**881 rows**: `35` files each under `intents/`, `plans/`, `executions/`) while
+  `HOLON_LEDGER_BOT_TOKEN` remains unset (recent `promote-ledger.yml` runs on `bcad21c86` emit the warning and no-op).
 - **Proposed Change**: Configure `HOLON_LEDGER_BOT_TOKEN` on `Holon-Agentic-Coder/holon-coherence` (or run
   `promote-ledger.yml` via `workflow_dispatch` once configured) and drain all 27 pending fragments into canonical
   `holon-knowledge/ledger/{intents,plans,executions}.jsonl`.

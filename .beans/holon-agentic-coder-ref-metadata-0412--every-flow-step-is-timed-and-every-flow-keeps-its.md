@@ -11,7 +11,7 @@ tags:
   - timing
   - holon-agentic-coder
 created_at: 2026-11-24T11:00:00Z
-updated_at: 2026-11-27T15:55:01Z
+updated_at: 2026-11-28T00:03:58Z
 ---
 
 ## Why
@@ -221,3 +221,14 @@ Instrumentation gaps from section 4 of `todo/flow-time-audit-2026-11-26.md`:
   Stage 3 admission wait & target-sync split (`5/8` unlogged), Stage 4 per-reviewer/resolver inner splits (`5/8`
   unlogged; `#415` iter-2 active review vs `~104 min` quota idle unseparated in commit timestamps), and per-turn LLM
   tokens (`8/8`, Bean `0629`).
+
+## Audit evidence, 2026-11-28T00:01Z (fifth-merge audit)
+
+- **`27/31` merged PRs** (`19/23` HAC `#428..#447, #452..#455` + `8/8` Coherence `#86..#88, #90..#94`) left **no**
+  `todo/flow-*.log` file on disk (only `flow-0368.log`, `flow-hac-provider-cooldown.log`,
+  `flow-tests-fewer-git-calibrate.log`, and `flow-tests-fewer-git-review-decomp.log` were preserved since `15:55Z`), and
+  post-merge pruned their worktrees/checkpoints.
+- Leaving `not measured` across `27/31` flows: Pre-flight (`31/31` unlogged in wrapper), Stage 1 (`27/31`), Stage 3
+  admission wait (`27/31`), Stage 4 inner reviewer/resolver/CI splits (`27/31`), and the `~838.5 min` unexplained
+  `18:06Z–20:51Z` idle gap across `HAC #442` (`145.6m`), `#443` (`173.5m`), `#444` (`169.9m`), `#448` (`171.3m`), `#449`
+  (`178.3m`) (only `#448`/`#449` had logs showing `18:06Z -> 20:51Z` stop/resume).

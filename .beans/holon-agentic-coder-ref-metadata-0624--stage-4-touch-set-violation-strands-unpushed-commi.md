@@ -10,7 +10,7 @@ tags:
   - resolver
   - holon-agentic-coder
 created_at: 2026-11-27T10:55:04Z
-updated_at: 2026-11-27T11:55:26Z
+updated_at: 2026-11-28T00:03:58Z
 ---
 
 ## Notes
@@ -40,6 +40,12 @@ updated_at: 2026-11-27T11:55:26Z
 - Unlike Stage 3 (which automatically returns to Stage 2 to widen the touch set up to `MAX_REPLAN_ATTEMPTS`), Stage 4
   resolver halts leave unpushed local non-ledger commits on the branch that block ledger pushes and require manual
   `git reset`/re-scope (related prevention: Bean `0627`).
+- **Audit update (`2026-11-28T00:01Z`):** `8` additional Stage 4 `touch_set_violation` halts occurred across `CF-0070`
+  (`#429`), `CF-0074` (`COH #89`), `CF-0075` (`#435`, which already had `3/3 APPROVED`), `CF-0076` (`#436`), `CF-0077`
+  (`#441`), `CF-0079` (`#445`), `CF-0080` (`#450`), and `CF-0082` (`#457`, stranding unpushed local commits `82b32b211`
+  and `a0fde65c2` in `flow-hac-restore-why-cli-entrypoint`). Note `PR #437` (`stage4-resolver-touch-set`, merged
+  `23:41:02Z`) now passes the plan Touch Set to the Stage 4 resolver input, while clean rollback/patch archival on
+  violation (`0624`) remains unimplemented.
 
 ### Proposed Change
 

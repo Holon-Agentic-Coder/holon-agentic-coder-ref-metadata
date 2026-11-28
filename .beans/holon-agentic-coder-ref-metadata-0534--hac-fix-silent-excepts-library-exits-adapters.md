@@ -9,7 +9,7 @@ tags:
   - resilience
   - error-handling
 created_at: 2026-11-26T13:35:00Z
-updated_at: 2026-11-27T23:48:13Z
+updated_at: 2026-11-28T00:03:59Z
 ---
 
 ## Problem
@@ -61,3 +61,6 @@ modules call `sys.exit(1)` instead of raising domain exceptions, `GitHubAdapter`
     adapter, and `git.py` slices.
 - Remaining `launcher/containers.py` / `flow/pipeline.py` except-pass catches, `sys.exit(1)` refactors, and
   `GitHubAdapter` / `GitCommandError` slices are deferred (`todo/intent-coverage-0534.json`).
+- **Audit update (`2026-11-28T00:01Z`, `27b4197e7`):** `PR #444` (`ec16d88c3`, narrow broad excepts) + `PR #453`
+  (`579c13e24`, `agent_runner.py`) reduced `except Exception` in `src/` from `137` (`3` silent `pass`) to **`131` (`2`
+  silent `pass` at `flow/pipeline.py:392` and `launcher/containers.py:255`)**.

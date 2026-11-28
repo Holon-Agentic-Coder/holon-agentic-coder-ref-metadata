@@ -10,7 +10,7 @@ tags:
   - touch-set
   - holon-agentic-coder
 created_at: 2026-11-26T21:08:00Z
-updated_at: 2026-11-27T15:55:01Z
+updated_at: 2026-11-28T00:03:58Z
 ---
 
 ## Problem
@@ -81,3 +81,22 @@ and the prompt templates. Add this escape to the replay set (see the Proposed fi
   `apps/sandbox-executor/tests/flow/test_local_test_finding.py` (`9.0 min` execute + `3.4 min` review).
   `test_local_test_finding.py` directly imports `local_test_finding` (so `intent_scope_graph.py` can detect it), yet
   `run_holon_flow.py` pre-flight did not fail closed when `holon intent-check` exited `1` on unresolved companion tests.
+
+## Audit evidence (2026-11-28T00:01Z fifth-merge audit, `CF-0067..CF-0082`)
+
+- `intent-scope` repeated **12 more times**
+  (`CF-0067, CF-0069, CF-0070, CF-0071, CF-0074, CF-0075, CF-0076, CF-0077, CF-0079, CF-0080, CF-0081, CF-0082` -> **28
+  total** in ledger), halting **8 Stage 4 PRs** (`#429, #435, #436, #441, #445, #450, #457`, Coherence `#89`) and **3
+  Stage 3 runs** (`0619, 0599, 0590`):
+  - **New blind spot (`CF-0080`, `HAC #450`):** `intent-check` did not warn when scoped `tests/test_preflight.py` was
+    `975` lines (near the `1,000`-line test file cap), so adding tests pushed it to `1,015L` and forced Stage 4 to
+    create `tests/test_preflight_cooldown.py` outside scope (`~45 min` wasted). Add a `>= 900L` test-cap proximity
+    warning / `(new)` test-file proposal in `intent-check`.
+  - **Missed rules & ignored companions:** `flow/lazy_exports_review.py` (`CF-0067`), `apps/sandbox-executor/README.md`
+    via `test_config_env.py` (`CF-0069`), `tests/test_*_integration.py` raw intent fixtures (`CF-0075`),
+    `launcher/*_mounts.py` (`CF-0077`), `flow/stages/review.py` + `tests/flow/stages/test_review_keeps_branch.py`
+    (`CF-0079`); and `run_holon_flow.py` still allowed launching even when `holon intent-check` explicitly proposed
+    `test_review_local_tests.py` (`CF-0070`), `tests/proxy/test_steps.py` (`CF-0074`), and
+    `scripts/ci_main_push_gate.py` (`CF-0076`).
+  - Note: `PR #437` (`stage4-resolver-touch-set`) and `PR #430` (`stage2-plan-in-intent-scope`) merged at
+    `23:38Z–23:41Z` (after those halts).

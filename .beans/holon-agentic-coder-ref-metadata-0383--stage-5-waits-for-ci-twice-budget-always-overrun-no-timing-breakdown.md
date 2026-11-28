@@ -11,7 +11,7 @@ tags:
   - performance
   - holon-agentic-coder
 created_at: 2026-11-23T12:40:00Z
-updated_at: 2026-11-27T15:55:01Z
+updated_at: 2026-11-28T00:03:58Z
 ---
 
 ## Problem
@@ -307,3 +307,9 @@ not the flow engine. The other recommendations for the whole flow are listed in 
   `chore(calibration)` — even though calibration work itself took only `16–29 s` (`median 20.0 s`). Stage 5 overran its
   10-minute budget on `HAC #425` (`14.9 min`, `886 s`), `HAC #426` (`11.7 min`, `692 s`), and `COH #85` (`13.7 min`,
   `822 s`; `COH #84` `8.8 min`, `COH #67` `7.5 min`).
+- **Audit evidence (`2026-11-28T00:01Z`, `31` merged PRs `#428..#456` and `#86..#94`):** With `0` target merges during
+  `15:55Z–23:38Z`, Stage 5 calibration work took `19–36 s` (`median 27.0 s`), yet final-head CI wait on
+  `chore(calibration)` took **`median 303.0 s` (`5.05 min`)**, **`max 933.0 s` (`15.55 min`, `COH #88`)** (Stage 5 total
+  `median 5.87 min`, `max 16.73 min`). Even on `HAC #456`, where `ci_bookkeeping_gate` skipped all test jobs on
+  `94835ba84`, Stage 5 still waited `14 s` registration + `148 s` (`162 s` / `2.7 min` total) for GitHub to spin up and
+  skip 16 workflow jobs.
